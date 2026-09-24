@@ -30,7 +30,7 @@ S 'daily done on 2026-08-28', 8, $snap->{daily}{'2026-08-28'}{done};
 S 'daily intake on 2026-08-03', 16, $snap->{daily}{'2026-08-03'}{intake};
 S 'velocity', '[8,2]', [ $snap->{velocity}{Alpha}{avg}, $snap->{velocity}{Bravo}{avg} ];
 S 'epics', '[["(none)","Auth",38,["Alpha"]],["(none)","Ops",40,["Bravo","Master"]],["(none)","Reporting",62,["Bravo"]]]', [ map { [ $_->{tome}, $_->{epic}, $_->{pct}, $_->{teams} ] } @{ $snap->{epics} } ];
-S 'tree', '[["(none)",3,"Auth",3,0]]', [ map { [ $_->{tome}, scalar @{ $_->{epics} }, $_->{epics}[0]{epic}, scalar @{ $_->{epics}[0]{tasks} }, $_->{epics}[0]{integration} ] } @{ $snap->{tree} } ];
+S 'tree', '[["(none)",3,"Auth",3,0,1,1]]', [ map { [ $_->{tome}, scalar @{ $_->{epics} }, $_->{epics}[0]{epic}, scalar @{ $_->{epics}[0]{tasks} }, $_->{epics}[0]{integration}, $_->{epics}[0]{open}, $_->{open} ] } @{ $snap->{tree} } ];
 S 'integration flag', 1, $snap->{tree}[0]{epics}[1]{integration};
 S 'brief', '["amber",1]', [ $snap->{brief}{level}, scalar @{ $snap->{brief}{bullets} } > 0 ? 1 : 0 ];
 S 'roadmap sprints', '[41,42,43,44,45]', $snap->{roadmap}{sprints};
@@ -56,8 +56,7 @@ S 'build time in the header (a shared screen shows it is live)', 1, ($html =~ /b
 S 'people tab: roster in the snapshot, view present', '[1,1,1]', do { my $p = cockpit_html($s, roster => [ { name => 'Bob', email => 'b@example.com', team => 'Alpha', role => 'Dev', org => 'ACME' } ], readback_clean_days => 3); [ ($p =~ /"roster":\[\{"email":"b\@example.com","name":"Bob","org":"ACME","role":"Dev","team":"Alpha"\}\]/ ? 1 : 0), ($p =~ /function viewPeople\(\)/ ? 1 : 0), ($p =~ /\['people','People'\]/ ? 1 : 0) ] };
 S 'snapshot keys', '["attendance","backlog","blocked","brief","cards","current","daily","days","epics","file","generated","marking","plates","plates_index","quad","quad_page","roadmap","roster","sprints","teams","training","tree","tutorial","unassigned","unit","velocity"]', [ sorted(keys %{ snapshot($s) }) ];
 S 'no plates file -> empty index', '[]', plates_index(undef);
-S 'quad in the snapshot: all + per team', '[["Alpha","Bravo"],["TODO","DONE","TODO"],31]', do { my $qq = snapshot($s)->{quad}; [ [ sorted(keys %{ $qq->{teams} }) ], [ map { $_->{tag} } @{ $qq->{all}{priorities} } ], $qq->{all}{metrics}{sprint}{pct} ] };
-S "quad OPEN from the days answers", '["OPEN"]', [ map { $_->{tag} } grep { $_->{id} eq 'AUTH-103' } @{ snapshot($s, days => [ { date => '2026-09-01', teams => { Alpha => { answered => 1, roster => 2, flags => [], answers => [ { who => 'Bob', y => '', t => 'AUTH-103 SSO', b => 'none' } ] } } } ])->{quad}{all}{priorities} } ];
+S 'quad in the snapshot: all + per team', '[["Alpha","Bravo"],["OPEN","DONE","OPEN"],31]', do { my $qq = snapshot($s)->{quad}; [ [ sorted(keys %{ $qq->{teams} }) ], [ map { $_->{tag} } @{ $qq->{all}{priorities} } ], $qq->{all}{metrics}{sprint}{pct} ] };
 has 'quad tab', $html, qr/function viewQuad\(\)/, qr/\['quad','Quad'\]/, qr/quad:viewQuad/;
 my $pl = "$FindBin::Bin/../data/demo/reports/plates.html";
 if (-f $pl) {

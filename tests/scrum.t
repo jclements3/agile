@@ -77,6 +77,7 @@ S 'unassigned',    '[]', [ unassigned($s) ];
 
 # ---- epics
 my @ep = epics($s);
+S 'epics open flag', '[1,0,1]', [ map { $_->{open} } epics($s) ];
 S 'epics', '[["(none)","Auth",3,21,8,13,0,38],["(none)","Ops",2,5,2,0,3,40],["(none)","Reporting",2,13,8,5,0,62]]', [ map { [ @{$_}{qw(tome epic)}, scalar @{ $_->{items} }, @{$_}{qw(total done wip backlog pct)} ] } @ep ];
 has 'epics_text', epics_text($s), qr/^Tome    Epic       Tasks  Total  Done  In sprint  Backlog  Done%$/m, qr/^\(none\)  Auth           3     21     8         13        0    38%$/m;
 has 'dashboard epics', dashboard_html($s), qr/<h2>Epics<\/h2>/;

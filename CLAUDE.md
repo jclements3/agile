@@ -153,11 +153,11 @@ scrum-specific knowledge (used standalone via `ledger.pl` too).
 - `lib/Attendance.pm` — parses a downloaded Teams "Attendance report" CSV into join/leave/minutes
   per person, reconciled against calendar responses.
 - `lib/Quad.pm` — the weekly quad, one page from the journal: Technical Priorities (this sprint's tasks tagged
-  TODO/OPEN/DONE/WAIT/HOLD/PUNT/DROP with REDO/PASS/SYNC marks; OPEN = mentioned in a Y/T status this week), Watch
+  TODO/OPEN/DONE/WAIT/HOLD/PUNT/DROP with REDO/PASS/SYNC marks), Watch
   Items ((PM) blocker older than 3 days or team over 110%; (WI) fresh blockers, holds, carryover, unassigned, load),
   Schedule Milestones (epics whose ETA falls 30/60/90 days out, pushed right / pulled left against the journal as it
   stood a week ago via `load(..., until => date)`), Accomplishments (done this week, on time unless ever carried over).
-  Its two metrics, Sprint Progress and On-Time Delivery, are in the header. `daily.pl quad [Team]`, `report` writes
+  Its two metrics, Sprint Progress and On-Time Delivery, are in the header. The owner's four-letter words: TODO = team backlog, OPEN = in a sprint (epics and tomes too), WAIT = blocked outside the team, HOLD = interrupted, PUNT = too hard as written, back to TODO (`punt ID why`), DROP = should not be done, REDO = demo found it wrong (`redo ID why`, last sprint's Done back into this one), PASS = another team should do it (`pass ID Team`), SYNC = coordinated across teams, shared DONE (`sync ID ID`). `daily.pl quad [Team]`, `report` writes
   `<date>-quad.html`/`.txt`, the cockpit has a Quad tab. `hold ID why` / `resume ID` are the stand-up verbs behind HOLD.
 - `bin/daily.pl` — the umbrella CLI (`init/new/cards/attend/joined/answers/chat/ai/compile/
   report/post/draft/commit/all/status/sprint/velocity/backlog/members/epics/blocked/meetings`)

@@ -6,8 +6,8 @@ syntax match standupCompiled /\%1l^#\s*compiled.*$/
 syntax match standupDate     /^\d\{4}-\d\{2}-\d\{2}$/
 syntax match standupTeam     /^==\+\s*\S\+.*$/
 syntax match standupSprint   /^sprint\s\+\d\+$/
-syntax keyword standupMove   done carry drop commit nextgroup=standupId skipwhite
-syntax keyword standupEdit   new new! est assign block unblock hold resume cap nextgroup=standupId skipwhite
+syntax keyword standupMove   done carry drop commit punt redo pass nextgroup=standupId skipwhite
+syntax keyword standupEdit   new new! est assign block unblock hold resume sync cap nextgroup=standupId skipwhite
 syntax keyword standupText   note risk absent
 syntax match   standupId     /[A-Za-z][A-Za-z0-9_]*-\d\+/ contained
 syntax match   standupMeta   /\<[peo]:\S\+/

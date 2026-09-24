@@ -41,7 +41,7 @@ my %cmds = (
     attend   => \&cmd_attend,  post    => \&cmd_post,    meetings => \&cmd_meetings, chat => \&cmd_chat,
     answers  => \&cmd_answers, ai      => \&cmd_ai,     joined   => \&cmd_joined,   cards => \&cmd_cards,  lint => \&cmd_lint, propose => \&cmd_propose,
     roster   => \&cmd_roster,  invite  => \&cmd_invite,
-    quad     => sub { my $s = $load->(); print quad_text($s, team => $_[0], open => _open_ids($s), marking => $conf) },
+    quad     => sub { my $s = $load->(); print quad_text($s, team => $_[0], marking => $conf) },
     sprint   => sub { print sprint_text($load->(), $_[0]) },
     velocity => sub { print velocity_text($load->()) },
     backlog  => sub { print backlog_text($load->(), $_[0]) },
@@ -94,18 +94,6 @@ sub _today_notes {
     my @files = grep { -f } map { "$conf->{standups}/$_" } grep { /^\Q$today\E.*\.txt$/ } do { opendir my $d, $conf->{standups} or return undef; my @f = readdir $d; closedir $d; sorted(@f) };
     @files ? day_notes(map { read_standup($_) } @files) : undef;
 }
-sub _open_ids {                                # ids mentioned in a Y/T status this week -> OPEN on the quad (TODO otherwise)
-    my $s = shift;
-    my $since = Quad::add_days($today, -7);
-    my %open;
-    opendir my $d, $conf->{standups} or return {};
-    for my $f (sorted(grep { /^(\d{4}-\d{2}-\d{2}).*-answers\.txt$/ && $1 gt $since && $1 le $today } readdir $d)) {
-        my $rec = eval { read_answers("$conf->{standups}/$f") } or next;
-        for my $a (@{ $rec->{answers} }) { $open{$_}++ for grep { $s->{items}{$_} } map { /\b([A-Z][A-Z0-9_]{0,9}-\d{1,6})\b/g } grep { defined } $a->{y}, $a->{t} }
-    }
-    closedir $d;
-    \%open;
-}
 sub _extra_text {                             # today's flags + AI assessment, for the status mail
     my $s = shift;
     my $out = '';
@@ -125,7 +113,6 @@ sub cmd_report {
     my $notes = _today_notes();
     $notes //= { date => $today, teams => {}, notes => [], risks => [], extra => '' };
     $notes->{extra} = _extra_text($s);
-    my $open = _open_ids($s);
     my $prev = load($conf->{journal}, today => Quad::add_days($today, -7), until => Quad::add_days($today, -7));   # the journal a week ago: the quad's trends
     my $n = $s->{current};
     my %out = (
@@ -140,8 +127,8 @@ sub cmd_report {
         "$conf->{reports}/$today-status.txt"   => email_text($s, $n, notes => $notes, marking => $conf),
         "$conf->{reports}/$today-brief.html"   => brief_html($s, $n, marking => $conf),
         "$conf->{reports}/$today-brief.txt"    => brief_text($s, $n, marking => $conf),
-        "$conf->{reports}/$today-quad.html"    => quad_html($s, open => $open, prev => $prev, marking => $conf),
-        "$conf->{reports}/$today-quad.txt"     => quad_text($s, open => $open, prev => $prev, marking => $conf),
+        "$conf->{reports}/$today-quad.html"    => quad_html($s, prev => $prev, marking => $conf),
+        "$conf->{reports}/$today-quad.txt"     => quad_text($s, prev => $prev, marking => $conf),
     );
     for my $f (sorted(keys %out)) {
         open my $fh, '>:encoding(UTF-8)', $f or die "cannot write $f: $!\n";

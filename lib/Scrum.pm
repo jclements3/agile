@@ -59,6 +59,10 @@ sub _index {
             $it->{"${k}_since"} = (defined $meta->{$k} && $meta->{$k} ne '') ? $p->{date} : undef;
         }
         my $pts = _num($p->{amount});
+        if ($pts > 0) {                       # the quad's transient marks end when the work moves on: a punt ends at the next commit, a redo or pass at Done
+            delete $it->{meta}{punt} if $acct =~ /:Committed$/ && !exists $meta->{punt};
+            delete @{ $it->{meta} }{qw(redo pass)} if $acct =~ /:Done$/;
+        }
         $it->{bal}{$acct} += $pts;
         push @{ $it->{history} }, { date => $p->{date}, payee => $p->{payee}, account => $acct, points => $pts };
     }
@@ -172,7 +176,7 @@ sub _velocity {
 sub _in_progress { my ($s, $team) = @_; (sprint_summary($s, $s->{current})->{teams}{$team}{open} // 0) > 0 }   # still has committed points
 
 # ---------------------------------------------------------------- epics & tomes (from task metadata epic: / tome:)
-sub epics {                                   # -> [ { epic, tome, total, done, wip, backlog, removed, pct, items => [...] } ] sorted by tome, epic
+sub epics {                                   # -> [ { epic, tome, total, done, wip, backlog, removed, pct, open, items => [...] } ] sorted by tome, epic
     my $s = shift;
     my $by = classify(sub { $_[0]{meta}{epic} // '(none)' }, items($s));
     my @out;
@@ -188,6 +192,7 @@ sub epics {                                   # -> [ { epic, tome, total, done, 
         }
         $r->{total} = $r->{done} + $r->{wip} + $r->{backlog};
         $r->{pct} = $r->{total} ? int(100 * $r->{done} / $r->{total} + 0.5) : 0;
+        $r->{open} = $r->{wip} > 0 ? 1 : 0;   # OPEN: an epic (and its tome) is open while any of its tasks is in a sprint
         push @out, $r;
     }
     sortOn(sub { [ $_[0]{tome}, $_[0]{epic} ] }, @out);
@@ -618,7 +623,7 @@ sub _integration_tree_html {                  # tome -> epic -> team breakdown: 
             push @{ $by_team{ $_->{team} // '(unassigned)' } }, $_ for @{ $e->{items} };
             my $nteams = scalar keys %by_team;
             $html .= sprintf "<details style=\"margin-left:16px\"><summary>%s <span class=muted>%d%% done &middot; %d/%d/%d done/wip/backlog</span>%s</summary>\n",
-                _h($e->{epic}), $e->{pct}, $e->{done}, $e->{wip}, $e->{backlog}, $nteams > 1 ? ' ' . _chip('warning', "$nteams teams &mdash; integration point") : '';
+                _h($e->{epic}), $e->{pct}, $e->{done}, $e->{wip}, $e->{backlog}, ($e->{open} ? ' ' . _chip('good', 'OPEN') : '') . $nteams > 1 ? ' ' . _chip('warning', "$nteams teams &mdash; integration point") : '';
             $html .= "<table><caption>Teams: " . _h("$tome > $e->{epic}") . "</caption><tr><th>Team</th><th class=n>Tasks</th><th class=n>SP</th><th class=n>Done SP</th></tr>\n";
             for my $team (sorted(keys %by_team)) {
                 my @it = @{ $by_team{$team} };

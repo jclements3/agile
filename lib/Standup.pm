@@ -66,6 +66,10 @@ sub find_conf {                               # walk up from cwd looking for scr
 #   unblock RPT-202
 #   hold OPS-301 pulled onto P1 fix   interrupted by higher-priority work (stays committed; shows HOLD on the quad)
 #   resume OPS-301
+#   punt AUTH-103 needs the SSO spec first   too hard as written (any reason): Committed -> team backlog (TODO) for replanning
+#   redo AUTH-101 demo found the reset mail unsent   found wrong after the demo: last sprint's Done -> this sprint's Committed
+#   pass RPT-202 Bravo               started it, another team should do it: -> Bravo's Committed, same sprint
+#   sync AUTH-104 RPT-203            coordinated across teams this sprint; they share DONE (neither counts until both are)
 #   cap 12                           team capacity for this sprint
 #   note Bob out Friday              free text -> report
 #   risk cert renewal slipping       free text -> report
@@ -93,7 +97,7 @@ sub parse_standup {
         if ($line =~ /^==+\s*(\S+)/)                  { $team = $1; push @{ $su->{order} }, $team unless $su->{teams}{$team};
                                                         $su->{teams}{$team} //= { team => $team, done => [], carry => [], drop => [], commit => [], new => [], est => [],
                                                                                   assign => [], block => [], unblock => [], note => [], risk => [], absent => [], cap => undef, sprint => undef,
-                                                                                  refine => [], prune => [], hold => [], resume => [] };
+                                                                                  refine => [], prune => [], hold => [], resume => [], punt => [], redo => [], pass => [], sync => [] };
                                                         next }
         my ($verb, $rest) = $line =~ /^(\S+)\s*(.*)$/;
         $verb = lc $verb;
@@ -102,6 +106,10 @@ sub parse_standup {
         my $t = $su->{teams}{$team};
         if    ($verb =~ /^(done|carry|drop|unblock|resume)$/) { push @{ $t->{$verb} }, split ' ', $rest }
         elsif ($verb eq 'hold')    { my ($id, $why) = split ' ', $rest, 2; $id ? push @{ $t->{hold} }, [ $id, $why // '' ] : $err->("hold needs an id") }
+        elsif ($verb eq 'punt')    { my ($id, $why) = split ' ', $rest, 2; $id ? push @{ $t->{punt} }, [ $id, $why // '' ] : $err->("punt needs an id") }
+        elsif ($verb eq 'redo')    { my ($id, $why) = split ' ', $rest, 2; $id ? push @{ $t->{redo} }, [ $id, $why // '' ] : $err->("redo needs an id") }
+        elsif ($verb eq 'pass')    { my ($id, $to) = split ' ', $rest; $id && $to ? push @{ $t->{pass} }, [ $id, $to ] : $err->("pass needs id and the receiving team") }
+        elsif ($verb eq 'sync')    { my @ids = split ' ', $rest; @ids >= 2 ? push @{ $t->{sync} }, \@ids : $err->("sync needs two or more ids") }
         elsif ($verb eq 'commit')  { my ($id, $owner) = split ' ', $rest; $id ? push @{ $t->{commit} }, [ $id, $owner ] : $err->("commit needs an id") }
         elsif ($verb eq 'assign')  { my ($id, $owner) = split ' ', $rest; $id && $owner ? push @{ $t->{assign} }, [ $id, $owner ] : $err->("assign needs id and owner") }
         elsif ($verb eq 'est')     { my ($id, $pts) = split ' ', $rest; $id && defined $pts && $pts =~ /^\d+(\.\d+)?$/ ? push @{ $t->{est} }, [ $id, $pts ] : $err->("est needs id and points") }
@@ -206,6 +214,37 @@ sub compile {                                 # compile($scrum_state, $standup) 
         for my $id (@{ $t->{unblock} }) { next unless $known->($id); push @post, _zero($id, $where->($id) || $committed, $unit, 'blocked:') }
         for my $b (@{ $t->{hold} })   { my ($id, $why) = @$b; next unless $known->($id); ($why //= '') =~ s/,/;/g; push @post, _zero($id, $where->($id) || $committed, $unit, "hold: " . ($why || 'yes')) }
         for my $id (@{ $t->{resume} }) { next unless $known->($id); push @post, _zero($id, $where->($id) || $committed, $unit, 'hold:') }
+        for my $p (@{ $t->{punt} }) {            # too hard as written (or any reason): out of the sprint, back on the team's TODO list for replanning
+            my ($id, $why) = @$p;
+            next unless $known->($id);
+            my $pts = $bal->($id, $committed);
+            if ($pts <= 1e-9) { push @err, "$su->{file}: '$id' is not committed in sprint $n for $team (at: " . ($where->($id) || 'nowhere') . "); punt is for committed work"; next }
+            push @post, $move->($id, $committed, "Backlog:$team", $pts);
+            ($why //= '') =~ s/,/;/g;
+            $post[-1] =~ s/\n\z/, punt: @{[ $why || 'yes' ]}\n/;
+        }
+        for my $r (@{ $t->{redo} }) {            # found wrong after the demo: last sprint's Done comes back into this sprint's commitment
+            my ($id, $why) = @$r;
+            next unless $known->($id);
+            my ($from) = grep { $bal->($id, $_) > 1e-9 } map { "Sprint:$_:$team:Done" } reverse @{ $s->{sprints} };
+            if (!$from) { push @err, "$su->{file}: '$id' is not Done for $team in any sprint (at: " . ($where->($id) || 'nowhere') . "); redo is for finished work"; next }
+            push @post, $move->($id, $from, $committed, $bal->($id, $from));
+            ($why //= '') =~ s/,/;/g;
+            $post[-1] =~ s/\n\z/, redo: @{[ $why || 'yes' ]}\n/;
+        }
+        for my $p (@{ $t->{pass} }) {            # started it, found another team should do it: whole task to that team's commitment in the same sprint
+            my ($id, $to_team) = @$p;
+            next unless $known->($id);
+            my $pts = $bal->($id, $committed);
+            if ($pts <= 1e-9) { push @err, "$su->{file}: '$id' is not committed in sprint $n for $team (at: " . ($where->($id) || 'nowhere') . "); pass is for committed work"; next }
+            push @post, $move->($id, $committed, "Sprint:$n:$to_team:Committed", $pts);
+            $post[-1] =~ s/\n\z/, pass: from $team, owner:\n/;   # the receiving team assigns an owner
+        }
+        for my $g (@{ $t->{sync} }) {            # tasks coordinated across teams this sprint: each carries the others; DONE is shared (Quad.pm)
+            my @ids = grep { $known->($_) } @$g;
+            next if @ids < 2;
+            for my $id (@ids) { push @post, _zero($id, $where->($id) || $committed, $unit, 'sync: ' . join(' ', grep { $_ ne $id } @ids)) }
+        }
 
         $out .= "$su->{date} Standup $team\n" . join('', @post) . "\n" if @post;
     }
@@ -325,7 +364,8 @@ Verbs: C<done carry drop> (Committed to Done / Carryover / Removed),
 C<commit ID [owner]> (from the team backlog, master backlog or last sprint's
 carryover into this sprint), C<new ID PTS title [p:N e:Epic o:Owner]> (intake
 to the team backlog; C<new!> puts it straight into the sprint), C<est ID PTS>,
-C<assign ID owner>, C<block ID reason>, C<unblock ID>, C<hold ID reason>, C<resume ID>, C<cap N>, and the
+C<assign ID owner>, C<block ID reason>, C<unblock ID>, C<hold ID reason>, C<resume ID>,
+C<punt ID reason>, C<redo ID reason>, C<pass ID Team>, C<sync ID ID...>, C<cap N>, and the
 report-only C<note>, C<risk>, C<absent>. C<;> and C<#> start comments, so the
 C<; open:> lines the template writes are ignored.
 

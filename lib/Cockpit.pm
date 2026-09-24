@@ -105,10 +105,8 @@ sub snapshot {                                # snapshot($s, days => [...], atte
     my @epics = map { { tome => $_->{tome}, epic => $_->{epic}, n => scalar @{ $_->{items} }, total => $_->{total}, done => $_->{done}, wip => $_->{wip}, backlog => $_->{backlog}, removed => $_->{removed}, pct => $_->{pct},
                         teams => [ sorted(keys %{{ map { ($_->{team} // '?') => 1 } @{ $_->{items} } }}) ] } } epics($s);
 
-    my %open;                                 # ids mentioned in a Y/T status in the days given -> OPEN on the quad
-    for my $d (@{ $o{days} // [] }) { for my $t (values %{ $d->{teams} }) { for my $a (@{ $t->{answers} // [] }) { $open{$_}++ for grep { $s->{items}{$_} } map { /\b([A-Z][A-Z0-9_]{0,9}-\d{1,6})\b/g } grep { defined } $a->{y}, $a->{t} } } }
     my $prev = load($s->{file}, today => Quad::add_days($s->{today}, -7), until => Quad::add_days($s->{today}, -7));
-    my %quad = (all => quad($s, open => \%open, prev => $prev), teams => { map { my $t = $_; ($t => quad($s, team => $t, open => \%open, prev => $prev)) } @{ $s->{teams} } });
+    my %quad = (all => quad($s, prev => $prev), teams => { map { my $t = $_; ($t => quad($s, team => $t, prev => $prev)) } @{ $s->{teams} } });
     my $rm = roadmap($s);
     { my %last;                               # last dated Sprint posting per epic: the Gantt's "actual to" when later than today
       for my $it (items($s)) { my $k = ($it->{meta}{tome} // '(none)') . "\0" . ($it->{meta}{epic} // '(none)');
@@ -117,8 +115,8 @@ sub snapshot {                                # snapshot($s, days => [...], atte
     my @tree;
     { my %by; push @{ $by{ $_->{tome} } }, $_ for epics($s);
       for my $tome (sorted(keys %by)) {
-          push @tree, { tome => $tome, epics => [ map { my $e = $_; my @t = sorted(keys %{{ map { ($_->{team} // '?') => 1 } @{ $e->{items} } }});
-                            { epic => $e->{epic}, pct => $e->{pct}, total => $e->{total}, done => $e->{done}, teams => \@t, integration => (@t > 1 ? 1 : 0),
+          push @tree, { tome => $tome, open => ((grep { $_->{open} } @{ $by{$tome} }) ? 1 : 0), epics => [ map { my $e = $_; my @t = sorted(keys %{{ map { ($_->{team} // '?') => 1 } @{ $e->{items} } }});
+                            { epic => $e->{epic}, pct => $e->{pct}, total => $e->{total}, done => $e->{done}, teams => \@t, integration => (@t > 1 ? 1 : 0), open => $e->{open},
                               tasks => [ map { _item($_) } @{ $e->{items} } ] } } @{ $by{$tome} } ] };
       } }
 
@@ -235,7 +233,7 @@ svg.gantt{width:100%;height:auto;background:var(--surface);border:1px solid var(
 a.btn{font:inherit;font-size:12px;padding:3px 10px;border:1px solid var(--navy);background:var(--navy);color:#fff;border-radius:4px;text-decoration:none;margin-left:auto}a.btn+a.btn{margin-left:8px}
 table.statuses{margin:4px 0 10px}table.statuses td:nth-child(2),table.statuses td:nth-child(3),table.statuses td:nth-child(4){max-width:420px}table.statuses tr.assumed td{color:var(--ink2);font-style:italic}b.id{color:var(--navy);font-weight:600}
 .quad{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quad .q{border:1px solid var(--grid);border-top:4px solid var(--navy);border-radius:6px;background:var(--surface);padding:6px 10px}.quad h3{margin:2px 0 4px}.quad h4{margin:6px 0 2px;font-size:12px;color:var(--olive)}.quad table{width:100%}
-.qtag{display:inline-block;min-width:38px;text-align:center;border-radius:3px;padding:0 4px;font-size:10px;font-weight:700;color:#fff;background:var(--muted)}.qtag.DONE{background:var(--good)}.qtag.OPEN{background:var(--navy)}.qtag.WAIT{background:var(--critical)}.qtag.HOLD,.qtag.PUNT{background:#c98500}.qtag.DROP{background:#555}
+.qtag{display:inline-block;min-width:38px;text-align:center;border-radius:3px;padding:0 4px;font-size:10px;font-weight:700;color:#fff;background:var(--muted)}.qtag.DONE{background:var(--good)}.qtag.OPEN{background:var(--navy)}.qtag.WAIT{background:var(--critical)}.qtag.HOLD{background:#c98500}.qtag.PUNT{background:var(--critical)}.qtag.DROP{background:#555}
 .qmark{display:inline-block;border:1px solid var(--olive);color:var(--olive);border-radius:3px;padding:0 3px;font-size:9px;margin-left:3px}.quad td.ok{color:var(--good);font-weight:700}.quad td.late{color:var(--critical);font-weight:700}.quad td.slip{color:#c98500;font-weight:700}
 @media(max-width:900px){.quad{grid-template-columns:1fr}}
 .legend{font-size:11px;color:var(--ink2);margin:2px 0 8px}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 3px 0 8px;vertical-align:-1px}
@@ -380,7 +378,7 @@ function viewBacklog(){
   s += '<div class="tree">' + S.tree.map(function(tm){
     var eps = tm.epics.map(function(e){ var tasks = e.tasks.filter(function(t){ return (!team || t.team === team) && (!state.openOnly || (t.state === 'committed' || t.state === 'carryover' || t.state === 'backlog' || t.state === 'master')) && (!q || [t.id, t.title, t.owner, e.epic, tm.tome, t.team].join(' ').toLowerCase().indexOf(q) >= 0); });
       if (!tasks.length) return ''; shown += tasks.length;
-      return '<details class="epic"' + (q || team ? ' open' : '') + '><summary>' + h(e.epic) + ' <span class="muted">' + e.done + '/' + e.total + ' ' + S.unit + ' (' + e.pct + '%) &middot; ' + tasks.length + ' task' + (tasks.length === 1 ? '' : 's') + '</span> ' + e.teams.map(function(t){ return '<span class="tag">' + h(t) + '</span>'; }).join('') + (e.integration ? ' ' + chip('warning', 'integration point') : '') + '</summary>' + itemsTable(tasks, null, ['id','pts','prio','owner','team','state','sprint','title','blocked']) + '</details>'; }).join('');
+      return '<details class="epic"' + (q || team ? ' open' : '') + '><summary>' + h(e.epic) + (e.open ? ' <span class="qtag OPEN">OPEN</span>' : '') + ' <span class="muted">' + e.done + '/' + e.total + ' ' + S.unit + ' (' + e.pct + '%) &middot; ' + tasks.length + ' task' + (tasks.length === 1 ? '' : 's') + '</span> ' + e.teams.map(function(t){ return '<span class="tag">' + h(t) + '</span>'; }).join('') + (e.integration ? ' ' + chip('warning', 'integration point') : '') + '</summary>' + itemsTable(tasks, null, ['id','pts','prio','owner','team','state','sprint','title','blocked']) + '</details>'; }).join('');
     if (!eps) return '';
     return '<details open><summary>' + h(tm.tome) + ' <span class="muted">' + tm.epics.length + ' epics</span></summary>' + eps + '</details>'; }).join('') + '</div>';
   s += '<h3>Master backlog <span class="muted">' + S.backlog.master.length + ' tasks</span></h3>' + (S.backlog.master.length ? itemsTable(S.backlog.master, null, ['id','pts','prio','tome','epic','owner','age','title']) : '<p class="muted">empty</p>');
@@ -482,8 +480,8 @@ function viewQuad(){
     tile(m.ontime.week_ontime + '/' + m.ontime.week_total, 'On time this week') + tile(m.ontime.sprint_ontime + '/' + m.ontime.sprint_total, 'On time this sprint', m.ontime.sprint_total && m.ontime.sprint_ontime / m.ontime.sprint_total < 0.8 ? 'warning' : '') + '</div>';
   s += '<div class="quad">';
   s += '<div class="q"><h3>Technical priorities</h3>' + (q.priorities.length ? '<table><tr><th></th><th>ID</th><th>Task</th>' + (q.team ? '' : '<th>Team</th>') + '<th>Owner</th><th class=n>' + h(S.unit) + '</th></tr>' +
-    (function(rows){ if (rows.length <= 12) return rows.map(row).join(''); var d = rows.filter(function(p){ return p.tag === 'DONE'; }); return rows.filter(function(p){ return p.tag !== 'DONE'; }).map(row).join('') + (d.length ? '<tr><td><span class="qtag DONE">DONE</span></td><td colspan=' + (q.team ? 4 : 5) + '><span class="muted">' + d.length + ' done: </span>' + d.map(function(p){ return h(p.id); }).join(', ') + '</td></tr>' : ''); })(q.priorities) + '</table>' : '<p class="muted">nothing in the sprint</p>') +
-    '<div class="legend">TODO not started \u00b7 OPEN in progress \u00b7 DONE \u00b7 WAIT blocked \u00b7 HOLD interrupted \u00b7 PUNT carried over \u00b7 DROP removed \u00b7 REDO reopened \u00b7 PASS handed off \u00b7 SYNC interface</div></div>';
+    (function(rows){ if (rows.length <= 12) return rows.map(row).join(''); var d = rows.filter(function(p){ return p.tag === 'DONE'; }); return rows.filter(function(p){ return p.tag !== 'DONE'; }).map(row).join('') + (d.length ? '<tr><td><span class="qtag DONE">DONE</span></td><td colspan=' + (q.team ? 4 : 5) + '><span class="muted">' + d.length + ' done: </span>' + d.map(function(p){ return h(p.id); }).join(', ') + '</td></tr>' : ''); })(q.priorities) + '</table>' + (q.todo_more ? '<p class="muted">+' + q.todo_more + ' more on the TODO list</p>' : '') : '<p class="muted">nothing in the sprint or on the TODO list</p>') +
+    '<div class="legend">TODO on the backlog \u00b7 OPEN in the sprint \u00b7 DONE \u00b7 WAIT blocked outside the team \u00b7 HOLD interrupted \u00b7 PUNT too hard as written, back to TODO \u00b7 DROP should not be done \u00b7 REDO demo found it wrong \u00b7 PASS moved to the right team \u00b7 SYNC shared DONE across teams</div></div>';
   function row(p){ return '<tr><td><span class="qtag ' + p.tag + '">' + p.tag + '</span></td><td><b class="id">' + h(p.id) + '</b></td><td>' + h(p.title) + p.marks.map(function(k){ return '<span class="qmark">' + h(k) + '</span>'; }).join('') + (p.why ? ' <span class="muted">' + h(p.why) + '</span>' : '') + '</td>' + (q.team ? '' : '<td>' + h(p.team || '') + '</td>') + '<td>' + h(p.owner || '\u2014') + '</td><td class=n>' + h(p.pts) + '</td></tr>'; }
   s += '<div class="q"><h3>Watch items / PM help needed</h3>' + (q.watch.length ? '<table><tr><th></th><th>ID</th><th>Team</th><th>Owner</th><th>Item</th></tr>' +
     q.watch.map(function(w){ return '<tr><td>' + chip(w.kind === 'PM' ? 'critical' : 'warning', '(' + w.kind + ')') + '</td><td><b class="id">' + h(w.id) + '</b></td><td>' + h(w.team || '') + '</td><td>' + h(w.owner || '\u2014') + '</td><td>' + h(w.text) + '</td></tr>'; }).join('') + '</table>' : '<p class="muted">nothing to watch</p>') +
@@ -493,7 +491,7 @@ function viewQuad(){
   s += '<div class="q"><h3>Accomplishments <span class="muted">since ' + h(q.since) + '</span></h3>' + ((q.accomplishments.length || q.slipped.length) ? '<table>' +
     q.accomplishments.map(function(a){ return '<tr><td class="' + (a.ontime ? 'ok' : 'late') + '">' + (a.ontime ? '\u2713' : '\u2717') + '</td><td><b class="id">' + h(a.id) + '</b></td><td>' + h(a.title) + '</td><td>' + h(a.owner || '\u2014') + '</td><td class=n>' + h(a.pts) + '</td></tr>'; }).join('') +
     q.slipped.map(function(a){ return '<tr><td class="slip">!</td><td><b class="id">' + h(a.id) + '</b></td><td colspan=3>' + h(a.title) + ' <span class="muted">' + h(a.why) + '</span></td></tr>'; }).join('') + '</table>' : '<p class="muted">nothing finished this week</p>') +
-    '<div class="legend">\u2713 on time \u00b7 \u2717 late (was carried over) \u00b7 ! a priority that slipped this week</div></div>';
+    '<div class="legend">\u2713 on time \u00b7 \u2717 late (carried over, or rework after the demo) \u00b7 ! a priority that slipped this week</div></div>';
   return s + '</div>';
 }
 function viewPeople(){

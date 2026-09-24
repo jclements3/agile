@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pilot plan: small group to ten teams</title>
+<style>
+  :root{--navy:#27235d;--gold:#e6af22;--olive:#6b7436;--grey:#808082;--lgrey:#e4e4e7;--ink:#0b0b0b}
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 13.5px; color: var(--ink); background: #fff; max-width: 960px; margin: 0 auto; padding: 14px 22px 40px; line-height: 1.5; }
+  h1 { font-size: 20px; color: var(--navy); border-bottom: 3px solid var(--gold); padding-bottom: 4px; margin: 0 0 4px; }
+  h2 { font-size: 15px; color: var(--navy); margin: 26px 0 6px; border-bottom: 1px solid var(--lgrey); padding-bottom: 3px; }
+  .sub { color: var(--grey); margin: 0 0 12px; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 12.5px; }
+  pre { background: #1a1a19; color: #e6e4dc; padding: 10px 14px; border-radius: 6px; overflow-x: auto; margin: 6px 0 12px; }
+  code { background: var(--lgrey); padding: 0 4px; border-radius: 3px; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; }
+  th, td { border: 1px solid var(--lgrey); padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--lgrey); font-weight: 600; }
+  .gate { border-left: 4px solid var(--olive); background: #f3f5ee; padding: 6px 12px; margin: 10px 0; }
+  .warn { border-left: 4px solid #d6292e; background: #fbeaea; padding: 6px 12px; margin: 10px 0; }
+  ul li { margin: 3px 0; }
+  input[type=checkbox] { margin-right: 6px; }
+</style>
+</head>
+<body>
+
+<h1>Pilot plan: one team to ten</h1>
+<p class="sub">Debug the rhythm with a few people who will forgive you, grow only when the exit gate is met, keep every phase in its own project directory.</p>
+
+<h2>Principles</h2>
+<ul>
+<li><b>One project per phase.</b> <code>data/pilot1</code>, <code>data/pilot2</code>… Each is its own journal and git repo (<code>daily.pl init</code>). A phase that goes wrong is deleted, not repaired; a phase that goes right is the template for the next.</li>
+<li><b>Grow by gates, not by dates.</b> The next phase starts when the current one has met its exit gate for three consecutive days, not on a calendar.</li>
+<li><b>Features come on one at a time.</b> Start with the minimum (Y/T/B in chat, <code>answers</code>, <code>compile</code>, <code>report</code>). <code>lint</code>, <code>propose</code>, <code>--assume</code>, <code>ai</code> and the mails switch on later, each once the phase below it is boring.</li>
+<li><b>Measure the architect, not just the teams.</b> Time yourself from "meeting ends" to "commit done" every day. That number is the real gate.</li>
+</ul>
+
+<h2>Phase 0 — you alone (2 days, already done in the training replay)</h2>
+<p>Run <code>docs/TRAINING.html</code> end to end once more, then a dry day against <code>data/demo</code>: paste a chat you wrote yourself, <code>answers</code>, <code>compile</code>, <code>report</code>, open the cockpit. Purpose: muscle memory for the two minutes after the townhall.</p>
+
+<h2>Phase 0b — the lab: rehearse the whole loop without a team</h2>
+<pre>cd data/lab                                        # a two-team, seven-person project (Jim is on Alpha); re-create with daily.pl init if you break it
+perl ../../sim/rehearsal.pl --seed 3 --mistakes 4 --silent 1     # writes standups/&lt;today&gt;-chat.txt: a realistic Teams paste with the usual mistakes, answer key on stderr
+perl ../../bin/daily.pl lint | lint --reply | answers --guess --assume | compile | report ; perl ../../agile.pl data/lab</pre>
+<p>Change the seed for a different day. Every mistake in the generator is one you will see in week one; the answer key says what
+lint and answers should make of each, so you can check the tool and your own reflexes before a single colleague is involved.
+Run it under Git for Windows' Perl (<code>"/c/Program Files/Git/usr/bin/perl.exe"</code> from Git Bash is just <code>perl</code>) -- that is the target.</p>
+
+<h2>Phase 1 — one team, 4 to 6 friendly people (1 sprint, 2 weeks)</h2>
+<pre>mkdir data/pilot1 && cd data/pilot1 && perl ../../bin/daily.pl init .      # scrum.conf: calendar = mock until Outlook is trusted
+vim scrum.conf   roster.txt                                                # recipients, mail_domains; Name, email per person
+# backlog: 10-15 real tasks from the team's actual work, typed once (new ID PTS title p: e: t: o:)</pre>
+<table>
+<tr><th>Switched on</th><th>Off for now</th></tr>
+<tr><td>Meeting chat Y/T/B (bare form: <code>Y did B-11 T doing B-12 B none</code>) · <code>:SChat :SAnswers :SNew :SCompile :SReport</code> · cockpit Daily/Sprint tabs · <code>lint</code> for yourself</td>
+<td><code>propose</code>, <code>--assume</code>, <code>--private</code>, AI, status mails, cards, calendar attendance, brief</td></tr>
+</table>
+<p>What you are debugging: the message format people actually type; the id discipline; whether <code>answers</code> splits the joint chat correctly; your own time budget. Post the format once at the top of the chat each morning; correct in the room, kindly, by reposting the good example.</p>
+<div class="gate"><b>Exit gate:</b> three consecutive days with ≥80% of answers parsed with no lint error, every answer carrying a task id, and you done (compile+report+commit) within 10 minutes of the meeting ending.</div>
+
+<h2>Phase 2 — three teams, ~25 people (1 sprint)</h2>
+<p>Same file, three <code>== Team</code> sections. Add the first cross-team task (an interface epic spanning two teams) so the integration-point flag and the roadmap have something real.</p>
+<table>
+<tr><th>Switch on</th><th>Why now</th></tr>
+<tr><td><code>lint --reply</code> during the meeting</td><td>Enough volume that reading every line stops being viable; corrections need to be fast.</td></tr>
+<tr><td><code>propose</code> in the public chat</td><td>Proposals are neutral and cut typing; they teach the format better than a rule does.</td></tr>
+<tr><td>Team leads type their own <code>== Team</code> section</td><td>Your time budget will not survive ten teams otherwise. Start the habit at three.</td></tr>
+<tr><td>Status mail to the three leads, cockpit Weekly/Backlog tabs</td><td>First real readers; find the wording they skip.</td></tr>
+</table>
+<div class="gate"><b>Exit gate:</b> three consecutive days with ≥90% parse rate, a lead's section compiled without your edits, one integration blocker raised and cleared through the journal, you done within 15 minutes.</div>
+
+<h2>Phase 3 — all ten teams, ~100 people (2 sprints)</h2>
+<table>
+<tr><th>Switch on</th><th>Why now</th></tr>
+<tr><td><code>--private</code> corrections</td><td>At 100 people a public "did you mean" is noise; 1:1 is kinder and quieter.</td></tr>
+<tr><td><code>answers --assume</code> (after sprint 1 of this phase)</td><td>Only once the format is settled — otherwise red flags measure the tool, not the people.</td></tr>
+<tr><td>Leadership brief, calendar attendance, cards, AI summary</td><td>The audience and the volume that justify them exist now.</td></tr>
+</table>
+<div class="gate"><b>Exit gate = go-live:</b> a full sprint where the roadmap forecast moved for a reason you can name, the brief went out daily without edits, and the sprint review used only generated reports.</div>
+
+<h2>Daily debug log (keep it in the pilot's git repo)</h2>
+<pre>standups/NOTES.txt      one line per day:  date | people | parse% | lint errors | minutes-to-commit | what broke | what changed</pre>
+<p>Every "what broke" that is the kit's fault becomes a test in <code>tests/</code> before the fix; every one that is a habit becomes a line in <a href="TUTORIAL.html">TUTORIAL.html</a>. The debug log is also your evidence at go-live that the rhythm was tested, not assumed.</p>
+
+<h2>Things that will go wrong, in the order they usually do</h2>
+<ul>
+<li>People type prose without ids → the "no task id" warning; fix with proposals, not reminders.</li>
+<li>Names in the chat don't match owners in the journal (nickname, middle initial) → "unknown team for"; fix <code>o:</code> on the tasks to match how Teams displays them.</li>
+<li>Someone answers for a colleague → flag "working X owned by Y"; decide the rule (allowed, note it) and write it down.</li>
+<li>A lead's section rejected by <code>compile</code> → the error lists every line; teach <code>:SDry</code>.</li>
+<li>Your own time creeps past 15 minutes → you are reading chat instead of flags; stop.</li>
+</ul>
+<div class="warn">Do not run the pilot in <code>data/demo</code>: <code>sim/training.pl</code> wipes that directory.</div>
+
+</body>
+</html>

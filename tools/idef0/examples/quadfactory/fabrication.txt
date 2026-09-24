@@ -1,0 +1,11 @@
+# -*- mode: idef0 -*-
+tF Fabrication
+  a# Cut Frame Parts
+    i# Carbon Sheet Stock
+    c# Quad Spec < D|Define Quad Spec|Quad Spec
+    o# Frame Kit > A|Build Airframe|Frame Kit
+    m# CNC Router
+  a# Print Mounts
+    i# Filament Stock
+    o# Mount Set > A|Build Airframe|Mount Set
+    m# 3D Printer

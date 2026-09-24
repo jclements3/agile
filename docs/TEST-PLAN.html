@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Laptop test plan — Calendar.pm against real Outlook/Teams</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a;
+         max-width: 960px; margin: 2em auto; padding: 0 1.5em; line-height: 1.5; }
+  h1 { font-size: 17pt; border-bottom: 2px solid #444; padding-bottom: 0.2em; }
+  h2 { font-size: 13pt; margin-top: 1.8em; border-bottom: 1px solid #999; padding-bottom: 0.15em; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  pre { background: #f4f4f4; border: 1px solid #ddd; padding: 0.8em 1em; overflow-x: auto; }
+  code { background: #f4f4f4; padding: 0.1em 0.3em; }
+  ul, ol { margin: 0.5em 0; }
+  li { margin: 0.3em 0; }
+</style>
+</head>
+<body>
+
+<h1>Laptop test plan — Calendar.pm against real Outlook/Teams</h1>
+
+<p>Everything above the COM layer is tested offline (tests/calendar.t, 75 tests; tests/standup.t covers
+daily.pl attend/post on the mock). This session verifies the one untested layer: PowerShell +
+Outlook COM on the target Windows machine. Budget 30 minutes. Do it in this order; each step
+isolates one thing.</p>
+
+<h2>0. Baseline (2 min)</h2>
+<pre>cd ~/tools/agile && for t in tests/*.t; do perl $t | tail -1; done       # all pass on Git Bash Perl?
+powershell.exe -NoProfile -Command '$PSVersionTable.PSVersion; Get-ExecutionPolicy -List'</pre>
+<p>Note the version. -EncodedCommand is used, so execution policy should not matter; if
+powershell.exe itself is blocked by AppLocker, stop here — the calendar layer needs another
+route (Excel VBA/Outlook VBA are the fallbacks).</p>
+
+<h2>1. COM reachable (3 min)</h2>
+<pre>powershell.exe -NoProfile -Command '$o = New-Object -ComObject Outlook.Application; $o.Version; $o.GetNamespace("MAPI").GetDefaultFolder(9).Items.Count'</pre>
+<p>Expect a version and an item count. Failures here are environment (Outlook not running as the
+same user, COM blocked, "new Outlook" instead of classic — the new Outlook has no COM, use classic).</p>
+
+<h2>2. Round trip (5 min)</h2>
+<pre>perl bin/cal.pl list                    # today
+perl bin/cal.pl list --from 2026-09-22 --to 2026-09-26</pre>
+<p>Check: stand-ups appear, times are local, recurring ones expand, attendee counts look right,
+"Teams" shows on Teams meetings. Then keep a fixture for offline work:</p>
+<pre>perl bin/cal.pl dump --from 2026-09-22 --to 2026-09-26 &gt; examples/cal-real.json</pre>
+<p>(review it before committing anywhere; it contains names and e-mail addresses)</p>
+
+<p>What to fix if it fails, all in lib/Calendar.pm near the bottom:</p>
+<ul>
+<li>JSON errors / nothing listed: run <code>perl bin/cal.pl ps &gt; /tmp/x.ps1</code>, then
+  <code>powershell.exe -NoProfile -File /tmp/x.ps1</code> to see the raw error.</li>
+<li>Empty list but Outlook shows meetings: <code>_psdate</code> — Restrict wants the machine locale's date
+  format; en-US MM/dd/yyyy is assumed. Try <code>Get-Culture</code> and adjust.</li>
+<li>Teams meetings not flagged: <code>_norm_event</code> teams detection (body link or location text).</li>
+<li>Odd characters in names: the UTF-8 console setting at the top of the script.</li>
+</ul>
+
+<h2>3. Attendance (5 min)</h2>
+<pre>perl bin/cal.pl attend stand
+perl bin/daily.pl attend            # from the scrum project dir</pre>
+<p>Check names and response states against what Outlook shows in the meeting's Tracking tab.
+Known gap: MeetingResponseStatus is what Exchange tracked, i.e. who accepted the invite, not who
+joined the Teams call. Actual attendance still comes from the <code>absent</code> lines you type (Teams
+attendance reports live in Teams, not in the calendar item; not reachable from COM).</p>
+
+<h2>4. Post metrics (5 min) — use a test meeting you organise, not the real stand-up</h2>
+<pre>perl bin/cal.pl create --subject "COM test" --start 2026-09-23T16:00 --no-display
+perl bin/cal.pl post "COM test" --text "hello from Perl"</pre>
+<p>Open the meeting in Outlook: body should contain the text. Then on a recurring meeting you own:</p>
+<pre>perl bin/cal.pl post "Alpha Stand-up" --file reports/2026-09-23-status.txt</pre>
+<p>Check only today's occurrence changed. Only then try <code>--send</code> once, on the test meeting,
+and confirm attendees get an update rather than a new invite.</p>
+
+<h2>5. Create (3 min)</h2>
+<pre>perl bin/cal.pl create --subject "Charlie Stand-up" --start 2026-10-01T09:40 --attendee a@x.example --weekdays</pre>
+<p>The invite window should open with attendees and Mon–Fri recurrence; press the Teams Meeting
+button (or confirm it was added automatically), then Send or discard.</p>
+
+<h2>6. Wire into the rhythm (2 min)</h2>
+<p>scrum.conf: <code>standup_match</code>, <code>team_from_subject</code> (test: <code>perl bin/daily.pl attend</code> names the
+right team per meeting), <code>attendance</code>. Then the day is:</p>
+<pre>:SNew  →  daily.pl attend  →  stand-up, type notes  →  :SAll --draft  →  daily.pl post</pre>
+
+<h2>Record</h2>
+<p>Paste results here: PS version, Outlook version, classic/new, what failed, what you changed.</p>
+
+<h2>7. Your AI service (5 min, after the calendar steps)</h2>
+<pre>perl bin/daily.pl answers            # needs a pasted chat in standups/&lt;date&gt;-&lt;Team&gt;-chat.txt
+perl bin/daily.pl ai                 # ai_backend = paste: writes reports/&lt;date&gt;-ai-prompt.txt</pre>
+<p>Paste the prompt into your AI service (check your organisation allows it for the data;
+a paste window is enough; an OpenAI-style endpoint works too),
+save the reply as reports/&lt;date&gt;-ai-response.txt, then <code>perl bin/daily.pl report</code> and confirm
+the "AI assessment" block appears. If the service exposes an OpenAI-style endpoint you are
+allowed to call, set ai_backend = curl, ai_url, ai_model, ai_key_env and re-run <code>ai</code>; add
+<code>ai_curl_args = --cacert &lt;your CA roots .pem&gt;</code> if curl rejects the certificate.</p>
+
+<h2>8. Cards, attendance download, joint block (10 min)</h2>
+<pre>perl bin/daily.pl cards              # opens reports/&lt;date&gt;-cards.html; click one "send in Teams" link:
+                                     # Teams must open a 1:1 chat with the card pre-filled. Press Enter to send.
+perl bin/daily.pl cards --draft      # N Outlook drafts (one per member). Then once, on yourself only:
+perl bin/daily.pl cards --send       # if Outlook shows "a program is trying to send e-mail", COM send is
+                                     # policy-blocked here; use the Teams links or --draft.</pre>
+<p>After a real meeting: Attendance tab &gt; Download, save to standups/&lt;date&gt;-attendance.csv,</p>
+<pre>perl bin/daily.pl joined             # join/leave/minutes per person; names mapped to teams</pre>
+<p>Check the report's separators/encoding survived (UTF-16 tab and UTF-8 comma are both handled);
+if names come out mangled, keep the file and adjust Attendance::decode_bytes.</p>
+
+</body>
+</html>

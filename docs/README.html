@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scrum battle-rhythm kit</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a;
+         max-width: 960px; margin: 2em auto; padding: 0 1.5em; line-height: 1.5; }
+  h1 { font-size: 18pt; border-bottom: 2px solid #444; padding-bottom: 0.2em; }
+  h2 { font-size: 14pt; margin-top: 2em; border-bottom: 1px solid #999; padding-bottom: 0.15em; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  pre { background: #f4f4f4; border: 1px solid #ddd; padding: 0.8em 1em; overflow-x: auto; }
+  code { background: #f4f4f4; padding: 0.1em 0.3em; }
+  ul, ol { margin: 0.5em 0; }
+  li { margin: 0.3em 0; }
+  a { color: #0b5cad; }
+</style>
+</head>
+<body>
+
+<h1>Scrum battle-rhythm kit — core Perl + Vim + Git, nothing to install</h1>
+
+<p>Runs on Git for Windows' Perl. No CPAN, nothing to install, no network.</p>
+
+<pre>lib/Prelude.pm   functional toolkit            tests/prelude.t   223 tests
+lib/Ledger.pm    plain-text double-entry engine tests/ledger.t     83 tests
+lib/Scrum.pm     sprints, backlogs, members, dashboard, e-mail, Outlook   tests/scrum.t   85 tests
+lib/Standup.pm   terse stand-up notes -> journal                          tests/standup.t 102 tests
+lib/Calendar.pm  Outlook/Teams calendar: attendance, post metrics, create tests/calendar.t 75 tests (COM layer: see TEST-PLAN.html)
+lib/Chat.pm      pasted Teams meeting chat -> vote and estimate tallies    tests/chat.t     55 tests
+lib/Answers.pm   the three questions answered in chat -> records, flags   tests/answers.t  71 tests
+lib/Ai.pm        prompt pack for your AI service, paste/curl/mock, ingest
+lib/Attendance.pm Teams attendance report download -> join/leave/minutes      tests/attendance.t 52 tests
+bin/daily.pl     the daily driver          bin/scrum.pl, bin/ledger.pl, bin/cal.pl, bin/chat.pl  lower-level CLIs
+vim/scrum.vim    :SNew :SCompile :SReport :SDraft :SAll  + syntax for both file types
+examples/        two-team journal and a rendered dashboard</pre>
+
+<p>Run every test: <code>for t in tests/*.t; do perl $t | tail -1; done</code></p>
+
+<p>The kit's own pipeline: <code>perl bin/devsecops.pl</code> runs every gate on this machine (tests under each Perl found, syntax
+checks, secrets scan, marking gate, repo hygiene) and writes <code>devsecops.html</code>, a status dashboard; <a href="SECURITY.html">SECURITY.html</a>
+says what is protected and how; <code>perl bin/release.pl</code> packages the committed tree for the target laptop with a SHA-256.
+<code>.github/workflows/</code> runs the suite on GitHub's Windows runners under Git for Windows' Perl (the target interpreter) and on Linux.</p>
+
+<p>Going live? <a href="PILOT.html">PILOT.html</a> is the phased plan: one friendly team, then three, then ten, each phase in
+its own <code>data/&lt;pilot&gt;</code> project with an exit gate before the next.</p>
+
+<h2>Set up once (10 minutes)</h2>
+
+<pre>unzip agile.zip ~/tools/agile            # anywhere; nothing depends on the location
+mkdir ~/scrum && cd ~/scrum
+perl ~/tools/agile/bin/daily.pl init       # scrum.conf, scrum.txt, standups/, reports/, git init
+vim scrum.conf                               # recipients, unit, marking (or blank banner to disable)
+echo 'source ~/tools/agile/vim/scrum.vim' &gt;&gt; ~/.vimrc</pre>
+
+<p>Seed the journal: either paste tasks into <code>scrum.txt</code> following <code>examples/scrum.txt</code>,
+or make today's stand-up file and use <code>new ID PTS title p:1 e:Epic o:Owner</code> lines — the
+compiler writes the ledger entries. Sprint planning is the same file with <code>commit ID owner</code>
+and <code>cap N</code> lines per team.</p>
+
+<h2>Every daily townhall (one Teams call, all teams, 0830–0845, 2 minutes at the keyboard after)</h2>
+
+<p>The default rhythm is one joint townhall, not per-team stand-ups: everyone joins one fixed
+recurring Teams call and types Y/T/B into the shared chat. Anyone who needs to sync with
+another team says so on the line and either sets up a follow-up meeting or raises it as a
+decision — it isn't worked live. See <a href="WORKFLOW.html">WORKFLOW.html</a> §4 for the minute-by-minute
+runbook; §4a covers the per-team variant for programs that can't get everyone on one call.</p>
+
+<pre>vim                     :SNew            today's file, one section per team, open items listed
+                                         type:  done AUTH-103   block RPT-202 waiting on cert   note Bob out Fri
+                        :SCompile        (or &lt;leader&gt;sc) validates every line, appends to scrum.txt, marks file done
+                        :SReport         reports/dashboard.html + YYYY-MM-DD-status.{html,txt}, marked
+                        :SDraft          Outlook draft to the leads: metrics, blockers, today's notes — review, send
+or from a shell         perl ~/tools/agile/bin/daily.pl all --draft      compile + report + draft + git commit
+calendar                daily.pl attend   attendee responses from today's stand-up meetings -&gt; stand-up file + attendance.csv
+                        daily.pl post     today's metrics text into each stand-up meeting body (--send updates attendees)
+                        daily.pl meetings today's calendar
+meeting chat            :SChat  paste the Teams chat  →  :STally (daily.pl chat)  tallies #est / #vote rounds into the stand-up file
+before the block        :SCards  per-member task cards -&gt; reports/&lt;date&gt;-cards.html (Teams 1:1 links) ; daily.pl cards --send mails them
+three questions         :SChat paste (one joint chat) →  :SAnswers  Y/T/B per person split by team -&gt; flags, suggested verbs, attendance
+who joined/left         download the meeting's Attendance report to standups/&lt;date&gt;-attendance.csv → :SJoined
+your AI service          :SAi (daily.pl ai) writes the prompt; paste into your AI service; :SAiResponse, paste reply; report includes it</pre>
+
+<p><code>daily.pl</code> finds <code>scrum.conf</code> upward from wherever you are, so all of this works from any
+directory in the project. A stand-up file with a typo is rejected whole with every error
+listed; fix and re-run. <code>daily.pl --dry compile</code> shows what would be written.</p>
+
+<h2>Note verbs</h2>
+
+<pre>done carry drop ID...            Committed -&gt; Done / Carryover / Removed
+commit ID [owner]                team backlog, master backlog or last sprint's carryover -&gt; this sprint
+new ID PTS title [p:N e:E t:T o:O]  intake to the team backlog  new!  straight into the sprint
+                                 (under a "== Master" section: intake to the master backlog)
+refine ID                        master backlog (or another team's) -&gt; this team's backlog
+prune ID reason                  retire a backlog task -&gt; Removed; the reason stays on the posting
+est ID PTS   assign ID owner     re-estimate, reassign
+block ID reason   unblock ID     tracked on the task; shows in reports until unblocked
+cap N                            team capacity this sprint
+note … risk … absent Name…       report only
+sprint N                         override the current sprint (file-wide or per team)</pre>
+
+<h2>Calendar (Outlook / Teams)</h2>
+
+<p>Teams' calendar is the Exchange calendar Outlook shows, so <code>Calendar.pm</code> drives classic Outlook
+through PowerShell COM (<code>-EncodedCommand</code>, no scripts on disk, no execution-policy issue).
+<code>scrum.conf</code>: <code>standup_match</code> picks the stand-up meetings, <code>team_from_subject</code> maps subject to
+team, <code>attendance</code> is the CSV log. <code>calendar = mock</code> + <code>calendar_fixture = file.json</code> runs the
+whole thing offline; <code>cal.pl dump</code> captures a fixture from the real calendar. The COM layer is
+the only untested part of the kit — <a href="TEST-PLAN.html">TEST-PLAN.html</a> is the 30-minute laptop session to close that.</p>
+
+<h2>Stand-up in chat: the three questions, flags, and your AI service</h2>
+
+<p>Participants answer in the meeting chat (<code>Y: … / T: … / B: …</code>, one line with bare delimiters
+<code>Y did this T doing that B none</code> (uppercase, in that order, a name before the Y is ignored), or <code>yesterday/today/blockers</code>,
+or <code>1/2/3</code>). Paste the chat into <code>standups/&lt;date&gt;-&lt;Team&gt;-chat.txt</code>; <code>daily.pl answers</code> records
+one Y/T/B line per person in <code>standups/&lt;date&gt;-&lt;Team&gt;-answers.txt</code>, logs who answered as
+attendance, runs deterministic checks (silent people, blockers, blockers persisting N days,
+the same plan N days running, unknown or off-sprint task ids, "done" claims) and writes
+suggested <code>done</code>/<code>block</code>/<code>unblock</code>/<code>absent</code> lines into the stand-up file for you to confirm.
+<code>daily.pl ai</code> builds a prompt from today's answers, metrics, flags and the last days' answers
+(banner included) and either writes it for pasting into your AI service (<code>ai_backend =
+paste</code>, default) or calls an OpenAI-style endpoint through Git's curl (<code>curl</code>). The reply's
+five fixed sections (HIGHLIGHTS / RISKS / STUCK / QUESTIONS FOR LEADS / PROGRESS) are parsed and
+appear in the status mail. Metrics never come from the AI; they come from the journal.</p>
+
+<h2>During the meeting: lint the statuses while people are still on the call</h2>
+
+<pre>vim   :STown  (\sw)      the townhall in one Vim tab: chat buffer | lint table | replies -- no mouse
+      \sp                Alt-Tab to Teams, Ctrl-A Ctrl-C, Alt-Tab back, \sp: the chat is pasted, saved, linted, both windows refreshed
+      \sy                the replies to the clipboard; Alt-Tab, Ctrl-V, Enter in the Teams chat
+      :SSend Bob         opens the 1:1 Teams chat with Bob's reply pre-filled; Enter sends
+team  +1                 a person with a proposed status (daily.pl propose) accepts it by typing +1, y, ok or a thumbs-up as text: 3 keys
+conf  readback_clean_days = 5   after 5 consecutive clean statuses a person hears back only on errors (the read-back has taught what it can)</pre>
+<p><a href="ERGONOMICS.html">ERGONOMICS.html</a> has the keystroke and mouse counts, before and after, for you and for a team member as they grow.</p>
+
+<pre>wish ~/projects/agile/bin/townhall.tcl ~/projects/agile/data/&lt;project&gt;     the meeting console (Tcl/Tk from Git for Windows, nothing installed)</pre>
+<p>One window for the 15 minutes: paste the chat on the left (Ctrl-V or the button) and it is saved as today's chat file and
+linted on the spot -- ERROR / warn / ok per person on the right, the replies to send back with a copy button (or the private
+1:1 page), and the roster ticking off who has answered. Buttons along the bottom run propose, answers, dry compile, compile,
+report, cockpit and commit when the meeting ends. The window only draws; every decision is <code>daily.pl</code>'s, so the tests
+still cover the logic. Vim remains the editor for the stand-up file itself.</p>
+
+<pre>vim   :SChat            paste the chat so far (Ctrl-A, Ctrl-C in the meeting chat; p in Vim)
+      :SLint            (\sl) every status checked: FILE:LINE: ERROR|warn|ok Name: reason -- errors open the quickfix list, :cn jumps to the person
+      :SLintReply       the lines to paste back into the chat, one per person who needs to fix something:
+                          Hey Bob! Did you mean: Y did B-11 / T will b in the lab / B none ?  &#128077; if yes, or repost as: Y did B-11 T doing B-12 B none
+                          Hey Fay! Got it. Add the task id next time so it counts (e.g. Y did B-11 T doing B-12 B none). B-99 isn't in the backlog -- typo?
+shell perl daily.pl lint [FILE|-] [--reply]     the same from Git Bash; "-" reads the clipboard: powershell Get-Clipboard | perl daily.pl lint -
+after daily.pl answers --guess                    a thumbs-up on "Did you mean" is consent: --guess takes the lint's reading where the strict one failed
+private   daily.pl lint --private                 reports/&lt;date&gt;-lint.html: one "send in Teams (1:1)" link per person, message pre-filled -- press Send there
+read-back daily.pl lint --reply --confirm         everyone hears back: a clean status comes back as its table entry --
+                                                    Hey Eve! I read your status as: Y B-2 / T B-2 / B none  &#128077; if right, or repost.</pre>
+
+<p><b>Shorthand is fine.</b> People type the shortest line that carries the ids (<code>Y B-2 T B-2 B none</code>); the read-back
+shows them what the kit understood, and a thumbs-up closes it. That is the whole contract: they own the wording, you own the reading,
+and the reading is on the record in <code>standups/&lt;date&gt;-&lt;Team&gt;-answers.txt</code> and on the cockpit's Daily tab
+(<b>Statuses today</b>: one row per person, Y / T / B as parsed, ids emphasised).</p>
+
+<p><b>Corrections go 1:1, not to the room.</b> Teams lets you message any participant privately while the meeting runs
+(People &rarr; right-click &rarr; Chat, or a new chat from the main window), and only the two of you see it. <code>--private</code>
+on <code>lint</code> and <code>propose</code> writes a page with a private-chat deep link per person carrying the message; you click, glance, press Send.
+The meeting chat stays a clean record of statuses. Private chats are outside the meeting record but inside the org's retention and
+compliance rules, so don't say anything there you wouldn't say in the room. Guests without a Teams account can't be chatted 1:1;
+e-mail addresses come from today's meeting invitees and <code>roster.txt</code> (<code>Name, email</code> lines in the project).</p>
+
+<p>What is checked: the three fields are present, in order, non-empty; lowercase <code>y t b</code> are accepted only when
+unambiguous (a second <code>b</code> -- "will b in the lab" -- is refused by name rather than mis-split); each of Y and T
+names a task id, and the id exists in the journal. Errors mean the answer cannot be used; warnings mean it parses but
+tells the kit little. The chat buffer highlights delimiters, ids and a stray lowercase delimiter, so most problems are visible before you lint.</p>
+
+<p>Where the replies go: the meeting chat, which stays open after the meeting ends and is where people already are.
+Post the minutes (the status mail text, or the brief) there too, or in the meeting's Notes tab. If the townhall is a
+<b>channel meeting</b> the thread is visible to everyone in the channel and persists past recording/transcript retention --
+the most dependable place for a group that changes over time. Only invited attendees see a private meeting's chat.</p>
+
+<h2>The people: roster.txt, and the meeting invite</h2>
+
+<pre>roster.txt              one line per person:   Name | email | Team | Role | Org      (name = the Teams display name, exactly)
+daily.pl roster         list by team; check against the journal (owners not in the roster, team mismatches, missing e-mail)
+daily.pl roster add "Ann Lee" ann.lee@example.com Alpha Lead "ACME"      add or update
+daily.pl invite [--dry] the recurring townhall in Outlook/Teams: every weekday at townhall_start for townhall_minutes
+                        (scrum.conf), the roster as required attendees, the format rules in the body; opens in Outlook
+                        for you to review and send; refuses an attendee outside mail_domains (the marking gate)</pre>
+
+<p>The cockpit's <b>People</b> tab shows the roster with each person's answer today and their clean-day streak (consecutive
+days with a complete status carrying a task id; read-backs stop at <code>readback_clean_days</code>). Flags in the mail and the
+answers report show red and amber one per line and fold the routine INFO ones into counts with names; mentioning your own
+queued task is not a flag, and "same plan N days" is info at 2, amber from 3, red once past the task's size.</p>
+
+<p>The roster is the maintained list. Everything that needs people reads it: 1:1 chat links, the invite, the console's roster
+pane, the roster check. It lives next to <code>scrum.conf</code> in the project's git repo, so who was on the program when is part of
+the record. The name must be what Teams shows in the chat -- that is what the parsers match against the journal's owners.</p>
+
+<h2>Before the meeting: yesterday's status drafts today's</h2>
+
+<pre>vim   :SPropose [Team]        one paste-ready line per person, from yesterday's answers and the journal:
+                                Ann BMC2: Y B-121 done? T B-1222 Implement Engagement Planning B none  -- &#128077; if right, or repost your own Y/T/B
+shell perl daily.pl propose      post the block into the meeting chat at 0830; a thumbs-up is that person's status, a repost replaces it
+after daily.pl answers --assume  the silent get their proposal on the record, marked (assumed)
+private daily.pl propose --private  reports/&lt;date&gt;-propose.html: a 1:1 Teams link per person with their proposal pre-filled</pre>
+
+<p>Yesterday's T becomes today's Y ("done?"), today's T is the person's next committed task by priority, B carries a
+blocker that was live yesterday. Most people then only confirm, which is what makes 100 statuses a day feasible, and
+the wording converges on task ids because the proposals are written with them.</p>
+
+<p><b>Silence is recorded, never rewarded.</b> An assumed status is visible in the answers file and every report as
+<i>ASSUMED, unconfirmed</i>, amber the first day and red from the second, and it is the person's to correct the next
+morning. What it never does is move points: no task is marked done on an assumption, so velocity, predictability and
+the roadmap stay facts. If someone stays silent, the thing that grows is the flag on their name, not their done column --
+that is the pressure, and it lands on the lead, where it belongs.</p>
+
+<h2>Votes and estimates from the Teams chat</h2>
+
+<p>No simple API reaches meeting chat on a managed tenant, so it is copy-and-paste: in the meeting type
+<code>#est AUTH-104</code> and people answer with numbers, or <code>#vote Ship Friday? y/n</code> / <code>#vote Name: A B C</code>;
+afterwards select-all in the chat pane, copy, <code>:SChat</code>, paste, <code>:STally</code>. Each round is tallied
+(consensus or median with outliers; plurality/majority/tie), printed, and written into today's
+stand-up file as <code>est ID N</code> lines (ready when there was consensus, commented otherwise) and
+<code>note vote …</code> lines. <code>chat.pl --est ID --since 09:07 file</code> tallies without markers.
+Teams Polls are the alternative: results export to Excel from Forms.</p>
+
+<h2>The cockpit (your working screen)</h2>
+
+<pre>perl agile.pl                    rebuild data/demo's reports, write ./dashboard.html, open it
+perl agile.pl data/dronecorp       the same for another project
+perl agile.pl serve              optional: serve it live on http://127.0.0.1:8090/ (rebuild button, Ctrl-C stops)</pre>
+
+<p>One self-contained page beside <code>agile.pl</code>: tabs for daily (attendance and flags), weekly, sprint
+(burn-up), month / semester / annual (period buttons, a year calendar), the backlog tree with filters, the epic
+roadmap, a Gantt of epics by tome on the calendar (actual to date, forecast to the ETA) and the IDEF0 plates. Everything is a snapshot of the journal embedded in the page, so it works from a
+file share with no server; press F5 after <code>daily.pl report</code> (or tick auto-reload). The reports under
+<code>reports/</code> stay script-free because they are printed and mailed; the cockpit is the only page with JavaScript.</p>
+
+<p>New to Vim-driven data entry? <a href="TUTORIAL.html">TUTORIAL.html</a> walks through the two files, the verbs and the
+Vim habits that make the two minutes after the townhall painless; <a href="TRAINING.html">TRAINING.html</a> replays a
+whole sprint. Both are under the cockpit's <b>Tutorial</b> tab.</p>
+
+<h2>Documents from the shell</h2>
+
+<pre>perl bin/docs2txt.pl spec.pdf                          text of a PDF / .docx / .doc / .odt / .html to stdout
+perl bin/docs2txt.pl grep -i "interface control" *.pdf *.docx     grep documents like text files: FILE:LINE: match
+perl bin/docs2txt.pl -o txt/ specs/*.docx                one .txt per document, for diff and vim
+perl bin/docs2txt.pl tools                               which converters were found
+vim   :SDocs grep -i ICD ~/specs/*.pdf                   the same from Vim;  :STig  browses the project's git history</pre>
+
+<p>The converters (<code>pdftotext</code>, <code>docx2txt</code>, <code>antiword</code>, <code>odt2txt</code>) and <code>tig</code> are
+part of Git for Windows, so nothing is installed. Use <code>:STig</code> before <code>:SCommit</code> to review what a compile appended.</p>
+
+<h2>Other views</h2>
+
+<pre>daily.pl status | sprint [N] | velocity | backlog [Team] | members [Team] | epics | roadmap | blocked
+scrum.pl  -f scrum.txt roadmap [-o roadmap.html]     epics by tome across sprints: actuals + velocity forecast
+scrum.pl  -f scrum.txt items committed Bravo         raw task query
+ledger.pl -f scrum.txt bal Sprint:42                 it is still a ledger</pre>
+
+<h2>Marking (optional)</h2>
+
+<p><code>scrum.conf</code> can set a banner (any text: <code>INTERNAL</code>, <code>COMPANY CONFIDENTIAL</code>,
+or whatever your organisation uses) and a marking block (Owner / Category / Handling / POC). Leave the banner
+empty and nothing is marked. When it is set, every output is marked the same way:</p>
+<ul>
+<li><strong>E-mail</strong> (status, brief, cards): banner as the first and last line of the body,
+  the indicator block at the end, <code>subject_prefix</code> at the start of the subject.</li>
+<li><strong>HTML reports</strong> (dashboard, tree, status, brief, cards) and the simulated
+  <strong>HISTORY.html</strong>: banner top and bottom, indicator block on the first page.</li>
+<li><strong>PDF</strong> (Print &rarr; Save as PDF from any of those): the banner is pinned to the
+  top and bottom of <em>every</em> page, collapsed sections print expanded.</li>
+<li><strong>Text</strong> files (status, brief, cards): banner first and last line, indicator at the end.</li>
+</ul>
+<p><code>daily.pl check</code> validates the setup: with a banner set it warns when the owner, POC or
+<code>subject_prefix</code> are empty; with <code>mail_domains</code> set (a comma-separated list) every recipient in
+<code>to</code>/<code>cc</code> must belong to one of those domains. <code>daily.pl draft</code>, <code>brief</code>,
+<code>cards --send</code> and <code>invite</code> run the same check and refuse on an error (<code>--force</code>
+overrides). Marking is not transport: encrypt mail the way your organisation requires. <code>reports/</code> is
+git-ignored; the journal and stand-up notes are committed, so treat the repository as marked when its content is.
+Lower-level <code>scrum.pl</code> output has no <code>scrum.conf</code> and is therefore unmarked: use
+<code>daily.pl</code> for anything that leaves your desk.</p>
+
+<h2>Operating model</h2>
+
+<p><a href="WORKFLOW.html">WORKFLOW.html</a> is the full operating model: hierarchy of work, the two-week tempo day by day,
+what each event feeds into the journal, the metrics with thresholds, outputs by audience, and
+the feedback loops. <a href="SCHEDULE.html">SCHEDULE.html</a> turns that tempo into a suggested
+daily workflow and weekly calendar, backed by <code>sim/daily-job-sim.pl</code>, a time-accounting
+simulation of the role at scale. <a href="JOB_DESCRIPTION.html">JOB_DESCRIPTION.html</a> is the role
+written up as a job description. <a href="FOR_MANAGERS.html">FOR_MANAGERS.html</a>
+is the same operating idea in one non-technical page for a manager.</p>
+
+<p>Project data (the journal, stand-up files, reports) lives in <code>data/&lt;project&gt;/</code>
+&mdash; one directory per project, each its own git repo from <code>daily.pl init</code>, and
+ignored by the kit's own repo. <code>data/demo</code> is the DroneCorp demonstration (below);
+<code>data/history</code> is the two-year simulation further below.</p>
+
+<p><strong>The demo product is an IDEF0 model.</strong> <code>tools/idef0/</code> is the IDEF0 toolkit
+(core Perl: <code>idef0lint</code>, <code>idef2html</code>, <code>idef2svg</code>, <code>idef0 links</code>) with
+the example model in <code>tools/idef0/examples</code>: <strong>DroneCorp</strong>, a notional racing-drone
+company (ten models, one per department &mdash; fictional, no real company data), which is the demo.
+<code>sim/idef0-backlog.pl MODEL.md --cap N --commit</code> derives the product backlog from it as a
+planning stand-up file the kit compiles: model &rarr; tome and team, level-1 activity &rarr; epic,
+leaf activity &rarr; task, and every cross-model interface link &rarr; an interface task owned by the
+destination team under the source epic &mdash; so integration work is explicit and the planning tree
+flags the epics that span teams. The training replay builds <code>data/demo</code> this way and renders
+the plates to <code>reports/plates.html</code> as the design the teams build to.</p>
+
+<p><strong>Training:</strong> <code>perl sim/training.pl</code> runs one complete sprint against
+<code>data/demo</code> for real &mdash; init, planning, ten townhall days (cards, the pasted chat,
+answers and flags, confirming suggestions, compile, report, brief, commit), refinement with an
+estimate round, review and close with a git tag &mdash; narrated step by step as an architect's
+day, paced in the terminal (<code>--fast</code> to skip the pauses). It records the whole run to
+<a href="TRAINING.html">TRAINING.html</a>, a playable terminal replay: Play, or step with the
+arrow keys. It resets <code>data/demo</code> every time and refuses any other directory.</p>
+
+<p><code>sim/history-gen.pl</code> goes further: it simulates two years (52 sprints) of ten teams
+doing tasks by generating real stand-up files and compiling them through this kit's own pipeline,
+then renders <code>HISTORY.html</code> &mdash; a calendar of every sprint colored by the status
+that would have gone to leadership at each review, with trend and per-team tables. Every number in
+it is computed by the same <code>Scrum.pm</code> code that runs in production. It is print-ready:
+open it and use the browser's Print &rarr; Save as PDF (no install, offline) for
+an exit report or performance review.</p>
+
+<h2>Library use</h2>
+
+<p>Everything returns plain hashes and lists; <code>perldoc lib/Scrum.pm</code> (and Ledger, Standup,
+Prelude) has the API with examples. A report that doesn't exist is a few lines of Prelude
+over <code>items($s)</code>.</p>
+
+</body>
+</html>

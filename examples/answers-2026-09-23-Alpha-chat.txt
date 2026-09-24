@@ -1,0 +1,17 @@
+Meeting started
+[9:01 AM] JC
+Morning. Three questions in chat please.
+[9:02 AM] Ann
+Y: reviewed Bob's PR, finished the last acceptance test on AUTH-103
+T: start AUTH-104
+B: none
+[9:02 AM] Bob
+yesterday: AUTH-103 merged and done
+today: help Ann with AUTH-104, then pick up OPS-302
+blockers: still waiting on cert from ISSM for the SSO test env
+[9:03 AM] Eve
+1: docs
+2: docs
+3: -
+[9:04 AM] Bob
+B: cert arrived, unblocked

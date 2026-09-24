@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Daily workflow and weekly schedule</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a;
+         max-width: 960px; margin: 2em auto; padding: 0 1.5em; line-height: 1.5; }
+  h1 { font-size: 20pt; border-bottom: 2px solid #444; padding-bottom: 0.2em; }
+  h2 { font-size: 15pt; margin-top: 2em; border-bottom: 1px solid #999; padding-bottom: 0.15em; }
+  h3 { font-size: 12.5pt; margin-top: 1.5em; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  pre { background: #f4f4f4; border: 1px solid #ddd; padding: 0.8em 1em; overflow-x: auto; }
+  code { background: #f4f4f4; padding: 0.1em 0.3em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 10pt; }
+  th, td { border: 1px solid #bbb; padding: 0.4em 0.6em; text-align: left; vertical-align: top; }
+  th { background: #e8e8e8; }
+  tr:nth-child(even) td { background: #fafafa; }
+  ol, ul { margin: 0.5em 0; }
+  li { margin: 0.3em 0; }
+  .indent { margin-left: 1.5em; }
+  hr { border: none; border-top: 1px solid #ccc; margin: 2em 0; }
+</style>
+</head>
+<body>
+
+<h1>Daily workflow and weekly schedule</h1>
+
+<p>A suggested calendar for the solutions architect role at the kit's actual operating scale
+(10 teams, ~100 people), derived from the tempo in <a href="WORKFLOW.html">WORKFLOW.html</a> and
+from <code>sim/daily-job-sim.pl</code>, a standalone time-accounting simulation of the role (not
+part of the tested kit in <code>lib/</code>/<code>bin/</code>/<code>tests/</code>).</p>
+
+<h2>1. What the simulation shows</h2>
+
+<p>Run it with:</p>
+<pre>perl sim/daily-job-sim.pl [--teams N] [--people-per-team N] [--seed N]</pre>
+
+<p>It models one full two-week sprint, day by day, costing every activity in minutes of the
+architect's own time: the daily townhall (fixed 15 min), the pipeline run (paste chat, run
+<code>chat</code>/<code>answers</code>/<code>compile</code>/<code>report</code>/<code>tree</code> &mdash;
+a few minutes of keyboard time; the Perl processing itself is sub-second regardless of scale),
+flag triage (each blocked/silent/stuck flag costs time to read and decide, not to compute), and
+the sprint's fixed events (planning, mid-sprint health check, refinement, review/retro).</p>
+
+<p>The headline result at 10 teams / 100 people: process overhead averages roughly <strong>60
+minutes a day</strong> beyond the daily townhall, leaving on the order of <strong>7 hours a day
+for deep architecture work</strong>. The two heavy days are <strong>Day 1</strong> (planning) and
+<strong>Day 14</strong> (review/retro/close) &mdash; those are where the calendar needs real
+blocks, not the daily grind. Triage time scales with <em>flag rates</em>, not raw people count,
+which is why the joint-townhall model holds up at 100 people: you read flags, not 95 raw
+answers.</p>
+
+<p>The rates baked into the simulation (how often a team has a blocker, goes silent, or raises a
+cross-team ask) are illustrative priors. Once a sprint or two of real data exists, replace them
+in <code>team_flags()</code>/<code>cross_team_asks()</code> with observed rates for a forecast
+instead of a guess.</p>
+
+<h2>2. The daily rhythm (every workday, identical regardless of where in the sprint it falls)</h2>
+
+<pre>08:15  daily.pl cards            member cards out before the call
+08:30  Townhall                  fixed 08:30-08:45, all teams, one Teams call
+08:45  Pipeline + triage         paste chat -&gt; :SChat -&gt; :SAnswers -&gt; :SCompile -&gt; :SReport -&gt; :STree
+                                  read the FLAGS, not the raw answers -&gt; :SDraft
+09:00  Protected deep-work time  the rest of the day, except the sprint-cycle events below</pre>
+
+<h2>3. Weekly schedule (two-week sprint)</h2>
+
+<table>
+<tr><th>Day</th><th>Time</th><th>Block</th></tr>
+<tr><td rowspan="3"><strong>Mon</strong><br><span style="color:#777">(Day 1 / Day 13)</span></td>
+    <td>08:15&ndash;09:00</td><td>Cards &rarr; Townhall &rarr; (Day 1 only: extend to 45 min for
+        <strong>Planning</strong> &mdash; capacity, commitments)</td></tr>
+<tr><td>09:00&ndash;09:15</td><td>Pipeline run + flag triage</td></tr>
+<tr><td>rest of day</td><td>Deep work / architecture (Day 1: lighter &mdash; planning ran long)</td></tr>
+<tr><td rowspan="3"><strong>Tue</strong><br><span style="color:#777">(Day 2 / Day 7 / Day 14)</span></td>
+    <td>08:15&ndash;09:00</td><td>Cards &rarr; Townhall &rarr; pipeline/triage</td></tr>
+<tr><td>(Day 14 only) 10:00&ndash;11:30</td><td><strong>Review/demo</strong>, all teams</td></tr>
+<tr><td>(Day 14 only) 11:30&ndash;12:00</td><td>Skim retro notes, close sprint, sprint report</td></tr>
+<tr><td rowspan="3"><strong>Wed</strong><br><span style="color:#777">(Day 8)</span></td>
+    <td>08:15&ndash;09:00</td><td>Cards &rarr; Townhall &rarr; pipeline/triage</td></tr>
+<tr><td>09:15&ndash;09:35</td><td><strong>Mid-sprint health check</strong> (load, blocked age, burn vs. plan)</td></tr>
+<tr><td>rest of day</td><td>Deep work</td></tr>
+<tr><td rowspan="3"><strong>Thu</strong><br><span style="color:#777">(Day 9)</span></td>
+    <td>08:15&ndash;09:00</td><td>Cards &rarr; Townhall &rarr; pipeline/triage</td></tr>
+<tr><td>13:00&ndash;13:45</td><td><strong>Master backlog refinement</strong> (you + leads)</td></tr>
+<tr><td>rest of day</td><td>Deep work</td></tr>
+<tr><td rowspan="3"><strong>Fri</strong><br><span style="color:#777">(Day 3 / Day 10)</span></td>
+    <td>08:15&ndash;09:00</td><td>Cards &rarr; Townhall &rarr; pipeline/triage</td></tr>
+<tr><td>09:15&ndash;09:30</td><td>Weekly status mail to leadership</td></tr>
+<tr><td>rest of day</td><td>Deep work / week wrap-up</td></tr>
+</table>
+
+<p>Everything from 09:00 onward is protected deep-work time except the four sprint-cycle events
+above (Planning, Health-check, Refinement, Review) &mdash; those are the only things that should
+ever get a scheduled meeting stacked on top of the townhall, per the anti-pattern list in
+<a href="WORKFLOW.html">WORKFLOW.html</a> &sect;12: <em>"Stand-ups that become status reports to
+you. Your inputs are verbs; the conversation is theirs."</em></p>
+
+</body>
+</html>

@@ -1,0 +1,5 @@
+# the kit is LF text everywhere (Git for Windows checkouts included); binaries by extension
+* text=auto eol=lf
+*.png binary
+*.pdf binary
+*.zip binary

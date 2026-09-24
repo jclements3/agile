@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ergonomics: keystrokes and mouse, architect and team</title>
+<style>
+  :root{--navy:#27235d;--gold:#e6af22;--olive:#6b7436;--grey:#808082;--lgrey:#e4e4e7;--ink:#0b0b0b}
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 13.5px; color: var(--ink); background: #fff; max-width: 980px; margin: 0 auto; padding: 14px 22px 40px; line-height: 1.5; }
+  h1 { font-size: 20px; color: var(--navy); border-bottom: 3px solid var(--gold); padding-bottom: 4px; margin: 0 0 4px; }
+  h2 { font-size: 15px; color: var(--navy); margin: 26px 0 6px; border-bottom: 1px solid var(--lgrey); padding-bottom: 3px; }
+  .sub { color: var(--grey); margin: 0 0 12px; }
+  code, pre, kbd { font-family: Consolas, "Courier New", monospace; font-size: 12.5px; }
+  pre { background: #1a1a19; color: #e6e4dc; padding: 10px 14px; border-radius: 6px; overflow-x: auto; margin: 6px 0 12px; }
+  code { background: var(--lgrey); padding: 0 4px; border-radius: 3px; }
+  kbd { background: #fff; border: 1px solid #bbb; border-bottom-width: 2px; border-radius: 3px; padding: 0 5px; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; }
+  th, td { border: 1px solid var(--lgrey); padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--lgrey); font-weight: 600; } td.n { text-align: right; font-variant-numeric: tabular-nums; }
+  .mouse { color: #d6292e; font-weight: 600; } .good { color: #0ca30c; font-weight: 600; }
+  .you { border-left: 4px solid var(--gold); background: #fdf8e8; padding: 6px 12px; margin: 10px 0; }
+</style>
+</head>
+<body>
+<h1>Ergonomics</h1>
+<p class="sub">Keystrokes and mouse movements per person per day, measured on the loop as built, then redesigned for a keyboard-only architect and for team members who start needing help and end needing none.</p>
+
+<h2>Method</h2>
+<p>One keystroke = one key or chord (<kbd>Ctrl-V</kbd> counts 1). A mouse movement = moving the pointer to a target and clicking; window switches by mouse count as one movement each. Typed text is counted by characters. Counts are for one townhall with 10 teams, roughly 100 statuses, 8 corrections and 3 blockers to work — the volume the kit is built for.</p>
+
+<h2>The architect: before</h2>
+<table>
+<tr><th>Step</th><th>Keys</th><th>Mouse</th><th>Where</th></tr>
+<tr><td>Copy the Teams chat</td><td class=n>2</td><td class=n><span class="mouse">1</span></td><td>click into the chat, <kbd>Ctrl-A</kbd> <kbd>Ctrl-C</kbd></td></tr>
+<tr><td>Switch to the console and paste</td><td class=n>1</td><td class=n><span class="mouse">2</span></td><td>click the window, click the box, <kbd>Ctrl-V</kbd></td></tr>
+<tr><td>Read the lint, copy replies</td><td class=n>0</td><td class=n><span class="mouse">1</span></td><td>the Copy button</td></tr>
+<tr><td>Back to Teams, paste replies</td><td class=n>2</td><td class=n><span class="mouse">2</span></td><td>click the window, click the compose box, <kbd>Ctrl-V</kbd> <kbd>Enter</kbd></td></tr>
+<tr><td>Private corrections (8 people)</td><td class=n>8</td><td class=n><span class="mouse">17</span></td><td>the 1:1 page: click a link, click Send, per person; plus the page</td></tr>
+<tr><td>Repeat the paste cycle every 5 minutes for an hour</td><td class=n>×12</td><td class=n>×12</td><td></td></tr>
+<tr><th>Per open hour</th><th class=n>≈ 68</th><th class=n><span class="mouse">≈ 89</span></th><th>every paste cycle crosses three windows by mouse</th></tr>
+</table>
+
+<h2>The architect: after (Vim only)</h2>
+<pre>:STown            one tab: chat buffer | lint table | replies        (\sw)
+Alt-Tab  Ctrl-A Ctrl-C  Alt-Tab  \sp        the Teams chat is on the clipboard, pasted, saved, linted, both windows refreshed
+\sy   Alt-Tab  Ctrl-V  Enter                 the replies go back to the chat
+:SSend Bob                                   the 1:1 with Bob's correction pre-filled opens; Enter sends
+Ctrl-W l / Ctrl-W h                          focus between chat and lint, never the mouse</pre>
+<table>
+<tr><th>Step</th><th>Keys</th><th>Mouse</th></tr>
+<tr><td>Copy the chat and lint</td><td class=n>5</td><td class=n><span class="good">0</span></td></tr>
+<tr><td>Replies back to the chat</td><td class=n>5</td><td class=n><span class="good">0</span></td></tr>
+<tr><td>Private corrections (8 people)</td><td class=n>8 × 12 chars + 8 <kbd>Enter</kbd> ≈ 104</td><td class=n><span class="good">0</span></td></tr>
+<tr><td>×12 cycles</td><td class=n></td><td class=n></td></tr>
+<tr><th>Per open hour</th><th class=n>≈ 224 (typed names dominate)</th><th class=n><span class="good">0</span></th></tr>
+</table>
+<p>More keys than before, no mouse at all; the keys are names you type without looking. Two further cuts if the names bother you: <code>:SSend</code> takes a prefix (<code>:SSend Bo</code>), and Vim completes buffer words (<kbd>Ctrl-N</kbd>) from the replies window.</p>
+
+<h2>The team member: before</h2>
+<table>
+<tr><th>Step</th><th>Keys</th><th>Mouse</th></tr>
+<tr><td>Type a status, labelled form <code>Y: did B-11 T: doing B-12 B: none</code></td><td class=n>36</td><td class=n><span class="mouse">1</span> (the compose box)</td></tr>
+<tr><td>React to the read-back with a thumbs-up</td><td class=n>0</td><td class=n><span class="mouse">2</span> (hover, click the reaction)</td></tr>
+<tr><th>Per day</th><th class=n>36</th><th class=n><span class="mouse">3</span></th></tr>
+</table>
+
+<h2>The team member: after, and as they grow</h2>
+<table>
+<tr><th>Stage</th><th>What they type</th><th>Keys</th><th>Mouse</th><th>What they hear back</th></tr>
+<tr><td>Week 1 — learning</td><td>bare form <code>Y B-11 T B-12 B none</code></td><td class=n>21</td><td class=n>1</td><td>a read-back of every status (<code>--confirm</code>), coaching when an id is missing, corrections 1:1</td></tr>
+<tr><td>Week 2 — proposals</td><td><code>+1</code> to the morning's proposed line, or the bare form when the day changed</td><td class=n><span class="good">3</span></td><td class=n>1</td><td>the same read-backs</td></tr>
+<tr><td>Steady — mature</td><td><code>+1</code>, or a line</td><td class=n><span class="good">3</span></td><td class=n>1</td><td><span class="good">nothing</span> unless something is wrong: after <code>readback_clean_days</code> (5) consecutive clean statuses the read-back stops; an error or a missing id still gets a reply</td></tr>
+</table>
+<p>The one mouse movement left is clicking into the Teams compose box, which Teams needs. A thumbs-up reaction is replaced by typing <code>+1</code> (or <code>y</code>, <code>ok</code>, 👍 as text) — the parsers treat an ack from someone with a proposal as accepting it, so the status is recorded as <em>confirmed</em>, not assumed.</p>
+
+<h2>The principle behind the numbers</h2>
+<ul>
+<li><b>Never make the architect cross a window by mouse.</b> Every window the loop needs is a Vim window; Teams is one <kbd>Alt-Tab</kbd> away and only ever gets <kbd>Ctrl-A</kbd> <kbd>Ctrl-C</kbd> or <kbd>Ctrl-V</kbd> <kbd>Enter</kbd>.</li>
+<li><b>The team's cost falls as the kit learns them.</b> Proposals turn a status into an acknowledgement; read-backs fade after five clean days; the tone of a reply is set by what the person did, not by a global switch.</li>
+<li><b>Help is per person and per day, and it is on the record.</b> Who needed a correction, who was silent, who accepted a proposal: all of it is in the answers files, so coaching is a fact, not a memory.</li>
+</ul>
+
+<div class="you">
+<b>Your calls.</b> (1) <code>readback_clean_days</code>: 5 is the default; 3 is stricter, 10 gentler. (2) Whether the Tk console stays at all now that <code>:STown</code> exists — it remains for a shared-screen operator who is not you. (3) Whether <code>+1</code> should also accept a lint's "did you mean" guess (today that needs <code>answers --guess</code>, your decision, not theirs).
+</div>
+</body>
+</html>

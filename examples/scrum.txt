@@ -1,0 +1,87 @@
+; Scrum journal — see `perldoc lib/Scrum.pm` for the conventions.
+; Points move: Backlog:Master -> Backlog:<Team> -> Sprint:<N>:<Team>:Committed -> Done | Carryover | Removed
+; Every posting that moves a story carries "; id: KEY" (plus optional prio:, epic:, owner:, title:)
+
+; ---- intake to the master backlog
+2026-08-03 Intake AUTH-101 Login page
+    Backlog:Master                 5 SP   ; id: AUTH-101, prio: 1, epic: Auth
+    Equity:Intake
+
+2026-08-03 Intake AUTH-102 Password reset
+    Backlog:Master                 3 SP   ; id: AUTH-102, prio: 2, epic: Auth
+    Equity:Intake
+
+2026-08-03 Intake RPT-201 Quarterly export
+    Backlog:Master                 8 SP   ; id: RPT-201, prio: 1, epic: Reporting
+    Equity:Intake
+
+2026-08-04 Intake RPT-202 Chart widget
+    Backlog:Master                 5 SP   ; id: RPT-202, prio: 3, epic: Reporting
+    Equity:Intake
+
+2026-08-04 Intake OPS-301 Log rotation
+    Backlog:Master                 2 SP   ; id: OPS-301, prio: 2, epic: Ops
+    Equity:Intake
+
+2026-08-04 Intake OPS-302 Alert tuning
+    Backlog:Master                 3 SP   ; id: OPS-302, prio: 4, epic: Ops
+    Equity:Intake
+
+2026-08-20 Intake AUTH-103 SSO
+    Backlog:Master                13 SP   ; id: AUTH-103, prio: 1, epic: Auth
+    Equity:Intake
+
+; ---- assign to teams
+2026-08-05 Refinement
+    Backlog:Master                -5 SP   ; id: AUTH-101
+    Backlog:Alpha                  5 SP   ; id: AUTH-101
+    Backlog:Master                -3 SP   ; id: AUTH-102
+    Backlog:Alpha                  3 SP   ; id: AUTH-102
+    Backlog:Master                -8 SP   ; id: RPT-201
+    Backlog:Bravo                  8 SP   ; id: RPT-201
+    Backlog:Master                -2 SP   ; id: OPS-301
+    Backlog:Bravo                  2 SP   ; id: OPS-301
+    Backlog:Master                -5 SP   ; id: RPT-202
+    Backlog:Bravo                  5 SP   ; id: RPT-202
+
+; ---- sprint 41
+~ Sprint 41
+    Alpha                         10 SP
+    Bravo                         12 SP
+
+2026-08-10 Sprint 41 planning
+    Backlog:Alpha                 -5 SP   ; id: AUTH-101, owner: Bob
+    Sprint:41:Alpha:Committed      5 SP   ; id: AUTH-101
+    Backlog:Alpha                 -3 SP   ; id: AUTH-102, owner: Ann
+    Sprint:41:Alpha:Committed      3 SP   ; id: AUTH-102
+    Backlog:Bravo                 -8 SP   ; id: RPT-201, owner: Cy
+    Sprint:41:Bravo:Committed      8 SP   ; id: RPT-201
+    Backlog:Bravo                 -2 SP   ; id: OPS-301, owner: Dee
+    Sprint:41:Bravo:Committed      2 SP   ; id: OPS-301
+
+2026-08-21 Sprint 41 review
+    Sprint:41:Alpha:Committed     -5 SP   ; id: AUTH-101
+    Sprint:41:Alpha:Done           5 SP   ; id: AUTH-101
+    Sprint:41:Alpha:Committed     -3 SP   ; id: AUTH-102
+    Sprint:41:Alpha:Done           3 SP   ; id: AUTH-102
+    Sprint:41:Bravo:Committed     -8 SP   ; id: RPT-201
+    Sprint:41:Bravo:Carryover      8 SP   ; id: RPT-201
+    Sprint:41:Bravo:Committed     -2 SP   ; id: OPS-301
+    Sprint:41:Bravo:Done           2 SP   ; id: OPS-301
+
+; ---- sprint 42 (in progress)
+~ Sprint 42
+    Alpha                         12 SP
+    Bravo                         12 SP
+
+2026-08-24 Sprint 42 planning
+    Backlog:Master               -13 SP   ; id: AUTH-103, owner: Bob
+    Sprint:42:Alpha:Committed     13 SP   ; id: AUTH-103
+    Sprint:41:Bravo:Carryover     -8 SP   ; id: RPT-201
+    Sprint:42:Bravo:Committed      8 SP   ; id: RPT-201
+    Backlog:Bravo                 -5 SP   ; id: RPT-202, owner: Cy
+    Sprint:42:Bravo:Committed      5 SP   ; id: RPT-202
+
+2026-08-28 Mid-sprint
+    Sprint:42:Bravo:Committed     -8 SP   ; id: RPT-201
+    Sprint:42:Bravo:Done           8 SP   ; id: RPT-201

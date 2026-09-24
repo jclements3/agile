@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Solutions Architect — job description</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a;
+         max-width: 820px; margin: 2em auto; padding: 0 1.5em; line-height: 1.5; }
+  h1 { font-size: 20pt; border-bottom: 2px solid #444; padding-bottom: 0.2em; margin-bottom: 0.2em; }
+  .sub { color: #666; margin-top: 0; }
+  h2 { font-size: 13.5pt; margin-top: 1.8em; border-bottom: 1px solid #999; padding-bottom: 0.15em; }
+  h3 { font-size: 11.5pt; margin: 1.2em 0 0.3em; }
+  ul { margin: 0.3em 0 0.6em; padding-left: 1.4em; }
+  li { margin: 0.25em 0; }
+  table { border-collapse: collapse; width: 100%; margin: 0.8em 0; font-size: 10.5pt; }
+  th, td { border: 1px solid #bbb; padding: 0.4em 0.7em; text-align: left; vertical-align: top; }
+  th { background: #e8e8e8; }
+  .note { color: #555; font-size: 10pt; border-top: 1px solid #ccc; padding-top: 0.6em; margin-top: 2em; }
+  @media print { body { margin: 0; max-width: none; } }
+</style>
+</head>
+<body>
+
+<h1>Solutions Architect</h1>
+<p class="sub">Multi-team agile program &mdash; job description</p>
+
+<h2>Summary</h2>
+
+<p>The Solutions Architect owns the technical shape of a whole solution built by several agile teams.
+They make the cross-cutting decisions no single team can make alone &mdash; structure, interfaces,
+non-functional requirements &mdash; and keep those decisions just far enough ahead of delivery that no
+team is blocked.</p>
+
+<table>
+<tr><th>Role</th><th>Scope</th></tr>
+<tr><td>Enterprise Architect</td><td>Portfolio-wide: technology strategy, standards, platforms</td></tr>
+<tr><td><strong>Solutions Architect</strong></td><td>One solution, often a system of systems built by several teams or trains</td></tr>
+<tr><td>System Architect</td><td>One system or one team-of-teams</td></tr>
+</table>
+
+<p>In SAFe terms it is the Solution Architect at the Large Solution level, working alongside the
+Solution Train Engineer (process) and Solution Management (content). This is an agile architecture
+role: "just enough, just in time". The architect sets guardrails and interface contracts and lets
+design detail emerge in the teams; they coach and negotiate rather than hand down finished designs.</p>
+
+<h2>Responsibilities</h2>
+
+<h3>Intentional architecture</h3>
+<ul>
+<li>Define the high-level structure, subsystem boundaries, interfaces and non-functional requirements
+  (performance, security, safety, certification) so that many teams can build independently without
+  integration collapse.</li>
+<li>Maintain the function model of the solution (IDEF0 or equivalent) and derive the product backlog
+  from it: models to tomes and teams, activities to epics, leaf activities to tasks.</li>
+</ul>
+
+<h3>Interfaces and integration</h3>
+<ul>
+<li>Own every cross-team contract. Each cross-model interface is a tracked work item assigned to the
+  consuming team under the producing epic; epics that span teams are the integration points the
+  architect watches daily.</li>
+<li>Chair the cross-team dependency check and clear or escalate any interface blocker older than
+  three days.</li>
+</ul>
+
+<h3>Architectural runway and enablers</h3>
+<ul>
+<li>Keep enabling infrastructure a few increments ahead of feature work without big design up front.</li>
+<li>Write and prioritize enablers (spikes, infrastructure, refactors) in the master backlog and refine
+  them into team backlogs.</li>
+</ul>
+
+<h3>Backlog ownership</h3>
+<ul>
+<li>Own the master backlog: intake, sizing, priority within each tome, refinement into team backlogs,
+  pruning of stale work.</li>
+<li>Enforce the definitions of Ready and Done. A task is pass/fail against Done; there is no partial
+  credit &mdash; split the task instead.</li>
+</ul>
+
+<h3>Cadence and operating rhythm</h3>
+<ul>
+<li>Run the daily all-teams townhall (fixed 15-minute window, chat is the record): everyone answers
+  yesterday / today / blockers in the meeting chat; the architect reads the derived flags, not the chat.</li>
+<li>Run sprint planning (Day 1), the mid-sprint health check (Day 8), master-backlog refinement (Day 9)
+  and the sprint review/retro (Day 14) on a two-week cycle.</li>
+</ul>
+
+<h3>Measurement, forecasting and reporting</h3>
+<ul>
+<li>Maintain the single plain-text journal from which every metric is derived, never retyped:
+  committed/done, velocity, predictability, load, carryover rate, blocked count and age, backlog depth
+  and age, intake vs done, epic and tome progress.</li>
+<li>Produce the daily one-screen leadership brief (BLUF: one line of status, one sentence, at most five
+  action items), the daily status mail to leads, the weekly and sprint reports, and the epic roadmap
+  (actuals from the journal, forecast from team velocity).</li>
+<li>Keep the sprint history as the audit trail; export it for program reviews.</li>
+</ul>
+
+<h3>Trade-offs</h3>
+<ul>
+<li>Balance cost, schedule, risk and technical debt with product management and systems engineering;
+  own estimates that combine task assignments with time-varying labor rates.</li>
+</ul>
+
+<h3>Information handling</h3>
+<ul>
+<li>Apply the organisation's information markings on every report, mail and PDF (banner, marking block,
+  subject prefix); send marked material only where the organisation allows, encrypted in transit.</li>
+</ul>
+
+<h2>Qualifications</h2>
+<ul>
+<li>Experience as an architect or lead engineer across several agile teams on a system-of-systems;
+  SAFe Large Solution experience or equivalent.</li>
+<li>Function/process modeling (IDEF0) or MBSE, and familiarity with work-breakdown structures and
+  stage-gated programme lifecycles.</li>
+<li>Comfortable working from a plain Windows workstation with Git for Windows, Vim and core Perl only
+  (nothing to install); Teams and classic Outlook.</li>
+<li>Clear, terse written communication for leadership.</li>
+</ul>
+
+<h2>Measures of success</h2>
+<ul>
+<li>Interface blockers cleared within three days; none older than five.</li>
+<li>Predictability (done / committed over the last three sprints) at or above 80% per team; load
+  between 70% and 110% at planning.</li>
+<li>Carryover rate under 20%; backlog depth of two to four sprints per team; no backlog item older
+  than a quarter without a decision.</li>
+<li>Leadership never has to ask for status: the brief goes out daily, the roadmap is current, the
+  history is exportable.</li>
+</ul>
+
+<p class="note">"Solutions Architect" is also a pre-sales title at cloud vendors, where it means designing
+customer deployments with the vendor's products. That is a different job from this one.</p>
+
+</body>
+</html>

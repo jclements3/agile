@@ -1,0 +1,22 @@
+[
+  { "id": "EV-ALPHA-0923", "subject": "Alpha Stand-up", "start": "2026-09-23T09:00:00", "end": "2026-09-23T09:15:00",
+    "location": "Microsoft Teams Meeting", "organizer": "JC", "recurring": true,
+    "body": "Daily stand-up.\r\n________________________________________________________________________________\r\nMicrosoft Teams meeting\r\nJoin on your computer: https://teams.microsoft.com/l/meetup-join/19%3ameeting_abc\r\n",
+    "attendees": [
+      { "name": "JC",  "email": "jc@example.com",  "type": 1, "response": 1 },
+      { "name": "Ann", "email": "ann@example.com", "type": 1, "response": 3 },
+      { "name": "Bob", "email": "bob@example.com", "type": 1, "response": 3 },
+      { "name": "Eve", "email": "eve@example.com", "type": 2, "response": 5 },
+      { "name": "Room 204", "email": "room204@example.com", "type": 3, "response": 3 }
+    ] },
+  { "id": "EV-BRAVO-0923", "subject": "Bravo Stand-up", "start": "2026-09-23T09:20:00", "end": "2026-09-23T09:35:00",
+    "location": "Microsoft Teams Meeting", "organizer": "JC", "recurring": true, "body": "https://teams.microsoft.com/l/meetup-join/19%3ameeting_def",
+    "attendees": [
+      { "name": "JC",  "email": "jc@example.com",  "type": "required", "response": "organizer" },
+      { "name": "Cy",  "email": "cy@example.com",  "type": "required", "response": "tentative" },
+      { "name": "Dee", "email": "dee@example.com", "type": "required", "response": "declined" }
+    ] },
+  { "id": "EV-PGM-0923", "subject": "Program sync", "start": "2026-09-23T14:00:00", "end": "2026-09-23T15:00:00", "body": "", "attendees": [] },
+  { "id": "EV-ALPHA-0924", "subject": "Alpha Stand-up", "start": "2026-09-24T09:00:00", "end": "2026-09-24T09:15:00", "recurring": true,
+    "body": "https://teams.microsoft.com/l/x", "attendees": [ { "name": "Ann", "email": "ann@example.com", "type": 1, "response": 4 } ] }
+]

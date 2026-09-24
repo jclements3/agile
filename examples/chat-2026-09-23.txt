@@ -1,0 +1,45 @@
+Meeting started
+Ann Smith joined the meeting.
+[9:02 AM] JC
+Good morning. Estimates for the MFA story.
+#est AUTH-104
+[9:03 AM] Ann Smith
+5
+[9:03 AM] Bob Jones
+8 pts
+[9:03 AM] Cy Park
+5
+👍 2
+[9:04 AM] Ann Smith
+actually 8
+[9:04 AM] Dee Lee
+?
+[9:05 AM] JC
+#est RPT-203 export perf
+[9:05 AM] Ann Smith
+3
+[9:05 AM] Bob Jones
+3
+[9:05 AM] Cy Park
+3
+[9:06 AM] JC
+#vote Ship Friday? y/n
+[9:06 AM] Ann Smith
+y
+[9:06 AM] Bob Jones
++1
+[9:06 AM] Cy Park
+no, cert isn't done
+[9:06 AM] Dee Lee
+n
+[9:07 AM] JC
+#vote Sprint name: Falcon Hawk Kestrel
+[9:07 AM] Ann Smith
+hawk
+[9:07 AM] Bob Jones
+Kestrel!
+[9:07 AM] Cy Park
+falcon
+[9:08 AM] Eve Wu
+the hawk one
+Recording has started.

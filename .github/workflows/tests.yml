@@ -1,0 +1,55 @@
+# The kit's test suite on the two Perls that matter: the target (Git for Windows' cygwin Perl, which GitHub's
+# Windows runners ship at C:\Program Files\Git\usr\bin\perl.exe) and a Linux system Perl for contrast.
+# Core Perl only, nothing to install. data/ is git-ignored and never reaches GitHub.
+name: tests
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+jobs:
+  git-for-windows-perl:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: git identity (daily.pl commit is under test)
+        shell: bash
+        run: git config --global user.email ci@example.invalid && git config --global user.name ci
+      - name: perl version
+        shell: bash
+        run: '"/c/Program Files/Git/usr/bin/perl.exe" -v | sed -n 2p'
+      - name: test suite
+        shell: bash
+        run: |
+          rc=0
+          for t in tests/*.t; do
+            out=$("/c/Program Files/Git/usr/bin/perl.exe" "$t" 2>&1) || rc=1
+            echo "$out" | tail -1 | sed "s#^#$t  #"
+            echo "$out" | grep -v '^ok' | grep -v '^1\.\.' | grep -v '^# all' || true
+          done
+          exit $rc
+      - name: syntax check every script under the target Perl
+        shell: bash
+        run: |
+          for f in bin/*.pl agile.pl sim/*.pl tools/idef0/idef0.pl; do "/c/Program Files/Git/usr/bin/perl.exe" -Ilib -c "$f" || exit 1; done
+      - name: training replay (exercises daily.pl, git and the IDEF0 toolkit end to end)
+        shell: bash
+        run: |
+          git config --global user.email ci@example.invalid && git config --global user.name ci
+          "/c/Program Files/Git/usr/bin/perl.exe" sim/training.pl --fast > /dev/null
+          test -s docs/TRAINING.html
+  linux-perl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: git identity (daily.pl commit is under test)
+        run: git config --global user.email ci@example.invalid && git config --global user.name ci
+      - name: test suite
+        run: |
+          rc=0
+          for t in tests/*.t; do
+            out=$(perl "$t" 2>&1) || rc=1
+            echo "$out" | tail -1 | sed "s#^#$t  #"
+            echo "$out" | grep -v '^ok' | grep -v '^1\.\.' | grep -v '^# all' || true
+          done
+          exit $rc

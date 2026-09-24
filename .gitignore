@@ -1,0 +1,13 @@
+.claude/settings.local.json
+/scrum.txt
+/dashboard.html
+/reports/
+/standups/
+/scrum.conf
+/data/
+\#*\#
+.#*
+*~
+/devsecops.html
+/release/
+/handup/

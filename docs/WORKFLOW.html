@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Solutions Architect's multi-team scrum operating model</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a;
+         max-width: 960px; margin: 2em auto; padding: 0 1.5em; line-height: 1.5; }
+  h1 { font-size: 20pt; border-bottom: 2px solid #444; padding-bottom: 0.2em; }
+  h2 { font-size: 15pt; margin-top: 2em; border-bottom: 1px solid #999; padding-bottom: 0.15em; }
+  h3 { font-size: 12.5pt; margin-top: 1.5em; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  pre { background: #f4f4f4; border: 1px solid #ddd; padding: 0.8em 1em; overflow-x: auto; }
+  code { background: #f4f4f4; padding: 0.1em 0.3em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 10pt; }
+  th, td { border: 1px solid #bbb; padding: 0.4em 0.6em; text-align: left; vertical-align: top; }
+  th { background: #e8e8e8; }
+  tr:nth-child(even) td { background: #fafafa; }
+  ol, ul { margin: 0.5em 0; }
+  li { margin: 0.3em 0; }
+  .indent { margin-left: 1.5em; }
+  hr { border: none; border-top: 1px solid #ccc; margin: 2em 0; }
+</style>
+</head>
+<body>
+
+<h1>The Solutions Architect's multi-team scrum operating model</h1>
+
+<p>Two-week sprints, several teams, one fixed daily townhall, one architect who owns the master
+backlog, cross-team alignment, and upward reporting. Every team joins a single Teams call at a
+fixed time (08:30–08:45) and types their three questions — Y/T/B — into the chat; the chat
+<em>is</em> the record. Anyone who needs to sync with another team says so on the line and either
+sets up a follow-up meeting or raises it as a decision to be made — it doesn't get worked live.
+The architect reads that chat, runs it through the kit in this repo (git bash, vim, Perl), and
+turns it into journal entries, metrics, and reports for management — no browser dashboard, no
+separate PM tool, nothing beyond what ships with Git for Windows. Below: the hierarchy of work,
+the cadences, what is collected at each event, what is produced from it, the metrics and their
+thresholds, and the feedback loops that make the numbers change behaviour.</p>
+
+<h2>1. What you own vs what the teams own</h2>
+
+<table>
+<tr><th>You (architect / chief scrum)</th><th>Each team (its scrum master / lead)</th></tr>
+<tr><td>Tomes and epics, priority order</td><td>Task breakdown inside an epic</td></tr>
+<tr><td>Master backlog, assignment of work to teams</td><td>Team backlog order, who takes what</td></tr>
+<tr><td>Capacity and load across teams</td><td>Day-to-day task tracking</td></tr>
+<tr><td>Cross-team dependencies and blockers</td><td>Their own impediments</td></tr>
+<tr><td>Definitions of Ready and Done</td><td>Applying them</td></tr>
+<tr><td>Metrics, status up and across</td><td>Their retro actions</td></tr>
+</table>
+
+<p>The journal records only the architect-level facts: task identity, size, epic, team, sprint,
+owner, state, blocked. Sub-tasks and hours stay in the teams' own tools or heads. Keep it that
+way; the value of the journal is that it is small enough to update during a stand-up.</p>
+
+<h2>2. Hierarchy of work</h2>
+
+<pre>Tome    &lt; 2 years, 2–5 live at a time                       tome:  metadata on tasks
+Epic    &lt; 13 sprints (26 weeks), one tome, 1+ teams         epic:  metadata on tasks
+Task    &lt; 1 sprint (2 weeks), one team, sized in SP         the ledger id (AUTH-104)
+Sprint  2 weeks, per team (the timebox, not a size)         Sprint:&lt;N&gt;:&lt;Team&gt;:*</pre>
+
+<p>Anything finer-grained than a task (hour-level work inside a day) stays in the team's own
+tools or heads — it never enters the journal. The task is the smallest unit tracked here,
+judged strictly pass/fail against its Definition of Done: no partial credit, split it instead.</p>
+
+<p>Points flow through accounts; the account a task's points sit in <em>is</em> its state:</p>
+
+<pre>Backlog:Master  →  Backlog:&lt;Team&gt;  →  Sprint:N:&lt;Team&gt;:Committed  →  Done
+                                                                →  Carryover  →  next sprint's Committed
+                                                                →  Removed</pre>
+
+<p>Rules that keep this honest:</p>
+<ul>
+<li>A task enters once, sized, with <code>id</code>, <code>epic</code>, <code>prio</code>, and ideally <code>tome</code>.
+  (<code>new AUTH-104 5 MFA enrolment p:1 e:Auth</code> in a stand-up file, or an intake block.)</li>
+<li>Re-sizing posts the difference (<code>est ID N</code>); history is never rewritten.</li>
+<li>Nothing leaves a sprint except to Done, Carryover, or Removed. Carryover is visible forever.</li>
+<li>An epic is "done" when its tasks are, so epic progress is derived, never typed.</li>
+</ul>
+
+<h2>3. Tempo: the two-week cycle</h2>
+
+<p>Day numbering assumes sprints start Wednesday (planning) and end Tuesday (review) so the
+review-to-planning turn happens inside one day and Mondays/Fridays absorb holidays.</p>
+
+<pre>Day  1 Wed   Planning (per team, 30–45 min each), capacity set, commitments made
+Day  2 Thu   Townhall begins; dependency check across teams
+Day  3 Fri   Townhall; weekly status mail (short)
+Day  6 Mon   Townhall; mid-sprint refinement of next sprint's candidates (per team, 30 min)
+Day  7 Tue   Townhall
+Day  8 Wed   Townhall; mid-sprint health check: load, blocked age, burn vs plan
+Day  9 Thu   Townhall; backlog refinement for Master (you + leads, 45 min): size, split, assign
+Day 10 Fri   Townhall; weekly status mail
+Day 13 Mon   Townhall; pre-review: confirm what will demo, sweep obvious carryover early
+Day 14 Tue   Review/demo (all teams, 60 min), retro (per team, 30 min), sprint closed in journal;
+             sprint report mailed; velocity recomputed; next capacity drafted</pre>
+
+<p>Longer cadences layered on top:</p>
+
+<pre>Weekly     Fri  status mail to leadership (metrics + risks), attendance CSV rolled into Excel
+Sprint     Tue  review pack; velocity/predictability trend; epic burn
+Monthly    first review of the month: epic and tome roll-up, intake vs done, backlog age
+Quarterly  tome reset: what is done, what is dropped, what enters; recalibrate capacity</pre>
+
+<h2>4. The daily townhall (all teams, one Teams call, 0830–0845, mostly typing)</h2>
+
+<p>This is the primary battle rhythm. One fixed-time recurring Teams meeting covers <em>every</em>
+team, every day, 08:30–08:45 sharp — not a round of separate per-team stand-ups. Talking is
+the exception; the chat is the record. Cameras optional, mics muted unless called on. If two
+people need to sort something out, they say so on the line and either take it to a follow-up
+meeting or it becomes a `note`/blocker for a decision — it does not get worked live in the
+townhall.</p>
+
+<pre>08:15  daily.pl cards            each member's card (their sprint items, blockers, yesterday's
+                                 open blocker, the Y/T/B reminder) goes out: `cards --send` by
+                                 Outlook mail, or the cards page with one "send in Teams" link
+                                 per person (opens a 1:1 chat pre-filled; you press Enter)
+08:30  daily.pl attend           → roster and declines from the calendar into today's file
+08:30  join; you post one line:  "Y/T/B in chat. Say so on the line if you need to sync with
+                                 someone — set up a meeting or raise it as a decision. Leave
+                                 unless tagged."
+08:30–08:38  members type Y/T/B  in the shared chat, across all teams; members who are done
+                                 and untagged leave; cross-team asks get flagged, not solved here
+08:38  you read the chat; @mention anyone whose answer needs a word; 60 seconds each
+08:40  #est / #vote rounds       for tasks refined the day before; numbers in chat, no
+                                 discussion unless no consensus, then two minutes and one re-vote
+08:43  leads only: dependencies, blockers older than two days, capacity changes
+08:45  end. Attendance tab -&gt; download -&gt; standups/&lt;date&gt;-attendance.csv
+
+08:50  copy chat -&gt; :SChat -&gt; :SAnswers, :STally, :SJoined, :SCompile, :SReport, :SAi, :SDraft, commit</pre>
+
+<p>What Perl gets from the townhall: every member's Y/T/B (split to teams by owner), estimates
+and votes, who answered (attendance.csv: answered), who joined and left and for how long
+(attendance.csv: present/brief with join/leave/minutes), and the suggested journal lines. Your
+job at the keyboard is reading the chat, running the pipeline, and doing the analysis and
+reporting — not collecting status by talking.</p>
+
+<p>Rules that make it work:</p>
+<ul>
+<li>The cards are the agenda. A member who has read their card needs no introduction.</li>
+<li>Y/T/B first, always, even if you have nothing to say: "B: none" is data.</li>
+<li>Leaving early is expected. Staying is for coordination that needs a voice.</li>
+<li>A cross-team integration need is said on the line, then becomes a follow-up meeting or a
+  logged decision item — never worked live in the fifteen minutes.</li>
+<li>Anything longer than two minutes of talk becomes a <code>note</code> and a follow-up meeting.</li>
+<li>Estimation happens on refined tasks only; unrefined ones get <code>#est</code> deferred to Day 9.</li>
+</ul>
+
+<p>Planning (Day 1) uses the same townhall slot extended to 45 minutes: cards show each team's
+ready list, leads post <code>cap N</code>, <code>#est</code> for anything unsized, then <code>commit</code> lines typed by you
+as leads confirm in chat. Review (Day 14) is the opposite: 60–90 minutes, cameras on, demos
+with slides, no chat discipline; the journal entry for it is one <code>done</code>/<code>carry</code>/<code>drop</code> sweep
+afterwards.</p>
+
+<h3>4a. Variant: separate per-team stand-ups instead of one townhall</h3>
+
+<p>If a program can't get every team onto one 15-minute call (time zones, size, culture), the
+same pipeline runs per team instead — it is slower and loses the live cross-team "say so on
+the line" moment, so prefer the joint townhall above whenever it's an option.</p>
+
+<pre>08:45  daily.pl attend           → roster and declines from the calendar into today's file
+09:00  Alpha stand-up 15 min     → participants type Y/T/B in the Teams chat; you type only
+                                   exceptions live in :SNew's file (new / est / drop / cap)
+09:15  copy chat → :SChatTeam Alpha, paste
+09:20  Bravo stand-up            → same
+...    (all teams by 10:00)
+10:00  :SAnswers                 → Y/T/B per person recorded; flags; done/block/absent lines suggested
+       :SChat + :STally          → if estimates/votes were taken in chat
+       confirm the suggested lines (uncomment), :SCompile → journal updated, errors caught now
+       :SAi                      → prompt to your AI service (paste, or curl); reply → :SAiResponse
+       :SReport                  → dashboard + status text/html (marked)
+       daily.pl post             → metrics into today's stand-up meeting bodies
+       :SDraft                   → status draft to leads, review, send
+       git commit                → daily.pl all --draft does compile+report+draft+commit
+10:15  done.</pre>
+
+<p>Inputs are the same either way: only what changed — <code>done</code>, <code>carry</code>, <code>block</code>/<code>unblock</code>,
+<code>assign</code>, <code>est</code>, <code>new</code>, <code>note</code>/<code>risk</code>/<code>absent</code>. Names and sizes come from the journal;
+nobody re-types anything.</p>
+
+<h2>5. Sprint events and what the journal gets from each</h2>
+
+<table>
+<tr><th>Event</th><th>Input</th><th>Journal entry (via stand-up verbs)</th><th>Output</th></tr>
+<tr><td>Refinement (Day 9)</td><td>candidate tasks, chat <code>#est</code>, dependencies</td>
+    <td><code>new</code>, <code>est</code>, master→team assignment</td><td>ready list per team for planning</td></tr>
+<tr><td>Planning (Day 1)</td><td>team capacity (people × days × focus), ready list</td>
+    <td><code>cap N</code>, <code>commit ID owner</code> per task</td><td>sprint commitment; load % per team</td></tr>
+<tr><td>Townhall (daily)</td><td>Y/T/B answers in chat; calendar responses</td>
+    <td><code>answers</code> → suggested <code>done</code>, <code>block</code>, <code>absent</code>; you add <code>new!</code>, <code>est</code>, <code>note</code>, <code>risk</code></td>
+    <td>status mail with flags + AI assessment, dashboard, blocked list</td></tr>
+<tr><td>Mid-sprint (Day 8)</td><td>burn vs plan, blocked age</td>
+    <td><code>drop</code> for descoping, <code>carry</code> early if obvious</td><td>health note in status mail</td></tr>
+<tr><td>Review (Day 14)</td><td>demo results</td>
+    <td>remaining <code>done</code> / <code>carry</code> / <code>drop</code></td><td>sprint report; velocity; epic progress</td></tr>
+<tr><td>Retro (Day 14)</td><td>team actions</td>
+    <td><code>note retro: …</code> (one line per action)</td><td>actions tracked as notes next sprint</td></tr>
+<tr><td>Intake (any time)</td><td>new requests from leadership/customers</td>
+    <td><code>new</code> into Backlog:Master with tome/epic/prio</td><td>intake rate; backlog depth</td></tr>
+</table>
+
+<h2>6. Metrics: definition, source, and the threshold that triggers action</h2>
+
+<p>All computed by <code>daily.pl</code> / <code>scrum.pl</code> from the journal; none are typed.</p>
+
+<table>
+<tr><th>Metric</th><th>Definition</th><th>Where</th><th>Watch for</th></tr>
+<tr><td>Committed / Done / Done %</td><td>SP into Committed vs SP in Done, per team, per sprint</td>
+    <td><code>sprint</code></td><td>&lt; 60% by Day 8 → descope or swarm</td></tr>
+<tr><td>Velocity</td><td>Done SP per sprint; average of last 3 completed</td>
+    <td><code>velocity</code></td><td>trend down 2 sprints → look for hidden blockers</td></tr>
+<tr><td>Predictability</td><td>Done / Committed, last 3 sprints</td>
+    <td><code>velocity</code></td><td>&lt; 80% → over-commitment; cap next commit at velocity</td></tr>
+<tr><td>Load</td><td>Committed / Capacity</td>
+    <td><code>sprint</code></td><td>&gt; 110% at planning → cut; &lt; 70% → pull from master</td></tr>
+<tr><td>Carryover rate</td><td>Carryover / Committed</td>
+    <td><code>sprint N</code> history</td><td>&gt; 20% two sprints → tasks too big; split at refinement</td></tr>
+<tr><td>Blocked count / age</td><td>tasks with <code>blocked:</code>, days since set</td>
+    <td><code>blocked</code>, dashboard</td><td>any blocker &gt; 3 days → escalate; &gt; 5 → your problem</td></tr>
+<tr><td>Backlog depth</td><td>Master backlog SP ÷ total velocity</td>
+    <td><code>backlog</code>, <code>velocity</code></td><td>&lt; 2 sprints → intake starved; &gt; 8 → prune</td></tr>
+<tr><td>Backlog age</td><td>days since intake for items still in a backlog</td>
+    <td><code>backlog</code> (Age)</td><td>&gt; 90 days → decide: schedule or remove</td></tr>
+<tr><td>Intake vs done</td><td>new SP entered vs SP done per sprint</td>
+    <td>ledger <code>reg</code></td><td>intake &gt; done 3 sprints → backlog grows; say so upward</td></tr>
+<tr><td>Epic progress</td><td>Done / (Done + WIP + Backlog) per epic</td>
+    <td><code>epics</code></td><td>remaining ÷ team velocity = sprints left; compare with target</td></tr>
+<tr><td>Estimate consensus rate</td><td>chat rounds with consensus / rounds</td>
+    <td><code>chat</code> tallies</td><td>&lt; 50% → tasks under-specified; refine before estimating</td></tr>
+<tr><td>Attendance</td><td>answered in chat / accepted / declined / absent</td>
+    <td><code>answers</code>, <code>attend</code>, attendance.csv</td><td>declines rising → the meeting time is wrong</td></tr>
+<tr><td>Answer discipline</td><td>people with complete Y/T/B answers / people present</td>
+    <td><code>answers</code> flags</td><td>silent or incomplete 3 days → talk to the lead</td></tr>
+<tr><td>Stuck signals</td><td>same plan N days; blocker N days</td>
+    <td><code>answers</code> flags</td><td>red (3 days) → your action, not the lead's</td></tr>
+<tr><td>WIP per person</td><td>committed SP per owner</td>
+    <td><code>members</code></td><td>one person &gt; 40% of team commit → bus factor</td></tr>
+<tr><td>Unassigned</td><td>committed tasks with no owner</td>
+    <td><code>members</code>, dashboard</td><td>any → fix at next stand-up</td></tr>
+</table>
+
+<p>Three or four of these go in the daily mail (done %, open, blocked, risks). All of them are in
+the dashboard. The sprint report adds velocity and predictability; the monthly roll-up adds
+epics, intake vs done, backlog age, attendance.</p>
+
+<h2>7. Outputs and their audience</h2>
+
+<table>
+<tr><th>Output</th><th>Cadence</th><th>Audience</th><th>Produced by</th><th>Form</th></tr>
+<tr><td>Townhall status</td><td>daily</td><td>team leads, PM</td>
+    <td><code>daily.pl report</code> / <code>draft</code></td><td>Outlook mail, inline HTML, marked</td></tr>
+<tr><td>Metrics in meeting body</td><td>daily</td><td>attendees</td>
+    <td><code>daily.pl post</code></td><td>text appended to the Teams meeting</td></tr>
+<tr><td>Dashboard</td><td>daily</td><td>you; leads on request</td>
+    <td><code>daily.pl report</code></td><td>reports/dashboard.html on a share</td></tr>
+<tr><td>Weekly status</td><td>Fri</td><td>leadership</td>
+    <td>Fri status + <code>velocity</code> + <code>blocked</code></td><td>same mail, two extra paragraphs</td></tr>
+<tr><td>Sprint report</td><td>Day 14</td><td>leadership, teams</td>
+    <td><code>sprint N</code>, <code>velocity</code>, <code>epics</code></td><td>mail + xlsx via <code>scrum.pl csv</code>→Excel</td></tr>
+<tr><td>Monthly / quarterly roll-up</td><td>monthly</td><td>program leadership</td>
+    <td><code>epics</code>, ledger <code>reg</code>, attendance.csv</td><td>Excel pivot from CSV, slides by hand</td></tr>
+<tr><td>Audit trail</td><td>always</td><td>you, successors</td>
+    <td>git log of scrum.txt + standups/</td><td>plain text</td></tr>
+</table>
+
+<h2>8. Feedback loops (what changes because of a number)</h2>
+
+<ol>
+<li><strong>Blocked → escalation.</strong> Every blocker is in the daily mail with its age until <code>unblock</code>.
+   Three days is your cue to act across teams; five days means it is on the weekly mail by name.</li>
+<li><strong>Velocity → commitment cap.</strong> At planning, a team's commitment is capped at its 3-sprint
+   average velocity unless the lead argues a specific reason. Load % is printed so the argument
+   is about a number.</li>
+<li><strong>Carryover → task size.</strong> Carryover rate above 20% sends the team's tasks back to
+   refinement to be split before they are estimated again.</li>
+<li><strong>Estimate spread → refinement.</strong> A <code>#est</code> round without consensus and with outliers means
+   the task is discussed, not averaged; the tally names who to ask. Re-estimate next stand-up.</li>
+<li><strong>Epic burn → re-plan.</strong> Remaining epic points ÷ velocity gives sprints-to-done; when that
+   passes the epic's target, you re-scope (<code>drop</code>), re-assign across teams, or move the date, and
+   say which in the sprint report.</li>
+<li><strong>Intake vs done → conversation upward.</strong> When intake exceeds done for three sprints, the
+   backlog-depth number goes into the weekly mail with the sentence "at current velocity this
+   is N sprints of work"; it is leadership's decision what to cut.</li>
+<li><strong>Attendance → meeting hygiene.</strong> Declines and absences accumulate in attendance.csv; a
+   pattern by person or day means the stand-up time is wrong for that team, not that people are
+   lazy.</li>
+<li><strong>Retro actions → notes next sprint.</strong> Retro outputs are <code>note retro:</code> lines in the review
+   day's file; they show up in that day's mail and you re-read them at the next retro.</li>
+</ol>
+
+<h2>9. Definitions</h2>
+
+<p><strong>Ready</strong> (a task may be committed): has an id, size ≤ 13, epic, acceptance criteria (in the
+team's tool), no unresolved dependency on another team's uncommitted task, and an owner at
+planning.</p>
+
+<p><strong>Done</strong> (points move to Done): acceptance criteria met, merged/integrated, demonstrable at
+review, no known blocker. Partial credit does not exist; split the task instead.</p>
+
+<p><strong>Removed</strong>: scope dropped with a <code>note</code> saying why. Removed points never count as done and
+are excluded from epic totals.</p>
+
+<h2>10. Backlog management</h2>
+
+<p><strong>Master backlog</strong> (<code>Backlog:Master</code>) is yours. Ordered by <code>prio</code> within tome; sized at least
+roughly (T-shirt → SP at refinement). Day 9 refinement moves the top tasks to team backlogs (<code>refine ID</code> under the team's
+section; <code>prune ID reason</code> retires the stale ones)
+(<code>Backlog:&lt;Team&gt;</code>) with an owner where known. Keep 2–4 sprints of sized work per team ahead;
+prune anything older than a quarter that nobody argues for.</p>
+
+<p><strong>Team backlogs</strong> are ordered by the team; you only watch depth and age. A team backlog below
+one sprint of work means you failed to refine; above four means you assigned too far ahead
+and the priorities will change under it.</p>
+
+<p><strong>Sprint backlog</strong> is the Committed account; it changes during a sprint only through <code>new!</code>
+(interrupt work, always tagged so you can measure it), <code>drop</code>, and <code>carry</code>. Interrupt SP per
+sprint is a metric worth adding to the weekly mail if it is not near zero.</p>
+
+<p><strong>Tomes and epics</strong>: every task carries <code>epic:</code>; epics carry a <code>tome:</code> on at least one
+task (the roll-up picks the first it sees). <code>epics</code> shows done / in-sprint / backlog per epic;
+the quarterly review is that table plus a decision per row: continue, cut, or add.</p>
+
+<h2>11. Command map</h2>
+
+<pre>daily.pl init | new | cards [--send] | attend | joined | answers | chat | ai | compile | report | post | draft | commit | all
+daily.pl status | sprint [N] | velocity | backlog [Team] | members [Team] | epics | roadmap | blocked | meetings
+scrum.pl items &lt;state&gt; [team] | csv | dashboard | tree | roadmap   ledger.pl bal | reg | budget (the journal is a ledger)
+cal.pl list | dump | attend | post | create              chat.pl [--est ID] [--vote Q] file</pre>
+
+<p>Vim: <code>:SNew :SChat :STally :SCompile :SReport :SDraft :SAll :SStatus :SJournal</code>, <code>&lt;leader&gt;s*</code>.</p>
+
+<h2>12. Anti-patterns this model is designed to prevent</h2>
+
+<ul>
+<li>Metrics typed into slides by hand. Everything here is derived from the journal, so it cannot
+  disagree with itself and takes zero minutes to regenerate.</li>
+<li>Re-typing task titles, sizes, or names anywhere. Once, at intake.</li>
+<li>Carryover hidden by re-creating tasks. Points are conserved; <code>bal Sprint:41</code> shows the truth.</li>
+<li>Status mails that are prose. The mail is the table plus blockers plus three notes.</li>
+<li>Stand-ups that become status reports to you. Your inputs are verbs; the conversation is theirs.</li>
+</ul>
+
+</body>
+</html>

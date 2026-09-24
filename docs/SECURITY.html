@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security: what the kit protects and how</title>
+<style>
+  :root{--navy:#27235d;--gold:#e6af22;--grey:#808082;--lgrey:#e4e4e7;--ink:#0b0b0b}
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 13.5px; color: var(--ink); background: #fff; max-width: 960px; margin: 0 auto; padding: 14px 22px 40px; line-height: 1.5; }
+  h1 { font-size: 20px; color: var(--navy); border-bottom: 3px solid var(--gold); padding-bottom: 4px; margin: 0 0 4px; }
+  h2 { font-size: 15px; color: var(--navy); margin: 26px 0 6px; border-bottom: 1px solid var(--lgrey); padding-bottom: 3px; }
+  .sub { color: var(--grey); margin: 0 0 12px; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 12.5px; background: var(--lgrey); padding: 0 4px; border-radius: 3px; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; }
+  th, td { border: 1px solid var(--lgrey); padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--lgrey); font-weight: 600; }
+  .warn { border-left: 4px solid #d6292e; background: #fbeaea; padding: 6px 12px; margin: 10px 0; }
+</style>
+</head>
+<body>
+<h1>Security</h1>
+<p class="sub">What the kit protects, what it does not, and where the gates are. Companion to the DevSecOps dashboard (<code>perl bin/devsecops.pl</code>).</p>
+
+<h2>Threat model, in one paragraph</h2>
+<p>The asset is program data: the journal, stand-up answers, attendance and the reports derived from them, which may be
+confidential to your organisation. The kit is code with no secrets in it; the data lives in <code>data/&lt;project&gt;/</code>,
+each project its own git repo wherever your organisation keeps such things. The two things that must not happen: program data
+leaving that storage (a push to a public remote, a mail outside the allowed domains, a paste into an AI service your organisation
+has not sanctioned), and a marked report going out without its marking.</p>
+
+<h2>Gates</h2>
+<table>
+<tr><th>Risk</th><th>Gate</th><th>Where</th></tr>
+<tr><td>Program data in the code repo</td><td><code>/data/</code> git-ignored; CI fails if anything under <code>data/</code> is tracked</td><td><code>.gitignore</code>, <code>security.yml</code> hygiene job, <code>devsecops.pl</code></td></tr>
+<tr><td>Unmarked output, or mail to the wrong place</td><td><code>daily.pl check</code>: with a banner set, owner/POC/subject prefix present; with <code>mail_domains</code> set, every recipient inside them; <code>draft/brief/cards --send/invite</code> refuse on error unless <code>--force</code></td><td><code>lib/Scrum.pm marking_check</code>, <code>bin/daily.pl _marking_gate</code></td></tr>
+<tr><td>A page that phones home</td><td>Generated reports and the cockpit contain no <code>&lt;script src&gt;</code>, <code>&lt;link&gt;</code> or <code>http(s)</code> references; tests enforce it</td><td><code>tests/scrum.t</code>, <code>tests/cockpit.t</code></td></tr>
+<tr><td>Secrets in the tree</td><td>gitleaks in CI; local pattern scan in <code>devsecops.pl</code>; the AI key is read from an environment variable named in <code>scrum.conf</code>, never stored</td><td><code>security.yml</code>, <code>lib/Ai.pm</code></td></tr>
+<tr><td>Supply chain</td><td>Core Perl only: no CPAN, no XS, no package manager, no network at build or run time. The SBOM is the interpreter version</td><td>by construction; <code>devsecops.pl</code> lists every <code>use</code></td></tr>
+<tr><td>Data to an AI service</td><td>Paste backend by default (you choose the window); the prompt carries the banner; use only a service your organisation allows for the data</td><td><code>lib/Ai.pm</code>, README</td></tr>
+<tr><td>Private corrections leaking</td><td><code>--private</code> writes local pages with Teams 1:1 deep links; nothing is posted by the kit, you press Send; 1:1 chats are inside the org's retention rules, not hidden from IT</td><td><code>Scrum::messages_html</code></td></tr>
+<tr><td>Wrong interpreter behaviour on the target</td><td>Suite runs under Git for Windows' Perl (locally and on the windows-latest runner) as well as Linux Perl</td><td><code>tests.yml</code>, CLAUDE.md</td></tr>
+</table>
+
+<h2>What is not covered</h2>
+<ul>
+<li><b>Transport.</b> Marking is not encryption. Mail leaves via Outlook under the org's S/MIME/TLS policy; the kit does not encrypt.</li>
+<li><b>Endpoint.</b> The journal is plain text on disk. Its protection is the laptop's (BitLocker, access control), not the kit's.</li>
+<li><b>Static analysis for Perl.</b> perlcritic is CPAN and not available on the target. <code>strict</code>/<code>warnings</code>, <code>perl -c</code> on every file and 875 tests stand in; perlcritic can run in the Linux CI job if wanted.</li>
+<li><b>Outlook COM.</b> The one layer not unit-testable offline; <a href="TEST-PLAN.html">TEST-PLAN.html</a> is the manual session on the target.</li>
+</ul>
+
+<div class="warn">A personal GitHub remote is for the <b>kit</b> only. Nothing under <code>data/</code> may be pushed, ever; the hygiene job exists to catch the mistake, not to permit the attempt.</div>
+
+<h2>Reporting a problem</h2>
+<p>Open an issue on the kit repo with the command, the (redacted) input and the output. Never attach journal or stand-up files from a real program.</p>
+</body>
+</html>

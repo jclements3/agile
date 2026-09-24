@@ -1,0 +1,14 @@
+# -*- mode: idef0 -*-
+tA Assembly
+  a# Build Airframe
+    i# Frame Kit < F|Cut Frame Parts|Frame Kit
+    i# Mount Set < F|Print Mounts|Mount Set
+    c# Quad Spec < D|Define Quad Spec|Quad Spec
+    o# Bare Frame
+    m# Assembly Bench
+  a# Install Electronics
+    i# Bare Frame
+    i# Electronics Kit
+    i# Rework < T|Bench Test|Bench Rejects
+    o# Assembled Quad > T|Bench Test|Assembled Quad
+    m# Solder Station

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tutorial: updating the data in Vim</title>
+<style>
+  :root{--navy:#27235d;--gold:#e6af22;--olive:#6b7436;--grey:#808082;--lgrey:#e4e4e7;--ink:#0b0b0b;--ink2:#4a4a4c}
+  body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 13.5px; color: var(--ink); background: #fff;
+         max-width: 960px; margin: 0 auto; padding: 14px 22px 40px; line-height: 1.5; }
+  h1 { font-size: 20px; color: var(--navy); border-bottom: 3px solid var(--gold); padding-bottom: 4px; margin: 0 0 4px; }
+  h2 { font-size: 15px; color: var(--navy); margin: 26px 0 6px; border-bottom: 1px solid var(--lgrey); padding-bottom: 3px; }
+  h3 { font-size: 13.5px; margin: 16px 0 4px; }
+  .sub { color: var(--grey); margin: 0 0 12px; }
+  code, pre, kbd { font-family: Consolas, "Courier New", monospace; font-size: 12.5px; }
+  pre { background: #1a1a19; color: #e6e4dc; padding: 10px 14px; border-radius: 6px; overflow-x: auto; margin: 6px 0 12px; line-height: 1.45; }
+  pre .c { color: #8ee18a; } pre .k { color: #7cc4ff; font-weight: bold; } pre .d { color: #a09e96; }
+  code { background: var(--lgrey); padding: 0 4px; border-radius: 3px; }
+  kbd { background: #fff; border: 1px solid #bbb; border-bottom-width: 2px; border-radius: 3px; padding: 0 5px; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; }
+  th, td { border: 1px solid var(--lgrey); padding: 4px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--lgrey); font-weight: 600; }
+  td code { white-space: normal; }
+  #verbs td:first-child { width: 42%; }
+  .tip { border-left: 4px solid var(--gold); background: #fdf8e8; padding: 6px 12px; margin: 10px 0; }
+  .warn { border-left: 4px solid #d6292e; background: #fbeaea; padding: 6px 12px; margin: 10px 0; }
+  ol li, ul li { margin: 3px 0; }
+  nav.toc { background: #f4f4f5; border: 1px solid var(--lgrey); border-radius: 6px; padding: 8px 14px; margin: 10px 0 16px; font-size: 13px; }
+  nav.toc a { color: var(--navy); margin-right: 14px; text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<h1>Updating the data in Vim</h1>
+<p class="sub">The only editor you need for the townhall. Two files, ten verbs, one keystroke to compile.</p>
+
+<nav class="toc">
+<a href="#setup">1 Set-up</a><a href="#files">2 The files</a><a href="#loop">3 The daily loop</a><a href="#verbs">4 The verbs</a>
+<a href="#tricks">5 Vim tricks</a><a href="#planning">6 Sprint planning</a><a href="#master">7 Master backlog</a><a href="#fix">8 Fixing mistakes</a>
+<a href="#journal">9 Editing the journal</a><a href="#cheat">10 Cheat sheet</a>
+</nav>
+
+<h2 id="setup">1. Set-up (once)</h2>
+<pre><span class="d"># Git Bash, in the kit</span>
+<span class="k">$</span> echo 'source ~/projects/agile/vim/scrum.vim' &gt;&gt; ~/.vimrc
+<span class="k">$</span> cd ~/projects/agile/data/demo          <span class="d"># any directory inside a project works: daily.pl finds scrum.conf upward</span>
+<span class="k">$</span> vim</pre>
+<p><code>scrum.vim</code> adds the <code>:S…</code> commands, <code>&lt;leader&gt;s…</code> mappings (the leader is <kbd>\</kbd> unless you set
+<code>mapleader</code>), syntax highlighting for stand-up files and the journal, and task-id completion. Nothing else to install.</p>
+
+<h2 id="files">2. The files you touch</h2>
+<table>
+<tr><th>File</th><th>What it is</th><th>How you edit it</th></tr>
+<tr><td><code>standups/YYYY-MM-DD.txt</code></td><td>Today's stand-up notes: one section per team, terse verb lines.</td><td><b>This is where you type.</b> <code>:SNew</code> creates it; compile appends it to the journal.</td></tr>
+<tr><td><code>scrum.txt</code></td><td>The journal: a ledger of every point movement. The account a task's points sit in <i>is</i> its state.</td><td>Almost never by hand. Compile writes it; you read it (<code>:SJournal</code>). See §9 for the exceptions.</td></tr>
+<tr><td><code>scrum.conf</code></td><td>Project settings: recipients, unit, marking, calendar mode, townhall time.</td><td>Plain <code>key = value</code>; edit when the program's facts change.</td></tr>
+<tr><td><code>roster.txt</code></td><td>The people: <code>Name | email | Team | Role | Org</code>, name as Teams shows it.</td><td>Edit in Vim, or <code>daily.pl roster add …</code>; <code>daily.pl roster</code> checks it against the journal.</td></tr>
+<tr><td><code>standups/…-chat.txt</code>, <code>…-answers.txt</code></td><td>Pasted Teams chat and the Y/T/B records derived from it.</td><td><code>:SChat</code> opens the paste buffer; <code>:SAnswers</code> derives the records. Read-only after that.</td></tr>
+</table>
+
+<h2 id="loop">3. The daily loop (two minutes after the townhall)</h2>
+<pre><span class="c">:SNew</span>          <span class="d">today's file, one "== Team" section each, the open items listed as comments</span>
+<span class="d">…type the verbs (§4)…</span>
+<span class="c">:SDry</span>          <span class="d">validate: shows the postings compile would write, or every error — nothing is written</span>
+<span class="c">:SCompile</span>      <span class="d">(or \sc) save + validate + append to scrum.txt; the file is marked "# compiled"</span>
+<span class="c">:SReport</span>       <span class="d">reports/: dashboard, tree, roadmap, brief, status mail, cockpit (marked)</span>
+<span class="c">:SCockpit</span>      <span class="d">rebuild ./dashboard.html at the kit root; press F5 in the browser</span>
+<span class="c">:SDraft</span>        <span class="d">Outlook draft to the leads — review, then send from Outlook</span>
+<span class="c">:STig</span>          <span class="d">look before you commit: tig on the project — j/k walk the commits, Enter shows the diff, q returns</span>
+<span class="c">:SCommit</span>       <span class="d">git commit of the journal + stand-up files (each project is its own repo)</span>
+<span class="c">:SAll</span>          <span class="d">compile + report + draft + commit in one go (\sa)</span></pre>
+<div class="tip">A stand-up file with a mistake is rejected <b>whole</b>, with every error listed — nothing is half-applied. Fix the lines and run <code>:SCompile</code> again.</div>
+
+<h2 id="verbs">4. The verbs</h2>
+<p>Every line under a <code>== Team</code> header is one verb. IDs are task ids from the journal; several ids on one line are fine for <code>done carry drop</code>.</p>
+<table id="verbs">
+<tr><th>Line</th><th>Meaning</th><th>Points move</th></tr>
+<tr><td><code>done B-11 B-121</code></td><td>Passed Definition of Done (pass/fail, no partial credit).</td><td>Committed → Done</td></tr>
+<tr><td><code>carry B-1221</code></td><td>Not finished; goes to next sprint.</td><td>Committed → Carryover</td></tr>
+<tr><td><code>drop B-23</code></td><td>Out of the sprint, back to nothing.</td><td>Committed → Removed</td></tr>
+<tr><td><code>commit B-13 Ann</code></td><td>Pull into this sprint (from the team backlog, master backlog or last sprint's carryover), optionally assign.</td><td>Backlog → Committed</td></tr>
+<tr><td><code>new B-14 5 Write ICD p:1 e:"B1 Develop Fire Control" t:"B Battle Management &amp; Fire Control" o:"Ann BMC2"</code></td><td>Intake to the team backlog. Quote multi-word values.</td><td>Intake → Backlog:Team</td></tr>
+<tr><td><code>new! B-15 3 Hotfix …</code></td><td>Intake straight into the current sprint.</td><td>Intake → Committed</td></tr>
+<tr><td><code>est B-11 8</code></td><td>Re-estimate. Posts the delta; history stays.</td><td>+3 in place</td></tr>
+<tr><td><code>assign B-11 Bob</code></td><td>Reassign owner.</td><td>—</td></tr>
+<tr><td><code>block B-11 waiting on SEI ICD</code> / <code>unblock B-11</code></td><td>Tracked on the task; shows red in every report until unblocked.</td><td>—</td></tr>
+<tr><td><code>cap 24</code></td><td>Team capacity this sprint (load = committed / cap).</td><td>—</td></tr>
+<tr><td><code>refine M-1</code></td><td>Master backlog (or another team's) → this team's backlog.</td><td>Backlog:Master → Backlog:Team</td></tr>
+<tr><td><code>prune G-332 superseded by M-1</code></td><td>Retire a backlog task; the reason stays on the posting.</td><td>Backlog → Removed</td></tr>
+<tr><td><code>note …</code> <code>risk …</code> <code>absent Ann</code></td><td>Report-only lines.</td><td>—</td></tr>
+<tr><td><code>sprint 2</code></td><td>Override the current sprint (top of file or inside a section).</td><td>—</td></tr>
+</table>
+<p>The line grammar in full is the verb table in <a href="README.html">README.html</a>; the hierarchy (tome &lt; 2 years → epic &lt; 13 sprints → task &lt; 1 sprint) is in <a href="WORKFLOW.html">WORKFLOW.html</a> §2.</p>
+
+<h2 id="tricks">5. Vim tricks that pay off daily</h2>
+<h3>Complete task ids from the journal</h3>
+<p>In a stand-up buffer the journal is the dictionary: type <code>done B-1</code> and press <kbd>Ctrl-X</kbd> <kbd>Ctrl-K</kbd> to complete
+<code>B-1221</code>, <code>B-1222</code>… (<kbd>Ctrl-N</kbd> completes from open buffers too). <code>iskeyword</code> includes <code>-</code>, so <kbd>*</kbd> on an id searches the whole id.</p>
+
+<h3>Look a task up without leaving the file</h3>
+<pre><span class="c">:SJournal</span>                 <span class="d">open scrum.txt; then  * on the id in the stand-up file,  or  /B-11  and  n  to walk its history</span>
+<span class="c">:vimgrep /B-11/ scrum.txt standups/*.txt | copen</span>   <span class="d">every mention, in a quickfix list; Enter jumps</span>
+<span class="c">:SBacklog BMC2</span>            <span class="d">the team's backlog in the message area;  :SSprint  :SBlocked  :SMembers  likewise</span></pre>
+
+<h3>Read a spec without leaving Vim</h3>
+<p>Specs and deliverables arrive as PDF and Word. <code>:SDocs</code> runs <code>bin/docs2txt.pl</code>, which reads them as text through the converters
+Git for Windows already ships (<code>pdftotext</code>, <code>docx2txt</code>, <code>antiword</code>, <code>odt2txt</code>), so a document is grepped like the journal:</p>
+<pre><span class="c">:SDocs grep -i "interface control" ~/specs/*.pdf ~/specs/*.docx</span>   <span class="d">FILE:LINE: match, every document at once</span>
+<span class="c">:SDocs -o txt/ ~/specs/ICD-rev-C.docx</span>                              <span class="d">one .txt per document — then  :vimdiff txt/ICD-rev-B.txt txt/ICD-rev-C.txt</span>
+<span class="c">:SDocs tools</span>                                                        <span class="d">which converters were found</span>
+<span class="c">:r !perl ~/projects/agile/bin/docs2txt.pl grep -i "shall" spec.pdf</span>   <span class="d">pull the hits into the stand-up file as the basis for new tasks</span></pre>
+<div class="tip">The last form is how a requirements document becomes backlog: grep the "shall" statements into the buffer, then turn each line into a <code>new ID PTS title …</code> with a macro.</div>
+
+<h3>Draft today's statuses from yesterday's</h3>
+<pre><span class="c">:SPropose</span>       <span class="d">one line per person: "Ann: Y B-121 done? T B-1222 … B none -- &#128077; if right, or repost". Paste the block into the chat at 0830.</span>
+<span class="c">:SAnswers</span>       <span class="d">add  --assume  (daily.pl answers --assume) to put the proposal on the record for anyone who stayed silent, marked (assumed)</span></pre>
+<div class="warn">An assumed status is amber the first day, red from the second, and never marks anything done. Silence changes a flag, not the ledger.</div>
+
+<h3>Lint the statuses during the meeting</h3>
+<p>People type <code>Y did B-11 T doing B-12 B none</code> in the meeting chat. While they are still on the call, paste the chat so far and check it:</p>
+<pre><span class="c">:SChat</span>          <span class="d">today's chat buffer; paste (Ctrl-A, Ctrl-C in the Teams chat, then  p)</span>
+<span class="c">:SLint</span>          <span class="d">(\sl) one line per person: ERROR (unusable), warn (no task id / unknown id), ok. Errors open the quickfix list;  :cn  jumps to the person</span>
+<span class="c">:SLintReply</span>     <span class="d">the reply lines -- paste them back into the chat; the person answers with a thumbs-up or reposts</span>
+<span class="c">:!perl ~/projects/agile/bin/daily.pl lint --reply --confirm %</span>   <span class="d">read-backs for everyone: "I read your status as: Y … / T … / B …  👍 if right" -- the table entry, privately with --private</span>
+<span class="c">:!perl ~/projects/agile/bin/daily.pl lint --private %</span>   <span class="d">or send each correction 1:1: a page of private Teams chat links, message pre-filled (needs roster.txt for e-mails)</span>
+<span class="d">  Hey Bob! Did you mean: Y did B-11 / T will b in the lab / B none ?  &#128077; if yes, or repost as: Y did B-11 T doing B-12 B none</span>
+<span class="c">:SAnswers</span>       <span class="d">after the meeting; add  --guess  (daily.pl answers --guess) to take the "did you mean" readings that were thumbed up</span></pre>
+<p>The chat buffer's syntax highlighting shows delimiters (<code>Y T B</code>) in one colour, task ids in another and a stray lowercase delimiter in a warning colour, so the bad line is usually visible before you lint. A person's last message wins, so a repost simply replaces the first attempt.</p>
+
+<h3>Turn a list into verb lines</h3>
+<pre><span class="c">:r !perl ~/projects/agile/bin/daily.pl backlog BMC2</span>   <span class="d">pull the backlog into the buffer under the cursor</span>
+<span class="d">…delete the rows you won't commit, then:</span>
+<span class="c">:'&lt;,'&gt;s/^\s*\(\S\+\).*/commit \1/</span>          <span class="d">keep the id column, prefix "commit "</span>
+<span class="c">:'&lt;,'&gt;normal I done<span class="d"> </span></span>                        <span class="d">or just prefix each selected line with a verb</span></pre>
+<p>Other habits: <kbd>.</kbd> repeats the last edit on the next line; <kbd>qa</kbd>…<kbd>q</kbd> records a macro, <kbd>10@a</kbd> replays it ten times;
+<kbd>Ctrl-V</kbd> block-select a column of ids, <kbd>y</kbd>, then paste them onto one <code>done</code> line with <kbd>J</kbd> to join;
+<code>:sort u</code> on a block of ids; <code>:g/^block/p</code> lists every blocker in the file.</p>
+
+<h3>Navigate the file</h3>
+<p><code>== Team</code> headers are paragraph boundaries: <kbd>}</kbd> / <kbd>{</kbd> jump section to section, <kbd>zf}</kbd> folds one, <kbd>zM</kbd> folds all,
+<kbd>zR</kbd> opens all. <code>:set list</code> shows stray tabs (values are space-separated).</p>
+
+<h2 id="planning">6. Sprint planning (Day 1)</h2>
+<p>Same file, three verbs per team:</p>
+<pre><span class="k">== BMC2</span>
+sprint 2
+cap 24
+commit B-13 Ann
+commit B-14 Bob
+commit B-1221                       <span class="d"># last sprint's carryover comes back with "commit" too</span>
+new! B-16 2 Sprint-2 spike: track fusion p:1 e:"B1 Develop Fire Control" t:"B Battle Management &amp; Fire Control" o:"Cy BMC2"</pre>
+<p>Load over 100% turns the card amber, over 110% red, so <code>:SDry</code> then <code>:SStatus</code> before you compile tells you whether the plan is sane.</p>
+
+<h2 id="master">7. The master backlog (Day 9 refinement)</h2>
+<p>A <code>== Master</code> section intakes to the master backlog, which you (not a team) own. Refinement moves tasks down to a team; pruning retires stale ones.</p>
+<pre><span class="k">== Master</span>
+new M-2 8 Cross-segment timing budget p:1 e:"E1 Engineer the System" t:"E Systems Engineering &amp; Integration"
+
+<span class="k">== SEI</span>
+refine M-1                          <span class="d"># now in SEI's backlog; commit it next sprint</span>
+prune E-12223 merged into E-12222</pre>
+
+<h2 id="fix">8. Fixing mistakes</h2>
+<ul>
+<li><b>Before compile:</b> just edit the file. <code>:SDry</code> is free; use it until it prints no errors.</li>
+<li><b>After compile, wrong verb:</b> don't edit history. Post the correction as another verb in the next file
+  (<code>carry</code> what you wrongly marked <code>done</code>, <code>est</code> to the right size, <code>commit</code> what you dropped). The journal stays a true record and the reports follow.</li>
+<li><b>After compile, the whole file was wrong:</b> <code>:STig</code> (or <code>git log</code> / <code>git diff</code> in the project) shows exactly what the compile appended (a <code>; ---- standup DATE</code> block);
+  <code>git checkout -- scrum.txt</code> before you commit, or <code>git revert HEAD</code> after, then delete the <code># compiled</code> line at the top of the stand-up file and compile again.</li>
+</ul>
+<div class="warn">Never renumber or delete postings inside <code>scrum.txt</code> — points are conserved and every report is derived from the full history. Corrections are new postings.</div>
+
+<h2 id="journal">9. When you do edit the journal by hand</h2>
+<p>Three legitimate cases, all safe because they don't move points:</p>
+<ol>
+<li><b>Metadata fixes.</b> Owner, epic, tome or priority on an intake line: <code>; id: B-11, epic: …, owner: …, prio: 1, tome: …</code>.
+  A tome renamed across the program is one substitution: <code>:%s/tome: B Battle Mgmt/tome: B Battle Management \&amp; Fire Control/g</code>.</li>
+<li><b>Bulk intake</b> at program start: <code>sim/idef0-backlog.pl</code> generates a stand-up file from the IDEF0 model, so even this is usually a compile, not a hand edit.</li>
+<li><b>Sprint capacity block:</b> the <code>~ Sprint N</code> / <code>    Team   24 SP</code> lines, if you prefer them here to <code>cap</code> lines.</li>
+</ol>
+<pre><span class="d">; an entry is: date, payee, then postings that sum to zero</span>
+2026-09-23 Intake B-11 Define Software Requirements
+    Backlog:BMC2       5 SP   ; id: B-11, epic: B1 Develop Fire Control, owner: Ann BMC2, prio: 1, tome: B Battle Management &amp; Fire Control
+    Equity:Intake</pre>
+<p>After any hand edit: <code>:SStatus</code> (it re-parses the whole journal and reports the first error with a line number) and <code>:SCommit</code>.</p>
+
+<h2 id="cheat">10. Cheat sheet</h2>
+<table>
+<tr><th>Command</th><th>Mapping</th><th>Does</th></tr>
+<tr><td><code>:SNew [date]</code></td><td><code>\sn</code></td><td>Create/open today's stand-up file</td></tr>
+<tr><td><code>:SDry</code></td><td><code>\sd</code></td><td>Validate, show postings, write nothing</td></tr>
+<tr><td><code>:SCompile</code></td><td><code>\sc</code></td><td>Save + append to the journal</td></tr>
+<tr><td><code>:SReport</code></td><td><code>\sr</code></td><td>All reports into reports/</td></tr>
+<tr><td><code>:SCockpit</code></td><td></td><td>Rebuild ./dashboard.html (F5 in the browser)</td></tr>
+<tr><td><code>:SRoadmap</code></td><td></td><td>Epic roadmap in the message area</td></tr>
+<tr><td><code>:SDraft</code> / <code>:SCommit</code> / <code>:SAll</code></td><td><code>\sa</code></td><td>Outlook draft / git commit / everything</td></tr>
+<tr><td><code>:SStatus :SSprint :SBacklog T :SMembers T :SBlocked</code></td><td><code>\ss</code></td><td>Queries</td></tr>
+<tr><td><code>:SJournal</code></td><td><code>\sj</code></td><td>Open scrum.txt</td></tr>
+<tr><td><code>:STig</code></td><td></td><td>Browse the project's git history in tig (review what compile appended; <kbd>q</kbd> returns)</td></tr>
+<tr><td><code>:STown</code></td><td><code>\sw</code></td><td>The townhall tab: chat | lint table | replies. <code>\sp</code> paste the Teams chat and lint; <code>\sy</code> replies to the clipboard; <code>:SSend Bob</code> open the 1:1 with the reply pre-filled</td></tr>
+<tr><td><code>:SDocs grep -i ICD ~/specs/*.pdf</code></td><td></td><td>Grep PDFs / Word documents as text (<code>bin/docs2txt.pl</code>)</td></tr>
+<tr><td><code>:SChat :STally :SAnswers :SCards :SJoined :SAi</code></td><td><code>\st</code></td><td>Teams chat, votes, Y/T/B, cards, attendance, AI prompt</td></tr>
+<tr><td><kbd>Ctrl-X</kbd> <kbd>Ctrl-K</kbd></td><td></td><td>Complete a task id from the journal</td></tr>
+</table>
+<p class="sub">Watch it done end to end: <a href="TRAINING.html">TRAINING.html</a> replays a full sprint of these commands against the demo project.</p>
+
+</body>
+</html>

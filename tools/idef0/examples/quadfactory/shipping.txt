@@ -1,0 +1,9 @@
+# -*- mode: idef0 -*-
+tS Shipping
+  a# Package Quad
+    i# Tested Quad < T|Flight Test|Tested Quad
+    c# Packaging Spec
+    o# Boxed Unit
+  a# Dispatch
+    i# Boxed Unit
+    o# Shipped Quad

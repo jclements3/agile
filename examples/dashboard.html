@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Scrum dashboard</title><style>body{font-family:Segoe UI,Arial,sans-serif;font-size:14px;color:#222;margin:20px;max-width:1100px}
+h1{font-size:22px}h2{font-size:18px;border-bottom:2px solid #444;margin-top:32px}h3{font-size:15px;margin:18px 0 6px}
+table{border-collapse:collapse;margin:6px 0 12px}th,td{border:1px solid #bbb;padding:3px 8px;text-align:left;vertical-align:top}
+th{background:#eee}td.n,th.n{text-align:right}tr:nth-child(even) td{background:#f7f7f7}
+.bar{display:inline-block;height:12px;background:#ddd;vertical-align:middle;border-radius:3px;overflow:hidden}
+.bar span{display:block;height:100%;background:#4a8}.warn{color:#b00;font-weight:bold}.muted{color:#777}
+.cols{display:flex;gap:32px;flex-wrap:wrap}.cols>div{flex:1 1 320px}
+</style></head><body>
+<h1>Scrum dashboard <span class=muted>&middot; 2026-09-01 &middot; examples/scrum.txt</span></h1>
+<h2>Sprint 42</h2>
+<table>
+<tr><th>Team</th><th class=n>Capacity</th><th class=n>Committed</th><th class=n>Done</th><th class=n>Open</th><th class=n>Carryover</th><th>Progress</th><th class=n>Load</th></tr>
+<tr><td>Alpha</td><td class=n>12</td><td class=n>13</td><td class=n>0</td><td class=n>13</td><td class=n>0</td><td><span class="bar" style="width:160px"><span style="width:0%"></span></span> <b>0%</b></td><td class=n><span class="warn">108%</span></td></tr>
+<tr><td>Bravo</td><td class=n>12</td><td class=n>13</td><td class=n>8</td><td class=n>5</td><td class=n>0</td><td><span class="bar" style="width:160px"><span style="width:62%"></span></span> <b>62%</b></td><td class=n><span class="warn">108%</span></td></tr>
+<tr style="font-weight:bold"><td>Total</td><td class=n>24</td><td class=n>26</td><td class=n>8</td><td class=n>18</td><td class=n>0</td><td><span class="bar" style="width:160px"><span style="width:31%"></span></span> <b>31%</b></td><td class=n><span class="warn">108%</span></td></tr>
+</table>
+<h3>Alpha &mdash; open items (1)</h3>
+<table>
+<tr><th>ID</th><th class="n">SP</th><th class="n">Prio</th><th>Epic</th><th>Owner</th><th class="n">Age</th><th>Title</th><th>Blocked</th></tr>
+<tr><td>AUTH-103</td><td class="n">13</td><td class="n">1</td><td>Auth</td><td>Bob</td><td class="n">12</td><td>SSO</td><td></td></tr>
+</table>
+<h3>Bravo &mdash; open items (1)</h3>
+<table>
+<tr><th>ID</th><th class="n">SP</th><th class="n">Prio</th><th>Epic</th><th>Owner</th><th class="n">Age</th><th>Title</th><th>Blocked</th></tr>
+<tr><td>RPT-202</td><td class="n">5</td><td class="n">3</td><td>Reporting</td><td>Cy</td><td class="n">28</td><td>Chart widget</td><td></td></tr>
+</table>
+<h2>Velocity</h2>
+<div class=cols>
+<div><h3>Alpha <span class=muted>avg 8.0</span></h3>
+<table>
+<tr><th class="n">Sprint</th><th class="n">Cap</th><th class="n">Commit</th><th class="n">Done</th><th class="n">Done%</th></tr>
+<tr><td class="n">41</td><td class="n">10</td><td class="n">8</td><td class="n">8</td><td class="n">100%</td></tr>
+<tr><td class="n">42</td><td class="n">12</td><td class="n">13</td><td class="n">0</td><td class="n">0%</td></tr>
+</table>
+</div>
+<div><h3>Bravo <span class=muted>avg 2.0</span></h3>
+<table>
+<tr><th class="n">Sprint</th><th class="n">Cap</th><th class="n">Commit</th><th class="n">Done</th><th class="n">Done%</th></tr>
+<tr><td class="n">41</td><td class="n">12</td><td class="n">10</td><td class="n">2</td><td class="n">20%</td></tr>
+<tr><td class="n">42</td><td class="n">12</td><td class="n">13</td><td class="n">8</td><td class="n">62%</td></tr>
+</table>
+</div>
+</div>
+<h2>Master backlog <span class=muted>1 items, 3 SP</span></h2>
+<table>
+<tr><th>ID</th><th class="n">SP</th><th class="n">Prio</th><th>Epic</th><th>Owner</th><th class="n">Age</th><th>Title</th><th>Blocked</th></tr>
+<tr><td>OPS-302</td><td class="n">3</td><td class="n">4</td><td>Ops</td><td></td><td class="n">28</td><td>Alert tuning</td><td></td></tr>
+</table>
+<h2>Team backlogs</h2>
+<div class=cols>
+<div><h3>Alpha <span class=muted>0 items, 0 SP</span></h3>
+<p class=muted>empty</p></div>
+<div><h3>Bravo <span class=muted>0 items, 0 SP</span></h3>
+<p class=muted>empty</p></div>
+</div>
+<h2>Members</h2>
+<table>
+<tr><th>Member</th><th>Team</th><th class=n>WIP SP</th><th>In progress</th><th>Done this sprint</th><th>Queued</th></tr>
+<tr><td>Ann</td><td>Alpha</td><td class=n>0</td><td><span class=muted>-</span></td><td><span class=muted>-</span></td><td><span class=muted>-</span></td></tr>
+<tr><td>Bob</td><td>Alpha</td><td class=n>13</td><td>AUTH-103 (13)</td><td><span class=muted>-</span></td><td><span class=muted>-</span></td></tr>
+<tr><td>Cy</td><td>Bravo</td><td class=n>5</td><td>RPT-202 (5)</td><td>RPT-201 (8)</td><td><span class=muted>-</span></td></tr>
+<tr><td>Dee</td><td>Bravo</td><td class=n>0</td><td><span class=muted>-</span></td><td><span class=muted>-</span></td><td><span class=muted>-</span></td></tr>
+</table>
+</body></html>

@@ -1,0 +1,47 @@
+# Security gates for the kit itself (not the project data, which never reaches GitHub).
+# Core-Perl kit: no dependency or container scans apply; what can leak is a secret in the tree, project
+# data under data/, or an external resource in a generated page. Weekly cron re-checks unchanged code.
+name: security
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: "0 6 * * 1"
+permissions:
+  contents: read
+jobs:
+  secrets:
+    name: Secrets detection (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  hygiene:
+    name: Repo hygiene (no data/, no external resources, marking gate on the demo)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: project data must not be tracked
+        run: |
+          if git ls-files data/ | grep -q .; then echo "::error::files under data/ are tracked -- project data must never reach this repo"; exit 1; fi
+      - name: generated pages must not reference external resources
+        run: |
+          perl -Ilib tests/scrum.t | grep -i 'nothing external\|no script' | grep -v '^ok' && exit 1 || true
+          perl -Ilib tests/cockpit.t | grep -i 'nothing external' | grep -v '^ok' && exit 1 || true
+      - name: Marking gate passes on the demo project
+        run: |
+          git config --global user.email ci@example.invalid && git config --global user.name ci
+          perl sim/training.pl --fast > /dev/null
+          perl bin/daily.pl --conf data/demo/scrum.conf check
+      - name: local gate report
+        run: perl bin/devsecops.pl --quick || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: devsecops-dashboard
+          path: devsecops.html

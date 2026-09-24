@@ -1,0 +1,21 @@
+# compiled 2026-09-23 10:04
+2026-09-01
+sprint 42
+
+== Alpha
+; open: AUTH-103    13  SSO                          Bob
+
+== Bravo
+; open: RPT-202      5  Chart widget                 Cy
+
+== Alpha
+done AUTH-103
+new AUTH-104 5 MFA enrolment p:1 e:Auth o:Ann
+commit AUTH-104
+cap 14
+note Bob out Friday
+== Bravo
+block RPT-202 waiting on cert from ISSM
+risk cert renewal may slip the sprint
+absent Dee
+est RPT-202 8

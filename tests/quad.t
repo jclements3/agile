@@ -31,7 +31,8 @@ S 'priorities: tag, id, owner', '[["TODO","AUTH-103","Bob"],["DONE","RPT-201","C
 S 'OPEN when mentioned in a status this week', '["OPEN","TODO"]', [ map { $_->{tag} } grep { $_->{id} =~ /^(AUTH-103|RPT-202)$/ } @{ quad($s, open => { 'AUTH-103' => 1 })->{priorities} } ];
 S 'watch: both teams over capacity, WI not PM', '[["WI","Alpha"],["WI","Bravo"]]', [ map { [ $_->{kind}, $_->{team} ] } @{ $q->{watch} } ];
 S 'milestones: 60 days out, priority order, arrows', '[[1,"Auth","same"],[2,"Ops","same"],[3,"Reporting","pulled"]]', [ map { [ $_->{priority}, $_->{epic}, $_->{trend} ] } @{ $q->{milestones}{60} } ];
-S 'milestones: nothing at 30 or 90', '[0,0]', [ scalar @{ $q->{milestones}{30} }, scalar @{ $q->{milestones}{90} } ];
+S 'milestones: nothing at 30 or 90, none hidden', '[0,0,0]', [ scalar @{ $q->{milestones}{30} }, scalar @{ $q->{milestones}{90} }, $q->{milestones_more}{60} ];
+S 'milestones: top N per horizon, the rest counted', '[["Auth","Ops"],1]', do { local $Quad::THRESHOLD{per_horizon} = 2; my $qq = quad($s); [ [ map { $_->{epic} } @{ $qq->{milestones}{60} } ], $qq->{milestones_more}{60} ] };
 S 'accomplishment: RPT-201 done this week, late (was carried over)', '[["RPT-201","2026-08-28",0]]', [ map { [ $_->{id}, $_->{date}, $_->{ontime} ] } @{ $q->{accomplishments} } ];
 S 'metrics', '[31,31,"same",0,1,0,1]', [ @{ $q->{metrics}{sprint} }{qw(pct prev_pct trend)}, @{ $q->{metrics}{ontime} }{qw(week_ontime week_total sprint_ontime sprint_total)} ];
 S 'team filter', '[["RPT-201","Cy"],["RPT-202","Cy"]]', [ map { [ $_->{id}, $_->{owner} ] } @{ quad($s, team => 'Bravo')->{priorities} } ];

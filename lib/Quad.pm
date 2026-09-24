@@ -132,6 +132,7 @@ sub quad {                                    # quad($s, team => T, open => {id=
     my $prm  = roadmap($prev);
     my %prev_end = map { ("$_->{tome}\0$_->{epic}" => $_->{end}) } @{ $prm->{epics} };
     my %ms = map { $_ => [] } @{ $THRESHOLD{horizons} };
+    my %more;
     for my $e (@{ $rm->{epics} }) {
         next if $e->{remaining} <= 0;
         next if $team && !grep { $_ eq $team } @{ $e->{teams} };
@@ -148,7 +149,9 @@ sub quad {                                    # quad($s, team => T, open => {id=
     }
     for my $h (keys %ms) {
         my @r = sort { ($a->{eta} // '') cmp ($b->{eta} // '') || $b->{remaining} <=> $a->{remaining} || $a->{epic} cmp $b->{epic} } @{ $ms{$h} };
-        $ms{$h} = [ map { { %{ $r[$_] }, priority => $_ + 1 } } 0 .. $#r ];
+        @r = map { { %{ $r[$_] }, priority => $_ + 1 } } 0 .. $#r;
+        $more{$h} = @r > $THRESHOLD{per_horizon} ? @r - $THRESHOLD{per_horizon} : 0;   # the page shows the top three per horizon, as the quad always has; the rest is a count
+        $ms{$h} = [ @r[0 .. (@r < $THRESHOLD{per_horizon} ? $#r : $THRESHOLD{per_horizon} - 1)] ];
     }
 
     # 4. accomplishments: done in the last week; on time = never carried over before it was done
@@ -171,7 +174,7 @@ sub quad {                                    # quad($s, team => T, open => {id=
     my $sprint_ontime = grep { !grep { $_->{account} =~ /:Carryover$/ && $_->{points} > 0 } @{ $_->{history} } } @all_done;
     {
         as_of => $today, since => $since, team => $team, sprint => $cur, file => $s->{file}, unit => $s->{unit} // 'SP',
-        priorities => \@pri, watch => \@watch, milestones => \%ms, horizons => $THRESHOLD{horizons}, accomplishments => \@acc, slipped => \@slipped,
+        priorities => \@pri, watch => \@watch, milestones => \%ms, milestones_more => \%more, horizons => $THRESHOLD{horizons}, accomplishments => \@acc, slipped => \@slipped,
         metrics => {
             sprint => { pct => $pct, done => $done, committed => $committed, prev_pct => $ppct, trend => $sprint_trend },
             ontime => { week_ontime => scalar(grep { $_->{ontime} } @acc), week_total => scalar(@acc), sprint_ontime => $sprint_ontime, sprint_total => scalar(@all_done) },
@@ -202,6 +205,7 @@ sub quad_text {
         $out .= "  $h days out\n";
         $out .= sprintf("    %d. %-34s %s %3d%%  ETA %s%s\n", $_->{priority}, "$_->{tome} > $_->{epic}", $ARROW{ $_->{trend} }, $_->{pct}, $_->{eta}, $_->{blocked} ? "  BLOCKED $_->{blocked}" : '') for @{ $q->{milestones}{$h} };
         $out .= "    -\n" unless @{ $q->{milestones}{$h} };
+        $out .= "    (+$q->{milestones_more}{$h} more)\n" if $q->{milestones_more}{$h};
     }
     $out .= "\nACCOMPLISHMENTS (since $q->{since})\n";
     $out .= sprintf("  %s %-10s %3s  %-30s %s\n", $_->{ontime} ? 'v' : 'x', $_->{id}, $_->{pts}, substr($_->{title} // '', 0, 30), $_->{owner} // '-') for @{ $q->{accomplishments} };
@@ -281,6 +285,7 @@ sub quad_html {
                 $_->{priority}, $h->($_->{tome}), $h->($_->{epic}), $_->{severity}, $arrow{ $_->{trend} }, $_->{pct}, $h->($_->{eta}), $_->{blocked} ? "<span class=late>$_->{blocked} blocked</span>" : '') for @{ $q->{milestones}{$hz} };
             $html .= "</table>";
         } else { $html .= "<p class=muted>-</p>" }
+        $html .= "<p class=muted>+$q->{milestones_more}{$hz} more epics in this window</p>" if $q->{milestones_more}{$hz};
     }
     $html .= "<div class=legend>ETA = remaining &divide; the owning teams' velocity, against last week's ETA. Red: pushed 2+ sprints or 2+ blockers; amber: pushed or blocked.</div></div>\n";
     # accomplishments

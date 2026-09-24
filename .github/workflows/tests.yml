@@ -42,6 +42,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: perlcritic (gentle severity; CPAN, so Linux CI only -- the target has no CPAN)
+        run: |
+          sudo apt-get install -y -qq libperl-critic-perl > /dev/null
+          perlcritic --severity 5 --quiet lib bin agile.pl sim tools/idef0/idef0.pl
       - name: git identity (daily.pl commit is under test)
         run: git config --global user.email ci@example.invalid && git config --global user.name ci
       - name: test suite

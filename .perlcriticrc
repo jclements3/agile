@@ -1,0 +1,6 @@
+# perlcritic policy for the Linux CI job (tests.yml). Gentle severity only: the kit targets core Perl 5.10+ with
+# no CPAN, so this is a second opinion, not a style guide.
+severity = 5
+
+# The import() pattern every lib uses (see Prelude.pm) installs subs into the caller with symbolic refs on purpose.
+[-TestingAndDebugging::ProhibitNoStrict]

@@ -103,9 +103,9 @@ gate(id => 'deps', pillar => 'Security gates', name => 'Dependencies: core Perl 
      state => (sh(q{grep -rhoE '^use [A-Z][A-Za-z:]+' lib bin agile.pl | sort -u | grep -vE '^use (strict|warnings|utf8|lib|FindBin|Getopt::Long|Cwd|POSIX|File::|JSON::PP|Digest::|IO::|List::Util|Encode|Time::|Scalar::Util|Prelude|Ledger|Scrum|Standup|Calendar|Chat|Answers|Ai|Attendance|Cockpit)'}) =~ /\S/ ? 'partial' : 'ok'),
      evidence => 'no CPAN, no XS, no network at build or run time; curl only for the optional AI endpoint',
      detail => sh(q{grep -rhoE '^use [A-Z][A-Za-z:]+' lib bin agile.pl | sort | uniq -c | sort -rn | head -14}));
-gate(id => 'sast', pillar => 'Security gates', name => 'Static analysis for Perl (perlcritic)', state => 'gap',
-     evidence => 'perlcritic is CPAN, not available on the target; strict/warnings + perl -c + the test suites stand in',
-     detail => 'Option: run perlcritic in the ubuntu CI job only (apt install libperl-critic-perl) and publish the report as an artifact.');
+gate(id => 'sast', pillar => 'Security gates', name => 'Static analysis for Perl (perlcritic)', state => 'partial',
+     evidence => 'perlcritic --severity 5 runs in the Linux CI job (tests.yml); not on the target, where strict/warnings + perl -c + the test suites stand in',
+     detail => 'perlcritic is CPAN, so it cannot run on the target Perl; the Linux job covers the same sources.');
 
 # -- release
 {   my @z = sorted(glob 'release/agile-*.zip');

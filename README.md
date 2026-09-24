@@ -24,4 +24,5 @@ for t in tests/*.t; do perl $t | tail -1; done
 ```
 
 Project data lives in `data/<project>/`, each its own git repo, and is never committed here.
+
 MIT licence.

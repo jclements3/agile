@@ -24,7 +24,4 @@ for t in tests/*.t; do perl $t | tail -1; done
 ```
 
 Project data lives in `data/<project>/`, each its own git repo, and is never committed here.
-The `handup` branch is a flat, text-only copy of the tree (with the notional demo and lab
-projects) for uploading to a claude.ai project; `HANDOFF.md` there explains how to rebuild it.
-
 MIT licence.

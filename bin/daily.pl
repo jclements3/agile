@@ -41,7 +41,7 @@ my %cmds = (
     attend   => \&cmd_attend,  post    => \&cmd_post,    meetings => \&cmd_meetings, chat => \&cmd_chat,
     answers  => \&cmd_answers, ai      => \&cmd_ai,     joined   => \&cmd_joined,   cards => \&cmd_cards,  lint => \&cmd_lint, propose => \&cmd_propose,
     roster   => \&cmd_roster,  invite  => \&cmd_invite,
-    quad     => sub { my $s = $load->(); print quad_text($s, team => $_[0], marking => $conf) },
+    quad     => sub { my $s = $load->(); print quad_text($s, team => $_[0], marking => $conf); 0 },
     sprint   => sub { print sprint_text($load->(), $_[0]) },
     velocity => sub { print velocity_text($load->()) },
     backlog  => sub { print backlog_text($load->(), $_[0]) },

@@ -349,6 +349,24 @@ sub suggest_lines {                           # from answers + flags: done (comm
             $out .= "; note $r->{who}: $r->{b}\n" if defined $r->{b} && $r->{b} =~ $LIFTED;
         }
     }
+    # the four-letter words, said in a status: "punting A-3, too hard as written", "A-4 on hold", "redo A-1", "pass A-5 to Bravo",
+    # "sync A-2 with B-3" -> the matching verb, commented for the architect to confirm (they move points or change teams)
+    my %teams = map { lc $_ => $_ } @{ $s->{teams} // [] };
+    for my $r (@$ans) {
+        for my $text (grep { defined && /\S/ } $r->{t}, $r->{b}) {
+            my @ids = nub(grep { $s->{items}{$_} } $text =~ /$ID/g);
+            next unless @ids;
+            (my $why = $text) =~ s/,/;/g;
+            if ($text =~ /\b(?:punt|punting|punted|too (?:hard|big)|can'?t (?:do|finish))\b/i) { $out .= "; punt $ids[0] $why   ; $r->{who}: too hard as written -- back to TODO (confirm)\n" }
+            elsif ($text =~ /\b(?:on hold|hold(?:ing)?|parked|paused|pulled (?:on|off)to)\b/i) { $out .= "; hold $ids[0] $why   ; $r->{who}: interrupted (confirm)\n" }
+            elsif ($text =~ /\b(?:redo|rework|reopen(?:ed)?|demo found)\b/i) { $out .= "; redo $ids[0] $why   ; $r->{who}: found wrong after the demo (confirm)\n" }
+            elsif ($text =~ /\b(?:pass(?:ing)?|hand(?:ing)?[ -]?off|hand(?:ing)? (?:over|to))\b/i) {
+                my ($to) = map { $teams{ lc $_ } } grep { $teams{ lc $_ } } $text =~ /\b([A-Za-z][\w&-]*)\b/g;
+                $out .= $to ? "; pass $ids[0] $to   ; $r->{who}: another team should do it (confirm)\n" : "; note $r->{who}: $why   ; pass to which team?\n";
+            }
+            elsif ($text =~ /\b(?:sync|coordinat\w+|together with|jointly)\b/i && @ids >= 2) { $out .= "; sync " . join(' ', @ids[0, 1]) . "   ; $r->{who}: coordinated across teams, shared DONE (confirm)\n" }
+        }
+    }
     my @silent = map { $_->{who} } grep { $_->{text} eq 'no answers in chat' } @$flags;
     $out .= "; absent " . join(' ', @silent) . "   ; no answers in chat (confirm)\n" if @silent;
     $out;

@@ -32,6 +32,7 @@ my $n = $s->{current} // die "no current sprint in the journal: plan one first (
 my %people;                                    # who -> [ up to two tasks to talk about ]: everyone on the roster answers every day, whatever the state of their work --
 my $m = members($s);                           # committed first, then queued, then finished (a person whose sprint work is done still reports, and talks about what is next)
 for my $w (keys %$m) { my @it = (@{ $m->{$w}{wip} }, @{ $m->{$w}{backlog} }, @{ $m->{$w}{done} }); $people{$w} = [ @it[0 .. ($#it < 1 ? $#it : 1)] ] if @it }
+my %team_of = map { $_ => $m->{$_}{team} } keys %$m;   # for the pass style: the receiving team is any other team
 my @who = sorted(keys %people) or die "nobody owns a task in the journal\n";
 my @all_ids = map { $_->{id} } items($s);
 
@@ -58,12 +59,18 @@ for my $w (@who) {
     elsif ($m eq 'missing_b')          { $line = "Y $a->{id} T $b->{id}"; push @key, "$w: ERROR -- no B found" }
     elsif ($m eq 'labels_only_y')      { $line = "Y: $a->{id} in progress"; push @key, "$w: incomplete -- only Y given (answers flags incomplete)" }
     else {
-        my $style = $i++ % 4;
+        my @order = (4, 5, 6, 0, 1, 2, 3);        # the four-letter words first (4-6: punt / hold / pass said in a status -> commented suggestions), then the plain styles
+        my $style = $order[ $i++ % 7 ];
+        $style = 0 if $style >= 4 && ($b->{state} ne 'committed' || $b->{hold} || $b->{blocked});   # the words only make sense for work in the sprint, not already held or blocked
+        my ($other_team) = grep { $_ ne ($team_of{$w} // '') } @{ $s->{teams} };
         $line = $style == 0 ? "Y $a->{id} T $b->{id} B none"
               : $style == 1 ? "Y: $a->{id} nearly done\nT: $b->{id}\nB: none"
               : $style == 2 ? "$w Y finished $a->{id} T start $b->{id} B none"
-              :               "yesterday: $a->{id}  today: $b->{id}  blockers: waiting on ICD from SEI";
-        push @key, "$w: ok" . ($style == 3 ? ' -- blocked (waiting on ICD), expect a block flag' : '');
+              : $style == 3 ? "yesterday: $a->{id}  today: $b->{id}  blockers: waiting on ICD from SEI"
+              : $style == 4 ? "Y $a->{id} T punting $b->{id}, too hard as written B none"
+              : $style == 5 ? "Y $a->{id} T $b->{id} on hold, pulled onto the outage B none"
+              :               "Y $a->{id} T passing $b->{id} to " . ($other_team // 'Bravo') . ", their service B none";
+        push @key, "$w: ok" . ($style == 3 ? ' -- blocked (waiting on ICD), expect a block flag' : $style == 4 ? " -- says punt $b->{id}: expect a commented punt line" : $style == 5 ? " -- says hold $b->{id}: expect a commented hold line" : $style == 6 ? " -- says pass $b->{id}: expect a commented pass line" : '');
     }
     push @lines, stamp() . " $w", $line;
     push @lines, "\x{1F44D} 2" if rand() < 0.3;

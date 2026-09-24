@@ -20,7 +20,8 @@ use lib "$FindBin::Bin/../lib";
 use Getopt::Long;
 use Prelude qw(show);
 use Chat qw(parse_chat);
-use Answers qw(parse_answers lint_chat);
+use Answers qw(parse_answers lint_chat suggest_lines);
+use Scrum qw(load);
 
 my %o = (iterations => 2000, seed => 1);
 GetOptions(\%o, 'iterations=i', 'seed=i', 'verbose') or exit 2;
@@ -28,7 +29,7 @@ srand($o{seed});
 
 my @names = ('Ann Lee', 'Bob Ray', 'Cy Diaz', 'Dee Park', 'Eve Ng', 'Fay Ott', 'Gus Hill', 'Hal Ito', 'Ida Roy', 'Jon Wu', 'Kim Cho', 'Lou Bell', 'Archer, Sam', "O'Neil, Pat", 'Pat Guest (Guest)');
 my @ids   = qw(A-1 A-12 B-121 IF-3 AUTH-103 RPT-2 G-332 ZZ-999);
-my @words = qw(finished started reviewing merged the lab feed parser test ICD waiting on cert done nearly almost b t y be to why and or with for);
+my @words = qw(finished started reviewing merged the lab feed parser test ICD waiting on cert done nearly almost b t y be to why and or with for punting hold redo passing sync coordinate Bravo);   # the four-letter words ride along: suggest_lines must stay commented and known-id only
 sub pick { $_[int rand @_] }
 my @safe  = grep { !/^[ytb]$/ } @words;      # filler for uppercase/labelled shapes: a stray standalone y/t/b would change the shape's meaning
 sub words { join ' ', map { rand() < 0.3 ? pick(@ids) : pick(@safe) } 1 .. (1 + int rand 5) }
@@ -53,6 +54,7 @@ sub shape {
     return ("Y $a T $b B $c\nEdited", 'ok')                            if $k == 11;  # Teams "Edited" marker
 }
 
+my $S = load("$FindBin::Bin/../examples/scrum.txt", today => '2026-09-01');   # a real journal: suggest_lines cross-checks ids against it
 my ($bad, $n) = (0, 0);
 my $warned = '';
 local $SIG{__WARN__} = sub { $warned .= $_[0] };
@@ -74,10 +76,16 @@ for my $it (1 .. $o{iterations}) {
     my @lint = eval { lint_chat($chat, known => { map { $_ => 1 } grep { $_ ne 'ZZ-999' } @ids }) };
     my @ans  = eval { parse_answers($chat) };
     my $err = $@;
+    my $sug = eval { suggest_lines($S, 'Alpha', \@ans, []) } // ''; $err .= $@ if $@;
     $n++;
     my @v;
     push @v, "died: $err" if $err;
     push @v, "warned: $warned" if $warned =~ /\S/;
+    for my $l (grep { /\S/ } split /\n/, $sug) {          # 4. the four-letter words are only ever suggested, never applied, and only for tasks the journal knows
+        push @v, "suggestion is not a known verb: $l" unless $l =~ /^(?:; )?(?:done|block|unblock|risk|note|absent|punt|hold|redo|pass|sync) /;
+        push @v, "a four-letter word suggested uncommented: $l" if $l =~ /^(?:punt|hold|redo|pass|sync) /;
+        push @v, "suggestion names an unknown task: $l" if $l =~ /^; (?:punt|hold|redo|pass|sync) (\S+)/ && !$S->{items}{$1};
+    }
     my %lint = map { $_->{who} => $_ } @lint;
     my %ans  = map { $_->{who} => $_ } @ans;
     for my $p (keys %lint) { push @v, "lint attributed to '$p' who is not a poster" unless grep { _clean($_) eq $p } @people }

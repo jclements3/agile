@@ -67,8 +67,12 @@ that are deliberately outside the tested `lib/`/`bin/`/`tests/` surface. `tools/
 vendored IDEF0 toolkit (core Perl) with the DroneCorp model (a notional racing-drone company, the demo) and
 DroneCorp models; `sim/idef0-backlog.pl` turns an IDEF0
 model into a planning stand-up file (model → tome+team, level-1 activity → epic, leaf → task,
-cross-model link → interface task in the destination team) — that is how `data/demo` is built. `sim/rehearsal.pl` writes a realistic Teams-chat paste (mistakes seeded, answer key on stderr) into the
-current project's standups/ for practising lint/answers without a team; `data/lab` is the practice project. `sim/training.pl` is
+cross-model link → interface task in the destination team) — that is how `data/demo` is built. `sim/rehearsal.pl` writes a realistic Teams-chat paste (mistakes seeded, answer key on stderr; people also say the
+four-letter words -- "punting X", "X on hold", "passing X to Bravo" -- which `answers` turns into commented `punt`/`hold`/`pass`
+lines) into the current project's standups/ for practising lint/answers without a team; `data/lab` is the practice project.
+`sim/lab-run.pl` runs N unattended townhall days there (confirms the suggested done and four-letter-word lines, runs the quad daily,
+reports findings); `sim/fuzz-chat.pl` property-tests the parsers, including that the words are only ever suggested, never applied;
+`sim/history-gen.pl` seeds punts, redos and sync pairs into the two-year history and HISTORY.html shows the punt rate by half-year. `sim/training.pl` is
 the training replay: it wipes and rebuilds `data/demo` (guarded to that name) by really running
 one sprint of `daily.pl` and `git` commands, and writes `docs/TRAINING.html` — regenerate that
 file with `perl sim/training.pl --fast` after changing any command it shows.

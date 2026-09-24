@@ -50,6 +50,7 @@ sub capacity { my $k = shift; 30 + int($k / 8) + int(rand(5)) - 2 }         # sl
 
 my @history;
 my $s;
+my ($punts, $redos, $syncs) = (0, 0, 0);          # the four-letter words, counted for the summary line
 for my $k (1 .. $o{sprints}) {
     my $plan_date  = ymd(add_days($start, ($k - 1) * 14));
     my $close_date = ymd(add_days($start, ($k - 1) * 14 + 13));
@@ -83,6 +84,19 @@ for my $k (1 .. $o{sprints}) {
         $backlog{$team} = \@keep;
         $plan_text .= join('', map { "$_\n" } @lines);
     }
+    # after the demo, a few of last sprint's done items come back as rework (redo), and one pair of committed tasks is coordinated across teams (sync)
+    if ($k > 1 && $s) {
+        my @redo = grep { rand() < 0.04 * (1 - $mat) + 0.005 } items($s, state => 'done', sprint => $k - 1);
+        my %by_team; push @{ $by_team{ $_->{team} } }, $_->{id} for @redo;
+        for my $team (sort keys %by_team) { $plan_text .= "== $team\n" . join('', map { "redo $_ demo found a defect\n" } @{ $by_team{$team} }) }
+        $redos += @redo;
+    }
+    {   # one pair of committed tasks from two teams is coordinated this sprint: they share DONE
+        my (%commits, $ct);
+        for (split /\n/, $plan_text) { $ct = $1 if /^== (\S+)/; push @{ $commits{$ct} }, $1 if $ct && /^commit (\S+)/ }
+        my @ct = grep { @{ $commits{$_} } } sort keys %commits;
+        if (@ct >= 2 && rand() < 0.5) { $plan_text .= "== $ct[0]\nsync $commits{$ct[0]}[-1] $commits{$ct[1]}[-1]\n"; $syncs++ }
+    }
     my $su = parse_standup($plan_text);
     die "planning sprint $k: " . join('; ', @{ $su->{errors} }) . "\n" if @{ $su->{errors} };
     $s //= load($journal, today => $plan_date);   # first sprint only; afterwards $s is the post-close state of the previous sprint, which is exactly the pre-planning state of this one
@@ -103,10 +117,17 @@ for my $k (1 .. $o{sprints}) {
                 push @block, $it->{id} if rand() < $p_block;
             }
         }
+        # the four-letter words: a carried item is sometimes punted instead (too hard as written -> back to TODO), rarer as the teams mature
+        my $p_punt = 0.10 * (1 - $mat) + 0.01;
+        my @punt = grep { rand() < $p_punt } @carry_now;
+        my %p = map { $_->{id} => 1 } @punt;
+        @carry_now = grep { !$p{ $_->{id} } } @carry_now;
+        $punts += @punt;
         $close_text .= "== $team\n";
         $close_text .= 'done ' . join(' ', @done) . "\n" if @done;
         $close_text .= 'carry ' . join(' ', map { $_->{id} } @carry_now) . "\n" if @carry_now;
-        $close_text .= "block $_ waiting on dependency\n" for @block;
+        $close_text .= "punt $_->{id} too hard as written\n" for @punt;
+        $close_text .= "block $_ waiting on dependency\n" for grep { !$p{$_} } @block;
         $carry{$team} = \@carry_now;
     }
     $su = parse_standup($close_text);
@@ -126,7 +147,7 @@ for my $k (1 .. $o{sprints}) {
     print "sprint $k/$o{sprints}  $close_date  [$level]  $r->{totals}{pct}% done, $r->{totals}{committed} committed\n";
 }
 
-print "\nwrote $journal (" . (-s $journal) . " bytes)\n";
+print "\nwrote $journal (" . (-s $journal) . " bytes)  -- four-letter words: $punts punts, $redos redos, $syncs syncs\n";
 
 # ---- render HISTORY.html, marked from the project's scrum.conf when there is one (banner, marking_* fields)
 my %marking;
@@ -135,5 +156,7 @@ if (open my $cf, '<', "$o{dir}/scrum.conf") {
     close $cf;
 }
 require "$FindBin::Bin/history-render.pl";
-history_render(\@history, "$o{dir}/HISTORY.html", { teams => \@teams, sprints => $o{sprints}, seed => $o{seed}, marking => \%marking });
+require Quad;
+history_render(\@history, "$o{dir}/HISTORY.html", { teams => \@teams, sprints => $o{sprints}, seed => $o{seed}, marking => \%marking,
+                                                     punt_rate => Quad::punt_rate($s, last => $o{sprints}), words => { punts => $punts, redos => $redos, syncs => $syncs } });
 print "wrote $o{dir}/HISTORY.html\n";

@@ -109,6 +109,15 @@ sub history_render {
             _h($team), _pct($d1, $c1), _pct($d2, $c2), $dt, $h[-1]{velocity_avg}{$team} // 0, $bl;
     }
     $html .= "</table>\n";
+    if ($meta->{punt_rate} && @{ $meta->{punt_rate} }) {   # the four-letter words over the two years: punt rate by half-year (tasks punted back to TODO / tasks committed)
+        my @tot = grep { $_->{team} eq 'Total' } @{ $meta->{punt_rate} };
+        @tot = @{ $meta->{punt_rate} } unless @tot;
+        my %q; for my $r (@tot) { my $k = int(($r->{sprint} - 1) / 13); $q{$k}{committed} += $r->{committed}; $q{$k}{punted} += $r->{punted} }
+        my $w = $meta->{words} // {};
+        $html .= "<table><caption>Punt rate by half-year: tasks punted back to TODO (too hard as written) / tasks committed" . ($w->{punts} ? " &middot; $w->{punts} punts, $w->{redos} redos after demos, $w->{syncs} sync pairs over the run" : '') . "</caption><tr><th>Half-year</th><th class=n>Committed</th><th class=n>Punted</th><th class=n>Rate</th></tr>\n";
+        $html .= sprintf("<tr><td>H%d</td><td class=n>%d</td><td class=n>%d</td><td class=n>%d%%</td></tr>\n", $_ + 1, $q{$_}{committed}, $q{$_}{punted}, _pct($q{$_}{punted}, $q{$_}{committed})) for sort { $a <=> $b } keys %q;
+        $html .= "</table>\n";
+    }
 
     # ---- per-sprint detail, by year
     for my $y (0 .. int(($n - 1) / $per_year)) {

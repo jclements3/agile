@@ -74,21 +74,28 @@ for my $i (1 .. $o{days}) {
     $d{flags} = () = $out =~ /^  (?:RED|AMBER|INFO) /mg;
     $d{assumed} = () = $out =~ /ASSUMED/g;
     $d{done_suggested} = () = $out =~ /says (\S+) is done/g;
-    # confirm the suggested done lines: the architect's "yes" (uncomment them in today's stand-up file)
+    # confirm the suggested lines: the architect's "yes" (uncomment done, and the four-letter words punt / hold / pass / redo / sync)
     my $su = "standups/$date.txt";
-    if (-f $su) { local @ARGV = ($su); local $^I = ''; while (<>) { s/^;\s*(done \S+.*?)\s*;.*$/$1/; print } }
+    my %words;
+    if (-f $su) { local @ARGV = ($su); local $^I = ''; while (<>) { if (s/^;\s*((?:done|punt|hold|pass|redo|sync) \S+.*?)\s*;.*$/$1/) { $words{$1}++ if $1 =~ /^(punt|hold|pass|redo|sync)/ } print } }
+    $d{words} = join(' ', map { "$_=$words{$_}" } sort keys %words) || '-';
     ($rc, $out) = run("compile", $P, "$KIT/bin/daily.pl", "--today=$date", 'compile');
     finding("day $i: compile failed: " . substr($out, 0, 400)) if $rc;
     ($d{transactions}) = $out =~ /\((\d+) transactions\)/;
     ($rc, $out) = run("report", $P, "$KIT/bin/daily.pl", "--today=$date", 'report');
     finding("day $i: report failed: " . substr($out, 0, 300)) if $rc;
+    ($rc, $out) = run("quad", $P, "$KIT/bin/daily.pl", "--today=$date", 'quad');
+    finding("day $i: quad failed (rc=$rc): " . substr($out, 0, 300)) if $rc;
+    finding("day $i: a punt was confirmed but the quad shows no PUNT") if $d{words} =~ /punt=/ && $out !~ /^  PUNT /m;
+    finding("day $i: a hold was confirmed but the quad shows no HOLD") if $d{words} =~ /hold=/ && $out !~ /^  HOLD /m;
+    ($d{punt_rate}) = $out =~ /^  sprint \d+\s+Total\s+\d+ \/ \d+\s+(\d+)%/m;
     ($rc, $out) = run("status", $P, "$KIT/bin/daily.pl", "--today=$date", 'status');
     ($d{status}) = $out =~ /(sprint \d+: .*)/;
     ($rc, $out) = run("commit", $P, "$KIT/bin/daily.pl", "--today=$date", 'commit');
     finding("day $i: commit failed: $out") if $rc;
     push @days, \%d;
-    printf "   answered %d silent %d | lint %d->%d errors, %d replies, %d reposted | flags %d (assumed %d, done %d) | %s\n",
-        $d{answered} // 0, $d{silent} // 0, $d{errors1} // 0, $d{errors2} // 0, $d{replies}, $n_fix, $d{flags}, $d{assumed}, $d{done_suggested}, $d{status} // '';
+    printf "   answered %d silent %d | lint %d->%d errors, %d replies, %d reposted | flags %d (assumed %d, done %d) | words %s | %s\n",
+        $d{answered} // 0, $d{silent} // 0, $d{errors1} // 0, $d{errors2} // 0, $d{replies}, $n_fix, $d{flags}, $d{assumed}, $d{done_suggested}, $d{words}, $d{status} // '';
     $date = next_day($date);
 }
 

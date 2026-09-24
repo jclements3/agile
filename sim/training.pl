@@ -201,6 +201,22 @@ for my $i (1 .. 8) {
         narrate(':STally -- the #est round is tallied (consensus or median with outliers) and an est line is written into the stand-up file, ready if there was consensus.');
         daily('chat');
     }
+    if ($d == 7) {                               # the four-letter words, hand-written: a punt, a hold, a sync pair
+        my ($punt_id) = grep { !/^IF-/ && $story{$_}{done_day} eq 'carry' } sort keys %story;
+        my ($hold_id) = grep { !/^IF-/ && $story{$_}{done_day} ne 'carry' && $story{$_}{done_day} >= 9 && $_ ne $est_id } sort keys %story;
+        my @sync = grep { $_ ne $punt_id && $_ ne $hold_id && !$story{$_}{finished} } sort keys %story;
+        my ($s1) = grep { $story{$_}{team} ne $story{$sync[0]}{team} } @sync[1 .. $#sync];
+        vim('append the four-letter words', 'Day 7: the words that are not done/blocked. punt = too hard as written, back to the TODO list for replanning (points leave the sprint). hold = interrupted by higher-priority work, will resume. sync = two tasks in two teams that share DONE: neither counts until both are.', sub {
+            my $t = "\n; ---- the four-letter words $today\n";
+            $t .= "== $story{$punt_id}{team}\npunt $punt_id too hard as written - needs a spike first\n" if $punt_id;
+            $t .= "== $story{$hold_id}{team}\nhold $hold_id pulled onto the demo prep\n" if $hold_id;
+            $t .= "== $story{$sync[0]}{team}\nsync $sync[0] $s1\n" if @sync && $s1;
+            $story{$punt_id}{finished} = 1 if $punt_id;   # off the sprint: the review sweep must not carry it
+            qx(perl "$KIT/bin/daily.pl" --today=$today new 2>&1) unless -e "standups/$today.txt";
+            append_file("standups/$today.txt", $t);
+            $t;
+        });
+    }
     if ($d == 8) {
         narrate('Day 8 health check: load, blocked age, burn vs plan. daily.pl blocked is the escalation list; three days is your cue to act -- and an interface blocker is yours, not the team lead\'s.');
         daily('blocked');
@@ -222,9 +238,9 @@ for my $i (1 .. 8) {
         my $f = "standups/$today.txt";
         qx(perl "$KIT/bin/daily.pl" --today=$today new 2>&1) unless -e $f;   # a quiet day: answers had nothing to suggest, so no file yet
         my $t = do { local $/; open my $r, '<', $f or die; <$r> };
-        $t =~ s/^; (done|unblock) /$1 /mg;
+        $t =~ s/^; (done|unblock|punt|hold|pass|redo|sync) /$1 /mg;
         write_file($f, $t);
-        my @kept = $t =~ /^((?:done|unblock|block|refine|prune|est) .*)$/mg;
+        my @kept = $t =~ /^((?:done|unblock|block|refine|prune|est|punt|hold|resume|pass|redo|sync) .*)$/mg;
         @kept ? join("\n", map { "  $_" } @kept) : '  (nothing to confirm today)';
     });
     narrate(':SCompile -- apply today. Done points move to Sprint:1:<Team>:Done; a block is a zero-point posting that flags the task until unblock.');
@@ -236,7 +252,7 @@ for my $i (1 .. 8) {
         narrate('Friday: the weekly mail to leadership is the same brief plus velocity and the blocked list. daily.pl draft / daily.pl brief open it in Outlook -- skipped here so training does not open a mail client.');
         daily('velocity', undef, 16);
         narrate('The quad is the one-page weekly status: Technical Priorities (the sprint tagged OPEN/DONE/WAIT/HOLD/DROP with REDO/PASS/SYNC marks, then the TODO list with anything punted first), Watch Items the PM must help with (PM) or know about (WI), Schedule Milestones 30/60/90 days out with pushed-right / pulled-left arrows against last week, and Accomplishments marked on time or late. report wrote it as reports/<date>-quad.html; this is the text form.');
-        daily('quad', undef, 40);
+        daily('quad', undef, 72);
     }
     narrate('Commit the day. One commit per townhall: the diff IS the history of what changed.');
     daily('commit');

@@ -113,6 +113,14 @@ my @lift = parse_answers("Cy: x\nY: RPT-202 review\nT: RPT-202\nB: cert arrived,
 $s->{items}{'RPT-202'}{blocked} = 'cert';
 check 'suggest unblock', suggest_lines($s, 'Bravo', \@lift, [ flags($s, 'Bravo', \@lift, [], roster => []) ]), "; unblock RPT-202   ; Cy no longer reports a blocker\n; note Cy: cert arrived, unblocked\n";
 check 'suggest risk without id', suggest_lines($s, 'Alpha', [ parse_answers("Ann: x\nY: x\nT: y\nB: lab access, still waiting\n") ], []), "risk Ann: lab access; still waiting\n";
+# the four-letter words said in a status -> commented verbs for the architect to confirm
+check 'suggest punt', suggest_lines($s, 'Alpha', [ parse_answers("Bob: x\nY: x\nT: punting AUTH-103, too hard as written\nB: none\n") ], []), "; punt AUTH-103 punting AUTH-103; too hard as written   ; Bob: too hard as written -- back to TODO (confirm)\n";
+check 'suggest hold', suggest_lines($s, 'Alpha', [ parse_answers("Bob: x\nY: x\nT: AUTH-103 on hold, pulled onto the outage\nB: none\n") ], []), "; hold AUTH-103 AUTH-103 on hold; pulled onto the outage   ; Bob: interrupted (confirm)\n";
+check 'suggest redo', suggest_lines($s, 'Alpha', [ parse_answers("Ann: x\nY: x\nT: redo AUTH-101, demo found the reset mail unsent\nB: none\n") ], []), "; redo AUTH-101 redo AUTH-101; demo found the reset mail unsent   ; Ann: found wrong after the demo (confirm)\n";
+check 'suggest pass to a known team', suggest_lines($s, 'Alpha', [ parse_answers("Bob: x\nY: x\nT: passing AUTH-103 to Bravo, it is their service\nB: none\n") ], []), "; pass AUTH-103 Bravo   ; Bob: another team should do it (confirm)\n";
+check 'suggest pass without a team', suggest_lines($s, 'Alpha', [ parse_answers("Bob: x\nY: x\nT: handing off AUTH-103\nB: none\n") ], []), "; note Bob: handing off AUTH-103   ; pass to which team?\n";
+check 'suggest sync', suggest_lines($s, 'Alpha', [ parse_answers("Bob: x\nY: x\nT: sync AUTH-103 with AUTH-101 this sprint\nB: none\n") ], []), "; sync AUTH-103 AUTH-101   ; Bob: coordinated across teams, shared DONE (confirm)\n";
+check 'no suggestion without a known id', suggest_lines($s, 'Alpha', [ parse_answers("Bob: x\nY: x\nT: punting the spike, too hard\nB: none\n") ], []), "";
 has 'answers_report', answers_report('Alpha', \@today, \@f), qr/^Alpha stand-up answers: 3 people, 1 blocked$/m, qr/^  Bob            Y: AUTH-103 merged and done$/m, qr/^  RED   Bob            blocked for 4 days: cert$/m;
 
 # ---- Ai

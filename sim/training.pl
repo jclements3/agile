@@ -235,6 +235,8 @@ for my $i (1 .. 8) {
     if ($d == 3 || $d == 10) {
         narrate('Friday: the weekly mail to leadership is the same brief plus velocity and the blocked list. daily.pl draft / daily.pl brief open it in Outlook -- skipped here so training does not open a mail client.');
         daily('velocity', undef, 16);
+        narrate('The quad is the one-page weekly status: Technical Priorities tagged TODO/OPEN/DONE/WAIT/HOLD/PUNT/DROP, Watch Items the PM must help with (PM) or know about (WI), Schedule Milestones 30/60/90 days out with pushed-right / pulled-left arrows against last week, and Accomplishments marked on time or late. report wrote it as reports/<date>-quad.html; this is the text form.');
+        daily('quad', undef, 40);
     }
     narrate('Commit the day. One commit per townhall: the diff IS the history of what changed.');
     daily('commit');

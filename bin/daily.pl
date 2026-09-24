@@ -12,6 +12,7 @@ use Standup;
 use Calendar;
 use Chat;
 use Answers;
+use Quad;
 use Ai;
 use Attendance;
 use Cockpit;
@@ -40,6 +41,7 @@ my %cmds = (
     attend   => \&cmd_attend,  post    => \&cmd_post,    meetings => \&cmd_meetings, chat => \&cmd_chat,
     answers  => \&cmd_answers, ai      => \&cmd_ai,     joined   => \&cmd_joined,   cards => \&cmd_cards,  lint => \&cmd_lint, propose => \&cmd_propose,
     roster   => \&cmd_roster,  invite  => \&cmd_invite,
+    quad     => sub { my $s = $load->(); print quad_text($s, team => $_[0], open => _open_ids($s), marking => $conf) },
     sprint   => sub { print sprint_text($load->(), $_[0]) },
     velocity => sub { print velocity_text($load->()) },
     backlog  => sub { print backlog_text($load->(), $_[0]) },
@@ -48,7 +50,7 @@ my %cmds = (
     roadmap  => sub { print roadmap_text($load->()) },
     blocked  => sub { my $s = $load->(); printf "%-10s %-6s %s\n", $_->{id}, $_->{team} // '', $_->{blocked} for blocked($s) },
 );
-if (!$cmds{$cmd}) { print STDERR "commands: init new status compile report draft brief commit all check attend post meetings chat answers lint propose roster invite ai joined cards sprint velocity backlog members epics roadmap blocked\n"; exit 2 }
+if (!$cmds{$cmd}) { print STDERR "commands: init new status compile report draft brief commit all check attend post meetings chat answers lint propose roster invite quad ai joined cards sprint velocity backlog members epics roadmap blocked\n"; exit 2 }
 exit($cmds{$cmd}->(@ARGV) // 0);
 
 # ---------------------------------------------------------------- commands
@@ -92,6 +94,18 @@ sub _today_notes {
     my @files = grep { -f } map { "$conf->{standups}/$_" } grep { /^\Q$today\E.*\.txt$/ } do { opendir my $d, $conf->{standups} or return undef; my @f = readdir $d; closedir $d; sorted(@f) };
     @files ? day_notes(map { read_standup($_) } @files) : undef;
 }
+sub _open_ids {                                # ids mentioned in a Y/T status this week -> OPEN on the quad (TODO otherwise)
+    my $s = shift;
+    my $since = Quad::add_days($today, -7);
+    my %open;
+    opendir my $d, $conf->{standups} or return {};
+    for my $f (sorted(grep { /^(\d{4}-\d{2}-\d{2}).*-answers\.txt$/ && $1 gt $since && $1 le $today } readdir $d)) {
+        my $rec = eval { read_answers("$conf->{standups}/$f") } or next;
+        for my $a (@{ $rec->{answers} }) { $open{$_}++ for grep { $s->{items}{$_} } map { /\b([A-Z][A-Z0-9_]{0,9}-\d{1,6})\b/g } grep { defined } $a->{y}, $a->{t} }
+    }
+    closedir $d;
+    \%open;
+}
 sub _extra_text {                             # today's flags + AI assessment, for the status mail
     my $s = shift;
     my $out = '';
@@ -111,19 +125,23 @@ sub cmd_report {
     my $notes = _today_notes();
     $notes //= { date => $today, teams => {}, notes => [], risks => [], extra => '' };
     $notes->{extra} = _extra_text($s);
+    my $open = _open_ids($s);
+    my $prev = load($conf->{journal}, today => Quad::add_days($today, -7), until => Quad::add_days($today, -7));   # the journal a week ago: the quad's trends
     my $n = $s->{current};
     my %out = (
         "$conf->{reports}/dashboard.html"      => dashboard_html($s, marking => $conf),
         "$conf->{reports}/tree.html"           => tree_html($s, marking => $conf),
         "$conf->{reports}/roadmap.html"        => roadmap_html($s, marking => $conf),
         "$conf->{reports}/cockpit.html"        => cockpit_html($s, marking => $conf, days => days_from_standups($s, $conf->{standups}, $conf->{history_days}),
-                                                               plates => (-f "$conf->{reports}/plates.html" ? 'plates.html' : undef), plates_file => "$conf->{reports}/plates.html",
+                                                               plates => (-f "$conf->{reports}/plates.html" ? 'plates.html' : undef), plates_file => "$conf->{reports}/plates.html", quad_page => "$today-quad.html",
                                                                roster => Roster::read_roster('roster.txt'), readback_clean_days => $conf->{readback_clean_days} // 5,
                                                                map { (lc $_ => -f "$FindBin::Bin/../docs/$_.html" ? File::Spec->abs2rel(abs_path("$FindBin::Bin/../docs/$_.html"), abs_path($conf->{reports})) : undef) } qw(TUTORIAL TRAINING)),
         "$conf->{reports}/$today-status.html"  => email_html($s, $n, notes => $notes, marking => $conf),
         "$conf->{reports}/$today-status.txt"   => email_text($s, $n, notes => $notes, marking => $conf),
         "$conf->{reports}/$today-brief.html"   => brief_html($s, $n, marking => $conf),
         "$conf->{reports}/$today-brief.txt"    => brief_text($s, $n, marking => $conf),
+        "$conf->{reports}/$today-quad.html"    => quad_html($s, open => $open, prev => $prev, marking => $conf),
+        "$conf->{reports}/$today-quad.txt"     => quad_text($s, open => $open, prev => $prev, marking => $conf),
     );
     for my $f (sorted(keys %out)) {
         open my $fh, '>:encoding(UTF-8)', $f or die "cannot write $f: $!\n";

@@ -12,6 +12,7 @@ use Prelude qw(sorted sum maximum minimum);
 use Ledger  qw(postings);
 use Scrum;
 use Answers qw(read_answers flags history);
+use Quad;
 
 sub days_from_standups {                      # days_from_standups($s, $standups_dir, $history_days) -> [ { date, teams => { T => { answered, roster, flags => [{level, who, text}] } } } ]
     my ($s, $dir, $hd) = @_;                  # flags are re-derived against the journal as it is now, not as it was that day
@@ -104,6 +105,10 @@ sub snapshot {                                # snapshot($s, days => [...], atte
     my @epics = map { { tome => $_->{tome}, epic => $_->{epic}, n => scalar @{ $_->{items} }, total => $_->{total}, done => $_->{done}, wip => $_->{wip}, backlog => $_->{backlog}, removed => $_->{removed}, pct => $_->{pct},
                         teams => [ sorted(keys %{{ map { ($_->{team} // '?') => 1 } @{ $_->{items} } }}) ] } } epics($s);
 
+    my %open;                                 # ids mentioned in a Y/T status in the days given -> OPEN on the quad
+    for my $d (@{ $o{days} // [] }) { for my $t (values %{ $d->{teams} }) { for my $a (@{ $t->{answers} // [] }) { $open{$_}++ for grep { $s->{items}{$_} } map { /\b([A-Z][A-Z0-9_]{0,9}-\d{1,6})\b/g } grep { defined } $a->{y}, $a->{t} } } }
+    my $prev = load($s->{file}, today => Quad::add_days($s->{today}, -7), until => Quad::add_days($s->{today}, -7));
+    my %quad = (all => quad($s, open => \%open, prev => $prev), teams => { map { my $t = $_; ($t => quad($s, team => $t, open => \%open, prev => $prev)) } @{ $s->{teams} } });
     my $rm = roadmap($s);
     { my %last;                               # last dated Sprint posting per epic: the Gantt's "actual to" when later than today
       for my $it (items($s)) { my $k = ($it->{meta}{tome} // '(none)') . "\0" . ($it->{meta}{epic} // '(none)');
@@ -126,6 +131,8 @@ sub snapshot {                                # snapshot($s, days => [...], atte
         sprints => \@sprints, cards => \@cards, daily => \%daily, days => $o{days} // [], attendance => $o{attendance} // [],
         blocked => [ map { _item($_) } blocked($s) ], unassigned => [ map { _item($_) } unassigned($s) ],
         velocity => \%vel, epics => \@epics, roadmap => $rm, tree => \@tree,
+        quad => \%quad,                       # the weekly quad (Quad.pm): all teams and one per team
+        quad_page => $o{quad_page},          # the printable one-page quad written by daily.pl report, relative to this page (or undef)
         brief => { level => $level, headline => $headline, bullets => $bul },
         plates => $o{plates}, plates_index => plates_index($o{plates_file}), tutorial => $o{tutorial}, training => $o{training},
         roster => $o{roster} // [],           # roster.txt: name, email, team, role, org (Roster::read_roster) -- the People tab
@@ -227,6 +234,10 @@ svg.gantt{width:100%;height:auto;background:var(--surface);border:1px solid var(
 .tut-wrap{display:flex;gap:10px;height:calc(100vh - 160px)}.tut-wrap iframe.plates{flex:1 1 50%;min-width:0;height:100%}.tut-wrap.tutorial iframe.plates,.tut-wrap.replay iframe.plates{flex-basis:100%}
 a.btn{font:inherit;font-size:12px;padding:3px 10px;border:1px solid var(--navy);background:var(--navy);color:#fff;border-radius:4px;text-decoration:none;margin-left:auto}a.btn+a.btn{margin-left:8px}
 table.statuses{margin:4px 0 10px}table.statuses td:nth-child(2),table.statuses td:nth-child(3),table.statuses td:nth-child(4){max-width:420px}table.statuses tr.assumed td{color:var(--ink2);font-style:italic}b.id{color:var(--navy);font-weight:600}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:10px}.quad .q{border:1px solid var(--grid);border-top:4px solid var(--navy);border-radius:6px;background:var(--surface);padding:6px 10px}.quad h3{margin:2px 0 4px}.quad h4{margin:6px 0 2px;font-size:12px;color:var(--olive)}.quad table{width:100%}
+.qtag{display:inline-block;min-width:38px;text-align:center;border-radius:3px;padding:0 4px;font-size:10px;font-weight:700;color:#fff;background:var(--muted)}.qtag.DONE{background:var(--good)}.qtag.OPEN{background:var(--navy)}.qtag.WAIT{background:var(--critical)}.qtag.HOLD,.qtag.PUNT{background:#c98500}.qtag.DROP{background:#555}
+.qmark{display:inline-block;border:1px solid var(--olive);color:var(--olive);border-radius:3px;padding:0 3px;font-size:9px;margin-left:3px}.quad td.ok{color:var(--good);font-weight:700}.quad td.late{color:var(--critical);font-weight:700}.quad td.slip{color:#c98500;font-weight:700}
+@media(max-width:900px){.quad{grid-template-columns:1fr}}
 .legend{font-size:11px;color:var(--ink2);margin:2px 0 8px}.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 3px 0 8px;vertical-align:-1px}
 @page{margin:14mm 10mm}
 @media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{display:block;background:#fff}#top,.tools,#tabs,.period,.filter{display:none !important}#view{overflow:visible;padding:0}
@@ -235,7 +246,7 @@ CSS
 
 $JS_ = <<'JS';
 var S = JSON.parse(document.getElementById('snap').textContent);
-var TABS = [['daily','Daily'],['weekly','Weekly'],['sprint','Sprint'],['month','Monthly'],['semester','Semester'],['annual','Annual'],['backlog','Backlog'],['roadmap','Roadmap'],['gantt','Gantt'],['people','People'],['plates','Plates'],['tutorial','Tutorial']];
+var TABS = [['daily','Daily'],['weekly','Weekly'],['quad','Quad'],['sprint','Sprint'],['month','Monthly'],['semester','Semester'],['annual','Annual'],['backlog','Backlog'],['roadmap','Roadmap'],['gantt','Gantt'],['people','People'],['plates','Plates'],['tutorial','Tutorial']];
 var PERIOD = {month:2, semester:13, annual:26, all:9999};
 var COLOR = {green:'#0ca30c', amber:'#c98500', red:'#d03b3b', good:'#0ca30c', warning:'#fab219', critical:'#d03b3b', serious:'#ec835a'};
 function h(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -461,6 +472,30 @@ function viewTutorial(){                       // two panels: the Vim tutorial (
 }
 function tutLayout(l){ state.tut = l; try { localStorage.setItem('cockpit-tut', l); } catch (e) {} render(); }
 // ---- people: the roster with today's answer and each person's clean streak (consecutive days with a complete status carrying a task id)
+function viewQuad(){
+  if (!S.quad) return '<p class="muted">No quad in this snapshot.</p>';
+  var q = state.quadTeam && S.quad.teams[state.quadTeam] ? S.quad.teams[state.quadTeam] : S.quad.all, m = q.metrics;
+  var TR = {improving:'\u2197 improving', degrading:'\u2198 degrading', same:'\u2192 no change', 'new':'first week'}, AR = {pushed:'\u2192 pushed right', pulled:'\u2190 pulled left', same:'= no change', 'new':'+ new'};
+  var s = '<h2>Weekly quad' + (q.team ? ' \u00b7 ' + h(q.team) : '') + ' <span class="muted">as of ' + h(q.as_of) + (q.sprint != null ? ' \u00b7 sprint ' + q.sprint : '') + '</span></h2>';
+  s += '<div class="filter">Team: <select onchange="state.quadTeam=this.value;render()"><option value="">all</option>' + S.teams.map(function(t){ return '<option' + (state.quadTeam === t ? ' selected' : '') + '>' + h(t) + '</option>'; }).join('') + '</select>' + (S.quad_page ? ' <a class="btn" href="' + h(S.quad_page) + '" target="_blank">printable page</a>' : '') + '</div>';
+  s += '<div class="tiles">' + tile(m.sprint.pct + '%', 'Sprint progress \u00b7 ' + TR[m.sprint.trend] + (m.sprint.prev_pct != null ? ' (was ' + m.sprint.prev_pct + '%)' : ''), m.sprint.trend === 'degrading' ? 'warning' : '') +
+    tile(m.ontime.week_ontime + '/' + m.ontime.week_total, 'On time this week') + tile(m.ontime.sprint_ontime + '/' + m.ontime.sprint_total, 'On time this sprint', m.ontime.sprint_total && m.ontime.sprint_ontime / m.ontime.sprint_total < 0.8 ? 'warning' : '') + '</div>';
+  s += '<div class="quad">';
+  s += '<div class="q"><h3>Technical priorities</h3>' + (q.priorities.length ? '<table><tr><th></th><th>ID</th><th>Task</th>' + (q.team ? '' : '<th>Team</th>') + '<th>Owner</th><th class=n>' + h(S.unit) + '</th></tr>' +
+    (function(rows){ if (rows.length <= 12) return rows.map(row).join(''); var d = rows.filter(function(p){ return p.tag === 'DONE'; }); return rows.filter(function(p){ return p.tag !== 'DONE'; }).map(row).join('') + (d.length ? '<tr><td><span class="qtag DONE">DONE</span></td><td colspan=' + (q.team ? 4 : 5) + '><span class="muted">' + d.length + ' done: </span>' + d.map(function(p){ return h(p.id); }).join(', ') + '</td></tr>' : ''); })(q.priorities) + '</table>' : '<p class="muted">nothing in the sprint</p>') +
+    '<div class="legend">TODO not started \u00b7 OPEN in progress \u00b7 DONE \u00b7 WAIT blocked \u00b7 HOLD interrupted \u00b7 PUNT carried over \u00b7 DROP removed \u00b7 REDO reopened \u00b7 PASS handed off \u00b7 SYNC interface</div></div>';
+  function row(p){ return '<tr><td><span class="qtag ' + p.tag + '">' + p.tag + '</span></td><td><b class="id">' + h(p.id) + '</b></td><td>' + h(p.title) + p.marks.map(function(k){ return '<span class="qmark">' + h(k) + '</span>'; }).join('') + (p.why ? ' <span class="muted">' + h(p.why) + '</span>' : '') + '</td>' + (q.team ? '' : '<td>' + h(p.team || '') + '</td>') + '<td>' + h(p.owner || '\u2014') + '</td><td class=n>' + h(p.pts) + '</td></tr>'; }
+  s += '<div class="q"><h3>Watch items / PM help needed</h3>' + (q.watch.length ? '<table><tr><th></th><th>ID</th><th>Team</th><th>Owner</th><th>Item</th></tr>' +
+    q.watch.map(function(w){ return '<tr><td>' + chip(w.kind === 'PM' ? 'critical' : 'warning', '(' + w.kind + ')') + '</td><td><b class="id">' + h(w.id) + '</b></td><td>' + h(w.team || '') + '</td><td>' + h(w.owner || '\u2014') + '</td><td>' + h(w.text) + '</td></tr>'; }).join('') + '</table>' : '<p class="muted">nothing to watch</p>') +
+    '<div class="legend">(PM) the program manager needs to help remove a blocker \u00b7 (WI) the program manager needs to be aware</div></div>';
+  s += '<div class="q"><h3>Schedule milestones</h3>' + q.horizons.map(function(hz){ var rows = q.milestones[hz] || []; return '<h4>' + hz + ' days out</h4>' + (rows.length ? '<table>' + rows.map(function(e){ return '<tr><td class=n>' + e.priority + '.</td><td>' + h(e.tome) + ' <span class="muted">&gt;</span> ' + h(e.epic) + '</td><td>' + chip(e.severity === 'good' ? 'good' : e.severity, AR[e.trend]) + '</td><td class=n>' + e.pct + '%</td><td class=n>ETA ' + h(e.eta) + '</td><td>' + (e.blocked ? chip('critical', e.blocked + ' blocked') : '') + '</td></tr>'; }).join('') + '</table>' : '<p class="muted">\u2014</p>'); }).join('') +
+    '<div class="legend">ETA = remaining \u00f7 the owning teams\u2019 velocity, against last week\u2019s ETA</div></div>';
+  s += '<div class="q"><h3>Accomplishments <span class="muted">since ' + h(q.since) + '</span></h3>' + ((q.accomplishments.length || q.slipped.length) ? '<table>' +
+    q.accomplishments.map(function(a){ return '<tr><td class="' + (a.ontime ? 'ok' : 'late') + '">' + (a.ontime ? '\u2713' : '\u2717') + '</td><td><b class="id">' + h(a.id) + '</b></td><td>' + h(a.title) + '</td><td>' + h(a.owner || '\u2014') + '</td><td class=n>' + h(a.pts) + '</td></tr>'; }).join('') +
+    q.slipped.map(function(a){ return '<tr><td class="slip">!</td><td><b class="id">' + h(a.id) + '</b></td><td colspan=3>' + h(a.title) + ' <span class="muted">' + h(a.why) + '</span></td></tr>'; }).join('') + '</table>' : '<p class="muted">nothing finished this week</p>') +
+    '<div class="legend">\u2713 on time \u00b7 \u2717 late (was carried over) \u00b7 ! a priority that slipped this week</div></div>';
+  return s + '</div>';
+}
 function viewPeople(){
   if (!S.roster.length) return '<p class="muted">No roster.txt in the project. One line per person: <code>Name | email | Team | Role | Org</code> (name as Teams shows it), or <code>daily.pl roster add ...</code></p>';
   var today = S.generated, byDay = {};
@@ -497,7 +532,7 @@ function plate(node){                         // pick a plate: scroll the iframe
 }
 // ---- app
 var state = {tab: (location.hash || '#daily').slice(1), period: null, q: '', team: '', openOnly: true, plate: null};
-var VIEWS = {daily:viewDaily, weekly:viewWeekly, sprint:viewSprint, month:function(){ return viewPeriod('month'); }, semester:function(){ return viewPeriod('semester'); }, annual:function(){ return viewPeriod('annual'); }, backlog:viewBacklog, roadmap:viewRoadmap, gantt:viewGantt, people:viewPeople, plates:viewPlates, tutorial:viewTutorial};
+var VIEWS = {daily:viewDaily, weekly:viewWeekly, quad:viewQuad, sprint:viewSprint, month:function(){ return viewPeriod('month'); }, semester:function(){ return viewPeriod('semester'); }, annual:function(){ return viewPeriod('annual'); }, backlog:viewBacklog, roadmap:viewRoadmap, gantt:viewGantt, people:viewPeople, plates:viewPlates, tutorial:viewTutorial};
 function render(){
   document.getElementById('tabs').innerHTML = TABS.map(function(t){ return '<button class="' + (state.tab === t[0] ? 'on' : '') + '" onclick="go(\'' + t[0] + '\')">' + t[1] + '</button>'; }).join('');
   var view = document.getElementById('view'); try { view.innerHTML = (VIEWS[state.tab] || viewDaily)(); } catch (e) { view.innerHTML = '<p class="muted">view error: ' + h(e.message) + '</p>'; }

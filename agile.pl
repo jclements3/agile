@@ -36,8 +36,10 @@ sub page {                                     # the cockpit, fresh from the jou
     my $s = load("$proj/$conf->{journal}", today => _today());
     $s->{unit} = $conf->{unit};
     my $plates = -f "$proj/$conf->{reports}/plates.html" ? "$base$rel/$conf->{reports}/plates.html" : undef;
+    my $quad_page = "$conf->{reports}/" . _today() . "-quad.html";
+    $quad_page = -f "$proj/$quad_page" ? "$base$rel/$quad_page" : undef;
     my %doc = map { $_ => (-f "$ROOT/docs/$_.html" ? "${base}docs/$_.html" : undef) } qw(TUTORIAL TRAINING);
-    cockpit_html($s, marking => $conf, days => days_from_standups($s, "$proj/$conf->{standups}", $conf->{history_days}), plates => $plates, plates_file => "$proj/$conf->{reports}/plates.html",
+    cockpit_html($s, marking => $conf, days => days_from_standups($s, "$proj/$conf->{standups}", $conf->{history_days}), plates => $plates, plates_file => "$proj/$conf->{reports}/plates.html", quad_page => $quad_page,
                  tutorial => $doc{TUTORIAL}, training => $doc{TRAINING}, roster => Roster::read_roster("$proj/roster.txt"), readback_clean_days => $conf->{readback_clean_days} // 5);
 }
 sub _today { $o{today} // do { my @t = localtime; sprintf '%04d-%02d-%02d', $t[5] + 1900, $t[4] + 1, $t[3] } }

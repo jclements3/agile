@@ -113,6 +113,7 @@ command! -nargs=* SBacklog call s:Daily('backlog ' . <q-args>)
 command! -nargs=* SMembers call s:Daily('members ' . <q-args>)
 command!          SBlocked call s:Daily('blocked')
 command!          SRoadmap call s:Daily('roadmap')
+command! -nargs=? SQuad    call s:Daily('quad <args>')
 command!          SCockpit call s:Cockpit()
 command!          STig     call s:Tig()
 command! -nargs=+ -complete=file SDocs execute '!perl ' . shellescape(s:root . '/bin/docs2txt.pl') . ' ' . <q-args>

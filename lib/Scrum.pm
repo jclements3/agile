@@ -35,7 +35,7 @@ sub _num { my $a = shift; sum(values %{ $a // {} }) }       # points as a plain 
 sub load {
     my ($file, %opt) = @_;
     my $j = read_journal($file);
-    my $s = { j => $j, file => $file, items => {}, today => $opt{today} // _today() };
+    my $s = { j => $j, file => $file, items => {}, today => $opt{today} // _today(), until => $opt{until} };   # until: ignore postings after that date (the journal as it stood then)
     _index($s);
     $s;
 }
@@ -44,6 +44,7 @@ sub _index {
     my $s = shift;
     my (%items, %teams, %sprints);
     for my $p (postings($s->{j})) {
+        next if $s->{until} && $p->{date} gt $s->{until};
         my $acct = $p->{account};
         $teams{$1}++   if $acct =~ /^Backlog:(?!Master)([^:]+)/;
         if ($acct =~ /^Sprint:(\d+):([^:]+)/) { $sprints{$1}++; $teams{$2}++ }
@@ -53,6 +54,10 @@ sub _index {
                                   title => ($p->{payee} =~ /^\s*(?:intake|new|add)\s+\Q$id\E\s*(.*)$/i ? $1 : $p->{payee}) };
         for my $k (keys %$meta) { next if $k eq 'id'; $it->{meta}{$k} = $meta->{$k} }
         $it->{title} = $it->{meta}{title} if $it->{meta}{title};
+        for my $k (qw(blocked hold)) {        # when a blocker or hold was set: the posting that carried it (cleared by the empty form)
+            next unless exists $meta->{$k};
+            $it->{"${k}_since"} = (defined $meta->{$k} && $meta->{$k} ne '') ? $p->{date} : undef;
+        }
         my $pts = _num($p->{amount});
         $it->{bal}{$acct} += $pts;
         push @{ $it->{history} }, { date => $p->{date}, payee => $p->{payee}, account => $acct, points => $pts };
@@ -74,6 +79,7 @@ sub _index {
         $it->{team} //= $it->{meta}{team};
         $it->{owner} = $it->{meta}{owner};
         $it->{blocked} = (defined $it->{meta}{blocked} && $it->{meta}{blocked} ne '') ? $it->{meta}{blocked} : undef;
+        $it->{hold}    = (defined $it->{meta}{hold}    && $it->{meta}{hold}    ne '') ? $it->{meta}{hold}    : undef;   # interrupted by higher-priority work (hold ID why / resume ID)
         $it->{age}   = days_between($it->{created}, $s->{today});
     }
     $s->{items}   = \%items;

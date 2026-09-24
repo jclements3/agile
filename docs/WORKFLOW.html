@@ -234,6 +234,10 @@ nobody re-types anything.</p>
     <td><code>answers</code> flags</td><td>silent or incomplete 3 days → talk to the lead</td></tr>
 <tr><td>Stuck signals</td><td>same plan N days; blocker N days</td>
     <td><code>answers</code> flags</td><td>red (3 days) → your action, not the lead's</td></tr>
+<tr><td>Sprint progress (quad)</td><td>Done / Committed this sprint, with the trend against a week ago</td>
+    <td><code>quad</code> header</td><td>degrading two weeks running → the commitment was wrong, not the team</td></tr>
+<tr><td>On-time delivery (quad)</td><td>tasks finished without ever being carried over / tasks finished, this week and this sprint</td>
+    <td><code>quad</code> header, &#10003;/&#10007; in Accomplishments</td><td>&lt; 80% → tasks too big or started too late; split at refinement</td></tr>
 <tr><td>WIP per person</td><td>committed SP per owner</td>
     <td><code>members</code></td><td>one person &gt; 40% of team commit → bus factor</td></tr>
 <tr><td>Unassigned</td><td>committed tasks with no owner</td>
@@ -254,8 +258,8 @@ epics, intake vs done, backlog age, attendance.</p>
     <td><code>daily.pl post</code></td><td>text appended to the Teams meeting</td></tr>
 <tr><td>Dashboard</td><td>daily</td><td>you; leads on request</td>
     <td><code>daily.pl report</code></td><td>reports/dashboard.html on a share</td></tr>
-<tr><td>Weekly status</td><td>Fri</td><td>leadership</td>
-    <td>Fri status + <code>velocity</code> + <code>blocked</code></td><td>same mail, two extra paragraphs</td></tr>
+<tr><td>Weekly status (the quad)</td><td>Fri</td><td>leadership, PM</td>
+    <td><code>daily.pl quad [Team]</code>; <code>report</code> writes <code>reports/&lt;date&gt;-quad.html</code></td><td>one printed page, four quadrants: Technical Priorities (TODO/OPEN/DONE/WAIT/HOLD/PUNT/DROP, REDO/PASS/SYNC marks), Watch Items ((PM) help needed / (WI) awareness), Schedule Milestones (epics 30/60/90 days out, pushed right / pulled left vs last week), Accomplishments (on time &#10003; / late &#10007;)</td></tr>
 <tr><td>Sprint report</td><td>Day 14</td><td>leadership, teams</td>
     <td><code>sprint N</code>, <code>velocity</code>, <code>epics</code></td><td>mail + xlsx via <code>scrum.pl csv</code>→Excel</td></tr>
 <tr><td>Monthly / quarterly roll-up</td><td>monthly</td><td>program leadership</td>

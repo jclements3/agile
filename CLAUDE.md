@@ -38,7 +38,7 @@ There is no build step and no package manager — everything is `use lib` agains
     perl bin/devsecops.pl [--quick]     # run the kit's own pipeline gates here (tests on every Perl found, syntax, secrets, marking, hygiene) -> ./devsecops.html, a DevSecOps-style status dashboard; exit 1 on a gap
     perl bin/release.pl [--tag vX]      # release/agile-<tag|sha>.zip (+ .sha256) from the committed tree, for the target laptop; refuses on a dirty tree
 
-Test suites (1539 lines total) map 1:1 to the libs: `tests/prelude.t`, `tests/ledger.t`,
+Test suites map 1:1 to the libs: `tests/prelude.t`, `tests/ledger.t`, `tests/quad.t`,
 `tests/scrum.t`, `tests/standup.t`, `tests/calendar.t`, `tests/chat.t`, `tests/answers.t`,
 `tests/attendance.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
 `Calendar.pm`'s COM calls offline.
@@ -52,6 +52,7 @@ invocations while developing:
     perl bin/daily.pl roster [add "Name" email Team "Role" "Org"]   # the people file (roster.txt: Name | email | Team | Role | Org); lists, checks against the journal
     perl bin/daily.pl invite [--dry]                 # recurring weekday townhall in Outlook/Teams with the roster as attendees (townhall_* keys in scrum.conf); marking gate on attendees
     perl bin/daily.pl propose [Team]                 # today's statuses drafted from yesterday's + the journal, one line per person to post; answers --assume records them for the silent
+    perl bin/daily.pl quad [Team]                    # the weekly quad (Technical Priorities / Watch Items / 30-60-90 Milestones / Accomplishments) as text; report writes <date>-quad.html
     #   lint/propose --private -> reports/<date>-{lint,propose}.html: a Teams 1:1 deep link per person (message pre-filled); e-mails from meeting invitees + roster.txt
     perl bin/daily.pl --dry compile                  # show what compile would write without writing it
     perl bin/scrum.pl -f scrum.txt items committed <Team>
@@ -151,6 +152,13 @@ scrum-specific knowledge (used standalone via `ledger.pl` too).
   into the status mail. Metrics themselves never come from the AI — always from the journal.
 - `lib/Attendance.pm` — parses a downloaded Teams "Attendance report" CSV into join/leave/minutes
   per person, reconciled against calendar responses.
+- `lib/Quad.pm` — the weekly quad, one page from the journal: Technical Priorities (this sprint's tasks tagged
+  TODO/OPEN/DONE/WAIT/HOLD/PUNT/DROP with REDO/PASS/SYNC marks; OPEN = mentioned in a Y/T status this week), Watch
+  Items ((PM) blocker older than 3 days or team over 110%; (WI) fresh blockers, holds, carryover, unassigned, load),
+  Schedule Milestones (epics whose ETA falls 30/60/90 days out, pushed right / pulled left against the journal as it
+  stood a week ago via `load(..., until => date)`), Accomplishments (done this week, on time unless ever carried over).
+  Its two metrics, Sprint Progress and On-Time Delivery, are in the header. `daily.pl quad [Team]`, `report` writes
+  `<date>-quad.html`/`.txt`, the cockpit has a Quad tab. `hold ID why` / `resume ID` are the stand-up verbs behind HOLD.
 - `bin/daily.pl` — the umbrella CLI (`init/new/cards/attend/joined/answers/chat/ai/compile/
   report/post/draft/commit/all/status/sprint/velocity/backlog/members/epics/blocked/meetings`)
   that wires all of the above together for the daily/weekly/sprint rhythm; `bin/scrum.pl`,

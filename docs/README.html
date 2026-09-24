@@ -95,6 +95,7 @@ refine ID                        master backlog (or another team's) -&gt; this t
 prune ID reason                  retire a backlog task -&gt; Removed; the reason stays on the posting
 est ID PTS   assign ID owner     re-estimate, reassign
 block ID reason   unblock ID     tracked on the task; shows in reports until unblocked
+hold ID reason    resume ID      interrupted by higher-priority work; stays committed, tagged HOLD on the weekly quad
 cap N                            team capacity this sprint
 note … risk … absent Name…       report only
 sprint N                         override the current sprint (file-wide or per team)</pre>
@@ -248,8 +249,11 @@ part of Git for Windows, so nothing is installed. Use <code>:STig</code> before 
 
 <h2>Other views</h2>
 
-<pre>daily.pl status | sprint [N] | velocity | backlog [Team] | members [Team] | epics | roadmap | blocked
+<pre>daily.pl status | sprint [N] | velocity | backlog [Team] | members [Team] | epics | roadmap | blocked | quad [Team]
 scrum.pl  -f scrum.txt roadmap [-o roadmap.html]     epics by tome across sprints: actuals + velocity forecast
+daily.pl quad [Team]                                 the weekly quad: Technical Priorities (TODO/OPEN/DONE/WAIT/HOLD/PUNT/DROP), Watch Items ((PM)/(WI)),
+                                                     Schedule Milestones (epics 30/60/90 days out, pushed right / pulled left vs last week), Accomplishments (on time / late);
+                                                     report writes reports/&lt;date&gt;-quad.html (one printed page) and .txt; the cockpit has a Quad tab
 scrum.pl  -f scrum.txt items committed Bravo         raw task query
 ledger.pl -f scrum.txt bal Sprint:42                 it is still a ledger</pre>
 

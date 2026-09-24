@@ -64,6 +64,8 @@ sub find_conf {                               # walk up from cwd looking for scr
 #   assign AUTH-103 Ann              change owner
 #   block RPT-202 waiting on cert    mark blocked (reason free text)
 #   unblock RPT-202
+#   hold OPS-301 pulled onto P1 fix   interrupted by higher-priority work (stays committed; shows HOLD on the quad)
+#   resume OPS-301
 #   cap 12                           team capacity for this sprint
 #   note Bob out Friday              free text -> report
 #   risk cert renewal slipping       free text -> report
@@ -91,14 +93,15 @@ sub parse_standup {
         if ($line =~ /^==+\s*(\S+)/)                  { $team = $1; push @{ $su->{order} }, $team unless $su->{teams}{$team};
                                                         $su->{teams}{$team} //= { team => $team, done => [], carry => [], drop => [], commit => [], new => [], est => [],
                                                                                   assign => [], block => [], unblock => [], note => [], risk => [], absent => [], cap => undef, sprint => undef,
-                                                                                  refine => [], prune => [] };
+                                                                                  refine => [], prune => [], hold => [], resume => [] };
                                                         next }
         my ($verb, $rest) = $line =~ /^(\S+)\s*(.*)$/;
         $verb = lc $verb;
         if ($verb eq 'note' || $verb eq 'risk') { push @{ $team ? $su->{teams}{$team}{$verb} : $su->{ $verb . 's' } }, $rest; next }
         if (!$team) { $err->("'$verb' needs a team section (== Team) first"); next }
         my $t = $su->{teams}{$team};
-        if    ($verb =~ /^(done|carry|drop|unblock)$/) { push @{ $t->{$verb} }, split ' ', $rest }
+        if    ($verb =~ /^(done|carry|drop|unblock|resume)$/) { push @{ $t->{$verb} }, split ' ', $rest }
+        elsif ($verb eq 'hold')    { my ($id, $why) = split ' ', $rest, 2; $id ? push @{ $t->{hold} }, [ $id, $why // '' ] : $err->("hold needs an id") }
         elsif ($verb eq 'commit')  { my ($id, $owner) = split ' ', $rest; $id ? push @{ $t->{commit} }, [ $id, $owner ] : $err->("commit needs an id") }
         elsif ($verb eq 'assign')  { my ($id, $owner) = split ' ', $rest; $id && $owner ? push @{ $t->{assign} }, [ $id, $owner ] : $err->("assign needs id and owner") }
         elsif ($verb eq 'est')     { my ($id, $pts) = split ' ', $rest; $id && defined $pts && $pts =~ /^\d+(\.\d+)?$/ ? push @{ $t->{est} }, [ $id, $pts ] : $err->("est needs id and points") }
@@ -201,6 +204,8 @@ sub compile {                                 # compile($scrum_state, $standup) 
         for my $a (@{ $t->{assign} }) { my ($id, $owner) = @$a; next unless $known->($id); push @post, _zero($id, $where->($id) || $committed, $unit, "owner: $owner") }
         for my $b (@{ $t->{block} })  { my ($id, $why) = @$b; next unless $known->($id); ($why //= '') =~ s/,/;/g; push @post, _zero($id, $where->($id) || $committed, $unit, "blocked: " . ($why || 'yes')) }
         for my $id (@{ $t->{unblock} }) { next unless $known->($id); push @post, _zero($id, $where->($id) || $committed, $unit, 'blocked:') }
+        for my $b (@{ $t->{hold} })   { my ($id, $why) = @$b; next unless $known->($id); ($why //= '') =~ s/,/;/g; push @post, _zero($id, $where->($id) || $committed, $unit, "hold: " . ($why || 'yes')) }
+        for my $id (@{ $t->{resume} }) { next unless $known->($id); push @post, _zero($id, $where->($id) || $committed, $unit, 'hold:') }
 
         $out .= "$su->{date} Standup $team\n" . join('', @post) . "\n" if @post;
     }
@@ -320,7 +325,7 @@ Verbs: C<done carry drop> (Committed to Done / Carryover / Removed),
 C<commit ID [owner]> (from the team backlog, master backlog or last sprint's
 carryover into this sprint), C<new ID PTS title [p:N e:Epic o:Owner]> (intake
 to the team backlog; C<new!> puts it straight into the sprint), C<est ID PTS>,
-C<assign ID owner>, C<block ID reason>, C<unblock ID>, C<cap N>, and the
+C<assign ID owner>, C<block ID reason>, C<unblock ID>, C<hold ID reason>, C<resume ID>, C<cap N>, and the
 report-only C<note>, C<risk>, C<absent>. C<;> and C<#> start comments, so the
 C<; open:> lines the template writes are ignored.
 

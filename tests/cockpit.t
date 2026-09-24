@@ -54,8 +54,11 @@ S 'script is ASCII-clean', 1, (do { my ($js) = $html =~ m{<script>(.*)</script>}
 S 'no plates -> null', 1, (cockpit_html($s) =~ /"plates":null/ ? 1 : 0);
 S 'build time in the header (a shared screen shows it is live)', 1, ($html =~ /built <b id="built">\d\d:\d\d<\/b>/ ? 1 : 0);
 S 'people tab: roster in the snapshot, view present', '[1,1,1]', do { my $p = cockpit_html($s, roster => [ { name => 'Bob', email => 'b@example.com', team => 'Alpha', role => 'Dev', org => 'ACME' } ], readback_clean_days => 3); [ ($p =~ /"roster":\[\{"email":"b\@example.com","name":"Bob","org":"ACME","role":"Dev","team":"Alpha"\}\]/ ? 1 : 0), ($p =~ /function viewPeople\(\)/ ? 1 : 0), ($p =~ /\['people','People'\]/ ? 1 : 0) ] };
-S 'snapshot keys', '["attendance","backlog","blocked","brief","cards","current","daily","days","epics","file","generated","marking","plates","plates_index","roadmap","roster","sprints","teams","training","tree","tutorial","unassigned","unit","velocity"]', [ sorted(keys %{ snapshot($s) }) ];
+S 'snapshot keys', '["attendance","backlog","blocked","brief","cards","current","daily","days","epics","file","generated","marking","plates","plates_index","quad","quad_page","roadmap","roster","sprints","teams","training","tree","tutorial","unassigned","unit","velocity"]', [ sorted(keys %{ snapshot($s) }) ];
 S 'no plates file -> empty index', '[]', plates_index(undef);
+S 'quad in the snapshot: all + per team', '[["Alpha","Bravo"],["TODO","DONE","TODO"],31]', do { my $qq = snapshot($s)->{quad}; [ [ sorted(keys %{ $qq->{teams} }) ], [ map { $_->{tag} } @{ $qq->{all}{priorities} } ], $qq->{all}{metrics}{sprint}{pct} ] };
+S "quad OPEN from the days answers", '["OPEN"]', [ map { $_->{tag} } grep { $_->{id} eq 'AUTH-103' } @{ snapshot($s, days => [ { date => '2026-09-01', teams => { Alpha => { answered => 1, roster => 2, flags => [], answers => [ { who => 'Bob', y => '', t => 'AUTH-103 SSO', b => 'none' } ] } } } ])->{quad}{all}{priorities} } ];
+has 'quad tab', $html, qr/function viewQuad\(\)/, qr/\['quad','Quad'\]/, qr/quad:viewQuad/;
 my $pl = "$FindBin::Bin/../data/demo/reports/plates.html";
 if (-f $pl) {
     my $ix = plates_index($pl);

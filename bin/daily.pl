@@ -330,7 +330,7 @@ sub _private_page {                           # --private: reports/<date>-<kind>
 }
 sub cmd_propose {                             # propose [Team] [--private]: today's status drafted from yesterday's, one paste-ready line per person (post before/during the meeting)
     my @teams = @_ ? @_ : @{ $load->()->{teams} };
-    binmode STDOUT, ':utf8';
+    binmode STDOUT, ':encoding(UTF-8)';
     my $s = $load->();
     my (@private, @proposals);
     for my $team (@teams) {
@@ -356,7 +356,7 @@ sub cmd_propose {                             # propose [Team] [--private]: toda
 }
 sub cmd_lint {                                # lint [FILE|-] [--reply]: check every Y/T/B status in a pasted chat, during the meeting
     my @args = @_;                            # FILE:LINE: prefix per person (Vim quickfix); --reply prints only the lines to paste back into the chat
-    binmode STDOUT, ':utf8';                  # the reply carries a thumbs-up
+    binmode STDOUT, ':encoding(UTF-8)';                  # the reply carries a thumbs-up
     my $reply = $o{reply};
     my @files = @args;
     @files = map { $_->[0] } _chat_files() unless @files;

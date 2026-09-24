@@ -1,6 +1,20 @@
 # perlcritic policy for the Linux CI job (tests.yml). Gentle severity only: the kit targets core Perl 5.10+ with
-# no CPAN, so this is a second opinion, not a style guide.
+# no CPAN, so this is a second opinion, not a style guide. Each exclusion below is a deliberate convention of the kit.
 severity = 5
 
 # The import() pattern every lib uses (see Prelude.pm) installs subs into the caller with symbolic refs on purpose.
 [-TestingAndDebugging::ProhibitNoStrict]
+
+# Prelude's Maybe convention: a function that can fail returns `undef` explicitly (Nothing), never an empty list,
+# so `my ($x) = f()` and `f() // default` behave the same in every context.
+[-Subroutines::ProhibitExplicitReturnUndef]
+
+# select(undef, undef, undef, $t) is the core-Perl fractional sleep (Time::HiRes is not assumed); replay pacing only.
+[-BuiltinFunctions::ProhibitSleepViaSelect]
+
+# sim/history-gen.pl requires its renderer by path (a sibling script, not a module on @INC).
+[-Modules::RequireBarewordIncludes]
+
+# `map { s/..//; $_ } _split(...)` edits fresh temporaries returned by _split, not the caller's data.
+[-BuiltinFunctions::ProhibitVoidMap]
+[-ControlStructures::ProhibitMutatingListFunctions]

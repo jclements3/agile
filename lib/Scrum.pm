@@ -22,7 +22,7 @@ sub import {
 # ---------------------------------------------------------------- loading
 # $s = { j, file, items => {id => item}, teams => [..], sprints => [..], current => N, today }
 # item = { id, title, created, meta => {prio, epic, owner, ...}, bal => {account => points},
-#          history => [ {date, payee, account, points} ], location => [accounts], state, sprint, team, points }
+#          history => [ {date, payee, account, points} ], punts => [ {date, sprint, team, why, points} ], location => [accounts], state, sprint, team, points }
 
 sub parse_meta {                              # "id: A-1, prio: 2, owner: Bob"  -> hashref
     my $c = shift;
@@ -65,6 +65,11 @@ sub _index {
         }
         $it->{bal}{$acct} += $pts;
         push @{ $it->{history} }, { date => $p->{date}, payee => $p->{payee}, account => $acct, points => $pts };
+        if (($meta->{punt} // q{}) ne q{} && $pts > 0 && $acct =~ /^Backlog:([^:]+)$/) {   # a punt: the paired posting just before it left Sprint:N:Team:Committed
+            my $team = $1; my ($from) = grep { $_->{points} < 0 && $_->{account} =~ /^Sprint:(\d+):/ } reverse @{ $it->{history} };
+            push @{ $it->{punts} }, { date => $p->{date}, sprint => ($from && $from->{account} =~ /^Sprint:(\d+):/ ? $1 : undef), team => $team, why => $meta->{punt}, points => $pts };
+        }
+
     }
     for my $it (values %items) {
         my @loc = sorted(grep { $it->{bal}{$_} > 1e-9 } keys %{ $it->{bal} });

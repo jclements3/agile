@@ -492,7 +492,12 @@ function viewQuad(){
     q.accomplishments.map(function(a){ return '<tr><td class="' + (a.ontime ? 'ok' : 'late') + '">' + (a.ontime ? '\u2713' : '\u2717') + '</td><td><b class="id">' + h(a.id) + '</b></td><td>' + h(a.title) + '</td><td>' + h(a.owner || '\u2014') + '</td><td class=n>' + h(a.pts) + '</td></tr>'; }).join('') +
     q.slipped.map(function(a){ return '<tr><td class="slip">!</td><td><b class="id">' + h(a.id) + '</b></td><td colspan=3>' + h(a.title) + ' <span class="muted">' + h(a.why) + '</span></td></tr>'; }).join('') + '</table>' : '<p class="muted">nothing finished this week</p>') +
     '<div class="legend">\u2713 on time \u00b7 \u2717 late (carried over, or rework after the demo) \u00b7 ! a priority that slipped this week</div></div>';
-  return s + '</div>';
+  s += '</div>';
+  s += '<h3>Punt rate <span class="muted">tasks punted back to TODO / tasks committed, last sprints; over ' + q.punt_warn + '% two sprints running means tasks arrive under-specified</span></h3>';
+  if (q.punt_rate.length){ var sps = [], teams = [], cell = {}; q.punt_rate.forEach(function(r){ if (sps.indexOf(r.sprint) < 0) sps.push(r.sprint); if (teams.indexOf(r.team) < 0) teams.push(r.team); cell[r.sprint + '|' + r.team] = r; });
+    s += '<table><tr><th>Team</th>' + sps.map(function(n){ return '<th class=n>Sprint ' + n + '</th>'; }).join('') + '</tr>' + teams.map(function(t){ return '<tr><td>' + h(t) + '</td>' + sps.map(function(n){ var c = cell[n + '|' + t], txt = c ? c.punted + ' / ' + c.committed + ' \u00b7 ' + c.rate + '%' : '\u2014'; return '<td class="n">' + (c && c.rate > q.punt_warn ? chip('critical', txt) : txt) + '</td>'; }).join('') + '</tr>'; }).join('') + '</table>';
+  } else s += '<p class="muted">no sprints yet</p>';
+  return s;
 }
 function viewPeople(){
   if (!S.roster.length) return '<p class="muted">No roster.txt in the project. One line per person: <code>Name | email | Team | Role | Org</code> (name as Teams shows it), or <code>daily.pl roster add ...</code></p>';

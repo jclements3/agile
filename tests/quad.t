@@ -149,6 +149,15 @@ S 'sprint on-time excludes rework', '[2,3]', [ @{ $q5->{metrics}{ontime} }{qw(sp
 S 'recommitting a punted task clears PUNT', '"OPEN"', do { Standup::apply($s2, parse_standup("2026-09-08\n== Alpha\ncommit T-6 Ann\n", "$dir/2026-09-08b.txt"), $j); my ($p) = grep { $_->{id} eq 'T-6' } @{ quad(load($j, today => '2026-09-08'))->{priorities} }; $p->{tag} };
 S 'until: the journal as it stood', '["done","committed"]', [ load($j, today => '2026-08-28', until => '2026-08-28')->{items}{'T-4'}{state}, load($j, today => '2026-09-05', until => '2026-09-05')->{items}{'T-4'}{state} ];
 
+# ---- punt rate: T-6 punted in sprint 1 out of Alpha's five committed tasks (T-2 T-3 T-4 T-5 T-6); Bravo two (T-1, T-5 passed in), none punted
+S 'punt recorded on the item', '[["2026-09-05",1,"Alpha","needs splitting - too big as written",8]]', [ map { [ @{$_}{qw(date sprint team why points)} ] } @{ $s2->{items}{'T-6'}{punts} } ];
+S 'punt_rate per team per sprint + total', '[[0,"Alpha",1,0,0],[1,"Alpha",5,1,20],[1,"Bravo",2,0,0],[1,"Total",7,1,14]]', [ map { [ @{$_}{qw(sprint team committed punted rate)} ] } @{ punt_rate($s2) } ];
+S 'punt_rate team filter, no total', '[[0,"Alpha",1,0,0],[1,"Alpha",5,1,20]]', [ map { [ @{$_}{qw(sprint team committed punted rate)} ] } @{ punt_rate($s2, team => 'Alpha') } ];
+S 'punt_rate in the quad', 4, scalar @{ quad($s2)->{punt_rate} };
+has 'punt rate rendered', quad_text($s2), qr/^PUNT RATE \(tasks punted back to TODO \/ tasks committed, last 4 sprints\)\n  sprint 0    Alpha          0 \/ 1     0%\n  sprint 1    Alpha          1 \/ 5    20%/m;
+has 'punt rate html', quad_html($s2), qr/<div class=strip><h2>Punt rate/, qr/<td class="n">1 \/ 5 &middot; 20%<\/td>/;
+S 'example journal: no punts', '[[41,"Alpha",2,0,0],[41,"Bravo",2,0,0],[41,"Total",4,0,0],[42,"Alpha",1,0,0],[42,"Bravo",2,0,0],[42,"Total",3,0,0]]', [ map { [ @{$_}{qw(sprint team committed punted rate)} ] } @{ punt_rate($s) } ];
+
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";
 exit($bad ? 1 : 0);

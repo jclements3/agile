@@ -12,7 +12,7 @@ cat <<EOF
 
 ## Where the repo is
 - Branch \`$branch\`, HEAD \`$head\` ($when): $headmsg
-- Remote: the GitHub remote (origin). Tags: $(git tag 2>/dev/null | tr '\n' ' ')
+- Remote: origin = https://github.com/jclements3/agile (public). Tags: $(git tag 2>/dev/null | tr '\n' ' ')
 - Uncommitted changes at hand-up: $(if [ -z "$dirty" ]; then echo "none (clean tree)"; else echo; echo '```'; git status --short; echo '```'; echo "  Summary of the diff:"; git diff --stat | tail -1; fi)
 
 ## What this is
@@ -33,7 +33,7 @@ optional. Read \`CLAUDE.md\` first, then \`docs/README.html\`, \`docs/WORKFLOW.h
 
 ## Known bugs / open issues
 - The owner's ~/.vimrc line 1 (\`Plug ...\` without plug#begin) errors on every Vim start; launch demos with \`vim -N -u NONE -c "source vim/scrum.vim"\`.
-- perlcritic is not available on the target; static analysis is perl -c + strict/warnings + the suites (the one DevSecOps gap).
+- perlcritic cannot run on the target Perl (CPAN); it runs at gentle severity in the Linux CI job (.perlcriticrc holds the deliberate exclusions).
 - Teams' Ctrl-A copy of a very long meeting chat may be truncated by list virtualisation: untested; the mitigation (paste in
   chunks into the same -chat.txt) already works.
 

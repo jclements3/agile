@@ -430,7 +430,7 @@ sub cmd_drill {                               # drill [Team] [-n N]: the memory 
         return 0;
     }
     print "memory drill: " . scalar(@pick) . " cards. Terse answers (ids, codes, initials, any order, any case); ? = don't know, q = stop.\n";
-    my $st = Drill::drill_loop(\@pick, $prog, in => \*STDIN, out => \*STDOUT, today => $today, ask_hook => (-t STDIN ? 1 : 0), save => sub { Drill::write_progress($file, $prog) });
+    my $st = Drill::drill_loop(\@pick, $prog, in => \*STDIN, out => \*STDOUT, today => $today, ask_hook => (do { require POSIX; POSIX::isatty(fileno STDIN) } ? 1 : 0), save => sub { Drill::write_progress($file, $prog) });
     $st->{miss} ? 1 : 0;
 }
 sub _private_page {                           # --private: reports/<date>-<kind>.html with a 1:1 Teams link per person, message pre-filled

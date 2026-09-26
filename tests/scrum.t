@@ -215,6 +215,14 @@ S 'cli bad cmd', 2, $rc;
     check('tree_html: OPEN chip on an open epic', ($t =~ /<summary>[^<]*<span class=muted>[^<]*<\/span> <span class="chip good">&#10003; OPEN<\/span>/ ? 1 : 0), 1);
 }
 
+# load(..., until => D) is the journal as it stood on D: sprint summaries and postings must not see later work (the quad's week-ago trend reads it)
+{   my $now = load("$FindBin::Bin/../examples/scrum.txt", today => '2026-09-01');
+    my $then = load("$FindBin::Bin/../examples/scrum.txt", today => '2026-08-25', until => '2026-08-25');
+    S 'until: sprint 42 done as it stood then', '[8,0]', [ sprint_summary($now, 42)->{totals}{done}, sprint_summary($then, 42)->{totals}{done} ];
+    S 'until: no posting after the date', 0, scalar grep { $_->{date} gt '2026-08-25' } journal_postings($then);
+    S 'items memo returns the same answer twice', 1, join(',', map { $_->{id} } items($now, team => 'Alpha')) eq join(',', map { $_->{id} } items($now, team => 'Alpha')) ? 1 : 0;
+}
+
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";
 exit($bad ? 1 : 0);

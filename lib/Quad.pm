@@ -51,8 +51,9 @@ sub _ymd { my $t = shift; my @g = gmtime $t; sprintf '%04d-%02d-%02d', $g[5] + 1
 sub _epoch { my ($y, $m, $d) = split /-/, $_[0]; timegm(0, 0, 0, $d, $m - 1, $y) }
 sub add_days { my ($date, $n) = @_; _ymd(_epoch($date) + $n * 86400) }
 
-sub sprint_span {                             # sprint_span($s) -> { N => { start, end } } from the postings; end is the last posting seen for that sprint
+sub sprint_span {                             # sprint_span($s) -> { N => { start, end } } from the postings; end is the last posting seen for that sprint (once per load)
     my $s = shift;
+    return $s->{_memo}{sprint_span} if $s->{_memo}{sprint_span};
     my %span;
     for my $it (values %{ $s->{items} }) {
         for my $h (@{ $it->{history} }) {
@@ -62,7 +63,7 @@ sub sprint_span {                             # sprint_span($s) -> { N => { star
             $span{$n}{end}   = $h->{date} if !$span{$n}{end}   || $h->{date} gt $span{$n}{end};
         }
     }
-    \%span;
+    $s->{_memo}{sprint_span} = \%span;
 }
 sub sprint_end_date {                         # sprint_end_date($s, N) -> the calendar day sprint N ends (planned: start of the current sprint + whole sprints), or undef
     my ($s, $n) = @_;

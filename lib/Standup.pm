@@ -255,20 +255,34 @@ sub _zero { my ($id, $acct, $unit, $m) = @_; sprintf("    %-32s  0 %s   ; id: %s
 
 sub apply {                                   # compile, append to journal, mark file compiled; returns text appended
     my ($s, $su, $journal) = @_;
+    if ($su->{file} ne '(string)' && $su->{date} && -f $journal) {   # already in the journal (a compile whose marking failed): never apply twice
+        my $header = "; ---- standup $su->{date} ($su->{file})";
+        open my $r, '<', $journal or die "cannot read $journal: $!\n";
+        while (my $l = <$r>) {
+            $l =~ s/\r?\n$//; next unless $l eq $header;
+            close $r; mark_compiled($su->{file}) if -f $su->{file};
+            warn "$su->{file} is already in $journal: marked it compiled, applied nothing\n";
+            return '';
+        }
+        close $r;
+    }
     my $text = compile($s, $su);
     open my $fh, '>>', $journal or die "cannot append to $journal: $!\n";
-    print $fh $text;
-    close $fh;
+    my $ok = print $fh $text;
+    $ok = close($fh) && $ok;                  # a full disk or a locked file (OneDrive, antivirus, an editor) shows up here, not at open
+    die "writing $journal failed ($!): check the end of the journal before compiling again; $su->{file} is NOT marked compiled\n" unless $ok;
     mark_compiled($su->{file}) if -f $su->{file};
     $text;
 }
-sub mark_compiled {
+sub mark_compiled {                           # rewrite through a temp file and rename: a failure never truncates the stand-up notes
     my $file = shift;
     open my $in, '<', $file or die "cannot read $file: $!\n"; local $/; my $t = <$in>; close $in;
     my @lt = localtime;
-    open my $o, '>', $file or die "cannot write $file: $!\n";
-    printf $o "# compiled %04d-%02d-%02d %02d:%02d\n%s", $lt[5] + 1900, $lt[4] + 1, $lt[3], $lt[2], $lt[1], $t;
-    close $o;
+    my $tmp = "$file.tmp$$";
+    open my $o, '>', $tmp or die "cannot write $tmp: $!\n";
+    my $ok = printf $o "# compiled %04d-%02d-%02d %02d:%02d\n%s", $lt[5] + 1900, $lt[4] + 1, $lt[3], $lt[2], $lt[1], $t;
+    $ok = close($o) && $ok;
+    if (!$ok || !rename($tmp, $file)) { my $e = $!; unlink $tmp; die "cannot mark $file compiled ($e); it is applied -- the next compile will notice and not apply it twice\n" }
 }
 sub pending {                                 # stand-up files in $dir not yet compiled, oldest first
     my $dir = shift;

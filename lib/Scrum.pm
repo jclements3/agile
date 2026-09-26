@@ -102,6 +102,18 @@ sub _index {
     }
 }
 
+sub journal_postings {                        # the journal's postings as this load sees them: none after `until` (the journal as it stood then)
+    my $s = shift;
+    @{ $s->{_memo}{postings} //= [ grep { !$s->{until} || $_->{date} le $s->{until} } postings($s->{j}) ] };
+}
+sub _sprint_postings {                        # postings by sprint number, built once per load (sprint_summary asks for every sprint)
+    my $s = shift;
+    $s->{_memo}{sprint_postings} //= do { my %b; for (journal_postings($s)) { push @{ $b{$1} }, $_ if $_->{account} =~ /^Sprint:(\d+):/ } \%b };
+}
+sub _by_place {                               # "state\0sprint\0team" -> [items] in items() order, one pass per load
+    my $s = shift;
+    $s->{_memo}{by_place} //= do { my %b; push @{ $b{ join "\0", $_->{state}, $_->{sprint} // '', $_->{team} // '' } }, $_ for items($s); \%b };
+}
 sub _today { my @t = gmtime; sprintf '%04d-%02d-%02d', $t[5] + 1900, $t[4] + 1, $t[3] }
 sub days_between {
     my ($a, $b) = @_;
@@ -110,12 +122,15 @@ sub days_between {
 }
 sub items { my ($s, %f) = @_;                 # items(state=>'backlog', team=>'Alpha', owner=>'Bob', sprint=>42, epic=>'Auth')
     my @out = @{ $s->{_memo}{items_sorted} //= [ sortOn(sub { [ $_[0]{meta}{prio} // 9999, $_[0]{created}, $_[0]{id} ] }, values %{ $s->{items} }) ] };   # sorted once per load; the filters below keep the order
+    return @out unless %f;
+    my $key = join "\0", map { "$_=" . ($f{$_} // '') } sort keys %f;
+    return @{ $s->{_memo}{items_by}{$key} } if $s->{_memo}{items_by}{$key};   # the reports ask the same question thousands of times
     @out = grep { $_->{state} eq $f{state} } @out                             if $f{state};
     @out = grep { defined $_->{team} && $_->{team} eq $f{team} } @out         if $f{team};
     @out = grep { defined $_->{owner} && $_->{owner} eq $f{owner} } @out      if $f{owner};
     @out = grep { defined $_->{sprint} && $_->{sprint} == $f{sprint} } @out   if $f{sprint};
     @out = grep { ($_->{meta}{epic} // '') eq $f{epic} } @out                 if $f{epic};
-    @out;
+    @{ $s->{_memo}{items_by}{$key} = \@out };
 }
 
 # ---------------------------------------------------------------- sprint & velocity
@@ -129,7 +144,7 @@ sub _sprint_summary {
     return { sprint => undef, teams => {}, totals => { team => 'Total', committed => 0, done => 0, carryover => 0, removed => 0, open => 0, capacity => 0, pct => 0, load => undef } }
         unless defined $n;                    # nothing committed yet (a fresh journal): no sprint to summarise
     my %t;
-    for my $p (postings($s->{j}, account => qr/^Sprint:\Q$n\E:/)) {
+    for my $p (@{ _sprint_postings($s)->{$n} // [] }) {
         my ($team, $bucket) = $p->{account} =~ /^Sprint:\d+:([^:]+):(\w+)/ or next;
         my $pts = _num($p->{amount});
         my $r = $t{$team} //= { team => $team, committed => 0, done => 0, carryover => 0, removed => 0, open => 0 };
@@ -145,8 +160,8 @@ sub _sprint_summary {
         $r->{capacity}   = $s->{capacity}{$n}{$team} // 0;
         $r->{pct}        = $r->{committed} ? int(100 * $r->{done} / $r->{committed} + 0.5) : 0;
         $r->{load}       = $r->{capacity} ? int(100 * $r->{committed} / $r->{capacity} + 0.5) : undef;
-        $r->{open_items} = [ items($s, state => 'committed', sprint => $n, team => $team) ];
-        $r->{carry_items} = [ items($s, state => 'carryover', sprint => $n, team => $team) ];
+        $r->{open_items}  = [ @{ _by_place($s)->{"committed\0$n\0$team"} // [] } ];
+        $r->{carry_items} = [ @{ _by_place($s)->{"carryover\0$n\0$team"} // [] } ];
         $tot{$_} += $r->{$_} for qw(committed done carryover removed open capacity);
     }
     $tot{pct}  = $tot{committed} ? int(100 * $tot{done} / $tot{committed} + 0.5) : 0;

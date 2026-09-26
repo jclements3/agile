@@ -128,7 +128,7 @@ sub cmd_report {
         "$conf->{reports}/roadmap.html"        => roadmap_html($s, marking => $conf),
         "$conf->{reports}/cockpit.html"        => cockpit_html($s, marking => $conf, days => days_from_standups($s, $conf->{standups}, $conf->{history_days}),
                                                                plates => (-f "$conf->{reports}/plates.html" ? 'plates.html' : undef), plates_file => "$conf->{reports}/plates.html", quad_page => "$today-quad.html",
-                                                               roster => Roster::read_roster('roster.txt'), health => \@health, metrics => $mrows, readback_clean_days => $conf->{readback_clean_days} // 5,
+                                                               roster => Roster::read_roster('roster.txt'), prev => $prev, health => \@health, metrics => $mrows, readback_clean_days => $conf->{readback_clean_days} // 5,
                                                                map { (lc $_ => -f "$FindBin::Bin/../docs/$_.html" ? File::Spec->abs2rel(abs_path("$FindBin::Bin/../docs/$_.html"), abs_path($conf->{reports})) : undef) } qw(TUTORIAL TRAINING)),
         "$conf->{reports}/$today-status.html"  => email_html($s, $n, notes => $notes, marking => $conf, health => \@health),
         "$conf->{reports}/$today-status.txt"   => email_text($s, $n, notes => $notes, marking => $conf, health => \@health),

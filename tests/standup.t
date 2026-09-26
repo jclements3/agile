@@ -298,6 +298,21 @@ my ($rc, $out);
     chdir $cwd;
 }
 
+# apply: a stand-up file already in the journal (the marking failed after the append) is never applied twice
+{   my $d = tempdir(CLEANUP => 1);
+    open my $j, '>', "$d/scrum.txt" or die; print $j "; journal\n"; close $j;
+    open my $f, '>', "$d/2026-09-01.txt" or die; print $f "2026-09-01\nsprint 1\n== Alpha\nnew Z-1 3 First o:Ann\n"; close $f;
+    my $orig = do { local $/; open my $r, '<', "$d/2026-09-01.txt" or die; <$r> };
+    my $sx = Scrum::load("$d/scrum.txt");
+    apply($sx, read_standup("$d/2026-09-01.txt"), "$d/scrum.txt");
+    open $f, '>', "$d/2026-09-01.txt" or die; print $f $orig; close $f;          # as if mark_compiled had failed
+    my @w; local $SIG{__WARN__} = sub { push @w, @_ };
+    my $again = apply(Scrum::load("$d/scrum.txt"), read_standup("$d/2026-09-01.txt"), "$d/scrum.txt");
+    my $jt = do { local $/; open my $r, '<', "$d/scrum.txt" or die; <$r> };
+    S 'reapply: nothing appended, warned, file marked', '["",1,1,1]', [ $again, scalar(() = $jt =~ /id: Z-1/g), scalar(@w), (do { open my $r, '<', "$d/2026-09-01.txt"; my $l = <$r>; $l =~ /^# compiled/ ? 1 : 0 }) ];
+    S 'no temp file left behind', '[]', [ grep { /\.tmp/ } do { opendir(my $dh, $d) or die; readdir $dh } ];
+}
+
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";
 exit($bad ? 1 : 0);

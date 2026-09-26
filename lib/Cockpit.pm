@@ -68,7 +68,7 @@ sub snapshot {                                # snapshot($s, days => [...], atte
 
     # sprint date ranges and per-day flows, from the postings themselves
     my (%span, %daily);
-    for my $p (postings($s->{j})) {
+    for my $p (journal_postings($s)) {                 # honours until: a replay's cockpit never sees tomorrow
         my $a = $p->{account};
         my $pts = 0 + ($p->{amount} ? (values %{ $p->{amount} })[0] // 0 : 0);
         if ($a =~ /^Sprint:(\d+):/) { my $n = $1; $span{$n}{start} = $p->{date} if !$span{$n}{start} || $p->{date} lt $span{$n}{start}; $span{$n}{end} = $p->{date} if !$span{$n}{end} || $p->{date} gt $span{$n}{end} }
@@ -105,7 +105,7 @@ sub snapshot {                                # snapshot($s, days => [...], atte
     my @epics = map { { tome => $_->{tome}, epic => $_->{epic}, n => scalar @{ $_->{items} }, total => $_->{total}, done => $_->{done}, wip => $_->{wip}, backlog => $_->{backlog}, removed => $_->{removed}, pct => $_->{pct},
                         teams => [ sorted(keys %{{ map { ($_->{team} // '?') => 1 } @{ $_->{items} } }}) ] } } epics($s);
 
-    my $prev = load($s->{file}, today => Quad::add_days($s->{today}, -7), until => Quad::add_days($s->{today}, -7));
+    my $prev = $o{prev} // load($s->{file}, today => Quad::add_days($s->{today}, -7), until => Quad::add_days($s->{today}, -7));   # daily.pl report hands in the one it loaded
     my %quad = (all => quad($s, prev => $prev), teams => { map { my $t = $_; ($t => quad($s, team => $t, prev => $prev)) } @{ $s->{teams} } });
     my $rm = roadmap($s);
     { my %last;                               # last dated Sprint posting per epic: the Gantt's "actual to" when later than today

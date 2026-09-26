@@ -34,14 +34,14 @@ S 'milestones: 60 days out, priority order, arrows', '[[1,"Auth","same"],[2,"Ops
 S 'milestones: nothing at 30 or 90, none hidden', '[0,0,0]', [ scalar @{ $q->{milestones}{30} }, scalar @{ $q->{milestones}{90} }, $q->{milestones_more}{60} ];
 S 'milestones: top N per horizon, the rest counted', '[["Auth","Ops"],1]', do { local $Quad::THRESHOLD{per_horizon} = 2; my $qq = quad($s); [ [ map { $_->{epic} } @{ $qq->{milestones}{60} } ], $qq->{milestones_more}{60} ] };
 S 'accomplishment: RPT-201 done this week, late (was carried over)', '[["RPT-201","2026-08-28",0,"carried over"]]', [ map { [ $_->{id}, $_->{date}, $_->{ontime}, $_->{late_why} ] } @{ $q->{accomplishments} } ];
-S 'metrics', '[31,31,"same",0,0,1,0,1]', [ @{ $q->{metrics}{sprint} }{qw(pct prev_pct trend punted)}, @{ $q->{metrics}{ontime} }{qw(week_ontime week_total sprint_ontime sprint_total)} ];
+S 'metrics', '[31,0,"improving",0,0,1,0,1]', [ @{ $q->{metrics}{sprint} }{qw(pct prev_pct trend punted)}, @{ $q->{metrics}{ontime} }{qw(week_ontime week_total sprint_ontime sprint_total)} ];
 S 'team filter', '[["RPT-201","Cy"],["RPT-202","Cy"]]', [ map { [ $_->{id}, $_->{owner} ] } @{ quad($s, team => 'Bravo')->{priorities} } ];
 S 'team filter narrows the watch list', '["Bravo"]', [ map { $_->{team} } @{ quad($s, team => 'Bravo')->{watch} } ];
 S 'accomplishments window: only the last 7 days', '["RPT-201"]', [ map { $_->{id} } @{ quad(load("$FindBin::Bin/../examples/scrum.txt", today => '2026-08-30'))->{accomplishments} } ];
 
 # ---- text and HTML
 my $txt = quad_text($s);
-has 'quad_text', $txt, qr/^Weekly status -- as of 2026-09-01 \(sprint 42\)/m, qr/^Sprint progress 31% \(8\/26 SP\) same \(was 31%\)   On-time delivery: 0\/1 this week, 0\/1 this sprint/m,
+has 'quad_text', $txt, qr/^Weekly status -- as of 2026-09-01 \(sprint 42\)/m, qr/^Sprint progress 31% \(8\/26 SP\) improving \(was 0%\)   On-time delivery: 0\/1 this week, 0\/1 this sprint/m,
     qr/^  OPEN  AUTH-103    13  SSO/m, qr/^  \(WI\) Alpha      Alpha at 108% of capacity/m, qr/^    3\. \(none\) > Reporting\s+<-\s+62%  ETA 2026-10-18/m, qr/^  x RPT-201      8  Quarterly export\s+Cy  \(carried over\)/m;
 has 'quad_text marked', quad_text($s, marking => { banner => 'INTERNAL' }), qr/^INTERNAL\n/, qr/\nINTERNAL\n$/;
 my $html = quad_html($s, marking => { banner => 'INTERNAL', marking_poc => 'SA' });

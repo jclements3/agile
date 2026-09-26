@@ -140,11 +140,12 @@ sub grade {                                   # grade($card, $answer) -> { ok, m
         for my $w (@{ $c->{want} }) { my $n = _norm($w); push @missed, $w unless $a =~ s/ \Q$n\E / /i }
         @extra = grep { $c->{vocab} ? $c->{vocab}{$_} : !$STOP{$_} && (/\d/ || /^\p{Lu}{1,3}$/) } split ' ', $a;   # leftover ids, codes, initials from the deck: wrong recall
     } elsif ($c->{mode} eq 'name') {
-        my %got = map { $_ => 1 } split ' ', _norm($ans);
-        @missed = grep { !$got{$_} } map { _norm($_) } map { _words($_) } @{ $c->{want} };
+        my %got = map { uc($_) => 1 } _words($ans);                   # both sides split the same way: Chen-Cole, O'Neil, Alpha-1
+        @missed = grep { !$got{$_} } map { uc } map { _words($_) } @{ $c->{want} };
     } else {
         my @got = _sig($ans);
         my @want = nub(_sig($c->{want}[0]));
+        if (!@want) { @want = nub(split ' ', _norm($c->{want}[0])); @got = split ' ', _norm($ans) }   # a title of short words only ("QA", "a"): every word counts
         @missed = grep { my $w = $_; !grep { _like($w, $_) } @got } @want;
         return { ok => (@want && 2 * (@want - @missed) >= @want ? 1 : 0), missed => \@missed, extra => [] };
     }
@@ -197,7 +198,11 @@ sub pick {                                    # pick(\@cards, $prog, today => D,
     @due = sort { $a->{box} <=> $b->{box} || $a->{due} cmp $b->{due} } @due;
     my @new;                                  # new cards round-robin across kinds, so a big backlog doesn't crowd out the people
     while (grep { @$_ } values %new) { for my $k (@KINDS) { push @new, shift @{ $new{$k} } if @{ $new{$k} // [] } } }
-    my @out = (@changed, @due, @new);
+    my $quota = @new ? ($n >= 3 ? int($n / 3) : 1) : 0;              # a third of the day is new cards, so a big deck is not starved by its own reviews
+    $quota = @new if $quota > @new;
+    my $room = $n - @changed - $quota; $room = 0 if $room < 0;
+    my @take_due = @due > $room ? @due[0 .. $room - 1] : @due;
+    my @out = (@changed, @take_due, @new);                             # changed, due within room, then new (the quota, or more if reviews left room)
     @out = @out[0 .. $n - 1] if @out > $n;
     my $i = 0; my %ord = map { $_->{key} => $i++ } @$cards;
     sort { $KIND_RANK{ $a->{kind} } <=> $KIND_RANK{ $b->{kind} } || $ord{ $a->{key} } <=> $ord{ $b->{key} } } @out;

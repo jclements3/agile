@@ -93,7 +93,7 @@ marking: off (no banner in scrum.conf)
 1 file(s): 0 error(s), 0 warning(s), 10 model(s), 264 activities, 52 link(s)
 </pre>
 <pre class=term><span class=prompt>$ idef2html dronecorp.md &gt; reports/plates.html</span>
--rwxrwxrwx 1 user user 334916 Sep 26 13:59 reports/plates.html
+-rwxrwxrwx 1 user user 334916 Sep 26 15:13 reports/plates.html
 </pre>
 <p class=note>The interface table is the architect's territory: every cross-model flow is a contract between two departments -- the Strategic Plan from Executive to every department, Spot Orders from Sales to Production, Delivery Orders from Sales to Logistics.</p>
 <pre class=term><span class=prompt>$ idef0 links dronecorp.md | head -8</span>
@@ -269,9 +269,54 @@ wrote reports/tree.html
 committed
 </pre>
 <pre class=term><span class=prompt>$ git log --oneline</span>
-4bbe864 standup 2026-09-23
+4642795 standup 2026-09-23
 </pre>
 <h2>Day 2  Thu 2026-09-24  --  Townhall</h2>
+<p class=note>08:05 -- five minutes of the memory drill before the call, one team's deck: :SDrill Contracting. Type the answer after each '&gt;' -- initials, ids, codes, any order, any case -- Enter jumps to the next, and the last Enter saves, which grades the sheet in place. A miss gets a 'hook:' line for your own mnemonic; it comes back the next time you miss that card. Progress is Leitner boxes in drill.txt: right moves a card up (due again in 1, 1, 3, 7, 14, 30 days), a miss starts it over tomorrow.</p>
+<pre class=term><span class=vim>[vim] :SDrill Contracting</span>
+; memory drill 2026-09-24 -- Contracting: 8 cards (8 new)
+; team: Contracting
+; score: 6/8 ok, 2 missed
+
+#1 team:Contracting  (new)
+Team Contracting: who? (initials)
+&gt; ac bc cc dc ec fc
+= ok  AC (Ann Contracting) BC (Bob Contracting) CC (Cy Contracting) DC (Dee Contracting) EC (Eve Contracting) FC (Fay Contracting)
+
+#2 who:Ann Contracting  (new)
+AC = ?  (full name)
+&gt; ann contracting
+= ok  Ann Contracting
+
+#3 home:Ann Contracting  (new)
+AC: team?
+&gt; contracting
+= ok
+
+#4 tome:C Contracting &amp; Sales@Contracting  (new)
+Tome C Contracting &amp; Sales: epics? (codes)
+&gt; C2 C3
+= miss  C1 Develop Markets &amp; Pipeline, C2 Win Contracts, C3 Manage Contract Fulfillment
+  missed C1
+hook: 3 of them, in order: C1 C2 C3 -- count them off on one hand
+
+#5 up:C1 Develop Markets &amp; Pipeline  (new)
+C1 Develop Markets &amp; Pipeline: tome?
+&gt; c
+= ok  C Contracting &amp; Sales
+
+#6 epic:C1 Develop Markets &amp; Pipeline@Contracting  (new)
+C1 Develop Markets &amp; Pipeline: open tasks? (ids)
+&gt; c-11 c-12 c-13
+= ok  C-11 Build Market Presence, C-12 Develop Channel &amp; Team Relationships, C-13 Maintain Opportunity Pipeline
+
+#7 now:Bob Contracting  (new)
+BC: in the sprint? (ids)
+&gt; if-19
+= ok  IF-19 Interface: Trade-Compliance Policy from Executive to Contracting
+... (7 more lines)
+graded 0, hooks saved 1 -- 6/8 ok, 2 missed
+</pre>
 <p class=note>08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.</p>
 <pre class=term><span class=prompt>$ daily.pl cards</span>
 wrote reports/2026-09-24-cards.txt
@@ -282,7 +327,7 @@ wrote reports/2026-09-24-cards.html
 Ann Contracting - sprint 1 (Contracting)
 In progress (0, 0 SP):
   (nothing committed)
-Queued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)
+Queued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)
 Reply in the meeting chat:  Y: &lt;yesterday&gt;  T: &lt;today&gt;  B: &lt;blocker or none&gt;
 
 Ann Logistics - sprint 1 (Logistics)
@@ -577,8 +622,8 @@ GREEN -- Sprint 1, 2026-09-24: 0% done. On track, no blockers.
 committed
 </pre>
 <pre class=term><span class=prompt>$ git log --oneline -3</span>
-4f8823a standup 2026-09-24
-4bbe864 standup 2026-09-23
+66dd794 standup 2026-09-24
+4642795 standup 2026-09-23
 </pre>
 <h2>Day 3  Fri 2026-09-25  --  Townhall + weekly status mail</h2>
 <p class=note>08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.</p>
@@ -591,7 +636,7 @@ wrote reports/2026-09-25-cards.html
 Ann Contracting - sprint 1 (Contracting)
 In progress (0, 0 SP):
   (nothing committed)
-Queued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)
+Queued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)
 Reply in the meeting chat:  Y: &lt;yesterday&gt;  T: &lt;today&gt;  B: &lt;blocker or none&gt;
 
 Ann Logistics - sprint 1 (Logistics)
@@ -1015,7 +1060,7 @@ wrote reports/2026-09-28-cards.html
 Ann Contracting - sprint 1 (Contracting)
 In progress (0, 0 SP):
   (nothing committed)
-Queued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)
+Queued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)
 Reply in the meeting chat:  Y: &lt;yesterday&gt;  T: &lt;today&gt;  B: &lt;blocker or none&gt;
 
 Ann Logistics - sprint 1 (Logistics)
@@ -1338,9 +1383,9 @@ AMBER -- Sprint 1, 2026-09-28: 17% done. 1 blocker: IF-1 (Production) still wait
 committed
 </pre>
 <pre class=term><span class=prompt>$ git show --stat HEAD | head -12</span>
-commit e192a54ef01f53e9c8b49517db91d8c4e958f784
+commit 1e298da3d1e232adea15433ea0ed7f155518cabb
 Author: Solutions Architect &lt;sa@example.com&gt;
-Date:   Sat Sep 26 13:59:12 2026 -0500
+Date:   Sat Sep 26 15:13:14 2026 -0500
 
     standup 2026-09-28
 
@@ -1362,7 +1407,7 @@ wrote reports/2026-09-29-cards.html
 Ann Contracting - sprint 1 (Contracting)
 In progress (0, 0 SP):
   (nothing committed)
-Queued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)
+Queued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)
 Reply in the meeting chat:  Y: &lt;yesterday&gt;  T: &lt;today&gt;  B: &lt;blocker or none&gt;
 
 Ann Logistics - sprint 1 (Logistics)
@@ -1701,6 +1746,51 @@ AMBER -- Sprint 1, 2026-09-29: 30% done. 1 blocker: IF-1 (Production) still wait
 committed
 </pre>
 <h2>Day 8  Wed 2026-09-30  --  Townhall + mid-sprint health check</h2>
+<p class=note>08:05 -- the drill again: the cards due today (yesterday's misses first, then the lowest boxes) and a few new ones. A card whose answer changed in the journal since you last saw it -- a task reassigned, finished, blocked -- comes back first, marked 'changed, was: ...': the journal moved, and your memory has to move with it.</p>
+<pre class=term><span class=vim>[vim] :SDrill Contracting</span>
+; memory drill 2026-09-30 -- Contracting: 8 cards (6 due, 2 new)
+; team: Contracting
+; score: 6/8 ok, 2 missed
+
+#1 team:Contracting
+Team Contracting: who? (initials)
+&gt; ac bc cc dc ec fc
+= ok  AC (Ann Contracting) BC (Bob Contracting) CC (Cy Contracting) DC (Dee Contracting) EC (Eve Contracting) FC (Fay Contracting)
+
+#2 who:Ann Contracting
+AC = ?  (full name)
+&gt; ann contracting
+= ok  Ann Contracting
+
+#3 who:Bob Contracting  (new)
+BC = ?  (full name)
+&gt; bob contracting
+= ok  Bob Contracting
+
+#4 home:Ann Contracting
+AC: team?
+&gt; ?
+= miss  Contracting
+hook: Contracting -- say it with the question, three times
+
+#5 home:Bob Contracting  (new)
+BC: team?
+&gt; contracting
+= ok
+
+#6 tome:C Contracting &amp; Sales@Contracting
+Tome C Contracting &amp; Sales: epics? (codes)
+&gt; c1 c2 c3
+= ok  C1 Develop Markets &amp; Pipeline, C2 Win Contracts, C3 Manage Contract Fulfillment
+
+#7 up:C1 Develop Markets &amp; Pipeline
+C1 Develop Markets &amp; Pipeline: tome?
+&gt; c
+= ok  C Contracting &amp; Sales
+
+... (6 more lines)
+graded 0, hooks saved 1 -- 6/8 ok, 2 missed
+</pre>
 <p class=note>08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.</p>
 <pre class=term><span class=prompt>$ daily.pl cards</span>
 wrote reports/2026-09-30-cards.txt
@@ -1711,7 +1801,7 @@ wrote reports/2026-09-30-cards.html
 Ann Contracting - sprint 1 (Contracting)
 In progress (0, 0 SP):
   (nothing committed)
-Queued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)
+Queued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)
 Reply in the meeting chat:  Y: &lt;yesterday&gt;  T: &lt;today&gt;  B: &lt;blocker or none&gt;
 
 Ann Logistics - sprint 1 (Logistics)
@@ -2049,14 +2139,33 @@ wrote reports/tree.html
 <pre class=term><span class=prompt>$ cat reports/2026-09-30-brief.txt</span>
 GREEN -- Sprint 1, 2026-09-30: 40% done. On track, no blockers.
 </pre>
+<p class=note>Day 8 is the mid-sprint health check: daily.pl health puts every metric of the operating model against the threshold that calls for action -- under 60% done by Day 8, blockers over 3 and 5 days, load, bus factor, predictability, carryover, backlog depth and age -- one line each, with what to do. It exits 1 on a red, and report already put the red and amber ones in the status mail.</p>
+<pre class=term><span class=prompt>$ daily.pl health</span>
+sprint 1 day 8, 2026-09-30: 10 red, 2 amber, 0 info
+Health (thresholds from the operating model):
+  RED   done by day 8  Contracting: sprint day 8: 57% done (under 60% by Day 8): descope or swarm
+  RED   done by day 8  Executive: sprint day 8: 22% done (under 60% by Day 8): descope or swarm
+  RED   done by day 8  Finance: sprint day 8: 57% done (under 60% by Day 8): descope or swarm
+  RED   done by day 8  HR: sprint day 8: 13% done (under 60% by Day 8): descope or swarm
+  RED   done by day 8  Logistics: sprint day 8: 57% done (under 60% by Day 8): descope or swarm
+  RED   done by day 8  Production: sprint day 8: 22% done (under 60% by Day 8): descope or swarm
+  RED   done by day 8  Quality: sprint day 8: 35% done (under 60% by Day 8): descope or swarm
+  RED   done by day 8  Research: sprint day 8: 43% done (under 60% by Day 8): descope or swarm
+  RED   done by day 8  Support: sprint day 8: 35% done (under 60% by Day 8): descope or swarm
+  RED   done by day 8  Testing: sprint day 8: 57% done (under 60% by Day 8): descope or swarm
+  AMBER bus factor     HR: Tia HR holds 43% of the sprint commitment (over 40%): spread the knowledge
+  AMBER backlog depth  the backlog (master + teams) is 8.5 sprints of work (over 8): prune it
+</pre>
+<pre class=term><span class=prompt>$ daily.pl blocked</span>
+</pre>
 <p class=note>Commit the day. One commit per townhall: the diff IS the history of what changed.</p>
 <pre class=term><span class=prompt>$ daily.pl commit</span>
 committed
 </pre>
 <pre class=term><span class=prompt>$ git log --oneline -3</span>
-6e638dc standup 2026-09-30
-6f3be9e standup 2026-09-29
-e192a54 standup 2026-09-28
+89038ac standup 2026-09-30
+827db4c standup 2026-09-29
+1e298da standup 2026-09-28
 </pre>
 <h2>Day 9  Thu 2026-10-01  --  Townhall + refinement</h2>
 <p class=note>08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.</p>
@@ -2424,7 +2533,7 @@ wrote reports/2026-10-02-cards.html
 Ann Contracting - sprint 1 (Contracting)
 In progress (0, 0 SP):
   (nothing committed)
-Queued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)
+Queued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)
 Reply in the meeting chat:  Y: &lt;yesterday&gt;  T: &lt;today&gt;  B: &lt;blocker or none&gt;
 
 Ann Logistics - sprint 1 (Logistics)
@@ -2848,7 +2957,7 @@ wrote reports/2026-10-05-cards.html
 Ann Contracting - sprint 1 (Contracting)
 In progress (0, 0 SP):
   (nothing committed)
-Queued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)
+Queued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)
 Reply in the meeting chat:  Y: &lt;yesterday&gt;  T: &lt;today&gt;  B: &lt;blocker or none&gt;
 
 Ann Logistics - sprint 1 (Logistics)
@@ -3173,9 +3282,9 @@ AMBER -- Sprint 1, 2026-10-05: 73% done. HR approaching capacity
 committed
 </pre>
 <pre class=term><span class=prompt>$ git log --oneline -3</span>
-c1eec16 standup 2026-10-05
-316b9f8 standup 2026-10-02
-18919d4 standup 2026-10-01
+44e71e1 standup 2026-10-05
+8f4a53a standup 2026-10-02
+c5df18c standup 2026-10-01
 </pre>
 <h2>Day 14  Tue 2026-10-06  --  Review / demo, retro, sprint close</h2>
 <p class=note>Review is the opposite of the townhall: 60-90 minutes, cameras on, demos against the plates. The journal entry for it is one done / carry sweep afterwards -- whatever is still committed goes to Done or Carryover. Partial credit does not exist.</p>
@@ -3204,23 +3313,85 @@ done IF-27
 <pre class=term><span class=prompt>$ daily.pl compile</span>
 applied standups/2026-10-06.txt (8 transactions)
 </pre>
-<p class=note>The sprint report: done vs committed per team, velocity, epic burn, and now a roadmap with a real forecast. All derived; nothing retyped.</p>
-<pre class=term><span class=prompt>$ daily.pl sprint 1</span>
-Teams: sprint 1
-Team         Cap  Commit  Done  Open  Carry  Removed  Done%  Load%
------------  ---  ------  ----  ----  -----  -------  -----  -----
-Contracting   24      23    23     0      0        0   100%    96%
-Executive     24      23    18     0      5        0    78%    96%
-Finance       24      23    18     0      5        0    78%    96%
-HR            24      26    21     0      5        3    81%   108%
-Logistics     24      23    23     0      0        0   100%    96%
-Production    24      23    23     0      0        0   100%    96%
-Quality       24      23    18     0      5        0    78%    96%
-Research      24      23    18     0      5        0    78%    96%
-Support       24      23    18     0      0        0    78%    96%
-Testing       24      23    23     0      0        0   100%    96%
-Total        240     233   203     0     25        3    87%    97%
+<p class=note>The sprint report: done vs committed per team, carryover rate, load, velocity, predictability, punts and interrupt SP, then every epic with its sprints to done. daily.pl review writes it as reports/sprint-1-report.html for the mail; report writes it every day anyway. All derived; nothing retyped.</p>
+<pre class=term><span class=prompt>$ daily.pl review 1</span>
+Sprint 1 report -- as of 2026-10-06: 203/233 SP done (87%), 25 carried over, 3 removed.
+
+Team           Commit  Done  Done%  Carry Carry%   Load Velocity  Predict%  Punted Interrupt    Cap
+Contracting        23    23   100%      0     0%    96%     23.0      100%       0         0     24
+Executive          23    18    78%      5    22%    96%     18.0       78%       0         0     24
+Finance            23    18    78%      5    22%    96%     18.0       78%       0         0     24
+HR                 26    21    81%      5    19%   108%     21.0       81%       0         0     24
+Logistics          23    23   100%      0     0%    96%     23.0      100%       0         0     24
+Production         23    23   100%      0     0%    96%     23.0      100%       0         0     24
+Quality            23    18    78%      5    22%    96%     18.0       78%       0         0     24
+Research           23    18    78%      5    22%    96%     18.0       78%       0         0     24
+Support            23    18    78%      0     0%    96%     18.0       78%       1         0     24
+Testing            23    23   100%      0     0%    96%     23.0      100%       0         0     24
+
+Epics (remaining / team velocity = sprints to done):
+  A Architectural runway &gt; A1 Enablers        0%     5 SP left  ETA sprint 2
+  C Contracting &amp; Sales &gt; C1 Develop Markets &amp; Pipeline    0%    15 SP left  ETA sprint 2
+  C Contracting &amp; Sales &gt; C2 Win Contracts    8%    34 SP left  ETA sprint 3
+  C Contracting &amp; Sales &gt; C3 Manage Contract Fulfillment   38%    25 SP left  ETA sprint 2
+  E Executive &amp; Strategy &gt; E1 Set Direction   33%    20 SP left  ETA sprint 2
+  E Executive &amp; Strategy &gt; E2 Plan &amp; Allocate   38%    54 SP left  ETA sprint 2
+  E Executive &amp; Strategy &gt; E3 Govern Performance    0%    15 SP left  ETA sprint 2
+  E Executive &amp; Strategy &gt; E4 Manage Risk &amp; Compliance   56%     8 SP left  ETA sprint 2
+  F Finance &gt; F1 Plan &amp; Steward Budgets      33%    20 SP left  ETA sprint 2
+  F Finance &gt; F2 Run Financial Operations     8%    34 SP left  ETA sprint 3
+  F Finance &gt; F3 Close Books &amp; Report        25%    15 SP left  ETA sprint 2
+  H Human Resources &gt; H1 Plan Workforce &amp; Organization  100%     0 SP left  ETA sprint 1
+  H Human Resources &gt; H2 Staff &amp; Develop Workforce   31%    40 SP left  ETA sprint 2
+  H Human Resources &gt; H3 Administer HR Operations   25%    15 SP left  ETA sprint 2
+  L Logistics &amp; Shipping &gt; L1 Receive Inbound Freight    0%    20 SP left  ETA sprint 2
+  L Logistics &amp; Shipping &gt; L2 Warehouse Finished Goods    0%    15 SP left  ETA sprint 2
+  L Logistics &amp; Shipping &gt; L3 Ship Customer Orders   28%    34 SP left  ETA sprint 2
+  P Production &gt; P1 Plan Production           0%    15 SP left  ETA sprint 2
+  P Production &gt; P2 Procure &amp; Kit Materials    0%    15 SP left  ETA sprint 2
+  P Production &gt; P3 Build Products           20%    52 SP left  ETA sprint 2
+  P Production &gt; P4 Support Manufacturing Engineering   38%     8 SP left  ETA sprint 2
+  Q Quality Assurance &gt; Q1 Maintain Quality System    0%    25 SP left  ETA sprint 2
+  Q Quality Assurance &gt; Q2 Inspect &amp; Release Product   25%    15 SP left  ETA sprint 2
+... (13 more lines)</pre>
+<p class=note>The Excel side: daily.pl csv writes items, sprints, epics, intake and health as CSV (UTF-8 with a BOM, so Excel opens it right) for the xlsx leadership asks for, and daily.pl rollup is the monthly roll-up -- epics, intake vs done, backlog age, attendance.</p>
+<pre class=term><span class=prompt>$ daily.pl csv</span>
+wrote reports/items.csv
+wrote reports/sprints.csv
+wrote reports/epics.csv
+wrote reports/intake.csv
+wrote reports/health.csv
 </pre>
+<pre class=term><span class=prompt>$ daily.pl rollup</span>
+Monthly roll-up 2026-10 -- as of 2026-10-06
+
+EPICS
+  A Architectural runway &gt; A1 Enablers        0%     0/5    SP
+  C Contracting &amp; Sales &gt; C1 Develop Markets &amp; Pipeline    0%     0/15   SP
+  C Contracting &amp; Sales &gt; C2 Win Contracts    8%     3/37   SP
+  C Contracting &amp; Sales &gt; C3 Manage Contract Fulfillment   38%    15/40   SP
+  E Executive &amp; Strategy &gt; E1 Set Direction   33%    10/30   SP
+  E Executive &amp; Strategy &gt; E2 Plan &amp; Allocate   38%    33/87   SP
+  E Executive &amp; Strategy &gt; E3 Govern Performance    0%     0/15   SP
+  E Executive &amp; Strategy &gt; E4 Manage Risk &amp; Compliance   56%    10/18   SP
+  F Finance &gt; F1 Plan &amp; Steward Budgets      33%    10/30   SP
+  F Finance &gt; F2 Run Financial Operations     8%     3/37   SP
+  F Finance &gt; F3 Close Books &amp; Report        25%     5/20   SP
+  H Human Resources &gt; H1 Plan Workforce &amp; Organization  100%    18/18   SP
+  H Human Resources &gt; H2 Staff &amp; Develop Workforce   31%    18/58   SP
+  H Human Resources &gt; H3 Administer HR Operations   25%     5/20   SP
+  L Logistics &amp; Shipping &gt; L1 Receive Inbound Freight    0%     0/20   SP
+  L Logistics &amp; Shipping &gt; L2 Warehouse Finished Goods    0%     0/15   SP
+  L Logistics &amp; Shipping &gt; L3 Ship Customer Orders   28%    13/47   SP
+  P Production &gt; P1 Plan Production           0%     0/15   SP
+  P Production &gt; P2 Procure &amp; Kit Materials    0%     0/15   SP
+  P Production &gt; P3 Build Products           20%    13/65   SP
+  P Production &gt; P4 Support Manufacturing Engineering   38%     5/13   SP
+  Q Quality Assurance &gt; Q1 Maintain Quality System    0%     0/25   SP
+  Q Quality Assurance &gt; Q2 Inspect &amp; Release Product   25%     5/20   SP
+  Q Quality Assurance &gt; Q3 Manage Nonconformance &amp; CAPA    7%     3/42   SP
+  R Research &amp; Development &gt; R1 Define Product Requirements    0%     0/15   SP
+... (32 more lines)</pre>
 <pre class=term><span class=prompt>$ daily.pl velocity</span>
 Contracting  (avg velocity 23.0 over last 3 completed)
 Sprint  Cap  Commit  Done  Done%
@@ -3305,7 +3476,7 @@ AMBER -- Sprint 1, 2026-10-06: 87% done. HR approaching capacity
 <p class=note>Close the sprint in git: commit and tag. git log of scrum.txt + standups/ is the audit trail your successor inherits.</p>
 <p class=note>Before the commit, review what the sprint appended: :STig opens tig (Git for Windows ships it) on the project -- j/k walk the commits, Enter shows the diff, q returns to Vim. tig is interactive so the replay shows the equivalent git log; the point is that you look before you commit.</p>
 <pre class=term><span class=vim>[vim] :STig</span>
-c1eec16 standup 2026-10-05
+44e71e1 standup 2026-10-05
  attendance.csv                              |  60 +++++++
  scrum.txt                                   |  26 +++
  standups/2026-10-05-Contracting-answers.txt |  25 +++
@@ -3328,21 +3499,21 @@ committed
 <pre class=term><span class=prompt>$ git tag sprint-1</span>
 </pre>
 <pre class=term><span class=prompt>$ git log --oneline --decorate</span>
-4efff88 (HEAD -&gt; master, tag: sprint-1) standup 2026-10-06
-c1eec16 standup 2026-10-05
-316b9f8 standup 2026-10-02
-18919d4 standup 2026-10-01
-6e638dc standup 2026-09-30
-6f3be9e standup 2026-09-29
-e192a54 standup 2026-09-28
-8be1cc3 standup 2026-09-25
-4f8823a standup 2026-09-24
-4bbe864 standup 2026-09-23
+ca76b11 (HEAD -&gt; master, tag: sprint-1) standup 2026-10-06
+44e71e1 standup 2026-10-05
+8f4a53a standup 2026-10-02
+c5df18c standup 2026-10-01
+89038ac standup 2026-09-30
+827db4c standup 2026-09-29
+1e298da standup 2026-09-28
+dfe7ea0 standup 2026-09-25
+66dd794 standup 2026-09-24
+4642795 standup 2026-09-23
 </pre>
 <pre class=term><span class=prompt>$ git diff --stat $(git rev-list --max-parents=0 HEAD) sprint-1 | tail -3</span>
  standups/2026-10-05.txt                     |  65 ++++
  standups/2026-10-06.txt                     |  58 ++++
- 99 files changed, 5378 insertions(+)
+ 100 files changed, 5389 insertions(+)
 </pre>
 <p class=note>Next: Day 1 of sprint 2 is planning again -- cap lines, commit the carryover (commit ID finds it in last sprint's Carryover account), pull refined work from the backlog, including M-1. The rhythm repeats; the roadmap forecast tightens as velocity settles.</p>
 </div></noscript>
@@ -3356,7 +3527,7 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"cmd","text":"","cmd":"daily.pl check","out":"ok: 0 tasks, teams , sprints \nmarking: off (no banner in scrum.conf)\n"},
 {"kind":"note","text":"The product is DroneCorp, a notional racing-drone company: a ten-model IDEF0 decomposition, one model per department (tools/idef0/examples/dronecorp/dronecorp.md). Fictional, no real company data. The toolkit lints it and renders the plates; the plates are the design the teams build to. Research & Development is the architect's own department.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"idef0lint dronecorp.md","out":"1 file(s): 0 error(s), 0 warning(s), 10 model(s), 264 activities, 52 link(s)\n"},
-{"kind":"cmd","text":"","cmd":"idef2html dronecorp.md > reports/plates.html","out":"-rwxrwxrwx 1 user user 334916 Sep 26 13:59 reports/plates.html\n"},
+{"kind":"cmd","text":"","cmd":"idef2html dronecorp.md > reports/plates.html","out":"-rwxrwxrwx 1 user user 334916 Sep 26 15:13 reports/plates.html\n"},
 {"kind":"note","text":"The interface table is the architect's territory: every cross-model flow is a contract between two departments -- the Strategic Plan from Executive to every department, Spot Orders from Sales to Production, Delivery Orders from Sales to Logistics.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"idef0 links dronecorp.md | head -8","out":"SOURCE         DEST           FLOW\nC3.o1          P1.i1          Spot Orders\nC3.o2          P1.i2          Continuous Supply Schedule\nC3.o3          L3.i2          Delivery Orders\nC3.o4          E2.i3          Demand Forecast\nC3.o5          F2.i1          Billing Milestones\nE1.o1          C1.c1          Strategic Plan\nE1.o1          R1.c1          Strategic Plan\n"},
 {"kind":"note","text":"Specs and deliverables arrive as PDF and Word. bin/docs2txt.pl (:SDocs in Vim) reads them as text through the converters Git for Windows already ships -- pdftotext, docx2txt, antiword, odt2txt -- so a spec is grepped like the journal. Here it finds every mention of one interface flow in the model source.","cmd":"","out":""},
@@ -3377,11 +3548,13 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-09-23-brief.html\nwrote reports/2026-09-23-brief.txt\nwrote reports/2026-09-23-quad.html\nwrote reports/2026-09-23-quad.txt\nwrote reports/2026-09-23-status.html\nwrote reports/2026-09-23-status.txt\nwrote reports/2026-09-rollup.html\nwrote reports/2026-09-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
 {"kind":"note","text":"Commit the day. daily.pl commit is just git add -A + git commit; the journal and stand-up notes are the audit trail.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
-{"kind":"cmd","text":"","cmd":"git log --oneline","out":"4bbe864 standup 2026-09-23\n"},
+{"kind":"cmd","text":"","cmd":"git log --oneline","out":"4642795 standup 2026-09-23\n"},
 {"kind":"day","text":"Day 2  Thu 2026-09-24  --  Townhall","cmd":"","out":""},
+{"kind":"note","text":"08:05 -- five minutes of the memory drill before the call, one team's deck: :SDrill Contracting. Type the answer after each '>' -- initials, ids, codes, any order, any case -- Enter jumps to the next, and the last Enter saves, which grades the sheet in place. A miss gets a 'hook:' line for your own mnemonic; it comes back the next time you miss that card. Progress is Leitner boxes in drill.txt: right moves a card up (due again in 1, 1, 3, 7, 14, 30 days), a miss starts it over tomorrow.","cmd":"","out":""},
+{"kind":"vim","text":"","cmd":":SDrill Contracting","out":"; memory drill 2026-09-24 -- Contracting: 8 cards (8 new)\n; team: Contracting\n; score: 6/8 ok, 2 missed\n\n#1 team:Contracting  (new)\nTeam Contracting: who? (initials)\n> ac bc cc dc ec fc\n= ok  AC (Ann Contracting) BC (Bob Contracting) CC (Cy Contracting) DC (Dee Contracting) EC (Eve Contracting) FC (Fay Contracting)\n\n#2 who:Ann Contracting  (new)\nAC = ?  (full name)\n> ann contracting\n= ok  Ann Contracting\n\n#3 home:Ann Contracting  (new)\nAC: team?\n> contracting\n= ok\n\n#4 tome:C Contracting & Sales@Contracting  (new)\nTome C Contracting & Sales: epics? (codes)\n> C2 C3\n= miss  C1 Develop Markets & Pipeline, C2 Win Contracts, C3 Manage Contract Fulfillment\n  missed C1\nhook: 3 of them, in order: C1 C2 C3 -- count them off on one hand\n\n#5 up:C1 Develop Markets & Pipeline  (new)\nC1 Develop Markets & Pipeline: tome?\n> c\n= ok  C Contracting & Sales\n\n#6 epic:C1 Develop Markets & Pipeline@Contracting  (new)\nC1 Develop Markets & Pipeline: open tasks? (ids)\n> c-11 c-12 c-13\n= ok  C-11 Build Market Presence, C-12 Develop Channel & Team Relationships, C-13 Maintain Opportunity Pipeline\n\n#7 now:Bob Contracting  (new)\nBC: in the sprint? (ids)\n> if-19\n= ok  IF-19 Interface: Trade-Compliance Policy from Executive to Contracting\n... (7 more lines)\ngraded 0, hooks saved 1 -- 6/8 ok, 2 missed\n"},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-09-24-cards.txt\nwrote reports/2026-09-24-cards.html\n  e-mail known for 0/60 members (from today's meeting invitees)\n"},
-{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-24-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (1, 5 SP):\n  IF-39        5  Interface: Released Products from Quality to Logistics\n"},
+{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-24-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (1, 5 SP):\n  IF-39        5  Interface: Released Products from Quality to Logistics\n"},
 {"kind":"note","text":"08:30-08:45 -- the townhall. Everyone types Y/T/B into the one Teams chat; the chat is the record. Afterwards: select all, copy, paste into standups/2026-09-24-chat.txt (:SChat).","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"head -14 standups/2026-09-24-chat.txt","out":"Meeting started\n[8:31 AM] Ann Contracting\nY: code review\nT: demo prep\nB: none\n[8:32 AM] Bob Contracting\nY: worked on IF-19\nT: continue IF-19\nB: none\n[8:33 AM] Cy Contracting\nY: worked on IF-31\nT: continue IF-31\nB: none\n[8:34 AM] Dee Contracting\n"},
 {"kind":"note","text":":SAnswers -- parses Y/T/B per person, splits them to teams by who owns what in the journal, logs attendance, and writes FLAGS: silent people, blockers, \"done\" claims. You read the flags, not the chat.","cmd":"","out":""},
@@ -3396,11 +3569,11 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"cmd","text":"","cmd":"cat reports/2026-09-24-brief.txt","out":"GREEN -- Sprint 1, 2026-09-24: 0% done. On track, no blockers.\n"},
 {"kind":"note","text":"Commit the day. One commit per townhall: the diff IS the history of what changed.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
-{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"4f8823a standup 2026-09-24\n4bbe864 standup 2026-09-23\n"},
+{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"66dd794 standup 2026-09-24\n4642795 standup 2026-09-23\n"},
 {"kind":"day","text":"Day 3  Fri 2026-09-25  --  Townhall + weekly status mail","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-09-25-cards.txt\nwrote reports/2026-09-25-cards.html\n  e-mail known for 0/60 members (from today's meeting invitees)\n"},
-{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-25-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (1, 5 SP):\n  IF-39        5  Interface: Released Products from Quality to Logistics\n"},
+{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-25-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (1, 5 SP):\n  IF-39        5  Interface: Released Products from Quality to Logistics\n"},
 {"kind":"note","text":"08:30-08:45 -- the townhall. Everyone types Y/T/B into the one Teams chat; the chat is the record. Afterwards: select all, copy, paste into standups/2026-09-25-chat.txt (:SChat).","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"head -14 standups/2026-09-25-chat.txt","out":"Meeting started\n[8:31 AM] Ann Contracting\nY: demo prep\nT: refinement notes\nB: none\n[8:32 AM] Bob Contracting\nY: worked on IF-19\nT: continue IF-19\nB: none\n[8:33 AM] Cy Contracting\nY: worked on IF-31\nT: continue IF-31\nB: none\n[8:34 AM] Dee Contracting\n"},
 {"kind":"note","text":":SAnswers -- parses Y/T/B per person, splits them to teams by who owns what in the journal, logs attendance, and writes FLAGS: silent people, blockers, \"done\" claims. You read the flags, not the chat.","cmd":"","out":""},
@@ -3423,7 +3596,7 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"day","text":"Day 6  Mon 2026-09-28  --  Townhall","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-09-28-cards.txt\nwrote reports/2026-09-28-cards.html\n  e-mail known for 0/60 members (from today's meeting invitees)\n"},
-{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-28-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (1, 5 SP):\n  IF-39        5  Interface: Released Products from Quality to Logistics\n"},
+{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-28-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (1, 5 SP):\n  IF-39        5  Interface: Released Products from Quality to Logistics\n"},
 {"kind":"note","text":"08:30-08:45 -- the townhall. Everyone types Y/T/B into the one Teams chat; the chat is the record. Afterwards: select all, copy, paste into standups/2026-09-28-chat.txt (:SChat).","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"head -14 standups/2026-09-28-chat.txt","out":"Meeting started\n[8:31 AM] Ann Contracting\nY: refinement notes\nT: pairing on the carryover\nB: none\n[8:32 AM] Bob Contracting\nY: worked on IF-19\nT: continue IF-19\nB: none\n[8:33 AM] Cy Contracting\nY: worked on IF-31\nT: continue IF-31\nB: none\n[8:34 AM] Dee Contracting\n"},
 {"kind":"note","text":":SAnswers -- parses Y/T/B per person, splits them to teams by who owns what in the journal, logs attendance, and writes FLAGS: silent people, blockers, \"done\" claims. You read the flags, not the chat.","cmd":"","out":""},
@@ -3439,11 +3612,11 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"cmd","text":"","cmd":"cat reports/2026-09-28-brief.txt","out":"AMBER -- Sprint 1, 2026-09-28: 17% done. 1 blocker: IF-1 (Production) still waiting on Contracting for Spot Orders\n\n- IF-1 (Production) blocked 0d: still waiting on Contracting for Spot Orders\n"},
 {"kind":"note","text":"Commit the day. One commit per townhall: the diff IS the history of what changed.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
-{"kind":"cmd","text":"","cmd":"git show --stat HEAD | head -12","out":"commit e192a54ef01f53e9c8b49517db91d8c4e958f784\nAuthor: Solutions Architect <sa@example.com>\nDate:   Sat Sep 26 13:59:12 2026 -0500\n\n    standup 2026-09-28\n\n attendance.csv                              |  60 +++++++\n scrum.txt                                   |  22 +++\n standups/2026-09-28-Contracting-answers.txt |  25 +++\n standups/2026-09-28-Executive-answers.txt   |  25 +++\n standups/2026-09-28-Finance-answers.txt     |  25 +++\n standups/2026-09-28-HR-answers.txt          |  25 +++\n"},
+{"kind":"cmd","text":"","cmd":"git show --stat HEAD | head -12","out":"commit 1e298da3d1e232adea15433ea0ed7f155518cabb\nAuthor: Solutions Architect <sa@example.com>\nDate:   Sat Sep 26 15:13:14 2026 -0500\n\n    standup 2026-09-28\n\n attendance.csv                              |  60 +++++++\n scrum.txt                                   |  22 +++\n standups/2026-09-28-Contracting-answers.txt |  25 +++\n standups/2026-09-28-Executive-answers.txt   |  25 +++\n standups/2026-09-28-Finance-answers.txt     |  25 +++\n standups/2026-09-28-HR-answers.txt          |  25 +++\n"},
 {"kind":"day","text":"Day 7  Tue 2026-09-29  --  Townhall","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-09-29-cards.txt\nwrote reports/2026-09-29-cards.html\n  e-mail known for 0/60 members (from today's meeting invitees)\n"},
-{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-29-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (1, 5 SP):\n  IF-39        5  Interface: Released Products from Quality to Logistics\n"},
+{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-29-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (1, 5 SP):\n  IF-39        5  Interface: Released Products from Quality to Logistics\n"},
 {"kind":"note","text":"08:30-08:45 -- the townhall. Everyone types Y/T/B into the one Teams chat; the chat is the record. Afterwards: select all, copy, paste into standups/2026-09-29-chat.txt (:SChat).","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"head -14 standups/2026-09-29-chat.txt","out":"Meeting started\n[8:31 AM] Ann Contracting\nY: pairing on the carryover\nT: code review\nB: none\n[8:32 AM] Bob Contracting\nY: worked on IF-19\nT: continue IF-19\nB: none\n[8:33 AM] Cy Contracting\nY: worked on IF-31\nT: continue IF-31\nB: none\n[8:34 AM] Dee Contracting\n"},
 {"kind":"note","text":":SAnswers -- parses Y/T/B per person, splits them to teams by who owns what in the journal, logs attendance, and writes FLAGS: silent people, blockers, \"done\" claims. You read the flags, not the chat.","cmd":"","out":""},
@@ -3462,9 +3635,11 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":"Commit the day. One commit per townhall: the diff IS the history of what changed.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
 {"kind":"day","text":"Day 8  Wed 2026-09-30  --  Townhall + mid-sprint health check","cmd":"","out":""},
+{"kind":"note","text":"08:05 -- the drill again: the cards due today (yesterday's misses first, then the lowest boxes) and a few new ones. A card whose answer changed in the journal since you last saw it -- a task reassigned, finished, blocked -- comes back first, marked 'changed, was: ...': the journal moved, and your memory has to move with it.","cmd":"","out":""},
+{"kind":"vim","text":"","cmd":":SDrill Contracting","out":"; memory drill 2026-09-30 -- Contracting: 8 cards (6 due, 2 new)\n; team: Contracting\n; score: 6/8 ok, 2 missed\n\n#1 team:Contracting\nTeam Contracting: who? (initials)\n> ac bc cc dc ec fc\n= ok  AC (Ann Contracting) BC (Bob Contracting) CC (Cy Contracting) DC (Dee Contracting) EC (Eve Contracting) FC (Fay Contracting)\n\n#2 who:Ann Contracting\nAC = ?  (full name)\n> ann contracting\n= ok  Ann Contracting\n\n#3 who:Bob Contracting  (new)\nBC = ?  (full name)\n> bob contracting\n= ok  Bob Contracting\n\n#4 home:Ann Contracting\nAC: team?\n> ?\n= miss  Contracting\nhook: Contracting -- say it with the question, three times\n\n#5 home:Bob Contracting  (new)\nBC: team?\n> contracting\n= ok\n\n#6 tome:C Contracting & Sales@Contracting\nTome C Contracting & Sales: epics? (codes)\n> c1 c2 c3\n= ok  C1 Develop Markets & Pipeline, C2 Win Contracts, C3 Manage Contract Fulfillment\n\n#7 up:C1 Develop Markets & Pipeline\nC1 Develop Markets & Pipeline: tome?\n> c\n= ok  C Contracting & Sales\n\n... (6 more lines)\ngraded 0, hooks saved 1 -- 6/8 ok, 2 missed\n"},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-09-30-cards.txt\nwrote reports/2026-09-30-cards.html\n  e-mail known for 0/60 members (from today's meeting invitees)\n"},
-{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-30-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (0, 0 SP):\n  (nothing committed)\n"},
+{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-30-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (0, 0 SP):\n  (nothing committed)\n"},
 {"kind":"note","text":"08:30-08:45 -- the townhall. Everyone types Y/T/B into the one Teams chat; the chat is the record. Afterwards: select all, copy, paste into standups/2026-09-30-chat.txt (:SChat).","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"head -14 standups/2026-09-30-chat.txt","out":"Meeting started\n[8:31 AM] Ann Contracting\nY: code review\nT: demo prep\nB: none\n[8:32 AM] Bob Contracting\nY: finished IF-19, merged\nT: demo prep\nB: none\n[8:33 AM] Cy Contracting\nY: worked on IF-31\nT: continue IF-31\nB: none\n[8:34 AM] Dee Contracting\n"},
 {"kind":"note","text":":SAnswers -- parses Y/T/B per person, splits them to teams by who owns what in the journal, logs attendance, and writes FLAGS: silent people, blockers, \"done\" claims. You read the flags, not the chat.","cmd":"","out":""},
@@ -3481,9 +3656,12 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":":SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-09-30-brief.html\nwrote reports/2026-09-30-brief.txt\nwrote reports/2026-09-30-quad.html\nwrote reports/2026-09-30-quad.txt\nwrote reports/2026-09-30-status.html\nwrote reports/2026-09-30-status.txt\nwrote reports/2026-09-rollup.html\nwrote reports/2026-09-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
 {"kind":"cmd","text":"","cmd":"cat reports/2026-09-30-brief.txt","out":"GREEN -- Sprint 1, 2026-09-30: 40% done. On track, no blockers.\n"},
+{"kind":"note","text":"Day 8 is the mid-sprint health check: daily.pl health puts every metric of the operating model against the threshold that calls for action -- under 60% done by Day 8, blockers over 3 and 5 days, load, bus factor, predictability, carryover, backlog depth and age -- one line each, with what to do. It exits 1 on a red, and report already put the red and amber ones in the status mail.","cmd":"","out":""},
+{"kind":"cmd","text":"","cmd":"daily.pl health","out":"sprint 1 day 8, 2026-09-30: 10 red, 2 amber, 0 info\nHealth (thresholds from the operating model):\n  RED   done by day 8  Contracting: sprint day 8: 57% done (under 60% by Day 8): descope or swarm\n  RED   done by day 8  Executive: sprint day 8: 22% done (under 60% by Day 8): descope or swarm\n  RED   done by day 8  Finance: sprint day 8: 57% done (under 60% by Day 8): descope or swarm\n  RED   done by day 8  HR: sprint day 8: 13% done (under 60% by Day 8): descope or swarm\n  RED   done by day 8  Logistics: sprint day 8: 57% done (under 60% by Day 8): descope or swarm\n  RED   done by day 8  Production: sprint day 8: 22% done (under 60% by Day 8): descope or swarm\n  RED   done by day 8  Quality: sprint day 8: 35% done (under 60% by Day 8): descope or swarm\n  RED   done by day 8  Research: sprint day 8: 43% done (under 60% by Day 8): descope or swarm\n  RED   done by day 8  Support: sprint day 8: 35% done (under 60% by Day 8): descope or swarm\n  RED   done by day 8  Testing: sprint day 8: 57% done (under 60% by Day 8): descope or swarm\n  AMBER bus factor     HR: Tia HR holds 43% of the sprint commitment (over 40%): spread the knowledge\n  AMBER backlog depth  the backlog (master + teams) is 8.5 sprints of work (over 8): prune it\n"},
+{"kind":"cmd","text":"","cmd":"daily.pl blocked","out":""},
 {"kind":"note","text":"Commit the day. One commit per townhall: the diff IS the history of what changed.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
-{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"6e638dc standup 2026-09-30\n6f3be9e standup 2026-09-29\ne192a54 standup 2026-09-28\n"},
+{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"89038ac standup 2026-09-30\n827db4c standup 2026-09-29\n1e298da standup 2026-09-28\n"},
 {"kind":"day","text":"Day 9  Thu 2026-10-01  --  Townhall + refinement","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-10-01-cards.txt\nwrote reports/2026-10-01-cards.html\n  e-mail known for 0/60 members (from today's meeting invitees)\n"},
@@ -3510,7 +3688,7 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"day","text":"Day 10  Fri 2026-10-02  --  Townhall + weekly status mail","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-10-02-cards.txt\nwrote reports/2026-10-02-cards.html\n  e-mail known for 0/61 members (from today's meeting invitees)\n"},
-{"kind":"cmd","text":"","cmd":"head -9 reports/2026-10-02-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (0, 0 SP):\n  (nothing committed)\n"},
+{"kind":"cmd","text":"","cmd":"head -9 reports/2026-10-02-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (0, 0 SP):\n  (nothing committed)\n"},
 {"kind":"note","text":"08:30-08:45 -- the townhall. Everyone types Y/T/B into the one Teams chat; the chat is the record. Afterwards: select all, copy, paste into standups/2026-10-02-chat.txt (:SChat).","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"head -14 standups/2026-10-02-chat.txt","out":"Meeting started\n[8:31 AM] Ann Contracting\nY: refinement notes\nT: pairing on the carryover\nB: none\n[8:32 AM] Bob Contracting\nY: refinement notes\nT: pairing on the carryover\nB: none\n[8:33 AM] Cy Contracting\nY: worked on IF-31\nT: continue IF-31\nB: none\n[8:34 AM] Dee Contracting\n"},
 {"kind":"note","text":":SAnswers -- parses Y/T/B per person, splits them to teams by who owns what in the journal, logs attendance, and writes FLAGS: silent people, blockers, \"done\" claims. You read the flags, not the chat.","cmd":"","out":""},
@@ -3533,7 +3711,7 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"day","text":"Day 13  Mon 2026-10-05  --  Townhall","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-10-05-cards.txt\nwrote reports/2026-10-05-cards.html\n  e-mail known for 0/61 members (from today's meeting invitees)\n"},
-{"kind":"cmd","text":"","cmd":"head -9 reports/2026-10-05-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (0, 0 SP):\n  (nothing committed)\n"},
+{"kind":"cmd","text":"","cmd":"head -9 reports/2026-10-05-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (0, 0 SP):\n  (nothing committed)\n"},
 {"kind":"note","text":"08:30-08:45 -- the townhall. Everyone types Y/T/B into the one Teams chat; the chat is the record. Afterwards: select all, copy, paste into standups/2026-10-05-chat.txt (:SChat).","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"head -14 standups/2026-10-05-chat.txt","out":"Meeting started\n[8:31 AM] Ann Contracting\nY: pairing on the carryover\nT: code review\nB: none\n[8:32 AM] Bob Contracting\nY: pairing on the carryover\nT: code review\nB: none\n[8:33 AM] Cy Contracting\nY: finished IF-31, merged\nT: code review\nB: none\n[8:34 AM] Dee Contracting\n"},
 {"kind":"note","text":":SAnswers -- parses Y/T/B per person, splits them to teams by who owns what in the journal, logs attendance, and writes FLAGS: silent people, blockers, \"done\" claims. You read the flags, not the chat.","cmd":"","out":""},
@@ -3549,25 +3727,28 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"cmd","text":"","cmd":"cat reports/2026-10-05-brief.txt","out":"AMBER -- Sprint 1, 2026-10-05: 73% done. HR approaching capacity\n\n- HR approaching capacity (108%)\n"},
 {"kind":"note","text":"Commit the day. One commit per townhall: the diff IS the history of what changed.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
-{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"c1eec16 standup 2026-10-05\n316b9f8 standup 2026-10-02\n18919d4 standup 2026-10-01\n"},
+{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"44e71e1 standup 2026-10-05\n8f4a53a standup 2026-10-02\nc5df18c standup 2026-10-01\n"},
 {"kind":"day","text":"Day 14  Tue 2026-10-06  --  Review / demo, retro, sprint close","cmd":"","out":""},
 {"kind":"note","text":"Review is the opposite of the townhall: 60-90 minutes, cameras on, demos against the plates. The journal entry for it is one done / carry sweep afterwards -- whatever is still committed goes to Done or Carryover. Partial credit does not exist.","cmd":"","out":""},
 {"kind":"note","text":"Anything still open is either done or carried, explicitly. Carryover is visible forever.","cmd":"","out":""},
 {"kind":"vim","text":"","cmd":":SNew then the review sweep","out":"== Executive\ndone IF-24\ncarry IF-22\n== Finance\ncarry IF-10\n== HR\ndone H-13\ncarry IF-11\n== Logistics\ndone IF-3\n== Quality\ndone IF-42\ncarry IF-33\n== Research\ncarry IF-15\n== Support\ndone S-11\n== Testing\ndone IF-27\n"},
 {"kind":"cmd","text":"","cmd":"daily.pl compile","out":"applied standups/2026-10-06.txt (8 transactions)\n"},
-{"kind":"note","text":"The sprint report: done vs committed per team, velocity, epic burn, and now a roadmap with a real forecast. All derived; nothing retyped.","cmd":"","out":""},
-{"kind":"cmd","text":"","cmd":"daily.pl sprint 1","out":"Teams: sprint 1\nTeam         Cap  Commit  Done  Open  Carry  Removed  Done%  Load%\n-----------  ---  ------  ----  ----  -----  -------  -----  -----\nContracting   24      23    23     0      0        0   100%    96%\nExecutive     24      23    18     0      5        0    78%    96%\nFinance       24      23    18     0      5        0    78%    96%\nHR            24      26    21     0      5        3    81%   108%\nLogistics     24      23    23     0      0        0   100%    96%\nProduction    24      23    23     0      0        0   100%    96%\nQuality       24      23    18     0      5        0    78%    96%\nResearch      24      23    18     0      5        0    78%    96%\nSupport       24      23    18     0      0        0    78%    96%\nTesting       24      23    23     0      0        0   100%    96%\nTotal        240     233   203     0     25        3    87%    97%\n"},
+{"kind":"note","text":"The sprint report: done vs committed per team, carryover rate, load, velocity, predictability, punts and interrupt SP, then every epic with its sprints to done. daily.pl review writes it as reports/sprint-1-report.html for the mail; report writes it every day anyway. All derived; nothing retyped.","cmd":"","out":""},
+{"kind":"cmd","text":"","cmd":"daily.pl review 1","out":"Sprint 1 report -- as of 2026-10-06: 203/233 SP done (87%), 25 carried over, 3 removed.\n\nTeam           Commit  Done  Done%  Carry Carry%   Load Velocity  Predict%  Punted Interrupt    Cap\nContracting        23    23   100%      0     0%    96%     23.0      100%       0         0     24\nExecutive          23    18    78%      5    22%    96%     18.0       78%       0         0     24\nFinance            23    18    78%      5    22%    96%     18.0       78%       0         0     24\nHR                 26    21    81%      5    19%   108%     21.0       81%       0         0     24\nLogistics          23    23   100%      0     0%    96%     23.0      100%       0         0     24\nProduction         23    23   100%      0     0%    96%     23.0      100%       0         0     24\nQuality            23    18    78%      5    22%    96%     18.0       78%       0         0     24\nResearch           23    18    78%      5    22%    96%     18.0       78%       0         0     24\nSupport            23    18    78%      0     0%    96%     18.0       78%       1         0     24\nTesting            23    23   100%      0     0%    96%     23.0      100%       0         0     24\n\nEpics (remaining / team velocity = sprints to done):\n  A Architectural runway > A1 Enablers        0%     5 SP left  ETA sprint 2\n  C Contracting & Sales > C1 Develop Markets & Pipeline    0%    15 SP left  ETA sprint 2\n  C Contracting & Sales > C2 Win Contracts    8%    34 SP left  ETA sprint 3\n  C Contracting & Sales > C3 Manage Contract Fulfillment   38%    25 SP left  ETA sprint 2\n  E Executive & Strategy > E1 Set Direction   33%    20 SP left  ETA sprint 2\n  E Executive & Strategy > E2 Plan & Allocate   38%    54 SP left  ETA sprint 2\n  E Executive & Strategy > E3 Govern Performance    0%    15 SP left  ETA sprint 2\n  E Executive & Strategy > E4 Manage Risk & Compliance   56%     8 SP left  ETA sprint 2\n  F Finance > F1 Plan & Steward Budgets      33%    20 SP left  ETA sprint 2\n  F Finance > F2 Run Financial Operations     8%    34 SP left  ETA sprint 3\n  F Finance > F3 Close Books & Report        25%    15 SP left  ETA sprint 2\n  H Human Resources > H1 Plan Workforce & Organization  100%     0 SP left  ETA sprint 1\n  H Human Resources > H2 Staff & Develop Workforce   31%    40 SP left  ETA sprint 2\n  H Human Resources > H3 Administer HR Operations   25%    15 SP left  ETA sprint 2\n  L Logistics & Shipping > L1 Receive Inbound Freight    0%    20 SP left  ETA sprint 2\n  L Logistics & Shipping > L2 Warehouse Finished Goods    0%    15 SP left  ETA sprint 2\n  L Logistics & Shipping > L3 Ship Customer Orders   28%    34 SP left  ETA sprint 2\n  P Production > P1 Plan Production           0%    15 SP left  ETA sprint 2\n  P Production > P2 Procure & Kit Materials    0%    15 SP left  ETA sprint 2\n  P Production > P3 Build Products           20%    52 SP left  ETA sprint 2\n  P Production > P4 Support Manufacturing Engineering   38%     8 SP left  ETA sprint 2\n  Q Quality Assurance > Q1 Maintain Quality System    0%    25 SP left  ETA sprint 2\n  Q Quality Assurance > Q2 Inspect & Release Product   25%    15 SP left  ETA sprint 2\n... (13 more lines)"},
+{"kind":"note","text":"The Excel side: daily.pl csv writes items, sprints, epics, intake and health as CSV (UTF-8 with a BOM, so Excel opens it right) for the xlsx leadership asks for, and daily.pl rollup is the monthly roll-up -- epics, intake vs done, backlog age, attendance.","cmd":"","out":""},
+{"kind":"cmd","text":"","cmd":"daily.pl csv","out":"wrote reports/items.csv\nwrote reports/sprints.csv\nwrote reports/epics.csv\nwrote reports/intake.csv\nwrote reports/health.csv\n"},
+{"kind":"cmd","text":"","cmd":"daily.pl rollup","out":"Monthly roll-up 2026-10 -- as of 2026-10-06\n\nEPICS\n  A Architectural runway > A1 Enablers        0%     0/5    SP\n  C Contracting & Sales > C1 Develop Markets & Pipeline    0%     0/15   SP\n  C Contracting & Sales > C2 Win Contracts    8%     3/37   SP\n  C Contracting & Sales > C3 Manage Contract Fulfillment   38%    15/40   SP\n  E Executive & Strategy > E1 Set Direction   33%    10/30   SP\n  E Executive & Strategy > E2 Plan & Allocate   38%    33/87   SP\n  E Executive & Strategy > E3 Govern Performance    0%     0/15   SP\n  E Executive & Strategy > E4 Manage Risk & Compliance   56%    10/18   SP\n  F Finance > F1 Plan & Steward Budgets      33%    10/30   SP\n  F Finance > F2 Run Financial Operations     8%     3/37   SP\n  F Finance > F3 Close Books & Report        25%     5/20   SP\n  H Human Resources > H1 Plan Workforce & Organization  100%    18/18   SP\n  H Human Resources > H2 Staff & Develop Workforce   31%    18/58   SP\n  H Human Resources > H3 Administer HR Operations   25%     5/20   SP\n  L Logistics & Shipping > L1 Receive Inbound Freight    0%     0/20   SP\n  L Logistics & Shipping > L2 Warehouse Finished Goods    0%     0/15   SP\n  L Logistics & Shipping > L3 Ship Customer Orders   28%    13/47   SP\n  P Production > P1 Plan Production           0%     0/15   SP\n  P Production > P2 Procure & Kit Materials    0%     0/15   SP\n  P Production > P3 Build Products           20%    13/65   SP\n  P Production > P4 Support Manufacturing Engineering   38%     5/13   SP\n  Q Quality Assurance > Q1 Maintain Quality System    0%     0/25   SP\n  Q Quality Assurance > Q2 Inspect & Release Product   25%     5/20   SP\n  Q Quality Assurance > Q3 Manage Nonconformance & CAPA    7%     3/42   SP\n  R Research & Development > R1 Define Product Requirements    0%     0/15   SP\n... (32 more lines)"},
 {"kind":"cmd","text":"","cmd":"daily.pl velocity","out":"Contracting  (avg velocity 23.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23    23   100%\n\nExecutive  (avg velocity 18.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23    18    78%\n\nFinance  (avg velocity 18.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23    18    78%\n... (35 more lines)"},
 {"kind":"cmd","text":"","cmd":"daily.pl roadmap","out":"Roadmap: epics by tome, sprints 1-4 (current 1; past it is a forecast at the teams' velocity)\n  # done  = in progress  . forecast  ^ current sprint\n                                                                   ^   \nA Architectural runway > A1 Enablers                                .      0%  0/5 SP  ETA sprint 2\nC Contracting & Sales > C1 Develop Markets & Pipeline               .      0%  0/15 SP  ETA sprint 2\nC Contracting & Sales > C2 Win Contracts                           #..     8%  3/37 SP  ETA sprint 3\nC Contracting & Sales > C3 Manage Contract Fulfillment             #.     38%  15/40 SP  ETA sprint 2\nE Executive & Strategy > E1 Set Direction                          #.     33%  10/30 SP  ETA sprint 2\nE Executive & Strategy > E2 Plan & Allocate                        #.     38%  33/87 SP  ETA sprint 2\nE Executive & Strategy > E3 Govern Performance                      .      0%  0/15 SP  ETA sprint 2\nE Executive & Strategy > E4 Manage Risk & Compliance               #.     56%  10/18 SP  ETA sprint 2\nF Finance > F1 Plan & Steward Budgets                              #.     33%  10/30 SP  ETA sprint 2\nF Finance > F2 Run Financial Operations                            #..     8%  3/37 SP  ETA sprint 3\nF Finance > F3 Close Books & Report                                #.     25%  5/20 SP  ETA sprint 2\nH Human Resources > H1 Plan Workforce & Organization               #     100%  18/18 SP  done\nH Human Resources > H2 Staff & Develop Workforce                   #.     31%  18/58 SP  ETA sprint 2\nH Human Resources > H3 Administer HR Operations                    #.     25%  5/20 SP  ETA sprint 2\nL Logistics & Shipping > L1 Receive Inbound Freight                 .      0%  0/20 SP  ETA sprint 2\nL Logistics & Shipping > L2 Warehouse Finished Goods                .      0%  0/15 SP  ETA sprint 2\nL Logistics & Shipping > L3 Ship Customer Orders                   #.     28%  13/47 SP  ETA sprint 2\nP Production > P1 Plan Production                                   .      0%  0/15 SP  ETA sprint 2\nP Production > P2 Procure & Kit Materials                           .      0%  0/15 SP  ETA sprint 2\nP Production > P3 Build Products                                   #.     20%  13/65 SP  ETA sprint 2\nP Production > P4 Support Manufacturing Engineering                #.     38%  5/13 SP  ETA sprint 2\nQ Quality Assurance > Q1 Maintain Quality System                    .      0%  0/25 SP  ETA sprint 2\nQ Quality Assurance > Q2 Inspect & Release Product                 #.     25%  5/20 SP  ETA sprint 2\nQ Quality Assurance > Q3 Manage Nonconformance & CAPA              #.      7%  3/42 SP  ETA sprint 2\nR Research & Development > R1 Define Product Requirements           .      0%  0/15 SP  ETA sprint 2\nR Research & Development > R2 Develop Product Design               #...    6%  3/53 SP  ETA sprint 4\nR Research & Development > R3 Verify Design                         .      0%  0/15 SP  ETA sprint 2\nR Research & Development > R4 Release Engineering Baseline         #.     14%  5/35 SP  ETA sprint 2\nS Customer Support & Feedback > S1 Operate Support Channels        #.     67%  10/15 SP  ETA sprint 2\nS Customer Support & Feedback > S2 Resolve Customer Cases          #..     8%  3/37 SP  ETA sprint 3\nS Customer Support & Feedback > S3 Synthesize Feedback & Insights  #.     29%  10/35 SP  ETA sprint 2\nT Testing > T1 Prepare Test Program                                 .      0%  0/15 SP  ETA sprint 2\nT Testing > T2 Execute Acceptance Tests                            #..     8%  3/37 SP  ETA sprint 3\nT Testing > T3 Disposition & Report                                 .      0%  0/35 SP  ETA sprint 2\n"},
 {"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-10-06-brief.html\nwrote reports/2026-10-06-brief.txt\nwrote reports/2026-10-06-quad.html\nwrote reports/2026-10-06-quad.txt\nwrote reports/2026-10-06-status.html\nwrote reports/2026-10-06-status.txt\nwrote reports/2026-10-rollup.html\nwrote reports/2026-10-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
 {"kind":"cmd","text":"","cmd":"cat reports/2026-10-06-brief.txt","out":"AMBER -- Sprint 1, 2026-10-06: 87% done. HR approaching capacity\n\n- HR approaching capacity (108%)\n"},
 {"kind":"note","text":"Close the sprint in git: commit and tag. git log of scrum.txt + standups/ is the audit trail your successor inherits.","cmd":"","out":""},
 {"kind":"note","text":"Before the commit, review what the sprint appended: :STig opens tig (Git for Windows ships it) on the project -- j/k walk the commits, Enter shows the diff, q returns to Vim. tig is interactive so the replay shows the equivalent git log; the point is that you look before you commit.","cmd":"","out":""},
-{"kind":"vim","text":"","cmd":":STig","out":"c1eec16 standup 2026-10-05\n attendance.csv                              |  60 +++++++\n scrum.txt                                   |  26 +++\n standups/2026-10-05-Contracting-answers.txt |  25 +++\n standups/2026-10-05-Executive-answers.txt   |  25 +++\n standups/2026-10-05-Finance-answers.txt     |  25 +++\n standups/2026-10-05-HR-answers.txt          |  25 +++\n standups/2026-10-05-Logistics-answers.txt   |  25 +++\n standups/2026-10-05-Production-answers.txt  |  25 +++\n standups/2026-10-05-Quality-answers.txt     |  25 +++\n standups/2026-10-05-Research-answers.txt    |  25 +++\n standups/2026-10-05-Support-answers.txt     |  25 +++\n standups/2026-10-05-Testing-answers.txt     |  25 +++\n standups/2026-10-05-chat.txt                | 241 ++++++++++++++++++++++++++++\n standups/2026-10-05.txt                     |  65 ++++++++\n 14 files changed, 642 insertions(+)\n"},
+{"kind":"vim","text":"","cmd":":STig","out":"44e71e1 standup 2026-10-05\n attendance.csv                              |  60 +++++++\n scrum.txt                                   |  26 +++\n standups/2026-10-05-Contracting-answers.txt |  25 +++\n standups/2026-10-05-Executive-answers.txt   |  25 +++\n standups/2026-10-05-Finance-answers.txt     |  25 +++\n standups/2026-10-05-HR-answers.txt          |  25 +++\n standups/2026-10-05-Logistics-answers.txt   |  25 +++\n standups/2026-10-05-Production-answers.txt  |  25 +++\n standups/2026-10-05-Quality-answers.txt     |  25 +++\n standups/2026-10-05-Research-answers.txt    |  25 +++\n standups/2026-10-05-Support-answers.txt     |  25 +++\n standups/2026-10-05-Testing-answers.txt     |  25 +++\n standups/2026-10-05-chat.txt                | 241 ++++++++++++++++++++++++++++\n standups/2026-10-05.txt                     |  65 ++++++++\n 14 files changed, 642 insertions(+)\n"},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
 {"kind":"cmd","text":"","cmd":"git tag sprint-1","out":""},
-{"kind":"cmd","text":"","cmd":"git log --oneline --decorate","out":"4efff88 (HEAD -> master, tag: sprint-1) standup 2026-10-06\nc1eec16 standup 2026-10-05\n316b9f8 standup 2026-10-02\n18919d4 standup 2026-10-01\n6e638dc standup 2026-09-30\n6f3be9e standup 2026-09-29\ne192a54 standup 2026-09-28\n8be1cc3 standup 2026-09-25\n4f8823a standup 2026-09-24\n4bbe864 standup 2026-09-23\n"},
-{"kind":"cmd","text":"","cmd":"git diff --stat $(git rev-list --max-parents=0 HEAD) sprint-1 | tail -3","out":" standups/2026-10-05.txt                     |  65 ++++\n standups/2026-10-06.txt                     |  58 ++++\n 99 files changed, 5378 insertions(+)\n"},
+{"kind":"cmd","text":"","cmd":"git log --oneline --decorate","out":"ca76b11 (HEAD -> master, tag: sprint-1) standup 2026-10-06\n44e71e1 standup 2026-10-05\n8f4a53a standup 2026-10-02\nc5df18c standup 2026-10-01\n89038ac standup 2026-09-30\n827db4c standup 2026-09-29\n1e298da standup 2026-09-28\ndfe7ea0 standup 2026-09-25\n66dd794 standup 2026-09-24\n4642795 standup 2026-09-23\n"},
+{"kind":"cmd","text":"","cmd":"git diff --stat $(git rev-list --max-parents=0 HEAD) sprint-1 | tail -3","out":" standups/2026-10-05.txt                     |  65 ++++\n standups/2026-10-06.txt                     |  58 ++++\n 100 files changed, 5389 insertions(+)\n"},
 {"kind":"note","text":"Next: Day 1 of sprint 2 is planning again -- cap lines, commit the carryover (commit ID finds it in last sprint's Carryover account), pull refined work from the backlog, including M-1. The rhythm repeats; the roadmap forecast tightens as velocity settles.","cmd":"","out":""}];
 var i=-1,playing=false,timer=null,typing=null;
 var stage=document.getElementById('stage'),pos=document.getElementById('pos'),bar=document.querySelector('#prog div');

@@ -81,6 +81,15 @@ S 'gist: half the words, prefixes', '[1,["CLOSE"],[]]', $g->('what:C-1', 'negot'
 S 'gist: nothing', '[0,["NEGOTIATE","CLOSE"],[]]', $g->('what:C-1', 'proposal');
 S 'gist: blocker', 1, grade($by{'blk:C-1'}, 'legal terms')->{ok};
 
+# found by sim/drill-sim.pl: names with punctuation, titles of short words, new cards starved by reviews
+S 'name with a hyphen, an apostrophe, a digit', '[1,1,1]', [ map { grade({ mode => 'name', want => [ $_->[0] ] }, $_->[1])->{ok} } [ 'Jo Chen-Cole', 'jo chen-cole' ], [ "O'Neil, Pat", "pat o'neil" ], [ 'Alpha-1', 'ALPHA-1' ] ];
+S 'title of short words only', '[1,0]', [ map { grade({ mode => 'gist', want => ['QA a'] }, $_)->{ok} } 'qa a', 'b' ];
+{   my @deck = map { { key => "task:N-$_", kind => 'task', want => ['AL'], mode => 'set', show => 'AL' } } 1 .. 30;
+    my $pr = {}; record($pr, $_, 1, '2026-09-20') for @deck[0 .. 19];      # 20 known and due, 10 never seen
+    my @pk = pick(\@deck, $pr, today => '2026-09-26', n => 12);
+    S 'a third of the day is new cards when reviews would fill it', 4, scalar grep { $_->{status} eq 'new' } @pk;
+}
+
 # ---- progress: Leitner boxes, changed answers, pick order
 my $p = {};
 record($p, $by{'team:Alpha'}, 1, '2026-09-26');

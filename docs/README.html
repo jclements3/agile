@@ -34,7 +34,7 @@ lib/Attendance.pm Teams attendance report download -> join/leave/minutes      te
 lib/Quad.pm      the weekly quad: priorities, watch items, 30/60/90, accomplishments tests/quad.t 75 tests
 lib/Roster.pm    roster.txt: the people, checked against the journal       tests/roster.t   35 tests
 lib/Cockpit.pm   the cockpit: one self-contained page, JSON snapshot       tests/cockpit.t  53 tests
-lib/Drill.pm     the memory drill: backlog and people, recalled            tests/drill.t    62 tests
+lib/Drill.pm     the memory drill: backlog and people, recalled            tests/drill.t    65 tests
 lib/Metrics.pm   every metric vs its threshold; sprint report, roll-up, CSV tests/metrics.t 87 tests
 bin/daily.pl     the daily driver          bin/scrum.pl, bin/ledger.pl, bin/cal.pl, bin/chat.pl  lower-level CLIs
 vim/scrum.vim    :SNew :SCompile :SReport :SDraft :SAll  + syntax for both file types
@@ -271,9 +271,17 @@ is worse than a gap. For a "what is it" or "blocked on" card, half the title's w
 the card up a box, due again in 1, 1, 3, 7, 14 and then 30 days. A miss puts it back in box 0, due tomorrow. The file remembers
 each answer, so a card whose answer changed in the journal comes first next time, marked <i>changed, was: BJ</i>: a
 reassigned task, a new task in an epic, a new blocker. Then come the due cards, lowest box first, then new ones taken in turn from
-each kind. The sheet lists them top-down: teams and people, tomes, epics, tasks. Hooks are yours: a miss shows the card's hook
+each kind; a third of each day is kept for new cards, so a big deck is not starved by its own reviews. Drill one team's deck at a
+time (<code>:SDrill Alpha</code>): the whole program is hundreds of cards, more than a dozen a day can keep up with. The sheet lists them top-down: teams and people, tomes, epics, tasks. Hooks are yours: a miss shows the card's hook
 and the hooks of the people in the answer, and <code>hook: -</code> forgets one. The file is personal. Add it to the
 project's <code>.gitignore</code> if you'd rather not commit it.</p>
+
+<p>Stress test: <code>perl sim/drill-sim.pl [--days 60] [--n 20] [--team T|all] [--seed N]</code> checks every card of the demo,
+the two-year history, the example and a hostile journal (Unicode and "Last, First" names, shared initials, titles with pipes and
+quotes): the right answer passes in any case, order or punctuation, a gap or a wrong id fails and is named, garbage never
+crashes, sheets and <code>drill.txt</code> round-trip. Then a simulated learner drills for weeks while tasks are reassigned,
+blocked and added; it checks the schedule, that changed cards come back first, that no card starves, and that accuracy climbs.
+The training replay (<code>docs/TRAINING.html</code>) shows the drill on Day 2 and Day 8.</p>
 
 <h2>Before the meeting: yesterday's status drafts today's</h2>
 

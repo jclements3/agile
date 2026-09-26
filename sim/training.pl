@@ -24,6 +24,7 @@ use Getopt::Long;
 use Cwd qw(abs_path);
 use File::Path qw(remove_tree make_path);
 use Scrum qw(load items members);
+use Drill ();
 
 my $KIT   = abs_path("$FindBin::Bin/..");
 my $MODEL = "$KIT/tools/idef0/examples/dronecorp/dronecorp.md";
@@ -74,6 +75,32 @@ sub vim {                                     # a hand edit, shown as what you'd
     print "$out\n" if $out;
     push @rec, { kind => 'vim', cmd => $shown, out => $out };
     select(undef, undef, undef, $o{pause}) if $o{pause};
+}
+sub drill_step {                              # :SDrill Team -- the sheet answered as a person would (mostly right, a few misses), graded on :w, a hook written
+    my ($team, $n, $narration) = @_;
+    vim(":SDrill $team", $narration, sub {
+        my $f = (split /\n/, qx(perl "$KIT/bin/daily.pl" --today=$today drill --sheet -n $n $team 2>&1))[-1];
+        return "(nothing due)" unless $f && -f $f;
+        my %by = map { $_->{key} => $_ } @{ Drill::cards(load('scrum.txt', today => $today), team => $team) };
+        my $sheet = do { local $/; open my $r, '<', $f or die; <$r> };
+        my $i = 0;
+        $sheet =~ s{^(#\d+ (.+?)(?:  \(.*\))?\n.*\n)> $}{ my $c = $by{$2}; my $right = !$c ? '?' : $c->{mode} eq 'set' ? join(' ', @{ $c->{want} }) : $c->{want}[0];
+                                                        $1 . '> ' . (++$i % 4 == 0 ? ($c && $c->{mode} eq 'set' && @{ $c->{want} } > 1 ? join(' ', @{ $c->{want} }[1 .. $#{ $c->{want} }]) : '?') : lc $right) }mge;
+        write_file($f, $sheet);
+        qx(perl "$KIT/bin/daily.pl" --today=$today drill --grade "$f" 2>&1);          # what :w runs
+        $sheet = do { local $/; open my $r, '<', $f or die; <$r> };
+        $sheet =~ s{^(#\d+ (.+?)(?:  \(.*\))?\n(?:(?!#\d).*\n)*?)hook: $}{ my $c = $by{$2}; $1 . 'hook: ' . _hook($c) }me;   # the first miss gets a mnemonic that fits its card
+        write_file($f, $sheet);
+        my $g = qx(perl "$KIT/bin/daily.pl" --today=$today drill --grade "$f" 2>&1);     # :w again keeps the hook
+        (my $shown = $sheet) =~ s/^; (answer|after grading).*\n//mg;
+        head_tail($shown, 40) . "\n$g";
+    });
+}
+sub _hook {                                   # a mnemonic of the kind you would write: the shape of the answer, not the answer again
+    my $c = shift or return 'say it out loud twice';
+    return join('-', map { substr($_, 0, 1) } split ' ', $c->{want}[0]) . ': the first letters spell it' if $c->{mode} ne 'set';
+    my @w = @{ $c->{want} };
+    @w > 1 ? scalar(@w) . ' of them, in order: ' . join(' ', @w) . ' -- count them off on one hand' : "$w[0] -- say it with the question, three times";
 }
 sub head_tail { my ($t, $n) = @_; my @l = split /\n/, $t; @l <= $n ? $t : join("\n", @l[0 .. $n - 1]) . "\n... (" . (@l - $n) . " more lines)" }
 
@@ -158,6 +185,8 @@ for my $i (1 .. 8) {
     my $d = $daynum[$i];
     banner($i, $d == 3 || $d == 10 ? 'Townhall + weekly status mail' : $d == 8 ? 'Townhall + mid-sprint health check' : $d == 9 ? 'Townhall + refinement' : 'Townhall');
 
+    drill_step($teams[0], 8, "08:05 -- five minutes of the memory drill before the call, one team's deck: :SDrill $teams[0]. Type the answer after each '>' -- initials, ids, codes, any order, any case -- Enter jumps to the next, and the last Enter saves, which grades the sheet in place. A miss gets a 'hook:' line for your own mnemonic; it comes back the next time you miss that card. Progress is Leitner boxes in drill.txt: right moves a card up (due again in 1, 1, 3, 7, 14, 30 days), a miss starts it over tomorrow.") if $d == 2;
+    drill_step($teams[0], 8, "08:05 -- the drill again: the cards due today (yesterday's misses first, then the lowest boxes) and a few new ones. A card whose answer changed in the journal since you last saw it -- a task reassigned, finished, blocked -- comes back first, marked 'changed, was: ...': the journal moved, and your memory has to move with it.") if $d == 8;
     narrate('08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.');
     daily('cards');
     run("head -9 reports/$today-cards.txt");
@@ -254,6 +283,11 @@ for my $i (1 .. 8) {
         narrate('The quad is the one-page weekly status: Technical Priorities (the sprint tagged OPEN/DONE/WAIT/HOLD/DROP with REDO/PASS/SYNC marks, then the TODO list with anything punted first), Watch Items the PM must help with (PM) or know about (WI), Schedule Milestones 30/60/90 days out with pushed-right / pulled-left arrows against last week, and Accomplishments marked on time or late. report wrote it as reports/<date>-quad.html; this is the text form.');
         daily('quad', undef, 72);
     }
+    if ($d == 8) {
+        narrate('Day 8 is the mid-sprint health check: daily.pl health puts every metric of the operating model against the threshold that calls for action -- under 60% done by Day 8, blockers over 3 and 5 days, load, bus factor, predictability, carryover, backlog depth and age -- one line each, with what to do. It exits 1 on a red, and report already put the red and amber ones in the status mail.');
+        daily('health', undef, 30);
+        daily('blocked');
+    }
     narrate('Commit the day. One commit per townhall: the diff IS the history of what changed.');
     daily('commit');
     run('git log --oneline -3') if $d == 2 || $d == 8 || $d == 13;
@@ -278,8 +312,11 @@ vim(':SNew then the review sweep', 'Anything still open is either done or carrie
     $t;
 });
 daily('compile');
-narrate('The sprint report: done vs committed per team, velocity, epic burn, and now a roadmap with a real forecast. All derived; nothing retyped.');
-daily('sprint 1', undef, 16);
+narrate('The sprint report: done vs committed per team, carryover rate, load, velocity, predictability, punts and interrupt SP, then every epic with its sprints to done. daily.pl review writes it as reports/sprint-1-report.html for the mail; report writes it every day anyway. All derived; nothing retyped.');
+daily('review 1', undef, 40);
+narrate('The Excel side: daily.pl csv writes items, sprints, epics, intake and health as CSV (UTF-8 with a BOM, so Excel opens it right) for the xlsx leadership asks for, and daily.pl rollup is the monthly roll-up -- epics, intake vs done, backlog age, attendance.');
+daily('csv');
+daily('rollup', undef, 30);
 daily('velocity', undef, 16);
 daily('roadmap', undef, 44);
 daily('report');

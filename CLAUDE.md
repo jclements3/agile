@@ -75,6 +75,7 @@ four-letter words -- "punting X", "X on hold", "passing X to Bravo" -- which `an
 lines) into the current project's standups/ for practising lint/answers without a team; `data/lab` is the practice project.
 `sim/lab-run.pl` runs N unattended townhall days there (confirms the suggested done and four-letter-word lines, runs the quad daily,
 reports findings); `sim/fuzz-chat.pl` property-tests the parsers, including that the words are only ever suggested, never applied;
+`sim/drill-sim.pl` stress-tests the memory drill (property checks over real and hostile journals, then a simulated learner over weeks while the journal changes);
 `sim/history-gen.pl` seeds punts, redos and sync pairs into the two-year history and HISTORY.html shows the punt rate by half-year. `sim/training.pl` is
 the training replay: it wipes and rebuilds `data/demo` (guarded to that name) by really running
 one sprint of `daily.pl` and `git` commands, and writes `docs/TRAINING.html` — regenerate that

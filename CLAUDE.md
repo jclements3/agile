@@ -40,7 +40,7 @@ There is no build step and no package manager — everything is `use lib` agains
 
 Test suites map 1:1 to the libs: `tests/prelude.t`, `tests/ledger.t`, `tests/quad.t`,
 `tests/scrum.t`, `tests/standup.t`, `tests/calendar.t`, `tests/chat.t`, `tests/answers.t`,
-`tests/attendance.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
+`tests/attendance.t`, `tests/drill.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
 `Calendar.pm`'s COM calls offline.
 
 CLI entry points (`bin/`): `daily.pl` is the day-to-day driver; `scrum.pl`, `ledger.pl`,
@@ -54,6 +54,7 @@ invocations while developing:
     perl bin/daily.pl propose [Team]                 # today's statuses drafted from yesterday's + the journal, one line per person to post; answers --assume records them for the silent
     perl bin/daily.pl quad [Team]                    # the weekly quad (Technical Priorities / Watch Items / 30-60-90 Milestones / Accomplishments) as text; report writes <date>-quad.html
     #   lint/propose --private -> reports/<date>-{lint,propose}.html: a Teams 1:1 deep link per person (message pre-filled); e-mails from meeting invitees + roster.txt
+    perl bin/daily.pl drill [Team] [-n 12]           # the memory drill: recall the tree and the people as terse answers (ids, codes, initials); --sheet/--grade FILE = the Vim sheet (:SDrill), progress in drill.txt
     perl bin/daily.pl --dry compile                  # show what compile would write without writing it
     perl bin/scrum.pl -f scrum.txt items committed <Team>
     perl bin/ledger.pl -f scrum.txt bal Sprint:42
@@ -163,6 +164,12 @@ scrum-specific knowledge (used standalone via `ledger.pl` too).
   stood a week ago via `load(..., until => date)`), Accomplishments (done this week, on time unless ever carried over).
   Its two metrics, Sprint Progress and On-Time Delivery, are in the header. A punt-rate table (punted / committed tasks per team, last four sprints; `Scrum` records each punt on the item as `punts`) sits under the quadrants. The owner's four-letter words: TODO = team backlog, OPEN = in a sprint (epics and tomes too), WAIT = blocked outside the team, HOLD = interrupted, PUNT = too hard as written, back to TODO (`punt ID why`), DROP = should not be done, REDO = demo found it wrong (`redo ID why`, last sprint's Done back into this one), PASS = another team should do it (`pass ID Team`), SYNC = coordinated across teams, shared DONE (`sync ID ID`). `daily.pl quad [Team]`, `report` writes
   `<date>-quad.html`/`.txt`, the cockpit has a Quad tab. `hold ID why` / `resume ID` are the stand-up verbs behind HOLD.
+- `lib/Drill.pm` — the memory drill: question cards at every level (team → people as initials, initials → name/team,
+  tome → epic codes, epic → tome/open task ids, person → in-sprint/next ids, task → owner/gist, blocker gist) generated
+  from `items($s)` + `roster.txt` on every run; grading of terse answers (set match on ids/codes/initials where an id from
+  the deck that isn't in the answer counts as wrong, all name words, half the title words); Leitner boxes and user-written hooks in
+  `drill.txt` (`key | box | due | right | wrong | answer | hook`), the stored answer bringing a card back first when the journal
+  changed it. Two front ends: `drill_loop` (terminal) and a sheet graded on `:w` in Vim (`:SDrill`, `\sm`).
 - `bin/daily.pl` — the umbrella CLI (`init/new/cards/attend/joined/answers/chat/ai/compile/
   report/post/draft/commit/all/status/sprint/velocity/backlog/members/epics/blocked/meetings`)
   that wires all of the above together for the daily/weekly/sprint rhythm; `bin/scrum.pl`,

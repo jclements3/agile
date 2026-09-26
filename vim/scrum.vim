@@ -93,6 +93,41 @@ function! s:Cockpit() abort                     " rebuild <kit>/dashboard.html f
   let l:out = systemlist('perl ' . shellescape(fnamemodify(g:scrum_daily, ':h:h') . '/agile.pl') . ' --no-open ' . shellescape(fnamemodify(l:conf, ':p:h')))
   echo join(l:out, "\n")
 endfunction
+" ---------------------------------------------------------------- the memory drill (Drill.pm), answered in a buffer
+" :SDrill [Team] (\sm)  a sheet of due cards: tree, people, initials. Type after each '>', <CR> jumps to the next blank one;
+" the last <CR> (or :w) grades it in place. Misses get a 'hook:' line -- write a mnemonic, <CR> through them, :w keeps them.
+function! s:Drill(args) abort
+  let l:out = systemlist('perl ' . shellescape(g:scrum_daily) . ' drill --sheet ' . a:args)
+  if v:shell_error || empty(l:out) | echohl ErrorMsg | echo join(l:out, "\n") | echohl None | return | endif
+  if l:out[-1] !~# 'drill\.txt$' | echo join(l:out, "\n") | return | endif
+  execute 'edit! ' . fnameescape(l:out[-1])
+  normal! gg
+  call s:DrillNext()
+endfunction
+function! s:DrillNext() abort                   " the next blank answer (wrapping), else the next blank hook below, else grade
+  stopinsert
+  if search('^>\s*$', 'w') > 0 | call feedkeys('A', 'n') | return | endif
+  if search('^hook:\s*$', 'W') > 0 | call feedkeys('A', 'n') | return | endif
+  update
+endfunction
+function! s:DrillGrade() abort                  " BufWritePost: grade the sheet, reload it, go to the first new blank hook
+  let l:out = systemlist('perl ' . shellescape(g:scrum_daily) . ' drill --grade ' . shellescape(expand('%:p')))
+  let l:view = winsaveview()
+  silent edit!
+  call winrestview(l:view)
+  echo get(l:out, -1, '')
+  if get(l:out, -1, '') =~# '^graded [1-9]'
+    normal! gg
+    if search('^hook:\s*$', 'W') > 0 | call feedkeys('A', 'n') | endif
+  endif
+endfunction
+augroup scrum_drill
+  autocmd!
+  autocmd FileType drill inoremap <buffer> <silent> <CR> <Esc>:call <SID>DrillNext()<CR>
+  autocmd FileType drill nnoremap <buffer> <silent> <CR> :call <SID>DrillNext()<CR>
+  autocmd BufWritePost *-drill.txt if &filetype ==# 'drill' | call s:DrillGrade() | endif
+augroup END
+
 function! s:New(args) abort
   let l:out = systemlist('perl ' . shellescape(g:scrum_daily) . ' new ' . a:args)
   if v:shell_error | echohl ErrorMsg | echo join(l:out, "\n") | echohl None | return | endif
@@ -122,6 +157,7 @@ command!          STally   call s:Daily('chat')
 command!          SAnswers  call s:Daily('answers')
 command!          SLint     call s:Lint()
 command!          STown     call s:Town()
+command! -nargs=? SDrill    call s:Drill(<q-args>)
 command! -nargs=1 SSend     call s:Send(<q-args>)
 command! -nargs=* SPropose call s:Daily('propose ' . <q-args>)
 command!          SLintReply call s:Daily('lint --reply ' . shellescape(expand('%:p')))
@@ -168,11 +204,13 @@ nnoremap <leader>sl :w<CR>:SLint<CR>
 nnoremap <leader>sp :call <SID>PasteLint()<CR>
 nnoremap <leader>sy :call <SID>YankReplies()<CR>
 nnoremap <leader>sw :STown<CR>
+nnoremap <leader>sm :SDrill<CR>
 
 augroup scrum_ft
   autocmd!
   autocmd BufRead,BufNewFile scrum.txt,*.ledger,*.journal set filetype=ledger
   autocmd BufRead,BufNewFile */standups/*-chat.txt set filetype=teamschat
+  autocmd BufRead,BufNewFile */reports/*-drill.txt set filetype=drill
   autocmd BufRead,BufNewFile */standups/*.txt if expand('%:t') !~# '-chat\.txt$' | set filetype=standup | endif
 augroup END
 

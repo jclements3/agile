@@ -196,6 +196,40 @@ queued task is not a flag, and "same plan N days" is info at 2, amber from 3, re
 pane, the roster check. It lives next to <code>scrum.conf</code> in the project's git repo, so who was on the program when is part of
 the record. The name must be what Teams shows in the chat -- that is what the parsers match against the journal's owners.</p>
 
+<h2>Memorize: the backlog and the people, carried in your head</h2>
+
+<p>For the meetings you attend with nothing but your mind. The drill turns the journal into question cards at every level,
+and you type terse answers: ids, epic codes and people's initials, in any order. Recalling is what builds the memory;
+reading the backlog again does not. The cards are generated fresh from the journal on every run, so there is no deck to keep up.</p>
+
+<pre>:SDrill [Team]   (\sm)   a sheet of the cards due today (reports/&lt;date&gt;-drill.txt); type after each '&gt;', Enter jumps to the
+                         next blank one, the last Enter (or :w) grades the sheet in place; on a miss write a mnemonic after
+                         'hook:', Enter through them, and :w keeps them
+daily.pl drill [Team] [-n 12]      the same in the terminal: question, answer, verdict, hook prompt on a miss; q stops
+daily.pl drill --sheet [Team]      just write the sheet;   daily.pl drill --grade FILE   grade it (what :w runs)
+
+Team Alpha: who? (initials)        AL BJ          Tome C Contracting: epics?   C1 C2
+AL = ?  (full name)                Ann Lee        C2 Win Contracts: tome?      C
+AL: team?                          Alpha          C2 Win Contracts: open tasks? (ids)    C-21 C-23
+AL: in the sprint? (ids)           C-23           C-23 Negotiate &amp; Close: who?           AL
+AL: next up? (ids)                 C-11 C-12      C-23: what is it?            negotiate close
+C-23 ...: blocked on?              legal review</pre>
+
+<p>Initials are the first letter of each word of the name (<code>Archer, Sam</code> is SA; a one-word name gives two letters,
+<code>Bo</code>). When two people share initials, letters of the last name are added to both: <code>JCh</code> and <code>JCo</code>.
+An id, code or initials in your answer that isn't in the right answer counts against you, because recalling the wrong thing
+is worse than a gap. For a "what is it" or "blocked on" card, half the title's words is enough, and a four-letter prefix counts as the word.
+<code>?</code> means you don't know.</p>
+
+<p>Progress uses the Leitner system, kept in <code>drill.txt</code> next to <code>scrum.conf</code> (one line per card:
+<code>key | box | due | right | wrong | answer | hook</code>; <code>drill = FILE</code> in scrum.conf moves it). A right answer moves
+the card up a box, due again in 1, 1, 3, 7, 14 and then 30 days. A miss puts it back in box 0, due tomorrow. The file remembers
+each answer, so a card whose answer changed in the journal comes first next time, marked <i>changed, was: BJ</i>: a
+reassigned task, a new task in an epic, a new blocker. Then come the due cards, lowest box first, then new ones taken in turn from
+each kind. The sheet lists them top-down: teams and people, tomes, epics, tasks. Hooks are yours: a miss shows the card's hook
+and the hooks of the people in the answer, and <code>hook: -</code> forgets one. The file is personal. Add it to the
+project's <code>.gitignore</code> if you'd rather not commit it.</p>
+
 <h2>Before the meeting: yesterday's status drafts today's</h2>
 
 <pre>vim   :SPropose [Team]        one paste-ready line per person, from yesterday's answers and the journal:

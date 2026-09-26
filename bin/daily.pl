@@ -17,11 +17,12 @@ use Ai;
 use Attendance;
 use Cockpit;
 use Roster ();
+use Drill ();
 use File::Spec;
 
 my %o;
 GetOptionsFromArray(\@ARGV, 'c|conf=s' => \$o{conf}, 'today=s' => \$o{today}, 'dry' => \$o{dry}, 'draft' => \$o{draft},
-    'to=s' => \$o{to}, 'cc=s' => \$o{cc}, 'subject=s' => \$o{subject}, 'team=s' => \$o{team}, 'send' => \$o{send}, 'force' => \$o{force}, 'guess' => \$o{guess}, 'reply' => \$o{reply}, 'assume' => \$o{assume}, 'private' => \$o{private}, 'table' => \$o{table}, 'confirm' => \$o{confirm}) or exit 2;
+    'to=s' => \$o{to}, 'cc=s' => \$o{cc}, 'subject=s' => \$o{subject}, 'team=s' => \$o{team}, 'send' => \$o{send}, 'force' => \$o{force}, 'guess' => \$o{guess}, 'reply' => \$o{reply}, 'assume' => \$o{assume}, 'private' => \$o{private}, 'table' => \$o{table}, 'confirm' => \$o{confirm}, 'n=i' => \$o{n}, 'sheet' => \$o{sheet}, 'grade=s' => \$o{grade}) or exit 2;
 my $cmd = shift @ARGV // 'status';
 
 # ---- locate project
@@ -40,7 +41,7 @@ my %cmds = (
     draft    => \&cmd_draft,   brief   => \&cmd_brief,   commit  => \&cmd_commit,  all     => \&cmd_all,     check   => \&cmd_check,
     attend   => \&cmd_attend,  post    => \&cmd_post,    meetings => \&cmd_meetings, chat => \&cmd_chat,
     answers  => \&cmd_answers, ai      => \&cmd_ai,     joined   => \&cmd_joined,   cards => \&cmd_cards,  lint => \&cmd_lint, propose => \&cmd_propose,
-    roster   => \&cmd_roster,  invite  => \&cmd_invite,
+    roster   => \&cmd_roster,  invite  => \&cmd_invite,  drill => \&cmd_drill,
     quad     => sub { my $s = $load->(); print quad_text($s, team => $_[0], marking => $conf); 0 },
     sprint   => sub { print sprint_text($load->(), $_[0]) },
     velocity => sub { print velocity_text($load->()) },
@@ -50,7 +51,7 @@ my %cmds = (
     roadmap  => sub { print roadmap_text($load->()) },
     blocked  => sub { my $s = $load->(); printf "%-10s %-6s %s\n", $_->{id}, $_->{team} // '', $_->{blocked} for blocked($s) },
 );
-if (!$cmds{$cmd}) { print STDERR "commands: init new status compile report draft brief commit all check attend post meetings chat answers lint propose roster invite quad ai joined cards sprint velocity backlog members epics roadmap blocked\n"; exit 2 }
+if (!$cmds{$cmd}) { print STDERR "commands: init new status compile report draft brief commit all check attend post meetings chat answers lint propose roster invite drill quad ai joined cards sprint velocity backlog members epics roadmap blocked\n"; exit 2 }
 exit($cmds{$cmd}->(@ARGV) // 0);
 
 # ---------------------------------------------------------------- commands
@@ -322,6 +323,41 @@ sub cmd_invite {                              # invite [--dry]: the recurring to
     my $id = $cal->create(subject => $conf->{banner} ? "$conf->{banner} $subject" : $subject, start => "${first}T$start", minutes => $minutes, attendees => \@to, location => $loc, weekdays => 1, display => 1, body => $body);
     print "created $id (opened in Outlook for you to review and send)\n";
     0;
+}
+sub cmd_drill {                               # drill [Team] [-n N]: the memory drill in the terminal (initials and the terse backlog, recalled, not read)
+    my $team = shift // $o{team};             # drill --sheet [Team]: reports/<date>-drill.txt to answer in Vim (:SDrill);  drill --grade FILE: grade it (:w does this)
+    my $file = $conf->{drill} // 'drill.txt';
+    my $prog = Drill::read_progress($file);
+    my $roster = Roster::read_roster('roster.txt');
+    my $s = $load->();
+    binmode STDOUT, ':encoding(UTF-8)';
+    if ($o{grade}) {
+        open my $fh, '<:encoding(UTF-8)', $o{grade} or die "cannot read $o{grade}: $!\n"; my $text = do { local $/; <$fh> }; close $fh;
+        my ($t) = $text =~ /^; team: (.+?)\s*$/m;
+        my %by = map { $_->{key} => $_ } @{ Drill::cards($s, team => $t, roster => $roster) };
+        my ($new, $st) = Drill::grade_sheet($text, \%by, $prog, $today);
+        if ($new ne $text) { open my $w, '>:encoding(UTF-8)', $o{grade} or die "cannot write $o{grade}: $!\n"; print $w $new; close $w }
+        Drill::write_progress($file, $prog) if $st->{graded} || $st->{hooks};
+        printf "graded %d, hooks saved %d -- %d/%d ok, %d missed%s\n", $st->{graded}, $st->{hooks}, $st->{ok}, $st->{total}, $st->{miss}, ($st->{done} < $st->{total} ? ', ' . ($st->{total} - $st->{done}) . ' to go' : '');
+        return 0;
+    }
+    my $cards = Drill::cards($s, team => $team, roster => $roster);
+    my @pick = Drill::pick($cards, $prog, today => $today, n => $o{n} // 12);
+    if (!@pick) {
+        my ($next) = sorted(grep { $_ gt $today } map { $prog->{ $_->{key} }{due} // '' } @$cards);
+        print "nothing due today (" . scalar(@$cards) . " cards" . ($next ? ", next due $next" : '') . ")\n";
+        return 0;
+    }
+    if ($o{sheet}) {
+        mkdir $conf->{reports} unless -d $conf->{reports};
+        my $f = "$base/$conf->{reports}/$today-drill.txt";
+        open my $w, '>:encoding(UTF-8)', $f or die "cannot write $f: $!\n"; print $w Drill::sheet_text(\@pick, today => $today, team => $team); close $w;
+        print "$f\n";
+        return 0;
+    }
+    print "memory drill: " . scalar(@pick) . " cards. Terse answers (ids, codes, initials, any order); ? = don't know, q = stop.\n";
+    my $st = Drill::drill_loop(\@pick, $prog, in => \*STDIN, out => \*STDOUT, today => $today, save => sub { Drill::write_progress($file, $prog) });
+    $st->{miss} ? 1 : 0;
 }
 sub _private_page {                           # --private: reports/<date>-<kind>.html with a 1:1 Teams link per person, message pre-filled
     my ($s, $kind, $title, @msgs) = @_;

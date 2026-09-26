@@ -5,6 +5,7 @@ use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 use File::Temp qw(tempdir);
+use File::Copy qw(copy);
 use Prelude qw(show sorted);
 use Scrum;
 use Drill;
@@ -140,21 +141,23 @@ has 'loop output', $out, qr/\[1\/3\] Team Alpha: who\? \(initials\)  \(new\)\n> 
 # ---- daily.pl drill: --sheet, --grade, nothing due
 my $proj = "$dir/proj"; mkdir $proj; mkdir "$proj/reports";
 open my $c, '>', "$proj/scrum.conf" or die; print $c "journal = scrum.txt\nstandups = standups\nreports = reports\n"; close $c;
-system('cp', $j, "$proj/scrum.txt");
+copy($j, "$proj/scrum.txt") or die "copy: $!";
 open my $r, '>', "$proj/roster.txt" or die; print $r "Dee Fox | dee\@example.com | Bravo | Dev | ACME\n"; close $r;
-my $daily = "$^X $root/bin/daily.pl -c $proj/scrum.conf --today 2026-09-26";
-my $f = `$daily drill --sheet -n 2 Alpha`; chomp $f;
+sub cli { my $in = @_ && ref $_[0] ? ${ shift() } : undef; my $redir = '';   # quoted: on the CI runner $^X is /c/Program Files/Git/usr/bin/perl.exe
+    if (defined $in) { open my $i, '>', "$dir/stdin.txt" or die; print $i $in; close $i; $redir = qq( < "$dir/stdin.txt") }
+    scalar qx("$^X" "$root/bin/daily.pl" -c "$proj/scrum.conf" --today 2026-09-26 @_$redir 2>&1) }
+my $f = cli('drill', '--sheet', '-n', 2, 'Alpha'); chomp $f;
 has 'daily.pl drill --sheet', $f, qr{/reports/2026-09-26-drill\.txt$};
 open my $sf, '<', $f or die "no sheet $f"; my $st = do { local $/; <$sf> }; close $sf;
 has 'sheet has the team', $st, qr/^; team: Alpha$/m, qr/^#1 team:Alpha  \(new\)$/m;
 $st =~ s/^> $/> AL BJ/m;
 open my $wf, '>', $f or die; print $wf $st; close $wf;
-my $go = `$daily drill --grade $f`;
+my $go = cli('drill', '--grade', qq("$f"));
 has 'daily.pl drill --grade', $go, qr/^graded 1, hooks saved 0 -- 1\/2 ok, 0 missed, 1 to go$/m;
 has 'drill.txt written', do { open my $d, '<', "$proj/drill.txt" or die; local $/; <$d> }, qr/^team:Alpha \| 1 \| 2026-09-27 \| 1 \| 0 \| /m;
-my $tl = `printf 'AL BJ\\nq\\n' | $daily drill -n 1 Alpha`;
+my $tl = cli(\"AL BJ\nq\n", 'drill', '-n', 1, 'Alpha');
 has 'daily.pl drill in the terminal', $tl, qr/memory drill: 1 cards/, qr/\[1\/1\] /;
-my $none = `$^X $root/bin/daily.pl -c $proj/scrum.conf --today 2026-09-26 drill -n 0 Alpha`;
+my $none = cli('drill', '-n', 0, 'Alpha');
 has 'nothing due', $none, qr/^nothing due today \(\d+ cards/;
 
 print "1..$n\n";

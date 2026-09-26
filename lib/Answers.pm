@@ -286,7 +286,8 @@ sub flags {
         if ($r->{blocked}) {
             my $days = 1;
             for my $h (@$hist) { my $p = (grep { $_->{who} eq $r->{who} } @{ $h->{answers} })[0]; last unless $p && $p->{blocked}; $days++ }
-            push @f, { level => $days >= 3 ? 'red' : 'amber', who => $r->{who}, text => "blocked" . ($days > 1 ? " for $days days" : '') . ": $r->{b}", id => $r->{ids}{b}[0] };
+            # days of reports running; the journal's blocked age (daily.pl blocked) counts calendar days since the block was set
+            push @f, { level => $days >= 3 ? 'red' : 'amber', who => $r->{who}, text => "blocked" . ($days > 1 ? ", reported $days days running" : '') . ": $r->{b}", id => $r->{ids}{b}[0] };
         }
         if ($prev && $prev{ $r->{who} } && defined $r->{t} && $norm->($r->{t}) ne '' && $norm->($r->{t}) eq $norm->($prev{ $r->{who} }{t})) {
             my $days = 2;
@@ -343,6 +344,7 @@ sub suggest_lines {                           # from answers + flags: done (comm
         if ($r->{blocked}) {
             my ($id) = @{ $r->{ids}{b} };
             (my $why = $r->{b}) =~ s/,/;/g;
+            $why =~ s/^\s*\Q$id\E\b[\s:;-]*//i if $id;   # "B: WEB-2 waiting on ..." -> block WEB-2 waiting on ...
             next if $id && $s->{items}{$id} && $s->{items}{$id}{blocked};   # already blocked in the journal: its age keeps counting, nothing to add
             $out .= $id && $s->{items}{$id} ? "block $id $why\n" : "risk $r->{who}: $why\n";
         }

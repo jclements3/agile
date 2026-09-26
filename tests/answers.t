@@ -95,7 +95,7 @@ S 'history none', '[]', [ history("$dir/nope", 'Alpha', '2026-09-23') ];
 my @hist = history($dir, 'Alpha', '2026-09-23');   # Bob blocked "cert" on 3 previous days, Ann's plan "b" repeated
 my @today = parse_answers("[9:02 AM] Ann\nY: a\nT: b\nB: none\n[9:03 AM] Bob\nY: AUTH-103 merged and done\nT: AUTH-104 with Ann, then OPS-302\nB: cert\n[9:04 AM] Eve\nY: docs\nT: docs\nB: -\n");
 my @f = flags($s, 'Alpha', \@today, \@hist, roster => [ 'Ann', 'Bob', 'Cy' ]);
-S 'flags', '[["red","Ann","same plan 4 days running: b"],["red","Bob","blocked for 4 days: cert"],["amber","Bob","mentions AUTH-104 which is not in the journal"],["amber","Cy","no answers in chat"],["info","Ann","no task ids in yesterday/today (untracked work?)"],["info","Bob","mentions OPS-302 which is master (Master), not in Alpha\'s sprint"],["info","Bob","says AUTH-103 is done; confirm and mark"],["info","Eve","no task ids in yesterday/today (untracked work?)"]]',
+S 'flags', '[["red","Ann","same plan 4 days running: b"],["red","Bob","blocked, reported 4 days running: cert"],["amber","Bob","mentions AUTH-104 which is not in the journal"],["amber","Cy","no answers in chat"],["info","Ann","no task ids in yesterday/today (untracked work?)"],["info","Bob","mentions OPS-302 which is master (Master), not in Alpha\'s sprint"],["info","Bob","says AUTH-103 is done; confirm and mark"],["info","Eve","no task ids in yesterday/today (untracked work?)"]]',
   [ map { [ @{$_}{qw(level who text)} ] } @f ];
 S 'done flag carries id', '["AUTH-103",1]', [ map { ($_->{id}, $_->{done}) } grep { $_->{done} } @f ];
 S 'no history no repeat flag', 0, scalar grep { $_->{text} =~ /same plan/ } flags($s, 'Alpha', \@today, [], roster => []);
@@ -121,11 +121,11 @@ check 'suggest pass to a known team', suggest_lines($s, 'Alpha', [ parse_answers
 check 'suggest pass without a team', suggest_lines($s, 'Alpha', [ parse_answers("Bob: x\nY: x\nT: handing off AUTH-103\nB: none\n") ], []), "; note Bob: handing off AUTH-103   ; pass to which team?\n";
 check 'suggest sync', suggest_lines($s, 'Alpha', [ parse_answers("Bob: x\nY: x\nT: sync AUTH-103 with AUTH-101 this sprint\nB: none\n") ], []), "; sync AUTH-103 AUTH-101   ; Bob: coordinated across teams, shared DONE (confirm)\n";
 check 'no suggestion without a known id', suggest_lines($s, 'Alpha', [ parse_answers("Bob: x\nY: x\nT: punting the spike, too hard\nB: none\n") ], []), "";
-has 'answers_report', answers_report('Alpha', \@today, \@f), qr/^Alpha stand-up answers: 3 people, 1 blocked$/m, qr/^  Bob            Y: AUTH-103 merged and done$/m, qr/^  RED   Bob            blocked for 4 days: cert$/m;
+has 'answers_report', answers_report('Alpha', \@today, \@f), qr/^Alpha stand-up answers: 3 people, 1 blocked$/m, qr/^  Bob            Y: AUTH-103 merged and done$/m, qr/^  RED   Bob            blocked, reported 4 days running: cert$/m;
 
 # ---- Ai
 my $prompt = prompt_pack(date => '2026-09-23', sprint_text => "Sprint 42\nTeam ...", answers => { Alpha => "Alpha answers" }, flags => { Alpha => [ $f[1] ] }, history => { Alpha => "2026-09-22 Alpha\n..." }, notes => 'n1', marking => { banner => 'INTERNAL' });
-has 'prompt_pack', $prompt, qr/^INTERNAL\n/, qr/INTERNAL\n$/, qr/EXACTLY these section headings/, qr/=== SPRINT METRICS ===\nSprint 42/, qr/=== Alpha TODAY ===\nAlpha answers/, qr/flags \(computed\):\n  red: Bob: blocked for 4 days: cert/, qr/=== Alpha PREVIOUS DAYS ===\n2026-09-22 Alpha/, qr/=== NOTES ===\nn1/;
+has 'prompt_pack', $prompt, qr/^INTERNAL\n/, qr/INTERNAL\n$/, qr/EXACTLY these section headings/, qr/=== SPRINT METRICS ===\nSprint 42/, qr/=== Alpha TODAY ===\nAlpha answers/, qr/flags \(computed\):\n  red: Bob: blocked, reported 4 days running: cert/, qr/=== Alpha PREVIOUS DAYS ===\n2026-09-22 Alpha/, qr/=== NOTES ===\nn1/;
 S 'prompt no banner', 0, (prompt_pack(date => 'd', answers => {}) =~ /^INTERNAL/ ? 1 : 0);
 my $resp = Ai::parse_response("Sure! Here is the assessment.\n\n## Highlights\n- AUTH-103 done (Ann, Bob)\n* Bravo unblocked\n\n**RISKS**\n1. cert for AUTH-104\n\nSTUCK:\n- none\n\nQuestions for leads\n- Ask Cy about RPT-202?\n\nPROGRESS\nAlpha on track, 13/18.\n");
 S 'parse_response', '{"HIGHLIGHTS":["AUTH-103 done (Ann, Bob)","Bravo unblocked"],"PROGRESS":["Alpha on track, 13/18."],"QUESTIONS FOR LEADS":["Ask Cy about RPT-202?"],"RISKS":["cert for AUTH-104"],"STUCK":[]}', $resp;

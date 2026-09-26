@@ -6,6 +6,7 @@ use FindBin;
 use lib "$FindBin::Bin/../lib";
 use Ledger ();
 binmode $_, ':encoding(UTF-8)' for \*STDOUT, \*STDERR;
+@ARGV = map { Ledger::decode_text($_) } @ARGV;                  # arguments are UTF-8 bytes from the shell: roster add "Zo\x{eb} \x{c5}ngstr\x{f6}m" ...
 use Getopt::Long qw(GetOptionsFromArray);
 use Chat;
 

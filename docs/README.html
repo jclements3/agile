@@ -56,7 +56,21 @@ its own <code>data/&lt;pilot&gt;</code> project with an exit gate before the nex
 mkdir ~/scrum && cd ~/scrum
 perl ~/tools/agile/bin/daily.pl init       # scrum.conf, scrum.txt, standups/, reports/, git init
 vim scrum.conf                               # recipients, unit, marking (or blank banner to disable)
-echo 'source ~/tools/agile/vim/scrum.vim' &gt;&gt; ~/.vimrc</pre>
+echo 'source ~/tools/agile/vim/scrum.vim' &gt;&gt; ~/.vimrc
+perl ~/tools/agile/bin/daily.pl roster add "Lee, Ann" ann.lee@example.com Alpha Lead ACME   # once per person, name exactly as Teams shows it</pre>
+
+<p>In <code>scrum.conf</code> set <code>facilitator</code> to your own Teams display name, so the lines you post in the meeting chat
+("Y/T/B in chat, please") are not linted as a status. The townhall's time and length are <code>townhall_start</code> and
+<code>townhall_minutes</code> (init writes an open hour at 07:30; set 08:30 and 15 for the fixed fifteen minutes this page describes);
+<code>daily.pl invite</code> words the invitation to match.</p>
+
+<p>Names: a value with spaces is quoted in a stand-up file (<code>o:"Bob Ray"</code>, <code>e:"Win Contracts"</code>);
+<code>commit ID owner</code> and <code>assign ID owner</code> take the rest of the line as the owner (<code>commit A-1 Bob Ray</code>,
+<code>assign A-1 "Lee, Ann"</code>). "Last, First" names work everywhere; the owner must be spelled exactly as Teams shows it.
+The first stand-up file of a new project says <code>sprint 1</code>; tasks you <code>commit</code> under it start the sprint.</p>
+
+<p>Every <code>daily.pl</code> command takes <code>--today YYYY-MM-DD</code> (catch up a missed day, replay, rehearse) and
+<code>-c FILE</code> (a scrum.conf elsewhere); <code>--dry</code> shows what <code>compile</code> would write.</p>
 
 <p>Seed the journal: either paste tasks into <code>scrum.txt</code> following <code>examples/scrum.txt</code>,
 or make today's stand-up file and use <code>new ID PTS title p:1 e:Epic o:Owner</code> lines — the
@@ -126,7 +140,9 @@ or <code>1/2/3</code>). Paste the chat into <code>standups/&lt;date&gt;-&lt;Team
 one Y/T/B line per person in <code>standups/&lt;date&gt;-&lt;Team&gt;-answers.txt</code>, logs who answered as
 attendance, runs deterministic checks (silent people, blockers, blockers persisting N days,
 the same plan N days running, unknown or off-sprint task ids, "done" claims) and writes
-suggested <code>done</code>/<code>block</code>/<code>unblock</code>/<code>absent</code> lines into the stand-up file for you to confirm.
+suggested lines into the stand-up file: <code>done</code>, <code>unblock</code> and <code>absent</code> commented for you to confirm;
+<code>block ID why</code> for a blocker that names a task (not repeated while that task is still blocked, so its age keeps counting);
+<code>risk Name: why</code> for a blocker with no task id.
 <code>daily.pl ai</code> builds a prompt from today's answers, metrics, flags and the last days' answers
 (banner included) and either writes it for pasting into your AI service (<code>ai_backend =
 paste</code>, default) or calls an OpenAI-style endpoint through Git's curl (<code>curl</code>). The reply's

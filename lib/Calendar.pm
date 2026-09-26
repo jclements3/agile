@@ -81,9 +81,9 @@ sub log_attendance {                         # append to CSV: date,team,name,sta
 sub log_rows {                                # log_rows($csv, $date, $team, [name, status], ...) ; same idempotence
     my ($path, $date, $team, @rows) = @_;
     my %have;
-    if (open my $r, '<', $path) { while (<$r>) { chomp; my @c = split /,/; $have{"$c[0],$c[1],$c[2]"}++ } close $r }
+    if (open my $r, '<:encoding(UTF-8)', $path) { while (<$r>) { chomp; my @c = split /,/; $have{"$c[0],$c[1],$c[2]"}++ } close $r }
     my $new = !-e $path;
-    open my $fh, '>>', $path or die "cannot append $path: $!\n";
+    open my $fh, '>>:encoding(UTF-8)', $path or die "cannot append $path: $!\n";
     print $fh "date,team,name,status\n" if $new;
     my $n = 0;
     for my $row (@rows) {
@@ -183,6 +183,7 @@ sub ps_encode { encode_base64(encode('UTF-16LE', $_[0]), '') }   # what -Encoded
 # ---------------------------------------------------------------- runner
 sub _run_json {
     my ($self, $script) = @_;
+    $script = "\$ProgressPreference = 'SilentlyContinue'\n$script";   # no 'Preparing modules for first use' progress XML on stderr
     my @cmd = (@{ $self->{ps_cmd} }, ps_encode($script));
     open my $ph, '-|', @cmd or die "cannot run $cmd[0]: $!\n";
     my $out = do { local $/; <$ph> };

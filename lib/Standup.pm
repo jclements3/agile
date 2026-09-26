@@ -2,6 +2,7 @@ package Standup;
 # Terse daily stand-up notes -> journal transactions + material for the day's report.
 use strict;
 use warnings;
+use Ledger ();
 use Prelude qw(sorted nub sum fmap);
 use Scrum   qw(items);
 our $VERSION = '1.00';
@@ -28,9 +29,8 @@ my %DEFAULT = (
 sub read_conf {
     my $path = shift;
     my %c = %DEFAULT;
-    if (defined $path && open my $fh, '<', $path) {
-        while (<$fh>) { next if /^\s*(#|$)/; s/\s+#.*$//; $c{ lc $1 } = $2 if /^\s*([\w.]+)\s*=\s*(.*?)\s*$/ }
-        close $fh;
+    if (defined $path && defined(my $t = Ledger::read_text($path))) {
+        for (split /\r?\n/, $t) { next if /^\s*(#|$)/; s/\s+#.*$//; $c{ lc $1 } = $2 if /^\s*([\w.]+)\s*=\s*(.*?)\s*$/ }
     }
     \%c;
 }
@@ -110,8 +110,8 @@ sub parse_standup {
         elsif ($verb eq 'redo')    { my ($id, $why) = split ' ', $rest, 2; $id ? push @{ $t->{redo} }, [ $id, $why // '' ] : $err->("redo needs an id") }
         elsif ($verb eq 'pass')    { my ($id, $to) = split ' ', $rest; $id && $to ? push @{ $t->{pass} }, [ $id, $to ] : $err->("pass needs id and the receiving team") }
         elsif ($verb eq 'sync')    { my @ids = split ' ', $rest; @ids >= 2 ? push @{ $t->{sync} }, \@ids : $err->("sync needs two or more ids") }
-        elsif ($verb eq 'commit')  { my ($id, $owner) = split ' ', $rest; $id ? push @{ $t->{commit} }, [ $id, $owner ] : $err->("commit needs an id") }
-        elsif ($verb eq 'assign')  { my ($id, $owner) = split ' ', $rest; $id && $owner ? push @{ $t->{assign} }, [ $id, $owner ] : $err->("assign needs id and owner") }
+        elsif ($verb eq 'commit')  { my ($id, $owner) = split ' ', $rest, 2; $owner = _unquote($owner); $id ? push @{ $t->{commit} }, [ $id, $owner ] : $err->("commit needs an id") }   # the owner is the rest: commit A-1 Bob Ray, commit A-1 "Lee, Ann"
+        elsif ($verb eq 'assign')  { my ($id, $owner) = split ' ', $rest, 2; $owner = _unquote($owner); $id && $owner ? push @{ $t->{assign} }, [ $id, $owner ] : $err->("assign needs id and owner") }
         elsif ($verb eq 'est')     { my ($id, $pts) = split ' ', $rest; $id && defined $pts && $pts =~ /^\d+(\.\d+)?$/ ? push @{ $t->{est} }, [ $id, $pts ] : $err->("est needs id and points") }
         elsif ($verb eq 'block')   { my ($id, $why) = split ' ', $rest, 2; $id ? push @{ $t->{block} }, [ $id, $why // '' ] : $err->("block needs an id") }
         elsif ($verb eq 'refine')  { my ($id) = split ' ', $rest; $id ? push @{ $t->{refine} }, [ $id ] : $err->("refine needs an id") }
@@ -132,7 +132,8 @@ sub parse_standup {
     push @{ $su->{errors} }, "$file: no date (put YYYY-MM-DD in the file name or on the first line)" unless $su->{date};
     $su;
 }
-sub read_standup { my $f = shift; open my $fh, '<', $f or die "cannot open $f: $!\n"; local $/; my $t = <$fh>; close $fh; parse_standup($t, $f) }
+sub _unquote { my $v = shift; return undef unless defined $v && length $v; $v =~ s/^\s+|\s+$//g; $v =~ s/^"(.*)"$/$1/; length $v ? $v : undef }
+sub read_standup { my $f = shift; my $t = Ledger::read_text($f); die "cannot open $f: $!\n" unless defined $t; parse_standup($t, $f) }
 
 # ---------------------------------------------------------------- compile to ledger text
 sub compile {                                 # compile($scrum_state, $standup) -> ledger text ; dies listing every problem
@@ -166,6 +167,13 @@ sub compile {                                 # compile($scrum_state, $standup) 
         my $committed = "Sprint:$n:$team:Committed";
         my @post;
         my $where = sub { my $id = shift; my @l = grep { $bal->($id, $_) > 1e-9 } nub(($s->{items}{$id} ? keys %{ $s->{items}{$id}{bal} } : ()), ($seen->{$id} ? keys %{ $seen->{$id} } : ())); "@l" };
+        for my $rf (@{ $t->{refine} }) {          # master (or another team's) backlog -> this team's backlog; before commits, so refine + commit in one file works
+            my ($id) = @$rf;
+            next unless $known->($id);
+            my ($from) = grep { $bal->($id, $_) > 1e-9 } ('Backlog:Master', map { "Backlog:$_" } grep { $_ ne $team } @{ $s->{teams} });
+            if (!$from) { push @err, "$su->{file}: '$id' is not in the master backlog or another team's backlog (at: " . ($where->($id) || 'nowhere') . ")"; next }
+            push @post, $move->($id, $from, "Backlog:$team", $bal->($id, $from));
+        }
         for my $c (@{ $t->{commit} }) {
             my ($id, $owner) = @$c;
             next unless $known->($id);
@@ -173,13 +181,6 @@ sub compile {                                 # compile($scrum_state, $standup) 
             if (!$from) { push @err, "$su->{file}: '$id' is not in a backlog or carryover for $team (at: " . ($where->($id) || 'nowhere') . ")"; next }
             push @post, $move->($id, $from, $committed, $bal->($id, $from));
             $post[-1] =~ s/\n\z/, owner: $owner\n/ if $owner;
-        }
-        for my $rf (@{ $t->{refine} }) {          # master (or another team's) backlog -> this team's backlog
-            my ($id) = @$rf;
-            next unless $known->($id);
-            my ($from) = grep { $bal->($id, $_) > 1e-9 } ('Backlog:Master', map { "Backlog:$_" } grep { $_ ne $team } @{ $s->{teams} });
-            if (!$from) { push @err, "$su->{file}: '$id' is not in the master backlog or another team's backlog (at: " . ($where->($id) || 'nowhere') . ")"; next }
-            push @post, $move->($id, $from, "Backlog:$team", $bal->($id, $from));
         }
         for my $pr (@{ $t->{prune} }) {           # retire a backlog task: -> this sprint's Removed; the reason rides on the posting
             my ($id, $why) = @$pr;
@@ -257,17 +258,15 @@ sub apply {                                   # compile, append to journal, mark
     my ($s, $su, $journal) = @_;
     if ($su->{file} ne '(string)' && $su->{date} && -f $journal) {   # already in the journal (a compile whose marking failed): never apply twice
         my $header = "; ---- standup $su->{date} ($su->{file})";
-        open my $r, '<', $journal or die "cannot read $journal: $!\n";
-        while (my $l = <$r>) {
-            $l =~ s/\r?\n$//; next unless $l eq $header;
-            close $r; mark_compiled($su->{file}) if -f $su->{file};
+        my $jt = Ledger::read_text($journal) // die "cannot read $journal: $!\n";
+        if (grep { $_ eq $header } split /\r?\n/, $jt) {
+            mark_compiled($su->{file}) if -f $su->{file};
             warn "$su->{file} is already in $journal: marked it compiled, applied nothing\n";
             return '';
         }
-        close $r;
     }
     my $text = compile($s, $su);
-    open my $fh, '>>', $journal or die "cannot append to $journal: $!\n";
+    open my $fh, '>>:encoding(UTF-8)', $journal or die "cannot append to $journal: $!\n";
     my $ok = print $fh $text;
     $ok = close($fh) && $ok;                  # a full disk or a locked file (OneDrive, antivirus, an editor) shows up here, not at open
     die "writing $journal failed ($!): check the end of the journal before compiling again; $su->{file} is NOT marked compiled\n" unless $ok;
@@ -276,10 +275,10 @@ sub apply {                                   # compile, append to journal, mark
 }
 sub mark_compiled {                           # rewrite through a temp file and rename: a failure never truncates the stand-up notes
     my $file = shift;
-    open my $in, '<', $file or die "cannot read $file: $!\n"; local $/; my $t = <$in>; close $in;
+    my $t = Ledger::read_text($file) // die "cannot read $file: $!\n";
     my @lt = localtime;
     my $tmp = "$file.tmp$$";
-    open my $o, '>', $tmp or die "cannot write $tmp: $!\n";
+    open my $o, '>:encoding(UTF-8)', $tmp or die "cannot write $tmp: $!\n";
     my $ok = printf $o "# compiled %04d-%02d-%02d %02d:%02d\n%s", $lt[5] + 1900, $lt[4] + 1, $lt[3], $lt[2], $lt[1], $t;
     $ok = close($o) && $ok;
     if (!$ok || !rename($tmp, $file)) { my $e = $!; unlink $tmp; die "cannot mark $file compiled ($e); it is applied -- the next compile will notice and not apply it twice\n" }
@@ -288,7 +287,7 @@ sub pending {                                 # stand-up files in $dir not yet c
     my $dir = shift;
     return () unless -d $dir;
     opendir my $dh, $dir or die "cannot read $dir: $!\n";
-    my @f = sorted(grep { /^\d{4}-\d{2}-\d{2}.*\.txt$/ && !/-(?:chat|answers)\.txt$/ } readdir $dh);   # DATE.txt, DATE-x.txt; not chats or answers
+    my @f = sorted(grep { /^\d{4}-\d{2}-\d{2}.*\.txt$/ && !/-(?:chat|answers|proposals)\.txt$/ } readdir $dh);   # DATE.txt, DATE-x.txt; not the chats, answers or proposals daily.pl writes beside them
     closedir $dh;
     grep { !read_standup($_)->{compiled} } map { "$dir/$_" } @f;
 }
@@ -297,7 +296,7 @@ sub pending {                                 # stand-up files in $dir not yet c
 sub template {                                # template($s, $date, [@teams]) -> text with open items listed as comments
     my ($s, $date, $teams) = @_;
     my $n = $s->{current};
-    my $out = "$date\n" . (defined $n ? "sprint $n\n" : "sprint ?\n") . "\n";
+    my $out = "$date\n" . (defined $n ? "sprint $n\n" : "sprint 1        ; no sprint yet: planning the first one (change the number if you continue an existing count)\n") . "\n";
     for my $team (@{ $teams // $s->{teams} }) {
         $out .= "== $team\n";
         my @open = defined $n ? items($s, state => 'committed', sprint => $n, team => $team) : ();

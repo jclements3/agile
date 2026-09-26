@@ -182,13 +182,13 @@ sub quad {                                    # quad($s, team => T, prev => $s_w
         for grep { $_->{tag} =~ /^(WAIT|PUNT|HOLD)$/ } @pri;
 
     # the two metrics
-    my ($pct, $done, $committed) = $team ? map { $sum->{teams}{$team}{$_} // 0 } qw(pct done committed) : map { $sum->{totals}{$_} // 0 } qw(pct done committed);
+    my ($pct, $done, $committed) = $team ? map { ($sum->{teams}{$team} // {})->{$_} // 0 } qw(pct done committed) : map { $sum->{totals}{$_} // 0 } qw(pct done committed);
     my $psum = sprint_summary($prev, $cur);
-    my $ppct = defined $cur && $psum->{sprint} ? ($team ? $psum->{teams}{$team}{pct} : $psum->{totals}{pct}) : undef;
+    my $ppct = defined $cur && $psum->{sprint} ? ($team ? ($psum->{teams}{$team} // {})->{pct} : $psum->{totals}{pct}) : undef;
     my $sprint_trend = !defined $ppct ? 'new' : $pct > $ppct ? 'improving' : $pct < $ppct ? 'degrading' : 'same';
     if ($sprint_trend eq 'degrading' && $o{prev2}) {   # two weeks running: the commitment was wrong, not the team (WORKFLOW #6)
         my $p2 = sprint_summary($o{prev2}, $cur);
-        my $pp2 = $p2->{sprint} ? ($team ? $p2->{teams}{$team}{pct} : $p2->{totals}{pct}) : undef;
+        my $pp2 = $p2->{sprint} ? ($team ? ($p2->{teams}{$team} // {})->{pct} : $p2->{totals}{pct}) : undef;
         $sprint_trend = 'degrading2' if defined $pp2 && $ppct < $pp2;
     }
     my @all_done = grep { defined $cur && $_->{state} eq 'done' && $_->{sprint} == $cur && $in_team->($_) } items($s);

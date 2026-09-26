@@ -165,7 +165,7 @@ my $proj = tempdir(CLEANUP => 1);
     open $fh, '>', 'standups/2026-09-22-Alpha-answers.txt' or die; print $fh "2026-09-22 Alpha\nEve (09:03)\n  Y: docs\n  T: docs\n  B: -\nBob (09:02)\n  Y: x\n  T: y\n  B: waiting on cert\n"; close $fh;
     copy("$root/examples/answers-2026-09-23-Alpha-chat.txt", 'standups/2026-09-23-Alpha-chat.txt') or die $!;
     ($rc, $o) = dcli('--today', '2026-09-23', 'answers');
-    has 'answers', $o, qr/^Alpha stand-up answers: 3 people, 0 blocked$/m, qr/INFO  1x same plan 2 days running: docs: Eve/, qr/INFO  2x says ID is done; confirm and mark: Ann \(AUTH-103\), Bob \(AUTH-103\)/, qr/wrote standups\/2026-09-23-Alpha-answers\.txt/, qr/attendance: 3 rows \(answered\)/, qr/appended suggested lines/;
+    has 'answers', $o, qr/^Alpha stand-up answers: 3 people, 0 blocked$/m, qr/INFO  1x same plan 2 days running: docs: Eve/, qr/INFO  2x says ID is done; confirm and mark: Ann \(AUTH-103\), Bob \(AUTH-103\)/, qr/wrote standups\/2026-09-23-Alpha-answers\.txt/, qr/attendance: 3 rows \(3 answered\)/, qr/appended suggested lines/;
     S 'answers rc', 0, $rc;
     my $su = do { open my $r, '<', 'standups/2026-09-23.txt'; local $/; <$r> };
     has 'answers in standup file', $su, qr/; ---- answers 2026-09-23 Alpha\n== Alpha\n; done AUTH-103   ; Ann, Bob say done\n; note Bob: cert arrived, unblocked/;
@@ -241,6 +241,15 @@ use Answers qw(propose assumed_record);
     my @fl2 = flags($s, 'Alpha', [ $a ], [ $back ], roster => [ 'Bob' ]);
     S 'assumed two days running is red', '["red","2 days running"]', [ $fl2[0]{level}, ($fl2[0]{text} =~ /\((\d days running)\)/)[0] ];
     S 'suggest_lines never marks an assumed status done', 1, (suggest_lines($s, 'Alpha', [ $a ], \@fl) !~ /^\s*;?\s*done/m ? 1 : 0);
+}
+
+# found in the first-week walkthrough: first names, no re-block while blocked
+S 'first_name', '["Ann","Bob","Pat","Zoë"]', [ map { Answers::first_name($_) } 'Lee, Ann', 'Bob Ray', "O'Neil, Pat (Guest)", 'Zoë Ångström' ];
+{   my $already = (grep { $_->{blocked} } items($s))[0];
+    if ($already) {
+        my @a = ({ who => 'X', blocked => 1, b => "waiting $already->{id}", ids => { b => [ $already->{id} ], y => [], t => [] } });
+        S 'no block line for a task already blocked', 0, (suggest_lines($s, $already->{team}, \@a, []) =~ /^block \Q$already->{id}\E/m ? 1 : 0);
+    } else { S 'no block line for a task already blocked (fixture has a blocked task)', 1, 0 }
 }
 
 print "1..$n\n";

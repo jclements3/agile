@@ -25,6 +25,8 @@ my %o;
 GetOptionsFromArray(\@ARGV, 'c|conf=s' => \$o{conf}, 'today=s' => \$o{today}, 'dry' => \$o{dry}, 'draft' => \$o{draft},
     'to=s' => \$o{to}, 'cc=s' => \$o{cc}, 'subject=s' => \$o{subject}, 'team=s' => \$o{team}, 'send' => \$o{send}, 'force' => \$o{force}, 'guess' => \$o{guess}, 'reply' => \$o{reply}, 'assume' => \$o{assume}, 'private' => \$o{private}, 'table' => \$o{table}, 'confirm' => \$o{confirm}, 'n=i' => \$o{n}, 'sheet' => \$o{sheet}, 'grade=s' => \$o{grade}) or exit 2;
 my $cmd = shift @ARGV // 'status';
+binmode STDIN, ':encoding(UTF-8)';                           # the drill's typed answers
+binmode $_, ':encoding(UTF-8)' for \*STDOUT, \*STDERR;     # everything inside is characters (Ledger::read_text decodes); the terminal gets UTF-8
 
 # ---- locate project
 my $conf_path = $o{conf} // find_conf();
@@ -45,12 +47,12 @@ my %cmds = (
     roster   => \&cmd_roster,  invite  => \&cmd_invite,  drill => \&cmd_drill,
     health   => \&cmd_health,  review  => \&cmd_review,  rollup => \&cmd_rollup,  csv => \&cmd_csv,
     quad     => sub { my $s = $load->(); print quad_text($s, team => $_[0], marking => $conf); 0 },
-    sprint   => sub { print sprint_text($load->(), $_[0]) },
-    velocity => sub { print velocity_text($load->()) },
-    backlog  => sub { print backlog_text($load->(), $_[0]) },
-    members  => sub { print members_text($load->(), $_[0]) },
-    epics    => sub { print epics_text($load->()) },
-    roadmap  => sub { print roadmap_text($load->()) },
+    sprint   => sub { print sprint_text($load->(), $_[0]); 0 },
+    velocity => sub { print velocity_text($load->()); 0 },
+    backlog  => sub { print backlog_text($load->(), $_[0]); 0 },
+    members  => sub { print members_text($load->(), $_[0]); 0 },
+    epics    => sub { print epics_text($load->()); 0 },
+    roadmap  => sub { print roadmap_text($load->()); 0 },
     blocked  => sub { my $s = $load->(); for (sort { blocked_days($s, $b) <=> blocked_days($s, $a) } blocked($s)) { my $d = blocked_days($s, $_); printf "%-10s %-12s %3dd  %s%s\n", $_->{id}, $_->{team} // '', $d, $_->{blocked}, $d > 5 ? '   (over 5 days: yours)' : $d > 3 ? '   (escalate)' : '' } 0 },
 );
 if (!$cmds{$cmd}) { print STDERR "commands: init new status compile report draft brief commit all check attend post meetings chat answers lint propose roster invite drill health review rollup csv quad ai joined cards sprint velocity backlog members epics roadmap blocked\n"; exit 2 }
@@ -63,7 +65,7 @@ sub cmd_new {
     my $path = "$conf->{standups}/$today.txt";
     if (-e $path) { print "exists\n$path\n"; return 0 }
     my $s = $load->();
-    open my $fh, '>', $path or die "cannot write $path: $!\n";
+    open my $fh, '>:encoding(UTF-8)', $path or die "cannot write $path: $!\n";
     print $fh template($s, $today, @teams ? \@teams : undef);
     close $fh;
     print "created\n$path\n";
@@ -206,7 +208,7 @@ sub cmd_csv {                                 # csv [items|sprints|epics|intake|
     my $what = shift;
     my $s = $load->();
     my %hopt = _health_opts($s);
-    if ($what) { my $t = eval { Metrics::csv($s, $what, %hopt) }; if (!defined $t) { print STDERR $@; return 2 } binmode STDOUT, ':encoding(UTF-8)'; print $t; return 0 }
+    if ($what) { my $t = eval { Metrics::csv($s, $what, %hopt) }; if (!defined $t) { print STDERR $@; return 2 } print $t; return 0 }
     mkdir $conf->{reports} unless -d $conf->{reports};
     for my $w (@Metrics::CSV) { my $f = "$conf->{reports}/$w.csv"; open my $fh, '>:raw:encoding(UTF-8)', $f or die "cannot write $f: $!\n"; print $fh "\x{FEFF}" . Metrics::csv($s, $w, %hopt); close $fh; print "wrote $f\n" }
     0;
@@ -284,7 +286,7 @@ sub cmd_attend {                              # attendee responses -> today's st
     if (!@ev) { print "no stand-up meetings on $today (standup_match = $conf->{standup_match})\n"; return 0 }
     my $path = "$conf->{standups}/$today.txt";
     cmd_new() unless -e $path;
-    my $body = do { open my $r, '<', $path or die $!; local $/; <$r> };
+    my $body = (Ledger::read_text($path) // die "cannot read $path: $!\n");
     my $added = '';
     for my $ev (@ev) {
         my $team = $cal->team_for($ev, $conf, $s->{teams});
@@ -295,7 +297,7 @@ sub cmd_attend {                              # attendee responses -> today's st
         next if index($body, $lines) >= 0;                      # already there
         $added .= ($team ? "== $team\n" : '') . $lines;
     }
-    if ($added) { open my $w, '>>', $path or die $!; print $w "\n; ---- calendar $today\n$added"; close $w; print "appended attendance to $path\n" }
+    if ($added) { open my $w, '>>:encoding(UTF-8)', $path or die $!; print $w "\n; ---- calendar $today\n$added"; close $w; print "appended attendance to $path\n" }
     0;
 }
 sub cmd_post {                                # today's metrics text into each stand-up meeting body (--send to update attendees)
@@ -320,13 +322,13 @@ sub cmd_chat {                                # standups/DATE-chat.txt (pasted T
     my $s = $load->();
     my $chat = $ARGV[0] // "$conf->{standups}/$today-chat.txt";
     if (!-e $chat) { print "no chat file: $chat  (paste the Teams meeting chat there)\n"; return 1 }
-    my $text = do { open my $r, '<', $chat or die "cannot open $chat: $!\n"; local $/; <$r> };
+    my $text = (Ledger::read_text($chat) // die "cannot open $chat: $!\n");
     my ($report, $lines, $n) = report($text);
     if (!$n) { print "no #est / #vote markers in $chat\n"; return 1 }
     print $report;
     my $path = "$conf->{standups}/$today.txt";
     cmd_new() unless -e $path;
-    my $body = do { open my $r, '<', $path or die $!; local $/; <$r> };
+    my $body = (Ledger::read_text($path) // die "cannot read $path: $!\n");
     $lines =~ s/^(est (\S+) .*)$/ $s->{items}{$2} ? $1 : "; $1   ; task not in journal yet" /gme;    # never break compile
     my (%per_team, @global);                                                                          # est lines go under the task's team section
     for my $l (split /\n/, $lines) {
@@ -336,7 +338,7 @@ sub cmd_chat {                                # standups/DATE-chat.txt (pasted T
     }
     $lines = join('', map { "== $_\n" . join('', map { "$_\n" } @{ $per_team{$_} }) } sorted(keys %per_team)) . (@global ? "==\n" . join('', map { "$_\n" } @global) : '');
     return 0 if index($body, $lines) >= 0;
-    open my $w, '>>', $path or die $!;
+    open my $w, '>>:encoding(UTF-8)', $path or die $!;
     print $w "\n; ---- chat $today\n$lines";
     close $w;
     print "appended to $path (uncomment the est lines you accept; note lines apply as-is)\n";
@@ -362,7 +364,7 @@ sub cmd_roster {                              # roster            list by team, 
         Roster::write_roster('roster.txt', $r);
         return 0;
     }
-    if (!@$r) { print "no roster.txt yet. One line per person:  Name | email | Team | Role | Org   (name = the Teams display name)\n  or: daily.pl roster add \"Ann Lee\" ann.lee\@example.com Alpha Lead \"ACME\"\n"; return 1 }
+    if (!@$r) { print -e 'roster.txt' ? "roster.txt has nobody in it yet." : "no roster.txt yet. One line per person:  Name | email | Team | Role | Org   (name = the Teams display name)\n  or: daily.pl roster add \"Ann Lee\" ann.lee\@example.com Alpha Lead \"ACME\"\n"; return 1 }
     print Roster::roster_text($r);
     my @p = Roster::roster_check($load->(), $r);
     print "check:\n", map { sprintf "  %-5s %s\n", uc $_->{level}, $_->{text} } @p if @p;
@@ -379,7 +381,8 @@ sub cmd_invite {                              # invite [--dry]: the recurring to
     my $loc     = $conf->{townhall_location} || 'Microsoft Teams Meeting';
     my $first   = $today; { my @t = localtime; my $dow = $t[6]; my $add = $dow == 6 ? 2 : $dow == 0 ? 1 : 0; if ($add) { my $t = time + $add * 86400; my @d = localtime $t; $first = sprintf '%04d-%02d-%02d', $d[5] + 1900, $d[4] + 1, $d[3] } }
     my $body = join "\n",
-        "$subject: an open hour, every weekday $start for $minutes minutes. Join when you can, post your status on arrival, leave when you are done -- stay if you need to clear a blocker with another team.",
+        ($minutes <= 20 ? "$subject: every weekday $start for $minutes minutes, all teams on one call. Post your status in the chat as you join; say on the line if you need another team, and take it to a follow-up -- it is not worked live."
+                         : "$subject: an open hour, every weekday $start for $minutes minutes. Join when you can, post your status on arrival, leave when you are done -- stay if you need to clear a blocker with another team."),
         '',
         'Post ONE line in the meeting chat, capital Y T B as separators, your task ids in it:',
         '    Y did B-11   T doing B-12   B none',
@@ -402,7 +405,6 @@ sub cmd_drill {                               # drill [Team] [-n N]: the memory 
     my $prog = Drill::read_progress($file);
     my $roster = Roster::read_roster('roster.txt');
     my $s = $load->();
-    binmode STDOUT, ':encoding(UTF-8)';
     if ($o{grade}) {
         open my $fh, '<:encoding(UTF-8)', $o{grade} or die "cannot read $o{grade}: $!\n"; my $text = do { local $/; <$fh> }; close $fh;
         my ($t) = $text =~ /^; team: (.+?)\s*$/m;
@@ -428,7 +430,7 @@ sub cmd_drill {                               # drill [Team] [-n N]: the memory 
         return 0;
     }
     print "memory drill: " . scalar(@pick) . " cards. Terse answers (ids, codes, initials, any order, any case); ? = don't know, q = stop.\n";
-    my $st = Drill::drill_loop(\@pick, $prog, in => \*STDIN, out => \*STDOUT, today => $today, save => sub { Drill::write_progress($file, $prog) });
+    my $st = Drill::drill_loop(\@pick, $prog, in => \*STDIN, out => \*STDOUT, today => $today, ask_hook => (-t STDIN ? 1 : 0), save => sub { Drill::write_progress($file, $prog) });
     $st->{miss} ? 1 : 0;
 }
 sub _private_page {                           # --private: reports/<date>-<kind>.html with a 1:1 Teams link per person, message pre-filled
@@ -443,7 +445,6 @@ sub _private_page {                           # --private: reports/<date>-<kind>
 }
 sub cmd_propose {                             # propose [Team] [--private]: today's status drafted from yesterday's, one paste-ready line per person (post before/during the meeting)
     my @teams = @_ ? @_ : @{ $load->()->{teams} };
-    binmode STDOUT, ':encoding(UTF-8)';
     my $s = $load->();
     my (@private, @proposals);
     for my $team (@teams) {
@@ -451,7 +452,7 @@ sub cmd_propose {                             # propose [Team] [--private]: toda
         my @p = propose($s, $team, \@h, roster => [ _roster($s, $team) ]);
         next unless @p;
         push @proposals, @p;
-        if ($o{private}) { push @private, map { { who => $_->{who}, text => "Hey " . ($_->{who} =~ /^(\S+)/)[0] . "! Your status for today, from yesterday's: Y $_->{y}" . ($_->{line} =~ / done\? / ? ' done?' : '') . " T $_->{t} B $_->{b}  -- \x{1F44D} if right, or post your own Y/T/B in the meeting chat" } } @p; next }
+        if ($o{private}) { push @private, map { { who => $_->{who}, text => "Hey " . Answers::first_name($_->{who}) . "! Your status for today, from yesterday's: Y $_->{y}" . ($_->{line} =~ / done\? / ? ' done?' : '') . " T $_->{t} B $_->{b}  -- \x{1F44D} if right, or post your own Y/T/B in the meeting chat" } } @p; next }
         print "== $team" . (@h ? "  (from $h[0]{date})" : '  (no history yet)') . "\n";
         print "$_->{line}\n" for @p;
         print "\n";
@@ -469,7 +470,6 @@ sub cmd_propose {                             # propose [Team] [--private]: toda
 }
 sub cmd_lint {                                # lint [FILE|-] [--reply]: check every Y/T/B status in a pasted chat, during the meeting
     my @args = @_;                            # FILE:LINE: prefix per person (Vim quickfix); --reply prints only the lines to paste back into the chat
-    binmode STDOUT, ':encoding(UTF-8)';                  # the reply carries a thumbs-up
     my $reply = $o{reply};
     my @files = @args;
     @files = map { $_->[0] } _chat_files() unless @files;
@@ -479,8 +479,10 @@ sub cmd_lint {                                # lint [FILE|-] [--reply]: check e
     my ($ex1, $ex2) = (sorted(keys %known))[0, 1];
     my $rc = 0;
     for my $f (@files) {
-        my $text = do { local $/; $f eq '-' ? <STDIN> : do { open my $r, '<', $f or die "cannot open $f: $!\n"; <$r> } };
-        my @r = lint_chat($text, known => \%known, example => $ex1 // 'B-11', example2 => $ex2 // 'B-12', proposals => read_proposals("$conf->{standups}/$today-proposals.txt"));
+        my $text = $f eq '-' ? do { local $/; binmode STDIN, ':raw'; Ledger::decode_text(scalar <STDIN>) } : Ledger::read_text($f);
+        if (!defined $text) { print STDERR "cannot open $f: $!\n"; return 1 }
+        my @r = grep { !_facilitator($_->{who}) } lint_chat($text, known => \%known, example => $ex1 // 'B-11', example2 => $ex2 // 'B-12', examples => _own_examples($s),
+                                                           proposals => read_proposals("$conf->{standups}/$today-proposals.txt"));
         # --confirm: everyone hears back; a clean status comes back as "I read it as ..." for a thumbs-up -- until they have been clean for
         # readback_clean_days running (scrum.conf, default 5): then only errors and warnings, the read-back has done its teaching
         my $mature = $conf->{readback_clean_days} // 5;
@@ -506,6 +508,16 @@ sub cmd_lint {                                # lint [FILE|-] [--reply]: check e
     }
     $rc;
 }
+sub _facilitator {                           # facilitator = Name[; Name] in scrum.conf: your own chat lines ("Y/T/B in chat, please") are not statuses
+    my $who = shift // '';
+    my %f = map { lc($_) => 1 } grep { length } split /\s*;\s*/, $conf->{facilitator} // '';
+    $f{ lc $who } ? 1 : 0;
+}
+sub _own_examples {                           # name -> [ two of their task ids ]: in-sprint first, then queued
+    my $s = shift;
+    my $m = members($s);
+    +{ map { my $r = $m->{$_}; my @ids = map { $_->{id} } @{ $r->{wip} }, @{ $r->{backlog} }; @ids ? ($_ => [ @ids[0 .. ($#ids < 1 ? $#ids : 1)] ]) : () } keys %$m };
+}
 sub _chat_files {                             # standups/DATE[-Team]-chat.txt -> ( [file, team], ... )
     opendir my $d, $conf->{standups} or return ();
     my @f = sorted(grep { /^\Q$today\E(?:-(.+?))?-chat\.txt$/ } readdir $d);
@@ -523,8 +535,8 @@ sub cmd_answers {                             # parse each pasted chat for Y/T/B
     for my $cf (@cf) {
         my ($file, $team0) = @$cf;
         $team0 //= (@{ $s->{teams} } == 1 ? $s->{teams}[0] : undef);
-        my $text = do { open my $r, '<', $file or die "cannot open $file: $!\n"; local $/; <$r> };
-        my @all = parse_answers($text, guess => $o{guess}, proposals => read_proposals("$conf->{standups}/$today-proposals.txt"));   # --guess: accept the lint's "did you mean" reading where the strict one failed (they thumbed it up); a "+1" accepts the day's proposal
+        my $text = (Ledger::read_text($file) // die "cannot open $file: $!\n");
+        my @all = grep { !_facilitator($_->{who}) } parse_answers($text, guess => $o{guess}, proposals => read_proposals("$conf->{standups}/$today-proposals.txt"));   # --guess: accept the lint's "did you mean" reading where the strict one failed (they thumbed it up); a "+1" accepts the day's proposal
         if (!@all) { print "$file: no Y/T/B answers found\n"; $rc = 1; next }
         my %by;                                                          # a joint meeting: split answers by the answerer's team (journal owners)
         if (defined $team0) { $by{$team0} = \@all }
@@ -533,26 +545,27 @@ sub cmd_answers {                             # parse each pasted chat for Y/T/B
       TEAM: for my $team (sorted(grep { $_ ne '?' } keys %by)) {
         my @ans = @{ $by{$team} };
         my $af = answers_path($conf->{standups}, $today, $team);
-        open my $w, '>', $af or die "cannot write $af: $!\n"; print $w answers_text($today, $team, @ans); close $w;
+        open my $w, '>:encoding(UTF-8)', $af or die "cannot write $af: $!\n"; print $w answers_text($today, $team, @ans); close $w;
         my @h  = history($conf->{standups}, $team, $today, $conf->{history_days});
         if ($o{assume}) {                     # --assume: the silent get yesterday's proposal on the record, marked assumed (visible, escalating, never done)
             my %seen = map { $_->{who} => 1 } @ans;
             my @silent = grep { !$seen{$_} } _roster($s, $team);
             my @p = grep { !$seen{ $_->{who} } } propose($s, $team, \@h, roster => \@silent);
             push @ans, map { assumed_record($_) } @p;
-            open my $w2, '>', $af or die "cannot write $af: $!\n"; print $w2 answers_text($today, $team, @ans); close $w2;
+            open my $w2, '>:encoding(UTF-8)', $af or die "cannot write $af: $!\n"; print $w2 answers_text($today, $team, @ans); close $w2;
             print "  assumed for the silent: " . join(', ', map { $_->{who} } @p) . "\n" if @p;
         }
         my @fl = flags($s, $team, \@ans, \@h, roster => [ _roster($s, $team) ]);
         print answers_report($team, \@ans, \@fl), "wrote $af\n";
-        my $n = Calendar::log_rows($conf->{attendance}, $today, $team // '?', map { [ $_->{who}, 'answered' ] } @ans);
-        print "  attendance: $n rows (answered) -> $conf->{attendance}\n" if $n;
+        my $n = Calendar::log_rows($conf->{attendance}, $today, $team // '?', map { [ $_->{who}, $_->{assumed} ? 'assumed' : 'answered' ] } @ans);   # silence is recorded, never rewarded
+        my $as = grep { $_->{assumed} } @ans;
+        print "  attendance: $n rows (" . (@ans - $as) . " answered" . ($as ? ", $as assumed" : '') . ") -> $conf->{attendance}\n" if $n;
         my $lines = suggest_lines($s, $team, \@ans, \@fl);
         next TEAM unless $lines;
         cmd_new() unless -e $path;
-        my $body = do { open my $r, '<', $path or die $!; local $/; <$r> };
+        my $body = (Ledger::read_text($path) // die "cannot read $path: $!\n");
         next TEAM if index($body, $lines) >= 0;
-        open my $a, '>>', $path or die $!;
+        open my $a, '>>:encoding(UTF-8)', $path or die $!;
         print $a "\n; ---- answers $today $team\n== $team\n$lines";
         close $a;
         print "  appended suggested lines to $path\n";
@@ -649,6 +662,7 @@ townhall_subject  = Daily townhall
 townhall_start    = 07:30
 townhall_minutes  = 60
 townhall_location = Microsoft Teams Meeting
+facilitator       =                 # your Teams display name (; between several): your own chat lines are not linted as statuses
 
 # calendar (Outlook/Teams via PowerShell COM). calendar = mock + calendar_fixture = file.json for offline use
 standup_match     = stand-?up
@@ -684,7 +698,7 @@ JOURNAL
     );
     for my $f (sorted(keys %files)) {
         if (-e $f) { print "kept    $f\n"; next }
-        open my $fh, '>', $f or die "cannot write $f: $!\n"; print $fh $files{$f}; close $fh;
+        open my $fh, '>:encoding(UTF-8)', $f or die "cannot write $f: $!\n"; print $fh $files{$f}; close $fh;
         print "created $f\n";
     }
     mkdir $_ for grep { !-d } qw(standups reports);
@@ -694,9 +708,10 @@ JOURNAL
     print <<"EOF";
 
 Next:
-  1. edit scrum.conf (recipients, markings)
-  2. add tasks to scrum.txt, or use  daily.pl new  and 'new ID PTS title' lines
-  3. add to ~/.vimrc:   source $vim
+  1. edit scrum.conf (recipients, markings, townhall time, facilitator = your Teams display name)
+  2. the people:  daily.pl roster add "Lee, Ann" ann.lee\@example.com Alpha Lead ACME   (name exactly as Teams shows it)
+  3. the backlog: daily.pl new, then 'new ID PTS title e:Epic t:Tome o:"Owner Name"' lines under '== Team', then compile
+  4. add to ~/.vimrc:   source $vim
      then in Vim:  :SNew  :SCompile  :SReport  :SDraft  :SAll  :SStatus
 EOF
     0;

@@ -112,9 +112,9 @@ sub team_of {                                 # name -> team via journal members
 sub log_report {                              # append to attendance.csv (date,team,name,status[,join,leave,minutes]); idempotent per date+team+name
     my ($path, $date, $rep, %o) = @_;
     my %have;
-    if (open my $r, '<', $path) { while (<$r>) { chomp; my @c = split /,/; $have{"$c[0],$c[1],$c[2]"}++ } close $r }
+    if (open my $r, '<:encoding(UTF-8)', $path) { while (<$r>) { chomp; my @c = split /,/; $have{"$c[0],$c[1],$c[2]"}++ } close $r }
     my $new = !-e $path;
-    open my $fh, '>>', $path or die "cannot append $path: $!\n";
+    open my $fh, '>>:encoding(UTF-8)', $path or die "cannot append $path: $!\n";
     print $fh "date,team,name,status,join,leave,minutes\n" if $new;
     my $n = 0;
     for my $row (rows($rep, %o)) {

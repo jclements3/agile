@@ -97,12 +97,27 @@ sub this_month { my @t = localtime; sprintf '%04d-%02d', $t[5] + 1900, $t[4] + 1
 # txn     = { date, status, payee, comment, line, file, postings => [ posting ] }
 # posting = { account, amount => {c=>n} | undef, cost => {c=>n} | undef, virtual => 0|'balanced'|'unbalanced', comment, line }
 
+sub decode_text {                             # bytes -> characters: a UTF-8 BOM dropped; UTF-8, or Windows-1252 when the bytes are not valid UTF-8 (Notepad, Excel)
+    my $b = shift // '';
+    return $b if utf8::is_utf8($b);
+    $b =~ s/^\xEF\xBB\xBF//;
+    require Encode;
+    my $copy = $b;
+    my $t = eval { Encode::decode('UTF-8', $copy, Encode::FB_CROAK()) };
+    defined $t ? $t : Encode::decode('cp1252', $b);
+}
+sub read_text {                               # read_text($file) -> the file as characters (decode_text), or undef if it cannot be opened
+    my $file = shift;
+    open my $fh, '<:raw', $file or return undef;
+    local $/;
+    my $b = <$fh>;
+    close $fh;
+    decode_text($b // '');
+}
 sub read_journal {
     my ($file, %opt) = @_;
-    open my $fh, '<', $file or die "cannot open $file: $!\n";
-    local $/;
-    my $text = <$fh>;
-    close $fh;
+    my $text = read_text($file);
+    die "cannot open $file: $!\n" unless defined $text;
     parse_journal($text, $file, %opt);
 }
 
@@ -152,7 +167,7 @@ sub _parse_into {
             my $inc = $1;
             (my $dir = $file) =~ s{[^/\\]*$}{};
             $inc = "$dir$inc" if $dir ne '' && $inc !~ m{^(/|[A-Za-z]:)};
-            if (open my $fh, '<', $inc) { local $/; my $t = <$fh>; close $fh; _parse_into($j, $t, $inc) }
+            if (defined(my $t = read_text($inc))) { _parse_into($j, $t, $inc) }
             else { $err->($ln, "cannot include '$inc': $!") }
         }
         elsif ($line =~ /^comment\b/) {

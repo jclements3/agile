@@ -4,15 +4,16 @@ use strict;
 use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
+use Ledger ();
+binmode $_, ':encoding(UTF-8)' for \*STDOUT, \*STDERR;
 use Getopt::Long qw(GetOptionsFromArray);
 use Chat;
 
 my %o;
 GetOptionsFromArray(\@ARGV, 'est=s' => \$o{est}, 'vote=s' => \$o{vote}, 'since=s' => \$o{since}, 'options=s' => \$o{options}, 'lines' => \$o{lines}, 'messages' => \$o{messages}) or exit 2;
 my $file = shift @ARGV // '-';
-open my $fh, '<', $file or die "cannot open $file: $!\n";
-my $text = do { local $/; <$fh> };
-close $fh;
+my $text = $file eq '-' ? do { local $/; binmode STDIN, ':raw'; Ledger::decode_text(scalar <STDIN>) } : Ledger::read_text($file);
+die "cannot open $file: $!\n" unless defined $text;
 if ($o{messages}) { printf "%s %-20s %s\n", $_->{time} // '--:--', $_->{who}, (split /\n/, $_->{text})[0] // '' for parse_chat($text); exit 0 }
 if (defined $o{est} || defined $o{vote}) {
     my @m = parse_chat($text);

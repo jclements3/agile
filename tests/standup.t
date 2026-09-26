@@ -313,6 +313,26 @@ my ($rc, $out);
     S 'no temp file left behind', '[]', [ grep { /\.tmp/ } do { opendir(my $dh, $d) or die; readdir $dh } ];
 }
 
+# found in the first-week walkthrough
+{   my $su = parse_standup("2026-09-01\nsprint 1\n== Alpha\ncommit A-1 Bob Ray\nassign A-2 \"Lee, Ann\"\ncommit A-3\n", 'x.txt');
+    S 'commit/assign take the rest of the line as the owner', '[["A-1","Bob Ray"],["A-3",undef]]', $su->{teams}{Alpha}{commit};
+    S 'assign with a quoted "Last, First"', '[["A-2","Lee, Ann"]]', $su->{teams}{Alpha}{assign};
+    my $d = tempdir(CLEANUP => 1); mkdir "$d/standups";
+    for my $f ('2026-09-01.txt', '2026-09-01-proposals.txt', '2026-09-01-chat.txt', '2026-09-01-Alpha-answers.txt') { open my $w, '>', "$d/standups/$f" or die; print $w "2026-09-01\n"; close $w }
+    S 'pending skips proposals, chats and answers', '["2026-09-01.txt"]', [ map { (split m{/})[-1] } pending("$d/standups") ];
+    open my $j, '>', "$d/scrum.txt" or die; print $j "2026-08-31 Intake M-1 Master\n    Backlog:Master   5 SP   ; id: M-1\n    Equity:Intake\n\n"; close $j;
+    my $t = compile(Scrum::load("$d/scrum.txt"), parse_standup("2026-09-01\nsprint 1\n== Alpha\nrefine M-1\ncommit M-1 Bob Ray\n", 'y.txt'));
+    has 'refine then commit in one file', $t, qr/Backlog:Master\s+-5 SP.*\n\s+Backlog:Alpha\s+5 SP/, qr/Sprint:1:Alpha:Committed\s+5 SP\s+; id: M-1, owner: Bob Ray/;
+    open my $b, '>:raw', "$d/standups/2026-09-02.txt" or die; print $b "\xEF\xBB\xBF2026-09-02\r\nsprint 1\r\n== Alpha\r\nnew C-1 3 Cr\xe8me br\xfbl\xe9e o:\"Ren\xe9e Dupr\xe9\"\r\n"; close $b;   # a BOM, CRLF, and Windows-1252 bytes (Notepad)
+    my $u = read_standup("$d/standups/2026-09-02.txt");
+    S 'BOM + CRLF + cp1252 stand-up reads as text', '[[],"2026-09-02",1,1]', [ $u->{errors}, $u->{date}, ($u->{teams}{Alpha}{new}[0]{title} eq "Cr\x{e8}me br\x{fb}l\x{e9}e" ? 1 : 0), ($u->{teams}{Alpha}{new}[0]{meta}{owner} eq "Ren\x{e9}e Dupr\x{e9}" ? 1 : 0) ];
+    my $tpl = template(Scrum::load("$d/scrum.txt"), '2026-09-03', ['Alpha']);
+    has 'a new project\'s template starts sprint 1', $tpl, qr/^sprint 1\s+; no sprint yet/m;
+}
+{   my ($rc) = cli('-c', "$proj/scrum.conf", 'sprint'); my ($rc2) = cli('-c', "$proj/scrum.conf", 'velocity');
+    S 'view commands exit 0', '[0,0]', [ $rc, $rc2 ];
+}
+
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";
 exit($bad ? 1 : 0);

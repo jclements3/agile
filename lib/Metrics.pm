@@ -193,7 +193,7 @@ sub signals {                                 # signals($s, team => T, prev => $
     # sprint progress degrading two weeks running (against the journal a week and two weeks ago)
     if ($o{prev} && $o{prev2} && defined $cur) {
         for my $t (@teams, ($o{team} ? () : undef)) {
-            my @p = map { my $x = sprint_summary($_, $cur); defined $t ? $x->{teams}{$t}{pct} : $x->{totals}{pct} } $s, $o{prev}, $o{prev2};
+            my @p = map { my $x = sprint_summary($_, $cur); defined $t ? ($x->{teams}{$t} // {})->{pct} : $x->{totals}{pct} } $s, $o{prev}, $o{prev2};
             next if grep { !defined } @p;
             $add->('amber', 'sprint progress', $t, "sprint progress degrading two weeks running ($p[2]% -> $p[1]% -> $p[0]%): the commitment was wrong, not the team") if $p[0] < $p[1] && $p[1] < $p[2];
         }

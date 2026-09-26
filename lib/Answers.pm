@@ -80,6 +80,7 @@ sub _fields {                                 # ($message_text) -> (\%got, \@err
     (\%got, \@err);
 }
 my $ACK = qr/^\s*(?:\+1|y|yes|yep|ok|okay|same|ditto|confirmed?|\x{1F44D}|\x{2705})\s*[.!]?\s*$/i;   # two keystrokes: accept today's proposed status
+sub first_name { my $w = shift // ''; $w =~ s/\s*\((?:Guest|External|Unverified)\)$//i; $w =~ /^[^,]+,\s*(\S+)/ ? $1 : ($w =~ /^(\S+)/)[0] // $w }   # "Lee, Ann" -> Ann; "Bob Ray" -> Bob
 sub is_ack { my $t = shift // ''; $t =~ $ACK ? 1 : 0 }
 sub read_proposals {                          # standups/<date>-proposals.txt (written by daily.pl propose) -> { who => { y, t, b } }
     my $file = shift; my %p;
@@ -161,10 +162,10 @@ sub lint_chat {                               # the same reading parse_answers m
         %$p = (who => $p->{who}, line => $p->{line}, time => $p->{time}, %$r);
     }
     # the reply is written to be pasted into the chat as-is: a question the person can answer with a thumbs-up
-    my $fmt = 'Y did ' . ($o{example} // 'B-11') . ' T doing ' . ($o{example2} // 'B-12') . ' B none';
     for my $r (values %by) {
-        my ($first) = $r->{who} =~ /^(\S+)/;
-        my $hey = "Hey $first! ";
+        my ($e1, $e2) = @{ ($o{examples} // {})->{ $r->{who} } // [] };   # the person's own tasks when known, so the example is one they can repost as-is
+        my $fmt = 'Y did ' . ($e1 // $o{example} // 'B-11') . ' T doing ' . ($e2 // $e1 // $o{example2} // 'B-12') . ' B none';
+        my $hey = 'Hey ' . first_name($r->{who}) . '! ';
         $r->{confirm} = $r->{ok} ? $hey . "I read your status as: Y $r->{y} / T $r->{t} / B $r->{b}  \x{1F44D} if right, or repost." : '';   # the table entry, for a thumbs-up (lint --reply --confirm)
         $r->{reply} = !$r->{ok} && $r->{guess} ? $hey . "Did you mean: Y $r->{guess}{y} / T $r->{guess}{t} / B $r->{guess}{b} ?  \x{1F44D} if yes, or repost as: $fmt"
                     : !$r->{ok}               ? $hey . "I couldn't read your status (" . join('; ', @{ $r->{errors} }) . "). Repost as: $fmt"
@@ -233,7 +234,7 @@ sub answers_text {                            # serialise for standups/<date>-an
 }
 sub read_answers {                            # -> { date, team, answers => [ ... ] }  (same record shape as parse_answers)
     my $file = shift;
-    open my $fh, '<', $file or die "cannot open $file: $!\n";
+    open my $fh, '<:encoding(UTF-8)', $file or die "cannot open $file: $!\n";
     my @l = <$fh>;
     close $fh;
     chomp @l;
@@ -342,6 +343,7 @@ sub suggest_lines {                           # from answers + flags: done (comm
         if ($r->{blocked}) {
             my ($id) = @{ $r->{ids}{b} };
             (my $why = $r->{b}) =~ s/,/;/g;
+            next if $id && $s->{items}{$id} && $s->{items}{$id}{blocked};   # already blocked in the journal: its age keeps counting, nothing to add
             $out .= $id && $s->{items}{$id} ? "block $id $why\n" : "risk $r->{who}: $why\n";
         }
         else {

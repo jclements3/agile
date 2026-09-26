@@ -32,7 +32,7 @@ sub days_from_standups {                      # days_from_standups($s, $standups
 sub plates_index {                            # plates_index($plates_html_file) -> [ { node, title, page, depth } ] from the toolkit's node index table
     my $file = shift;
     return [] unless defined $file && -f $file;
-    open my $fh, '<', $file or return [];
+    open my $fh, '<:encoding(UTF-8)', $file or return [];
     local $/; my $html = <$fh>; close $fh;
     my @ix;
     while ($html =~ m{<tr><td><a href='#plate-([\w-]+)'>[^<]*</a></td><td[^>]*>([^<]*)</td><td><a href='#plate-[\w-]+'>(p\.\d+)</a></td></tr>}g) {
@@ -83,7 +83,7 @@ sub snapshot {                                # snapshot($s, days => [...], atte
         my $r = sprint_summary($s, $n);
         my %teams;
         for my $t (keys %{ $r->{teams} }) { my $x = $r->{teams}{$t}; $teams{$t} = { map { $_ => $x->{$_} } qw(capacity committed done open carryover removed pct load) } }
-        push @sprints, { n => $n, start => $span{$n}{start}, end => $span{$n}{end}, totals => { map { $_ => $r->{totals}{$_} } qw(capacity committed done open carryover removed pct load) }, teams => \%teams };
+        push @sprints, { n => 0 + $n, start => $span{$n}{start}, end => $span{$n}{end}, totals => { map { $_ => $r->{totals}{$_} } qw(capacity committed done open carryover removed pct load) }, teams => \%teams };
     }
 
     my @cards;
@@ -125,7 +125,7 @@ sub snapshot {                                # snapshot($s, days => [...], atte
 
     my %marking = $o{marking} ? (banner => $o{marking}{banner} // '', lines => [ marking_lines($o{marking}) ]) : (banner => '', lines => []);
     {
-        generated => $s->{today}, file => $s->{file}, unit => $u, current => $cur, teams => $s->{teams}, marking => \%marking,
+        generated => $s->{today}, file => $s->{file}, unit => $u, current => (defined $cur ? 0 + $cur : undef), teams => $s->{teams}, marking => \%marking,
         sprints => \@sprints, cards => \@cards, daily => \%daily, days => $o{days} // [], attendance => $o{attendance} // [],
         blocked => [ map { _item($_, $s->{today}) } sort { ($a->{blocked_since} // '') cmp ($b->{blocked_since} // '') } blocked($s) ], unassigned => [ map { _item($_) } unassigned($s) ],
         velocity => \%vel, epics => \@epics, roadmap => $rm, tree => \@tree,

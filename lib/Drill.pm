@@ -49,7 +49,7 @@ my %KIND_RANK = map { $KINDS[$_] => $_ } 0 .. $#KINDS;
 my %STOP      = map { $_ => 1 } qw(AND THE OF TO ON IN FOR BY WITH FROM A AN);
 
 # ---------------------------------------------------------------- initials
-sub _words { my $n = shift // ''; $n = "$2 $1" if $n =~ /^([^,]+),\s*(.+)$/; grep { length } map { (my $w = $_) =~ s/[^\p{L}\d]//g; $w } split ' ', $n }   # "Archer, Sam" reads as "Sam Archer"
+sub _words { my $n = shift // ''; $n = "$2 $1" if $n =~ /^([^,]+),\s*(.+)$/; grep { length } map { (my $w = $_) =~ s/[^\p{L}\d]//g; $w } split /[\s-]+/, $n }   # "Archer, Sam" reads as "Sam Archer"; Smith-Jones is two words (CSJ)
 sub initials {                                # initials(@names) -> { name => 'AL' }; collisions extend with letters of the last word: ACh ACo
     my @names = nub(@_);
     my %base = map { my @w = _words($_); $_ => (@w > 1 ? join('', map { uc substr($_, 0, 1) } @w) : ucfirst lc substr($w[0] // '?', 0, 2)) } @names;
@@ -57,12 +57,18 @@ sub initials {                                # initials(@names) -> { name => 'A
     my $groups = classify(sub { uc $base{ $_[0] } }, @names);
     for my $g (values %$groups) {
         if (@$g == 1) { $out{ $g->[0] } = $base{ $g->[0] }; next }
-        for my $k (1 .. 12) {
-            my %try = map { my @w = _words($_); $_ => $base{$_} . lc substr($w[-1] // '', 1, $k) } @$g;
+        my %canon = map { $_ => join(' ', map { uc } _words($_)) } @$g;   # "Archer, Sam" and "Sam Archer" are the same words
+        my @reps = nub(map { $canon{$_} } sorted(@$g));
+        my %rep_base = map { $canon{$_} => $base{$_} } @$g;
+        my %ext = (@reps == 1 ? ($reps[0] => $rep_base{ $reps[0] }) : ());
+        for my $k (1 .. 12) {                 # different names: letters of the last word until they differ (ACh, ACo)
+            last if @reps == 1;
+            my %try = map { my @w = split ' ', $_; $_ => $rep_base{$_} . lc substr($w[-1] // '', 1, $k) } @reps;
             my %n; $n{ uc $_ }++ for values %try;
-            if ((grep { $_ == 1 } values %n) == @$g || $k == 12) { %out = (%out, %try); last }
+            if ((grep { $_ == 1 } values %n) == @reps || $k == 12) { %ext = %try; last }
         }
-        my %seen; for (sorted(@$g)) { $out{$_} .= ++$seen{ uc $out{$_} } if $seen{ uc $out{$_} } }   # identical names: AL, AL2
+        my %seen;                             # the same words twice: SA, SA2
+        for (sorted(@$g)) { my $i = $ext{ $canon{$_} }; my $c = ++$seen{ uc $i }; $out{$_} = $c > 1 ? "$i$c" : $i }
     }
     \%out;
 }
@@ -294,8 +300,8 @@ sub drill_loop {                              # drill_loop(\@picked, $prog, in =
         if (!$g->{ok}) {
             print $out map { "  $_\n" } _hooks($c, $p);
             record($p, $c, 0, $o{today});
-            print $out "hook (enter to keep, - to forget)> ";
-            my $h = <$in>;
+            my $h;
+            if ($o{ask_hook} // 1) { print $out "hook (enter to keep, - to forget)> "; $h = <$in> }   # piped answers: no prompt, or it would eat the next answer
             if (defined $h) { chomp $h; $h =~ s/\r$//; $h =~ s/^\s+|\s+$//g; $p->{ $c->{key} }{hook} = ($h eq '-' ? '' : _flat($h)) if length $h }
         } else { record($p, $c, 1, $o{today}) }
         $st{ $g->{ok} ? 'ok' : 'miss' }++;

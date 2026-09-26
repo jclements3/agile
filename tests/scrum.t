@@ -136,7 +136,7 @@ ID       SP  Prio  Tome  Epic       Owner  Age  Title         Blocked
 -------  --  ----  ----  ---------  -----  ---  ------------  -------
 RPT-202   5     3        Reporting  Cy      28  Chart widget
 EOF
-has 'velocity_text', velocity_text($s), qr/^Alpha  \(avg velocity 8\.0 over last 3 completed\)$/m, qr/^    41   10       8     8   100%$/m;
+has 'velocity_text', velocity_text($s), qr/^Alpha  \(avg velocity 8\.0 over the last 1 completed sprint\)$/m, qr/^    41   10       8     8   100%$/m;
 check 'backlog_text', backlog_text($s), <<'EOF';
 Master backlog: 1 tasks, 3 SP
 ID       SP  Prio  Tome  Epic  Owner  Age  Title         Blocked
@@ -221,6 +221,25 @@ S 'cli bad cmd', 2, $rc;
     S 'until: sprint 42 done as it stood then', '[8,0]', [ sprint_summary($now, 42)->{totals}{done}, sprint_summary($then, 42)->{totals}{done} ];
     S 'until: no posting after the date', 0, scalar grep { $_->{date} gt '2026-08-25' } journal_postings($then);
     S 'items memo returns the same answer twice', 1, join(',', map { $_->{id} } items($now, team => 'Alpha')) eq join(',', map { $_->{id} } items($now, team => 'Alpha')) ? 1 : 0;
+}
+
+# found in the first-week walkthrough and the robustness sweep
+S 'parse_meta: "Last, First" owner and a comma in a reason stay whole', '{"blocked":"waiting on X, Y","epic":"Core","id":"A-1","owner":"Lee, Ann"}', parse_meta('id: A-1, owner: Lee, Ann, blocked: waiting on X, Y, epic: Core');
+S 'parse_meta: a quoted value is taken as written', '{"id":"A-1","owner":"Ray, Bob"}', parse_meta('id: A-1, owner: "Ray, Bob"');
+{   my $d = File::Temp::tempdir(CLEANUP => 1);
+    open my $j, '>', "$d/j.txt" or die;
+    print $j "2026-09-01 Intake A-1 T\n    Backlog:Alpha   3 SP   ; id: A-1, owner: Lee, Ann\n    Equity:Intake\n\n2026-09-02 Plan\n    Backlog:Alpha   -3 SP   ; id: A-1\n    Sprint:1:Alpha:Committed   3 SP   ; id: A-1\n\n";
+    print $j "2026-09-03 Stand-up\n    Sprint:1:Alpha:Committed   0 SP   ; id: A-1, blocked: vendor\n    Equity:Intake   0 SP\n\n2026-09-05 Stand-up\n    Sprint:1:Alpha:Committed   0 SP   ; id: A-1, blocked: vendor still\n    Equity:Intake   0 SP\n\n";
+    close $j;
+    my $x = load("$d/j.txt", today => '2026-09-08');
+    S 'a repeated block keeps the blocker age', '["2026-09-03",5,"Lee, Ann"]', [ $x->{items}{'A-1'}{blocked_since}, blocked_days($x, $x->{items}{'A-1'}), $x->{items}{'A-1'}{owner} ];
+    open $j, '>', "$d/b.txt" or die; print $j "2026-09-01 Intake A-1 T\n    Backlog:Alpha   3 SP   ; id: A-1, owner: Ann\n    Equity:Intake\n\n"; close $j;
+    my $b = load("$d/b.txt", today => '2026-09-02');
+    my @w; local $SIG{__WARN__} = sub { push @w, @_ };
+    my $all = join '', sprint_text($b), email_text($b, undef), email_html($b, undef), brief_text($b, undef), brief_html($b, undef), dashboard_html($b), velocity_text($b);
+    S 'no sprint yet: every report renders, no warnings', '[0,1]', [ scalar @w, ($all =~ /no sprint yet/ ? 1 : 0) ];
+    my $sum = sprint_summary($b, undef); my $probe = ($sum->{teams}{Ghost} // {})->{pct};
+    S 'reading a missing team never creates it', '[]', [ keys %{ $sum->{teams} } ];
 }
 
 print "1..$n\n";

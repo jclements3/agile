@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
+use Ledger ();
+binmode $_, ':encoding(UTF-8)' for \*STDOUT, \*STDERR;
 use Getopt::Long qw(GetOptionsFromArray);
 use JSON::PP ();
 use Calendar;
@@ -37,7 +39,7 @@ elsif ($cmd eq 'attend') {
 elsif ($cmd eq 'lines')  { print $cal->standup_lines($_) for $cal->events(%f, ($ARGV[0] ? (match => qr/$ARGV[0]/i) : ())) }
 elsif ($cmd eq 'post') {
     my $key = shift @ARGV or die "post needs an event id or subject pattern\n";
-    my $text = defined $o{text} ? $o{text} : do { my $f = $o{file} // '-'; open my $fh, '<', $f or die "cannot open $f: $!\n"; local $/; <$fh> };
+    my $text = defined $o{text} ? $o{text} : do { my $f = $o{file} // '-'; $f eq '-' ? do { local $/; binmode STDIN, ':raw'; Ledger::decode_text(scalar <STDIN>) } : (Ledger::read_text($f) // die "cannot open $f: $!\n") };
     my $ev = $cal->find($key, %f) or die "no event matching '$key'\n";
     $cal->post_text($ev, $text, send => $o{send}, replace => $o{replace});
     printf "posted %d chars to '%s' at %s%s\n", length $text, $ev->{subject}, $ev->{start}, $o{send} ? ' (update sent)' : ' (saved)';

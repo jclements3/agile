@@ -246,6 +246,11 @@ S 'cli bad command', 2, $rc;
 { local $ENV{LEDGER_FILE} = "$dir/money.txt"; ($rc, $out) = cli("csv", "Pets") }
 S 'cli env file',  '"date,status,payee,account,amount,commodity\n2026-09-15,,Vet,Expenses:Pets,23,\n"', $out;
 
+# decode_text: what Windows editors leave behind
+check 'decode_text: BOM + UTF-8', Ledger::decode_text("\xEF\xBB\xBFCaf\xc3\xa9"), "Caf\x{e9}";
+check 'decode_text: Windows-1252 fallback', Ledger::decode_text("Cr\xe8me \x97 \xabx\xbb"), "Cr\x{e8}me \x{2014} \x{ab}x\x{bb}";
+my $txt = "Z\x{f6}\x{2014}"; check 'decode_text: already text is left alone', Ledger::decode_text($txt), $txt;
+
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";
 exit($bad ? 1 : 0);

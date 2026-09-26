@@ -27,7 +27,12 @@ sub import {
 sub parse_meta {                              # "id: A-1, prio: 2, owner: Bob"  -> hashref
     my $c = shift;
     my %m;
-    for (split /\s*,\s*/, ($c // '')) { $m{ lc $1 } = $2 if /^\s*(\w+)\s*:\s*(.*?)\s*$/ }
+    for (split /\s*,\s*(?=\w+\s*:)/, ($c // '')) {           # a comma ends a field only before the next "key:" -- owner: Lee, Ann and blocked: X, Y stay whole
+        next unless /^\s*(\w+)\s*:\s*(.*?)\s*$/;
+        my ($k, $v) = (lc $1, $2);
+        $v = $1 if $v =~ /^"(.*)"$/;           # a quoted value is taken as written
+        $m{$k} = $v;
+    }
     \%m;
 }
 sub _num { my $a = shift; sum(values %{ $a // {} }) }       # points as a plain number (one commodity assumed)
@@ -56,7 +61,8 @@ sub _index {
         $it->{title} = $it->{meta}{title} if $it->{meta}{title};
         for my $k (qw(blocked hold)) {        # when a blocker or hold was set: the posting that carried it (cleared by the empty form)
             next unless exists $meta->{$k};
-            $it->{"${k}_since"} = (defined $meta->{$k} && $meta->{$k} ne '') ? $p->{date} : undef;
+            my $on = defined $meta->{$k} && $meta->{$k} ne '';
+            $it->{"${k}_since"} = !$on ? undef : ($it->{"${k}_since"} // $p->{date});   # re-blocking a task that is still blocked keeps its age (a daily 'block' must not reset the clock)
         }
         my $pts = _num($p->{amount});
         if ($pts > 0) {                       # the quad's transient marks end when the work moves on: a punt ends at the next commit, a redo or pass at Done
@@ -184,16 +190,18 @@ sub _velocity {
             push @{ $v{$team} }, { sprint => $n, committed => $r->{committed}, done => $r->{done}, capacity => $r->{capacity} };
         }
     }
-    my %avg;
+    my (%avg, %n);
     for my $team (keys %v) {
         my @done = map { $_->{done} } @{ $v{$team} };
-        pop @done if @done > 1 && $s->{current} && $v{$team}[-1]{sprint} == $s->{current} && _in_progress($s, $team);
+        my $running = $s->{current} && $v{$team}[-1]{sprint} == $s->{current} && _in_progress($s, $team);
+        pop @done if @done > 1 && $running;
         @done = @done[ -$last .. -1 ] if @done > $last;
         $avg{$team} = @done ? sum(@done) / @done : 0;
+        $n{$team} = @{ $v{$team} } == 1 && $running ? 0 : scalar @done;   # 0: only the first sprint, still running (its done so far stands in)
     }
-    { team => \%v, avg => \%avg };
+    { team => \%v, avg => \%avg, completed => \%n };
 }
-sub _in_progress { my ($s, $team) = @_; (sprint_summary($s, $s->{current})->{teams}{$team}{open} // 0) > 0 }   # still has committed points
+sub _in_progress { my ($s, $team) = @_; ((sprint_summary($s, $s->{current})->{teams}{$team} // {})->{open} // 0) > 0 }   # still has committed points (// {}: never autovivify a team into the memoised summary)
 
 # ---------------------------------------------------------------- epics & tomes (from task metadata epic: / tome:)
 sub epics {                                   # -> [ { epic, tome, total, done, wip, backlog, removed, pct, open, items => [...] } ] sorted by tome, epic
@@ -274,9 +282,10 @@ sub sprint_text {
         sorted(keys %{ $r->{teams} });
     my $t = $r->{totals};
     push @rows, [ 'Total', $t->{capacity} || '', $t->{committed}, $t->{done}, $t->{open}, $t->{carryover}, $t->{removed}, "$t->{pct}%", defined $t->{load} ? "$t->{load}%" : '' ];
+    return "no sprint yet -- put 'sprint 1' in a stand-up file and commit tasks to it (commit ID owner)\n" unless defined $r->{sprint};
     my $out = _table([ 'Team', 'Cap', 'Commit', 'Done', 'Open', 'Carry', 'Removed', 'Done%', 'Load%' ], \@rows, [ 1 .. 8 ], "Teams: sprint $r->{sprint}");
     for my $team (sorted(keys %{ $r->{teams} })) {
-        my @open = @{ $r->{teams}{$team}{open_items} };
+        my @open = @{ $r->{teams}{$team}{open_items} // [] };
         $out .= "\n$team open tasks (" . scalar(@open) . "):\n" . _table(\@ITEM_HDR, [ map { _item_row($_) } @open ], \@ITEM_R) if @open;
     }
     $out;
@@ -287,7 +296,9 @@ sub velocity_text {
     my $out = '';
     for my $team (sorted(keys %{ $v->{team} })) {
         my @rows = map { [ $_->{sprint}, $_->{capacity} || '', $_->{committed}, $_->{done}, $_->{committed} ? int(100 * $_->{done} / $_->{committed} + 0.5) . '%' : '' ] } @{ $v->{team}{$team} };
-        $out .= sprintf("%s  (avg velocity %.1f over last %d completed)\n", $team, $v->{avg}{$team}, $o{last} // 3)
+        my $n = $v->{completed}{$team} // 0;
+        $out .= ($n ? sprintf("%s  (avg velocity %.1f over the last %d completed sprint%s)\n", $team, $v->{avg}{$team}, $n, $n == 1 ? '' : 's')
+                    : sprintf("%s  (first sprint still running: %.1f done so far, no completed sprint yet)\n", $team, $v->{avg}{$team}))
               . _table([ 'Sprint', 'Cap', 'Commit', 'Done', 'Done%' ], \@rows, [ 0 .. 4 ]) . "\n";
     }
     $out;
@@ -343,7 +354,7 @@ sub email_text {
     my $r = sprint_summary($s, $n);
     my $t = $r->{totals};
     my $u = $s->{unit} // 'SP';
-    my $out = sprintf("Sprint %s status as of %s: %d/%d %s done (%d%%), %d open, %d carried over.\n\n", $r->{sprint}, $s->{today}, $t->{done}, $t->{committed}, $u, $t->{pct}, $t->{open}, $t->{carryover});
+    my $out = sprintf("Sprint %s status as of %s: %d/%d %s done (%d%%), %d open, %d carried over.\n\n", $r->{sprint} // '-', $s->{today}, $t->{done}, $t->{committed}, $u, $t->{pct}, $t->{open}, $t->{carryover});
     for my $team (sorted(keys %{ $r->{teams} })) {
         my $x = $r->{teams}{$team};
         $out .= sprintf("%s: %d/%d done (%d%%), %d open%s\n", $team, $x->{done}, $x->{committed}, $x->{pct}, $x->{open},
@@ -406,7 +417,7 @@ sub brief_subject {                           # a subject line you can read stat
     my ($s, $n) = @_;
     my $r = sprint_summary($s, $n);
     my ($level, $headline) = brief_status($s, $n);
-    sprintf '[%s] Sprint %s, %s: %d%% done%s', uc($level), $r->{sprint}, $s->{today}, $r->{totals}{pct}, $headline ? ", $headline" : '';
+    sprintf '[%s] Sprint %s, %s: %d%% done%s', uc($level), $r->{sprint} // '-', $s->{today}, $r->{totals}{pct}, $headline ? ", $headline" : '';
 }
 sub _brief_bullets {                          # -> up to 5 plain-text action items, most important first
     my ($s, $r) = @_;
@@ -425,7 +436,7 @@ sub brief_text {                              # plain-text BLUF mail: one senten
     my ($s, $n, %o) = @_;
     my $r = sprint_summary($s, $n);
     my ($level, $headline) = brief_status($s, $n);
-    my $out = sprintf "%s -- Sprint %s, %s: %d%% done. %s\n", uc($level), $r->{sprint}, $s->{today}, $r->{totals}{pct}, $headline || 'On track, no blockers.';
+    my $out = sprintf "%s -- Sprint %s, %s: %d%% done. %s\n", uc($level), $r->{sprint} // '-', $s->{today}, $r->{totals}{pct}, $headline || 'On track, no blockers.';
     my ($bullets, $extra) = _brief_bullets($s, $r); my @bullets = @$bullets;
     $out .= "\n" . join('', map { "- $_\n" } @bullets) if @bullets;
     $out .= "  (+$extra more -- see the full status report)\n" if $extra;
@@ -440,7 +451,7 @@ sub brief_html {                              # the same BLUF mail as HTML: one 
     $html .= sprintf '<p style="margin:0 0 10px"><span style="display:inline-block;background:%s;color:#fff;font-weight:bold;padding:3px 10px;border-radius:4px;font-size:15px">%s</span></p>' . "\n",
         $color, uc($level);
     $html .= sprintf '<p style="margin:0 0 12px"><b>Sprint %s, %s: %d%% done.</b><br>%s</p>' . "\n",
-        $r->{sprint}, $s->{today}, $r->{totals}{pct}, _h($headline || 'On track, no blockers.');
+        $r->{sprint} // '-', $s->{today}, $r->{totals}{pct}, _h($headline || 'On track, no blockers.');
     my ($bullets, $extra) = _brief_bullets($s, $r); my @bullets = @$bullets;
     if (@bullets) {
         $html .= "<ul style=\"margin:0 0 8px;padding-left:22px\">\n" . join('', map { '<li style="margin-bottom:6px">' . _h($_) . "</li>\n" } @bullets) . "</ul>\n";
@@ -468,7 +479,7 @@ sub logo_svg {                                # -> '<svg class="logo" ...>...</s
     (my $f = __FILE__) =~ s{[/\\][^/\\]+$}{};
     $f .= '/../assets/logo.svg';
     $LOGO = '';
-    if (open my $fh, '<', $f) { local $/; my $x = <$fh>; close $fh;
+    if (defined(my $x = Ledger::read_text($f))) {
         if ($x =~ m{<svg[^>]*viewBox="([^"]+)"[^>]*>(.*)</svg>}s) { my ($vb, $body) = ($1, $2); $body =~ s/\s+/ /g; $body =~ s/ opacity="1\.000000"//g; $body =~ s/(\d+\.\d{2})\d+/$1/g;
             $LOGO = qq{<svg class="logo" viewBox="$vb" role="img" aria-label="logo">$body</svg>} } }
     $LOGO;
@@ -596,7 +607,7 @@ sub member_card {                             # member_card($s, $name, last_b =>
     my ($s, $name, %o) = @_;
     my $m = members($s)->{$name} or return undef;
     my $u = $s->{unit} // 'SP';
-    my $out = "$name - sprint $s->{current}" . ($m->{team} ? " ($m->{team})" : '') . "\n";
+    my $out = "$name - sprint " . ($s->{current} // '-') . ($m->{team} ? " ($m->{team})" : '') . "\n";
     $out .= "In progress (" . scalar(@{ $m->{wip} }) . ", $m->{wip_points} $u):\n";
     $out .= sprintf("  %-10s %3s  %s%s\n", $_->{id}, $_->{points}, $_->{title}, $_->{blocked} ? "   [BLOCKED: $_->{blocked}]" : '') for @{ $m->{wip} };
     $out .= "  (nothing committed)\n" unless @{ $m->{wip} };
@@ -950,7 +961,7 @@ sub email_html {                              # compact: fits an Outlook window,
     my $tdn = 'style="border:1px solid #bbb;padding:3px 8px;text-align:right"';
     my $html = "<div style=\"font-family:Segoe UI,Arial,sans-serif;font-size:14px\">\n";
     my $u = $s->{unit} // 'SP';
-    $html .= sprintf "<p><b>Sprint %s status as of %s:</b> %d of %d %s done (%d%%), %d open, %d carried over.</p>\n", $r->{sprint}, $s->{today}, $t->{done}, $t->{committed}, $u, $t->{pct}, $t->{open}, $t->{carryover};
+    $html .= sprintf "<p><b>Sprint %s status as of %s:</b> %d of %d %s done (%d%%), %d open, %d carried over.</p>\n", $r->{sprint} // '-', $s->{today}, $t->{done}, $t->{committed}, $u, $t->{pct}, $t->{open}, $t->{carryover};
 
     my @bl = blocked($s);
     my @at_risk = grep { _load_status($r->{teams}{$_}{load}) ne 'good' } keys %{ $r->{teams} };
@@ -974,7 +985,7 @@ sub email_html {                              # compact: fits an Outlook window,
     }
     $html .= "</table>\n";
     for my $team (sorted(keys %{ $r->{teams} })) {
-        my @open = @{ $r->{teams}{$team}{open_items} };
+        my @open = @{ $r->{teams}{$team}{open_items} // [] };
         next unless @open;
         $html .= "<p><b>" . _h($team) . " still open:</b> " . join('; ', map { _h("$_->{id} $_->{title} ($_->{points} $u" . ($_->{owner} ? ", $_->{owner})" : ')')) } @open) . "</p>\n";
     }
@@ -1054,7 +1065,7 @@ sub run {
                                                         subject => $o{subject} // "Sprint $n status $s->{today}"); print "draft opened (body: $p)\n" }
     elsif ($cmd eq 'csv')       { require Metrics; my $what = $argv[0] // 'items';   # csv items|sprints|epics|intake|health -> stdout (Excel: Data > From Text/CSV)
                                   my $t = eval { Metrics::csv($s, $what) }; if (!defined $t) { print STDERR $@; return 2 }
-                                  if ($o{out}) { open my $fh, '>:raw:encoding(UTF-8)', $o{out} or die "cannot write $o{out}: $!\n"; print $fh "\x{FEFF}$t"; close $fh; print "wrote $o{out}\n" } else { binmode STDOUT, ':encoding(UTF-8)'; print $t } }
+                                  if ($o{out}) { open my $fh, '>:raw:encoding(UTF-8)', $o{out} or die "cannot write $o{out}: $!\n"; print $fh "\x{FEFF}$t"; close $fh; print "wrote $o{out}\n" } else { print $t } }
     elsif ($cmd eq 'check')     { printf "ok: %d items, teams %s, sprints %s\n", scalar keys %{ $s->{items} }, join('/', @{ $s->{teams} }), join('/', @{ $s->{sprints} }) }
     else { print STDERR "unknown command '$cmd' (sprint velocity backlog members epics roadmap items dashboard tree email draft csv check)\n"; return 2 }
     0;

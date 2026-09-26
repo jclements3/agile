@@ -30,6 +30,13 @@ my $NOW = strftime('%Y-%m-%d %H:%M', localtime);
 my (@gates, %pillar);                        # gate = { id, pillar, name, state => ok|partial|gap, evidence, detail }
 sub gate { my %g = @_; push @gates, \%g; push @{ $pillar{ $g{pillar} } }, \%g; $g{state} }
 sub sh { my $out = qx(@_ 2>&1); chomp $out; $out }
+sub _run {                                    # the command running one suite under $bin. From WSL, Git's perl.exe runs inside Git Bash:
+    my ($bin, $t) = @_;                       # started bare it gets no Git usr/bin PATH (suites that shell out to perl or cp fail) and sees /c/..., not /mnt/c/...
+    return qq("$bin" "$t") unless $bin =~ m{^/mnt/([a-z])/(.*)/usr/bin/perl\.exe$}i && -x "/mnt/$1/$2/bin/bash.exe";
+    my $bash = "/mnt/$1/$2/bin/bash.exe";
+    (my $here = abs_path('.')) =~ s{^/mnt/([a-z])/}{/$1/};
+    qq("$bash" -lc 'cd "$here" && perl "$t"');
+}
 sub h  { my $s = shift // ''; $s =~ s/&/&amp;/g; $s =~ s/</&lt;/g; $s =~ s/>/&gt;/g; $s =~ s/"/&quot;/g; $s }
 
 # perls: this one, and Git for Windows' if present (the target)
@@ -63,12 +70,13 @@ for my $p (@perls) {
     if ($o{quick}) { gate(id => "tests-$label", pillar => 'CI: build, lint, test', name => "Test suite under $label", state => 'partial', evidence => "skipped (--quick); $ver", detail => ''); next }
     my (@lines, $bad, $n);
     for my $t (sorted(glob 'tests/*.t')) {
-        my $out = sh(qq("$bin" "$t")); my ($last) = (split /\n/, $out)[-1] // '';
-        $bad++ unless $last =~ /^# all (\d+) passed/; $n += $1 // 0; push @lines, sprintf '%-20s %s', $t, $last;
+        my $out = sh(_run($bin, $t)); my ($last) = (split /\n/, $out)[-1] // '';
+        if ($last =~ /^# all (\d+) passed/) { $n += $1 } else { $bad++ }   # not $1 // 0: after a failed match $1 is the last successful one
+        push @lines, sprintf '%-20s %s', $t, $last;
     }
     $total = $n if $n > $total;
     gate(id => "tests-$label", pillar => 'CI: build, lint, test', name => "Test suite under $label", state => $bad ? 'gap' : 'ok',
-         evidence => ($bad ? "$bad suite(s) FAILED" : "$n tests, 9 suites, all passed") . " -- $ver", detail => join "\n", @lines);
+         evidence => ($bad ? "$bad suite(s) FAILED" : "$n tests, " . scalar(@lines) . " suites, all passed") . " -- $ver", detail => join "\n", @lines);
 }
 {   my @bad;
     for my $f (sorted(glob('bin/*.pl'), 'agile.pl', glob('sim/*.pl'), 'tools/idef0/idef0.pl', glob('lib/*.pm'))) { my $r = sh(qq("$^X" -Ilib -c "$f")); push @bad, "$f: $r" unless $r =~ /syntax OK/ }

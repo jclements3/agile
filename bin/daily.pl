@@ -289,14 +289,28 @@ sub cmd_attend {                              # attendee responses -> today's st
     cmd_new() unless -e $path;
     my $body = (Ledger::read_text($path) // die "cannot read $path: $!\n");
     my $added = '';
-    for my $ev (@ev) {
+    my $ros = Roster::read_roster('roster.txt');
+    my %by_mail = map { (lc $_->{email} => $_) } grep { $_->{email} =~ /@/ } @$ros;
+    my %by_name = map { (lc $_->{name} => $_) } @$ros;
+    for my $ev0 (@ev) {
+        my $ev = { %$ev0, attendees => [ map { my $r = $by_mail{ lc($_->{email} // '') } // $by_name{ lc($_->{name} // '') };   # roster names and teams: outside contacts come back named by their address
+                                               $r ? { %$_, name => $r->{name}, team => $r->{team} } : { %$_ } } @{ $ev0->{attendees} } ] };
         my $team = $cal->team_for($ev, $conf, $s->{teams});
         print $cal->attendance_text($ev);
-        my $rows = $cal->log_attendance($conf->{attendance}, $today, $team // '?', $ev);
-        printf "  -> %s (%d rows)%s\n", $conf->{attendance}, $rows, defined $team ? "" : "  [team not recognised; set team_from_subject in scrum.conf]";
-        my $lines = $cal->standup_lines($ev);
-        next if index($body, $lines) >= 0;                      # already there
-        $added .= ($team ? "== $team\n" : '') . $lines;
+        my @parts = defined $team ? ([ $team, $ev ]) : do {       # one townhall for every team: split the room by the roster
+            my %per; push @{ $per{ $_->{team} || '?' } }, $_ for @{ $ev->{attendees} };
+            map { [ $_, { %$ev, attendees => $per{$_} } ] } sorted(keys %per);
+        };
+        my $rows = 0;
+        for my $p (@parts) {
+            my ($t, $e) = @$p;
+            $rows += $cal->log_attendance($conf->{attendance}, $today, $t, $e);
+            my $lines = $cal->standup_lines($e);
+            next if index($body, $lines) >= 0;                  # already there
+            $added .= ($t ne '?' ? "== $t\n" : '') . $lines;
+        }
+        my @unknown = map { $_->{email} || $_->{name} } grep { !$_->{team} && ($_->{type} // '') ne 'resource' && ($_->{response} // '') ne 'organizer' } @{ $ev->{attendees} };
+        printf "  -> %s (%d rows)%s\n", $conf->{attendance}, $rows, @unknown && !defined $team ? '  [not in roster.txt: ' . join(', ', @unknown) . ']' : '';
     }
     if ($added) { open my $w, '>>:encoding(UTF-8)', $path or die $!; print $w "\n; ---- calendar $today\n$added"; close $w; print "appended attendance to $path\n" }
     0;

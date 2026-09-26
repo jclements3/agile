@@ -79,6 +79,27 @@ open $c, '>>', 'scrum.conf' or die; print $c "mail_domains = example.com\n"; clo
 S 'invite refuses an attendee outside mail_domains (the marking gate)', 1, $rc; has 'gate text', $out, qr/refusing/;
 chdir $cwd;
 
+# daily.pl attend on a joint townhall: attendees resolved through roster.txt by e-mail (outside contacts come back named by their address), split by team
+{   my $p = tempdir(CLEANUP => 1);
+    my $cwd0 = getcwd(); chdir $p or die;
+    qx("$^X" "$root/bin/daily.pl" init . 2>&1);
+    open my $fx, '>', "$p/fx.json" or die;
+    print $fx '[{"id":"T1","subject":"Daily townhall","start":"2026-09-28T08:30:00","end":"2026-09-28T08:45:00","location":"Microsoft Teams Meeting","organizer":"Me","recurring":true,"body":"https://teams.microsoft.com/l/x",'
+            . '"attendees":[{"name":"Me","email":"me@corp.example","type":1,"response":1},{"name":"ann.lee@gmail.example","email":"ann.lee@gmail.example","type":1,"response":3},'
+            . '{"name":"Bob Ray","email":"bob@corp.example","type":1,"response":4},{"name":"zed@else.example","email":"zed@else.example","type":1,"response":5}]}]';
+    close $fx;
+    open my $c, '>>', "$p/scrum.conf" or die; print $c "calendar = mock\ncalendar_fixture = $p/fx.json\nstandup_match = townhall\n"; close $c;
+    open my $r, '>', "$p/roster.txt" or die; print $r "Lee, Ann | ann.lee\@gmail.example | Alpha | Dev | X\nBob Ray | bob\@corp.example | Bravo | Dev | X\n"; close $r;
+    open my $j, '>>', "$p/scrum.txt" or die; print $j "\n2026-09-27 Intake A-1 T\n    Backlog:Alpha   3 SP   ; id: A-1, owner: Lee, Ann\n    Equity:Intake\n\n2026-09-27 Intake B-1 T\n    Backlog:Bravo   3 SP   ; id: B-1, owner: Bob Ray\n    Equity:Intake\n\n"; close $j;
+    my $out = qx("$^X" "$root/bin/daily.pl" --today=2026-09-28 attend 2>&1);
+    has 'attend: joint townhall', $out, qr/attendance\.csv \(3 rows\)  \[not in roster\.txt: zed\@else\.example\]/;
+    my $csv = do { local $/; open my $h, '<', "$p/attendance.csv" or die; <$h> };
+    has 'attend: roster names and teams, not addresses', $csv, qr/^2026-09-28,Alpha,"Lee, Ann",accepted$/m, qr/^2026-09-28,Bravo,Bob Ray,declined$/m, qr/^2026-09-28,\?,zed\@else\.example,no response$/m;
+    my $sf = do { local $/; open my $h, '<', "$p/standups/2026-09-28.txt" or die; <$h> };
+    has 'attend: absent suggested under the right team', $sf, qr/== Bravo\n(?:;.*\n)*; absent Bob Ray/;
+    chdir $cwd0;
+}
+
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";
 exit($bad ? 1 : 0);

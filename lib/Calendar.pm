@@ -142,7 +142,11 @@ $r = $items.Restrict("[Start] >= '__FROM__' AND [Start] <= '__TO__'")
 $out = @()
 foreach ($a in $r) {
   $att = @()
-  foreach ($rc in $a.Recipients) { $att += @{ name = $rc.Name; email = $rc.Address; type = $rc.Type; response = $rc.MeetingResponseStatus } }
+  foreach ($rc in $a.Recipients) {
+    $addr = $rc.Address
+    if ($addr -like '/o=*') { try { $u = $rc.AddressEntry.GetExchangeUser(); if ($u -and $u.PrimarySmtpAddress) { $addr = $u.PrimarySmtpAddress } } catch { } }   # people in your own organisation come back as an Exchange (X500) address
+    $att += @{ name = $rc.Name; email = $addr; type = $rc.Type; response = $rc.MeetingResponseStatus }
+  }
   $out += @{ id = $a.EntryID; subject = $a.Subject; start = $a.Start.ToString('s'); end = $a.End.ToString('s'); location = $a.Location;
              organizer = $a.Organizer; recurring = $a.IsRecurring; teams = [bool]($a.Body -match 'teams\.microsoft\.com'); body = $a.Body; attendees = $att }
 }
@@ -213,6 +217,13 @@ sub _norm_event {
         @a{qw(response type)} = ($r, $t);
         \%a;
     } @{ $n{attendees} // [] } ];
+    my (%at, @order);                         # one row per person: the organizer invited at their own address shows up twice; a real response wins over 'none'
+    for my $x (@{ $n{attendees} }) {
+        my $k = lc($x->{email} // $x->{name} // '');
+        if (!$at{$k}) { $at{$k} = $x; push @order, $k; next }
+        $at{$k} = $x if ($at{$k}{response} eq 'none' || $at{$k}{response} eq 'no response') && $x->{response} ne 'none';
+    }
+    $n{attendees} = [ map { $at{$_} } @order ];
     \%n;
 }
 sub _isodt  { my $d = shift; $d =~ s{^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})(?::(\d{2}))?.*$}{ "$1T$2:" . ($3 // '00') }e; $d }

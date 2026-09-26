@@ -75,6 +75,8 @@ has 'ps_post send/replace', Calendar::ps_post_text('X', 'S', 'T', send => 1, rep
 my $pc = Calendar::ps_create(undef, subject => 'Alpha Stand-up', start => '2026-10-01T09:00', minutes => 20, attendees => [ 'a@x.example', 'b@x.example' ], weekdays => 1, body => "Daily.");
 has 'ps_create', $pc, qr/CreateItem\(1\)/, qr/\$a\.Subject = 'Alpha Stand-up'/, qr/\$a\.Start = \[datetime\]'2026-10-01T09:00'/, qr/\$a\.Duration = 20/, qr/MeetingStatus = 1/,
     qr/Recipients\.Add\('a\@x\.example'\) \| Out-Null\n\$a\.Recipients\.Add\('b\@x\.example'\)/, qr/RecurrenceType = 1; \$p\.DayOfWeekMask = 62/, qr/^\$a\.Save\(\); \$a\.Display\(\)$/m;   # saved first: the new meeting has an EntryID to report
+has 'ps_list_events: Exchange (X500) addresses resolved to SMTP', Calendar::ps_list_events('2026-09-28', '2026-09-28'), qr/if \(\$addr -like '\/o=\*'\)/, qr/GetExchangeUser\(\)/, qr/PrimarySmtpAddress/;
+S 'attendees: one row per person, a real response wins', '[["ME@x.example","accepted"],["b@x.example","none"]]', [ map { [ $_->{email}, $_->{response} ] } @{ Calendar::_norm_event({ start => '2026-09-28T08:30:00', attendees => [ { email => 'me@x.example', response => 0 }, { email => 'b@x.example', response => 0 }, { email => 'ME@x.example', response => 3 } ] })->{attendees} } ];
 has 'ps_create until: the series ends', Calendar::ps_create(undef, subject => 's', start => '2026-09-28T08:30', weekdays => 1, until => '2026-10-02'), qr/PatternEndDate = \[datetime\]'2026-10-02'/;
 S 'ps_create without until never ends it', 0, (Calendar::ps_create(undef, subject => 's', start => '2026-09-28T08:30', weekdays => 1) =~ /PatternEndDate/ ? 1 : 0);
 has 'ps_create nodisplay', Calendar::ps_create(undef, subject => 's', start => 't', display => 0), qr/^\$a\.Save\(\)$/m;

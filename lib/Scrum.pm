@@ -1001,6 +1001,7 @@ sub outlook_script {                          # PowerShell that opens a draft; b
     my ($html_path, %o) = @_;
     my $q = sub { my $s = shift // ''; $s =~ s/'/''/g; "'$s'" };
     join "; ",
+        '$ErrorActionPreference = \'Stop\'',                  # a failure exits non-zero instead of opening an empty draft
         '$o = New-Object -ComObject Outlook.Application',
         '$m = $o.CreateItem(0)',
         '$m.To = ' . $q->($o{to}),
@@ -1030,6 +1031,7 @@ sub outlook_draft {                           # outlook_draft(html => $html, to 
     close $fh;
     my $win = $path;
     if ($^O eq 'msys' || $^O eq 'cygwin') { chomp(my $w = `cygpath -w "$path" 2>/dev/null` // ''); $win = $w if $w }
+    elsif ($^O eq 'linux' && -x '/usr/bin/wslpath') { chomp(my $w = `wslpath -w "$path" 2>/dev/null` // ''); $win = $w if $w }   # WSL: PowerShell reads it as \\wsl.localhost\...
     my $script = outlook_script($win, %o);
     my $rc = system('powershell.exe', '-NoProfile', '-Command', $script);
     die "powershell.exe failed (is this Windows with Outlook installed?)\n" if $rc != 0;

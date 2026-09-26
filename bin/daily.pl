@@ -355,7 +355,7 @@ sub cmd_drill {                               # drill [Team] [-n N]: the memory 
         print "$f\n";
         return 0;
     }
-    print "memory drill: " . scalar(@pick) . " cards. Terse answers (ids, codes, initials, any order); ? = don't know, q = stop.\n";
+    print "memory drill: " . scalar(@pick) . " cards. Terse answers (ids, codes, initials, any order, any case); ? = don't know, q = stop.\n";
     my $st = Drill::drill_loop(\@pick, $prog, in => \*STDIN, out => \*STDOUT, today => $today, save => sub { Drill::write_progress($file, $prog) });
     $st->{miss} ? 1 : 0;
 }

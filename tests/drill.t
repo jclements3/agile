@@ -68,6 +68,8 @@ S 'team filter: tome/epic keys carry the team, others do not', '[1,1,0,1]', [ ma
 # ---- grading
 my $g = sub { my ($k, $a) = @_; my $r = grade($by{$k}, $a); [ $r->{ok}, $r->{missed}, $r->{extra} ] };
 S 'set: any order, case, commas', '[1,[],[]]', $g->('team:Alpha', 'bj, al');
+S 'case never matters, every mode', '[1,1,1,1,1]', [ map { grade($by{$_->[0]}, $_->[1])->{ok} } ['task:C-1', 'al'], ['epic:C2 Win Contracts', 'c-1 C-2'], ['who:Ann Lee', 'aNN lEE'], ['what:C-1', 'NEGOTIATE close'], ['tome:C Contracting', 'c1 c2'] ];
+S 'disambiguated initials in lower case', 1, grade({ mode => 'set', want => ['JCh'], vocab => { JCH => 1, JCO => 1 } }, 'jch')->{ok};
 S 'set: a gap', '[0,["BJ"],[]]', $g->('team:Alpha', 'AL');
 S 'set: wrong recall counts', '[0,[],["CP"]]', $g->('team:Alpha', 'AL BJ CP');
 S 'set: ids', '[1,[],[]]', $g->('epic:C2 Win Contracts', 'C-2 C-1');

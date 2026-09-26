@@ -223,7 +223,7 @@ sub sheet_text {                              # sheet_text(\@picked, today => D,
     my ($pick, %o) = @_;
     my %n; $n{ $_->{status} }++ for @$pick;
     my $out = "; memory drill $o{today}" . ($o{team} ? " -- $o{team}" : '') . ': ' . scalar(@$pick) . ' cards (' . join(', ', map { "$n{$_} $_" } grep { $n{$_} } qw(changed due new)) . ")\n"
-            . "; answer after each '>', then :w to grade. Terse: ids, codes, initials, any order. '?' = don't know.\n"
+            . "; answer after each '>', then :w to grade. Terse: ids, codes, initials, any order, any case. '?' = don't know.\n"
             . "; after grading, write a mnemonic after 'hook:' and :w again to keep it ('hook: -' forgets it).\n"
             . ($o{team} ? "; team: $o{team}\n" : '') . "; score: -\n";
     my $i = 0;

@@ -109,7 +109,7 @@ sub post_text {                              # append text to the meeting body (
     if ($self->{backend} eq 'mock') { $ev->{body} = ($o{replace} ? '' : ($ev->{body} // '') . "\n") . $text; return 1 }
     $self->_run_json(ps_post_text($ev->{id}, $ev->{start}, $text, %o))->{ok};
 }
-sub create {                                 # create(subject =>, start => 'YYYY-MM-DDTHH:MM', minutes => 15, attendees => [emails], body =>, location =>, weekdays => 1, display => 1)
+sub create {                                 # create(subject =>, start => 'YYYY-MM-DDTHH:MM', minutes => 15, attendees => [emails], body =>, location =>, weekdays => 1, until => 'YYYY-MM-DD', display => 1)
     my ($self, %o) = @_;
     die "create: need subject and start\n" unless $o{subject} && $o{start};
     push @{ $self->{log} }, { action => 'create', %o };
@@ -163,8 +163,9 @@ PS
 sub ps_create {
     my ($self, %o) = @_;
     my $rec   = join "\n", map { "\$a.Recipients.Add(" . _psq($_) . ") | Out-Null" } @{ $o{attendees} // [] };
-    my $recur = $o{weekdays} ? "\$p = \$a.GetRecurrencePattern(); \$p.RecurrenceType = 1; \$p.DayOfWeekMask = 62; \$p.PatternStartDate = [datetime]'$o{start}'" : '';
-    _fill(<<'PS', SUBJECT => _psq($o{subject}), START => $o{start}, MINUTES => $o{minutes} // 15, BODY => _psq($o{body} // ''), LOCATION => _psq($o{location} // ''), REC => $rec, RECUR => $recur, SHOW => (($o{display} // 1) ? '$a.Display()' : '$a.Save()'));
+    my $recur = $o{weekdays} ? "\$p = \$a.GetRecurrencePattern(); \$p.RecurrenceType = 1; \$p.DayOfWeekMask = 62; \$p.PatternStartDate = [datetime]'$o{start}'"
+                                 . ($o{until} ? "; \$p.PatternEndDate = [datetime]'$o{until}'" : '') : '';   # until: a series that ends (a trial week), not forever
+    _fill(<<'PS', SUBJECT => _psq($o{subject}), START => $o{start}, MINUTES => $o{minutes} // 15, BODY => _psq($o{body} // ''), LOCATION => _psq($o{location} // ''), REC => $rec, RECUR => $recur, SHOW => (($o{display} // 1) ? '$a.Save(); $a.Display()' : '$a.Save()'));
 $a = $ol.CreateItem(1)
 $a.Subject = __SUBJECT__
 $a.Start = [datetime]'__START__'

@@ -24,7 +24,7 @@ use File::Spec;
 my %o;
 @ARGV = map { Ledger::decode_text($_) } @ARGV;                  # arguments are UTF-8 bytes from the shell: roster add "Zo\x{eb} \x{c5}ngstr\x{f6}m" ...     # everything inside is characters (Ledger::read_text decodes); the terminal gets UTF-8
 GetOptionsFromArray(\@ARGV, 'c|conf=s' => \$o{conf}, 'today=s' => \$o{today}, 'dry' => \$o{dry}, 'draft' => \$o{draft},
-    'to=s' => \$o{to}, 'cc=s' => \$o{cc}, 'subject=s' => \$o{subject}, 'team=s' => \$o{team}, 'send' => \$o{send}, 'force' => \$o{force}, 'guess' => \$o{guess}, 'reply' => \$o{reply}, 'assume' => \$o{assume}, 'private' => \$o{private}, 'table' => \$o{table}, 'confirm' => \$o{confirm}, 'n=i' => \$o{n}, 'sheet' => \$o{sheet}, 'grade=s' => \$o{grade}) or exit 2;
+    'to=s' => \$o{to}, 'cc=s' => \$o{cc}, 'subject=s' => \$o{subject}, 'team=s' => \$o{team}, 'send' => \$o{send}, 'force' => \$o{force}, 'guess' => \$o{guess}, 'reply' => \$o{reply}, 'assume' => \$o{assume}, 'private' => \$o{private}, 'table' => \$o{table}, 'confirm' => \$o{confirm}, 'n=i' => \$o{n}, 'sheet' => \$o{sheet}, 'grade=s' => \$o{grade}, 'until=s' => \$o{until}) or exit 2;
 my $cmd = shift @ARGV // 'status';
 binmode STDIN, ':encoding(UTF-8)';                           # the drill's typed answers
 binmode $_, ':encoding(UTF-8)' for \*STDOUT, \*STDERR;
@@ -392,11 +392,12 @@ sub cmd_invite {                              # invite [--dry]: the recurring to
         '',
         ($conf->{banner} ? "Marking: $conf->{banner}. This meeting and its chat are program record." : ''),
         "Attendees: " . scalar(@to) . " (roster.txt). Organiser: " . ($conf->{marking_poc} || 'the solutions architect') . '.';
-    print "invite: $subject  every weekday from $first $start, $minutes min, $loc\n  to " . scalar(@to) . " attendees: " . join(', ', @to[0 .. ($#to < 5 ? $#to : 5)]) . (@to > 6 ? ', ...' : '') . "\n";
+    if ($o{until} && $o{until} !~ /^\d{4}-\d{2}-\d{2}$/) { print STDERR "--until wants YYYY-MM-DD\n"; return 2 }
+    print "invite: $subject  every weekday from $first $start" . ($o{until} ? " until $o{until}" : '') . ", $minutes min, $loc\n  to " . scalar(@to) . " attendees: " . join(', ', @to[0 .. ($#to < 5 ? $#to : 5)]) . (@to > 6 ? ', ...' : '') . "\n";
     _marking_gate(@to) or return 1;
     if ($o{dry}) { print "--dry: not created. Body:\n$body\n"; return 0 }
     my $cal = _cal();
-    my $id = $cal->create(subject => $conf->{banner} ? "$conf->{banner} $subject" : $subject, start => "${first}T$start", minutes => $minutes, attendees => \@to, location => $loc, weekdays => 1, display => 1, body => $body);
+    my $id = $cal->create(subject => $conf->{banner} ? "$conf->{banner} $subject" : $subject, start => "${first}T$start", minutes => $minutes, attendees => \@to, location => $loc, weekdays => 1, ($o{until} ? (until => $o{until}) : ()), display => 1, body => $body);
     print "created $id (opened in Outlook for you to review and send)\n";
     0;
 }

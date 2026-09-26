@@ -74,7 +74,9 @@ has 'ps_post', $pp, qr/GetItemFromID\('AB''C'\)/, qr/GetOccurrence\(\[datetime\]
 has 'ps_post send/replace', Calendar::ps_post_text('X', 'S', 'T', send => 1, replace => 1), qr/^\$a\.Body = 'T'$/m, qr/^\$a\.Send\(\)$/m;
 my $pc = Calendar::ps_create(undef, subject => 'Alpha Stand-up', start => '2026-10-01T09:00', minutes => 20, attendees => [ 'a@x.example', 'b@x.example' ], weekdays => 1, body => "Daily.");
 has 'ps_create', $pc, qr/CreateItem\(1\)/, qr/\$a\.Subject = 'Alpha Stand-up'/, qr/\$a\.Start = \[datetime\]'2026-10-01T09:00'/, qr/\$a\.Duration = 20/, qr/MeetingStatus = 1/,
-    qr/Recipients\.Add\('a\@x\.example'\) \| Out-Null\n\$a\.Recipients\.Add\('b\@x\.example'\)/, qr/RecurrenceType = 1; \$p\.DayOfWeekMask = 62/, qr/^\$a\.Display\(\)$/m;
+    qr/Recipients\.Add\('a\@x\.example'\) \| Out-Null\n\$a\.Recipients\.Add\('b\@x\.example'\)/, qr/RecurrenceType = 1; \$p\.DayOfWeekMask = 62/, qr/^\$a\.Save\(\); \$a\.Display\(\)$/m;   # saved first: the new meeting has an EntryID to report
+has 'ps_create until: the series ends', Calendar::ps_create(undef, subject => 's', start => '2026-09-28T08:30', weekdays => 1, until => '2026-10-02'), qr/PatternEndDate = \[datetime\]'2026-10-02'/;
+S 'ps_create without until never ends it', 0, (Calendar::ps_create(undef, subject => 's', start => '2026-09-28T08:30', weekdays => 1) =~ /PatternEndDate/ ? 1 : 0);
 has 'ps_create nodisplay', Calendar::ps_create(undef, subject => 's', start => 't', display => 0), qr/^\$a\.Save\(\)$/m;
 S 'ps_create no recur', 0, scalar(() = Calendar::ps_create(undef, subject => 's', start => 't') =~ /RecurrencePattern/g);
 S 'ps_encode', '"JABhAA=="', Calendar::ps_encode('$a');       # UTF-16LE base64 of "$a"

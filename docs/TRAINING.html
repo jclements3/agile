@@ -93,7 +93,7 @@ marking: off (no banner in scrum.conf)
 1 file(s): 0 error(s), 0 warning(s), 10 model(s), 264 activities, 52 link(s)
 </pre>
 <pre class=term><span class=prompt>$ idef2html dronecorp.md &gt; reports/plates.html</span>
--rwxrwxrwx 1 user user 334916 Sep 24 13:12 reports/plates.html
+-rwxrwxrwx 1 user user 334916 Sep 26 13:59 reports/plates.html
 </pre>
 <p class=note>The interface table is the architect's territory: every cross-model flow is a contract between two departments -- the Strategic Plan from Executive to every department, Spot Orders from Sales to Production, Delivery Orders from Sales to Logistics.</p>
 <pre class=term><span class=prompt>$ idef0 links dronecorp.md | head -8</span>
@@ -244,39 +244,32 @@ T Testing &gt; T3 Disposition &amp; Report                                     0
 </pre>
 <p class=note>The reports are derived from the journal, never typed: dashboard, planning tree, roadmap, status mail, and the one-screen leadership brief.</p>
 <pre class=term><span class=prompt>$ daily.pl report</span>
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;5" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;10" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
 wrote reports/2026-09-23-brief.html
 wrote reports/2026-09-23-brief.txt
 wrote reports/2026-09-23-quad.html
 wrote reports/2026-09-23-quad.txt
-... (6 more lines)</pre>
+wrote reports/2026-09-23-status.html
+wrote reports/2026-09-23-status.txt
+wrote reports/2026-09-rollup.html
+wrote reports/2026-09-rollup.txt
+wrote reports/cockpit.html
+wrote reports/dashboard.html
+wrote reports/epics.csv
+wrote reports/health.csv
+wrote reports/intake.csv
+wrote reports/items.csv
+wrote reports/roadmap.html
+wrote reports/sprint-1-report.html
+wrote reports/sprint-1-report.txt
+wrote reports/sprints.csv
+wrote reports/tree.html
+</pre>
 <p class=note>Commit the day. daily.pl commit is just git add -A + git commit; the journal and stand-up notes are the audit trail.</p>
 <pre class=term><span class=prompt>$ daily.pl commit</span>
 committed
 </pre>
 <pre class=term><span class=prompt>$ git log --oneline</span>
-7341467 standup 2026-09-23
+4bbe864 standup 2026-09-23
 </pre>
 <h2>Day 2  Thu 2026-09-24  --  Townhall</h2>
 <p class=note>08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.</p>
@@ -556,33 +549,26 @@ applied standups/2026-09-24.txt (0 transactions)
 </pre>
 <p class=note>:SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:</p>
 <pre class=term><span class=prompt>$ daily.pl report</span>
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;5" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;10" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
 wrote reports/2026-09-24-brief.html
 wrote reports/2026-09-24-brief.txt
 wrote reports/2026-09-24-quad.html
 wrote reports/2026-09-24-quad.txt
-... (6 more lines)</pre>
+wrote reports/2026-09-24-status.html
+wrote reports/2026-09-24-status.txt
+wrote reports/2026-09-rollup.html
+wrote reports/2026-09-rollup.txt
+wrote reports/cockpit.html
+wrote reports/dashboard.html
+wrote reports/epics.csv
+wrote reports/health.csv
+wrote reports/intake.csv
+wrote reports/items.csv
+wrote reports/roadmap.html
+wrote reports/sprint-1-report.html
+wrote reports/sprint-1-report.txt
+wrote reports/sprints.csv
+wrote reports/tree.html
+</pre>
 <pre class=term><span class=prompt>$ cat reports/2026-09-24-brief.txt</span>
 GREEN -- Sprint 1, 2026-09-24: 0% done. On track, no blockers.
 </pre>
@@ -591,8 +577,8 @@ GREEN -- Sprint 1, 2026-09-24: 0% done. On track, no blockers.
 committed
 </pre>
 <pre class=term><span class=prompt>$ git log --oneline -3</span>
-a0e8a45 standup 2026-09-24
-7341467 standup 2026-09-23
+4f8823a standup 2026-09-24
+4bbe864 standup 2026-09-23
 </pre>
 <h2>Day 3  Fri 2026-09-25  --  Townhall + weekly status mail</h2>
 <p class=note>08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.</p>
@@ -605,7 +591,7 @@ wrote reports/2026-09-25-cards.html
 Ann Contracting - sprint 1 (Contracting)
 In progress (0, 0 SP):
   (nothing committed)
-Queued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)
+Queued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)
 Reply in the meeting chat:  Y: &lt;yesterday&gt;  T: &lt;today&gt;  B: &lt;blocker or none&gt;
 
 Ann Logistics - sprint 1 (Logistics)
@@ -899,37 +885,30 @@ applied standups/2026-09-25.txt (6 transactions)
 </pre>
 <p class=note>:SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:</p>
 <pre class=term><span class=prompt>$ daily.pl report</span>
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;5" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;10" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
 wrote reports/2026-09-25-brief.html
 wrote reports/2026-09-25-brief.txt
 wrote reports/2026-09-25-quad.html
 wrote reports/2026-09-25-quad.txt
 wrote reports/2026-09-25-status.html
-... (5 more lines)</pre>
+wrote reports/2026-09-25-status.txt
+wrote reports/2026-09-rollup.html
+wrote reports/2026-09-rollup.txt
+wrote reports/cockpit.html
+wrote reports/dashboard.html
+wrote reports/epics.csv
+wrote reports/health.csv
+wrote reports/intake.csv
+wrote reports/items.csv
+wrote reports/roadmap.html
+wrote reports/sprint-1-report.html
+wrote reports/sprint-1-report.txt
+wrote reports/sprints.csv
+wrote reports/tree.html
+</pre>
 <pre class=term><span class=prompt>$ cat reports/2026-09-25-brief.txt</span>
 AMBER -- Sprint 1, 2026-09-25: 9% done. 1 blocker: IF-1 (Production) waiting on Contracting for the Spot Orders interface
 
-- IF-1 (Production) blocked: waiting on Contracting for the Spot Orders interface
+- IF-1 (Production) blocked 0d: waiting on Contracting for the Spot Orders interface
 </pre>
 <p class=note>Friday: the weekly mail to leadership is the same brief plus velocity and the blocked list. daily.pl draft / daily.pl brief open it in Outlook -- skipped here so training does not open a mail client.</p>
 <pre class=term><span class=prompt>$ daily.pl velocity</span>
@@ -1329,46 +1308,39 @@ applied standups/2026-09-28.txt (5 transactions)
 </pre>
 <p class=note>:SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:</p>
 <pre class=term><span class=prompt>$ daily.pl report</span>
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;5" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;10" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
 wrote reports/2026-09-28-brief.html
 wrote reports/2026-09-28-brief.txt
 wrote reports/2026-09-28-quad.html
 wrote reports/2026-09-28-quad.txt
 wrote reports/2026-09-28-status.html
 wrote reports/2026-09-28-status.txt
-... (4 more lines)</pre>
+wrote reports/2026-09-rollup.html
+wrote reports/2026-09-rollup.txt
+wrote reports/cockpit.html
+wrote reports/dashboard.html
+wrote reports/epics.csv
+wrote reports/health.csv
+wrote reports/intake.csv
+wrote reports/items.csv
+wrote reports/roadmap.html
+wrote reports/sprint-1-report.html
+wrote reports/sprint-1-report.txt
+wrote reports/sprints.csv
+wrote reports/tree.html
+</pre>
 <pre class=term><span class=prompt>$ cat reports/2026-09-28-brief.txt</span>
 AMBER -- Sprint 1, 2026-09-28: 17% done. 1 blocker: IF-1 (Production) still waiting on Contracting for Spot Orders
 
-- IF-1 (Production) blocked: still waiting on Contracting for Spot Orders
+- IF-1 (Production) blocked 0d: still waiting on Contracting for Spot Orders
 </pre>
 <p class=note>Commit the day. One commit per townhall: the diff IS the history of what changed.</p>
 <pre class=term><span class=prompt>$ daily.pl commit</span>
 committed
 </pre>
 <pre class=term><span class=prompt>$ git show --stat HEAD | head -12</span>
-commit 6c1b847e731023406f305e0094523ec5dd960368
+commit e192a54ef01f53e9c8b49517db91d8c4e958f784
 Author: Solutions Architect &lt;sa@example.com&gt;
-Date:   Thu Sep 24 13:12:20 2026 -0500
+Date:   Sat Sep 26 13:59:12 2026 -0500
 
     standup 2026-09-28
 
@@ -1699,38 +1671,30 @@ applied standups/2026-09-29.txt (8 transactions)
 </pre>
 <p class=note>:SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:</p>
 <pre class=term><span class=prompt>$ daily.pl report</span>
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;5" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;10" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
 wrote reports/2026-09-29-brief.html
 wrote reports/2026-09-29-brief.txt
 wrote reports/2026-09-29-quad.html
 wrote reports/2026-09-29-quad.txt
 wrote reports/2026-09-29-status.html
 wrote reports/2026-09-29-status.txt
+wrote reports/2026-09-rollup.html
+wrote reports/2026-09-rollup.txt
 wrote reports/cockpit.html
 wrote reports/dashboard.html
+wrote reports/epics.csv
+wrote reports/health.csv
+wrote reports/intake.csv
+wrote reports/items.csv
 wrote reports/roadmap.html
+wrote reports/sprint-1-report.html
+wrote reports/sprint-1-report.txt
+wrote reports/sprints.csv
 wrote reports/tree.html
 </pre>
 <pre class=term><span class=prompt>$ cat reports/2026-09-29-brief.txt</span>
 AMBER -- Sprint 1, 2026-09-29: 30% done. 1 blocker: IF-1 (Production) still waiting on Contracting for Spot Orders
 
-- IF-1 (Production) blocked: still waiting on Contracting for Spot Orders
+- IF-1 (Production) blocked 0d: still waiting on Contracting for Spot Orders
 </pre>
 <p class=note>Commit the day. One commit per townhall: the diff IS the history of what changed.</p>
 <pre class=term><span class=prompt>$ daily.pl commit</span>
@@ -2014,7 +1978,7 @@ flags:
 ... (32 more lines)</pre>
 <p class=note>Day 8 health check: load, blocked age, burn vs plan. daily.pl blocked is the escalation list; three days is your cue to act -- and an interface blocker is yours, not the team lead's.</p>
 <pre class=term><span class=prompt>$ daily.pl blocked</span>
-IF-1       Production still waiting on Contracting for Spot Orders
+IF-1       Production     1d  still waiting on Contracting for Spot Orders
 </pre>
 <pre class=term><span class=prompt>$ daily.pl sprint</span>
 Teams: sprint 1
@@ -2062,29 +2026,24 @@ applied standups/2026-09-30.txt (7 transactions)
 </pre>
 <p class=note>:SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:</p>
 <pre class=term><span class=prompt>$ daily.pl report</span>
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;5" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;10" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
 wrote reports/2026-09-30-brief.html
 wrote reports/2026-09-30-brief.txt
 wrote reports/2026-09-30-quad.html
 wrote reports/2026-09-30-quad.txt
 wrote reports/2026-09-30-status.html
 wrote reports/2026-09-30-status.txt
+wrote reports/2026-09-rollup.html
+wrote reports/2026-09-rollup.txt
 wrote reports/cockpit.html
 wrote reports/dashboard.html
+wrote reports/epics.csv
+wrote reports/health.csv
+wrote reports/intake.csv
+wrote reports/items.csv
 wrote reports/roadmap.html
+wrote reports/sprint-1-report.html
+wrote reports/sprint-1-report.txt
+wrote reports/sprints.csv
 wrote reports/tree.html
 </pre>
 <pre class=term><span class=prompt>$ cat reports/2026-09-30-brief.txt</span>
@@ -2095,9 +2054,9 @@ GREEN -- Sprint 1, 2026-09-30: 40% done. On track, no blockers.
 committed
 </pre>
 <pre class=term><span class=prompt>$ git log --oneline -3</span>
-1842e55 standup 2026-09-30
-39ae10c standup 2026-09-29
-6c1b847 standup 2026-09-28
+6e638dc standup 2026-09-30
+6f3be9e standup 2026-09-29
+e192a54 standup 2026-09-28
 </pre>
 <h2>Day 9  Thu 2026-10-01  --  Townhall + refinement</h2>
 <p class=note>08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.</p>
@@ -2425,29 +2384,24 @@ applied standups/2026-10-01.txt (5 transactions)
 </pre>
 <p class=note>:SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:</p>
 <pre class=term><span class=prompt>$ daily.pl report</span>
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;5" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;10" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
 wrote reports/2026-10-01-brief.html
 wrote reports/2026-10-01-brief.txt
 wrote reports/2026-10-01-quad.html
 wrote reports/2026-10-01-quad.txt
 wrote reports/2026-10-01-status.html
 wrote reports/2026-10-01-status.txt
+wrote reports/2026-10-rollup.html
+wrote reports/2026-10-rollup.txt
 wrote reports/cockpit.html
 wrote reports/dashboard.html
+wrote reports/epics.csv
+wrote reports/health.csv
+wrote reports/intake.csv
+wrote reports/items.csv
 wrote reports/roadmap.html
+wrote reports/sprint-1-report.html
+wrote reports/sprint-1-report.txt
+wrote reports/sprints.csv
 wrote reports/tree.html
 </pre>
 <pre class=term><span class=prompt>$ cat reports/2026-10-01-brief.txt</span>
@@ -2470,7 +2424,7 @@ wrote reports/2026-10-02-cards.html
 Ann Contracting - sprint 1 (Contracting)
 In progress (0, 0 SP):
   (nothing committed)
-Queued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)
+Queued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)
 Reply in the meeting chat:  Y: &lt;yesterday&gt;  T: &lt;today&gt;  B: &lt;blocker or none&gt;
 
 Ann Logistics - sprint 1 (Logistics)
@@ -2764,26 +2718,24 @@ applied standups/2026-10-02.txt (6 transactions)
 </pre>
 <p class=note>:SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:</p>
 <pre class=term><span class=prompt>$ daily.pl report</span>
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;5" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;10" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
 wrote reports/2026-10-02-brief.html
 wrote reports/2026-10-02-brief.txt
 wrote reports/2026-10-02-quad.html
 wrote reports/2026-10-02-quad.txt
 wrote reports/2026-10-02-status.html
 wrote reports/2026-10-02-status.txt
+wrote reports/2026-10-rollup.html
+wrote reports/2026-10-rollup.txt
 wrote reports/cockpit.html
 wrote reports/dashboard.html
+wrote reports/epics.csv
+wrote reports/health.csv
+wrote reports/intake.csv
+wrote reports/items.csv
 wrote reports/roadmap.html
+wrote reports/sprint-1-report.html
+wrote reports/sprint-1-report.txt
+wrote reports/sprints.csv
 wrote reports/tree.html
 </pre>
 <pre class=term><span class=prompt>$ cat reports/2026-10-02-brief.txt</span>
@@ -2896,7 +2848,7 @@ wrote reports/2026-10-05-cards.html
 Ann Contracting - sprint 1 (Contracting)
 In progress (0, 0 SP):
   (nothing committed)
-Queued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)
+Queued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)
 Reply in the meeting chat:  Y: &lt;yesterday&gt;  T: &lt;today&gt;  B: &lt;blocker or none&gt;
 
 Ann Logistics - sprint 1 (Logistics)
@@ -3191,24 +3143,24 @@ applied standups/2026-10-05.txt (5 transactions)
 </pre>
 <p class=note>:SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:</p>
 <pre class=term><span class=prompt>$ daily.pl report</span>
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;5" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;10" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;4" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;1" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
 wrote reports/2026-10-05-brief.html
 wrote reports/2026-10-05-brief.txt
 wrote reports/2026-10-05-quad.html
 wrote reports/2026-10-05-quad.txt
 wrote reports/2026-10-05-status.html
 wrote reports/2026-10-05-status.txt
+wrote reports/2026-10-rollup.html
+wrote reports/2026-10-rollup.txt
 wrote reports/cockpit.html
 wrote reports/dashboard.html
+wrote reports/epics.csv
+wrote reports/health.csv
+wrote reports/intake.csv
+wrote reports/items.csv
 wrote reports/roadmap.html
+wrote reports/sprint-1-report.html
+wrote reports/sprint-1-report.txt
+wrote reports/sprints.csv
 wrote reports/tree.html
 </pre>
 <pre class=term><span class=prompt>$ cat reports/2026-10-05-brief.txt</span>
@@ -3221,9 +3173,9 @@ AMBER -- Sprint 1, 2026-10-05: 73% done. HR approaching capacity
 committed
 </pre>
 <pre class=term><span class=prompt>$ git log --oneline -3</span>
-153b074 standup 2026-10-05
-fc498f4 standup 2026-10-02
-1cbe221 standup 2026-10-01
+c1eec16 standup 2026-10-05
+316b9f8 standup 2026-10-02
+18919d4 standup 2026-10-01
 </pre>
 <h2>Day 14  Tue 2026-10-06  --  Review / demo, retro, sprint close</h2>
 <p class=note>Review is the opposite of the townhall: 60-90 minutes, cameras on, demos against the plates. The journal entry for it is one done / carry sweep afterwards -- whatever is still committed goes to Done or Carryover. Partial credit does not exist.</p>
@@ -3325,18 +3277,24 @@ T Testing &gt; T2 Execute Acceptance Tests                            #..     8%
 T Testing &gt; T3 Disposition &amp; Report                                 .      0%  0/35 SP  ETA sprint 2
 </pre>
 <pre class=term><span class=prompt>$ daily.pl report</span>
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;10" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;2" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
-Argument " &lt;span class="chip good"&gt;&amp;#10003; OPEN&lt;/span&gt;3" isn't numeric in numeric gt (&gt;) at ~/agile/bin/../lib/Scrum.pm line 631.
 wrote reports/2026-10-06-brief.html
 wrote reports/2026-10-06-brief.txt
 wrote reports/2026-10-06-quad.html
 wrote reports/2026-10-06-quad.txt
 wrote reports/2026-10-06-status.html
 wrote reports/2026-10-06-status.txt
+wrote reports/2026-10-rollup.html
+wrote reports/2026-10-rollup.txt
 wrote reports/cockpit.html
 wrote reports/dashboard.html
+wrote reports/epics.csv
+wrote reports/health.csv
+wrote reports/intake.csv
+wrote reports/items.csv
 wrote reports/roadmap.html
+wrote reports/sprint-1-report.html
+wrote reports/sprint-1-report.txt
+wrote reports/sprints.csv
 wrote reports/tree.html
 </pre>
 <pre class=term><span class=prompt>$ cat reports/2026-10-06-brief.txt</span>
@@ -3347,7 +3305,7 @@ AMBER -- Sprint 1, 2026-10-06: 87% done. HR approaching capacity
 <p class=note>Close the sprint in git: commit and tag. git log of scrum.txt + standups/ is the audit trail your successor inherits.</p>
 <p class=note>Before the commit, review what the sprint appended: :STig opens tig (Git for Windows ships it) on the project -- j/k walk the commits, Enter shows the diff, q returns to Vim. tig is interactive so the replay shows the equivalent git log; the point is that you look before you commit.</p>
 <pre class=term><span class=vim>[vim] :STig</span>
-153b074 standup 2026-10-05
+c1eec16 standup 2026-10-05
  attendance.csv                              |  60 +++++++
  scrum.txt                                   |  26 +++
  standups/2026-10-05-Contracting-answers.txt |  25 +++
@@ -3370,16 +3328,16 @@ committed
 <pre class=term><span class=prompt>$ git tag sprint-1</span>
 </pre>
 <pre class=term><span class=prompt>$ git log --oneline --decorate</span>
-5e59870 (HEAD -&gt; master, tag: sprint-1) standup 2026-10-06
-153b074 standup 2026-10-05
-fc498f4 standup 2026-10-02
-1cbe221 standup 2026-10-01
-1842e55 standup 2026-09-30
-39ae10c standup 2026-09-29
-6c1b847 standup 2026-09-28
-73d6fd5 standup 2026-09-25
-a0e8a45 standup 2026-09-24
-7341467 standup 2026-09-23
+4efff88 (HEAD -&gt; master, tag: sprint-1) standup 2026-10-06
+c1eec16 standup 2026-10-05
+316b9f8 standup 2026-10-02
+18919d4 standup 2026-10-01
+6e638dc standup 2026-09-30
+6f3be9e standup 2026-09-29
+e192a54 standup 2026-09-28
+8be1cc3 standup 2026-09-25
+4f8823a standup 2026-09-24
+4bbe864 standup 2026-09-23
 </pre>
 <pre class=term><span class=prompt>$ git diff --stat $(git rev-list --max-parents=0 HEAD) sprint-1 | tail -3</span>
  standups/2026-10-05.txt                     |  65 ++++
@@ -3398,7 +3356,7 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"cmd","text":"","cmd":"daily.pl check","out":"ok: 0 tasks, teams , sprints \nmarking: off (no banner in scrum.conf)\n"},
 {"kind":"note","text":"The product is DroneCorp, a notional racing-drone company: a ten-model IDEF0 decomposition, one model per department (tools/idef0/examples/dronecorp/dronecorp.md). Fictional, no real company data. The toolkit lints it and renders the plates; the plates are the design the teams build to. Research & Development is the architect's own department.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"idef0lint dronecorp.md","out":"1 file(s): 0 error(s), 0 warning(s), 10 model(s), 264 activities, 52 link(s)\n"},
-{"kind":"cmd","text":"","cmd":"idef2html dronecorp.md > reports/plates.html","out":"-rwxrwxrwx 1 user user 334916 Sep 24 13:12 reports/plates.html\n"},
+{"kind":"cmd","text":"","cmd":"idef2html dronecorp.md > reports/plates.html","out":"-rwxrwxrwx 1 user user 334916 Sep 26 13:59 reports/plates.html\n"},
 {"kind":"note","text":"The interface table is the architect's territory: every cross-model flow is a contract between two departments -- the Strategic Plan from Executive to every department, Spot Orders from Sales to Production, Delivery Orders from Sales to Logistics.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"idef0 links dronecorp.md | head -8","out":"SOURCE         DEST           FLOW\nC3.o1          P1.i1          Spot Orders\nC3.o2          P1.i2          Continuous Supply Schedule\nC3.o3          L3.i2          Delivery Orders\nC3.o4          E2.i3          Demand Forecast\nC3.o5          F2.i1          Billing Milestones\nE1.o1          C1.c1          Strategic Plan\nE1.o1          R1.c1          Strategic Plan\n"},
 {"kind":"note","text":"Specs and deliverables arrive as PDF and Word. bin/docs2txt.pl (:SDocs in Vim) reads them as text through the converters Git for Windows already ships -- pdftotext, docx2txt, antiword, odt2txt -- so a spec is grepped like the journal. Here it finds every mention of one interface flow in the model source.","cmd":"","out":""},
@@ -3416,10 +3374,10 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":"The roadmap: epics by tome across sprints. Nothing is done yet and there is no velocity, so no forecast -- by sprint 3 it will have one.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl roadmap","out":"Roadmap: epics by tome, sprints 1-1 (current 1; past it is a forecast at the teams' velocity)\n  # done  = in progress  . forecast  ^ current sprint\n                                                                   ^\nC Contracting & Sales > C1 Develop Markets & Pipeline                   0%  0/15 SP  no velocity yet\nC Contracting & Sales > C2 Win Contracts                           =    0%  0/37 SP  no velocity yet\nC Contracting & Sales > C3 Manage Contract Fulfillment             =    0%  0/40 SP  no velocity yet\nE Executive & Strategy > E1 Set Direction                          =    0%  0/30 SP  no velocity yet\nE Executive & Strategy > E2 Plan & Allocate                        =    0%  0/87 SP  no velocity yet\nE Executive & Strategy > E3 Govern Performance                          0%  0/15 SP  no velocity yet\nE Executive & Strategy > E4 Manage Risk & Compliance               =    0%  0/18 SP  no velocity yet\nF Finance > F1 Plan & Steward Budgets                              =    0%  0/30 SP  no velocity yet\nF Finance > F2 Run Financial Operations                            =    0%  0/37 SP  no velocity yet\nF Finance > F3 Close Books & Report                                =    0%  0/20 SP  no velocity yet\nH Human Resources > H1 Plan Workforce & Organization               =    0%  0/15 SP  no velocity yet\nH Human Resources > H2 Staff & Develop Workforce                   =    0%  0/61 SP  no velocity yet\nH Human Resources > H3 Administer HR Operations                    =    0%  0/20 SP  no velocity yet\nL Logistics & Shipping > L1 Receive Inbound Freight                     0%  0/20 SP  no velocity yet\nL Logistics & Shipping > L2 Warehouse Finished Goods                    0%  0/15 SP  no velocity yet\nL Logistics & Shipping > L3 Ship Customer Orders                   =    0%  0/47 SP  no velocity yet\nP Production > P1 Plan Production                                       0%  0/15 SP  no velocity yet\nP Production > P2 Procure & Kit Materials                               0%  0/15 SP  no velocity yet\nP Production > P3 Build Products                                   =    0%  0/65 SP  no velocity yet\nP Production > P4 Support Manufacturing Engineering                =    0%  0/13 SP  no velocity yet\nQ Quality Assurance > Q1 Maintain Quality System                        0%  0/25 SP  no velocity yet\nQ Quality Assurance > Q2 Inspect & Release Product                 =    0%  0/20 SP  no velocity yet\nQ Quality Assurance > Q3 Manage Nonconformance & CAPA              =    0%  0/42 SP  no velocity yet\nR Research & Development > R1 Define Product Requirements               0%  0/15 SP  no velocity yet\nR Research & Development > R2 Develop Product Design               =    0%  0/53 SP  no velocity yet\nR Research & Development > R3 Verify Design                             0%  0/15 SP  no velocity yet\nR Research & Development > R4 Release Engineering Baseline         =    0%  0/35 SP  no velocity yet\nS Customer Support & Feedback > S1 Operate Support Channels        =    0%  0/15 SP  no velocity yet\nS Customer Support & Feedback > S2 Resolve Customer Cases          =    0%  0/37 SP  no velocity yet\nS Customer Support & Feedback > S3 Synthesize Feedback & Insights  =    0%  0/35 SP  no velocity yet\nT Testing > T1 Prepare Test Program                                     0%  0/15 SP  no velocity yet\nT Testing > T2 Execute Acceptance Tests                            =    0%  0/37 SP  no velocity yet\nT Testing > T3 Disposition & Report                                     0%  0/35 SP  no velocity yet\n"},
 {"kind":"note","text":"The reports are derived from the journal, never typed: dashboard, planning tree, roadmap, status mail, and the one-screen leadership brief.","cmd":"","out":""},
-{"kind":"cmd","text":"","cmd":"daily.pl report","out":"Argument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>5\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>10\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nwrote reports/2026-09-23-brief.html\nwrote reports/2026-09-23-brief.txt\nwrote reports/2026-09-23-quad.html\nwrote reports/2026-09-23-quad.txt\n... (6 more lines)"},
+{"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-09-23-brief.html\nwrote reports/2026-09-23-brief.txt\nwrote reports/2026-09-23-quad.html\nwrote reports/2026-09-23-quad.txt\nwrote reports/2026-09-23-status.html\nwrote reports/2026-09-23-status.txt\nwrote reports/2026-09-rollup.html\nwrote reports/2026-09-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
 {"kind":"note","text":"Commit the day. daily.pl commit is just git add -A + git commit; the journal and stand-up notes are the audit trail.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
-{"kind":"cmd","text":"","cmd":"git log --oneline","out":"7341467 standup 2026-09-23\n"},
+{"kind":"cmd","text":"","cmd":"git log --oneline","out":"4bbe864 standup 2026-09-23\n"},
 {"kind":"day","text":"Day 2  Thu 2026-09-24  --  Townhall","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-09-24-cards.txt\nwrote reports/2026-09-24-cards.html\n  e-mail known for 0/60 members (from today's meeting invitees)\n"},
@@ -3434,15 +3392,15 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":":SCompile -- apply today. Done points move to Sprint:1:<Team>:Done; a block is a zero-point posting that flags the task until unblock.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl compile","out":"applied standups/2026-09-24.txt (0 transactions)\n"},
 {"kind":"note","text":":SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:","cmd":"","out":""},
-{"kind":"cmd","text":"","cmd":"daily.pl report","out":"Argument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>5\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>10\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nwrote reports/2026-09-24-brief.html\nwrote reports/2026-09-24-brief.txt\nwrote reports/2026-09-24-quad.html\nwrote reports/2026-09-24-quad.txt\n... (6 more lines)"},
+{"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-09-24-brief.html\nwrote reports/2026-09-24-brief.txt\nwrote reports/2026-09-24-quad.html\nwrote reports/2026-09-24-quad.txt\nwrote reports/2026-09-24-status.html\nwrote reports/2026-09-24-status.txt\nwrote reports/2026-09-rollup.html\nwrote reports/2026-09-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
 {"kind":"cmd","text":"","cmd":"cat reports/2026-09-24-brief.txt","out":"GREEN -- Sprint 1, 2026-09-24: 0% done. On track, no blockers.\n"},
 {"kind":"note","text":"Commit the day. One commit per townhall: the diff IS the history of what changed.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
-{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"a0e8a45 standup 2026-09-24\n7341467 standup 2026-09-23\n"},
+{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"4f8823a standup 2026-09-24\n4bbe864 standup 2026-09-23\n"},
 {"kind":"day","text":"Day 3  Fri 2026-09-25  --  Townhall + weekly status mail","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-09-25-cards.txt\nwrote reports/2026-09-25-cards.html\n  e-mail known for 0/60 members (from today's meeting invitees)\n"},
-{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-25-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (1, 5 SP):\n  IF-39        5  Interface: Released Products from Quality to Logistics\n"},
+{"kind":"cmd","text":"","cmd":"head -9 reports/2026-09-25-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (1, 5 SP):\n  IF-39        5  Interface: Released Products from Quality to Logistics\n"},
 {"kind":"note","text":"08:30-08:45 -- the townhall. Everyone types Y/T/B into the one Teams chat; the chat is the record. Afterwards: select all, copy, paste into standups/2026-09-25-chat.txt (:SChat).","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"head -14 standups/2026-09-25-chat.txt","out":"Meeting started\n[8:31 AM] Ann Contracting\nY: demo prep\nT: refinement notes\nB: none\n[8:32 AM] Bob Contracting\nY: worked on IF-19\nT: continue IF-19\nB: none\n[8:33 AM] Cy Contracting\nY: worked on IF-31\nT: continue IF-31\nB: none\n[8:34 AM] Dee Contracting\n"},
 {"kind":"note","text":":SAnswers -- parses Y/T/B per person, splits them to teams by who owns what in the journal, logs attendance, and writes FLAGS: silent people, blockers, \"done\" claims. You read the flags, not the chat.","cmd":"","out":""},
@@ -3454,8 +3412,8 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":":SCompile -- apply today. Done points move to Sprint:1:<Team>:Done; a block is a zero-point posting that flags the task until unblock.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl compile","out":"applied standups/2026-09-25.txt (6 transactions)\n"},
 {"kind":"note","text":":SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:","cmd":"","out":""},
-{"kind":"cmd","text":"","cmd":"daily.pl report","out":"Argument \" <span class=\"chip good\">&#10003; OPEN</span>5\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>10\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nwrote reports/2026-09-25-brief.html\nwrote reports/2026-09-25-brief.txt\nwrote reports/2026-09-25-quad.html\nwrote reports/2026-09-25-quad.txt\nwrote reports/2026-09-25-status.html\n... (5 more lines)"},
-{"kind":"cmd","text":"","cmd":"cat reports/2026-09-25-brief.txt","out":"AMBER -- Sprint 1, 2026-09-25: 9% done. 1 blocker: IF-1 (Production) waiting on Contracting for the Spot Orders interface\n\n- IF-1 (Production) blocked: waiting on Contracting for the Spot Orders interface\n"},
+{"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-09-25-brief.html\nwrote reports/2026-09-25-brief.txt\nwrote reports/2026-09-25-quad.html\nwrote reports/2026-09-25-quad.txt\nwrote reports/2026-09-25-status.html\nwrote reports/2026-09-25-status.txt\nwrote reports/2026-09-rollup.html\nwrote reports/2026-09-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
+{"kind":"cmd","text":"","cmd":"cat reports/2026-09-25-brief.txt","out":"AMBER -- Sprint 1, 2026-09-25: 9% done. 1 blocker: IF-1 (Production) waiting on Contracting for the Spot Orders interface\n\n- IF-1 (Production) blocked 0d: waiting on Contracting for the Spot Orders interface\n"},
 {"kind":"note","text":"Friday: the weekly mail to leadership is the same brief plus velocity and the blocked list. daily.pl draft / daily.pl brief open it in Outlook -- skipped here so training does not open a mail client.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl velocity","out":"Contracting  (avg velocity 3.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23     3    13%\n\nExecutive  (avg velocity 0.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23     0     0%\n\nFinance  (avg velocity 5.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23     5    22%\n... (35 more lines)"},
 {"kind":"note","text":"The quad is the one-page weekly status: Technical Priorities (the sprint tagged OPEN/DONE/WAIT/HOLD/DROP with REDO/PASS/SYNC marks, then the TODO list with anything punted first), Watch Items the PM must help with (PM) or know about (WI), Schedule Milestones 30/60/90 days out with pushed-right / pulled-left arrows against last week, and Accomplishments marked on time or late. report wrote it as reports/<date>-quad.html; this is the text form.","cmd":"","out":""},
@@ -3477,11 +3435,11 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":":SCompile -- apply today. Done points move to Sprint:1:<Team>:Done; a block is a zero-point posting that flags the task until unblock.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl compile","out":"applied standups/2026-09-28.txt (5 transactions)\n"},
 {"kind":"note","text":":SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:","cmd":"","out":""},
-{"kind":"cmd","text":"","cmd":"daily.pl report","out":"Argument \" <span class=\"chip good\">&#10003; OPEN</span>5\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>10\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nwrote reports/2026-09-28-brief.html\nwrote reports/2026-09-28-brief.txt\nwrote reports/2026-09-28-quad.html\nwrote reports/2026-09-28-quad.txt\nwrote reports/2026-09-28-status.html\nwrote reports/2026-09-28-status.txt\n... (4 more lines)"},
-{"kind":"cmd","text":"","cmd":"cat reports/2026-09-28-brief.txt","out":"AMBER -- Sprint 1, 2026-09-28: 17% done. 1 blocker: IF-1 (Production) still waiting on Contracting for Spot Orders\n\n- IF-1 (Production) blocked: still waiting on Contracting for Spot Orders\n"},
+{"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-09-28-brief.html\nwrote reports/2026-09-28-brief.txt\nwrote reports/2026-09-28-quad.html\nwrote reports/2026-09-28-quad.txt\nwrote reports/2026-09-28-status.html\nwrote reports/2026-09-28-status.txt\nwrote reports/2026-09-rollup.html\nwrote reports/2026-09-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
+{"kind":"cmd","text":"","cmd":"cat reports/2026-09-28-brief.txt","out":"AMBER -- Sprint 1, 2026-09-28: 17% done. 1 blocker: IF-1 (Production) still waiting on Contracting for Spot Orders\n\n- IF-1 (Production) blocked 0d: still waiting on Contracting for Spot Orders\n"},
 {"kind":"note","text":"Commit the day. One commit per townhall: the diff IS the history of what changed.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
-{"kind":"cmd","text":"","cmd":"git show --stat HEAD | head -12","out":"commit 6c1b847e731023406f305e0094523ec5dd960368\nAuthor: Solutions Architect <sa@example.com>\nDate:   Thu Sep 24 13:12:20 2026 -0500\n\n    standup 2026-09-28\n\n attendance.csv                              |  60 +++++++\n scrum.txt                                   |  22 +++\n standups/2026-09-28-Contracting-answers.txt |  25 +++\n standups/2026-09-28-Executive-answers.txt   |  25 +++\n standups/2026-09-28-Finance-answers.txt     |  25 +++\n standups/2026-09-28-HR-answers.txt          |  25 +++\n"},
+{"kind":"cmd","text":"","cmd":"git show --stat HEAD | head -12","out":"commit e192a54ef01f53e9c8b49517db91d8c4e958f784\nAuthor: Solutions Architect <sa@example.com>\nDate:   Sat Sep 26 13:59:12 2026 -0500\n\n    standup 2026-09-28\n\n attendance.csv                              |  60 +++++++\n scrum.txt                                   |  22 +++\n standups/2026-09-28-Contracting-answers.txt |  25 +++\n standups/2026-09-28-Executive-answers.txt   |  25 +++\n standups/2026-09-28-Finance-answers.txt     |  25 +++\n standups/2026-09-28-HR-answers.txt          |  25 +++\n"},
 {"kind":"day","text":"Day 7  Tue 2026-09-29  --  Townhall","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-09-29-cards.txt\nwrote reports/2026-09-29-cards.html\n  e-mail known for 0/60 members (from today's meeting invitees)\n"},
@@ -3499,8 +3457,8 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":":SCompile -- apply today. Done points move to Sprint:1:<Team>:Done; a block is a zero-point posting that flags the task until unblock.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl compile","out":"applied standups/2026-09-29.txt (8 transactions)\n"},
 {"kind":"note","text":":SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:","cmd":"","out":""},
-{"kind":"cmd","text":"","cmd":"daily.pl report","out":"Argument \" <span class=\"chip good\">&#10003; OPEN</span>5\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>10\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nwrote reports/2026-09-29-brief.html\nwrote reports/2026-09-29-brief.txt\nwrote reports/2026-09-29-quad.html\nwrote reports/2026-09-29-quad.txt\nwrote reports/2026-09-29-status.html\nwrote reports/2026-09-29-status.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/roadmap.html\nwrote reports/tree.html\n"},
-{"kind":"cmd","text":"","cmd":"cat reports/2026-09-29-brief.txt","out":"AMBER -- Sprint 1, 2026-09-29: 30% done. 1 blocker: IF-1 (Production) still waiting on Contracting for Spot Orders\n\n- IF-1 (Production) blocked: still waiting on Contracting for Spot Orders\n"},
+{"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-09-29-brief.html\nwrote reports/2026-09-29-brief.txt\nwrote reports/2026-09-29-quad.html\nwrote reports/2026-09-29-quad.txt\nwrote reports/2026-09-29-status.html\nwrote reports/2026-09-29-status.txt\nwrote reports/2026-09-rollup.html\nwrote reports/2026-09-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
+{"kind":"cmd","text":"","cmd":"cat reports/2026-09-29-brief.txt","out":"AMBER -- Sprint 1, 2026-09-29: 30% done. 1 blocker: IF-1 (Production) still waiting on Contracting for Spot Orders\n\n- IF-1 (Production) blocked 0d: still waiting on Contracting for Spot Orders\n"},
 {"kind":"note","text":"Commit the day. One commit per townhall: the diff IS the history of what changed.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
 {"kind":"day","text":"Day 8  Wed 2026-09-30  --  Townhall + mid-sprint health check","cmd":"","out":""},
@@ -3512,7 +3470,7 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":":SAnswers -- parses Y/T/B per person, splits them to teams by who owns what in the journal, logs attendance, and writes FLAGS: silent people, blockers, \"done\" claims. You read the flags, not the chat.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl answers","out":"Contracting stand-up answers: 6 people, 0 blocked\n  Ann Contracting Y: code review\n                 T: demo prep\n                 B: none\n  Bob Contracting Y: finished IF-19, merged\n                 T: demo prep\n                 B: none\n  Cy Contracting Y: worked on IF-31\n                 T: continue IF-31\n                 B: none\n  Dee Contracting Y: worked on IF-48\n                 T: continue IF-48\n                 B: none\n  Eve Contracting Y: code review\n                 T: demo prep\n                 B: none\n  Fay Contracting Y: code review\n                 T: demo prep\n                 B: none\nflags:\n  RED   Cy Contracting same plan 5 days running: continue IF-31\n  RED   Dee Contracting same plan 5 days running: continue IF-48\n  INFO  3x no task ids in yesterday/today: Ann Contracting, Eve Contracting, Fay Contracting\n  INFO  1x says ID is done; confirm and mark: Bob Contracting (IF-19)\nwrote standups/2026-09-30-Contracting-answers.txt\n  attendance: 6 rows (answered) -> attendance.csv\ncreated\nstandups/2026-09-30.txt\n  appended suggested lines to standups/2026-09-30.txt\nExecutive stand-up answers: 6 people, 0 blocked\n  Gus Executive  Y: code review\n                 T: demo prep\n                 B: none\n  Hal Executive  Y: worked on IF-21\n                 T: continue IF-21\n                 B: none\n  Ida Executive  Y: worked on IF-22\n                 T: continue IF-22\n                 B: none\n  Jon Executive  Y: code review\n                 T: demo prep\n                 B: none\n  Kim Executive  Y: worked on E-221\n                 T: continue E-221\n                 B: none\n  Lou Executive  Y: code review\n                 T: demo prep\n                 B: none\nflags:\n  RED   Hal Executive  same plan 5 days running: continue IF-21\n  RED   Ida Executive  same plan 5 days running: continue IF-22\n  RED   Kim Executive  same plan 5 days running: continue E-221\n  INFO  3x no task ids in yesterday/today: Gus Executive, Jon Executive, Lou Executive\nwrote standups/2026-09-30-Executive-answers.txt\n  attendance: 6 rows (answered) -> attendance.csv\nFinance stand-up answers: 6 people, 0 blocked\n  Max Finance    Y: worked on IF-10\n                 T: continue IF-10\n                 B: none\n  Nia Finance    Y: code review\n                 T: demo prep\n                 B: none\n  Ola Finance    Y: worked on IF-29\n                 T: continue IF-29\n                 B: none\n  Pat Finance    Y: code review\n                 T: demo prep\n                 B: none\n  Quinn Finance  Y: finished F-221, merged\n                 T: demo prep\n                 B: none\n  Ray Finance    Y: code review\n                 T: demo prep\n                 B: none\nflags:\n  RED   Max Finance    same plan 5 days running: continue IF-10\n  RED   Ola Finance    same plan 5 days running: continue IF-29\n  INFO  3x no task ids in yesterday/today: Nia Finance, Pat Finance, Ray Finance\n  INFO  1x says ID is done; confirm and mark: Quinn Finance (F-221)\nwrote standups/2026-09-30-Finance-answers.txt\n  attendance: 6 rows (answered) -> attendance.csv\n  appended suggested lines to standups/2026-09-30.txt\nHR stand-up answers: 6 people, 0 blocked\n  Sam HR         Y: worked on H-11\n                 T: continue H-11\n                 B: none\n  Tia HR         Y: worked on H-12\n                 T: continue H-12\n                 B: none\n  Uma HR         Y: worked on H-13\n                 T: continue H-13\n                 B: none\n  Val HR         Y: finished H-211, merged\n                 T: demo prep\n                 B: none\n  Wes HR         Y: code review\n                 T: demo prep\n                 B: none\n  Xia HR         Y: code review\n                 T: demo prep\n                 B: none\nflags:\n  RED   Sam HR         same plan 5 days running: continue H-11\n  RED   Tia HR         same plan 5 days running: continue H-12\n  RED   Uma HR         same plan 5 days running: continue H-13\n  INFO  1x says ID is done; confirm and mark: Val HR (H-211)\n  INFO  2x no task ids in yesterday/today: Wes HR, Xia HR\nwrote standups/2026-09-30-HR-answers.txt\n  attendance: 6 rows (answered) -> attendance.csv\n  appended suggested lines to standups/2026-09-30.txt\nLogistics stand-up answers: 6 people, 0 blocked\n  Ann Logistics  Y: code review\n                 T: demo prep\n                 B: none\n  Bob Logistics  Y: code review\n                 T: demo prep\n                 B: none\n  Cy Logistics   Y: code review\n                 T: demo prep\n                 B: none\n  Dee Logistics  Y: worked on IF-3\n                 T: continue IF-3\n                 B: none\n  Yul Logistics  Y: code review\n                 T: demo prep\n                 B: none\n  Zed Logistics  Y: worked on IF-20\n                 T: continue IF-20\n                 B: none\nflags:\n  RED   Dee Logistics  same plan 5 days running: continue IF-3\n  RED   Zed Logistics  same plan 5 days running: continue IF-20\n  INFO  4x no task ids in yesterday/today: Ann Logistics, Bob Logistics, Cy Logistics, Yul Logistics\nwrote standups/2026-09-30-Logistics-answers.txt\n  attendance: 6 rows (answered) -> attendance.csv\nProduction stand-up answers: 6 people, 0 blocked\n  Eve Production Y: worked on IF-2\n                 T: continue IF-2\n                 B: none\n  Fay Production Y: worked on IF-13\n                 T: continue IF-13\n                 B: none\n  Gus Production Y: code review\n                 T: demo prep\n                 B: none\n  Hal Production Y: code review\n                 T: demo prep\n                 B: none\n  Ida Production Y: code review\n                 T: demo prep\n                 B: none\n  Jon Production Y: worked on IF-1\n                 T: continue IF-1\n                 B: Spot Orders arrived from Contracting, unblocked\nflags:\n  RED   Eve Production same plan 5 days running: continue IF-2\n  RED   Fay Production same plan 5 days running: continue IF-13\n  RED   Jon Production same plan 5 days running: continue IF-1\n  INFO  3x no task ids in yesterday/today: Gus Production, Hal Production, Ida Production\nwrote standups/2026-09-30-Production-answers.txt\n  attendance: 6 rows (answered) -> attendance.csv\n  appended suggested lines to standups/2026-09-30.txt\nQuality stand-up answers: 6 people, 0 blocked\n  Kim Quality    Y: worked on IF-33\n                 T: continue IF-33\n                 B: none\n  Lou Quality    Y: finished Q-321, merged\n                 T: demo prep\n                 B: none\n  Max Quality    Y: worked on IF-42\n                 T: continue IF-42\n                 B: none\n  Nia Quality    Y: code review\n                 T: demo prep\n                 B: none\n  Ola Quality    Y: code review\n                 T: demo prep\n                 B: none\n  Pat Quality    Y: worked on IF-14\n                 T: continue IF-14\n                 B: none\nflags:\n  RED   Kim Quality    same plan 5 days running: continue IF-33\n  RED   Max Quality    same plan 5 days running: continue IF-42\n  RED   Pat Quality    same plan 5 days running: continue IF-14\n  INFO  1x says ID is done; confirm and mark: Lou Quality (Q-321)\n  INFO  2x no task ids in yesterday/today: Nia Quality, Ola Quality\nwrote standups/2026-09-30-Quality-answers.txt\n  attendance: 6 rows (answered) -> attendance.csv\n  appended suggested lines to standups/2026-09-30.txt\nResearch stand-up answers: 6 people, 0 blocked\n  Quinn Research Y: worked on IF-45\n                 T: continue IF-45\n                 B: none\n  Ray Research   Y: code review\n                 T: demo prep\n                 B: none\n  Sam Research   Y: code review\n                 T: demo prep\n                 B: none\n  Tia Research   Y: worked on R-211\n                 T: continue R-211\n                 B: none\n  Uma Research   Y: worked on IF-15\n                 T: continue IF-15\n                 B: none\n  Val Research   Y: code review\n                 T: demo prep\n                 B: none\nflags:\n  RED   Quinn Research same plan 5 days running: continue IF-45\n  RED   Tia Research   same plan 5 days running: continue R-211\n  RED   Uma Research   same plan 5 days running: continue IF-15\n  INFO  3x no task ids in yesterday/today: Ray Research, Sam Research, Val Research\nwrote standups/2026-09-30-Research-answers.txt\n  attendance: 6 rows (answered) -> attendance.csv\nSupport stand-up answers: 6 people, 0 blocked\n  Ann Support    Y: code review\n                 T: demo prep\n                 B: none\n  Bob Support    Y: worked on IF-16\n                 T: continue IF-16\n                 B: none\n  Wes Support    Y: worked on S-11\n                 T: continue S-11\n                 B: none\n  Xia Support    Y: finished S-12, merged\n                 T: demo prep\n                 B: none\n  Yul Support    Y: code review\n                 T: demo prep\n                 B: none\n  Zed Support    Y: code review\n                 T: demo prep\n                 B: none\nflags:\n  RED   Bob Support    same plan 5 days running: continue IF-16\n  RED   Wes Support    same plan 5 days running: continue S-11\n... (32 more lines)"},
 {"kind":"note","text":"Day 8 health check: load, blocked age, burn vs plan. daily.pl blocked is the escalation list; three days is your cue to act -- and an interface blocker is yours, not the team lead's.","cmd":"","out":""},
-{"kind":"cmd","text":"","cmd":"daily.pl blocked","out":"IF-1       Production still waiting on Contracting for Spot Orders\n"},
+{"kind":"cmd","text":"","cmd":"daily.pl blocked","out":"IF-1       Production     1d  still waiting on Contracting for Spot Orders\n"},
 {"kind":"cmd","text":"","cmd":"daily.pl sprint","out":"Teams: sprint 1\nTeam         Cap  Commit  Done  Open  Carry  Removed  Done%  Load%\n-----------  ---  ------  ----  ----  -----  -------  -----  -----\nContracting   24      23     8    15      0        0    35%    96%\nExecutive     24      23     5    18      0        0    22%    96%\nFinance       24      23    10    13      0        0    43%    96%\nHR            24      23     0    23      0        0     0%    96%\nLogistics     24      23    13    10      0        0    57%    96%\nProduction    24      23     5    18      0        0    22%    96%\nQuality       24      23     5    18      0        0    22%    96%\nResearch      24      23    10    13      0        0    43%    96%\nSupport       24      23     3    15      0        0    13%    96%\nTesting       24      23    10    13      0        0    43%    96%\nTotal        240     230    69   156      0        0    30%    96%\n... (74 more lines)"},
 {"kind":"note","text":"What answers (and chat) appended to today's stand-up file -- suggestions, not decisions:","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"tail -12 standups/2026-09-30.txt","out":"\n; ---- answers 2026-09-30 Quality\n== Quality\n; done Q-321   ; Lou Quality say done\n\n; ---- answers 2026-09-30 Support\n== Support\n; done S-12   ; Xia Support say done\n\n; ---- answers 2026-09-30 Testing\n== Testing\n; done T-221   ; Gus Testing say done\n"},
@@ -3521,11 +3479,11 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":":SCompile -- apply today. Done points move to Sprint:1:<Team>:Done; a block is a zero-point posting that flags the task until unblock.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl compile","out":"applied standups/2026-09-30.txt (7 transactions)\n"},
 {"kind":"note","text":":SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:","cmd":"","out":""},
-{"kind":"cmd","text":"","cmd":"daily.pl report","out":"Argument \" <span class=\"chip good\">&#10003; OPEN</span>5\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>10\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nwrote reports/2026-09-30-brief.html\nwrote reports/2026-09-30-brief.txt\nwrote reports/2026-09-30-quad.html\nwrote reports/2026-09-30-quad.txt\nwrote reports/2026-09-30-status.html\nwrote reports/2026-09-30-status.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/roadmap.html\nwrote reports/tree.html\n"},
+{"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-09-30-brief.html\nwrote reports/2026-09-30-brief.txt\nwrote reports/2026-09-30-quad.html\nwrote reports/2026-09-30-quad.txt\nwrote reports/2026-09-30-status.html\nwrote reports/2026-09-30-status.txt\nwrote reports/2026-09-rollup.html\nwrote reports/2026-09-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
 {"kind":"cmd","text":"","cmd":"cat reports/2026-09-30-brief.txt","out":"GREEN -- Sprint 1, 2026-09-30: 40% done. On track, no blockers.\n"},
 {"kind":"note","text":"Commit the day. One commit per townhall: the diff IS the history of what changed.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
-{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"1842e55 standup 2026-09-30\n39ae10c standup 2026-09-29\n6c1b847 standup 2026-09-28\n"},
+{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"6e638dc standup 2026-09-30\n6f3be9e standup 2026-09-29\ne192a54 standup 2026-09-28\n"},
 {"kind":"day","text":"Day 9  Thu 2026-10-01  --  Townhall + refinement","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-10-01-cards.txt\nwrote reports/2026-10-01-cards.html\n  e-mail known for 0/60 members (from today's meeting invitees)\n"},
@@ -3545,14 +3503,14 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":":SCompile -- apply today. Done points move to Sprint:1:<Team>:Done; a block is a zero-point posting that flags the task until unblock.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl compile","out":"applied standups/2026-10-01.txt (5 transactions)\n"},
 {"kind":"note","text":":SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:","cmd":"","out":""},
-{"kind":"cmd","text":"","cmd":"daily.pl report","out":"Argument \" <span class=\"chip good\">&#10003; OPEN</span>5\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>10\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nwrote reports/2026-10-01-brief.html\nwrote reports/2026-10-01-brief.txt\nwrote reports/2026-10-01-quad.html\nwrote reports/2026-10-01-quad.txt\nwrote reports/2026-10-01-status.html\nwrote reports/2026-10-01-status.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/roadmap.html\nwrote reports/tree.html\n"},
+{"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-10-01-brief.html\nwrote reports/2026-10-01-brief.txt\nwrote reports/2026-10-01-quad.html\nwrote reports/2026-10-01-quad.txt\nwrote reports/2026-10-01-status.html\nwrote reports/2026-10-01-status.txt\nwrote reports/2026-10-rollup.html\nwrote reports/2026-10-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
 {"kind":"cmd","text":"","cmd":"cat reports/2026-10-01-brief.txt","out":"AMBER -- Sprint 1, 2026-10-01: 48% done. HR approaching capacity\n\n- HR approaching capacity (108%)\n"},
 {"kind":"note","text":"Commit the day. One commit per townhall: the diff IS the history of what changed.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
 {"kind":"day","text":"Day 10  Fri 2026-10-02  --  Townhall + weekly status mail","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-10-02-cards.txt\nwrote reports/2026-10-02-cards.html\n  e-mail known for 0/61 members (from today's meeting invitees)\n"},
-{"kind":"cmd","text":"","cmd":"head -9 reports/2026-10-02-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (0, 0 SP):\n  (nothing committed)\n"},
+{"kind":"cmd","text":"","cmd":"head -9 reports/2026-10-02-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (0, 0 SP):\n  (nothing committed)\n"},
 {"kind":"note","text":"08:30-08:45 -- the townhall. Everyone types Y/T/B into the one Teams chat; the chat is the record. Afterwards: select all, copy, paste into standups/2026-10-02-chat.txt (:SChat).","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"head -14 standups/2026-10-02-chat.txt","out":"Meeting started\n[8:31 AM] Ann Contracting\nY: refinement notes\nT: pairing on the carryover\nB: none\n[8:32 AM] Bob Contracting\nY: refinement notes\nT: pairing on the carryover\nB: none\n[8:33 AM] Cy Contracting\nY: worked on IF-31\nT: continue IF-31\nB: none\n[8:34 AM] Dee Contracting\n"},
 {"kind":"note","text":":SAnswers -- parses Y/T/B per person, splits them to teams by who owns what in the journal, logs attendance, and writes FLAGS: silent people, blockers, \"done\" claims. You read the flags, not the chat.","cmd":"","out":""},
@@ -3564,7 +3522,7 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":":SCompile -- apply today. Done points move to Sprint:1:<Team>:Done; a block is a zero-point posting that flags the task until unblock.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl compile","out":"applied standups/2026-10-02.txt (6 transactions)\n"},
 {"kind":"note","text":":SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:","cmd":"","out":""},
-{"kind":"cmd","text":"","cmd":"daily.pl report","out":"Argument \" <span class=\"chip good\">&#10003; OPEN</span>5\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>10\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nwrote reports/2026-10-02-brief.html\nwrote reports/2026-10-02-brief.txt\nwrote reports/2026-10-02-quad.html\nwrote reports/2026-10-02-quad.txt\nwrote reports/2026-10-02-status.html\nwrote reports/2026-10-02-status.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/roadmap.html\nwrote reports/tree.html\n"},
+{"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-10-02-brief.html\nwrote reports/2026-10-02-brief.txt\nwrote reports/2026-10-02-quad.html\nwrote reports/2026-10-02-quad.txt\nwrote reports/2026-10-02-status.html\nwrote reports/2026-10-02-status.txt\nwrote reports/2026-10-rollup.html\nwrote reports/2026-10-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
 {"kind":"cmd","text":"","cmd":"cat reports/2026-10-02-brief.txt","out":"AMBER -- Sprint 1, 2026-10-02: 61% done. HR approaching capacity\n\n- HR approaching capacity (108%)\n"},
 {"kind":"note","text":"Friday: the weekly mail to leadership is the same brief plus velocity and the blocked list. daily.pl draft / daily.pl brief open it in Outlook -- skipped here so training does not open a mail client.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl velocity","out":"Contracting  (avg velocity 18.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23    18    78%\n\nExecutive  (avg velocity 10.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23    10    43%\n\nFinance  (avg velocity 18.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23    18    78%\n... (35 more lines)"},
@@ -3575,7 +3533,7 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"day","text":"Day 13  Mon 2026-10-05  --  Townhall","cmd":"","out":""},
 {"kind":"note","text":"08:15 -- daily.pl cards: each person gets their own card (their tasks, blockers, the Y/T/B reminder) before the call. The cards are the agenda.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl cards","out":"wrote reports/2026-10-05-cards.txt\nwrote reports/2026-10-05-cards.html\n  e-mail known for 0/61 members (from today's meeting invitees)\n"},
-{"kind":"cmd","text":"","cmd":"head -9 reports/2026-10-05-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: C-11 (5), IF-9 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (0, 0 SP):\n  (nothing committed)\n"},
+{"kind":"cmd","text":"","cmd":"head -9 reports/2026-10-05-cards.txt","out":"Ann Contracting - sprint 1 (Contracting)\nIn progress (0, 0 SP):\n  (nothing committed)\nQueued: IF-9 (5), C-11 (5), C-223 (3), C-22221 (3)\nReply in the meeting chat:  Y: <yesterday>  T: <today>  B: <blocker or none>\n\nAnn Logistics - sprint 1 (Logistics)\nIn progress (0, 0 SP):\n  (nothing committed)\n"},
 {"kind":"note","text":"08:30-08:45 -- the townhall. Everyone types Y/T/B into the one Teams chat; the chat is the record. Afterwards: select all, copy, paste into standups/2026-10-05-chat.txt (:SChat).","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"head -14 standups/2026-10-05-chat.txt","out":"Meeting started\n[8:31 AM] Ann Contracting\nY: pairing on the carryover\nT: code review\nB: none\n[8:32 AM] Bob Contracting\nY: pairing on the carryover\nT: code review\nB: none\n[8:33 AM] Cy Contracting\nY: finished IF-31, merged\nT: code review\nB: none\n[8:34 AM] Dee Contracting\n"},
 {"kind":"note","text":":SAnswers -- parses Y/T/B per person, splits them to teams by who owns what in the journal, logs attendance, and writes FLAGS: silent people, blockers, \"done\" claims. You read the flags, not the chat.","cmd":"","out":""},
@@ -3587,11 +3545,11 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"note","text":":SCompile -- apply today. Done points move to Sprint:1:<Team>:Done; a block is a zero-point posting that flags the task until unblock.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl compile","out":"applied standups/2026-10-05.txt (5 transactions)\n"},
 {"kind":"note","text":":SReport -- dashboard, tree, roadmap, the status mail, and the brief regenerate from the journal. The brief is what leadership gets:","cmd":"","out":""},
-{"kind":"cmd","text":"","cmd":"daily.pl report","out":"Argument \" <span class=\"chip good\">&#10003; OPEN</span>5\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>10\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>4\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>1\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nwrote reports/2026-10-05-brief.html\nwrote reports/2026-10-05-brief.txt\nwrote reports/2026-10-05-quad.html\nwrote reports/2026-10-05-quad.txt\nwrote reports/2026-10-05-status.html\nwrote reports/2026-10-05-status.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/roadmap.html\nwrote reports/tree.html\n"},
+{"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-10-05-brief.html\nwrote reports/2026-10-05-brief.txt\nwrote reports/2026-10-05-quad.html\nwrote reports/2026-10-05-quad.txt\nwrote reports/2026-10-05-status.html\nwrote reports/2026-10-05-status.txt\nwrote reports/2026-10-rollup.html\nwrote reports/2026-10-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
 {"kind":"cmd","text":"","cmd":"cat reports/2026-10-05-brief.txt","out":"AMBER -- Sprint 1, 2026-10-05: 73% done. HR approaching capacity\n\n- HR approaching capacity (108%)\n"},
 {"kind":"note","text":"Commit the day. One commit per townhall: the diff IS the history of what changed.","cmd":"","out":""},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
-{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"153b074 standup 2026-10-05\nfc498f4 standup 2026-10-02\n1cbe221 standup 2026-10-01\n"},
+{"kind":"cmd","text":"","cmd":"git log --oneline -3","out":"c1eec16 standup 2026-10-05\n316b9f8 standup 2026-10-02\n18919d4 standup 2026-10-01\n"},
 {"kind":"day","text":"Day 14  Tue 2026-10-06  --  Review / demo, retro, sprint close","cmd":"","out":""},
 {"kind":"note","text":"Review is the opposite of the townhall: 60-90 minutes, cameras on, demos against the plates. The journal entry for it is one done / carry sweep afterwards -- whatever is still committed goes to Done or Carryover. Partial credit does not exist.","cmd":"","out":""},
 {"kind":"note","text":"Anything still open is either done or carried, explicitly. Carryover is visible forever.","cmd":"","out":""},
@@ -3601,14 +3559,14 @@ var S=[{"kind":"day","text":"Day 1  Wed 2026-09-23  --  The model, the backlog, 
 {"kind":"cmd","text":"","cmd":"daily.pl sprint 1","out":"Teams: sprint 1\nTeam         Cap  Commit  Done  Open  Carry  Removed  Done%  Load%\n-----------  ---  ------  ----  ----  -----  -------  -----  -----\nContracting   24      23    23     0      0        0   100%    96%\nExecutive     24      23    18     0      5        0    78%    96%\nFinance       24      23    18     0      5        0    78%    96%\nHR            24      26    21     0      5        3    81%   108%\nLogistics     24      23    23     0      0        0   100%    96%\nProduction    24      23    23     0      0        0   100%    96%\nQuality       24      23    18     0      5        0    78%    96%\nResearch      24      23    18     0      5        0    78%    96%\nSupport       24      23    18     0      0        0    78%    96%\nTesting       24      23    23     0      0        0   100%    96%\nTotal        240     233   203     0     25        3    87%    97%\n"},
 {"kind":"cmd","text":"","cmd":"daily.pl velocity","out":"Contracting  (avg velocity 23.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23    23   100%\n\nExecutive  (avg velocity 18.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23    18    78%\n\nFinance  (avg velocity 18.0 over last 3 completed)\nSprint  Cap  Commit  Done  Done%\n------  ---  ------  ----  -----\n     1   24      23    18    78%\n... (35 more lines)"},
 {"kind":"cmd","text":"","cmd":"daily.pl roadmap","out":"Roadmap: epics by tome, sprints 1-4 (current 1; past it is a forecast at the teams' velocity)\n  # done  = in progress  . forecast  ^ current sprint\n                                                                   ^   \nA Architectural runway > A1 Enablers                                .      0%  0/5 SP  ETA sprint 2\nC Contracting & Sales > C1 Develop Markets & Pipeline               .      0%  0/15 SP  ETA sprint 2\nC Contracting & Sales > C2 Win Contracts                           #..     8%  3/37 SP  ETA sprint 3\nC Contracting & Sales > C3 Manage Contract Fulfillment             #.     38%  15/40 SP  ETA sprint 2\nE Executive & Strategy > E1 Set Direction                          #.     33%  10/30 SP  ETA sprint 2\nE Executive & Strategy > E2 Plan & Allocate                        #.     38%  33/87 SP  ETA sprint 2\nE Executive & Strategy > E3 Govern Performance                      .      0%  0/15 SP  ETA sprint 2\nE Executive & Strategy > E4 Manage Risk & Compliance               #.     56%  10/18 SP  ETA sprint 2\nF Finance > F1 Plan & Steward Budgets                              #.     33%  10/30 SP  ETA sprint 2\nF Finance > F2 Run Financial Operations                            #..     8%  3/37 SP  ETA sprint 3\nF Finance > F3 Close Books & Report                                #.     25%  5/20 SP  ETA sprint 2\nH Human Resources > H1 Plan Workforce & Organization               #     100%  18/18 SP  done\nH Human Resources > H2 Staff & Develop Workforce                   #.     31%  18/58 SP  ETA sprint 2\nH Human Resources > H3 Administer HR Operations                    #.     25%  5/20 SP  ETA sprint 2\nL Logistics & Shipping > L1 Receive Inbound Freight                 .      0%  0/20 SP  ETA sprint 2\nL Logistics & Shipping > L2 Warehouse Finished Goods                .      0%  0/15 SP  ETA sprint 2\nL Logistics & Shipping > L3 Ship Customer Orders                   #.     28%  13/47 SP  ETA sprint 2\nP Production > P1 Plan Production                                   .      0%  0/15 SP  ETA sprint 2\nP Production > P2 Procure & Kit Materials                           .      0%  0/15 SP  ETA sprint 2\nP Production > P3 Build Products                                   #.     20%  13/65 SP  ETA sprint 2\nP Production > P4 Support Manufacturing Engineering                #.     38%  5/13 SP  ETA sprint 2\nQ Quality Assurance > Q1 Maintain Quality System                    .      0%  0/25 SP  ETA sprint 2\nQ Quality Assurance > Q2 Inspect & Release Product                 #.     25%  5/20 SP  ETA sprint 2\nQ Quality Assurance > Q3 Manage Nonconformance & CAPA              #.      7%  3/42 SP  ETA sprint 2\nR Research & Development > R1 Define Product Requirements           .      0%  0/15 SP  ETA sprint 2\nR Research & Development > R2 Develop Product Design               #...    6%  3/53 SP  ETA sprint 4\nR Research & Development > R3 Verify Design                         .      0%  0/15 SP  ETA sprint 2\nR Research & Development > R4 Release Engineering Baseline         #.     14%  5/35 SP  ETA sprint 2\nS Customer Support & Feedback > S1 Operate Support Channels        #.     67%  10/15 SP  ETA sprint 2\nS Customer Support & Feedback > S2 Resolve Customer Cases          #..     8%  3/37 SP  ETA sprint 3\nS Customer Support & Feedback > S3 Synthesize Feedback & Insights  #.     29%  10/35 SP  ETA sprint 2\nT Testing > T1 Prepare Test Program                                 .      0%  0/15 SP  ETA sprint 2\nT Testing > T2 Execute Acceptance Tests                            #..     8%  3/37 SP  ETA sprint 3\nT Testing > T3 Disposition & Report                                 .      0%  0/35 SP  ETA sprint 2\n"},
-{"kind":"cmd","text":"","cmd":"daily.pl report","out":"Argument \" <span class=\"chip good\">&#10003; OPEN</span>10\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>2\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nArgument \" <span class=\"chip good\">&#10003; OPEN</span>3\" isn't numeric in numeric gt (>) at ~/agile/bin/../lib/Scrum.pm line 631.\nwrote reports/2026-10-06-brief.html\nwrote reports/2026-10-06-brief.txt\nwrote reports/2026-10-06-quad.html\nwrote reports/2026-10-06-quad.txt\nwrote reports/2026-10-06-status.html\nwrote reports/2026-10-06-status.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/roadmap.html\nwrote reports/tree.html\n"},
+{"kind":"cmd","text":"","cmd":"daily.pl report","out":"wrote reports/2026-10-06-brief.html\nwrote reports/2026-10-06-brief.txt\nwrote reports/2026-10-06-quad.html\nwrote reports/2026-10-06-quad.txt\nwrote reports/2026-10-06-status.html\nwrote reports/2026-10-06-status.txt\nwrote reports/2026-10-rollup.html\nwrote reports/2026-10-rollup.txt\nwrote reports/cockpit.html\nwrote reports/dashboard.html\nwrote reports/epics.csv\nwrote reports/health.csv\nwrote reports/intake.csv\nwrote reports/items.csv\nwrote reports/roadmap.html\nwrote reports/sprint-1-report.html\nwrote reports/sprint-1-report.txt\nwrote reports/sprints.csv\nwrote reports/tree.html\n"},
 {"kind":"cmd","text":"","cmd":"cat reports/2026-10-06-brief.txt","out":"AMBER -- Sprint 1, 2026-10-06: 87% done. HR approaching capacity\n\n- HR approaching capacity (108%)\n"},
 {"kind":"note","text":"Close the sprint in git: commit and tag. git log of scrum.txt + standups/ is the audit trail your successor inherits.","cmd":"","out":""},
 {"kind":"note","text":"Before the commit, review what the sprint appended: :STig opens tig (Git for Windows ships it) on the project -- j/k walk the commits, Enter shows the diff, q returns to Vim. tig is interactive so the replay shows the equivalent git log; the point is that you look before you commit.","cmd":"","out":""},
-{"kind":"vim","text":"","cmd":":STig","out":"153b074 standup 2026-10-05\n attendance.csv                              |  60 +++++++\n scrum.txt                                   |  26 +++\n standups/2026-10-05-Contracting-answers.txt |  25 +++\n standups/2026-10-05-Executive-answers.txt   |  25 +++\n standups/2026-10-05-Finance-answers.txt     |  25 +++\n standups/2026-10-05-HR-answers.txt          |  25 +++\n standups/2026-10-05-Logistics-answers.txt   |  25 +++\n standups/2026-10-05-Production-answers.txt  |  25 +++\n standups/2026-10-05-Quality-answers.txt     |  25 +++\n standups/2026-10-05-Research-answers.txt    |  25 +++\n standups/2026-10-05-Support-answers.txt     |  25 +++\n standups/2026-10-05-Testing-answers.txt     |  25 +++\n standups/2026-10-05-chat.txt                | 241 ++++++++++++++++++++++++++++\n standups/2026-10-05.txt                     |  65 ++++++++\n 14 files changed, 642 insertions(+)\n"},
+{"kind":"vim","text":"","cmd":":STig","out":"c1eec16 standup 2026-10-05\n attendance.csv                              |  60 +++++++\n scrum.txt                                   |  26 +++\n standups/2026-10-05-Contracting-answers.txt |  25 +++\n standups/2026-10-05-Executive-answers.txt   |  25 +++\n standups/2026-10-05-Finance-answers.txt     |  25 +++\n standups/2026-10-05-HR-answers.txt          |  25 +++\n standups/2026-10-05-Logistics-answers.txt   |  25 +++\n standups/2026-10-05-Production-answers.txt  |  25 +++\n standups/2026-10-05-Quality-answers.txt     |  25 +++\n standups/2026-10-05-Research-answers.txt    |  25 +++\n standups/2026-10-05-Support-answers.txt     |  25 +++\n standups/2026-10-05-Testing-answers.txt     |  25 +++\n standups/2026-10-05-chat.txt                | 241 ++++++++++++++++++++++++++++\n standups/2026-10-05.txt                     |  65 ++++++++\n 14 files changed, 642 insertions(+)\n"},
 {"kind":"cmd","text":"","cmd":"daily.pl commit","out":"committed\n"},
 {"kind":"cmd","text":"","cmd":"git tag sprint-1","out":""},
-{"kind":"cmd","text":"","cmd":"git log --oneline --decorate","out":"5e59870 (HEAD -> master, tag: sprint-1) standup 2026-10-06\n153b074 standup 2026-10-05\nfc498f4 standup 2026-10-02\n1cbe221 standup 2026-10-01\n1842e55 standup 2026-09-30\n39ae10c standup 2026-09-29\n6c1b847 standup 2026-09-28\n73d6fd5 standup 2026-09-25\na0e8a45 standup 2026-09-24\n7341467 standup 2026-09-23\n"},
+{"kind":"cmd","text":"","cmd":"git log --oneline --decorate","out":"4efff88 (HEAD -> master, tag: sprint-1) standup 2026-10-06\nc1eec16 standup 2026-10-05\n316b9f8 standup 2026-10-02\n18919d4 standup 2026-10-01\n6e638dc standup 2026-09-30\n6f3be9e standup 2026-09-29\ne192a54 standup 2026-09-28\n8be1cc3 standup 2026-09-25\n4f8823a standup 2026-09-24\n4bbe864 standup 2026-09-23\n"},
 {"kind":"cmd","text":"","cmd":"git diff --stat $(git rev-list --max-parents=0 HEAD) sprint-1 | tail -3","out":" standups/2026-10-05.txt                     |  65 ++++\n standups/2026-10-06.txt                     |  58 ++++\n 99 files changed, 5378 insertions(+)\n"},
 {"kind":"note","text":"Next: Day 1 of sprint 2 is planning again -- cap lines, commit the carryover (commit ID finds it in last sprint's Carryover account), pull refined work from the backlog, including M-1. The rhythm repeats; the roadmap forecast tightens as velocity settles.","cmd":"","out":""}];
 var i=-1,playing=false,timer=null,typing=null;

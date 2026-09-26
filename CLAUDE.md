@@ -41,7 +41,7 @@ There is no build step and no package manager — everything is `use lib` agains
 
 Test suites map 1:1 to the libs: `tests/prelude.t`, `tests/ledger.t`, `tests/quad.t`,
 `tests/scrum.t`, `tests/standup.t`, `tests/calendar.t`, `tests/chat.t`, `tests/answers.t`,
-`tests/attendance.t`, `tests/drill.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
+`tests/attendance.t`, `tests/quad.t`, `tests/roster.t`, `tests/cockpit.t`, `tests/drill.t`, `tests/metrics.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
 `Calendar.pm`'s COM calls offline.
 
 CLI entry points (`bin/`): `daily.pl` is the day-to-day driver; `scrum.pl`, `ledger.pl`,
@@ -56,6 +56,7 @@ invocations while developing:
     perl bin/daily.pl quad [Team]                    # the weekly quad (Technical Priorities / Watch Items / 30-60-90 Milestones / Accomplishments) as text; report writes <date>-quad.html
     #   lint/propose --private -> reports/<date>-{lint,propose}.html: a Teams 1:1 deep link per person (message pre-filled); e-mails from meeting invitees + roster.txt
     perl bin/daily.pl drill [Team] [-n 12]           # the memory drill: recall the tree and the people as terse answers (ids, codes, initials); --sheet/--grade FILE = the Vim sheet (:SDrill), progress in drill.txt
+    perl bin/daily.pl health [Team] | review [N] | rollup [YYYY-MM] | csv [TABLE]   # Metrics.pm: thresholds (exit 1 on red), sprint report, monthly roll-up, CSV for Excel (report writes all of them)
     perl bin/daily.pl --dry compile                  # show what compile would write without writing it
     perl bin/scrum.pl -f scrum.txt items committed <Team>
     perl bin/ledger.pl -f scrum.txt bal Sprint:42
@@ -171,6 +172,15 @@ scrum-specific knowledge (used standalone via `ledger.pl` too).
   the deck that isn't in the answer counts as wrong, all name words, half the title words); Leitner boxes and user-written hooks in
   `drill.txt` (`key | box | due | right | wrong | answer | hook`), the stored answer bringing a card back first when the journal
   changed it. Two front ends: `drill_loop` (terminal) and a sheet graded on `:w` in Vim (`:SDrill`, `\sm`).
+- `lib/Metrics.pm` — every metric of WORKFLOW.html §6 against its threshold, in one place: `signals($s, %o)` ->
+  `{level red|amber|info, metric, team, text}` (blocked age >3/>5 days, load >110/<70, <60% by Day 8, velocity down 2,
+  predictability <80, carryover >20 twice, bus factor >40%, unassigned, on-time <80, punt rate >20 twice, sprint progress
+  degrading two weeks, backlog depth <2/>8 sprints, backlog age >90d, intake > done 3 sprints, epic ETA past `target:`,
+  #est consensus <50%, calendar declines rising, silent/incomplete 3 days, interrupt SP). The last three read files daily.pl
+  passes in (chat tallies, attendance.csv, answers history). `table`, `sprint_report_*`, `rollup_*`, `csv` build the
+  dashboard's metrics table, the Day-14 report, the monthly roll-up and the Excel CSVs. Scrum only *draws* signals
+  (`health_text`, `health_mail_html`, `health_html`); it never requires Metrics except for `scrum.pl csv`. `new!` postings
+  carry `interrupt: 1` so interrupts are measurable.
 - `bin/daily.pl` — the umbrella CLI (`init/new/cards/attend/joined/answers/chat/ai/compile/
   report/post/draft/commit/all/status/sprint/velocity/backlog/members/epics/blocked/meetings`)
   that wires all of the above together for the daily/weekly/sprint rhythm; `bin/scrum.pl`,

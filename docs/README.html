@@ -24,13 +24,18 @@
 
 <pre>lib/Prelude.pm   functional toolkit            tests/prelude.t   223 tests
 lib/Ledger.pm    plain-text double-entry engine tests/ledger.t     83 tests
-lib/Scrum.pm     sprints, backlogs, members, dashboard, e-mail, Outlook   tests/scrum.t   85 tests
-lib/Standup.pm   terse stand-up notes -> journal                          tests/standup.t 102 tests
+lib/Scrum.pm     sprints, backlogs, members, dashboard, e-mail, Outlook   tests/scrum.t   116 tests
+lib/Standup.pm   terse stand-up notes -> journal                          tests/standup.t 121 tests
 lib/Calendar.pm  Outlook/Teams calendar: attendance, post metrics, create tests/calendar.t 75 tests (COM layer: see TEST-PLAN.html)
-lib/Chat.pm      pasted Teams meeting chat -> vote and estimate tallies    tests/chat.t     55 tests
-lib/Answers.pm   the three questions answered in chat -> records, flags   tests/answers.t  71 tests
+lib/Chat.pm      pasted Teams meeting chat -> vote and estimate tallies    tests/chat.t     56 tests
+lib/Answers.pm   the three questions answered in chat -> records, flags   tests/answers.t  129 tests
 lib/Ai.pm        prompt pack for your AI service, paste/curl/mock, ingest
 lib/Attendance.pm Teams attendance report download -> join/leave/minutes      tests/attendance.t 52 tests
+lib/Quad.pm      the weekly quad: priorities, watch items, 30/60/90, accomplishments tests/quad.t 75 tests
+lib/Roster.pm    roster.txt: the people, checked against the journal       tests/roster.t   35 tests
+lib/Cockpit.pm   the cockpit: one self-contained page, JSON snapshot       tests/cockpit.t  53 tests
+lib/Drill.pm     the memory drill: backlog and people, recalled            tests/drill.t    62 tests
+lib/Metrics.pm   every metric vs its threshold; sprint report, roll-up, CSV tests/metrics.t 87 tests
 bin/daily.pl     the daily driver          bin/scrum.pl, bin/ledger.pl, bin/cal.pl, bin/chat.pl  lower-level CLIs
 vim/scrum.vim    :SNew :SCompile :SReport :SDraft :SAll  + syntax for both file types
 examples/        two-team journal and a rendered dashboard</pre>
@@ -195,6 +200,46 @@ queued task is not a flag, and "same plan N days" is info at 2, amber from 3, re
 <p>The roster is the maintained list. Everything that needs people reads it: 1:1 chat links, the invite, the console's roster
 pane, the roster check. It lives next to <code>scrum.conf</code> in the project's git repo, so who was on the program when is part of
 the record. The name must be what Teams shows in the chat -- that is what the parsers match against the journal's owners.</p>
+
+<h2>Health, the sprint report, the monthly roll-up, CSV for Excel</h2>
+
+<p>Every metric in the operating model (WORKFLOW.html section 6) is computed from the journal and checked against the
+threshold that calls for action, in one place (<code>lib/Metrics.pm</code>), so the mail, the dashboard and the cockpit agree.</p>
+
+<pre>daily.pl health [Team]     one line per metric past its threshold, with what to do; exit 1 on a red
+daily.pl review [N]        the sprint report (Day 14): per team commit/done/carry/load, velocity, predictability,
+                           carryover rate, punts, interrupt SP; epics with sprints to done -> reports/sprint-N-report.{txt,html}
+daily.pl rollup [YYYY-MM]  the monthly roll-up: epics, intake vs done, backlog age, attendance -> reports/&lt;month&gt;-rollup.{txt,html}
+daily.pl csv [TABLE]       items | sprints | epics | intake | health; no TABLE writes all five to reports/*.csv (UTF-8 BOM, CRLF)
+scrum.pl csv TABLE [-o F]  the same from any journal
+daily.pl blocked           oldest first, with days blocked: over 3 escalate, over 5 yours</pre>
+
+<table>
+<tr><th>Signal</th><th>Fires when</th><th>Level</th></tr>
+<tr><td>blocked</td><td>a blocker older than 3 days (escalate) / 5 days (yours, on the weekly mail by name)</td><td>amber / red</td></tr>
+<tr><td>load</td><td>over 110% (cut) / under 70% (pull from master)</td><td>red / amber</td></tr>
+<tr><td>done by day 8</td><td>under 60% done on sprint day 8 or later</td><td>red</td></tr>
+<tr><td>velocity</td><td>done falling two sprints running</td><td>amber</td></tr>
+<tr><td>predictability</td><td>done / committed under 80% over the last 3 finished sprints</td><td>amber</td></tr>
+<tr><td>carryover</td><td>over 20% two finished sprints running</td><td>amber</td></tr>
+<tr><td>bus factor</td><td>one person holds over 40% of a team's commitment (3+ owners)</td><td>amber</td></tr>
+<tr><td>unassigned</td><td>a committed task with no owner</td><td>amber</td></tr>
+<tr><td>on-time</td><td>under 80% of this sprint's done tasks were never carried or reworked (5+ done)</td><td>amber</td></tr>
+<tr><td>punt rate</td><td>over 20% two finished sprints running</td><td>amber</td></tr>
+<tr><td>sprint progress</td><td>done% falling against a week and two weeks ago</td><td>amber</td></tr>
+<tr><td>backlog depth</td><td>master + team backlogs under 2 or over 8 sprints of velocity</td><td>amber</td></tr>
+<tr><td>backlog age</td><td>tasks in a backlog over 90 days</td><td>amber</td></tr>
+<tr><td>intake vs done</td><td>intake above done three finished sprints running (with "N sprints of work")</td><td>amber</td></tr>
+<tr><td>epic target</td><td>an epic's ETA past its <code>target: YYYY-MM-DD</code> (put it on any of its tasks)</td><td>amber</td></tr>
+<tr><td>consensus</td><td>under 50% of this sprint's #est rounds (4+) reached consensus (standups/*-chat.txt)</td><td>amber</td></tr>
+<tr><td>attendance</td><td>calendar declines rising three weeks running (attendance.csv)</td><td>amber</td></tr>
+<tr><td>answers</td><td>a person silent or incomplete 3 days running (standups/*-answers.txt)</td><td>amber</td></tr>
+<tr><td>interrupts</td><td>SP of <code>new!</code> work this sprint (tagged <code>interrupt: 1</code>)</td><td>info</td></tr>
+</table>
+
+<p>The status mail carries every blocker with its age and the red and amber signals; the dashboard and the cockpit's Daily
+view show all of them, and the dashboard adds a metrics table per team. <code>daily.pl report</code> writes the sprint report,
+the month's roll-up and the five CSVs alongside everything else.</p>
 
 <h2>Memorize: the backlog and the people, carried in your head</h2>
 

@@ -32,8 +32,9 @@ fixed time (08:30–08:45) and types their three questions — Y/T/B — into th
 <em>is</em> the record. Anyone who needs to sync with another team says so on the line and either
 sets up a follow-up meeting or raises it as a decision to be made — it doesn't get worked live.
 The architect reads that chat, runs it through the kit in this repo (git bash, vim, Perl), and
-turns it into journal entries, metrics, and reports for management — no browser dashboard, no
-separate PM tool, nothing beyond what ships with Git for Windows. Below: the hierarchy of work,
+turns it into journal entries, metrics, and reports for management — no server, no separate PM
+tool, nothing beyond what ships with Git for Windows (the cockpit and the dashboard are single
+self-contained HTML files opened from disk). Below: the hierarchy of work,
 the cadences, what is collected at each event, what is produced from it, the metrics and their
 thresholds, and the feedback loops that make the numbers change behaviour.</p>
 
@@ -112,7 +113,10 @@ people need to sort something out, they say so on the line and either take it to
 meeting or it becomes a `note`/blocker for a decision — it does not get worked live in the
 townhall.</p>
 
-<pre>08:15  daily.pl cards            each member's card (their sprint items, blockers, yesterday's
+<pre>08:05  :SDrill  (daily.pl drill)  five minutes of recall before the call: teams and initials, tomes,
+                                 epics, who owns what, what is blocked; changed cards first
+08:10  daily.pl propose          yesterday's status drafts today's, one line per person to post
+08:15  daily.pl cards            each member's card (their sprint items, blockers, yesterday's
                                  open blocker, the Y/T/B reminder) goes out: `cards --send` by
                                  Outlook mail, or the cards page with one "send in Teams" link
                                  per person (opens a 1:1 chat pre-filled; you press Enter)
@@ -126,7 +130,11 @@ townhall.</p>
 08:40  #est / #vote rounds       for tasks refined the day before; numbers in chat, no
                                  discussion unless no consensus, then two minutes and one re-vote
 08:43  leads only: dependencies, blockers older than two days, capacity changes
+08:30–08:45  :STown (\sp)      paste the chat as it fills; lint flags a malformed Y/T/B while the
+                                 person is still on the call; \sy puts the replies on the clipboard
 08:45  end. Attendance tab -&gt; download -&gt; standups/&lt;date&gt;-attendance.csv
+08:50  daily.pl health           every metric in section 6 against its threshold (exit 1 on a red);
+                                 daily.pl report writes it into the status mail, dashboard and cockpit
 
 08:50  copy chat -&gt; :SChat -&gt; :SAnswers, :STally, :SJoined, :SCompile, :SReport, :SAi, :SDraft, commit</pre>
 
@@ -263,9 +271,11 @@ epics, intake vs done, backlog age, attendance.</p>
 <tr><td>Weekly status (the quad)</td><td>Fri</td><td>leadership, PM</td>
     <td><code>daily.pl quad [Team]</code>; <code>report</code> writes <code>reports/&lt;date&gt;-quad.html</code></td><td>one printed page, four quadrants: Technical Priorities (the sprint: OPEN/DONE/WAIT/HOLD/DROP with REDO/PASS/SYNC marks, then the TODO list with PUNT first), Watch Items ((PM) help needed / (WI) awareness), Schedule Milestones (epics 30/60/90 days out, pushed right / pulled left vs last week), Accomplishments (on time &#10003; / late &#10007;: carried over or rework)</td></tr>
 <tr><td>Sprint report</td><td>Day 14</td><td>leadership, teams</td>
-    <td><code>sprint N</code>, <code>velocity</code>, <code>epics</code></td><td>mail + xlsx via <code>scrum.pl csv</code>→Excel</td></tr>
+    <td><code>daily.pl review [N]</code> (also written by <code>report</code>: <code>reports/sprint-N-report.html</code>)</td><td>mail + xlsx: <code>daily.pl csv</code> writes <code>reports/{items,sprints,epics,intake,health}.csv</code> (UTF-8 with BOM), or <code>scrum.pl csv TABLE</code>→Excel</td></tr>
 <tr><td>Monthly / quarterly roll-up</td><td>monthly</td><td>program leadership</td>
-    <td><code>epics</code>, ledger <code>reg</code>, attendance.csv</td><td>Excel pivot from CSV, slides by hand</td></tr>
+    <td><code>daily.pl rollup [YYYY-MM]</code> (also written by <code>report</code>: <code>reports/&lt;month&gt;-rollup.html</code>): epics, intake vs done, backlog age, attendance</td><td>one page, plus the CSVs for an Excel pivot; slides by hand</td></tr>
+<tr><td>Health</td><td>daily</td><td>you</td>
+    <td><code>daily.pl health [Team]</code>; in the status mail (red/amber), the dashboard and the cockpit (all)</td><td>one line per metric past its threshold, with the action</td></tr>
 <tr><td>Audit trail</td><td>always</td><td>you, successors</td>
     <td>git log of scrum.txt + standups/</td><td>plain text</td></tr>
 </table>
@@ -321,7 +331,8 @@ and the priorities will change under it.</p>
 
 <p><strong>Sprint backlog</strong> is the Committed account; it changes during a sprint only through <code>new!</code>
 (interrupt work, always tagged so you can measure it), <code>drop</code>, and <code>carry</code>. Interrupt SP per
-sprint is a metric worth adding to the weekly mail if it is not near zero.</p>
+sprint is measured: <code>new!</code> postings carry <code>interrupt: 1</code>, and <code>daily.pl health</code>, the sprint report and
+<code>sprints.csv</code> show interrupt SP per team per sprint.</p>
 
 <p><strong>Tomes and epics</strong>: every task carries <code>epic:</code>; epics carry a <code>tome:</code> on at least one
 task (the roll-up picks the first it sees). <code>epics</code> shows done / in-sprint / backlog per epic;
@@ -329,12 +340,16 @@ the quarterly review is that table plus a decision per row: continue, cut, or ad
 
 <h2>11. Command map</h2>
 
-<pre>daily.pl init | new | cards [--send] | attend | joined | answers | chat | ai | compile | report | post | draft | commit | all
+<pre>daily.pl init | new | cards [--send] | attend | joined | answers | chat | ai | compile | report | post | draft | brief | commit | all | check
+daily.pl propose [Team] | lint [FILE] [--reply] | roster [add ...] | invite [--dry] | drill [Team] | quad [Team]
+daily.pl health [Team] | review [N] | rollup [YYYY-MM] | csv [items|sprints|epics|intake|health]
 daily.pl status | sprint [N] | velocity | backlog [Team] | members [Team] | epics | roadmap | blocked | meetings
-scrum.pl items &lt;state&gt; [team] | csv | dashboard | tree | roadmap   ledger.pl bal | reg | budget (the journal is a ledger)
-cal.pl list | dump | attend | post | create              chat.pl [--est ID] [--vote Q] file</pre>
+scrum.pl items &lt;state&gt; [team] | csv TABLE | dashboard | tree | roadmap   ledger.pl bal | reg | budget (the journal is a ledger)
+cal.pl list | dump | attend | post | create              chat.pl [--est ID] [--vote Q] file
+perl agile.pl [PROJECT] [serve]   the cockpit (dashboard.html): daily, weekly, sprint, period, backlog, roadmap, quad, people</pre>
 
-<p>Vim: <code>:SNew :SChat :STally :SCompile :SReport :SDraft :SAll :SStatus :SJournal</code>, <code>&lt;leader&gt;s*</code>.</p>
+<p>Vim: <code>:SNew :SChat :STally :SCompile :SReport :SDraft :SAll :SStatus :SJournal :STown :SLint :SPropose :SDrill :SQuad :SCockpit</code>, <code>&lt;leader&gt;s*</code>.
+Tcl/Tk console: <code>wish bin/townhall.tcl PROJECT</code>.</p>
 
 <h2>12. Anti-patterns this model is designed to prevent</h2>
 

@@ -120,6 +120,7 @@ S 'why on the row', '["waiting on the feed spec","pulled onto the outage","demo 
 S 'watch: blocker, hold, punt, rework, passed without owner', '[["WI","T-2","blocked 3 days: waiting on the feed spec"],["WI","T-3","on hold: pulled onto the outage"],["WI","T-4","rework after the demo: demo found the reset mail unsent"],["WI","T-5","passed in, no owner yet"],["WI","T-6","punted, needs replanning: needs splitting - too big as written"]]',
     [ map { [ $_->{kind}, $_->{id}, $_->{text} ] } @{ $q2->{watch} } ];
 S 'blocker older than 3 days becomes (PM)', '["PM",4]', [ map { ($_->{kind}, $_->{days}) } grep { $_->{id} eq 'T-2' } @{ quad(load($j, today => '2026-09-09'))->{watch} } ];
+has 'blocker over 5 days: the architect\'s', join("\n", map { $_->{text} } grep { $_->{id} eq 'T-2' } @{ quad(load($j, today => "2026-09-12"))->{watch} }), qr/-- over 5 days: the architect's/;
 S 'slipped priorities', '["T-2","T-3","T-6"]', [ map { $_->{id} } @{ $q2->{slipped} } ];
 S 'punted count in the metric', 1, $q2->{metrics}{sprint}{punted};
 S 'TODO list capped', '[2,1]', do { local $Quad::THRESHOLD{todo_max} = 1; my $qq = quad($s2); [ scalar(grep { $_->{tag} =~ /^(PUNT|TODO)$/ } @{ $qq->{priorities} }) + 1, $qq->{todo_more} ] };
@@ -157,6 +158,19 @@ S 'punt_rate in the quad', 4, scalar @{ quad($s2)->{punt_rate} };
 has 'punt rate rendered', quad_text($s2), qr/^PUNT RATE \(tasks punted back to TODO \/ tasks committed, last 4 sprints\)\n  sprint 0    Alpha          0 \/ 1     0%\n  sprint 1    Alpha          1 \/ 5    20%/m;
 has 'punt rate html', quad_html($s2), qr/<div class=strip><h2>Punt rate/, qr/<td class="n">1 \/ 5 &middot; 20%<\/td>/;
 S 'example journal: no punts', '[[41,"Alpha",2,0,0],[41,"Bravo",2,0,0],[41,"Total",4,0,0],[42,"Alpha",1,0,0],[42,"Bravo",2,0,0],[42,"Total",3,0,0]]', [ map { [ @{$_}{qw(sprint team committed punted rate)} ] } @{ punt_rate($s) } ];
+
+# WORKFLOW #6 thresholds on the quad: blocker over 5 days named, punt rate flagged two sprints running only, on-time under 80%, degrading two weeks running
+    my @r = @{ punt_rate($s2) };
+    S 'punt rows carry a warn flag', 1, scalar(grep { exists $_->{warn} } @r) == @r ? 1 : 0;
+    S 'one sprint over 20% is not flagged', 0, scalar grep { $_->{warn} } @r;
+
+{   my $q = quad($s2); $q->{metrics}{ontime} = { week_ontime => 1, week_total => 2, sprint_ontime => 3, sprint_total => 5 };
+    has 'on-time under 80% flagged (text)', quad_text($s2, quad => $q), qr/3\/5 this sprint  ! under 80%/;
+    has 'on-time under 80% flagged (html)', quad_html($s2, quad => $q), qr/<span class=late>On-time delivery/, qr/\(under 80%\)/;
+    $q->{metrics}{sprint}{trend} = 'degrading2';
+    has 'degrading two weeks running (text)', quad_text($s2, quad => $q), qr/DEGRADING two weeks running/;
+    has 'degrading two weeks running (html)', quad_html($s2, quad => $q), qr/degrading two weeks running/;
+}
 
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";

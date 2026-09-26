@@ -58,7 +58,7 @@ sub import {
 
 # ---------------------------------------------------------------- the snapshot
 sub _item { my $it = shift; { id => $it->{id}, title => $it->{title}, pts => $it->{points}, owner => $it->{owner}, team => $it->{team}, state => $it->{state},
-                              sprint => $it->{sprint}, blocked => $it->{blocked}, age => $it->{age}, prio => $it->{meta}{prio}, epic => $it->{meta}{epic}, tome => $it->{meta}{tome} } }
+                              sprint => $it->{sprint}, blocked => $it->{blocked}, blocked_days => ($it->{blocked} && defined $it->{blocked_since} ? days_between($it->{blocked_since}, $_[1] // $it->{blocked_since}) : undef), age => $it->{age}, prio => $it->{meta}{prio}, epic => $it->{meta}{epic}, tome => $it->{meta}{tome} } }
 sub _st { my $x = shift; my $l = $x->{load}; !defined $l ? 'good' : $l > 110 ? 'critical' : $l > 100 ? 'warning' : 'good' }
 
 sub snapshot {                                # snapshot($s, days => [...], attendance => [...], plates => 'plates.html', marking => $conf) -> hashref (JSON-ready)
@@ -127,12 +127,13 @@ sub snapshot {                                # snapshot($s, days => [...], atte
     {
         generated => $s->{today}, file => $s->{file}, unit => $u, current => $cur, teams => $s->{teams}, marking => \%marking,
         sprints => \@sprints, cards => \@cards, daily => \%daily, days => $o{days} // [], attendance => $o{attendance} // [],
-        blocked => [ map { _item($_) } blocked($s) ], unassigned => [ map { _item($_) } unassigned($s) ],
+        blocked => [ map { _item($_, $s->{today}) } sort { ($a->{blocked_since} // '') cmp ($b->{blocked_since} // '') } blocked($s) ], unassigned => [ map { _item($_) } unassigned($s) ],
         velocity => \%vel, epics => \@epics, roadmap => $rm, tree => \@tree,
         quad => \%quad,                       # the weekly quad (Quad.pm): all teams and one per team
         quad_page => $o{quad_page},          # the printable one-page quad written by daily.pl report, relative to this page (or undef)
         brief => { level => $level, headline => $headline, bullets => $bul },
         plates => $o{plates}, plates_index => plates_index($o{plates_file}), tutorial => $o{tutorial}, training => $o{training},
+        health => $o{health} // [], metrics => $o{metrics} // [],   # Metrics::signals and Metrics::table, computed by daily.pl report
         roster => $o{roster} // [],           # roster.txt: name, email, team, role, org (Roster::read_roster) -- the People tab
         backlog => { master => [ map { _item($_) } backlog($s) ], teams => { map { my $t = $_; ($t => [ map { _item($_) } backlog($s, $t) ]) } @{ $s->{teams} } } },
     };
@@ -256,7 +257,7 @@ function lastSprints(k){ var sp = S.sprints.slice(); return sp.slice(Math.max(0,
 function loadStatus(l){ return l == null ? 'good' : l > 110 ? 'critical' : l > 100 ? 'warning' : 'good'; }
 function itemsTable(items, caption, cols){
   cols = cols || ['id','pts','prio','tome','epic','owner','team','age','title','blocked'];
-  var head = {id:'ID',pts:S.unit,prio:'Prio',tome:'Tome',epic:'Epic',owner:'Owner',team:'Team',age:'Age',title:'Title',blocked:'Blocked',state:'State',sprint:'Sprint'};
+  var head = {blocked_days:'Days',id:'ID',pts:S.unit,prio:'Prio',tome:'Tome',epic:'Epic',owner:'Owner',team:'Team',age:'Age',title:'Title',blocked:'Blocked',state:'State',sprint:'Sprint'};
   var num = {pts:1,prio:1,age:1,sprint:1};
   var s = '<table>' + (caption ? '<caption>' + h(caption) + '</caption>' : '') + '<tr>' + cols.map(function(c){ return '<th' + (num[c]?' class=n':'') + '>' + head[c] + '</th>'; }).join('') + '</tr>';
   items.forEach(function(it){ s += '<tr>' + cols.map(function(c){ return '<td' + (num[c]?' class=n':'') + '>' + h(it[c]) + '</td>'; }).join('') + '</tr>'; });
@@ -313,7 +314,9 @@ function viewDaily(){
   s += flags.length ? '<table><tr><th></th><th>Team</th><th>Who</th><th>Flag</th></tr>' + flags.sort(function(a, b){ return ({red:0, amber:1, info:2}[a.level] || 3) - ({red:0, amber:1, info:2}[b.level] || 3); })
         .map(function(f){ return '<tr><td>' + chip({red:'critical', amber:'warning', info:'info'}[f.level] || 'info', f.level) + '</td><td>' + h(f.team) + '</td><td>' + h(f.who) + '</td><td>' + h(f.text) + '</td></tr>'; }).join('') + '</table>'
       : '<p class="muted">No answers recorded for ' + h(today) + ' (run daily.pl answers after the townhall).</p>';
-  s += '</div><div><h2>Blocked now</h2>' + (S.blocked.length ? itemsTable(S.blocked, null, ['id','team','owner','title','blocked']) : '<p class="muted">Nothing blocked.</p>');
+  s += '</div><div><h2>Blocked now <span class="muted">over 3 days: escalate; over 5: yours</span></h2>' + (S.blocked.length ? itemsTable(S.blocked, null, ['blocked_days','id','team','owner','title','blocked']) : '<p class="muted">Nothing blocked.</p>');
+  var hs = (S.health || []).filter(function(x){ return x.level !== 'info'; });
+  s += '<h2>Health <span class="muted">metrics past their threshold (daily.pl health)</span></h2>' + (hs.length ? '<table><tr><th></th><th>Metric</th><th>Team</th><th>Signal</th></tr>' + hs.map(function(x){ return '<tr><td>' + chip(x.level === 'red' ? 'critical' : 'warning', x.level) + '</td><td>' + h(x.metric) + '</td><td>' + h(x.team || '') + '</td><td>' + h(x.text) + '</td></tr>'; }).join('') + '</table>' : '<p class="muted">Every metric is inside its threshold.</p>');
   s += '<h2>Load by team</h2><table><tr><th>Team</th><th class=n>Cap</th><th class=n>Commit</th><th class=n>Done</th><th class=n>Open</th><th class=n>Load</th></tr>' + S.cards.map(function(c){ return '<tr><td>' + h(c.team) + '</td><td class=n>' + h(c.capacity) + '</td><td class=n>' + c.committed + '</td><td class=n>' + c.done + '</td><td class=n>' + c.open + '</td><td class=n>' + (c.load == null ? '\u2014' : chip(loadStatus(c.load) === 'good' ? 'info' : loadStatus(c.load), c.load + '%')) + '</td></tr>'; }).join('') + '</table></div></div>';
   return s;
 }
@@ -473,10 +476,10 @@ function tutLayout(l){ state.tut = l; try { localStorage.setItem('cockpit-tut', 
 function viewQuad(){
   if (!S.quad) return '<p class="muted">No quad in this snapshot.</p>';
   var q = state.quadTeam && S.quad.teams[state.quadTeam] ? S.quad.teams[state.quadTeam] : S.quad.all, m = q.metrics;
-  var TR = {improving:'\u2197 improving', degrading:'\u2198 degrading', same:'\u2192 no change', 'new':'first week'}, AR = {pushed:'\u2192 pushed right', pulled:'\u2190 pulled left', same:'= no change', 'new':'+ new'};
+  var TR = {improving:'\u2197 improving', degrading:'\u2198 degrading', degrading2:'\u2198 degrading two weeks running', same:'\u2192 no change', 'new':'first week'}, AR = {pushed:'\u2192 pushed right', pulled:'\u2190 pulled left', same:'= no change', 'new':'+ new'};
   var s = '<h2>Weekly quad' + (q.team ? ' \u00b7 ' + h(q.team) : '') + ' <span class="muted">as of ' + h(q.as_of) + (q.sprint != null ? ' \u00b7 sprint ' + q.sprint : '') + '</span></h2>';
   s += '<div class="filter">Team: <select onchange="state.quadTeam=this.value;render()"><option value="">all</option>' + S.teams.map(function(t){ return '<option' + (state.quadTeam === t ? ' selected' : '') + '>' + h(t) + '</option>'; }).join('') + '</select>' + (S.quad_page ? ' <a class="btn" href="' + h(S.quad_page) + '" target="_blank">printable page</a>' : '') + '</div>';
-  s += '<div class="tiles">' + tile(m.sprint.pct + '%', 'Sprint progress \u00b7 ' + TR[m.sprint.trend] + (m.sprint.prev_pct != null ? ' (was ' + m.sprint.prev_pct + '%)' : ''), m.sprint.trend === 'degrading' ? 'warning' : '') +
+  s += '<div class="tiles">' + tile(m.sprint.pct + '%', 'Sprint progress \u00b7 ' + TR[m.sprint.trend] + (m.sprint.prev_pct != null ? ' (was ' + m.sprint.prev_pct + '%)' : ''), m.sprint.trend === 'degrading2' ? 'critical' : m.sprint.trend === 'degrading' ? 'warning' : '') +
     tile(m.ontime.week_ontime + '/' + m.ontime.week_total, 'On time this week') + tile(m.ontime.sprint_ontime + '/' + m.ontime.sprint_total, 'On time this sprint', m.ontime.sprint_total && m.ontime.sprint_ontime / m.ontime.sprint_total < 0.8 ? 'warning' : '') + '</div>';
   s += '<div class="quad">';
   s += '<div class="q"><h3>Technical priorities</h3>' + (q.priorities.length ? '<table><tr><th></th><th>ID</th><th>Task</th>' + (q.team ? '' : '<th>Team</th>') + '<th>Owner</th><th class=n>' + h(S.unit) + '</th></tr>' +
@@ -495,7 +498,7 @@ function viewQuad(){
   s += '</div>';
   s += '<h3>Punt rate <span class="muted">tasks punted back to TODO / tasks committed, last sprints; over ' + q.punt_warn + '% two sprints running means tasks arrive under-specified</span></h3>';
   if (q.punt_rate.length){ var sps = [], teams = [], cell = {}; q.punt_rate.forEach(function(r){ if (sps.indexOf(r.sprint) < 0) sps.push(r.sprint); if (teams.indexOf(r.team) < 0) teams.push(r.team); cell[r.sprint + '|' + r.team] = r; });
-    s += '<table><tr><th>Team</th>' + sps.map(function(n){ return '<th class=n>Sprint ' + n + '</th>'; }).join('') + '</tr>' + teams.map(function(t){ return '<tr><td>' + h(t) + '</td>' + sps.map(function(n){ var c = cell[n + '|' + t], txt = c ? c.punted + ' / ' + c.committed + ' \u00b7 ' + c.rate + '%' : '\u2014'; return '<td class="n">' + (c && c.rate > q.punt_warn ? chip('critical', txt) : txt) + '</td>'; }).join('') + '</tr>'; }).join('') + '</table>';
+    s += '<table><tr><th>Team</th>' + sps.map(function(n){ return '<th class=n>Sprint ' + n + '</th>'; }).join('') + '</tr>' + teams.map(function(t){ return '<tr><td>' + h(t) + '</td>' + sps.map(function(n){ var c = cell[n + '|' + t], txt = c ? c.punted + ' / ' + c.committed + ' \u00b7 ' + c.rate + '%' : '\u2014'; return '<td class="n">' + (c && c.warn ? chip('critical', txt) : txt) + '</td>'; }).join('') + '</tr>'; }).join('') + '</table>';
   } else s += '<p class="muted">no sprints yet</p>';
   return s;
 }

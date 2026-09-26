@@ -250,6 +250,7 @@ sub blocked {                                 # only work still in flight: a Don
 }
 my @ITEM_R   = (1, 2, 6);
 
+sub blocked_days { my ($s, $it) = @_; defined $it->{blocked_since} ? days_between($it->{blocked_since}, $s->{today}) : 0 }   # days since the blocker was set
 sub sprint_text {
     my ($s, $n) = @_;
     my $r = sprint_summary($s, $n);
@@ -334,11 +335,41 @@ sub email_text {
                         defined $x->{load} ? ", load $x->{load}% of capacity" : '');
         $out .= "  open: " . join(', ', map { "$_->{id} ($_->{points})" } @{ $x->{open_items} }) . "\n" if @{ $x->{open_items} };
         my @bl = blocked($s, $team);
-        $out .= "  BLOCKED: " . join('; ', map { "$_->{id} $_->{blocked}" } @bl) . "\n" if @bl;
+        $out .= "  BLOCKED: " . join('; ', map { my $d = blocked_days($s, $_); "$_->{id} $_->{blocked} (${d}d)" } @bl) . "\n" if @bl;
     }
+    $out .= "\n" . health_text($o{health}) if $o{health} && grep { $_->{level} ne 'info' } @{ $o{health} };
     my $notes = _notes_text($s, $o{notes});
     $out .= "\n$notes" if $notes;
     marked_text($o{marking}, $out);
+}
+
+# ---------------------------------------------------------------- health: the metric thresholds (Metrics::signals) as the mail and dashboard show them
+# a signal is { level => red|amber|info, metric, team, text }; Metrics.pm computes them, these only draw them
+my %HEALTH_LEVEL = (red => 'critical', amber => 'warning', info => 'info');
+sub health_text {                             # red and amber one per line; info only with all => 1
+    my ($sig, %o) = @_;
+    my @s = grep { $o{all} || $_->{level} ne 'info' } @{ $sig // [] };
+    return '' unless @s;
+    "Health (thresholds from the operating model):\n" . join('', map { sprintf "  %-5s %-14s %s%s\n", uc $_->{level}, $_->{metric}, $_->{team} ? "$_->{team}: " : '', $_->{text} } @s);
+}
+sub health_mail_html {                        # the same for Outlook: inline styles, one line per signal
+    my $sig = shift;
+    my @s = grep { $_->{level} ne 'info' } @{ $sig // [] };
+    return '' unless @s;
+    "<p style=\"margin:10px 0 4px\"><b>Health</b> <span style=\"color:#666\">(thresholds from the operating model)</span></p>\n"
+      . join('', map { '<div style="margin:0 0 3px">' . _email_dot($HEALTH_LEVEL{ $_->{level} }) . '<b>' . _h($_->{metric}) . '</b> ' . _h(($_->{team} ? "$_->{team}: " : '') . $_->{text}) . "</div>\n" } @s);
+}
+sub health_html {                             # the dashboard: every signal, and the per-team metrics table (Metrics::table rows) when given
+    my ($sig, $rows) = @_;
+    my $html = "<h2>Health <span class=muted>every metric against the threshold that triggers action</span></h2>\n";
+    $html .= @{ $sig // [] } ? "<table><caption>Health signals</caption><tr><th></th><th>Metric</th><th>Team</th><th>Signal</th></tr>\n"
+        . join('', map { '<tr><td>' . _chip($HEALTH_LEVEL{ $_->{level} }, $_->{level}) . '</td><td>' . _h($_->{metric}) . '</td><td>' . _h($_->{team} // '') . '</td><td>' . _h($_->{text}) . "</td></tr>\n" } @$sig) . "</table>\n"
+        : "<p class=ok>Every metric is inside its threshold.</p>\n";
+    return $html unless $rows && @$rows;
+    my @c = ([ team => 'Team' ], [ pct => 'Done%' ], [ load => 'Load%' ], [ velocity => 'Velocity' ], [ trend => 'Last 3' ], [ predictability => 'Predict.%' ], [ carryover => 'Carry%' ],
+             [ ontime => 'On-time%' ], [ interrupt => 'Interrupt' ], [ top_share => 'Top owner%' ], [ blocked => 'Blocked' ], [ oldest_block => 'Oldest blk d' ]);
+    $html . "<table><caption>Metrics by team (sprint so far; predictability and carryover over completed sprints)</caption><tr>" . join('', map { $_->[0] eq 'team' ? "<th>$_->[1]</th>" : "<th class=n>$_->[1]</th>" } @c) . "</tr>\n"
+      . join('', map { my $r = $_; '<tr>' . join('', map { my $v = $r->{ $_->[0] }; $_->[0] eq 'team' ? '<td>' . _h($v) . '</td>' : '<td class=n>' . (defined $v ? _h($v) : '&ndash;') . '</td>' } @c) . "</tr>\n" } @$rows) . "</table>\n";
 }
 
 # ---------------------------------------------------------------- brief: the BLUF-format leadership mail (one sentence + <=5 bullets, nothing else if the sprint is clean)
@@ -367,7 +398,7 @@ sub _brief_bullets {                          # -> up to 5 plain-text action ite
     my @out;
     push @out, sprintf('%s at %d%% load', $_, $r->{teams}{$_}{load}) for sort { $r->{teams}{$b}{load} <=> $r->{teams}{$a}{load} or $a cmp $b }
         grep { _load_status($r->{teams}{$_}{load}) eq 'critical' } sorted(keys %{ $r->{teams} });
-    push @out, sprintf('%s (%s) blocked: %s', $_->{id}, $_->{team}, $_->{blocked}) for blocked($s);
+    push @out, sprintf('%s (%s) blocked %dd: %s', $_->{id}, $_->{team}, blocked_days($s, $_), $_->{blocked}) for sort { blocked_days($s, $b) <=> blocked_days($s, $a) } blocked($s);
     push @out, sprintf('%s approaching capacity (%d%%)', $_, $r->{teams}{$_}{load}) for sort { $r->{teams}{$b}{load} <=> $r->{teams}{$a}{load} or $a cmp $b }
         grep { _load_status($r->{teams}{$_}{load}) eq 'warning' } sorted(keys %{ $r->{teams} });
     my @un = unassigned($s);
@@ -469,7 +500,7 @@ sub _htable {                                # _htable(\@header, \@rows, \@right
 }
 sub _bar { my ($pct, $w) = @_; $w //= 140; $pct = 100 if $pct > 100;
     qq(<span class="bar" style="width:${w}px"><span style="width:$pct%"></span></span> <b>$pct%</b>) }
-my %CHIP_ICON = (good => '&#10003;', warning => '&#9679;', serious => '&#9650;', critical => '&#10007;');
+my %CHIP_ICON = (good => '&#10003;', warning => '&#9679;', serious => '&#9650;', critical => '&#10007;', info => '&#8505;');
 sub _chip { my ($level, $text) = @_; qq(<span class="chip $level">$CHIP_ICON{$level} ) . _h($text) . '</span>' }
 sub _load_chip {                              # load% -> plain text (<=100), warning (100-110), critical (>110)
     my $load = shift;
@@ -509,7 +540,7 @@ tr:nth-child(even) td{background:#f5f4f0}
 .bar span{display:block;height:100%;background:var(--blue)}
 .warn{color:var(--critical);font-weight:bold}
 .chip{display:inline-block;padding:1px 7px;border-radius:9px;font-weight:600;font-size:10.5px;white-space:nowrap}
-.chip.good{background:var(--good);color:#fff}.chip.warning{background:var(--warning);color:var(--ink)}
+.chip.good{background:var(--good);color:#fff}.chip.info{background:var(--rule,#ddd);color:var(--ink)}.chip.warning{background:var(--warning);color:var(--ink)}
 .chip.serious{background:var(--serious);color:var(--ink)}.chip.critical{background:var(--critical);color:#fff}
 .attn{border:1px solid var(--border);border-radius:6px;background:var(--surface);padding:2px 12px;margin:6px 0 6px}
 .attn .loadrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:6px 0;font-size:11.5px}
@@ -628,7 +659,7 @@ sub _integration_tree_html {                  # tome -> epic -> team breakdown: 
             push @{ $by_team{ $_->{team} // '(unassigned)' } }, $_ for @{ $e->{items} };
             my $nteams = scalar keys %by_team;
             $html .= sprintf "<details style=\"margin-left:16px\"><summary>%s <span class=muted>%d%% done &middot; %d/%d/%d done/wip/backlog</span>%s</summary>\n",
-                _h($e->{epic}), $e->{pct}, $e->{done}, $e->{wip}, $e->{backlog}, ($e->{open} ? ' ' . _chip('good', 'OPEN') : '') . $nteams > 1 ? ' ' . _chip('warning', "$nteams teams &mdash; integration point") : '';
+                _h($e->{epic}), $e->{pct}, $e->{done}, $e->{wip}, $e->{backlog}, ($e->{open} ? ' ' . _chip('good', 'OPEN') : '') . ($nteams > 1 ? ' ' . _chip('warning', "$nteams teams &mdash; integration point") : '');
             $html .= "<table><caption>Teams: " . _h("$tome > $e->{epic}") . "</caption><tr><th>Team</th><th class=n>Tasks</th><th class=n>SP</th><th class=n>Done SP</th></tr>\n";
             for my $team (sorted(keys %by_team)) {
                 my @it = @{ $by_team{$team} };
@@ -802,7 +833,7 @@ sub roadmap_html {                            # one page: rows = tome > epic, co
 sub _attention_html {                          # "what needs the architect's attention today" — surfaced above the raw tables
     my ($s, $r) = @_;
     my @item_rows;                              # blocked/unassigned: real ID + owner, worth a table
-    for my $b (blocked($s)) { push @item_rows, [ _chip('serious', 'Blocked'), _h($b->{id}), _h($b->{team} // ''), _h($b->{owner} // ''), _h($b->{blocked}) ] }
+    for my $b (blocked($s)) { my $d = blocked_days($s, $b); push @item_rows, [ _chip($d > 5 ? 'critical' : 'serious', "Blocked ${d}d"), _h($b->{id}), _h($b->{team} // ''), _h($b->{owner} // ''), _h($b->{blocked}) ] }
     for my $u (unassigned($s)) { push @item_rows, [ _chip('warning', 'Unassigned'), _h($u->{id}), _h($u->{team} // ''), '', 'committed with no owner' ] }
     my @load_teams;                             # team-level load: no ID/owner exists, doesn't belong in an item table
     if ($r) {
@@ -847,6 +878,7 @@ sub dashboard_html {
         _tile(scalar(@at_risk), 'At-risk teams', @at_risk ? " $risk_worst" : ''),
     ) . "</div>\n";
     $html .= _attention_html($s, $r);
+    $html .= health_html($o{health}, $o{metrics}) if $o{health};
     $html .= _sprint_html($s, $n) if defined $n;
 
     my $v = velocity($s);
@@ -931,7 +963,8 @@ sub email_html {                              # compact: fits an Outlook window,
         next unless @open;
         $html .= "<p><b>" . _h($team) . " still open:</b> " . join('; ', map { _h("$_->{id} $_->{title} ($_->{points} $u" . ($_->{owner} ? ", $_->{owner})" : ')')) } @open) . "</p>\n";
     }
-    $html .= '<p style="background:#fdeeee;border-left:3px solid ' . $EMAIL_COLOR{critical} . ';padding:6px 10px;color:#b00"><b>Blocked:</b> ' . join('; ', map { _h("$_->{id} ($_->{team}) $_->{blocked}") } @bl) . "</p>\n" if @bl;
+    $html .= '<p style="background:#fdeeee;border-left:3px solid ' . $EMAIL_COLOR{critical} . ';padding:6px 10px;color:#b00"><b>Blocked:</b> ' . join('; ', map { my $d = blocked_days($s, $_); _h("$_->{id} ($_->{team}) $_->{blocked}") . ' <b>' . $d . 'd</b>' . ($d > 5 ? ' (over 5 days)' : $d > 3 ? ' (escalate)' : '') } @bl) . "</p>\n" if @bl;
+    $html .= health_mail_html($o{health}) if $o{health} && grep { $_->{level} ne 'info' } @{ $o{health} };
     my $notes = _notes_text($s, $o{notes});
     $html .= '<pre style="font-family:Segoe UI,Arial,sans-serif;white-space:pre-wrap">' . _h($notes) . "</pre>\n" if $notes;
     marked_mail_html($o{marking}, $html . "</div>\n");
@@ -1004,8 +1037,11 @@ sub run {
     elsif ($cmd eq 'email')     { print $o{text} ? email_text($s, $n) : email_html($s, $n) }
     elsif ($cmd eq 'draft')     { my $p = outlook_draft(html => email_html($s, $n), to => $o{to} // '', cc => $o{cc} // '',
                                                         subject => $o{subject} // "Sprint $n status $s->{today}"); print "draft opened (body: $p)\n" }
+    elsif ($cmd eq 'csv')       { require Metrics; my $what = $argv[0] // 'items';   # csv items|sprints|epics|intake|health -> stdout (Excel: Data > From Text/CSV)
+                                  my $t = eval { Metrics::csv($s, $what) }; if (!defined $t) { print STDERR $@; return 2 }
+                                  if ($o{out}) { open my $fh, '>:raw:encoding(UTF-8)', $o{out} or die "cannot write $o{out}: $!\n"; print $fh "\x{FEFF}$t"; close $fh; print "wrote $o{out}\n" } else { binmode STDOUT, ':encoding(UTF-8)'; print $t } }
     elsif ($cmd eq 'check')     { printf "ok: %d items, teams %s, sprints %s\n", scalar keys %{ $s->{items} }, join('/', @{ $s->{teams} }), join('/', @{ $s->{sprints} }) }
-    else { print STDERR "unknown command '$cmd' (sprint velocity backlog members epics roadmap items dashboard tree email draft check)\n"; return 2 }
+    else { print STDERR "unknown command '$cmd' (sprint velocity backlog members epics roadmap items dashboard tree email draft csv check)\n"; return 2 }
     0;
 }
 

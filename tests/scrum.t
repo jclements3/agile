@@ -208,6 +208,13 @@ S 'cli missing', '[1,1]', [ $rc, ($out =~ /cannot open/ ? 1 : 0) ];
 ($rc, $out) = cli('-f', $file, 'nope');
 S 'cli bad cmd', 2, $rc;
 
+# tree.html: the OPEN and integration-point chips (a precedence slip once dropped both and warned "isn't numeric")
+{   my @w; local $SIG{__WARN__} = sub { push @w, @_ };
+    my $t = tree_html(load("$FindBin::Bin/../examples/scrum.txt", today => '2026-09-01'));
+    S 'tree_html: no warnings', 0, scalar @w;
+    check('tree_html: OPEN chip on an open epic', ($t =~ /<summary>[^<]*<span class=muted>[^<]*<\/span> <span class="chip good">&#10003; OPEN<\/span>/ ? 1 : 0), 1);
+}
+
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";
 exit($bad ? 1 : 0);

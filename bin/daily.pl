@@ -18,6 +18,7 @@ use Attendance;
 use Cockpit;
 use Roster ();
 use Drill ();
+use Metrics ();
 use File::Spec;
 
 my %o;
@@ -42,6 +43,7 @@ my %cmds = (
     attend   => \&cmd_attend,  post    => \&cmd_post,    meetings => \&cmd_meetings, chat => \&cmd_chat,
     answers  => \&cmd_answers, ai      => \&cmd_ai,     joined   => \&cmd_joined,   cards => \&cmd_cards,  lint => \&cmd_lint, propose => \&cmd_propose,
     roster   => \&cmd_roster,  invite  => \&cmd_invite,  drill => \&cmd_drill,
+    health   => \&cmd_health,  review  => \&cmd_review,  rollup => \&cmd_rollup,  csv => \&cmd_csv,
     quad     => sub { my $s = $load->(); print quad_text($s, team => $_[0], marking => $conf); 0 },
     sprint   => sub { print sprint_text($load->(), $_[0]) },
     velocity => sub { print velocity_text($load->()) },
@@ -49,9 +51,9 @@ my %cmds = (
     members  => sub { print members_text($load->(), $_[0]) },
     epics    => sub { print epics_text($load->()) },
     roadmap  => sub { print roadmap_text($load->()) },
-    blocked  => sub { my $s = $load->(); printf "%-10s %-6s %s\n", $_->{id}, $_->{team} // '', $_->{blocked} for blocked($s) },
+    blocked  => sub { my $s = $load->(); for (sort { blocked_days($s, $b) <=> blocked_days($s, $a) } blocked($s)) { my $d = blocked_days($s, $_); printf "%-10s %-12s %3dd  %s%s\n", $_->{id}, $_->{team} // '', $d, $_->{blocked}, $d > 5 ? '   (over 5 days: yours)' : $d > 3 ? '   (escalate)' : '' } 0 },
 );
-if (!$cmds{$cmd}) { print STDERR "commands: init new status compile report draft brief commit all check attend post meetings chat answers lint propose roster invite drill quad ai joined cards sprint velocity backlog members epics roadmap blocked\n"; exit 2 }
+if (!$cmds{$cmd}) { print STDERR "commands: init new status compile report draft brief commit all check attend post meetings chat answers lint propose roster invite drill health review rollup csv quad ai joined cards sprint velocity backlog members epics roadmap blocked\n"; exit 2 }
 exit($cmds{$cmd}->(@ARGV) // 0);
 
 # ---------------------------------------------------------------- commands
@@ -116,20 +118,29 @@ sub cmd_report {
     $notes->{extra} = _extra_text($s);
     my $prev = load($conf->{journal}, today => Quad::add_days($today, -7), until => Quad::add_days($today, -7));   # the journal a week ago: the quad's trends
     my $n = $s->{current};
+    my %hopt = _health_opts($s, prev => $prev);
+    my @health = Metrics::signals($s, %hopt);
+    my $mrows = Metrics::table($s);
+    my $month = substr($today, 0, 7);
     my %out = (
-        "$conf->{reports}/dashboard.html"      => dashboard_html($s, marking => $conf),
+        "$conf->{reports}/dashboard.html"      => dashboard_html($s, marking => $conf, health => \@health, metrics => $mrows),
         "$conf->{reports}/tree.html"           => tree_html($s, marking => $conf),
         "$conf->{reports}/roadmap.html"        => roadmap_html($s, marking => $conf),
         "$conf->{reports}/cockpit.html"        => cockpit_html($s, marking => $conf, days => days_from_standups($s, $conf->{standups}, $conf->{history_days}),
                                                                plates => (-f "$conf->{reports}/plates.html" ? 'plates.html' : undef), plates_file => "$conf->{reports}/plates.html", quad_page => "$today-quad.html",
-                                                               roster => Roster::read_roster('roster.txt'), readback_clean_days => $conf->{readback_clean_days} // 5,
+                                                               roster => Roster::read_roster('roster.txt'), health => \@health, metrics => $mrows, readback_clean_days => $conf->{readback_clean_days} // 5,
                                                                map { (lc $_ => -f "$FindBin::Bin/../docs/$_.html" ? File::Spec->abs2rel(abs_path("$FindBin::Bin/../docs/$_.html"), abs_path($conf->{reports})) : undef) } qw(TUTORIAL TRAINING)),
-        "$conf->{reports}/$today-status.html"  => email_html($s, $n, notes => $notes, marking => $conf),
-        "$conf->{reports}/$today-status.txt"   => email_text($s, $n, notes => $notes, marking => $conf),
+        "$conf->{reports}/$today-status.html"  => email_html($s, $n, notes => $notes, marking => $conf, health => \@health),
+        "$conf->{reports}/$today-status.txt"   => email_text($s, $n, notes => $notes, marking => $conf, health => \@health),
         "$conf->{reports}/$today-brief.html"   => brief_html($s, $n, marking => $conf),
         "$conf->{reports}/$today-brief.txt"    => brief_text($s, $n, marking => $conf),
-        "$conf->{reports}/$today-quad.html"    => quad_html($s, prev => $prev, marking => $conf),
-        "$conf->{reports}/$today-quad.txt"     => quad_text($s, prev => $prev, marking => $conf),
+        "$conf->{reports}/$today-quad.html"    => quad_html($s, prev => $prev, prev2 => $hopt{prev2}, marking => $conf),
+        "$conf->{reports}/$today-quad.txt"     => quad_text($s, prev => $prev, prev2 => $hopt{prev2}, marking => $conf),
+        (defined $n ? ("$conf->{reports}/sprint-$n-report.html" => Metrics::sprint_report_html($s, $n, marking => $conf),
+                       "$conf->{reports}/sprint-$n-report.txt"  => Metrics::sprint_report_text($s, $n, marking => $conf)) : ()),
+        "$conf->{reports}/$month-rollup.html"  => Metrics::rollup_html($s, $month, attendance => $hopt{attendance}, marking => $conf),
+        "$conf->{reports}/$month-rollup.txt"   => Metrics::rollup_text($s, $month, attendance => $hopt{attendance}, marking => $conf),
+        map { ("$conf->{reports}/$_.csv" => "\x{FEFF}" . Metrics::csv($s, $_, %hopt)) } @Metrics::CSV,   # the BOM tells Excel it is UTF-8
     );
     for my $f (sorted(keys %out)) {
         open my $fh, '>:encoding(UTF-8)', $f or die "cannot write $f: $!\n";
@@ -137,6 +148,67 @@ sub cmd_report {
         close $fh;
         print "wrote $f\n";
     }
+    0;
+}
+sub _health_opts {                            # what Metrics::signals needs beyond the journal: the journal 1 and 2 weeks ago, #est rounds this sprint, attendance, 3 days of answers
+    my ($s, %o) = @_;
+    my $prev  = $o{prev} // load($conf->{journal}, today => Quad::add_days($today, -7), until => Quad::add_days($today, -7));
+    my $prev2 = load($conf->{journal}, today => Quad::add_days($today, -14), until => Quad::add_days($today, -14));
+    my $start = defined $s->{current} ? (Quad::sprint_span($s)->{ $s->{current} }{start} // $today) : $today;
+    my @rounds;
+    if (opendir my $d, $conf->{standups}) {
+        for my $f (sorted(grep { /^(\d{4}-\d{2}-\d{2}).*-chat\.txt$/ && $1 ge $start && $1 le $today } readdir $d)) {
+            open my $r, '<:encoding(UTF-8)', "$conf->{standups}/$f" or next; my $text = do { local $/; <$r> }; close $r;
+            push @rounds, map { Chat::tally($_) } Chat::rounds(Chat::parse_chat($text));
+        }
+        closedir $d;
+    }
+    my (%days, %rosters);
+    my $tomorrow = Quad::add_days($today, 1);
+    for my $team (@{ $s->{teams} }) {
+        my @h = history($conf->{standups}, $team, $tomorrow, 3);
+        next unless @h && $h[0]{date} eq $today;
+        $days{$team} = \@h; $rosters{$team} = [ _roster($s, $team) ];
+    }
+    (prev => $prev, prev2 => $prev2, est_rounds => \@rounds, attendance => Metrics::read_attendance($conf->{attendance} // 'attendance.csv'), answer_days => \%days, rosters => \%rosters);
+}
+sub cmd_health {                              # health [Team]: every metric against the operating model's threshold; exit 1 on a red
+    my $team = shift // $o{team};
+    my $s = $load->();
+    my @sig = Metrics::signals($s, _health_opts($s), team => $team);
+    my $day = Metrics::sprint_day($s);
+    printf "sprint %s%s, %s: %d red, %d amber, %d info\n", $s->{current} // '-', defined $day ? " day $day" : '', $today, map { my $l = $_; scalar grep { $_->{level} eq $l } @sig } qw(red amber info);
+    print @sig ? health_text(\@sig, all => 1) : "every metric is inside its threshold\n";
+    (grep { $_->{level} eq 'red' } @sig) ? 1 : 0;
+}
+sub cmd_review {                              # review [N]: the sprint report (Day 14) -- printed, and written to reports/sprint-N-report.{txt,html}
+    my $s = $load->();
+    my $n = shift // $s->{current};
+    if (!defined $n) { print "no sprint yet\n"; return 1 }
+    mkdir $conf->{reports} unless -d $conf->{reports};
+    my $txt = Metrics::sprint_report_text($s, $n, marking => $conf);
+    print $txt;
+    for (["txt", $txt], ["html", Metrics::sprint_report_html($s, $n, marking => $conf)]) { my $f = "$conf->{reports}/sprint-$n-report.$_->[0]"; open my $w, '>:encoding(UTF-8)', $f or die "cannot write $f: $!\n"; print $w $_->[1]; close $w; print "wrote $f\n" }
+    0;
+}
+sub cmd_rollup {                              # rollup [YYYY-MM]: the monthly roll-up -- printed, and written to reports/<month>-rollup.{txt,html}
+    my $month = shift // substr($today, 0, 7);
+    if ($month !~ /^\d{4}-\d{2}$/) { print STDERR "usage: daily.pl rollup [YYYY-MM]\n"; return 2 }
+    my $s = $load->();
+    my $att = Metrics::read_attendance($conf->{attendance} // 'attendance.csv');
+    mkdir $conf->{reports} unless -d $conf->{reports};
+    my $txt = Metrics::rollup_text($s, $month, attendance => $att, marking => $conf);
+    print $txt;
+    for (["txt", $txt], ["html", Metrics::rollup_html($s, $month, attendance => $att, marking => $conf)]) { my $f = "$conf->{reports}/$month-rollup.$_->[0]"; open my $w, '>:encoding(UTF-8)', $f or die "cannot write $f: $!\n"; print $w $_->[1]; close $w; print "wrote $f\n" }
+    0;
+}
+sub cmd_csv {                                 # csv [items|sprints|epics|intake|health]: one table to stdout; no argument writes all of them to reports/<table>.csv for Excel
+    my $what = shift;
+    my $s = $load->();
+    my %hopt = _health_opts($s);
+    if ($what) { my $t = eval { Metrics::csv($s, $what, %hopt) }; if (!defined $t) { print STDERR $@; return 2 } binmode STDOUT, ':encoding(UTF-8)'; print $t; return 0 }
+    mkdir $conf->{reports} unless -d $conf->{reports};
+    for my $w (@Metrics::CSV) { my $f = "$conf->{reports}/$w.csv"; open my $fh, '>:raw:encoding(UTF-8)', $f or die "cannot write $f: $!\n"; print $fh "\x{FEFF}" . Metrics::csv($s, $w, %hopt); close $fh; print "wrote $f\n" }
     0;
 }
 sub _marking_gate {                               # print marking problems; refuse to open/send when there is an error (unless --force)

@@ -45,7 +45,7 @@ sub import {
     }
 }
 
-our %THRESHOLD = (pm_days => 3, week => 7, sprint_days => 14, horizons => [30, 60, 90], per_horizon => 3, todo_max => 10, punt_sprints => 4, punt_warn => 20);   # blocked > pm_days: PM SWAT (WORKFLOW #6: > 3 days escalate)
+our %THRESHOLD = (pm_days => 3, week => 7, sprint_days => 14, horizons => [30, 60, 90], per_horizon => 3, todo_max => 10, punt_sprints => 4, punt_warn => 20, own_days => 5, ontime_warn => 80);   # blocked > pm_days: PM SWAT (WORKFLOW #6: > 3 days escalate)
 
 sub _ymd { my $t = shift; my @g = gmtime $t; sprintf '%04d-%02d-%02d', $g[5] + 1900, $g[4] + 1, $g[3] }
 sub _epoch { my ($y, $m, $d) = split /-/, $_[0]; timegm(0, 0, 0, $d, $m - 1, $y) }
@@ -122,7 +122,7 @@ sub quad {                                    # quad($s, team => T, prev => $s_w
     for my $it (grep { $in_team->($_) } blocked($s)) {
         my $days = defined $it->{blocked_since} ? days_between($it->{blocked_since}, $today) : 0;
         push @watch, { kind => $days > $THRESHOLD{pm_days} ? 'PM' : 'WI', id => $it->{id}, team => $it->{team}, owner => $it->{owner}, days => $days,
-                       text => "blocked $days day" . ($days == 1 ? '' : 's') . ": $it->{blocked}" };
+                       text => "blocked $days day" . ($days == 1 ? '' : 's') . ": $it->{blocked}" . ($days > $THRESHOLD{own_days} ? " -- over $THRESHOLD{own_days} days: the architect's" : '') };
     }
     push @watch, { kind => 'WI', id => $_->{id}, team => $_->{team}, owner => $_->{owner}, days => 0, text => "on hold: $_->{why}" }              for grep { $_->{tag} eq 'HOLD' } @pri;
     push @watch, { kind => 'WI', id => $_->{id}, team => $_->{team}, owner => $_->{owner}, days => 0, text => "punted, needs replanning: $_->{why}" } for grep { $_->{tag} eq 'PUNT' } @pri;
@@ -185,6 +185,11 @@ sub quad {                                    # quad($s, team => T, prev => $s_w
     my $psum = sprint_summary($prev, $cur);
     my $ppct = defined $cur && $psum->{sprint} ? ($team ? $psum->{teams}{$team}{pct} : $psum->{totals}{pct}) : undef;
     my $sprint_trend = !defined $ppct ? 'new' : $pct > $ppct ? 'improving' : $pct < $ppct ? 'degrading' : 'same';
+    if ($sprint_trend eq 'degrading' && $o{prev2}) {   # two weeks running: the commitment was wrong, not the team (WORKFLOW #6)
+        my $p2 = sprint_summary($o{prev2}, $cur);
+        my $pp2 = $p2->{sprint} ? ($team ? $p2->{teams}{$team}{pct} : $p2->{totals}{pct}) : undef;
+        $sprint_trend = 'degrading2' if defined $pp2 && $ppct < $pp2;
+    }
     my @all_done = grep { defined $cur && $_->{state} eq 'done' && $_->{sprint} == $cur && $in_team->($_) } items($s);
     my $sprint_ontime = grep { !_carried($_) && !_redone($_) } @all_done;
     {
@@ -197,6 +202,7 @@ sub quad {                                    # quad($s, team => T, prev => $s_w
         },
     };
 }
+sub _ontime_low { my $m = shift; my ($n, $d) = @{ $m->{ontime} }{qw(sprint_ontime sprint_total)}; $d && 100 * $n / $d < $THRESHOLD{ontime_warn} ? 1 : 0 }   # on-time under 80% this sprint
 sub sorted_items { sort { ($a->{meta}{prio} // 99) <=> ($b->{meta}{prio} // 99) || $a->{id} cmp $b->{id} } @_ }
 
 sub punt_rate {                               # punt_rate($s, team => T, last => 4) -> [ { sprint, team, committed, punted, rate } ] tasks, per team per sprint (newest last), plus a Total row per sprint
@@ -223,6 +229,8 @@ sub punt_rate {                               # punt_rate($s, team => T, last =>
         }
         push @rows, { sprint => $n, team => 'Total', committed => $tc, punted => $tp, rate => $tc ? int(100 * $tp / $tc + 0.5) : 0 } if @teams > 1;
     }
+    my %last;                                 # the flag: over punt_warn two sprints running for that team (WORKFLOW #6), not one bad sprint
+    for my $r (@rows) { my $p = $last{ $r->{team} }; $r->{warn} = ($r->{rate} > $THRESHOLD{punt_warn} && $p && $p->{rate} > $THRESHOLD{punt_warn}) ? 1 : 0; $last{ $r->{team} } = $r }
     \@rows;
 }
 
@@ -234,9 +242,10 @@ sub quad_text {
     my $q = $o{quad} // quad($s, %o);
     my $m = $q->{metrics};
     my $out = sprintf "Weekly status%s -- as of %s (sprint %s)\n", $q->{team} ? " $q->{team}" : '', $q->{as_of}, $q->{sprint} // '-';
-    $out .= sprintf "Sprint progress %d%% (%d/%d %s) %s%s%s   On-time delivery: %d/%d this week, %d/%d this sprint\n\n",
-        $m->{sprint}{pct}, $m->{sprint}{done}, $m->{sprint}{committed}, $q->{unit}, $m->{sprint}{trend}, defined $m->{sprint}{prev_pct} ? " (was $m->{sprint}{prev_pct}%)" : '',
-        $m->{sprint}{punted} ? ", $m->{sprint}{punted} punted" : '', $m->{ontime}{week_ontime}, $m->{ontime}{week_total}, $m->{ontime}{sprint_ontime}, $m->{ontime}{sprint_total};
+    my $late = _ontime_low($m);
+    $out .= sprintf "Sprint progress %d%% (%d/%d %s) %s%s%s   On-time delivery: %d/%d this week, %d/%d this sprint%s\n\n",
+        $m->{sprint}{pct}, $m->{sprint}{done}, $m->{sprint}{committed}, $q->{unit}, $m->{sprint}{trend} eq 'degrading2' ? 'DEGRADING two weeks running' : $m->{sprint}{trend}, defined $m->{sprint}{prev_pct} ? " (was $m->{sprint}{prev_pct}%)" : '',
+        $m->{sprint}{punted} ? ", $m->{sprint}{punted} punted" : '', $m->{ontime}{week_ontime}, $m->{ontime}{week_total}, $m->{ontime}{sprint_ontime}, $m->{ontime}{sprint_total}, $late ? "  ! under $THRESHOLD{ontime_warn}%" : '';
     $out .= "TECHNICAL PRIORITIES\n";
     $out .= sprintf("  %-5s %-10s %3s  %-30s %s%s\n", $_->{tag}, $_->{id}, $_->{pts}, substr($_->{title} // '', 0, 30), $_->{owner} // '-', @{ $_->{marks} } ? '  [' . join(', ', @{ $_->{marks} }) . ']' : '') for @{ $q->{priorities} };
     $out .= "  (nothing in the sprint or on the TODO list)\n" unless @{ $q->{priorities} };
@@ -256,7 +265,7 @@ sub quad_text {
     $out .= "  none\n" unless @{ $q->{accomplishments} };
     $out .= sprintf("  ! %-10s %s\n", $_->{id}, $_->{why}) for @{ $q->{slipped} };
     $out .= "\nPUNT RATE (tasks punted back to TODO / tasks committed, last $THRESHOLD{punt_sprints} sprints)\n";
-    $out .= sprintf("  sprint %-4s %-12s %3d / %-3d %3d%%%s\n", $_->{sprint}, $_->{team}, $_->{punted}, $_->{committed}, $_->{rate}, $_->{rate} > $THRESHOLD{punt_warn} ? '  !' : '') for @{ $q->{punt_rate} };
+    $out .= sprintf("  sprint %-4s %-12s %3d / %-3d %3d%%%s\n", $_->{sprint}, $_->{team}, $_->{punted}, $_->{committed}, $_->{rate}, $_->{warn} ? '  ! two sprints running' : '') for @{ $q->{punt_rate} };
     $out .= "  no sprints yet\n" unless @{ $q->{punt_rate} };
     $out .= "\nLegend: v on time  x late (carried over, or rework after the demo)  ! slipped   -> pushed right  <- pulled left  = no change  + new\n";
     marked_text($o{marking}, $out);
@@ -292,14 +301,14 @@ sub quad_html {
     my $m = $q->{metrics};
     my $h = \&Scrum::_h;
     my %arrow = (pushed => '&#8594; pushed right', pulled => '&#8592; pulled left', same => '= no change', new => '+ new');
-    my %trend = (improving => '&#8599; improving', degrading => '&#8600; degrading', same => '&#8594; no change', new => 'first week');
+    my %trend = (improving => '&#8599; improving', degrading => '&#8600; degrading', degrading2 => '<span class=late>&#8600; degrading two weeks running</span>', same => '&#8594; no change', new => 'first week');
     my $html = "<!DOCTYPE html>\n<html><head><meta charset=\"utf-8\"><title>Weekly status</title><style>$QCSS</style></head><body>\n";
     $html .= Scrum::mark_banner_html($o{marking}, 'top') . Scrum::mark_block_html($o{marking});
     $html .= '<h1>' . Scrum::logo_svg() . 'Weekly Status' . ($q->{team} ? ' &middot; ' . $h->($q->{team}) : '') . ' <span class=muted>as of ' . $h->($q->{as_of}) . (defined $q->{sprint} ? " &middot; sprint $q->{sprint}" : '') . "</span></h1>\n";
-    $html .= sprintf('<div class=metrics><span>Sprint progress <b>%d%%</b> %d/%d %s <span class=muted>%s%s</span>%s</span><span>On-time delivery <b>%d/%d</b> this week <span class=muted>&middot; %d/%d this sprint</span></span></div>' . "\n",
+    $html .= sprintf('<div class=metrics><span>Sprint progress <b>%d%%</b> %d/%d %s <span class=muted>%s%s</span>%s</span><span%s>On-time delivery <b>%d/%d</b> this week <span class=muted>&middot; %d/%d this sprint</span>%s</span></div>' . "\n",
         $m->{sprint}{pct}, $m->{sprint}{done}, $m->{sprint}{committed}, $h->($q->{unit}), $trend{ $m->{sprint}{trend} }, defined $m->{sprint}{prev_pct} ? " (was $m->{sprint}{prev_pct}%)" : '',
-        $m->{sprint}{punted} ? " <span class=late>$m->{sprint}{punted} punted</span>" : '',
-        $m->{ontime}{week_ontime}, $m->{ontime}{week_total}, $m->{ontime}{sprint_ontime}, $m->{ontime}{sprint_total});
+        $m->{sprint}{punted} ? " <span class=late>$m->{sprint}{punted} punted</span>" : '', _ontime_low($m) ? ' class=late' : '',
+        $m->{ontime}{week_ontime}, $m->{ontime}{week_total}, $m->{ontime}{sprint_ontime}, $m->{ontime}{sprint_total}, _ontime_low($m) ? " (under $THRESHOLD{ontime_warn}%)" : '');
     $html .= "<div class=quad>\n";
     # technical priorities
     $html .= "<div class=q><h2>Technical Priorities</h2>\n";
@@ -357,7 +366,7 @@ sub quad_html {
         my %cell = map { ("$_->{sprint}\0$_->{team}" => $_) } @{ $q->{punt_rate} };
         $html .= "<table><tr><th>Team</th>" . join('', map { "<th class=n>Sprint $_</th>" } @sp) . "</tr>\n";
         for my $t (@teams) {
-            $html .= '<tr><td>' . $h->($t) . '</td>' . join('', map { my $c = $cell{"$_\0$t"}; $c ? sprintf('<td class="n%s">%d / %d &middot; %d%%</td>', $c->{rate} > $THRESHOLD{punt_warn} ? ' late' : '', $c->{punted}, $c->{committed}, $c->{rate}) : '<td class=n>-</td>' } @sp) . "</tr>\n";
+            $html .= '<tr><td>' . $h->($t) . '</td>' . join('', map { my $c = $cell{"$_\0$t"}; $c ? sprintf('<td class="n%s">%d / %d &middot; %d%%</td>', $c->{warn} ? ' late' : '', $c->{punted}, $c->{committed}, $c->{rate}) : '<td class=n>-</td>' } @sp) . "</tr>\n";
         }
         $html .= "</table>\n";
     } else { $html .= "<p class=muted>no sprints yet</p>\n" }

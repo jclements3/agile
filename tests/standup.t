@@ -114,7 +114,7 @@ check 'compile text', $text, <<'EOF';
     Equity:Intake
 
 2026-09-01 Intake HOT-1 Hotfix
-    Sprint:42:Alpha:Committed         2 SP   ; id: HOT-1, owner: Bob
+    Sprint:42:Alpha:Committed         2 SP   ; id: HOT-1, interrupt: 1, owner: Bob
     Equity:Intake
 
 2026-09-01 Standup Alpha
@@ -273,7 +273,7 @@ my ($rc, $out);
     ($rc, $out) = cli('--today', '2026-09-02', 'all');
     S 'all stops on error', '[1,1,0]', [ $rc, ($out =~ /unknown task 'NOPE-1'/ ? 1 : 0), (-f 'reports/2026-09-02-status.txt' ? 1 : 0) ];
     ($rc, $out) = cli('--today', '2026-09-02', 'blocked');
-    S 'blocked cmd', '"RPT-202    Bravo  cert\n"', $out;
+    S 'blocked cmd', '"RPT-202    Bravo          1d  cert\n"', $out;
     ($rc, $out) = cli('bogus');
     S 'bad cmd', 2, $rc;
     # calendar integration on the mock backend

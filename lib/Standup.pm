@@ -157,7 +157,7 @@ sub compile {                                 # compile($scrum_state, $standup) 
             my $acct = $it->{now} ? "Sprint:$n:$team:Committed" : "Backlog:$team";
             push @err, "$su->{file}: task '$it->{id}' already exists" if $s->{items}{ $it->{id} } || $seen->{ $it->{id} };
             $seen->{ $it->{id} }{$acct} += $it->{pts};
-            $out .= sprintf("%s Intake %s %s\n    %-32s  %s %s   ; id: %s%s\n    Equity:Intake\n\n", $su->{date}, $it->{id}, $it->{title}, $acct, $it->{pts}, $unit, $it->{id}, $meta->(%{ $it->{meta} }));
+            $out .= sprintf("%s Intake %s %s\n    %-32s  %s %s   ; id: %s%s\n    Equity:Intake\n\n", $su->{date}, $it->{id}, $it->{title}, $acct, $it->{pts}, $unit, $it->{id}, $meta->(%{ $it->{meta} }, ($it->{now} ? (interrupt => 1) : ())));   # new!: an interrupt, counted by Metrics
         }
     }
     for my $team (@{ $su->{order} }) {        # pass 2: the moves

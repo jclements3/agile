@@ -30,7 +30,8 @@ Run from the repo root:
 
     for t in tests/*.t; do perl $t | tail -1; done   # run every test suite, print each summary line
     perl tests/scrum.t                                # run a single suite (verbose TAP output)
-    GP="/mnt/c/Program Files/Git/usr/bin/perl.exe"; for t in tests/*.t; do "$GP" $t | tail -1; done   # from WSL: the same suite under the TARGET Perl (Git for Windows, cygwin build) -- run before every commit that touches bin/ or lib/
+    "/mnt/c/Program Files/Git/bin/bash.exe" -lc 'cd /c/Users/clementsj/projects/agile && for t in tests/*.t; do perl $t | tail -1; done'   # from WSL: the same suite under the TARGET Perl (Git for Windows, cygwin build) -- run before every commit that touches bin/ or lib/
+    #   inside Git Bash, not by calling usr/bin/perl.exe from WSL: suites that shell out (perl, cp) need Git's PATH, and Git's Perl sees the repo as /c/..., not /mnt/c/...
     perl -Ilib tests/scrum.t                           # if lib isn't already resolved relative to tests/
 
 There is no build step and no package manager — everything is `use lib` against `lib/`.

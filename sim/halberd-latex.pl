@@ -72,7 +72,7 @@ sub halberd_latex {
 \titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.7em}{}
 \titlespacing*{\section}{0pt}{18pt}{8pt}
 \pagestyle{fancy}\fancyhf{}
-\fancyhead[L]{\small\textsc{Halberd}\enspace\textperiodcentered\enspace\small a notional 12-week SysML port}
+\fancyhead[L]{\small IAMD MBSE SysEng Integration Into DevSecOps\enspace\textperiodcentered\enspace Notional Plan}
 \fancyhead[R]{\small\thepage}
 \fancyfoot[C]{\footnotesize\itshape Notional: every name and number is made up.}
 \renewcommand{\headrulewidth}{0.4pt}
@@ -94,9 +94,11 @@ PRE
 \begin{titlepage}
 \centering
 \vspace*{1.6in}
-{\fontsize{40}{44}\selectfont\scshape Halberd\par}
+{\fontsize{30}{36}\selectfont\bfseries IAMD MBSE SysEng Integration\\[4pt] Into DevSecOps\par}
+\vspace{10pt}
+{\fontsize{22}{26}\selectfont\scshape Notional Plan\par}
 \vspace{14pt}
-{\Large A 12-week SysML v1 to v2 port,\\ run on the agile kit\par}
+{\Large Halberd: a 12-week SysML v1 to v2 port,\\ run on the agile kit\par}
 \vspace{28pt}
 \rule{0.55\textwidth}{0.4pt}\par
 \vspace{14pt}

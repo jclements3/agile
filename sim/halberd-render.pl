@@ -86,7 +86,7 @@ sub halberd_render {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Halberd: a 12-week SysML v1 to v2 port, run on the kit</title>
+<title>IAMD MBSE SysEng Integration Into DevSecOps Notional Plan</title>
 <style>
   body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a;
          max-width: 1100px; margin: 2em auto; padding: 0 1.5em; line-height: 1.5; }
@@ -108,7 +108,8 @@ sub halberd_render {
 <body>
 HEAD
     $o .= <<'INTRO';
-<h1>Halberd: a 12-week SysML v1 to v2 port, run on the kit</h1>
+<h1>IAMD MBSE SysEng Integration Into DevSecOps Notional Plan</h1>
+<p class='note' style='margin-top:-0.6em'>Halberd: a 12-week SysML v1 to v2 port, run on the agile kit</p>
 
 <p><strong>Halberd is fictional and notional, and so is every number here.</strong> Its legacy SysML v1 model
 holds 1,960 in-scope items across 7 organizations, and 1,450 DOORS requirements. One solutions architect

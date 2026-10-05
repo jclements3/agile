@@ -13,7 +13,8 @@
 #
 # Standalone planning/simulation tool -- not part of the tested kit (lib/, bin/, tests/). Core Perl.
 #
-# Usage:  perl sim/halberd-gen.pl [--dir PATH] [--doc FILE] [--html FILE] [--no-html]
+# Usage:  perl sim/halberd-gen.pl [--dir PATH] [--doc FILE] [--html FILE] [--tex FILE] [--no-html] [--pdf]
+#   --pdf also builds docs/HALBERD.pdf from docs/HALBERD.tex (needs XeLaTeX + latexmk; the PDF is committed)
 use strict;
 use warnings;
 use FindBin;
@@ -26,8 +27,8 @@ use Scrum   qw(load sprint_summary);
 use Ledger ();
 
 my $ROOT = "$FindBin::Bin/..";
-my %o = (dir => "$ROOT/data/halberd", doc => "$ROOT/docs/src/status-metrics.md", html => "$ROOT/docs/HALBERD.html");
-GetOptions(\%o, 'dir=s', 'doc=s', 'html=s', 'no-html') or exit 2;
+my %o = (dir => "$ROOT/data/halberd", doc => "$ROOT/docs/src/status-metrics.md", html => "$ROOT/docs/HALBERD.html", tex => "$ROOT/docs/HALBERD.tex");
+GetOptions(\%o, 'dir=s', 'doc=s', 'html=s', 'tex=s', 'no-html', 'pdf') or exit 2;
 $o{dir} =~ m{(^|/)data/halberd$} or die "--dir must end in data/halberd (it is wiped and rebuilt)\n";
 
 # ---- the scenario: segments in the order they are ported (Appendix C), and which segment each working day works on
@@ -244,5 +245,18 @@ exit 0 if $o{'no-html'};
 require "$FindBin::Bin/halberd-render.pl";
 halberd_render($o{html}, days => \@days, sprints => \@sprints, plan => \@plan, seg => \%SEG, journal_rows => \@rows, evm_series => \@evm_series, bac => $bac, authorized => $bac * 1.10);
 print "wrote $o{html}\n";
+require "$FindBin::Bin/halberd-latex.pl";                        # the same, typeset for print (black and white)
+halberd_latex($o{tex}, days => \@days, sprints => \@sprints, plan => \@plan, seg => \%SEG, journal_rows => \@rows, evm_series => \@evm_series, bac => $bac, authorized => $bac * 1.10);
+print "wrote $o{tex}\n";
+if ($o{pdf}) {                                                   # XeLaTeX in a scratch dir; only the PDF comes back
+    require File::Temp; require File::Copy;
+    my $tmp = File::Temp::tempdir(CLEANUP => 1);
+    File::Copy::copy($o{tex}, "$tmp/HALBERD.tex") or die "cannot copy $o{tex}: $!\n";
+    my $log = `cd "$tmp" && latexmk -xelatex -interaction=nonstopmode -halt-on-error HALBERD.tex 2>&1`;
+    -f "$tmp/HALBERD.pdf" && $? == 0 or die "latexmk failed:\n" . join("\n", (split /\n/, $log)[-25 .. -1]) . "\n";
+    (my $pdf = $o{tex}) =~ s/\.tex$/.pdf/;
+    File::Copy::copy("$tmp/HALBERD.pdf", $pdf) or die "cannot write $pdf: $!\n";
+    print "wrote $pdf\n";
+}
 
 sub _write { my ($f, $t) = @_; open my $fh, '>:encoding(UTF-8)', $f or die "cannot write $f: $!\n"; print $fh $t; close $fh or die "cannot write $f: $!\n" }

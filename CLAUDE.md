@@ -147,7 +147,8 @@ requirements, 1 uncovered zone crossing, 2 open threats; its `docs/` is generate
 `perl tools/sysml/model.pl --root examples/halberd docs`, `tests/sysml.t` fails on stale docs), `docs/src/status-metrics.md`
 (the 12-week port, Appendix C/D), and `sim/halberd-gen.pl`, which compiles that port into `data/halberd` through
 Standup.pm/Scrum.pm (56 stand-ups, sprint totals checked against the doc) plus a notional FY27 `funding.ledger` and
-percent-complete CSVs, and writes `docs/HALBERD.html` (`sim/halberd-render.pl`). `tests/halberd.t` checks it and that the
+percent-complete CSVs, and writes `docs/HALBERD.html` (`sim/halberd-render.pl`) and `docs/HALBERD.tex` (`sim/halberd-latex.pl`, black and white); `--pdf` also builds
+`docs/HALBERD.pdf` with XeLaTeX + latexmk (not on the target laptop, so the PDF is committed). `tests/halberd.t` checks it and that the
 committed page is current: after changing either script, rerun `perl sim/halberd-gen.pl`. Halberd must stay generic: no
 real program names, no content from any private model.
 

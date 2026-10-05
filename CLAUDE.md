@@ -162,7 +162,7 @@ entry is not a budget row. `scrum.conf` keys `funding = FILE` and `complete = GL
 **Help (one source, four outputs):** `vim/doc/agile.txt` and `vim/doc/agile-errors.txt` (Vim help format) are the only source.
 `lib/Help.pm` renders them for `:help agile` (`vim/scrum.vim` runs :helptags; `vim/doc/tags` is git-ignored), `agile.pl help`,
 `daily.pl|scrum.pl|ledger.pl help`, `docs/HELP.html` and `docs/help/quickref.md` (both generated and committed: regenerate with
-`perl agile.pl help --html` / `--md`; the quickref is also the binder chapter `thewheel/src/46-agile-kit-quickref.md`).
+`perl agile.pl help --html` / `--md`; the quickref is also a chapter of the user's binder, kept outside this repo).
 `tests/help.t` derives what must be documented from the code (daily.pl's %cmds, drill.pl's %CMDS, Scrum::run and Ledger::run commands, :S/:Idef/:Sys/:Drill
 commands, \s/\i/\m/\d keys, Standup verbs, scrum.conf keys) and requires every die/warn/STDERR/error-push message to match a `Pattern:`
 in agile-errors.txt (or an `Internal:` line for bug-only invariants), so a new command or message needs its help entry in the same
@@ -184,8 +184,7 @@ Statements are the kit's own words; the `LeetCode:` line is a pointer only (test
 against the Python reference (`cd tools/idef0 && sh tests/parity.sh`, needs python3; html and `fmt --auto` are known,
 counted divergences) and the Emacs mode; `tools/idef0-kit/` is the original Python/Rust kit with its design notes.
 `docs/VIM-CHEATSHEET.html` is the one-page Vim reference for every mode; `vim/ftplugin/idef0.vim` is the Vim twin of the
-Emacs IDEF0 mode. `thewheel/` is the 90-day binder (git subtree of the binder repo; pull with
-`git subtree pull --prefix=thewheel <binder repo> master`). Secrets gates: `.secrets-allow` (devsecops.pl) and
+Emacs IDEF0 mode. The user's 90-day binder is not in this repo (it was removed from the public history on 2026-10-05; a scrubbed copy may come back later as plain files, never as a subtree of the private binder repo). Secrets gates: `.secrets-allow` (devsecops.pl) and
 `.gitleaks.toml` (CI) list the documented fake keys the binder's DevSecOps chapter uses as teaching examples -- exact values only.
 
 ## Architecture

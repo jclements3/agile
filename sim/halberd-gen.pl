@@ -246,7 +246,7 @@ require "$FindBin::Bin/halberd-render.pl";
 halberd_render($o{html}, days => \@days, sprints => \@sprints, plan => \@plan, seg => \%SEG, journal_rows => \@rows, evm_series => \@evm_series, bac => $bac, authorized => $bac * 1.10);
 print "wrote $o{html}\n";
 require "$FindBin::Bin/halberd-latex.pl";                        # the same, typeset for print (black and white)
-my $cover = "$ROOT/thewheel/img/cover-white.jpg";               # the binder's cover art (grey), when the binder is there
+my $cover = "$ROOT/docs/img/cover-art.jpg";                     # the cover art (grey; the same art as the binder's cover)
 halberd_latex($o{tex}, days => \@days, sprints => \@sprints, plan => \@plan, seg => \%SEG, journal_rows => \@rows, evm_series => \@evm_series, bac => $bac, authorized => $bac * 1.10, cover => 1);
 print "wrote $o{tex}\n";
 if ($o{pdf}) {                                                   # XeLaTeX in a scratch dir; only the PDF comes back

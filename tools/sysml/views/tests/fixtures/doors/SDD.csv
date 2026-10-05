@@ -1,0 +1,3 @@
+ID,Object Heading,Object Text,Satisfies
+SDD-1,Kill vehicle structure,Composite structure sized for the mass budget.,SRS-4
+SDD-2,Seeker processor,FPGA frame pipeline.,"SRS-5, SRS-10"

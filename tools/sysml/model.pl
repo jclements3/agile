@@ -23,6 +23,8 @@
 #   perl tools/sysml/model.pl verbs [--plain]  the verb tree (functions)
 #   perl tools/sysml/model.pl docs             write docs/Nouns.md, Verbs.md, idef0/, Traceability.md
 #   perl tools/sysml/model.pl check            outline + level-tag check only (exit status)
+#   perl tools/sysml/model.pl draw tree|trace|ibd|pkg [-o F]   an SVG view (tools/sysml/views; also plates, diff,
+#                                              threats, gate: the standalone tools run on this model, options passed on)
 #
 # Options: --plain   human-readable names ("Beam Control Subsystem")
 #          --ascii   ASCII tree glyphs instead of box-drawing characters
@@ -46,9 +48,11 @@ my $KIT = abs_path(File::Spec->catdir($TOOLS, File::Spec->updir, File::Spec->upd
 
 my @argv = @ARGV;
 my $root_opt;
+my %PASS = map { $_ => 1 } qw(draw plates diff threats gate);     # tools/sysml/views wrappers: what follows is the tool's (its --root too)
 for (my $i = 0; $i < @argv; $i++) {
     if    ($argv[$i] =~ /^--root=(.+)/) { $root_opt = $1; splice @argv, $i--, 1 }
     elsif ($argv[$i] eq '--root')       { $root_opt = $argv[$i + 1]; splice @argv, $i--, 2 }
+    elsif ($argv[$i] !~ /^--/ && $PASS{ $argv[$i] }) { last }
 }
 
 sub find_root {    # nearest directory upward from $_[0] that holds model/
@@ -93,7 +97,9 @@ my ($MIN, $MAX) = (2, 9);
 my $ME = 'perl tools/sysml/model.pl';
 
 my %opt = (plain => 0, ascii => 0);
-my @args = grep { !/^--(plain|ascii)$/ || !($opt{$1} = 1) } @argv;
+my ($pass_at) = grep { $argv[$_] !~ /^--/ && $PASS{ $argv[$_] } } 0 .. $#argv;
+my @args = defined $pass_at ? (grep({ !/^--(plain|ascii)$/ || !($opt{$1} = 1) } @argv[0 .. $pass_at - 1]), @argv[$pass_at .. $#argv])
+                            : grep { !/^--(plain|ascii)$/ || !($opt{$1} = 1) } @argv;
 my $cmd = shift(@args) // '';
 
 binmode STDOUT, ':encoding(UTF-8)';
@@ -1223,6 +1229,47 @@ sub cmd_libnames {
     0;
 }
 
+# ------------------------------------------------------------------ views: tools/sysml/views on this project's model/
+# Each wrapper runs one standalone tool with the model directory (relative to the current directory, so
+# diagnostics land in Vim's quickfix list) and passes every other option through; the exit status is the tool's.
+my $VIEWS = File::Spec->catdir($TOOLS, 'views');
+sub run_view {
+    my ($script, @a) = @_;
+    my $p = File::Spec->catfile($VIEWS, $script);
+    if (!-f $p) { print STDERR "model.pl: $p is missing (the tools/sysml/views toolkit)\n"; return 2 }
+    system($^X, $p, @a);
+    $? == -1 ? 2 : $? >> 8;
+}
+sub has_opt { my ($re, @a) = @_; scalar grep { /^(?:$re)(?:=|\z)/ } @a }
+my %DRAW = (tree => ['sysml-tree-svg.pl', 'part decomposition'], trace => ['sysml-trace-svg.pl', 'requirement trace'],
+            ibd => ['sysml-ibd-svg.pl', 'interconnection and trust zones'], pkg => ['sysml-pkg-svg.pl', 'packages and markings']);
+sub cmd_draw {
+    my $kind = shift(@args) // '';
+    my $d = $DRAW{$kind} or do { print STDERR "usage: $ME draw tree|trace|ibd|pkg [-o FILE] [tool options]\n"; return 2 };
+    my @a = @args;
+    unshift @a, '-o', "$kind.svg" unless has_opt('-o|--o', @a);
+    unshift @a, '--title', "$TITLE: $d->[1]" unless has_opt('--title', @a);
+    run_view($d->[0], @a, rel($MODEL));
+}
+sub cmd_plates {
+    my @a = @args;
+    unshift @a, '-o', 'plates' unless has_opt('-o|--o', @a);
+    run_view('sysml-plates.pl', @a, rel($MODEL));
+}
+sub cmd_diff {      # diff OLD_DIR [NEW_DIR] | diff --git OLD[..NEW] [PATH...]: the new side defaults to this model
+    my @a = @args;
+    my (@pos, %val);
+    for (my $i = 0; $i < @a; $i++) {
+        if ($a[$i] =~ /^(?:-o|--o|--root|--git|--today)\z/) { $val{ $a[$i] } = $a[ $i + 1 ]; $i++ }
+        elsif ($a[$i] !~ /^-/) { push @pos, $a[$i] }
+    }
+    if (defined $val{'--git'}) { push @a, rel($MODEL) unless @pos }
+    elsif (@pos == 1) { push @a, rel($MODEL) }
+    run_view('sysml-diff.pl', @a);
+}
+sub cmd_threats { run_view('sysml-threats.pl', @args, rel($MODEL)) }
+sub cmd_gate { run_view('sysml-check.pl', '--tools', File::Spec->catdir($VIEWS, 'binder'), @args, rel($MODEL)) }
+
 my @HELP = (
     [check    => 'the 2..9 outline rule and @L level tags (exit 1 on any violation)'],
     [lint     => 'SysML checks without Java: grammar-exact syntax (tools/sysml/sysml.pl), unresolved types, imports, duplicates, self-bindings'],
@@ -1240,6 +1287,11 @@ my @HELP = (
     [precommit       => 'lint + check + generated docs up to date (what the git hook runs)'],
     ['install-hooks' => 'install the git pre-commit hook for this project'],
     [libnames => 'refresh tools/sysml/sysml-library-names.txt from a sysml.library directory'],
+    [draw     => 'draw tree|trace|ibd|pkg [-o FILE] [options]: an SVG view of the model (tools/sysml/views; default KIND.svg here)'],
+    [plates   => 'drawing plates (ISO title block) from the model\'s views, or --auto (default -o plates)'],
+    [diff     => 'diff OLD_DIR [NEW_DIR] | diff --git OLD[..NEW] [PATH]: changes as colored views + a change list (new side: this model)'],
+    [threats  => 'the threat table: STRIDE + CAPEC on every threat, each mitigated by a satisfied and verified requirement [--today D]'],
+    [gate     => 'the validate gate in one line: text, trace, markings, zones, threats -> PASS|FAIL [--today D] [--strict] [--svg DIR]'],
 );
 
 my %CMD = (
@@ -1259,6 +1311,11 @@ my %CMD = (
     precommit => \&cmd_precommit,
     'install-hooks' => \&cmd_install_hooks,
     libnames => \&cmd_libnames,
+    draw  => \&cmd_draw,
+    plates => \&cmd_plates,
+    diff  => \&cmd_diff,
+    threats => \&cmd_threats,
+    gate  => \&cmd_gate,
     help  => sub { print "$ME [--root DIR] COMMAND [options]\n\n", map { sprintf "  %-14s %s\n", @$_ } @HELP; 0 },
 );
 if (!$CMD{$cmd}) {

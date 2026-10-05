@@ -1,0 +1,12 @@
+"Object Identifier","Object Number","Object Heading","Object Text","Object Type","Priority","Out-links"
+"SRS-1","1","Introduction","","Heading","",""
+"SRS-2","1-1","","This specification covers the Halberd interceptor segment.","Information","",""
+"SRS-3","2","Performance","","Heading","",""
+"SRS-4","2-1","","The interceptor shall not exceed its allocated mass.","Requirement","High","SYS-12"
+"SRS-5","2-2","","The seeker frame time shall not exceed 10 ms (ICD-allocated).","Requirement","Medium","SYS-12
+SYS-99"
+"SRS-6","2.1","Environment","","Heading","",""
+"SRS-7","2.1-1","Storage life","The interceptor shall meet its reliability allocation after ten years in storage.","Requirement","Low",""
+"SRS-8","3","Glossary","","Heading","",""
+"SRS-9","3-1","","Kill vehicle: the part of the interceptor that hits the target.","Information","",""
+"SRS-10","2-3","","The interceptor shall survive a hot launch at <b>maximum</b> canister temperature.","Requirement","High",""

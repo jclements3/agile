@@ -5,3 +5,5 @@
 *.zip binary
 # the status-metrics goldens are the Python kit's outputs byte for byte (status-daily.csv is CRLF, as csv.writer writes it)
 tests/status-metrics/* -text
+# the SysML views toolkit's fixtures are converter inputs byte for byte (one is UTF-16; DOORS exports may be Windows-1252)
+tools/sysml/views/tests/fixtures/** -text

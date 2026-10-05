@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xmi:XMI xmlns:uml='http://www.omg.org/spec/UML/20131001' xmlns:xmi='http://www.omg.org/spec/XMI/20131001' xmlns:sysml='http://www.omg.org/spec/SysML/20150709/SysML' xmlns:MD_Customization_for_Requirements__additional_stereotypes='http://www.magicdraw.com/spec/Customization/190/Requirements' xmlns:Halberd_Profile='http://www.magicdraw.com/schemas/Halberd_Profile.xmi'>
+	<xmi:Documentation>
+		<xmi:exporter>MagicDraw Clean XMI Exporter</xmi:exporter>
+	</xmi:Documentation>
+	<uml:Model xmi:type='uml:Model' xmi:id='eee_1045467100313_135436_1' name='Model'>
+		<packagedElement xmi:type='uml:Package' xmi:id='_p_lib' name='Units Library'>
+			<packagedElement xmi:type='uml:DataType' xmi:id='_vt_mass' name='mass[kilogram]'/>
+			<packagedElement xmi:type='uml:DataType' xmi:id='_vt_time' name='time[second]'/>
+			<packagedElement xmi:type='uml:InstanceSpecification' xmi:id='_u_m' name='metre'/>
+			<packagedElement xmi:type='uml:DataType' xmi:id='_vt_range' name='Range'>
+				<ownedComment xmi:type='uml:Comment' xmi:id='_c1' body='Slant range to target.'>
+					<annotatedElement xmi:idref='_vt_range'/>
+				</ownedComment>
+			</packagedElement>
+			<packagedElement xmi:type='uml:Enumeration' xmi:id='_en_mode' name='Seeker Mode'>
+				<ownedLiteral xmi:type='uml:EnumerationLiteral' xmi:id='_lit_1' name='Search'/>
+				<ownedLiteral xmi:type='uml:EnumerationLiteral' xmi:id='_lit_2' name='Track'/>
+				<ownedLiteral xmi:type='uml:EnumerationLiteral' xmi:id='_lit_3' name='End Game'/>
+			</packagedElement>
+		</packagedElement>
+		<packagedElement xmi:type='uml:Package' xmi:id='_p_struct' name='Interceptor Structure'>
+			<packagedElement xmi:type='uml:Class' xmi:id='_ib_tlm' name='Telemetry IF'>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_fp_1' name='frame count' aggregation='composite'>
+					<type href='http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Integer'/>
+				</ownedAttribute>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_fp_2' name='status'>
+					<type xmi:idref='_b_status'/>
+				</ownedAttribute>
+			</packagedElement>
+			<packagedElement xmi:type='uml:Class' xmi:id='_b_status' name='Status Word'/>
+			<packagedElement xmi:type='uml:Class' xmi:id='_b_vehicle' name='Vehicle'>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_pp_mass' name='mass' aggregation='composite' type='_vt_mass'/>
+			</packagedElement>
+			<packagedElement xmi:type='uml:Class' xmi:id='_b_int' name='Interceptor'>
+				<ownedComment xmi:type='uml:Comment' xmi:id='_c2' body='The Halberd interceptor. Notional.'>
+					<annotatedElement xmi:idref='_b_int'/>
+				</ownedComment>
+				<generalization xmi:type='uml:Generalization' xmi:id='_g1' general='_b_vehicle'/>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_pp_mass2' name='mass' aggregation='composite' type='_vt_mass'>
+					<redefinedProperty xmi:idref='_pp_mass'/>
+					<defaultValue xmi:type='uml:LiteralReal' xmi:id='_dv1' value='42.5'/>
+				</ownedAttribute>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_pp_seeker' name='seeker' aggregation='composite' type='_b_seeker'/>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_pp_kv' name='kill vehicle' aggregation='composite' type='_b_kv'>
+					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_lv1' value='1'/>
+					<upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_uv1' value='2'/>
+				</ownedAttribute>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_pp_range' name='max range' aggregation='composite' type='_vt_range'>
+					<defaultValue xmi:type='uml:LiteralReal' xmi:id='_dv2' value='300'/>
+				</ownedAttribute>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_pp_mode' name='mode' type='_en_mode'>
+					<defaultValue xmi:type='uml:InstanceValue' xmi:id='_dv3' instance='_lit_1'/>
+				</ownedAttribute>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_pp_frame' name='frame' aggregation='composite' type='_vt_time'>
+					<defaultValue xmi:type='uml:LiteralReal' xmi:id='_dv4' value='0.01'/>
+				</ownedAttribute>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_pp_ext' name='nav filter'>
+					<type href='Navigation.mdzip#_19_0_3_ab12'/>
+				</ownedAttribute>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_pp_range2' name='launcher' type='_b_launcher'/>
+				<ownedAttribute xmi:type='uml:Port' xmi:id='_port_tlm' name='tlm out' aggregation='composite' type='_ib_tlm'/>
+				<ownedConnector xmi:type='uml:Connector' xmi:id='_con1' name=''>
+					<end xmi:type='uml:ConnectorEnd' xmi:id='_ce1' role='_port_seek' partWithPort='_pp_seeker'/>
+					<end xmi:type='uml:ConnectorEnd' xmi:id='_ce2' role='_port_kvin' partWithPort='_pp_kv'/>
+				</ownedConnector>
+				<ownedBehavior xmi:type='uml:StateMachine' xmi:id='_sm1' name='Flight Modes'>
+					<region xmi:type='uml:Region' xmi:id='_r1' name=''/>
+				</ownedBehavior>
+			</packagedElement>
+			<packagedElement xmi:type='uml:Class' xmi:id='_b_seeker' name='Seeker'>
+				<ownedAttribute xmi:type='uml:Port' xmi:id='_port_seek' name='video' aggregation='composite' type='_ib_tlm' isConjugated='false'/>
+				<ownedAttribute xmi:type='uml:Port' xmi:id='_port_bad' name='power' aggregation='composite' type='_b_status'/>
+			</packagedElement>
+			<packagedElement xmi:type='uml:Class' xmi:id='_b_kv' name='Kill Vehicle'>
+				<ownedAttribute xmi:type='uml:Port' xmi:id='_port_kvin' name='video in' aggregation='composite' type='_ib_tlm' isConjugated='true'/>
+			</packagedElement>
+			<packagedElement xmi:type='uml:Class' xmi:id='_cb_mass' name='Mass Budget'>
+				<ownedRule xmi:type='uml:Constraint' xmi:id='_cr1' name=''>
+					<specification xmi:type='uml:OpaqueExpression' xmi:id='_oe1'>
+						<body>total &lt;= limit</body>
+						<language>English</language>
+					</specification>
+				</ownedRule>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_cp1' name='total' aggregation='composite' type='_vt_mass'/>
+				<ownedAttribute xmi:type='uml:Property' xmi:id='_cp2' name='limit' aggregation='composite' type='_vt_mass'/>
+			</packagedElement>
+			<packagedElement xmi:type='uml:Activity' xmi:id='_act1' name='Intercept'>
+				<node xmi:type='uml:InitialNode' xmi:id='_n1' name=''/>
+			</packagedElement>
+		</packagedElement>
+		<packagedElement xmi:type='uml:Package' xmi:id='_p_ground' name='Ground'>
+			<packagedElement xmi:type='uml:Class' xmi:id='_b_launcher' name='Launcher'/>
+		</packagedElement>
+		<packagedElement xmi:type='uml:Package' xmi:id='_p_req' name='Interceptor Requirements'>
+			<packagedElement xmi:type='uml:Class' xmi:id='_r_spec' name='Interceptor Specification'>
+				<nestedClassifier xmi:type='uml:Class' xmi:id='_r_1' name='Mass Within Allocation'/>
+				<nestedClassifier xmi:type='uml:Class' xmi:id='_r_2' name=''/>
+				<nestedClassifier xmi:type='uml:Class' xmi:id='_r_3' name='Range'/>
+			</packagedElement>
+			<packagedElement xmi:type='uml:Class' xmi:id='_r_need' name='Defend the Asset'/>
+			<packagedElement xmi:type='uml:Abstraction' xmi:id='_sat1'>
+				<client xmi:idref='_b_int'/>
+				<supplier xmi:idref='_r_1'/>
+			</packagedElement>
+			<packagedElement xmi:type='uml:Abstraction' xmi:id='_sat2' client='_pp_seeker' supplier='_r_2'/>
+			<packagedElement xmi:type='uml:Abstraction' xmi:id='_sat3' client='_b_launcher' supplier='_r_3'/>
+			<packagedElement xmi:type='uml:Abstraction' xmi:id='_ver1' client='_act_test' supplier='_r_1 _r_2'/>
+			<packagedElement xmi:type='uml:Abstraction' xmi:id='_der1' client='_r_spec' supplier='_r_need'/>
+			<packagedElement xmi:type='uml:Activity' xmi:id='_act_test' name='Mass Properties Inspection'/>
+		</packagedElement>
+	</uml:Model>
+	<sysml:ValueType xmi:id='_st1' base_DataType='_vt_mass'/>
+	<sysml:ValueType xmi:id='_st2' base_DataType='_vt_range' unit='_u_m'/>
+	<sysml:InterfaceBlock xmi:id='_st3' base_Class='_ib_tlm'/>
+	<sysml:FlowProperty xmi:id='_st4' base_Property='_fp_1' direction='out'/>
+	<sysml:FlowProperty xmi:id='_st5' base_Property='_fp_2' direction='in'/>
+	<sysml:Block xmi:id='_st6' base_Class='_b_status'/>
+	<sysml:Block xmi:id='_st7' base_Class='_b_vehicle'/>
+	<sysml:Block xmi:id='_st8' base_Class='_b_int'/>
+	<sysml:Block xmi:id='_st9' base_Class='_b_seeker'/>
+	<sysml:Block xmi:id='_st10' base_Class='_b_kv'/>
+	<sysml:ConstraintBlock xmi:id='_st11' base_Class='_cb_mass'/>
+	<sysml:Block xmi:id='_st12' base_Class='_b_launcher'/>
+	<sysml:Requirement xmi:id='_st13' base_Class='_r_spec' Id='HAL-INT' Text=''/>
+	<sysml:Requirement xmi:id='_st14' base_Class='_r_1' Id='HAL-INT-001' Text='&lt;html&gt;&lt;body&gt;&lt;p&gt;The interceptor mass shall not exceed its allocated mass.&amp;nbsp;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;'/>
+	<MD_Customization_for_Requirements__additional_stereotypes:performanceRequirement xmi:id='_st15' base_Class='_r_2' Id='HAL-INT-002'>
+		<Text>The seeker frame time shall not exceed 10 ms.</Text>
+	</MD_Customization_for_Requirements__additional_stereotypes:performanceRequirement>
+	<sysml:Requirement xmi:id='_st16' base_Class='_r_3' Id='HAL-INT-002' Text='Engagement range shall be at least 300 km.'/>
+	<sysml:Requirement xmi:id='_st17' base_Class='_r_need' Id='N-001' Text='Defend the asset.'/>
+	<sysml:Satisfy xmi:id='_st18' base_Abstraction='_sat1'/>
+	<sysml:Satisfy xmi:id='_st19' base_Abstraction='_sat2'/>
+	<sysml:Satisfy xmi:id='_st20' base_Abstraction='_sat3'/>
+	<sysml:Verify xmi:id='_st21' base_Abstraction='_ver1'/>
+	<sysml:DeriveReqt xmi:id='_st22' base_Abstraction='_der1'/>
+	<sysml:TestCase xmi:id='_st23' base_Behavior='_act_test'/>
+	<Halberd_Profile:SafetyCritical xmi:id='_st24' base_Class='_b_kv' level='A'/>
+	<xmi:Extension extender='MagicDraw UML 19.0'>
+		<modelExtension>
+			<ownedDiagram xmi:type='uml:Diagram' xmi:id='_d1' name='Interceptor IBD'>
+				<xmi:Extension extender='MagicDraw UML 19.0'><diagramRepresentation><diagram:DiagramRepresentationObject ID='x' type='SysML Internal Block Diagram'/></diagramRepresentation></xmi:Extension>
+			</ownedDiagram>
+		</modelExtension>
+	</xmi:Extension>
+</xmi:XMI>

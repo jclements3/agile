@@ -10,6 +10,11 @@ with nothing but Git for Windows (its Perl 5): no Java, no Python, no `make`, no
   an IDEF0 model set of the verb tree, a requirements traceability matrix, a Vim tags file,
   scaffolding, renames, a git pre-commit hook, and an optional full compile with the SysML v2 Pilot
   engine when Java happens to be available.
+- **`views/`** -- standalone drawers and checks: part tree, trace, interconnection by trust zone and
+  packages by marking as SVG, drawing plates, a two-version diff, the threat checks and the validate
+  gate (`views/README.txt`); `model.pl draw|plates|diff|threats|gate` run them on the project.
+- **`v1v2.pl`, `doors2v2.pl`** -- fallback converters for exports the main path (`bin/xmi2sysml.pl`,
+  `bin/reqif2sysml.pl`) cannot read: older Cameo XMI or `.mdzip`, DOORS CSV in UTF-16 or Windows-1252.
 
 Both run from any directory. `examples/halberd/` is a complete example model that exercises every
 command; its `README.md` shows each one with its output.

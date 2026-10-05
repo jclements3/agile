@@ -1,0 +1,6 @@
+\xef\xbb\xbf"#","Id","Name","Text"
+"1","HAL-SYS","System Requirements",""
+"2","HAL-SYS-001","Detection Range","The system shall detect targets at 400 km, ""threshold"" per ICD."
+"3","HAL-SYS-002","","The system shall
+report tracks within 2 s."
+"4","HAL-SYS-002","Dup","Duplicate id."

@@ -1,0 +1,4 @@
+"Object Identifier","Object Number","Object Heading","Object Text","Verifies"
+"STP-1","1","Mass properties inspection","Weigh three production rounds and compare with the allocation.","SRS-4"
+"STP-2","2","Seeker timing test","Measure frame time on the hardware-in-the-loop bench.","SRS-5; SRS-404"
+"STP-3","3","Storage soak","Soak and test.","SRS-7"

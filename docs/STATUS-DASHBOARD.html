@@ -11,14 +11,17 @@
 :root{
   --paper:#EDF1F5; --sheet:#F8FAFC; --ink:#1B2A3A; --ink2:#4F6175; --rule:#A9B6C4; --faint:#D5DDE6;
   --ok:#2E7D4F; --watch:#A86A12; --act:#B03A2E; --info:#3C5A86;
+  --g1:#1F4E8C; --g2:#2E7D4F; --g3:#B7791F; --g4:#6B4C9A; --g5:#A8322A; --g6:#17807E;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
   --paper:#121C26; --sheet:#182532; --ink:#DCE5EE; --ink2:#97A8BA; --rule:#3F5367; --faint:#26374A;
-  --ok:#5CC08A; --watch:#E0A64A; --act:#EF7A6C; --info:#8AAEE0; } }
+  --ok:#5CC08A; --watch:#E0A64A; --act:#EF7A6C; --info:#8AAEE0;
+  --g1:#7FA8E0; --g2:#5CC08A; --g3:#E0A64A; --g4:#B39AE0; --g5:#EF7A6C; --g6:#5CC8C4; } }
 :root[data-theme="dark"]{
   --paper:#121C26; --sheet:#182532; --ink:#DCE5EE; --ink2:#97A8BA; --rule:#3F5367; --faint:#26374A;
-  --ok:#5CC08A; --watch:#E0A64A; --act:#EF7A6C; --info:#8AAEE0; }
+  --ok:#5CC08A; --watch:#E0A64A; --act:#EF7A6C; --info:#8AAEE0;
+  --g1:#7FA8E0; --g2:#5CC08A; --g3:#E0A64A; --g4:#B39AE0; --g5:#EF7A6C; --g6:#5CC8C4; }
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.45 Barlow,"Segoe UI",Roboto,Arial,sans-serif}
@@ -48,6 +51,18 @@ h2{font-size:17px;font-weight:600;margin:8px 0 4px;border-bottom:1.5px solid var
 /* the six groups flow side by side: three across on a wide screen, two on a laptop, one on a phone */
 #sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));gap:0 16px;align-items:start}
 .grp{min-width:0}
+/* group themes: a hue for the screen, and for a black-and-white print a header pattern, a tile-edge style and a shape */
+.grp h2{display:flex;align-items:center;gap:7px;padding:2px 8px;border-bottom:3px solid var(--gc);background:var(--gp);color:var(--ink)}
+.grp h2::before{content:var(--gm);color:var(--gc);font-size:15px;line-height:1}
+.grp .tile{border-top:4px var(--gs) var(--gc)}
+.grp .bal{border-color:var(--gc);color:var(--gc)}
+.g1{--gc:var(--g1);--gm:"\25A0";--gs:solid;--gp:color-mix(in srgb,var(--g1) 16%,transparent)}
+.g2{--gc:var(--g2);--gm:"\25CF";--gs:double;--gp:repeating-linear-gradient(90deg,color-mix(in srgb,var(--g2) 22%,transparent) 0 3px,transparent 3px 7px)}
+.g3{--gc:var(--g3);--gm:"\25B2";--gs:dashed;--gp:repeating-linear-gradient(45deg,color-mix(in srgb,var(--g3) 24%,transparent) 0 3px,transparent 3px 8px)}
+.g4{--gc:var(--g4);--gm:"\25C6";--gs:dotted;--gp:radial-gradient(color-mix(in srgb,var(--g4) 40%,transparent) 1.2px,transparent 1.6px) 0 0/6px 6px}
+.g5{--gc:var(--g5);--gm:"\271A";--gs:solid;--gp:repeating-linear-gradient(-45deg,color-mix(in srgb,var(--g5) 24%,transparent) 0 3px,transparent 3px 8px)}
+.g6{--gc:var(--g6);--gm:"\2605";--gs:double;--gp:repeating-linear-gradient(0deg,color-mix(in srgb,var(--g6) 24%,transparent) 0 2px,transparent 2px 6px)}
+.g5 .tile{border-top-width:6px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:6px}
 .tile{background:var(--sheet);border:1px solid var(--rule);padding:5px 8px 6px;display:flex;flex-direction:column;gap:2px;min-width:0}
 .tile.sel{outline:2px solid var(--info);outline-offset:-2px}
@@ -63,6 +78,8 @@ svg.spark{width:76px;height:22px;flex:none}
 .inc{flex:none;display:flex;align-items:center;cursor:pointer;margin:0}
 .inc input{margin:0;width:14px;height:14px}
 /* round robin */
+.bottom{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:12px;margin-top:10px;align-items:stretch}
+.bottom>*{margin:0!important}
 .rr{margin-top:10px;background:var(--sheet);border:2px solid var(--ink);padding:14px}
 .rr h2{margin-top:0}
 .rr output{display:block;font-size:16px;line-height:1.55;min-height:3em;max-width:80ch}
@@ -73,7 +90,20 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-vi
 .msg{font-size:13px;color:var(--ink2)}
 details{margin-top:20px;background:var(--sheet);border:1px solid var(--rule);padding:10px 14px}
 summary{cursor:pointer;font-weight:600}
-textarea{width:100%;min-height:240px;margin-top:10px;font:13px/1.4 Consolas,"DejaVu Sans Mono",monospace;background:var(--paper);color:var(--ink);border:1px solid var(--rule);padding:8px}
+textarea{width:100%;min-height:110px;height:calc(100% - 80px);margin-top:10px;font:13px/1.4 Consolas,"DejaVu Sans Mono",monospace;background:var(--paper);color:var(--ink);border:1px solid var(--rule);padding:8px}
+@media print{
+  /* the snapshot is the wide-screen layout, scaled onto one landscape page */
+  @page{size:letter landscape;margin:0.3in}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:#fff}
+  .wrap{width:1560px;max-width:none;padding:0;zoom:0.64}
+  #sections{grid-template-columns:repeat(3,1fr)!important}
+  .grid{grid-template-columns:repeat(3,1fr)!important}
+  .phrase{-webkit-line-clamp:3}
+  .tile,.grp{break-inside:avoid}
+  .bottom{grid-template-columns:1fr}
+  .bottom details,.row,.inc{display:none!important}
+}
 @media (prefers-reduced-motion:reduce){.scale .fill{transition:none}}
 </style>
 </head>
@@ -95,17 +125,19 @@ textarea{width:100%;min-height:240px;margin-top:10px;font:13px/1.4 Consolas,"Dej
 
   <main id="sections"></main>
 
+  <div class="bottom">
   <section class="rr" aria-labelledby="rr-t">
     <h2 id="rr-t">Round-robin statement</h2>
     <output id="rrOut"></output>
     <div class="row"><button id="copy">Copy statement</button><button class="ghost" id="clearSel">Clear selection</button><span class="msg" id="copyMsg" aria-live="polite"></span></div>
   </section>
 
-  <details>
+  <details open>
     <summary>Data (JSON)</summary>
     <textarea id="json" spellcheck="false" aria-label="Metric data as JSON"></textarea>
     <div class="row"><button id="apply">Apply</button><button class="ghost" id="reset">Reset to sample data</button><span class="msg" id="jsonMsg" aria-live="polite"></span></div>
   </details>
+  </div>
 </div>
 
 <script>
@@ -170,7 +202,7 @@ function render(){
   document.getElementById("fill").style.width=Math.max(0,Math.min(100,a.v||0))+"%";
   const pv=document.getElementById("prev");pv.style.display=a.prev!=null?"":"none";pv.style.left=(a.prev||0)+"%";
   document.getElementById("scale").setAttribute("aria-label",`${a.v}% under configuration control, previously ${a.prev}%`);
-  document.getElementById("sections").innerHTML=SECTIONS.map(([name,ls])=>`<section class="grp"><h2>${name}</h2><div class="grid">${[...ls].map(L=>{
+  document.getElementById("sections").innerHTML=SECTIONS.map(([name,ls],gi)=>`<section class="grp g${gi+1}"><h2>${name}</h2><div class="grid">${[...ls].map(L=>{
     const d=vars(L),[cls,txt]=status(L),on=data.sel.includes(L);
     const ph=esc(fill(DEF[L].p,d));
     return `<article class="tile${on?" sel":""}"><div class="top"><div class="bal">${L}</div><div class="name">${esc(DEF[L].n)}</div><div class="st ${cls}">${txt}</div><label class="inc" title="Use in the round-robin statement"><input type="checkbox" data-l="${L}" aria-label="Use ${L} in the round-robin statement" ${on?"checked":""}></label></div>

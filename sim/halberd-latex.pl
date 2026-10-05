@@ -67,7 +67,6 @@ sub halberd_latex {
 \usepackage[hidelinks]{hyperref}
 \usepackage{fancyvrb}
 \usepackage{float}
-\usepackage{pdfpages}
 \titleformat{\section}{\Large\bfseries}{\thesection}{0.8em}{}[\vspace{2pt}\titlerule]
 \titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.7em}{}
 \titlespacing*{\section}{0pt}{18pt}{8pt}
@@ -88,8 +87,30 @@ sub halberd_latex {
 PRE
 
     # ---- title page
-    $o .= "\\IfFileExists{TheWheelCoverBW.pdf}{\\includepdf[pages=1,fitpaper=false,noautoscale=false,pagecommand={\\thispagestyle{empty}}]{TheWheelCoverBW.pdf}}{}\n"   # the binder's cover, black and white
-        if $a{cover};
+    $o .= <<'COVER' if $a{cover};                                # the binder's art, this document's title in the band
+\IfFileExists{cover-art.jpg}{%
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[white] (current page.south west) rectangle (current page.north east);
+  \begin{scope}
+    \clip (current page.south west) rectangle (current page.north east);
+    \node[inner sep=0pt,anchor=center] at (current page.center) {\includegraphics[width=\paperwidth]{cover-art.jpg}};
+  \end{scope}
+  \fill[black,opacity=0.85] ([yshift=0.45in]current page.south west) rectangle ([yshift=2.55in]current page.south east);
+  \draw[white!78!black,line width=1.2pt] ([yshift=2.55in]current page.south west) -- ([yshift=2.55in]current page.south east);
+  \draw[white!78!black,line width=1.2pt] ([yshift=0.45in]current page.south west) -- ([yshift=0.45in]current page.south east);
+  \draw[white!55!black,line width=0.4pt] ([yshift=2.49in]current page.south west) -- ([yshift=2.49in]current page.south east);
+  \draw[white!55!black,line width=0.4pt] ([yshift=0.51in]current page.south west) -- ([yshift=0.51in]current page.south east);
+  \node[white,font=\sffamily\bfseries,align=center] (t) at ([yshift=1.85in]current page.south)
+    {\fontsize{28}{33}\selectfont IAMD MBSE SysEng Integration\\[2pt]\fontsize{28}{33}\selectfont Into DevSecOps};
+  \node[white,font=\sffamily,anchor=north] (s) at ([yshift=-0.10in]t.south) {\Large\scshape Notional Plan};
+  \node[white,font=\sffamily,anchor=north,align=center] at ([yshift=-0.10in]s.south)
+    {\large Halberd: a 12-week SysML v1 to v2 port \quad{\normalsize\color{white!75!black}\textbullet\ October 2026}};
+\end{tikzpicture}
+\end{titlepage}
+}{}
+COVER
     $o .= <<'TITLE';
 \begin{titlepage}
 \centering

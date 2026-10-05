@@ -1,0 +1,21 @@
+tZ FP Feature Fixture
+  a/# Pure Stage                       # asserted pure: OK (module mech)
+    i*# Raw Items : Item
+    o# Clean Items : Item
+    m/# Pure Library
+  a/# False Claim                      # asserted pure: ERROR (worldly)
+    i# Clean Items : Item
+    o# Stored Items
+    m# Real Database
+  a# Recurse Outer
+    i# Stored Items
+    o# Final Result
+    m/# Engine
+    a# Prepare Step
+      i# Stored Items
+      o# Prepared Batch : Item
+      m/# Engine
+    a# Retry Loop > Recurse Outer
+      i# Prepared Batch : Widget
+      o# Final Result
+      m/# Engine

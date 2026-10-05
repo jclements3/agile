@@ -1,0 +1,1567 @@
+#!/usr/bin/env python3
+"""idef0 -- validator, formatter, and plate renderer for the pipe-path IDEF0 DSL.
+
+Usage:
+  idef0 lint  FILE...              validate; GNU-format diagnostics; exit 1 on errors
+  idef0 text  FILE...              render plates as character art, form-feed paginated
+  idef0 html  FILE...              render HTML drawing set (plates as SVG)
+  idef0 svg   NODE FILE...         render one plate (e.g. E22) as standalone SVG
+  idef0 dump  FILE...              print numbered model tree(s)
+  idef0 links FILE...              print project interface table
+  idef0 fmt [--number|--auto] [--write] FILE...
+                                   rewrite tag suffixes; --write edits in place
+                                   (fmt validates structure only, not links)
+
+Grammar summary (v1):
+  line := tag name [< path | > path]     tag := [taicom]( # | digit | LETTER | NUM. )
+  path := segment (| segment)*           ; comment lines start with ;
+Segment resolution order: child activity by name -> port by flow name
+(2+ matches = ambiguous error) -> port ref [icom]N -> node number.
+A '<' path ending at an activity with exactly one output takes that output.
+
+Diagnostics use GNU format  file:line: severity: message.
+Exit status: 0 clean, 1 errors found, 2 usage failure.
+"""
+
+import json
+import re
+import sys
+import difflib
+import html as _h
+
+FENCE_OPEN = re.compile(r"^(?P<f>`{3,})\s*idef0\s*$")
+FENCE_CLOSE = re.compile(r"^`{3,}\s*$")
+
+
+TAG_RE = re.compile(
+    r"^(?P<indent>[ \t]*)"
+    r"(?P<tag>[taicom])"
+    r"(?P<variant>/[a-z]?|\*)?"
+    r"(?P<suffix>#|[A-Za-z]?\d+\.|[A-Za-z]?\d*)"
+    r"(?:\s+(?P<rest>.*))?$"
+)
+
+INDENT = 2
+
+
+class Node:
+    def __init__(self, tag, suffix, name, link_dir, link_path, fname, line, indent):
+        self.doc = []
+        self.trail = None
+        self.tag = tag
+        self.suffix = suffix
+        self.variant = None
+        self.many = False
+        self.ftype = None
+        self.recur = None
+        self.name = name
+        self.link_dir = link_dir
+        self.link_path = link_path
+        self.fname = fname
+        self.line = line
+        self.indent = indent
+        self.parent = None
+        self.children = []
+        self.ports = []
+        self.number = None
+        self.letter = None
+        self.node_id = None
+        self.asserted = None
+        self.link_target = None
+        self.model = None
+
+    @property
+    def is_activity(self):
+        return self.tag in ("t", "a")
+
+    def descendants(self):
+        for k in self.children:
+            yield k
+            yield from k.descendants()
+
+    def all_ports(self):
+        yield from self.ports
+        for k in self.children:
+            yield from k.all_ports()
+
+
+def err(diags, node_or_pair, msg, sev="error"):
+    if isinstance(node_or_pair, Node):
+        diags.append((node_or_pair.fname, node_or_pair.line, sev, msg))
+    else:
+        f, ln = node_or_pair
+        diags.append((f, ln, sev, msg))
+
+
+# --------------------------------------------------------------- parsing
+def parse_file(fname, text, diags, doc):
+    roots = []
+    stack = []
+    last_node = None
+    is_md = fname.lower().endswith((".md", ".markdown"))
+    in_fence = not is_md
+    fence_len = 0
+    fence_line = 0
+    records = doc.setdefault(fname, [])
+    for lineno, raw in enumerate(text.splitlines(), 1):
+        if is_md:
+            if not in_fence:
+                fm = FENCE_OPEN.match(raw)
+                if fm:
+                    in_fence = True
+                    fence_len = len(fm.group("f"))
+                    fence_line = lineno
+                records.append(("raw", raw, None))
+                continue
+            cm = FENCE_CLOSE.match(raw)
+            if cm and len(raw.strip()) >= fence_len:
+                in_fence = False
+                records.append(("raw", raw, None))
+                continue
+        stripped = raw.strip()
+        if stripped.startswith(";;") or stripped.startswith("##"):
+            txt = stripped[2:].strip()
+            if last_node is None:
+                err(diags, (fname, lineno),
+                    f"'{stripped[:2]}' doc comment has no element line "
+                    "to attach to", "warning")
+            else:
+                last_node.doc.append(txt if txt else "\\n")
+            records.append(("raw", raw, None))
+            continue
+        if not stripped or stripped[0] in ";#":
+            records.append(("raw", raw, None))
+            continue
+        trail = None
+        tm = re.search(r"\s(#.*)$", raw)
+        if tm:
+            trail = tm.group(1)
+            raw_code = raw[:tm.start()]
+        else:
+            raw_code = raw
+        m = TAG_RE.match(raw_code)
+        if not m:
+            err(diags, (fname, lineno), f"cannot parse line: {stripped!r}")
+            records.append(("raw", raw, None))
+            continue
+        indent = m.group("indent")
+        if "\t" in indent:
+            err(diags, (fname, lineno), "tabs in indentation; use 2 spaces per level")
+            indent = indent.replace("\t", "  ")
+        if len(indent) % INDENT:
+            err(diags, (fname, lineno),
+                f"indentation of {len(indent)} is not a multiple of {INDENT}")
+        level = len(indent) // INDENT
+        tag = m.group("tag")
+        variant = m.group("variant")
+        many = False
+        if variant == "*":
+            if tag in ("i", "o", "c"):
+                many = True
+            else:
+                err(diags, (fname, lineno),
+                    f"multiplicity '*' marks flows (i/o/c); not valid on '{tag}'")
+            variant = None
+        if variant and tag == "a":
+            if len(variant) > 1:
+                err(diags, (fname, lineno),
+                    "purity assertion takes a bare '/'; letters are reserved")
+            variant = "/"
+        elif variant and tag == "m" and len(variant) > 1:
+            err(diags, (fname, lineno),
+                "mechanism kind takes a bare '/' (module means); "
+                "letters after '/' are reserved")
+            variant = "/"
+        elif variant and tag not in ("o", "m", "a"):
+            err(diags, (fname, lineno),
+                f"'/' marks exclusive outputs (o/) or module mechanisms "
+                f"(m/); not valid on '{tag}'")
+            variant = None
+        suffix = m.group("suffix") or "#"
+        rest = (m.group("rest") or "").strip()
+
+        link_dir = link_path = None
+        lm = re.search(r"[<>]", rest)
+        name = rest
+        if lm:
+            link_dir = lm.group(0)
+            name = rest[:lm.start()].strip()
+            path_txt = rest[lm.end():].strip()
+            link_path = [s.strip() for s in path_txt.split("|")]
+            if any(not s for s in link_path):
+                err(diags, (fname, lineno), "empty segment in link path")
+        if "|" in name:
+            err(diags, (fname, lineno),
+                "'|' not allowed in a name (link paths follow < or >)")
+            name = name.replace("|", " ")
+        ftype = None
+        if " : " in name:
+            name, ftype = name.rsplit(" : ", 1)
+            name, ftype = name.strip(), ftype.strip()
+        if not name:
+            err(diags, (fname, lineno), f"'{tag}' line has no name")
+
+        node = Node(tag, suffix, name, link_dir, link_path, fname, lineno,
+                    len(indent))
+        node.variant = variant
+        node.many = many
+        node.ftype = ftype
+        node.trail = trail
+        if trail and trail.startswith("##"):
+            dt = trail[2:].strip()
+            node.doc.append(dt if dt else "\\n")
+        records.append(("node", raw, node))
+        last_node = node
+
+        if tag == "t":
+            if level != 0:
+                err(diags, node, "model root 't' must be at indentation 0")
+            roots.append(node)
+            stack = [(0, node)]
+            continue
+        while stack and stack[-1][0] >= level:
+            stack.pop()
+        if not stack:
+            err(diags, node, f"'{tag}' line has no parent model/activity")
+            continue
+        plevel, parent = stack[-1]
+        if plevel != level - 1:
+            err(diags, node, f"indentation jumps from level {plevel} to {level}")
+        node.parent = parent
+        if tag == "a":
+            if not parent.is_activity:
+                err(diags, node, "activity nested under a port")
+            else:
+                parent.children.append(node)
+                stack.append((level, node))
+        else:
+            if not parent.is_activity:
+                err(diags, node, "port nested under a port")
+            else:
+                parent.ports.append(node)
+    if is_md and in_fence:
+        err(diags, (fname, fence_line),
+            "unclosed ```idef0 fence at end of file", "warning")
+    return roots
+
+
+# --------------------------------------------------------------- numbering
+def assign_numbers(models, diags):
+    letters = {}
+    for t in models:
+        s = t.suffix
+        if s in ("#", ""):
+            alpha = [c for c in t.name if c.isalpha()]
+            letter = (alpha[0].upper() if alpha else "X")
+        elif len(s) == 1 and s.isalpha():
+            letter = s.upper()
+        else:
+            err(diags, t, f"bad model suffix {s!r}: use a single letter or #")
+            letter = "X"
+        if letter in letters:
+            err(diags, t, f"duplicate model letter '{letter}' "
+                          f"(also {letters[letter].name!r})")
+        letters[letter] = t
+        t.letter = letter
+        t.node_id = letter
+        t.model = t
+        _number_children(t, diags)
+        _number_ports(t, diags)
+        for p in t.ports:
+            p.model = t
+        for a in t.descendants():
+            a.model = t
+            _number_ports(a, diags)
+            for p in a.ports:
+                p.model = t
+    return letters
+
+
+def _number_children(act, diags):
+    kids = act.children
+    if len(kids) > 9:
+        err(diags, act, "more than 9 activities on one plate")
+    pinned = {}
+    for k in kids:
+        s = k.suffix
+        k.asserted = None
+        if s.endswith("."):
+            k.asserted = s[:-1]
+            continue
+        if s and s != "#" and s.isdigit():
+            if len(s) != 1 or s == "0":
+                err(diags, k, f"pinned number {s!r} must be a single digit 1-9")
+                continue
+            d = int(s)
+            if d in pinned:
+                err(diags, k, f"duplicate pinned digit {d} on plate "
+                              f"{act.node_id} (also line {pinned[d].line})")
+            else:
+                pinned[d] = k
+                k.number = d
+        elif s not in ("#", "") and not s.endswith("."):
+            err(diags, k, f"bad activity suffix {s!r}")
+    nxt = 1
+    for k in kids:
+        if k.number is None:
+            while nxt in pinned:
+                nxt += 1
+            k.number = nxt
+            pinned[nxt] = k
+            nxt += 1
+    base = act.node_id if act.tag == "a" else act.letter
+    for k in kids:
+        k.node_id = f"{base}{k.number}"
+        if k.asserted and k.asserted != k.node_id:
+            err(diags, k, f"asserted number {k.asserted} but position derives "
+                          f"{k.node_id}")
+        _number_children(k, diags)
+
+
+def _number_ports(act, diags):
+    vgroups = {}
+    for p in act.ports:
+        if p.variant is not None and p.tag == "o":
+            vgroups.setdefault(p.variant, []).append(p)
+    for key, ps in vgroups.items():
+        if len(ps) < 2:
+            err(diags, ps[0],
+                f"variant group 'o{key}' on '{act.name}' has a single "
+                f"member; an exclusive set needs at least 2", "warning")
+    counts = {}
+    for p in act.ports:
+        s = p.suffix
+        n = None
+        if s.endswith("."):
+            err(diags, p,
+                "asserted numbers are for activities; ports take # or a digit")
+        elif s.isdigit() and s:
+            if len(s) != 1 or s == "0":
+                err(diags, p, f"pinned port number {s!r} must be a single digit 1-9")
+            else:
+                n = int(s)
+        elif s not in ("#", ""):
+            err(diags, p, f"bad port suffix {s!r}")
+        if n is None:
+            n = counts.get(p.tag, 0) + 1
+        counts[p.tag] = max(counts.get(p.tag, 0), n)
+        p.number = n
+        p.node_id = f"{act.node_id}.{p.tag}{n}"
+        if p.link_dir == "<" and p.tag == "o":
+            err(diags, p, "outputs declare goes-to with '>', not '<'")
+        if p.link_dir == ">" and p.tag in ("i", "c", "m"):
+            err(diags, p, f"'{p.tag}' ports declare comes-from with '<', not '>'")
+
+
+# --------------------------------------------------------------- wiring
+def wire_model(t, diags):
+    producers = {}
+    consumers = {}
+    for p in t.all_ports():
+        (producers if p.tag == "o" else consumers).setdefault(p.name, []).append(p)
+    t.producers, t.consumers = producers, consumers
+    for name, ps in consumers.items():
+        if name in producers:
+            continue
+        cands = difflib.get_close_matches(name, producers.keys(), n=1, cutoff=0.86)
+        for p in ps:
+            if p.link_dir:
+                continue
+            if cands:
+                err(diags, p, f"'{name}' has no producer; did you mean "
+                              f"'{cands[0]}'?", "warning")
+    for name, ps in producers.items():
+        if name in consumers:
+            continue
+        cands = difflib.get_close_matches(name, consumers.keys(), n=1, cutoff=0.86)
+        for p in ps:
+            if p.link_dir:
+                continue
+            if cands:
+                err(diags, p, f"'{name}' has no consumer; did you mean "
+                              f"'{cands[0]}'?", "warning")
+
+
+# --------------------------------------------------------------- links
+class Ambig(Exception):
+    def __init__(self, act, flow):
+        self.act, self.flow = act, flow
+
+
+def _walk(scope, segs, want):
+    """Resolve segs from scope. Returns port or None. Raises Ambig."""
+    cur = scope
+    for i, seg in enumerate(segs):
+        last = (i == len(segs) - 1)
+        kids = [k for k in cur.children if k.name == seg]
+        if len(kids) == 1:
+            cur = kids[0]
+            continue
+        pmatch = [p for p in cur.ports if p.name == seg]
+        if len(pmatch) >= 2:
+            raise Ambig(cur, seg)
+        if len(pmatch) == 1:
+            return pmatch[0] if last else None
+        if re.fullmatch(r"[icom][1-9]", seg):
+            pr = [p for p in cur.ports
+                  if p.tag == seg[0] and p.number == int(seg[1])]
+            if pr:
+                return pr[0] if last else None
+        nn = [k for k in cur.children if k.node_id == seg]
+        if len(nn) == 1:
+            cur = nn[0]
+            continue
+        return None
+    if want == "<":
+        outs = [p for p in cur.ports if p.tag == "o"]
+        if len(outs) == 1:
+            return outs[0]
+    return None
+
+
+def _suggest(segs, scope_model, letters):
+    """Near-match among activity names/node-ids (cutoff 0.75)."""
+    names = set(letters.keys())
+    for t in letters.values():
+        names.add(t.name)
+    if scope_model is not None:
+        for a in scope_model.descendants():
+            names.add(a.name)
+            names.add(a.node_id)
+    for seg in segs:
+        if seg in names:
+            continue
+        close = difflib.get_close_matches(seg, names, n=1, cutoff=0.75)
+        if close:
+            return f" (closest: '{close[0]}')"
+    return ""
+
+
+def resolve_links(models, letters, diags):
+    by_name = {t.name: t for t in models}
+    cross = []
+    for t in models:
+        for p in t.all_ports():
+            if not p.link_dir:
+                continue
+            segs = p.link_path
+            target = None
+            addressed = t
+            try:
+                scope = p.parent
+                while scope is not None and target is None:
+                    target = _walk(scope, segs, p.link_dir)
+                    scope = scope.parent
+                if target is None and segs:
+                    mt = letters.get(segs[0]) or by_name.get(segs[0])
+                    if mt is not None and len(segs) > 1:
+                        addressed = mt
+                        target = _walk(mt, segs[1:], p.link_dir)
+            except Ambig as a:
+                err(diags, p, f"'{a.act.name}' has no unique port for flow "
+                              f"'{a.flow}'; add the port or use o1/i1 form")
+                continue
+            if target is None:
+                hint = _suggest(segs, addressed, letters)
+                err(diags, p,
+                    f"broken link: cannot resolve '{'|'.join(segs)}'{hint}")
+                continue
+            p.link_target = target
+            if p.link_dir == "<":
+                src, dst = target, p
+            else:
+                src, dst = p, target
+            if src.tag != "o" and not (src.tag == "m" and dst.tag == "m"):
+                err(diags, p, f"link source '{src.node_id}' is '{src.tag}' -- "
+                              f"flows must originate at an output", "warning")
+            if dst.tag == "o":
+                err(diags, p, f"link destination '{dst.node_id}' is an output",
+                    "warning")
+            if src.model is not dst.model:
+                cross.append((src, dst, p))
+    for src, dst, via in cross:
+        other = dst if via is src else src
+        if not other.link_dir:
+            err(diags, via,
+                f"one-sided cross-model link: {other.node_id} "
+                f"'{other.name}' does not declare the reciprocal "
+                f"{'>' if other.tag == 'o' else '<'} link", "warning")
+    rows = []
+    seen = set()
+    for src, dst, _ in cross:
+        for name in ([src.name] if src.name == dst.name
+                     else [src.name, dst.name]):
+            key = (src.node_id, dst.node_id, name)
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append((src, dst, name))
+    rows.sort(key=lambda r: (r[0].model.letter, r[0].node_id,
+                             r[1].node_id, r[2]))
+    return rows
+
+
+# --------------------------------------------------------------- project
+def load_project(files, diags, links_too=True):
+    doc = {}
+    models = []
+    for f in files:
+        try:
+            text = open(f, encoding="utf-8").read()
+        except OSError as e:
+            print(f"idef0: cannot read {f}: {e}", file=sys.stderr)
+            sys.exit(2)
+        models.extend(parse_file(f, text, diags, doc))
+    letters = assign_numbers(models, diags)
+    ids = {}
+    for t in models:
+        for a2 in t.descendants():
+            ids[a2.node_id] = a2
+    for t in models:
+        for a2 in t.descendants():
+            if a2.variant == "/" and not effect_clean(a2):
+                bad = next((p for p in ([q for q in a2.ports] +
+                            [q for k in a2.descendants() for q in k.ports])
+                            if p.tag == "m" and p.variant is None), None)
+                err(diags, a2, f"'{a2.name}' is asserted pure (a/) but its "
+                    f"subtree uses worldly mechanism "
+                    f"'{bad.name if bad else '?'}'")
+            if a2.link_dir:
+                if a2.link_dir == "<":
+                    err(diags, a2, "recursion back-ref uses '>', not '<'")
+                elif a2.children:
+                    err(diags, a2, "a recursive box must not also decompose")
+                else:
+                    seg = "|".join(a2.link_path)
+                    anc, cur = None, a2.parent
+                    while cur is not None:
+                        if cur.node_id == seg or cur.name == seg:
+                            anc = cur
+                            break
+                        cur = cur.parent
+                    if anc is None:
+                        err(diags, a2, f"recursion target '{seg}' is not an "
+                            f"ancestor of {a2.node_id}")
+                    else:
+                        a2.recur = anc
+        tpseen = {}
+        for p in t.all_ports():
+            if p.ftype:
+                if p.ftype.startswith("@") and p.ftype[1:] not in ids:
+                    err(diags, p, f"activity-valued flow references unknown "
+                        f"node '{p.ftype[1:]}'")
+                prev = tpseen.get(p.name)
+                if prev and prev[0] != p.ftype:
+                    err(diags, p, f"flow '{p.name}' typed '{p.ftype}' here "
+                        f"but '{prev[0]}' at line {prev[1]}")
+                else:
+                    tpseen[p.name] = (p.ftype, p.line)
+    rows = []
+    if links_too:
+        for t in models:
+            wire_model(t, diags)
+        rows = resolve_links(models, letters, diags)
+    return models, letters, rows, doc
+
+
+def emit_diags(diags, out=None):
+    errs = sum(1 for d in diags if d[2] == "error")
+    warns = sum(1 for d in diags if d[2] == "warning")
+    for f, ln, sev, msg in sorted(diags, key=lambda d: (d[0], d[1])):
+        print(f"{f}:{ln}: {sev}: {msg}", file=out or sys.stdout)
+    return errs, warns
+
+
+def summary(files, diags, models, rows):
+    errs = sum(1 for d in diags if d[2] == "error")
+    warns = sum(1 for d in diags if d[2] == "warning")
+    acts = sum(1 for t in models for _ in t.descendants())
+    print(f"{len(files)} file(s): {errs} error(s), {warns} warning(s), "
+          f"{len(models)} model(s), {acts} activities, {len(rows)} link(s)")
+    return errs
+
+
+# --------------------------------------------------------------- commands
+def cmd_lint(files):
+    diags = []
+    models, letters, rows, _ = load_project(files, diags)
+    emit_diags(diags)
+    return 1 if summary(files, diags, models, rows) else 0
+
+
+def cmd_dump(files):
+    diags = []
+    models, letters, rows, _ = load_project(files, diags)
+    errs, _ = emit_diags(diags)
+    for t in models:
+        print(f"{t.node_id}  {t.name}    [{t.fname}]")
+
+        def rec(a, depth):
+            for p in a.ports:
+                lk = ""
+                if p.link_dir:
+                    lk = f"  {p.link_dir} {'|'.join(p.link_path)}"
+                print(f"{'  ' * depth}{p.node_id:<12} "
+                      f"{p.tag.upper()}{p.variant or ''} "
+                      f"{p.name}{lk}")
+            for k in a.children:
+                pure = "  [pure]" if effect_clean(k) else ""
+                rc = f"  [recurse {k.recur.node_id}]" if k.recur else ""
+                print(f"{'  ' * depth}{k.node_id:<12} {k.name}{pure}{rc}")
+                rec(k, depth + 1)
+        rec(t, 1)
+        print()
+    return 1 if errs else 0
+
+
+def cmd_links(files):
+    diags = []
+    models, letters, rows, _ = load_project(files, diags)
+    errs, _ = emit_diags(diags)
+    print(f"{'SOURCE':<14} {'DEST':<14} FLOW")
+    for s, d, name in rows:
+        print(f"{s.node_id:<14} {d.node_id:<14} {name}")
+    return 1 if errs else 0
+
+
+# ---------------------------------------------------------- plate layout
+BOX_H = 5
+
+
+def _dkey(t, el):
+    """Stable id for a documented element: activity node id, model letter0,
+    or parentid.tagN for a port."""
+    if el.tag == "t":
+        return f"{el.letter}0"
+    if el.tag == "a":
+        return el.node_id
+    par = el.parent
+    pid = par.node_id if par.tag == "a" else f"{par.letter}0"
+    return f"{pid}.{el.tag}{el.number}"
+
+
+def _doc_plain(el):
+    return " ".join(el.doc).replace("\\n", "\n")
+
+
+_MD_CODE = re.compile(r"`([^`]+)`")
+_MD_BOLD = re.compile(r"\*\*(.+?)\*\*")
+_MD_EM = re.compile(r"(?<!\*)\*([^*]+)\*(?!\*)")
+_MD_LINK = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
+
+
+def _md_inline(text):
+    s = _h.escape(text)
+    s = _MD_CODE.sub(r"<code>\1</code>", s)
+    s = _MD_BOLD.sub(r"<strong>\1</strong>", s)
+    s = _MD_EM.sub(r"<em>\1</em>", s)
+    s = _MD_LINK.sub(r'<a href="\2" target="_blank">\1</a>', s)
+    return s
+
+
+def _doc_html(el):
+    paras = [p.strip() for p in " ".join(el.doc).split("\\n")]
+    return "".join(f"<p>{_md_inline(p)}</p>" for p in paras if p)
+
+
+def effect_clean(act):
+    """True iff every mechanism in this subtree is a module (m/)."""
+    for p in act.ports:
+        if p.tag == "m" and p.variant is None:
+            return False
+    return all(effect_clean(k) for k in act.children)
+
+
+def plates_of(t):
+    out = [(t, t.children)]
+    for a in t.descendants():
+        if a.children:
+            out.append((a, a.children))
+    return out
+
+
+def plate_id(t, node):
+    return node.node_id if node.tag == "a" else f"{t.letter}0"
+
+
+def port_route(p, t):
+    if p.link_dir:
+        o = p.link_target
+        if o is None or o.model is None:
+            return f"{p.link_dir} {'|'.join(p.link_path)}"
+        return f"{p.link_dir} {o.model.letter}:{o.node_id}"
+    tbl = t.producers if p.tag != "o" else t.consumers
+    peers = [q for q in tbl.get(p.name, []) if q.parent is not p.parent]
+    if peers:
+        ids = ",".join(sorted({q.parent.node_id for q in peers}))
+        return ("from " if p.tag != "o" else "to ") + ids
+    return ""
+
+
+def layout_plate(t, node, boxes):
+    """Cell-grid layout per spec: returns (positions, bw, left, top, W, H,
+    ext_controls) with positions[id(b)] = (x, y) in character cells."""
+    bw = min(26, max(20, max(len(b.name) for b in boxes) + 4))
+    in_labels = []
+    ext_controls = []
+    box_ids = {id(b) for b in boxes}
+    for b in boxes:
+        for p in b.ports:
+            if p.tag == "i":
+                r = port_route(p, t)
+                in_labels.append(p.name + (f" ({r})" if r else ""))
+            if p.tag == "c":
+                prod = [q for q in t.producers.get(p.name, [])
+                        if id(q.parent) in box_ids]
+                if not prod and p.name not in [c for c in ext_controls]:
+                    if p.name not in ext_controls:
+                        ext_controls.append(p.name)
+    left = max(8, (max(len(s) for s in in_labels) + 4) if in_labels else 8)
+    top = 2 * len(ext_controls) + 2
+    bh = max(BOX_H, 2 + max(
+        max(sum(1 for p in b.ports if p.tag == "i"),
+            sum(1 for p in b.ports if p.tag == "o")) for b in boxes))
+    hgap, vgap = 12, 4
+    pos = {}
+    for i, b in enumerate(boxes):
+        pos[id(b)] = (left + i * (bw + hgap), top + i * (bh + vgap))
+    lastx, lasty = pos[id(boxes[-1])]
+    has_mech = any(p.tag == "m" for b in boxes for p in b.ports)
+    W = max(lastx + bw + 28, 64)
+    H = lasty + bh + (5 if has_mech else 2) + 6
+    return pos, bw, left, top, W, H, ext_controls, bh
+
+
+def render_text_plate(t, node, boxes, pageno):
+    pos, bw, left, top, W, H, ext_controls, BOX_H = layout_plate(t, node, boxes)
+    grid = {}
+
+    def put(r, c, s):
+        for k, ch in enumerate(s):
+            if c + k >= 0:
+                grid[(r, c + k)] = ch
+
+    box_ids = {id(b) for b in boxes}
+    for ci, cname in enumerate(ext_controls):
+        row = 2 * ci
+        cons = [b for b in boxes
+                if any(p.tag == "c" and p.name == cname for p in b.ports)]
+        if not cons:
+            continue
+        def cdrop(b):
+            ks = [c for c in ext_controls
+                  if any(p.tag == "c" and p.name == c for p in b.ports)]
+            x, _ = pos[id(b)]
+            return x + bw * (ks.index(cname) + 1) // (len(ks) + 1)
+        cxs = sorted(cdrop(b) for b in cons)
+        put(row, cxs[0] + 2, cname)
+        if len(cxs) > 1:
+            for c in range(cxs[0], cxs[-1] + 1):
+                if (row + 1, c) not in grid:
+                    put(row + 1, c, "-")
+        for b in cons:
+            _, y = pos[id(b)]
+            cx = cdrop(b)
+            for r in range(row + 1, y):
+                if (r, cx) not in grid:
+                    put(r, cx, "|")
+            put(y - 1, cx, "v")
+    for b in boxes:
+        x, y = pos[id(b)]
+        put(y, x, "+" + "-" * (bw - 2) + "+")
+        for r in range(1, BOX_H - 1):
+            put(y + r, x, "|" + " " * (bw - 2) + "|")
+        put(y + BOX_H - 1, x, "+" + "-" * (bw - 2) + "+")
+        for j, l in enumerate(_wrap(b.name, bw - 4, 2)):
+            put(y + 1 + j, x + 2, l)
+        tagn = b.node_id + ("*" if b.children else "")
+        put(y + BOX_H - 2, x + bw - 2 - len(tagn), tagn)
+        ins = [p for p in b.ports if p.tag == "i"]
+        for k, p in enumerate(ins):
+            r = y + 1 + (BOX_H - 2 - len(ins)) // 2 + k
+            rt = port_route(p, t)
+            lab = p.name + (f" ({rt})" if rt else "")
+            put(r, x - len(lab) - 4, lab + " ->")
+        outs = [p for p in b.ports if p.tag == "o"]
+        for k, p in enumerate(outs):
+            r = y + 1 + (BOX_H - 2 - len(outs)) // 2 + k
+            rt = port_route(p, t)
+            lab = p.name + (f" ({rt})" if rt else "")
+            arrow = ")-> " if p.variant is not None else "-> "
+            put(r, x + bw + 1, arrow + lab)
+        mechs = [p for p in b.ports if p.tag == "m"]
+        if mechs:
+            cx = x + bw // 2
+            put(y + BOX_H, cx, "^")
+            lab = ", ".join(p.name for p in mechs)
+            put(y + BOX_H + 1, x + 2, lab)
+    maxr = max((r for r, c in grid), default=0)
+    maxc = max((c for r, c in grid), default=0)
+    W = max(W, maxc + 2)
+    lines = []
+    for r in range(0, max(H, maxr + 1)):
+        line = "".join(grid.get((r, c), " ") for c in range(W)).rstrip()
+        lines.append(line)
+    total = max(max((len(l) for l in lines), default=0), 64)
+    mid = total - 26
+    nid = plate_id(t, node)
+    title = node.name
+    if len(title) > mid - 2:
+        title = title[:mid - 5] + "..."
+    num = f"p.{pageno}"
+    tb = [
+        "+" + "-" * 11 + "+" + "-" * mid + "+" + "-" * 11 + "+",
+        "|" + " NODE".ljust(11) + "|" + " TITLE".ljust(mid) + "|"
+        + " NUMBER".ljust(11) + "|",
+        "|" + f" {nid}".ljust(11) + "|" + f" {title}".ljust(mid) + "|"
+        + f" {num}".ljust(11) + "|",
+        "+" + "-" * 11 + "+" + "-" * mid + "+" + "-" * 11 + "+",
+    ]
+    return "\n".join(lines + tb)
+
+
+def all_plates(models):
+    out = []
+    for t in models:
+        for node, boxes in plates_of(t):
+            out.append((t, node, boxes))
+    return out
+
+
+def cmd_text(files):
+    diags = []
+    models, letters, rows, _ = load_project(files, diags)
+    errs, _ = emit_diags(diags, out=sys.stderr)
+    if errs:
+        return 1
+    plates = all_plates(models)
+    print("NODE INDEX" + " " * 44 + "p.1")
+    print("-" * 64)
+    for i, (t, node, boxes) in enumerate(plates):
+        print(f"  {plate_id(t, node):<10} {node.name:<40} p.{i + 2}")
+    for i, (t, node, boxes) in enumerate(plates):
+        print("\f")
+        print(render_text_plate(t, node, boxes, i + 2))
+    return 0
+
+
+# --------------------------------------------------------------- svg
+CW, CH, PAD = 9, 18, 20
+HALO = (' paint-order="stroke" stroke="#fdfcf8" '
+        'stroke-width="3"')
+
+
+def _wrap(name, width, maxlines):
+    words = name.split()
+    lines, cur = [], ""
+    for w in words:
+        t = (cur + " " + w).strip()
+        if len(t) <= width or not cur:
+            cur = t
+        else:
+            lines.append(cur)
+            cur = w
+    lines.append(cur)
+    if len(lines) > maxlines:
+        lines = lines[:maxlines]
+        lines[-1] += "..."
+    return [(l if len(l) <= width else l[:width - 3] + "...")
+            for l in lines]
+
+
+def _elbow(sx, sy, midx, dyy, dxx, r=7):
+    """Orthogonal H-V-H route with rounded (filleted) corners, as on
+    traditional IDEF0 plates. Falls back to sharp segments when a leg
+    is too short to fillet."""
+    if sy == dyy:
+        return f"M{sx},{sy} H{dxx}"
+    vy = 1 if dyy > sy else -1
+    hx2 = 1 if dxx >= midx else -1
+    rr = min(r, abs(midx - sx) / 2, abs(dyy - sy) / 2,
+             abs(dxx - midx) / 2 if dxx != midx else r)
+    if rr < 1:
+        return f"M{sx},{sy} H{midx} V{dyy} H{dxx}"
+    return (f"M{sx},{sy} H{midx - rr:g} "
+            f"Q{midx},{sy} {midx},{sy + vy * rr:g} "
+            f"V{dyy - vy * rr:g} "
+            f"Q{midx},{dyy} {midx + hx2 * rr:g},{dyy} "
+            f"H{dxx}")
+
+
+def _celbow(sx, sy, midx, laney, dropx, boxtop, r=7):
+    """Route an on-plate output into a consumer control: right, to a lane
+    above the consumer, across, then down into the box top (IDEF0 draws
+    controls entering from above). Three filleted corners."""
+    vy = 1 if laney > sy else -1
+    hx = 1 if dropx >= midx else -1
+    rr = min(r, abs(midx - sx) / 2, abs(laney - sy) / 2,
+             abs(dropx - midx) / 2, abs(boxtop - laney) / 2)
+    if rr < 1:
+        return f"M{sx},{sy} H{midx} V{laney} H{dropx} V{boxtop}"
+    return (f"M{sx},{sy} H{midx - rr:g} "
+            f"Q{midx},{sy} {midx},{sy + vy * rr:g} "
+            f"V{laney - vy * rr:g} "
+            f"Q{midx},{laney} {midx + hx * rr:g},{laney} "
+            f"H{dropx - hx * rr:g} "
+            f"Q{dropx},{laney} {dropx},{laney + rr:g} "
+            f"V{boxtop}")
+
+
+def svg_plate(t, node, boxes, pageno, rich=False, pageof=None):
+    pos, bw, left, top, W, H, ext_controls, BOX_H = layout_plate(t, node, boxes)
+
+    def _dattr(el):
+        if el is None or not el.doc or not rich:
+            return ""
+        return f' class="hasdoc" data-doc="{_dkey(t, el)}"'
+
+    def _dtitle(el):
+        if el is None or not el.doc or rich:
+            return ""
+        return "<title>" + _h.escape(_doc_plain(el)) + "</title>"
+
+    def X(c):
+        return c * CW + PAD
+
+    def Y(r):
+        return r * CH + PAD
+
+    box_ids = {id(b) for b in boxes}
+
+    def _route_tag(p, rt):
+        if not rt:
+            return ""
+        if rich and pageof is not None and p.link_target is not None:
+            a = p.link_target.parent
+            if a is not None and a.tag == "a":
+                par = a.parent
+                pid = par.node_id if par.tag == "a" else f"{par.letter}0"
+                if pid in pageof:
+                    return (f'  <a href="#plate-{pid}"><tspan fill="#1a5276">'
+                            f'[{_h.escape(rt)}]</tspan></a>')
+        return f'  [{_h.escape(rt)}]'
+    width = X(max(W, 64)) + PAD
+    height = Y(H + 4) + PAD
+    o = []
+    o.append(f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" '
+             f'height="{height}" viewBox="0 0 {width} {height}" '
+             f'font-family="IBM Plex Mono,monospace">')
+    o.append(f'<rect width="{width}" height="{height}" fill="#fdfcf8"/>')
+    o.append('<defs><marker id="arr" markerWidth="8" markerHeight="8" '
+             'refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" '
+             'fill="#222"/></marker></defs>')
+    bctl = {}
+    for b in boxes:
+        names = []
+        for p in b.ports:
+            if p.tag == "c" and p.name not in names:
+                names.append(p.name)
+
+        def _slot_key(cname, b=b):
+            prods = [q for q in t.producers.get(cname, [])
+                     if id(q.parent) in box_ids and q.parent is not b]
+            if not prods:
+                return (1, 0, 0)          # external: from the top margin
+            pr = prods[0]
+            pi_ = boxes.index(pr.parent)
+            if pi_ < boxes.index(b):      # feed-forward: from up-left;
+                souts = [pp for pp in pr.parent.ports if pp.tag == "o"]
+                return (0, pi_, -souts.index(pr))  # lower port -> left slot
+            return (2, pi_, 0)            # feedback: from the right
+        bctl[id(b)] = sorted(names, key=_slot_key)
+
+    def _cdrop(b, cname):
+        ks = bctl[id(b)]
+        x, _ = pos[id(b)]
+        return X(x) + bw * CW * (ks.index(cname) + 1) // (len(ks) + 1)
+
+    for ci, cname in enumerate(ext_controls):
+        row = 2 * ci
+        cons = [b for b in boxes if cname in bctl[id(b)]]
+        if not cons:
+            continue
+        dp = next((p for b2 in cons for p in b2.ports
+                   if p.tag == "c" and p.name == cname and p.doc), None)
+        cxs = sorted(_cdrop(b, cname) for b in cons)
+        ybus = Y(row) + 16
+        o.append(f'<text x="{cxs[0] + 5}" y="{Y(row) + 12}" font-size="11"'
+                 f'{HALO}{_dattr(dp)}>{_h.escape(cname)}{_dtitle(dp)}</text>')
+        if len(cxs) > 1:
+            o.append(f'<path d="M{cxs[0]},{ybus} H{cxs[-1]}" fill="none" '
+                     f'stroke="#222" stroke-width="1.1"/>')
+        for b in cons:
+            _, y = pos[id(b)]
+            cx = _cdrop(b, cname)
+            o.append(f'<path d="M{cx},{Y(row) + 16} V{Y(y)}" fill="none" '
+                     f'stroke="#222" stroke-width="1.1" '
+                     f'marker-end="url(#arr)"/>')
+    # internal flows: producer right edge -> elbow -> consumer left edge
+    for b in boxes:
+        for p in b.ports:
+            if p.tag != "o":
+                continue
+            for q in t.consumers.get(p.name, []):
+                if id(q.parent) not in box_ids or q.parent is b:
+                    continue
+                if q.tag == "c":
+                    sx0, sy0 = pos[id(b)]
+                    dx0, dy0 = pos[id(q.parent)]
+                    souts = [pp for pp in b.ports if pp.tag == "o"]
+                    sx = X(sx0 + bw)
+                    sy = (Y(sy0) + (BOX_H * CH) // 2
+                          + (2 * souts.index(p) - len(souts) + 1) * (CH // 2))
+                    dropx = _cdrop(q.parent, q.name)
+                    k = bctl[id(q.parent)].index(q.name)
+                    boxtop = Y(dy0)
+                    laney = boxtop - 22 - 12 * k
+                    midx = sx + 20 + 6 * k
+                    o.append(f'<path d="{_celbow(sx, sy, midx, laney, dropx, boxtop)}" '
+                             f'fill="none" stroke="#222" stroke-width="1.1" '
+                             f'marker-end="url(#arr)"/>')
+                    fl = p if p.doc else q
+                    o.append(f'<text x="{dropx - 4}" y="{laney - 4}" '
+                             f'font-size="9" text-anchor="end"'
+                             f'{HALO}{_dattr(fl)}>{_h.escape(p.name)}'
+                             f'{_dtitle(fl)}</text>')
+                    continue
+                sx0, sy0 = pos[id(b)]
+                dx0, dy0 = pos[id(q.parent)]
+                souts = [pp for pp in b.ports if pp.tag == "o"]
+                qins = [pp for pp in q.parent.ports if pp.tag == "i"]
+                sx = X(sx0 + bw)
+                sy = (Y(sy0) + (BOX_H * CH) // 2
+                      + (2 * souts.index(p) - len(souts) + 1) * (CH // 2))
+                dxx = X(dx0)
+                if q in qins:
+                    dyy = (Y(dy0) + (BOX_H * CH) // 2
+                           + (2 * qins.index(q) - len(qins) + 1) * (CH // 2))
+                else:
+                    dyy = Y(dy0 + 2) + CH // 2
+                midx = sx + 5 * CW
+                o.append(f'<path d="{_elbow(sx, sy, midx, dyy, dxx)}" '
+                         f'fill="none" stroke="#222" stroke-width="1.1" '
+                         f'marker-end="url(#arr)"/>')
+                fl = p if p.doc else q
+                ly = (sy + dyy) // 2 if sy != dyy else sy - 5
+                o.append(f'<text x="{midx + 4}" y="{ly}" '
+                         f'font-size="9"{HALO}{_dattr(fl)}>'
+                         f'{_h.escape(p.name)}{_dtitle(fl)}</text>')
+    for b in boxes:
+        x0, y0 = pos[id(b)]
+        x, y = X(x0), Y(y0)
+        w, h = bw * CW, BOX_H * CH
+        rtarget = None
+        if b.recur is not None:
+            rt_ = b.recur
+            rtarget = (rt_.node_id if rt_.children else
+                       (rt_.parent.node_id if rt_.parent and rt_.parent.tag == "a"
+                        else f"{rt_.model.letter}0")) if rt_.tag == "a" else f"{rt_.letter}0"
+        if rich and (b.children or rtarget):
+            o.append(f'<a href="#plate-{b.node_id if b.children else rtarget}">')
+        bfill = "#f5faf1" if rich and effect_clean(b) else "#fff"
+        o.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" '
+                 f'fill="{bfill}" stroke="#222" stroke-width="1.6"/>')
+        nls = _wrap(b.name, bw - 4, 3)
+        y0t = y + 26 - 7 * (len(nls) - 1)
+        spans = "".join(f'<tspan x="{x + w / 2}" y="{y0t + 14 * j}">'
+                        f'{_h.escape(l)}</tspan>' for j, l in enumerate(nls))
+        o.append(f'<text font-size="12" text-anchor="middle"{_dattr(b)}>'
+                 f'{spans}{_dtitle(b)}</text>')
+        o.append(f'<text x="{x + w - 6}" y="{y + h - 8}" font-size="10" '
+                 f'text-anchor="end" fill="#555">{b.node_id}'
+                 f'{"*" if b.children else ("&#8634;" + b.recur.node_id if b.recur else "")}</text>')
+        if rich and (b.children or rtarget):
+            o.append('</a>')
+        ins = [p for p in b.ports if p.tag == "i"]
+        for k, p in enumerate(ins):
+            py = y + h // 2 + (2 * k - len(ins) + 1) * (CH // 2)
+            rt = port_route(p, t)
+            internal = rt.startswith("from ")
+            if internal:
+                continue
+            o.append(f'<path d="M{x - 40},{py} H{x}" fill="none" '
+                     f'stroke="#222" stroke-width="1.1" '
+                     f'marker-end="url(#arr)"/>')
+            o.append(f'<text x="{x - 44}" y="{py + 3}" font-size="9" '
+                     f'text-anchor="end"{HALO}{_dattr(p)}>{_h.escape(p.name)}'
+                     f'{_route_tag(p, rt)}{_dtitle(p)}</text>')
+        outs = [p for p in b.ports if p.tag == "o"]
+        for k, p in enumerate(outs):
+            py = y + h // 2 + (2 * k - len(outs) + 1) * (CH // 2)
+            rt = port_route(p, t)
+            if rt.startswith("to "):
+                continue
+            o.append(f'<path d="M{x + w},{py} H{x + w + 40}" fill="none" '
+                     f'stroke="#222" stroke-width="1.1" '
+                     f'marker-end="url(#arr)"/>')
+            o.append(f'<text x="{x + w + 44}" y="{py + 3}" font-size="9"'
+                     f'{HALO}{_dattr(p)}>{_h.escape(p.name)}'
+                     f'{_route_tag(p, rt)}{_dtitle(p)}</text>')
+        vgroups = {}
+        for k, p in enumerate(outs):
+            if p.variant is not None:
+                py = y + h // 2 + (2 * k - len(outs) + 1) * (CH // 2)
+                vgroups.setdefault(p.variant, []).append(py)
+        for key, pys in vgroups.items():
+            if len(pys) < 2:
+                continue
+            y0, y1 = min(pys) - 6, max(pys) + 6
+            bx = x + w + 6
+            o.append(f'<path d="M{bx - 4},{y0} L{bx},{y0} L{bx},{y1} '
+                     f'L{bx - 4},{y1}" fill="none" stroke="#222" '
+                     f'stroke-width="1.3"/>')
+            if len(key) > 1:
+                o.append(f'<text x="{bx + 3}" y="{(y0 + y1) // 2 + 3}" '
+                         f'font-size="8"{HALO}>{key[1]}</text>')
+        mechs = [p for p in b.ports if p.tag == "m"]
+        if mechs:
+            cx = x + w // 2
+            o.append(f'<path d="M{cx},{y + h + 30} V{y + h}" fill="none" '
+                     f'stroke="#222" stroke-width="1.1" '
+                     f'marker-end="url(#arr)"/>')
+            parts = []
+            for j, p in enumerate(mechs):
+                parts.append((", " if j else "")
+                             + f'<tspan{_dattr(p)}>{_h.escape(p.name)}'
+                             + f'{_dtitle(p)}</tspan>')
+            o.append(f'<text x="{cx + 4}" y="{y + h + 28}" font-size="9">'
+                     + "".join(parts) + '</text>')
+    ty = height - 3 * CH
+    nid = plate_id(t, node)
+    o.append(f'<rect x="0" y="{ty}" width="{width}" height="{3 * CH}" '
+             f'fill="#fff" stroke="#222"/>')
+    o.append(f'<line x1="{99}" y1="{ty}" x2="{99}" y2="{height}" '
+             f'stroke="#222"/>')
+    o.append(f'<line x1="{width - 99}" y1="{ty}" x2="{width - 99}" '
+             f'y2="{height}" stroke="#222"/>')
+    o.append(f'<text x="10" y="{ty + 16}" font-size="10">NODE</text>')
+    o.append(f'<text x="10" y="{ty + 36}" font-size="12">{nid}</text>')
+    o.append(f'<text x="110" y="{ty + 16}" font-size="10">TITLE</text>')
+    o.append(f'<text x="110" y="{ty + 36}" font-size="12"'
+             f'{_dattr(node)}>{_h.escape(node.name)}{_dtitle(node)}</text>')
+    o.append(f'<text x="{width - 89}" y="{ty + 16}" font-size="10">NUMBER'
+             f'</text>')
+    o.append(f'<text x="{width - 89}" y="{ty + 36}" font-size="12">'
+             f'p.{pageno}</text>')
+    o.append("</svg>")
+    return "\n".join(o)
+
+
+def cmd_svg(nodeid, files):
+    diags = []
+    models, letters, rows, _ = load_project(files, diags)
+    errs, _ = emit_diags(diags, out=sys.stderr)
+    if errs:
+        return 1
+    plates = all_plates(models)
+    for i, (t, node, boxes) in enumerate(plates):
+        if plate_id(t, node) == nodeid:
+            print(svg_plate(t, node, boxes, i + 2))
+            return 0
+    print(f"idef0: no plate {nodeid!r}", file=sys.stderr)
+    return 2
+
+
+def _plate_of_port(p, pageof):
+    a = p.parent
+    if a is None or a.tag == "t":
+        return None
+    par = a.parent
+    pid = par.node_id if par.tag == "a" else f"{par.letter}0"
+    return pid if pid in pageof else None
+
+
+HTML_CSS = """body{font-family:IBM Plex Mono,monospace;background:#eee;margin:0}
+.plate{background:#fff;margin:18px auto;padding:6px;box-shadow:0 1px 4px #0003;
+width:max-content;max-width:calc(100vw - 20px);overflow-x:auto;
+page-break-after:always}
+h1{font-size:16px;margin:18px}
+table{border-collapse:collapse;margin:18px;background:#fff}
+td,th{border:1px solid #999;padding:3px 9px;font-size:12px}
+a{color:#1a5276}
+.nav{font-size:12px;padding:4px 8px;background:#f4f2ea;border-bottom:1px solid #ddd;
+position:sticky;left:0}
+.nav a{text-decoration:none;margin-right:4px}
+.dim{color:#999}
+details.notes{font-size:12px;max-width:640px;padding:4px 8px;background:#fdfcf2;
+border-bottom:1px solid #eee}
+details.notes p{margin:4px 0}
+.vp{overflow:hidden;touch-action:pan-x pan-y;cursor:grab}
+.vp:active{cursor:grabbing}
+.vp svg{display:block;transform-origin:0 0}
+.hasdoc{text-decoration:underline dotted 1.5px #6a994e;cursor:help}
+svg a text{cursor:pointer}
+svg a:hover rect{fill:#f5f9ee}
+#tip{position:fixed;display:none;z-index:9;max-width:340px;background:#fffbea;
+border:1px solid #b7a;box-shadow:2px 3px 8px #0004;padding:2px 12px;
+font-size:12.5px;line-height:1.45}
+#tip p{margin:8px 0}
+#tip code{background:#eee8d5;padding:0 3px}
+"""
+
+HTML_JS = """const tip=document.getElementById('tip');
+let pin=null;
+function show(k,x,y){tip.innerHTML=DOCS[k]||'';tip.style.display='block';
+ const r=tip.getBoundingClientRect();
+ x=Math.min(x+14,innerWidth-r.width-8);y=Math.min(y+16,innerHeight-r.height-8);
+ tip.style.left=Math.max(4,x)+'px';tip.style.top=Math.max(4,y)+'px';}
+function hide(){tip.style.display='none';pin=null;}
+const canHover=matchMedia('(hover:hover)').matches;
+document.addEventListener('mousemove',e=>{if(!canHover||pin)return;
+ const t=e.target.closest?e.target.closest('.hasdoc'):null;
+ if(t)show(t.dataset.doc,e.clientX,e.clientY);else hide();});
+document.addEventListener('click',e=>{
+ const t=e.target.closest?e.target.closest('.hasdoc'):null;
+ if(t&&!t.closest('a')){
+  if(pin===t.dataset.doc){hide();}
+  else{pin=t.dataset.doc;show(pin,e.clientX,e.clientY);}
+  e.stopPropagation();}
+ else if(!e.target.closest('#tip'))hide();});
+"""
+
+PANZOOM_JS = """document.querySelectorAll('.plate').forEach(pl=>{
+ const vp=pl.querySelector('.vp'),rz=pl.querySelector('.vz');
+ if(!vp)return;
+ const g=vp.firstElementChild;
+ let s=1,tx=0,ty=0,drag=null,moved=0,pd=0,pm=null,tmoved=0,lastTap=0;
+ const P=new Map();
+ const ap=()=>{g.style.transform='translate('+tx+'px,'+ty+'px) scale('+s+')';};
+ const rst=()=>{s=1;tx=0;ty=0;ap();};
+ const zoom=(f,x,y)=>{const ns=Math.min(8,Math.max(0.2,s*f));
+  tx=x-(x-tx)*ns/s;ty=y-(y-ty)*ns/s;s=ns;ap();};
+ if(rz)rz.addEventListener('click',e=>{e.preventDefault();rst();});
+ vp.addEventListener('dblclick',rst);
+ vp.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();
+  const r=vp.getBoundingClientRect();
+  zoom(Math.exp(-e.deltaY*.002),e.clientX-r.left,e.clientY-r.top);},{passive:false});
+ vp.addEventListener('pointerdown',e=>{
+  P.set(e.pointerId,[e.clientX,e.clientY]);
+  if(P.size===2){const a=[...P.values()];
+   pd=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);
+   pm=[(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2];tmoved=1;}
+  else if(e.pointerType==='mouse'&&e.button===1){e.preventDefault();
+   drag=[e.clientX,e.clientY];moved=0;}});
+ vp.addEventListener('pointermove',e=>{
+  if(!P.has(e.pointerId))return;
+  P.set(e.pointerId,[e.clientX,e.clientY]);
+  if(P.size===2){e.preventDefault();
+   const a=[...P.values()],r=vp.getBoundingClientRect(),
+   d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]),
+   m=[(a[0][0]+a[1][0])/2,(a[0][1]+a[1][1])/2];
+   if(pd)zoom(d/pd,m[0]-r.left,m[1]-r.top);
+   tx+=m[0]-pm[0];ty+=m[1]-pm[1];pd=d;pm=m;ap();}
+  else if(drag){const dx=e.clientX-drag[0],dy=e.clientY-drag[1];
+   if(moved||Math.hypot(dx,dy)>4){moved=1;tx+=dx;ty+=dy;
+    drag=[e.clientX,e.clientY];ap();}}},{passive:false});
+ const up=e=>{if(e.type==='pointercancel')tmoved=1;
+  P.delete(e.pointerId);
+  if(P.size<2)pd=0;
+  if(e.pointerType==='mouse')drag=null;
+  else if(P.size===0){const n=Date.now();
+   if(!tmoved&&n-lastTap<350)rst();
+   lastTap=n;tmoved=0;}};
+ vp.addEventListener('pointerup',up);
+ vp.addEventListener('pointercancel',up);
+ vp.addEventListener('auxclick',e=>{if(moved){e.stopPropagation();e.preventDefault();moved=0;}},true);
+});
+"""
+
+
+def cmd_html(files):
+    diags = []
+    models, letters, rows, _ = load_project(files, diags)
+    errs, _ = emit_diags(diags, out=sys.stderr)
+    if errs:
+        return 1
+    plates = all_plates(models)
+    pageof = {plate_id(t, node): i + 2
+              for i, (t, node, boxes) in enumerate(plates)}
+    docs = {}
+    for t in models:
+        for el in [t] + list(t.descendants()):
+            if el.doc:
+                docs[_dkey(t, el)] = _doc_html(el)
+            for p in el.ports:
+                if p.doc:
+                    docs[_dkey(t, p)] = _doc_html(p)
+    out = ["<!doctype html><meta charset='utf-8'>"
+           "<meta name='viewport' content='width=device-width,"
+           "initial-scale=1'><title>IDEF0 drawing set</title>"
+           f"<style>{HTML_CSS}</style>"]
+    out.append("<h1 id='top'>IDEF0 drawing set &mdash; p.1: node index and "
+               "interface table</h1>")
+    out.append("<table><tr><th>NODE</th><th>TITLE</th><th>NUMBER</th></tr>")
+    for i, (t, node, boxes) in enumerate(plates):
+        pid = plate_id(t, node)
+        k = _dkey(t, node)
+        cls = f" class='hasdoc' data-doc='{k}'" if k in docs else ""
+        out.append(f"<tr><td><a href='#plate-{pid}'>{pid}</a></td>"
+                   f"<td{cls}>{_h.escape(node.name)}</td>"
+                   f"<td><a href='#plate-{pid}'>p.{i + 2}</a></td></tr>")
+    out.append("</table>")
+    out.append("<table><tr><th>SOURCE</th><th>DEST</th><th>FLOW</th></tr>")
+    for s, d, name in rows:
+        sp = _plate_of_port(s, pageof)
+        dp = _plate_of_port(d, pageof)
+        sc = (f"<a href='#plate-{sp}'>{s.node_id}</a>" if sp else s.node_id)
+        dc = (f"<a href='#plate-{dp}'>{d.node_id}</a>" if dp else d.node_id)
+        out.append(f"<tr><td>{sc}</td><td>{dc}</td>"
+                   f"<td>{_h.escape(name)}</td></tr>")
+    out.append("</table>")
+    for i, (t, node, boxes) in enumerate(plates):
+        pid = plate_id(t, node)
+        out.append(f"<div class='plate' id='plate-{pid}'>")
+        nav = ["<a href='#top'>&#8962; index</a>"]
+        if node.tag == "a":
+            par = node.parent
+            up = par.node_id if par.tag == "a" else f"{par.letter}0"
+            nav.append(f"<a href='#plate-{up}'>&#8593; {up}</a>")
+        else:
+            nav.append("<span class='dim'>top plate</span>")
+        nav.append("<a href='javascript:history.back()'>&#8592; back</a>")
+        nav.append("<a href='javascript:history.forward()'>fwd &#8594;</a>")
+        nav.append("<a href='#' class='vz' title='reset pan/zoom "
+                   "(ctrl+scroll or pinch to zoom, middle-drag to pan)'>"
+                   "&#10530; reset</a>")
+        nav.append(f"<span class='dim'>{pid} &middot; p.{i + 2}</span>")
+        out.append("<div class='nav'>" + " &middot; ".join(nav) + "</div>")
+        if node.doc:
+            out.append("<details class='notes'><summary>notes: "
+                       f"{_h.escape(node.name)}</summary>"
+                       + _doc_html(node) + "</details>")
+        out.append("<div class='vp'>")
+        out.append(svg_plate(t, node, boxes, i + 2, rich=True, pageof=pageof))
+        out.append("</div>")
+        out.append("</div>")
+    payload = json.dumps(docs).replace("</", "<\\/")
+    out.append(f"<div id='tip'></div><script>const DOCS={payload};\n"
+               + HTML_JS + PANZOOM_JS + "</script>")
+    print("\n".join(out))
+    return 0
+
+
+# --------------------------------------------------------------- fmt
+def cmd_fmt(mode, write, files):
+    diags = []
+    models, letters, rows, doc = load_project(files, diags, links_too=False)
+    errs, _ = emit_diags(diags, out=sys.stderr)
+    if errs:
+        print("fmt: refusing to rewrite files with errors", file=sys.stderr)
+        return 1
+    for f in files:
+        lines = []
+        for kind, raw, node in doc[f]:
+            if kind == "raw" or node is None:
+                lines.append(raw)
+                continue
+            if mode == "number":
+                if node.tag == "t":
+                    sfx = node.letter
+                else:
+                    sfx = str(node.number)
+            elif mode == "auto":
+                sfx = "#"
+            else:
+                sfx = node.suffix if node.suffix else "#"
+            q = node.variant or ("*" if node.many else "")
+            line = (" " * node.indent + node.tag + q + sfx + " " + node.name)
+            if node.ftype:
+                line += " : " + node.ftype
+            if node.link_dir:
+                line += f" {node.link_dir} " + "|".join(node.link_path)
+            if node.trail:
+                line += "  " + node.trail
+            lines.append(line)
+        text = "\n".join(lines) + "\n"
+        if write:
+            open(f, "w", encoding="utf-8").write(text)
+        else:
+            if len(files) > 1:
+                print(f"==> {f} <==")
+            sys.stdout.write(text)
+    if write:
+        print(f"fmt: rewrote {len(files)} file(s) [{mode or 'normalize'}]")
+    return 0
+
+
+# --------------------------------------------------------------- ledger
+LEDGER_FENCE = re.compile(r"^(`{3,})\s*ledger\s*$")
+PERIOD_RE = re.compile(r"^\d{4}-W\d{2}$")
+ACCT_RE = re.compile(r"^([A-Z][0-9]*)(?::([A-Za-z][\w-]*))?$")
+
+
+def _ledger_scan(files, ids, diags):
+    """Parse ```ledger fences: budget blocks and journal entries."""
+    entries, budgets, periods = [], [], set()
+
+    def acct_ok(acc, f, ln):
+        m2 = ACCT_RE.match(acc)
+        if not m2 or m2.group(1) not in ids:
+            err(diags, (f, ln), f"posting to unknown account '{acc}'"
+                f" (node id not in model set)")
+            return False
+        return True
+
+    for f in files:
+        if not f.lower().endswith((".md", ".markdown")):
+            continue
+        in_f, flen = False, 0
+        block = None  # (kind, period, [(acct, amt, ln)], ln)
+        for ln, raw in enumerate(open(f, encoding="utf-8").read()
+                                 .splitlines(), 1):
+            if not in_f:
+                fm = LEDGER_FENCE.match(raw)
+                if fm:
+                    in_f, flen = True, len(fm.group(1))
+                continue
+            if FENCE_CLOSE.match(raw) and len(raw.strip()) >= flen:
+                in_f = False
+                if block:
+                    _ledger_close(block, f, entries, budgets, diags)
+                    block = None
+                continue
+            s = raw.strip()
+            if not s or s.startswith("#"):
+                continue
+            if not raw.startswith(" "):
+                if block:
+                    _ledger_close(block, f, entries, budgets, diags)
+                parts = s.split(None, 1)
+                if parts[0] == "budget":
+                    per = parts[1].strip() if len(parts) > 1 else ""
+                    kind = "budget"
+                else:
+                    per, kind = parts[0], "entry"
+                if not PERIOD_RE.match(per):
+                    err(diags, (f, ln), f"bad period '{per}': use YYYY-Www")
+                    block = None
+                    continue
+                if int(per[-2:]) % 2 == 0:
+                    err(diags, (f, ln), f"period '{per}' must name the odd "
+                        f"ISO week of the pair")
+                periods.add(per)
+                block = (kind, per, [], ln)
+            else:
+                if block is None:
+                    err(diags, (f, ln), "posting outside an entry")
+                    continue
+                ps = s.rsplit(None, 1)
+                if len(ps) != 2:
+                    err(diags, (f, ln), f"bad posting: {s!r}")
+                    continue
+                acc, amt = ps
+                try:
+                    v = float(amt)
+                except ValueError:
+                    err(diags, (f, ln), f"bad amount {amt!r}")
+                    continue
+                if acct_ok(acc, f, ln):
+                    block[2].append((acc, v, ln))
+        # unclosed fence at EOF already warned by idef0 fence logic? no:
+        if in_f and block:
+            _ledger_close(block, f, entries, budgets, diags)
+    return entries, budgets, periods
+
+
+def _ledger_close(block, f, entries, budgets, diags):
+    kind, per, posts, ln = block
+    if abs(sum(v for _, v, _ in posts)) > 0.005:
+        err(diags, (f, ln), f"unbalanced {kind} "
+            f"(sums to {sum(v for _, v, _ in posts):g})")
+    (budgets if kind == "budget" else entries).append((per, posts))
+
+
+def cmd_ledger(files, forecast=False):
+    diags = []
+    models, letters, rows, _ = load_project(files, diags)
+    ids = {t.letter: t for t in models}
+    for t in models:
+        for a in t.descendants():
+            ids[a.node_id] = a
+    entries, budgets, periods = _ledger_scan(files, ids, diags)
+    errs, _ = emit_diags(diags)
+    def roll(posts_list):
+        m = {}
+        for per, posts in posts_list:
+            for acc, v, _ in posts:
+                nid = ACCT_RE.match(acc).group(1)
+                m[nid] = m.get(nid, 0.0) + v
+        return m
+    bud, act = roll(budgets), roll(entries)
+    bper = {p for p, _ in budgets}
+    aper = {p for p, _ in entries}
+    scale = (len(bper) / len(aper)) if (forecast and aper) else None
+
+    def subtotal(m, node):
+        tot = m.get(node.node_id, 0.0)
+        for k in node.children:
+            tot += subtotal(m, k)
+        return tot
+
+    print(f"{'NODE':<10} {'ACTIVITY':<30} {'BUDGET':>10} "
+          f"{'ACTUAL':>10} {'VAR':>10}"
+          + (f" {'FCAST':>10}" if forecast else ""))
+
+    def rec(node, depth):
+        b, a = subtotal(bud, node), subtotal(act, node)
+        if abs(b) < 0.005 and abs(a) < 0.005:
+            return
+        line = (f"{node.node_id:<10} {'  ' * depth + node.name:<30.30} "
+                f"{b:>10.2f} {a:>10.2f} {b - a:>10.2f}")
+        if forecast:
+            line += f" {a * (scale or 1):>10.2f}"
+        print(line)
+        for k in node.children:
+            rec(k, depth + 1)
+    for t in models:
+        rec(t, 0)
+    print(f"{len(entries)} entr(y/ies), {len(budgets)} budget block(s), "
+          f"{len(periods)} period(s)")
+    return 1 if errs else 0
+
+
+# --------------------------------------------------------------- main
+def main(argv):
+    if len(argv) < 2:
+        print(__doc__)
+        return 2
+    cmd, args = argv[1], argv[2:]
+    if cmd == "ledger":
+        fc = "--forecast" in args
+        return cmd_ledger([a for a in args if a != "--forecast"], fc)
+    if cmd == "lint":
+        return cmd_lint(args)
+    if cmd == "dump":
+        return cmd_dump(args)
+    if cmd == "links":
+        return cmd_links(args)
+    if cmd == "text":
+        return cmd_text(args)
+    if cmd == "html":
+        return cmd_html(args)
+    if cmd == "svg":
+        if not args:
+            print("usage: idef0 svg NODE FILE...", file=sys.stderr)
+            return 2
+        return cmd_svg(args[0], args[1:])
+    if cmd == "fmt":
+        mode = None
+        write = False
+        files = []
+        for a in args:
+            if a == "--number":
+                mode = "number"
+            elif a == "--auto":
+                mode = "auto"
+            elif a == "--write":
+                write = True
+            else:
+                files.append(a)
+        return cmd_fmt(mode, write, files)
+    print(f"idef0: unknown command {cmd!r}", file=sys.stderr)
+    print(__doc__)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

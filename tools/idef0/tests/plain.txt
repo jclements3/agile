@@ -1,0 +1,4 @@
+# -*- mode: idef0 -*-
+tX Unclosed
+  a# One
+    o# Out

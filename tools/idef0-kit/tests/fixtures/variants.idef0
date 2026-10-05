@@ -1,0 +1,21 @@
+# variant-group regression fixture
+tX Variant Fixture
+  a# Parse Input
+    i# Raw Text
+    o/# Parsed Value
+    o/# Parse Failure
+  a# Consume Value
+    i# Parsed Value
+    o/a# Lone Output
+  a# Wrong Tag
+    i/# Bad Marker Input
+    o# Plain Output
+  a# Mixed Means
+    i# Plain Output
+    o# Final Output
+    m/# Pure Library
+    m# Real Database
+  a# Bad Kind Letter
+    i# Final Output
+    o# Extra Output
+    m/x# Reserved Letter

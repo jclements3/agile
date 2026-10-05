@@ -1,0 +1,12 @@
+# -*- mode: idef0 -*-
+# full-line pound comment
+## Model doc via pound.\n With a second paragraph and `code`.
+tY Hash Test
+  a# Alpha  # trailing plain comment, discarded from parse but kept by fmt
+    i# Feed  ## inline doc on the *Feed* port
+    o# Result
+  a# Beta   # note with # inside it
+    i# Result
+    ; legacy semicolon still fine
+    ;; legacy doc still attaches to Beta... wait, attaches to i# Result
+    o# Product

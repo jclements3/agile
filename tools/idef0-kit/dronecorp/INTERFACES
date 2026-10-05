@@ -1,0 +1,53 @@
+SOURCE         DEST           FLOW
+C3.o1          P1.i1          Spot Orders
+C3.o2          P1.i2          Continuous Supply Schedule
+C3.o3          L3.i2          Delivery Orders
+C3.o4          E2.i3          Demand Forecast
+C3.o5          F2.i1          Billing Milestones
+E1.o1          C1.c1          Strategic Plan
+E1.o1          R1.c1          Strategic Plan
+E1.o2          R1.c2          Portfolio Mandate
+E23.o1         C1.c2          Approved Budgets
+E23.o1         F1.c1          Approved Budgets
+E23.o1         H1.c1          Approved Budgets
+E23.o1         L3.c2          Approved Budgets
+E23.o1         P1.c1          Approved Budgets
+E23.o1         Q1.c2          Approved Budgets
+E23.o1         R2.c2          Approved Budgets
+E23.o1         S1.c1          Approved Budgets
+E23.o1         T1.c3          Approved Budgets
+E23.o2         F3.c1          Performance Targets
+E4.o2          C2222.c1       Trade-Compliance Policy
+E4.o2          L3.c1          Trade-Compliance Policy
+F1.o1          E2.c4          Budget Policy
+F1.o2          E2.c3          Planning Calendar
+F1.o3          E2.i2          Department Budget Requests
+F3.o1          E2.i1          Financial Statements & KPIs
+H2.o1          P3.m1          Production Crew
+H2.o1          P3.m1          Staffed Production Workforce
+H2.o2          T2.m1          Certified Test Pilots
+H2.o2          T2.m1          Test Pilots
+H3.o1          F23.i1         Payroll Inputs
+L1.o1          P2.i2          Inbound Component Deliveries
+L3.o2          C3.i2          Shipment Confirmations
+L3.o3          F2.i2          Shipping & Freight Documents
+P3.o2          Q3.i3          Line Nonconformance Reports
+P3.o2          Q3.i3          Line Nonconformances
+P34.o1         T2.i1          Configured Drones
+P4.o2          R2.i3          Manufacturability Feedback
+Q1.o3          T1.c2          Acceptance Test Procedure
+Q1.o4          P21.c1         Approved Supplier List
+Q2.o1          L2.i1          Released Products
+Q3.o1          P4.i1          CAPA Directives
+R4.o1          P3.c1          Engineering Baseline
+R4.o1          Q1.c1          Engineering Baseline
+R4.o1          T1.c1          Engineering Baseline
+R4.o2          P34.i2         Firmware Release
+S3.o1          R11.i2         Customer Feedback
+S3.o2          Q3.i2          Field Complaint Reports
+S3.o2          Q3.i2          Field Complaints
+S3.o3          C1.i2          Renewal & Upsell Signals
+T3.o1          Q2.i1          Accepted Drones
+T3.o2          P3.i2          Rework Units
+T3.o2          P3.i2          Test Rejects
+T3.o3          Q2.i2          Test Records

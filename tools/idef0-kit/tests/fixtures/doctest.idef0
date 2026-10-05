@@ -1,0 +1,22 @@
+; -*- mode: idef0 -*-
+;; dangling doc before any element
+tZ Doc Test Model
+;; Model-level notes with **bold**, *italic*, `code`, and a
+;; [link](https://example.com).\n Second paragraph via inline backslash-n.
+  a# Alpha
+    ;; Doc on activity Alpha.
+    ;;
+    ;; Paragraph two via blank doc line.
+    i# Feed
+      ;; Doc on an *input* port.
+    o# Result
+    m# Crew
+      ;; Doc on a mechanism.
+    a# Alpha One
+      i# Feed
+      o# Result
+  a# Beta
+    i# Result
+    c# Rules
+      ;; Doc on a control.
+    o# Product

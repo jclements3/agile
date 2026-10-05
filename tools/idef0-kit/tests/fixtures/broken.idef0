@@ -1,0 +1,14 @@
+t# System Alpha
+  a# Function A1
+    o# Data 1
+  a2 Function A2
+    a# Function A21
+      i# Data 1
+      o# Kitted Parts
+    aA23. Function A22
+      i# Kited Parts
+      o# Data 3 > System Beta|Function B9|Data 3
+  a2 Function A3
+t# System Beta
+  a# Function B1
+    i# Data 3

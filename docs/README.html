@@ -396,7 +396,7 @@ perl drills/drill.pl next                             coding drills: the next pr
 
 <p><code>bin/xmi2sysml.pl</code> turns a Cameo/MagicDraw XMI export into SysML v2 text, one file per top-level package;
 <code>bin/reqif2sysml.pl</code> turns a DOORS ReqIF or CSV export into requirements carrying <code>doorsId</code>, and
-reports metrics C, F, G and I against the model. Nothing is dropped: whatever has no mapping becomes a <code>// TODO</code> line
+reports metrics C, F, G and I against the model (one-sheet card: <a href="SYSML-PORT-QRG.pdf">SYSML-PORT-QRG.pdf</a>). Nothing is dropped: whatever has no mapping becomes a <code>// TODO</code> line
 and is listed by <code>--report</code>. <a href="SYSML-PORT.html">SYSML-PORT.html</a> is the day-to-day guide.</p>
 
 <pre>perl bin/xmi2sysml.pl --report legacy.xmi                      ported vs remaining, and every element left as a TODO

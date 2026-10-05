@@ -131,7 +131,7 @@ CSV into requirements with `doorsId`, and `--model DIR` reports metrics C/F/G/I 
 structural self-check); `--check` also runs `tools/sysml/sysml.pl check`. Unmapped elements are never dropped: each becomes a
 `// TODO uml:<type> (xmi:id ...)` line and is listed by `--report`. The default `--req-style usage` writes the one-line requirement
 form `bin/status-metrics.pl` counts (`def` writes `requirement def` blocks). Goldens in `tests/fixtures/{xmi2sysml,reqif2sysml}/expected/`
-(regenerate with `REGEN=1 perl tests/xmi2sysml.t`). Day-to-day guide: `docs/SYSML-PORT.html`.
+(regenerate with `REGEN=1 perl tests/xmi2sysml.t`). Day-to-day guide: `docs/SYSML-PORT.html`; one-sheet card `docs/SYSML-PORT-QRG.pdf` (`perl sim/sysml-port-qrg.pl --pdf`; its SysML v2 sample is grammar-checked on every build).
 
 **SysML v2 tools:** `tools/sysml/sysml.pl check FILE...|corpus|grammar|tokens|crosscheck` is a syntax checker built at start-up from
 the vendored official KerML/SysML v2 grammars (`tools/sysml/vendor/sysml-v2-release/`, EPL-2.0, plus `lib/SysML/*-errata.kebnf`);

@@ -3,3 +3,5 @@
 *.png binary
 *.pdf binary
 *.zip binary
+# the status-metrics goldens are the Python kit's outputs byte for byte (status-daily.csv is CRLF, as csv.writer writes it)
+tests/status-metrics/* -text

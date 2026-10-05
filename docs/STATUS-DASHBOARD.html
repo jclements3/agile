@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IAMD model pipeline status</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EDF1F5; --sheet:#F8FAFC; --ink:#1B2A3A; --ink2:#4F6175; --rule:#A9B6C4; --faint:#D5DDE6;
+  --ok:#2E7D4F; --watch:#A86A12; --act:#B03A2E; --info:#3C5A86;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --paper:#121C26; --sheet:#182532; --ink:#DCE5EE; --ink2:#97A8BA; --rule:#3F5367; --faint:#26374A;
+  --ok:#5CC08A; --watch:#E0A64A; --act:#EF7A6C; --info:#8AAEE0; } }
+:root[data-theme="dark"]{
+  --paper:#121C26; --sheet:#182532; --ink:#DCE5EE; --ink2:#97A8BA; --rule:#3F5367; --faint:#26374A;
+  --ok:#5CC08A; --watch:#E0A64A; --act:#EF7A6C; --info:#8AAEE0; }
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.45 Barlow,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
+h1,h2,.num,.tb b{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif}
+/* title block */
+.tb{display:grid;grid-template-columns:2fr repeat(3,1fr);border:2px solid var(--ink);background:var(--sheet)}
+.tb>div{padding:8px 12px;border-left:1px solid var(--ink)}
+.tb>div:first-child{border-left:0}
+.tb span{display:block;font-size:12px;color:var(--ink2)}
+.tb b{font-size:20px;font-weight:600}
+.tb h1{margin:0;font-size:26px;font-weight:700;line-height:1.1}
+@media (max-width:640px){.tb{grid-template-columns:1fr 1fr}.tb>div:first-child{grid-column:1/-1;border-bottom:1px solid var(--ink)}.tb>div:nth-child(2){border-left:0}.tb>div:nth-child(4){border-left:0;border-top:1px solid var(--ink)}.tb>div:nth-child(3){}}
+/* hero scale */
+.hero{margin:22px 0 8px;background:var(--sheet);border:1px solid var(--rule);padding:16px 16px 28px}
+.hero .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.hero .num{font-size:64px;font-weight:700;line-height:1}
+.hero p{margin:4px 0 14px;color:var(--ink2);max-width:70ch}
+.scale{position:relative;height:30px;border:1.5px solid var(--ink);background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),var(--rule) calc(10% - 1px) 10%)}
+.scale .fill{position:absolute;inset:0 auto 0 0;background:var(--ink);transition:width .6s}
+.scale .prev{position:absolute;top:-6px;bottom:-6px;width:0;border-left:2px dashed var(--watch)}
+.scale .ticks{position:absolute;left:0;right:0;top:34px;display:flex;justify-content:space-between;font-size:11px;color:var(--ink2)}
+/* sections */
+h2{font-size:22px;font-weight:600;margin:28px 0 8px;border-bottom:1.5px solid var(--ink);padding-bottom:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.tile{background:var(--sheet);border:1px solid var(--rule);padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tile.sel{outline:2px solid var(--info);outline-offset:-2px}
+.top{display:flex;align-items:center;gap:8px}
+.bal{flex:none;width:28px;height:28px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;font:600 15px "Barlow Condensed",Arial,sans-serif}
+.name{font-weight:600;font-size:14px;line-height:1.2;flex:1}
+.st{font-size:12px;font-weight:600}
+.st.ok{color:var(--ok)}.st.watch{color:var(--watch)}.st.act{color:var(--act)}.st.info{color:var(--info)}
+.mid{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.num{font-size:34px;font-weight:600;line-height:1}
+svg.spark{width:96px;height:30px;flex:none}
+.phrase{font-size:13.5px;color:var(--ink2);margin:0}
+.inc{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);cursor:pointer;margin-top:auto}
+/* round robin */
+.rr{margin-top:28px;background:var(--sheet);border:2px solid var(--ink);padding:14px}
+.rr h2{margin-top:0}
+.rr output{display:block;font-size:16px;line-height:1.55;min-height:3em;max-width:80ch}
+button{font:600 14px Barlow,Arial,sans-serif;color:var(--sheet);background:var(--ink);border:0;padding:8px 14px;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+button:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--info);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.msg{font-size:13px;color:var(--ink2)}
+details{margin-top:20px;background:var(--sheet);border:1px solid var(--rule);padding:10px 14px}
+summary{cursor:pointer;font-weight:600}
+textarea{width:100%;min-height:240px;margin-top:10px;font:13px/1.4 Consolas,"DejaVu Sans Mono",monospace;background:var(--paper);color:var(--ink);border:1px solid var(--rule);padding:8px}
+@media (prefers-reduced-motion:reduce){.scale .fill{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="tb">
+    <div><span>Status</span><h1>IAMD system model under the pipeline</h1></div>
+    <div><span>Sprint</span><b id="sprint"></b></div>
+    <div><span>Baseline</span><b id="baseline"></b></div>
+    <div><span>Data as of</span><b id="date"></b></div>
+  </header>
+
+  <section class="hero" aria-labelledby="hero-t">
+    <div class="head"><h2 id="hero-t" style="border:0;margin:0">A. Under configuration control</h2><div class="num" id="heroNum"></div></div>
+    <p id="heroPhrase"></p>
+    <div class="scale" role="img" id="scale"><div class="fill" id="fill"></div><div class="prev" id="prev"></div>
+      <div class="ticks"><span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span></div></div>
+  </section>
+
+  <main id="sections"></main>
+
+  <section class="rr" aria-labelledby="rr-t">
+    <h2 id="rr-t">Round-robin statement</h2>
+    <output id="rrOut"></output>
+    <div class="row"><button id="copy">Copy statement</button><button class="ghost" id="clearSel">Clear selection</button><span class="msg" id="copyMsg" aria-live="polite"></span></div>
+  </section>
+
+  <details>
+    <summary>Data (JSON)</summary>
+    <textarea id="json" spellcheck="false" aria-label="Metric data as JSON"></textarea>
+    <div class="row"><button id="apply">Apply</button><button class="ghost" id="reset">Reset to sample data</button><span class="msg" id="jsonMsg" aria-live="polite"></span></div>
+  </details>
+</div>
+
+<script>
+const SECTIONS=[["Coverage","ABCD"],["Quality","EFGHI"],["Time and cost","JKLMN"],["Digital thread","OP"],["Risk retired","QRST"],["Flow","UVWXYZ"]];
+const DEF={
+A:{n:"% under configuration control",f:"{v}%",dir:"up",t:100,p:"{v}% of the IAMD architecture is now under configuration control as text, up from {prev}%."},
+B:{n:"Segments gated",f:"{v} of {total}",dir:"up",t:"total",p:"{v} of {total} segments are now gated on every merge."},
+C:{n:"Requirements linked",f:"{v} of {total}",dir:"up",t:"total",p:"{v} of {total} DOORS requirements are now linked to model elements."},
+D:{n:"Elements in baseline",f:"{v}",dir:"info",p:"Baseline {tag} holds {v} elements, up {delta} from the last baseline."},
+E:{n:"Lint errors / warnings",f:"{v} / {w}",dir:"down",t:0,sum:"w",p:"The model lints {v} errors / {w} warnings across {elements} elements."},
+F:{n:"Orphan requirements",f:"{v}",dir:"down",t:0,p:"There are {v} orphan requirements. Last week there were {prev}."},
+G:{n:"Unverified requirements",f:"{v}",dir:"down",t:0,p:"Requirements with no verification method went from {prev} to {v}."},
+H:{n:"Interface mismatches caught at merge",f:"{v}",dir:"zero",key:"reached",p:"The pipeline caught {v} interface mismatches before review, and {reached} reached integration."},
+I:{n:"Trace completeness",f:"{v}%",dir:"up",t:100,p:"{v}% of requirements are traced satisfy-to-verify end to end."},
+J:{n:"Labor hours saved",f:"{v} h",dir:"info",p:"Generated interface tables save about {v} labor hours per baseline."},
+K:{n:"Regeneration time",f:"{v} min",dir:"down",t:15,p:"ICD views now regenerate in {v} minutes. The old process took {old} days."},
+L:{n:"Documents generated",f:"{v} of {total}",dir:"up",t:"total",p:"{v} of {total} program documents now come straight from the model."},
+M:{n:"Hand edits",f:"{v}",dir:"down",t:0,p:"Generated documents needed {v} hand edits this sprint, against {prev} last sprint."},
+N:{n:"Lead time",f:"{v} d",dir:"down",t:5,p:"A model change now reaches a reviewed baseline in {v} days. Before, it took {old} days."},
+O:{n:"Parameters sourced from the model",f:"{v} of {total}",dir:"up",t:"total",p:"{v} of {total} sim parameters now come from the model, not spreadsheets."},
+P:{n:"Sim runs pinned to a baseline",f:"{v} of {total}",dir:"up",t:"total",p:"{v} of {total} sim runs this sprint name the exact baseline that fed them."},
+Q:{n:"Uncovered zone crossings",f:"{v}",dir:"down",t:0,p:"There are {v} uncovered zone crossings across {total} interfaces."},
+R:{n:"Unmitigated threats",f:"{v} of {total}",dir:"down",t:0,p:"{v} of {total} recorded threats lack a traced mitigation."},
+S:{n:"Reproducible baselines",f:"{v} of {total}",dir:"up",t:"total",p:"{v} of {total} tagged baselines rebuild identically."},
+T:{n:"Drift, model vs. documents",f:"{v}",dir:"down",t:0,p:"Drift between the model and the ICDs is {v} lines. Legacy documents show {legacy} discrepancies."},
+U:{n:"Merges per sprint",f:"{v}",dir:"info",p:"{v} model changes merged this sprint, all gated, against {prev} last sprint."},
+V:{n:"Change failure rate",f:"{v}%",dir:"down",t:15,p:"{v}% of merges needed a fix-forward, against a target of under {target}%."},
+W:{n:"Time to restore",f:"{v} h",dir:"down",t:4,p:"A broken gate was restored in {v} hours."},
+X:{n:"Done %",f:"{v}%",dir:"up",t:80,p:"This sprint, {v}% of committed items are done."},
+Y:{n:"Blocked days",f:"{v}",dir:"down",t:3,p:"There were {v} blocked days this sprint, mostly waiting on {blocker}."},
+Z:{n:"Active contributors",f:"{v} of {total}",dir:"up",t:"total",p:"{v} of {total} engineers merged a model change this sprint."}
+};
+const SAMPLE={"sprint":"Sprint 6 (Halberd sim)","date":"2026-12-23","baseline":"baseline-3","sel":["A","C","H"],"m":{"A":{"v":100,"elements":1960,"prev":94,"hist":[7,15,24,33,42,50,59,67,77,86,94,100]},"B":{"v":7,"total":7,"prev":6,"hist":[0,0,1,1,2,2,3,4,5,5,6,7]},"C":{"v":1450,"total":1450,"prev":1360,"hist":[0,90,210,340,480,610,760,900,1050,1210,1360,1450]},"D":{"v":1960,"tag":"3","prev":1320,"hist":[650,650,650,650,1320,1320,1320,1320,1960]},"E":{"v":0,"w":0,"elements":1960,"prev":0,"hist":[0,0,0,0,0,0,0,0,0,0,0,0]},"F":{"v":3,"prev":8,"hist":[0,12,41,66,58,47,52,39,28,17,8,3]},"G":{"v":4,"prev":11,"hist":[0,20,55,80,74,63,60,48,35,22,11,4]},"H":{"v":49,"reached":0,"prev":49,"hist":[0,4,11,16,25,31,39,42,46,48,49,49]},"I":{"v":99,"prev":92,"hist":[0,4,8,13,24,34,45,56,68,81,92,99]},"J":{"v":45,"prev":38,"hist":[4,4,8,11,15,23,30,38,45]},"K":{"v":6,"old":4,"prev":6,"hist":[9,9,8,8,7,7,6,6,6]},"L":{"v":12,"total":12,"prev":10,"hist":[0,0,0,1,1,2,3,4,6,8,10,12]},"M":{"v":0,"prev":0,"hist":[0,0,0,0,0,0,0,0,0]},"N":{"v":3,"old":19,"prev":3,"hist":[12,11,10,9,8,7,6,5,4,4,3,3]},"O":{"v":64,"total":64,"prev":64,"hist":[64,64,64,64,64]},"P":{"v":21,"total":21,"prev":21,"hist":[12,15,19,21,21]},"Q":{"v":0,"total":27,"prev":1,"hist":[0,2,3,2,4,1,3,0,1,0,1,0]},"R":{"v":0,"total":12,"prev":1,"hist":[0,0,1,2,3,3,3,3,2,1,1,0]},"S":{"v":3,"total":3,"prev":2,"hist":[1,1,1,1,2,2,2,2,3]},"T":{"v":0,"legacy":0,"prev":0,"hist":[47,40,31,22,14,6,0]},"U":{"v":25,"prev":16,"hist":[11,21,15,26,14,24,15,22,15,28,16,25]},"V":{"v":4,"prev":6,"hist":[9,10,7,8,7,4,7,5,7,4,6,4]},"W":{"prev":2,"hist":[2]},"X":{"v":100,"prev":57,"hist":[44,94,47,97,45,88,47,94,49,97,57,100]},"Y":{"v":0,"blocker":"none","prev":0,"hist":[0,0,0,0,3,3,0,0,0,0,0,0]},"Z":{"v":7,"total":7,"prev":6,"hist":[0,0,1,1,2,2,3,4,5,5,6,7]}}};
+const KEY="agile-status-metrics-v2";
+let data;
+try{data=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+if(!data||!data.m)data=structuredClone(SAMPLE);
+if(!Array.isArray(data.sel))data.sel=[];
+
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtN=x=>typeof x==="number"?x.toLocaleString("en-US"):x;
+function vars(L){const d=Object.assign({},data.m[L]||{});if(d.v!=null&&d.prev!=null)d.delta=d.v-d.prev;if(DEF[L].t!=null&&DEF[L].t!=="total")d.target=DEF[L].t;return d}
+function fill(t,d){return t.replace(/\{(\w+)\}/g,(m,k)=>d[k]!=null&&d[k]!==""?fmtN(d[k]):"[N]")}
+function status(L){const df=DEF[L],d=vars(L);if(d.v==null)return["act","no data"];
+  if(df.dir==="info")return["info","tracking"];
+  if(df.dir==="zero")return d[df.key]===0?["ok","on target"]:["act","act"];
+  const val=df.sum?d.v+(d[df.sum]||0):d.v;const t=df.t==="total"?d.total:df.t;
+  if(t==null)return["info","tracking"];
+  const good=df.dir==="up"?val>=t:val<=t;if(good)return["ok","on target"];
+  if(d.prev!=null&&(df.dir==="up"?val>d.prev:val<d.prev))return["watch","improving"];
+  return["act","act"]}
+function spark(h){if(!h||h.length<2)return"";const w=96,ht=30,p=3,mn=Math.min(...h),mx=Math.max(...h),r=mx-mn||1;
+  const pts=h.map((y,i)=>[p+i*(w-2*p)/(h.length-1),ht-p-(y-mn)*(ht-2*p)/r]);
+  const [lx,ly]=pts[pts.length-1];
+  return `<svg class="spark" viewBox="0 0 ${w} ${ht}" aria-hidden="true"><polyline points="${pts.map(q=>q.join(",")).join(" ")}" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="${lx}" cy="${ly}" r="2.5" fill="currentColor"/></svg>`}
+
+function render(){
+  ["sprint","baseline","date"].forEach(k=>document.getElementById(k).textContent=data[k]||"[N]");
+  const a=vars("A");
+  document.getElementById("heroNum").textContent=a.v!=null?a.v+"%":"[N]";
+  document.getElementById("heroPhrase").textContent=fill(DEF.A.p,a);
+  document.getElementById("fill").style.width=Math.max(0,Math.min(100,a.v||0))+"%";
+  const pv=document.getElementById("prev");pv.style.display=a.prev!=null?"":"none";pv.style.left=(a.prev||0)+"%";
+  document.getElementById("scale").setAttribute("aria-label",`${a.v}% under configuration control, previously ${a.prev}%`);
+  document.getElementById("sections").innerHTML=SECTIONS.map(([name,ls])=>`<h2>${name}</h2><div class="grid">${[...ls].map(L=>{
+    const d=vars(L),[cls,txt]=status(L),on=data.sel.includes(L);
+    return `<article class="tile${on?" sel":""}"><div class="top"><div class="bal">${L}</div><div class="name">${esc(DEF[L].n)}</div><div class="st ${cls}">${txt}</div></div>
+    <div class="mid"><div class="num">${esc(fill(DEF[L].f,d))}</div><span class="st ${cls}">${spark(d.hist)}</span></div>
+    <p class="phrase">${esc(fill(DEF[L].p,d))}</p>
+    <label class="inc"><input type="checkbox" data-l="${L}" ${on?"checked":""}> Use in round-robin</label></article>`}).join("")}</div>`).join("");
+  renderRR();
+}
+function renderRR(){const s=[..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"].filter(L=>data.sel.includes(L)).map(L=>fill(DEF[L].p,vars(L)));
+  document.getElementById("rrOut").textContent=s.length?s.join(" "):"Select metrics with Use in round-robin to build the statement."}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}}
+
+document.getElementById("sections").addEventListener("change",e=>{const L=e.target.dataset.l;if(!L)return;
+  data.sel=e.target.checked?[...new Set([...data.sel,L])]:data.sel.filter(x=>x!==L);
+  e.target.closest(".tile").classList.toggle("sel",e.target.checked);save();renderRR();syncJSON()});
+document.getElementById("clearSel").onclick=()=>{data.sel=[];save();render();syncJSON()};
+document.getElementById("copy").onclick=async()=>{const t=document.getElementById("rrOut").textContent,m=document.getElementById("copyMsg");
+  try{await navigator.clipboard.writeText(t);m.textContent="Copied."}catch(e){m.textContent="Copy blocked. Select the text and copy it."}};
+function syncJSON(){document.getElementById("json").value=JSON.stringify(data,null,2)}
+document.getElementById("apply").onclick=()=>{const m=document.getElementById("jsonMsg");
+  try{const d=JSON.parse(document.getElementById("json").value);if(!d.m)throw new Error('Missing the "m" object of metrics.');
+    if(!Array.isArray(d.sel))d.sel=data.sel;data=d;save();render();m.textContent="Applied."}
+  catch(e){m.textContent="Not applied: "+e.message}};
+document.getElementById("reset").onclick=()=>{data=structuredClone(SAMPLE);save();render();syncJSON();document.getElementById("jsonMsg").textContent="Sample data restored."};
+render();syncJSON();
+</script>
+</body>
+</html>

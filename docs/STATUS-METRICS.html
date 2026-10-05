@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Status metrics: keywords and phrases</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a;
+         max-width: 1100px; margin: 2em auto; padding: 0 1.5em; line-height: 1.5; }
+  h1 { font-size: 18pt; border-bottom: 2px solid #444; padding-bottom: 0.2em; margin-top: 2em; }
+  h1:first-of-type { margin-top: 0; }
+  h2 { font-size: 14pt; margin-top: 2em; border-bottom: 1px solid #999; padding-bottom: 0.15em; }
+  h3 { font-size: 12pt; margin-top: 1.5em; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  pre { background: #f4f4f4; border: 1px solid #ddd; padding: 0.8em 1em; overflow-x: auto; }
+  code { background: #f4f4f4; padding: 0.1em 0.3em; }
+  pre code { background: none; padding: 0; }
+  ul, ol { margin: 0.5em 0; }
+  li { margin: 0.3em 0; }
+  table { border-collapse: collapse; margin: 0.8em 0; font-size: 10pt; }
+  th, td { border: 1px solid #bbb; padding: 0.3em 0.6em; text-align: left; vertical-align: top; }
+  th { background: #e8e8e8; }
+  a { color: #0b5cad; }
+  @media print { body { margin: 0; max-width: none; } }
+</style>
+</head>
+<body>
+
+<h1 id="status-metrics-keywords-and-phrases">Status metrics: keywords and phrases</h1>
+<p>Frame: “I put the system model under a DevSecOps pipeline for IAMD.”</p>
+<p>Report the outcome and the count. Every [N] comes from the collection method for its metric in
+Appendix A. There are 26 metrics, A to Z. Appendix B gives the data format for the dashboard. Appendix C runs Halberd through 12 weeks. Appendix D gives its daily standups and sprint burn-downs.</p>
+<h2 id="coverage">Coverage</h2>
+<p>A. <strong>% under configuration control</strong>
+- “[N]% of the IAMD architecture is now under configuration control as text, up from [N]%.”
+- “[N] elements entered configuration control this sprint.”
+B. <strong>Segments gated</strong>
+- “[N] of [N] segments are now gated on every merge.”
+- “[N] segments joined the pipeline this sprint.”
+C. <strong>Requirements linked</strong>
+- “[N] of [N] DOORS requirements are now linked to model elements.”
+- “[N] requirements were linked this week.”
+D. <strong>Elements in baseline</strong>
+- “Baseline [N] holds [N] elements, up [N] from the last baseline.”
+- “[N] new elements entered the baseline this sprint, all linted 0/0.”</p>
+<h2 id="quality">Quality</h2>
+<p>E. <strong>Lint errors / warnings</strong>
+- “The model lints [N] errors / [N] warnings across [N] elements.”
+- “All [N] merges this sprint passed at 0/0.”
+F. <strong>Orphan requirements</strong>
+- “There are [N] orphan requirements in [segment]. Last week there were [N].”
+- “[N] orphans remain, and each has an owner.”
+G. <strong>Unverified requirements</strong>
+- “The trace found [N] requirements with no verification method. They’re flagged to their owners.”
+- “Unverified requirements dropped from [N] to [N].”
+H. <strong>Interface mismatches caught at merge</strong>
+- “The pipeline caught [N] interface mismatches before review. Under the old process, they would have been found at integration.”
+- “[N] mismatches were caught at merge this sprint, and [N] reached integration.”
+I. <strong>Trace completeness</strong>
+- “[N]% of requirements are traced satisfy-to-verify end to end.”
+- “[N] of [N] segments have a complete trace.”</p>
+<h2 id="time-and-cost">Time and cost</h2>
+<p>J. <strong>Labor hours saved</strong>
+- “Interface tables are now generated, not hand-built. That saves about [N] labor hours per baseline.”
+- “That’s [N] hours saved this quarter on [document type].”
+K. <strong>Regeneration time</strong>
+- “ICD views now regenerate in [N] minutes. The old process took [N] days.”
+- “A full document set rebuilds from the model in [N] minutes.”
+L. <strong>Documents generated, not hand-built</strong>
+- “[N] of [N] [document type] now come straight from the model.”
+- “Drawing plates now come from model views. That’s [N] plates this sprint.”
+M. <strong>Hand edits</strong>
+- “Generated documents needed [N] hand edits this sprint.”
+- “Hand edits to [document type] went from [N] per baseline to [N].”
+N. <strong>Lead time</strong>
+- “A model change now reaches a reviewed baseline in [N] days. Before, it took [N] days.”
+- “Median lead time from merge request to merge is [N] hours.”</p>
+<h2 id="digital-thread">Digital thread</h2>
+<p>O. <strong>Parameters sourced from the model</strong>
+- “[N] of [N] sim parameters now come from the model, not spreadsheets.”
+- “[N] parameters moved from spreadsheets to the model this sprint.”
+P. <strong>Sim runs pinned to a baseline</strong>
+- “[N] of [N] sim runs this sprint name the exact baseline that fed them.”
+- “[N] sim results in this review trace to baseline [N].”</p>
+<h2 id="risk-retired">Risk retired</h2>
+<p>Q. <strong>Uncovered zone crossings</strong>
+- “There are [N] uncovered zone crossings across [N] interfaces.”
+- “[N] interfaces cross a trust zone, and each one has a security requirement or it can’t merge.”
+R. <strong>Unmitigated threats</strong>
+- “All [N] recorded threats are traced to a mitigation and a requirement.”
+- “Unmitigated threats went from [N] to [N].”
+S. <strong>Reproducible baselines</strong>
+- “Baseline [N] is tagged and reproducible. Any sim run can name the exact model that fed it.”
+- “[N] baselines tagged to date, and [N] of them rebuild identically.”
+T. <strong>Drift (model vs. documents)</strong>
+- “Drift between the model and the ICDs is [N] lines, because they regenerate on every change.”
+- “Drift checks found [N] discrepancies in legacy documents. They’re flagged for correction.”</p>
+<h2 id="flow-agile">Flow (agile)</h2>
+<p>U. <strong>Merges per sprint</strong>
+- “[N] model changes merged this sprint, all gated.”
+- “Merge volume went from [N] to [N] per sprint.”
+V. <strong>Change failure rate</strong>
+- “[N]% of merges needed a fix-forward, against a target of under [N]%.”
+- “[N] merges were reverted this sprint.”
+W. <strong>Time to restore</strong>
+- “A broken gate was restored in [N] hours.”
+- “Median time to green after a failure is [N] minutes.”
+X. <strong>Done %</strong>
+- “This sprint, [N]% of committed items are done.”
+- “[N] of [N] [segment] items are done.”
+Y. <strong>Blocked days</strong>
+- “There were [N] blocked days this sprint, all waiting on [runner/access/license].”
+- “Blocked days dropped from [N] to [N] after [fix].”
+Z. <strong>Active contributors</strong>
+- “[N] of [N] engineers merged a model change this sprint.”
+- “[N] engineers have merged at least one model change to date.”</p>
+<h2 id="round-robin-template">Round-robin template</h2>
+<p>“[N]% of [segment] is now under the pipeline (A). [N] new traces (C). [N] interface mismatches caught at merge (H). Next: [segment].”</p>
+<hr />
+<h1 id="appendix-a-collecting-each-n">Appendix A: collecting each [N]</h1>
+<p>Assumptions: the model is SysML v2 text under <code>model/</code> in Git, with one top-level package per
+segment. Requirements carry a <code>doorsId</code> attribute. Baselines are tagged <code>baseline-*</code>. The lint
+prints a summary line, and gate failures are logged to <code>.gate.log</code> with an error code. Adjust
+paths and patterns to match the repo. <code>PAT</code> is the element pattern defined in A.</p>
+<p><strong>A. % under configuration control</strong>
+- Values: elements in v2 text ÷ elements in the legacy v1 model × 100, plus the previous report’s %.
+- v2 count: take the element count from the lint summary. Fallback:
+<code>PAT='^\s*(part|port|interface|connection|requirement|action|item|attribute)( def)?\b'</code>
+<code>grep -rhE "$PAT" model --include=*.sysml | wc -l</code>
+- v1 count: count once from the legacy XMI export, restricted to in-scope types:
+<code>grep -cE 'xmi:type="uml:(Class|Port|Property|Connector|Activity)"' legacy.xmi</code>
+- Freeze the v1 count as the denominator, and record the date and filter you used.</p>
+<p><strong>B. Segments gated</strong>
+- Total: <code>ls -d model/*/ | wc -l</code>
+- Gated: the paths covered by the CI lint job (or the pre-commit hook path list):
+<code>grep -c '^model/' CODEOWNERS</code>
+- Joined this sprint: the difference from last sprint’s count.</p>
+<p><strong>C. Requirements linked</strong>
+- Total: the DOORS module object count from the ReqIF export:
+<code>grep -c '&lt;SPEC-OBJECT ' export.reqif</code>
+- Linked: <code>grep -rhoE 'doorsId *= *"[^"]+"' model | sort -u | wc -l</code></p>
+<p><strong>D. Elements in baseline</strong>
+- Run A’s pattern against a tag: <code>git grep -hE "$PAT" baseline-2 -- 'model/*.sysml' | wc -l</code>
+- The increase is the count at this tag minus the count at the previous tag.</p>
+<p><strong>E. Lint errors / warnings</strong>
+- Errors, warnings and elements: read the lint summary line on <code>main</code>.
+- Merges at 0/0: <code>git log --merges --first-parent main --since=&lt;sprint start&gt; --oneline | wc -l</code>
+Because the gate refuses anything above 0/0, every merge counted here passed at 0/0.</p>
+<p><strong>F. Orphan requirements</strong> (requirements that nothing satisfies)
+- Prefer the trace report. Fallback:
+<code>comm -23 &lt;(grep -rhoE 'requirement def \w+' model | awk '{print $3}' | sort -u) &lt;(grep -rhoE 'satisfy \w+' model | awk '{print $2}' | sort -u) | wc -l</code></p>
+<p><strong>G. Unverified requirements</strong>
+- Same as F, with <code>verify</code> in place of <code>satisfy</code>.</p>
+<p><strong>H. Interface mismatches caught at merge</strong>
+- <code>grep -c '&lt;interface error code&gt;' .gate.log</code> for the sprint window, or the count of CI jobs failed with that code.
+- Reached integration: interface defects logged at integration in the defect tracker.</p>
+<p><strong>I. Trace completeness</strong>
+- Requirements that are both satisfied and verified ÷ total requirements × 100, using F and G.
+- A segment counts as complete when its F and G are both 0.</p>
+<p><strong>J. Labor hours saved</strong>
+- Manual hours per artifact × artifacts generated per baseline (L).
+- Get manual hours from charge records for the last hand-built version, or from the document owner’s estimate.
+- Write down the source. This one is an estimate, so expect someone to ask.</p>
+<p><strong>K. Regeneration time</strong>
+- Generated: the CI job duration, or <code>time make docs</code>.
+- Old process: the schedule or charge records for the last manual update.</p>
+<p><strong>L. Documents generated</strong>
+- Generated: <code>ls generated/ | wc -l</code> (or the count by document type).
+- Total: the document list (CDRL or the program document tree).</p>
+<p><strong>M. Hand edits</strong>
+- Commits that touch released documents but aren’t generator output:
+<code>git log --since=&lt;sprint start&gt; --oneline -- released/ | grep -vc 'generated'</code>
+- Or count redlines on the release review.</p>
+<p><strong>N. Lead time</strong>
+- From merge request open to merge, from the CI server’s MR history.
+- Git-only fallback: the time from the branch’s first commit to its merge commit,
+<code>git log --format=%ci</code> on each.
+- Report the median. Get the before value from the old change-board cycle records.</p>
+<p><strong>O. Parameters sourced from the model</strong>
+- Generated: the parameter count in the generated parameter files,
+<code>grep -chE '^\s*#define|=' generated/params/* | awk '{s+=$1} END {print s}'</code>
+- Total: the sim input inventory (every parameter the sims read), counted once and frozen like A’s denominator.</p>
+<p><strong>P. Sim runs pinned to a baseline</strong>
+- Pinned: runs whose provenance file names a baseline tag and model hash,
+<code>grep -l 'model_baseline=' runs/*/provenance.txt | wc -l</code>
+- Total: <code>ls -d runs/*/ | wc -l</code> for the sprint window.</p>
+<p><strong>Q. Uncovered zone crossings</strong>
+- From the security section of the lint report: interfaces whose ends sit in different zones, and of those, how many lack a satisfied security requirement.</p>
+<p><strong>R. Unmitigated threats</strong>
+- Total: <code>grep -rc '@Threat' model | awk -F: '{s+=$2} END {print s}'</code>
+- Unmitigated: the security lint’s mitigation-closure count.</p>
+<p><strong>S. Reproducible baselines</strong>
+- Tagged: <code>git tag -l 'baseline-*' | wc -l</code>
+- Reproducible: check out each tag, rebuild, and compare <code>sha256sum</code> of the generated outputs with the hashes recorded at tagging.</p>
+<p><strong>T. Drift</strong>
+- Diff the generated tables against the legacy tables:
+<code>diff &lt;(sort generated/icd.csv) &lt;(sort legacy/icd.csv) | grep -c '^[&lt;&gt;]'</code></p>
+<p><strong>U. Merges per sprint</strong>
+- <code>git log --merges --first-parent main --since=&lt;start&gt; --until=&lt;end&gt; --oneline | wc -l</code></p>
+<p><strong>V. Change failure rate</strong>
+- Reverts and fix-forwards ÷ merges (U) × 100:
+<code>git log --first-parent main --since=&lt;start&gt; --oneline | grep -ciE '^\w+ (revert|fix-forward)'</code>
+- Adopt a commit prefix convention so this count works.</p>
+<p><strong>W. Time to restore</strong>
+- The time from the first red pipeline on <code>main</code> to the next green one, from the CI history.
+- Fallback: the timestamps in <code>.gate.log</code>.</p>
+<p><strong>X. Done %</strong>
+- Items done ÷ items committed at sprint start × 100, from the tracker.</p>
+<p><strong>Y. Blocked days</strong>
+- The sum of days each item carried the blocked flag, from the tracker. Group the total by blocker.</p>
+<p><strong>Z. Active contributors</strong>
+- Contributors: <code>git log --first-parent main --since=&lt;start&gt; --format=%an -- model | sort -u | wc -l</code>
+- Total: the team roster for the model.</p>
+<h1 id="appendix-b-dashboard-data">Appendix B: dashboard data</h1>
+<p><code>status-dashboard.html</code> reads one JSON object, and <code>perl bin/status-metrics.pl report</code> writes it as <code>dashboard.json</code>. Paste it into the dashboard’s data panel and select Apply.
+Each metric is keyed by its letter. <code>v</code> is the current value, <code>prev</code> the last report, and <code>hist</code>
+the trend line. Other keys fill the matching phrase.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;sprint&quot;</span><span class="fu">:</span> <span class="st">&quot;Sprint 14&quot;</span><span class="fu">,</span> <span class="dt">&quot;baseline&quot;</span><span class="fu">:</span> <span class="st">&quot;baseline-2&quot;</span><span class="fu">,</span> <span class="dt">&quot;date&quot;</span><span class="fu">:</span> <span class="st">&quot;2026-10-02&quot;</span><span class="fu">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;m&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;A&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;v&quot;</span><span class="fu">:</span> <span class="dv">62</span><span class="fu">,</span> <span class="dt">&quot;prev&quot;</span><span class="fu">:</span> <span class="dv">48</span><span class="fu">,</span> <span class="dt">&quot;hist&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">20</span><span class="ot">,</span> <span class="dv">31</span><span class="ot">,</span> <span class="dv">40</span><span class="ot">,</span> <span class="dv">48</span><span class="ot">,</span> <span class="dv">55</span><span class="ot">,</span> <span class="dv">62</span><span class="ot">]</span> <span class="fu">},</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;B&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;v&quot;</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span> <span class="dt">&quot;total&quot;</span><span class="fu">:</span> <span class="dv">7</span><span class="fu">,</span> <span class="dt">&quot;prev&quot;</span><span class="fu">:</span> <span class="dv">3</span> <span class="fu">},</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;E&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;v&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span> <span class="dt">&quot;w&quot;</span><span class="fu">:</span> <span class="dv">0</span><span class="fu">,</span> <span class="dt">&quot;elements&quot;</span><span class="fu">:</span> <span class="dv">2440</span> <span class="fu">},</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;Y&quot;</span><span class="fu">:</span> <span class="fu">{</span> <span class="dt">&quot;v&quot;</span><span class="fu">:</span> <span class="dv">4</span><span class="fu">,</span> <span class="dt">&quot;prev&quot;</span><span class="fu">:</span> <span class="dv">9</span><span class="fu">,</span> <span class="dt">&quot;blocker&quot;</span><span class="fu">:</span> <span class="st">&quot;a shared runner&quot;</span> <span class="fu">}</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Extra keys by metric: B, C, L, O, P, Q, R, S and Z use <code>total</code>. D uses <code>tag</code>. E uses <code>w</code> and
+<code>elements</code>. H uses <code>reached</code>. K and N use <code>old</code>. T uses <code>legacy</code>. Y uses <code>blocker</code>.</p>
+<h1 id="appendix-c-halberd-12-weeks">Appendix C: Halberd, 12 weeks</h1>
+<p>Halberd is fictional and notional, and so is every number here. The scenario: Halberd’s legacy
+SysML v1 model holds 1,960 in-scope items across its 7 organizations, and 1,450 DOORS
+requirements. I port it to SysML v2 text, one segment at a time, starting the week of
+5 October 2026. Two-week sprints. A baseline is tagged every 4 weeks.</p>
+<p>I work a burn-down list. The status meeting hears the alphabet.</p>
+<h2 id="translation-key">Translation key</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>What I did (my list)</th>
+<th>What moves</th>
+<th>What I say</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ported a v1 item</td>
+<td>A, D, E</td>
+<td>Under configuration control, gated at 0/0</td>
+</tr>
+<tr>
+<td>Finished a segment</td>
+<td>B, Z</td>
+<td>Segment gated; its owner merges</td>
+</tr>
+<tr>
+<td>Re-linked a DOORS requirement</td>
+<td>C, F, G, I</td>
+<td>Requirements linked; orphans and unverified surfaced; trace %</td>
+</tr>
+<tr>
+<td>Ported an interface</td>
+<td>H, Q, T</td>
+<td>Mismatches caught at merge; zone crossings covered; drift found</td>
+</tr>
+<tr>
+<td>Replaced a hand-built table or view with a generated one</td>
+<td>J, K, L, M</td>
+<td>Hours saved; regeneration time; documents generated; hand edits</td>
+</tr>
+<tr>
+<td>Tagged a baseline</td>
+<td>D, S, N</td>
+<td>Baseline size; reproducible; lead time</td>
+</tr>
+<tr>
+<td>Wired a sim input to the model</td>
+<td>O, P</td>
+<td>Parameters sourced; runs pinned to a baseline</td>
+</tr>
+<tr>
+<td>Ported a threat or mitigation</td>
+<td>R</td>
+<td>Unmitigated threats</td>
+</tr>
+<tr>
+<td>Closed a sprint</td>
+<td>U, V, W, X, Y</td>
+<td>Merges; change failure; time to restore; done %; blocked days</td>
+</tr>
+</tbody>
+</table>
+<h2 id="my-burn-down">My burn-down</h2>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Week of</th>
+<th>Segment worked</th>
+<th>v1 items ported</th>
+<th>Remaining</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 (5 Oct)</td>
+<td>Pipeline setup; E (Systems Engineering &amp; Integration)</td>
+<td>140</td>
+<td>1,820</td>
+</tr>
+<tr>
+<td>2 (12 Oct)</td>
+<td>E</td>
+<td>160</td>
+<td>1,660</td>
+</tr>
+<tr>
+<td>3 (19 Oct)</td>
+<td>E done; V (Interceptor Development) started</td>
+<td>170</td>
+<td>1,490</td>
+</tr>
+<tr>
+<td>4 (26 Oct)</td>
+<td>V</td>
+<td>180</td>
+<td>1,310</td>
+</tr>
+<tr>
+<td>5 (2 Nov)</td>
+<td>V done; B (Battle Management &amp; Fire Control) started</td>
+<td>170</td>
+<td>1,140</td>
+</tr>
+<tr>
+<td>6 (9 Nov)</td>
+<td>B</td>
+<td>160</td>
+<td>980</td>
+</tr>
+<tr>
+<td>7 (16 Nov)</td>
+<td>B done; T (Test &amp; Evaluation) started</td>
+<td>170</td>
+<td>810</td>
+</tr>
+<tr>
+<td>8 (23 Nov)</td>
+<td>T done</td>
+<td>170</td>
+<td>640</td>
+</tr>
+<tr>
+<td>9 (30 Nov)</td>
+<td>G (Government Program Office) done</td>
+<td>180</td>
+<td>460</td>
+</tr>
+<tr>
+<td>10 (7 Dec)</td>
+<td>M (Manufacturing &amp; Production)</td>
+<td>180</td>
+<td>280</td>
+</tr>
+<tr>
+<td>11 (14 Dec)</td>
+<td>M done; L (Logistics &amp; Sustainment) started</td>
+<td>160</td>
+<td>120</td>
+</tr>
+<tr>
+<td>12 (21 Dec)</td>
+<td>L done</td>
+<td>120</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h2 id="metric-snapshot">Metric snapshot</h2>
+<p>All 26 metrics, end of each week.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Metric</th>
+<th>W1</th>
+<th>W2</th>
+<th>W3</th>
+<th>W4</th>
+<th>W5</th>
+<th>W6</th>
+<th>W7</th>
+<th>W8</th>
+<th>W9</th>
+<th>W10</th>
+<th>W11</th>
+<th>W12</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>% under configuration control</td>
+<td>7</td>
+<td>15</td>
+<td>24</td>
+<td>33</td>
+<td>42</td>
+<td>50</td>
+<td>59</td>
+<td>67</td>
+<td>77</td>
+<td>86</td>
+<td>94</td>
+<td>100</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Segments gated (of 7)</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Requirements linked (of 1,450)</td>
+<td>0</td>
+<td>90</td>
+<td>210</td>
+<td>340</td>
+<td>480</td>
+<td>610</td>
+<td>760</td>
+<td>900</td>
+<td>1,050</td>
+<td>1,210</td>
+<td>1,360</td>
+<td>1,450</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Elements in latest baseline</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>650</td>
+<td>650</td>
+<td>650</td>
+<td>650</td>
+<td>1,320</td>
+<td>1,320</td>
+<td>1,320</td>
+<td>1,320</td>
+<td>1,960</td>
+</tr>
+<tr>
+<td>E</td>
+<td>Lint errors / warnings</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+<td>0/0</td>
+</tr>
+<tr>
+<td>F</td>
+<td>Orphan requirements</td>
+<td>0</td>
+<td>12</td>
+<td>41</td>
+<td>66</td>
+<td>58</td>
+<td>47</td>
+<td>52</td>
+<td>39</td>
+<td>28</td>
+<td>17</td>
+<td>8</td>
+<td>3</td>
+</tr>
+<tr>
+<td>G</td>
+<td>Unverified requirements</td>
+<td>0</td>
+<td>20</td>
+<td>55</td>
+<td>80</td>
+<td>74</td>
+<td>63</td>
+<td>60</td>
+<td>48</td>
+<td>35</td>
+<td>22</td>
+<td>11</td>
+<td>4</td>
+</tr>
+<tr>
+<td>H</td>
+<td>Interface mismatches caught (to date)</td>
+<td>0</td>
+<td>4</td>
+<td>11</td>
+<td>16</td>
+<td>25</td>
+<td>31</td>
+<td>39</td>
+<td>42</td>
+<td>46</td>
+<td>48</td>
+<td>49</td>
+<td>49</td>
+</tr>
+<tr>
+<td>I</td>
+<td>Trace completeness %</td>
+<td>0</td>
+<td>4</td>
+<td>8</td>
+<td>13</td>
+<td>24</td>
+<td>34</td>
+<td>45</td>
+<td>56</td>
+<td>68</td>
+<td>81</td>
+<td>92</td>
+<td>99</td>
+</tr>
+<tr>
+<td>J</td>
+<td>Labor hours saved per baseline</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>4</td>
+<td>4</td>
+<td>8</td>
+<td>11</td>
+<td>15</td>
+<td>23</td>
+<td>30</td>
+<td>38</td>
+<td>45</td>
+</tr>
+<tr>
+<td>K</td>
+<td>Regeneration time (min)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>9</td>
+<td>9</td>
+<td>8</td>
+<td>8</td>
+<td>7</td>
+<td>7</td>
+<td>6</td>
+<td>6</td>
+<td>6</td>
+</tr>
+<tr>
+<td>L</td>
+<td>Documents generated (of 12)</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>6</td>
+<td>8</td>
+<td>10</td>
+<td>12</td>
+</tr>
+<tr>
+<td>M</td>
+<td>Hand edits</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>N</td>
+<td>Lead time (days)</td>
+<td>12</td>
+<td>11</td>
+<td>10</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>6</td>
+<td>5</td>
+<td>4</td>
+<td>4</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>O</td>
+<td>Parameters sourced (of 64)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>64</td>
+<td>64</td>
+<td>64</td>
+<td>64</td>
+<td>64</td>
+</tr>
+<tr>
+<td>P</td>
+<td>Sim runs pinned (to date)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>12 of 12</td>
+<td>15 of 15</td>
+<td>19 of 19</td>
+<td>21 of 21</td>
+<td>21 of 21</td>
+</tr>
+<tr>
+<td>Q</td>
+<td>Uncovered zone crossings</td>
+<td>0 of 0</td>
+<td>2 of 4</td>
+<td>3 of 7</td>
+<td>2 of 9</td>
+<td>4 of 13</td>
+<td>1 of 15</td>
+<td>3 of 19</td>
+<td>0 of 21</td>
+<td>1 of 23</td>
+<td>0 of 25</td>
+<td>1 of 27</td>
+<td>0 of 27</td>
+</tr>
+<tr>
+<td>R</td>
+<td>Unmitigated threats</td>
+<td>0 of 0</td>
+<td>0 of 1</td>
+<td>1 of 3</td>
+<td>2 of 4</td>
+<td>3 of 6</td>
+<td>3 of 7</td>
+<td>3 of 8</td>
+<td>3 of 10</td>
+<td>2 of 12</td>
+<td>1 of 12</td>
+<td>1 of 12</td>
+<td>0 of 12</td>
+</tr>
+<tr>
+<td>S</td>
+<td>Reproducible baselines</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>1 of 1</td>
+<td>1 of 1</td>
+<td>1 of 1</td>
+<td>1 of 1</td>
+<td>2 of 2</td>
+<td>2 of 2</td>
+<td>2 of 2</td>
+<td>2 of 2</td>
+<td>3 of 3</td>
+</tr>
+<tr>
+<td>T</td>
+<td>Legacy ICD discrepancies open</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>47</td>
+<td>40</td>
+<td>31</td>
+<td>22</td>
+<td>14</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>U</td>
+<td>Merges per sprint</td>
+<td>—</td>
+<td>21</td>
+<td>—</td>
+<td>26</td>
+<td>—</td>
+<td>24</td>
+<td>—</td>
+<td>22</td>
+<td>—</td>
+<td>28</td>
+<td>—</td>
+<td>25</td>
+</tr>
+<tr>
+<td>V</td>
+<td>Change failure rate %</td>
+<td>—</td>
+<td>10</td>
+<td>—</td>
+<td>8</td>
+<td>—</td>
+<td>4</td>
+<td>—</td>
+<td>5</td>
+<td>—</td>
+<td>4</td>
+<td>—</td>
+<td>4</td>
+</tr>
+<tr>
+<td>W</td>
+<td>Time to restore (h)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>2</td>
+<td>—</td>
+</tr>
+<tr>
+<td>X</td>
+<td>Done % (sprint)</td>
+<td>—</td>
+<td>94</td>
+<td>—</td>
+<td>97</td>
+<td>—</td>
+<td>88</td>
+<td>—</td>
+<td>94</td>
+<td>—</td>
+<td>97</td>
+<td>—</td>
+<td>100</td>
+</tr>
+<tr>
+<td>Y</td>
+<td>Blocked days (sprint)</td>
+<td>—</td>
+<td>0</td>
+<td>—</td>
+<td>0</td>
+<td>—</td>
+<td>3</td>
+<td>—</td>
+<td>0</td>
+<td>—</td>
+<td>0</td>
+<td>—</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Z</td>
+<td>Active contributors (of 7)</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p>A dash means the metric doesn’t exist yet that week (no baseline, no generated document, no incident).
+U, V, X and Y are sprint metrics, so they report on sprint-close weeks only.</p>
+<p>F and G rise first, because porting surfaces gaps the v1 model hid, and then they fall as owners
+close them. That curve is the story to tell.</p>
+<h2 id="week-by-week">Week by week</h2>
+<p><strong>Week 1</strong>
+- My list: Repo, pre-commit gate and CI lint job set up. Ported 140 E items.
+- Status: “The Halberd model is now under the pipeline. 7% of the architecture is under configuration control (A), and every merge is gated at 0 errors / 0 warnings (E). Next: Systems Engineering &amp; Integration.”</p>
+<p><strong>Week 2</strong>
+- My list: Ported 160 E items. Imported the first DOORS module.
+- Status: “15% under configuration control (A). 90 of 1,450 DOORS requirements are linked to model elements (C). The pipeline caught 4 interface mismatches before review (H). 21 model changes merged this sprint, all gated (U).”</p>
+<p><strong>Week 3</strong>
+- My list: E finished. Started V.
+- Status: “1 of 7 segments is now gated on every merge (B). The trace found 55 requirements with no verification method, and they’re flagged to their owners (G). 41 requirements have nothing satisfying them yet (F).”</p>
+<p><strong>Week 4</strong>
+- My list: Ported 180 V items. Replaced the hand-built interface table with a generated one. Tagged baseline-1.
+- Status: “Baseline 1 holds 650 elements (D), and it rebuilds identically (S). 1 of 12 program documents now comes straight from the model (L), with 0 hand edits (M).”</p>
+<p><strong>Week 5</strong>
+- My list: V finished. Started B. Lost 3 days waiting on a runner.
+- Status: “2 of 7 segments gated (B). 4 of 13 interfaces crossing a trust zone lack a security requirement, and they can’t merge until they’re covered (Q). There were 3 blocked days, all waiting on a shared runner (Y).”</p>
+<p><strong>Week 6</strong>
+- My list: Ported 160 B items. Generated the first ICD view and diffed it against the legacy ICD.
+- Status: “50% under configuration control (A). Drift checks found 47 discrepancies in the legacy ICDs, flagged for correction (T). Orphan requirements are down from 66 to 47 (F). 88% of committed items are done this sprint (X).”</p>
+<p><strong>Week 7</strong>
+- My list: B finished. Started T.
+- Status: “3 of 7 segments gated (B). 39 interface mismatches have been caught at merge to date, and 0 reached integration (H). 3 of 7 segment owners now merge their own changes (Z).”</p>
+<p><strong>Week 8</strong>
+- My list: T finished. Wired the T2 pre-flight prediction inputs to the model. Tagged baseline-2.
+- Status: “Baseline 2 holds 1,320 elements (D). 64 of 64 pre-flight prediction parameters now come from the model, not spreadsheets (O), and 12 of 12 prediction runs name the baseline that fed them (P). There are 0 uncovered zone crossings across 21 interfaces (Q).”</p>
+<p><strong>Week 9</strong>
+- My list: G finished, including the milestone review packages.
+- Status: “5 of 7 segments gated (B). 68% of requirements are traced satisfy-to-verify (I). A model change now reaches a reviewed baseline in 4 days; the old change board cycle took 19 (N). 2 of 12 recorded threats lack a traced mitigation (R).”</p>
+<p><strong>Week 10</strong>
+- My list: Ported 180 M items.
+- Status: “86% under configuration control (A). 1,210 of 1,450 requirements linked (C). 8 of 12 program documents come straight from the model (L), which saves about 30 labor hours per baseline (J).”</p>
+<p><strong>Week 11</strong>
+- My list: M finished. Started L. The gate broke on a parser update and was fixed the same morning.
+- Status: “6 of 7 segments gated (B). Unverified requirements are down to 11 (G). ICD views regenerate in 6 minutes; the old process took 4 days (K). A broken gate was restored in 2 hours (W).”</p>
+<p><strong>Week 12</strong>
+- My list: L finished. The v1 list is at 0. Tagged baseline-3.
+- Status: “100% of the Halberd architecture is under configuration control (A), and all 7 segments are gated (B). Baseline 3 holds 1,960 elements and rebuilds identically (D, S). 99% of requirements are traced end to end, and the last 7 are with their owners (I, F, G). 4% of merges this sprint needed a fix-forward (V).”</p>
+<p>All 26 letters appear at least once across the 12 weeks.</p>
+<h1 id="appendix-d-halberd-daily-standups-and-sprint-burn-downs">Appendix D: Halberd daily standups and sprint burn-downs</h1>
+<p>This follows Appendix C, day by day: the same notional 1,960 v1 items and 1,450 DOORS
+requirements, every one ported by the end of week 12. Thanksgiving (26 and 27 November) and
+24 and 25 December are holidays, so weeks 8 and 12 have 3 working days.</p>
+<p>The “Ported” and “Left” columns are my list. The standup is what I say. Each standup answers the
+usual three questions (yesterday, today, blockers), in the alphabet.</p>
+<h2 id="daily-standups">Daily standups</h2>
+<h3 id="sprint-1-weeks-1-and-2">Sprint 1 (weeks 1 and 2)</h3>
+<p><strong>Week 1</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 05 Oct</td>
+<td>0</td>
+<td>1,960</td>
+<td>Nothing yet; the pipeline goes up today.</td>
+<td>Setting up the repo, the pre-commit gate and the CI lint job.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 06 Oct</td>
+<td>21</td>
+<td>1,939</td>
+<td>The pipeline is up: pre-commit gate and CI lint job, 0/0 to merge (E).</td>
+<td>Continuing Systems Engineering &amp; Integration.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 07 Oct</td>
+<td>35</td>
+<td>1,904</td>
+<td>21 more elements under configuration control, now 1% (A), all merged at 0/0 (E).</td>
+<td>More of Systems Engineering &amp; Integration goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Thu 08 Oct</td>
+<td>42</td>
+<td>1,862</td>
+<td>35 more elements under configuration control, now 3% (A), all merged at 0/0 (E).</td>
+<td>Bringing more of Systems Engineering &amp; Integration under the pipeline.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Fri 09 Oct</td>
+<td>42</td>
+<td>1,820</td>
+<td>42 more elements under configuration control, now 5% (A), all merged at 0/0 (E).</td>
+<td>Continuing Systems Engineering &amp; Integration.</td>
+<td>None.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Week 2</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 12 Oct</td>
+<td>29</td>
+<td>1,791</td>
+<td>42 more elements under configuration control, now 7% (A), all merged at 0/0 (E).</td>
+<td>Importing the first DOORS module.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 13 Oct</td>
+<td>35</td>
+<td>1,756</td>
+<td>29 more elements under configuration control, now 9% (A), all merged at 0/0 (E). The first DOORS module is in, and requirements are now linking to model elements (C). 2 orphan and 4 unverified requirements, flagged to owners (F, G).</td>
+<td>Bringing more of Systems Engineering &amp; Integration under the pipeline.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 14 Oct</td>
+<td>32</td>
+<td>1,724</td>
+<td>35 more elements under configuration control, now 10% (A), all merged at 0/0 (E). 1 of 2 zone-crossing interfaces still need a security requirement (Q).</td>
+<td>Continuing Systems Engineering &amp; Integration.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Thu 15 Oct</td>
+<td>35</td>
+<td>1,689</td>
+<td>32 more elements under configuration control, now 12% (A), all merged at 0/0 (E). 54 of 1,450 DOORS requirements linked (C).</td>
+<td>More of Systems Engineering &amp; Integration goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Fri 16 Oct</td>
+<td>29</td>
+<td>1,660</td>
+<td>35 more elements under configuration control, now 14% (A), all merged at 0/0 (E). 3 interface mismatches caught at merge to date, 0 reached integration (H).</td>
+<td>Bringing more of Systems Engineering &amp; Integration under the pipeline.</td>
+<td>None.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sprint-2-weeks-3-and-4">Sprint 2 (weeks 3 and 4)</h3>
+<p><strong>Week 3</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 19 Oct</td>
+<td>31</td>
+<td>1,629</td>
+<td>29 more elements under configuration control, now 15% (A), all merged at 0/0 (E). 12 orphan and 20 unverified requirements, flagged to owners (F, G).</td>
+<td>Continuing Systems Engineering &amp; Integration.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 20 Oct</td>
+<td>37</td>
+<td>1,592</td>
+<td>31 more elements under configuration control, now 17% (A), all merged at 0/0 (E). 2 of 5 zone-crossing interfaces still need a security requirement (Q).</td>
+<td>Finishing Systems Engineering &amp; Integration; it should be gated by end of day.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 21 Oct</td>
+<td>34</td>
+<td>1,558</td>
+<td>37 more elements under configuration control, now 19% (A), all merged at 0/0 (E). Systems Engineering &amp; Integration is now gated on every merge: 1 of 7 segments (B). 138 of 1,450 DOORS requirements linked (C).</td>
+<td>Bringing more of Interceptor Development under the pipeline.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Thu 22 Oct</td>
+<td>37</td>
+<td>1,521</td>
+<td>34 more elements under configuration control, now 21% (A), all merged at 0/0 (E). 8 interface mismatches caught at merge to date, 0 reached integration (H).</td>
+<td>Continuing Interceptor Development.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Fri 23 Oct</td>
+<td>31</td>
+<td>1,490</td>
+<td>37 more elements under configuration control, now 22% (A), all merged at 0/0 (E). 36 orphan and 49 unverified requirements, flagged to owners (F, G).</td>
+<td>More of Interceptor Development goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Week 4</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 26 Oct</td>
+<td>32</td>
+<td>1,458</td>
+<td>31 more elements under configuration control, now 24% (A), all merged at 0/0 (E). 3 of 7 zone-crossing interfaces still need a security requirement (Q).</td>
+<td>Bringing more of Interceptor Development under the pipeline.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 27 Oct</td>
+<td>40</td>
+<td>1,418</td>
+<td>32 more elements under configuration control, now 26% (A), all merged at 0/0 (E). 233 of 1,450 DOORS requirements linked (C).</td>
+<td>Continuing Interceptor Development.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 28 Oct</td>
+<td>36</td>
+<td>1,382</td>
+<td>40 more elements under configuration control, now 28% (A), all merged at 0/0 (E). 13 interface mismatches caught at merge to date, 0 reached integration (H).</td>
+<td>More of Interceptor Development goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Thu 29 Oct</td>
+<td>40</td>
+<td>1,342</td>
+<td>36 more elements under configuration control, now 29% (A), all merged at 0/0 (E). 56 orphan and 70 unverified requirements, flagged to owners (F, G).</td>
+<td>Generating the interface table from the model.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Fri 30 Oct</td>
+<td>32</td>
+<td>1,310</td>
+<td>40 more elements under configuration control, now 32% (A), all merged at 0/0 (E). The interface table is now generated from the model: 1 of 12 program documents (L), 0 hand edits (M). 2 of 9 zone-crossing interfaces still need a security requirement (Q).</td>
+<td>Tagging baseline 1.</td>
+<td>None.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sprint-3-weeks-5-and-6">Sprint 3 (weeks 5 and 6)</h3>
+<p><strong>Week 5</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 02 Nov</td>
+<td>31</td>
+<td>1,279</td>
+<td>32 more elements under configuration control, now 33% (A), all merged at 0/0 (E). Baseline 1 is tagged: 650 elements (D), and it rebuilds identically (S). 340 of 1,450 DOORS requirements linked (C).</td>
+<td>More of Interceptor Development goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 03 Nov</td>
+<td>37</td>
+<td>1,242</td>
+<td>31 more elements under configuration control, now 35% (A), all merged at 0/0 (E). 18 interface mismatches caught at merge to date, 0 reached integration (H).</td>
+<td>Finishing Interceptor Development; it should be gated by end of day.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 04 Nov</td>
+<td>34</td>
+<td>1,208</td>
+<td>37 more elements under configuration control, now 37% (A), all merged at 0/0 (E). Interceptor Development is now gated on every merge: 2 of 7 segments (B). 63 orphan and 78 unverified requirements, flagged to owners (F, G).</td>
+<td>Continuing Battle Management &amp; Fire Control.</td>
+<td>Waiting on a shared runner. Gating locally with the pre-commit hook meanwhile (Y).</td>
+</tr>
+<tr>
+<td>Thu 05 Nov</td>
+<td>37</td>
+<td>1,171</td>
+<td>34 more elements under configuration control, now 38% (A), all merged at 0/0 (E).</td>
+<td>More of Battle Management &amp; Fire Control goes under configuration control today.</td>
+<td>Still waiting on the shared runner (Y).</td>
+</tr>
+<tr>
+<td>Fri 06 Nov</td>
+<td>31</td>
+<td>1,140</td>
+<td>37 more elements under configuration control, now 40% (A), all merged at 0/0 (E). 454 of 1,450 DOORS requirements linked (C).</td>
+<td>Bringing more of Battle Management &amp; Fire Control under the pipeline.</td>
+<td>Runner still pending; asked for it again (Y).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Week 6</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 09 Nov</td>
+<td>29</td>
+<td>1,111</td>
+<td>31 more elements under configuration control, now 42% (A), all merged at 0/0 (E). 25 interface mismatches caught at merge to date, 0 reached integration (H). The shared runner is live.</td>
+<td>Continuing Battle Management &amp; Fire Control.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 10 Nov</td>
+<td>35</td>
+<td>1,076</td>
+<td>29 more elements under configuration control, now 43% (A), all merged at 0/0 (E). 56 orphan and 72 unverified requirements, flagged to owners (F, G).</td>
+<td>More of Battle Management &amp; Fire Control goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 11 Nov</td>
+<td>32</td>
+<td>1,044</td>
+<td>35 more elements under configuration control, now 45% (A), all merged at 0/0 (E). 3 of 14 zone-crossing interfaces still need a security requirement (Q).</td>
+<td>Generating the first ICD view and diffing it against the legacy ICD.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Thu 12 Nov</td>
+<td>35</td>
+<td>1,009</td>
+<td>32 more elements under configuration control, now 47% (A), all merged at 0/0 (E). Drift checks found 47 discrepancies in the legacy ICDs, flagged for correction (T). 558 of 1,450 DOORS requirements linked (C).</td>
+<td>Continuing Battle Management &amp; Fire Control.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Fri 13 Nov</td>
+<td>29</td>
+<td>980</td>
+<td>35 more elements under configuration control, now 49% (A), all merged at 0/0 (E). 30 interface mismatches caught at merge to date, 0 reached integration (H).</td>
+<td>More of Battle Management &amp; Fire Control goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sprint-4-weeks-7-and-8">Sprint 4 (weeks 7 and 8)</h3>
+<p><strong>Week 7</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 16 Nov</td>
+<td>31</td>
+<td>949</td>
+<td>29 more elements under configuration control, now 50% (A), all merged at 0/0 (E). 47 orphan and 63 unverified requirements, flagged to owners (F, G).</td>
+<td>Bringing more of Battle Management &amp; Fire Control under the pipeline.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 17 Nov</td>
+<td>37</td>
+<td>912</td>
+<td>31 more elements under configuration control, now 52% (A), all merged at 0/0 (E). 1 of 16 zone-crossing interfaces still need a security requirement (Q).</td>
+<td>Finishing Battle Management &amp; Fire Control; it should be gated by end of day.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 18 Nov</td>
+<td>34</td>
+<td>878</td>
+<td>37 more elements under configuration control, now 53% (A), all merged at 0/0 (E). Battle Management &amp; Fire Control is now gated on every merge: 3 of 7 segments (B). 3 of 7 segment owners now merge their own changes (Z). 670 of 1,450 DOORS requirements linked (C).</td>
+<td>More of Test &amp; Evaluation goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Thu 19 Nov</td>
+<td>37</td>
+<td>841</td>
+<td>34 more elements under configuration control, now 55% (A), all merged at 0/0 (E). 36 interface mismatches caught at merge to date, 0 reached integration (H).</td>
+<td>Bringing more of Test &amp; Evaluation under the pipeline.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Fri 20 Nov</td>
+<td>31</td>
+<td>810</td>
+<td>37 more elements under configuration control, now 57% (A), all merged at 0/0 (E). 51 orphan and 61 unverified requirements, flagged to owners (F, G).</td>
+<td>Continuing Test &amp; Evaluation.</td>
+<td>None.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Week 8</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 23 Nov</td>
+<td>54</td>
+<td>756</td>
+<td>31 more elements under configuration control, now 59% (A), all merged at 0/0 (E). 3 of 19 zone-crossing interfaces still need a security requirement (Q).</td>
+<td>More of Test &amp; Evaluation goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 24 Nov</td>
+<td>61</td>
+<td>695</td>
+<td>54 more elements under configuration control, now 61% (A), all merged at 0/0 (E). 804 of 1,450 DOORS requirements linked (C).</td>
+<td>Wiring the T2 pre-flight prediction inputs to the model.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 25 Nov</td>
+<td>55</td>
+<td>640</td>
+<td>61 more elements under configuration control, now 65% (A), all merged at 0/0 (E). 64 of 64 pre-flight prediction parameters now come from the model (O), and 12 of 12 prediction runs name their baseline (P). 41 interface mismatches caught at merge to date, 0 reached integration (H).</td>
+<td>Tagging baseline 2 before the holiday.</td>
+<td>None.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sprint-5-weeks-9-and-10">Sprint 5 (weeks 9 and 10)</h3>
+<p><strong>Week 9</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 30 Nov</td>
+<td>32</td>
+<td>608</td>
+<td>55 more elements under configuration control, now 67% (A), all merged at 0/0 (E). Test &amp; Evaluation is now gated on every merge: 4 of 7 segments (B). 4 of 7 segment owners now merge their own changes (Z). Baseline 2 is tagged: 1,320 elements (D), rebuilds identically (S). 39 orphan and 48 unverified requirements, flagged to owners (F, G).</td>
+<td>More of Government Program Office goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 01 Dec</td>
+<td>40</td>
+<td>568</td>
+<td>32 more elements under configuration control, now 69% (A), all merged at 0/0 (E).</td>
+<td>Bringing more of Government Program Office under the pipeline.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 02 Dec</td>
+<td>36</td>
+<td>532</td>
+<td>40 more elements under configuration control, now 71% (A), all merged at 0/0 (E). 960 of 1,450 DOORS requirements linked (C).</td>
+<td>Continuing Government Program Office.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Thu 03 Dec</td>
+<td>40</td>
+<td>492</td>
+<td>36 more elements under configuration control, now 73% (A), all merged at 0/0 (E).</td>
+<td>Reviewing threat and mitigation coverage with the ISSM.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Fri 04 Dec</td>
+<td>32</td>
+<td>460</td>
+<td>40 more elements under configuration control, now 75% (A), all merged at 0/0 (E). 2 of 12 recorded threats lack a traced mitigation (R). 30 orphan and 37 unverified requirements, flagged to owners (F, G).</td>
+<td>Measuring lead time on the last 10 merges.</td>
+<td>None.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Week 10</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 07 Dec</td>
+<td>32</td>
+<td>428</td>
+<td>32 more elements under configuration control, now 77% (A), all merged at 0/0 (E). Government Program Office is now gated on every merge: 5 of 7 segments (B). 5 of 7 segment owners now merge their own changes (Z). A model change now reaches a reviewed baseline in 4 days; the old change board cycle took 19 (N).</td>
+<td>Continuing Manufacturing &amp; Production.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 08 Dec</td>
+<td>40</td>
+<td>388</td>
+<td>32 more elements under configuration control, now 78% (A), all merged at 0/0 (E). 1,078 of 1,450 DOORS requirements linked (C).</td>
+<td>More of Manufacturing &amp; Production goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 09 Dec</td>
+<td>36</td>
+<td>352</td>
+<td>40 more elements under configuration control, now 80% (A), all merged at 0/0 (E). 47 interface mismatches caught at merge to date, 0 reached integration (H).</td>
+<td>Generating the remaining ICD views.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Thu 10 Dec</td>
+<td>40</td>
+<td>312</td>
+<td>36 more elements under configuration control, now 82% (A), all merged at 0/0 (E). 8 of 12 program documents now come straight from the model (L), about 30 labor hours saved per baseline (J). 21 orphan and 27 unverified requirements, flagged to owners (F, G).</td>
+<td>Continuing Manufacturing &amp; Production.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Fri 11 Dec</td>
+<td>32</td>
+<td>280</td>
+<td>40 more elements under configuration control, now 84% (A), all merged at 0/0 (E). 0 of 25 zone-crossing interfaces still need a security requirement (Q).</td>
+<td>More of Manufacturing &amp; Production goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sprint-6-weeks-11-and-12">Sprint 6 (weeks 11 and 12)</h3>
+<p><strong>Week 11</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 14 Dec</td>
+<td>29</td>
+<td>251</td>
+<td>32 more elements under configuration control, now 86% (A), all merged at 0/0 (E). 1,210 of 1,450 DOORS requirements linked (C).</td>
+<td>Bringing more of Manufacturing &amp; Production under the pipeline.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 15 Dec</td>
+<td>35</td>
+<td>216</td>
+<td>29 more elements under configuration control, now 87% (A), all merged at 0/0 (E).</td>
+<td>Finishing Manufacturing &amp; Production; it should be gated by end of day.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 16 Dec</td>
+<td>32</td>
+<td>184</td>
+<td>35 more elements under configuration control, now 89% (A), all merged at 0/0 (E). Manufacturing &amp; Production is now gated on every merge: 6 of 7 segments (B). 6 of 7 segment owners now merge their own changes (Z). 13 orphan and 18 unverified requirements, flagged to owners (F, G).</td>
+<td>Rebuilding the gate after this morning’s parser update.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Thu 17 Dec</td>
+<td>35</td>
+<td>149</td>
+<td>32 more elements under configuration control, now 91% (A), all merged at 0/0 (E). The gate broke on a parser update and was restored in 2 hours (W). ICD views regenerate in 6 minutes (K).</td>
+<td>Bringing more of Logistics &amp; Sustainment under the pipeline.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Fri 18 Dec</td>
+<td>29</td>
+<td>120</td>
+<td>35 more elements under configuration control, now 92% (A), all merged at 0/0 (E). 1,333 of 1,450 DOORS requirements linked (C).</td>
+<td>Continuing Logistics &amp; Sustainment.</td>
+<td>None.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Week 12</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Ported</th>
+<th>Left</th>
+<th>Yesterday</th>
+<th>Today</th>
+<th>Blockers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mon 21 Dec</td>
+<td>38</td>
+<td>82</td>
+<td>29 more elements under configuration control, now 94% (A), all merged at 0/0 (E).</td>
+<td>More of Logistics &amp; Sustainment goes under configuration control today.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Tue 22 Dec</td>
+<td>43</td>
+<td>39</td>
+<td>38 more elements under configuration control, now 96% (A), all merged at 0/0 (E). 6 orphan and 9 unverified requirements, flagged to owners (F, G).</td>
+<td>Bringing more of Logistics &amp; Sustainment under the pipeline.</td>
+<td>None.</td>
+</tr>
+<tr>
+<td>Wed 23 Dec</td>
+<td>39</td>
+<td>0</td>
+<td>43 more elements under configuration control, now 98% (A), all merged at 0/0 (E).</td>
+<td>Tagging baseline 3.</td>
+<td>None.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sprint-burn-downs">Sprint burn-downs</h2>
+<p>Each sprint commits a set of v1 items, including anything carried over. “Left” is committed items
+not yet ported at the end of each day. “Ideal” is the straight line from the commitment to 0. In
+each chart, the first line is the actual and the second is the ideal.</p>
+<h3 id="sprint-1-weeks-1-and-2-1">Sprint 1: weeks 1 and 2</h3>
+<p>Committed 320. Done 300. Carried over 20. Done % 94 (X).</p>
+<pre class="mermaid"><code>xychart-beta
+  title &quot;Sprint 1 burn-down (v1 items)&quot;
+  x-axis [&quot;Start&quot;, &quot;05 Oct&quot;, &quot;06 Oct&quot;, &quot;07 Oct&quot;, &quot;08 Oct&quot;, &quot;09 Oct&quot;, &quot;12 Oct&quot;, &quot;13 Oct&quot;, &quot;14 Oct&quot;, &quot;15 Oct&quot;, &quot;16 Oct&quot;]
+  y-axis &quot;Committed items left&quot; 0 --&gt; 320
+  line [320, 320, 299, 264, 222, 180, 151, 116, 84, 49, 20]
+  line [320, 288, 256, 224, 192, 160, 128, 96, 64, 32, 0]</code></pre>
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Start</th>
+<th>05 Oct</th>
+<th>06 Oct</th>
+<th>07 Oct</th>
+<th>08 Oct</th>
+<th>09 Oct</th>
+<th>12 Oct</th>
+<th>13 Oct</th>
+<th>14 Oct</th>
+<th>15 Oct</th>
+<th>16 Oct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Left</td>
+<td>320</td>
+<td>320</td>
+<td>299</td>
+<td>264</td>
+<td>222</td>
+<td>180</td>
+<td>151</td>
+<td>116</td>
+<td>84</td>
+<td>49</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Ideal</td>
+<td>320</td>
+<td>288</td>
+<td>256</td>
+<td>224</td>
+<td>192</td>
+<td>160</td>
+<td>128</td>
+<td>96</td>
+<td>64</td>
+<td>32</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sprint-2-weeks-3-and-4-1">Sprint 2: weeks 3 and 4</h3>
+<p>Committed 360. Done 350. Carried over 10. Done % 97 (X).</p>
+<pre class="mermaid"><code>xychart-beta
+  title &quot;Sprint 2 burn-down (v1 items)&quot;
+  x-axis [&quot;Start&quot;, &quot;19 Oct&quot;, &quot;20 Oct&quot;, &quot;21 Oct&quot;, &quot;22 Oct&quot;, &quot;23 Oct&quot;, &quot;26 Oct&quot;, &quot;27 Oct&quot;, &quot;28 Oct&quot;, &quot;29 Oct&quot;, &quot;30 Oct&quot;]
+  y-axis &quot;Committed items left&quot; 0 --&gt; 360
+  line [360, 329, 292, 258, 221, 190, 158, 118, 82, 42, 10]
+  line [360, 324, 288, 252, 216, 180, 144, 108, 72, 36, 0]</code></pre>
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Start</th>
+<th>19 Oct</th>
+<th>20 Oct</th>
+<th>21 Oct</th>
+<th>22 Oct</th>
+<th>23 Oct</th>
+<th>26 Oct</th>
+<th>27 Oct</th>
+<th>28 Oct</th>
+<th>29 Oct</th>
+<th>30 Oct</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Left</td>
+<td>360</td>
+<td>329</td>
+<td>292</td>
+<td>258</td>
+<td>221</td>
+<td>190</td>
+<td>158</td>
+<td>118</td>
+<td>82</td>
+<td>42</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Ideal</td>
+<td>360</td>
+<td>324</td>
+<td>288</td>
+<td>252</td>
+<td>216</td>
+<td>180</td>
+<td>144</td>
+<td>108</td>
+<td>72</td>
+<td>36</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sprint-3-weeks-5-and-6-1">Sprint 3: weeks 5 and 6</h3>
+<p>Committed 375. Done 330. Carried over 45. Done % 88 (X).</p>
+<pre class="mermaid"><code>xychart-beta
+  title &quot;Sprint 3 burn-down (v1 items)&quot;
+  x-axis [&quot;Start&quot;, &quot;02 Nov&quot;, &quot;03 Nov&quot;, &quot;04 Nov&quot;, &quot;05 Nov&quot;, &quot;06 Nov&quot;, &quot;09 Nov&quot;, &quot;10 Nov&quot;, &quot;11 Nov&quot;, &quot;12 Nov&quot;, &quot;13 Nov&quot;]
+  y-axis &quot;Committed items left&quot; 0 --&gt; 375
+  line [375, 344, 307, 273, 236, 205, 176, 141, 109, 74, 45]
+  line [375, 338, 300, 262, 225, 188, 150, 112, 75, 38, 0]</code></pre>
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Start</th>
+<th>02 Nov</th>
+<th>03 Nov</th>
+<th>04 Nov</th>
+<th>05 Nov</th>
+<th>06 Nov</th>
+<th>09 Nov</th>
+<th>10 Nov</th>
+<th>11 Nov</th>
+<th>12 Nov</th>
+<th>13 Nov</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Left</td>
+<td>375</td>
+<td>344</td>
+<td>307</td>
+<td>273</td>
+<td>236</td>
+<td>205</td>
+<td>176</td>
+<td>141</td>
+<td>109</td>
+<td>74</td>
+<td>45</td>
+</tr>
+<tr>
+<td>Ideal</td>
+<td>375</td>
+<td>338</td>
+<td>300</td>
+<td>262</td>
+<td>225</td>
+<td>188</td>
+<td>150</td>
+<td>112</td>
+<td>75</td>
+<td>38</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sprint-4-weeks-7-and-8-1">Sprint 4: weeks 7 and 8</h3>
+<p>Committed 360. Done 340. Carried over 20. Done % 94 (X).</p>
+<pre class="mermaid"><code>xychart-beta
+  title &quot;Sprint 4 burn-down (v1 items)&quot;
+  x-axis [&quot;Start&quot;, &quot;16 Nov&quot;, &quot;17 Nov&quot;, &quot;18 Nov&quot;, &quot;19 Nov&quot;, &quot;20 Nov&quot;, &quot;23 Nov&quot;, &quot;24 Nov&quot;, &quot;25 Nov&quot;]
+  y-axis &quot;Committed items left&quot; 0 --&gt; 360
+  line [360, 329, 292, 258, 221, 190, 136, 75, 20]
+  line [360, 315, 270, 225, 180, 135, 90, 45, 0]</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Start</th>
+<th>16 Nov</th>
+<th>17 Nov</th>
+<th>18 Nov</th>
+<th>19 Nov</th>
+<th>20 Nov</th>
+<th>23 Nov</th>
+<th>24 Nov</th>
+<th>25 Nov</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Left</td>
+<td>360</td>
+<td>329</td>
+<td>292</td>
+<td>258</td>
+<td>221</td>
+<td>190</td>
+<td>136</td>
+<td>75</td>
+<td>20</td>
+</tr>
+<tr>
+<td>Ideal</td>
+<td>360</td>
+<td>315</td>
+<td>270</td>
+<td>225</td>
+<td>180</td>
+<td>135</td>
+<td>90</td>
+<td>45</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sprint-5-weeks-9-and-10-1">Sprint 5: weeks 9 and 10</h3>
+<p>Committed 370. Done 360. Carried over 10. Done % 97 (X).</p>
+<pre class="mermaid"><code>xychart-beta
+  title &quot;Sprint 5 burn-down (v1 items)&quot;
+  x-axis [&quot;Start&quot;, &quot;30 Nov&quot;, &quot;01 Dec&quot;, &quot;02 Dec&quot;, &quot;03 Dec&quot;, &quot;04 Dec&quot;, &quot;07 Dec&quot;, &quot;08 Dec&quot;, &quot;09 Dec&quot;, &quot;10 Dec&quot;, &quot;11 Dec&quot;]
+  y-axis &quot;Committed items left&quot; 0 --&gt; 370
+  line [370, 338, 298, 262, 222, 190, 158, 118, 82, 42, 10]
+  line [370, 333, 296, 259, 222, 185, 148, 111, 74, 37, 0]</code></pre>
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Start</th>
+<th>30 Nov</th>
+<th>01 Dec</th>
+<th>02 Dec</th>
+<th>03 Dec</th>
+<th>04 Dec</th>
+<th>07 Dec</th>
+<th>08 Dec</th>
+<th>09 Dec</th>
+<th>10 Dec</th>
+<th>11 Dec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Left</td>
+<td>370</td>
+<td>338</td>
+<td>298</td>
+<td>262</td>
+<td>222</td>
+<td>190</td>
+<td>158</td>
+<td>118</td>
+<td>82</td>
+<td>42</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Ideal</td>
+<td>370</td>
+<td>333</td>
+<td>296</td>
+<td>259</td>
+<td>222</td>
+<td>185</td>
+<td>148</td>
+<td>111</td>
+<td>74</td>
+<td>37</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sprint-6-weeks-11-and-12-1">Sprint 6: weeks 11 and 12</h3>
+<p>Committed 280. Done 280. Carried over 0. Done % 100 (X).</p>
+<pre class="mermaid"><code>xychart-beta
+  title &quot;Sprint 6 burn-down (v1 items)&quot;
+  x-axis [&quot;Start&quot;, &quot;14 Dec&quot;, &quot;15 Dec&quot;, &quot;16 Dec&quot;, &quot;17 Dec&quot;, &quot;18 Dec&quot;, &quot;21 Dec&quot;, &quot;22 Dec&quot;, &quot;23 Dec&quot;]
+  y-axis &quot;Committed items left&quot; 0 --&gt; 280
+  line [280, 251, 216, 184, 149, 120, 82, 39, 0]
+  line [280, 245, 210, 175, 140, 105, 70, 35, 0]</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th>Day</th>
+<th>Start</th>
+<th>14 Dec</th>
+<th>15 Dec</th>
+<th>16 Dec</th>
+<th>17 Dec</th>
+<th>18 Dec</th>
+<th>21 Dec</th>
+<th>22 Dec</th>
+<th>23 Dec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Left</td>
+<td>280</td>
+<td>251</td>
+<td>216</td>
+<td>184</td>
+<td>149</td>
+<td>120</td>
+<td>82</td>
+<td>39</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Ideal</td>
+<td>280</td>
+<td>245</td>
+<td>210</td>
+<td>175</td>
+<td>140</td>
+<td>105</td>
+<td>70</td>
+<td>35</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h2 id="release-burn-down">Release burn-down</h2>
+<p>The whole v1 list, sprint by sprint.</p>
+<pre class="mermaid"><code>xychart-beta
+  title &quot;Halberd v1 items left&quot;
+  x-axis [&quot;Start&quot;, &quot;S1&quot;, &quot;S2&quot;, &quot;S3&quot;, &quot;S4&quot;, &quot;S5&quot;, &quot;S6&quot;]
+  y-axis &quot;v1 items left&quot; 0 --&gt; 1960
+  bar [1960, 1660, 1310, 980, 640, 280, 0]</code></pre>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th>Sprint</th>
+<th>Committed</th>
+<th>Done</th>
+<th>Carried over</th>
+<th>Done % (X)</th>
+<th>v1 items left</th>
+<th>Under configuration control (A)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>320</td>
+<td>300</td>
+<td>20</td>
+<td>94</td>
+<td>1,660</td>
+<td>15%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>360</td>
+<td>350</td>
+<td>10</td>
+<td>97</td>
+<td>1,310</td>
+<td>33%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>375</td>
+<td>330</td>
+<td>45</td>
+<td>88</td>
+<td>980</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>360</td>
+<td>340</td>
+<td>20</td>
+<td>94</td>
+<td>640</td>
+<td>67%</td>
+</tr>
+<tr>
+<td>5</td>
+<td>370</td>
+<td>360</td>
+<td>10</td>
+<td>97</td>
+<td>280</td>
+<td>86%</td>
+</tr>
+<tr>
+<td>6</td>
+<td>280</td>
+<td>280</td>
+<td>0</td>
+<td>100</td>
+<td>0</td>
+<td>100%</td>
+</tr>
+</tbody>
+</table>
+<h1 id="running-it-in-this-kit">Running it in this kit</h1>
+<p>The collector is <code>bin/status-metrics.pl</code> (library <code>lib/StatusMetrics.pm</code>), core Perl like the rest of the kit; it needs
+<code>git</code> on PATH. Run it once a day (a scheduled task or CI job):</p>
+<pre><code>perl bin/status-metrics.pl init    --config metrics.json --xmi legacy.xmi --reqif export.reqif   # once
+perl bin/status-metrics.pl collect --config metrics.json --history history.jsonl               # daily
+perl bin/status-metrics.pl report  --config metrics.json --history history.jsonl --out report  # any time</code></pre>
+<p><code>report</code> writes <code>status-weekly.md</code> (the Appendix C table), <code>status-daily.csv</code> and <code>dashboard.json</code> (Appendix B).</p>
+<p>Repo conventions the collector expects: SysML v2 text under <code>model/&lt;segment&gt;/</code>, requirements with a <code>doorsId</code>
+attribute, <code>CODEOWNERS</code> lines per gated segment, annotated tags <code>baseline-N</code> with message <code>sha256=&lt;hash of generated/docs&gt;</code>,
+<code>generated/docs</code> and <code>generated/params</code> from <code>gen_cmd</code>. Exports directory: <code>gate.log</code>, <code>ci_jobs.csv</code>,
+<code>tracker/sprint-N.csv</code>, <code>legacy_icd.csv</code>, <code>runs/*/provenance.txt</code>, <code>defects.csv</code>.</p>
+<p><code>perl sim/status-metrics-sim.pl OUTDIR</code> builds a repo and exports that follow all of these: Halberd’s 12 weeks, collected
+every working day. <code>tests/status_metrics.t</code> runs it, builds the tables and checks them cell by cell against Appendix C
+(and the daily element counts against Appendix D’s “Left” column), then checks that a lint error and a tampered
+baseline are caught. Halberd is notional; so is every number in Appendices C and D.</p>
+
+</body>
+</html>

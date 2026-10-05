@@ -71,7 +71,7 @@ sub halberd_latex {
 \titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.7em}{}
 \titlespacing*{\section}{0pt}{18pt}{8pt}
 \pagestyle{fancy}\fancyhf{}
-\fancyhead[L]{\small IAMD MBSE SysEng Integration Into DevSecOps\enspace\textperiodcentered\enspace Notional Plan}
+\fancyhead[L]{\small IAMD MBSE Integration Into DevSecOps\enspace\textperiodcentered\enspace Notional Plan}
 \fancyhead[R]{\small\thepage}
 \fancyfoot[C]{\footnotesize\itshape Notional: every name and number is made up.}
 \renewcommand{\headrulewidth}{0.4pt}
@@ -103,7 +103,7 @@ PRE
   \draw[white!55!black,line width=0.4pt] ([yshift=2.49in]current page.south west) -- ([yshift=2.49in]current page.south east);
   \draw[white!55!black,line width=0.4pt] ([yshift=0.51in]current page.south west) -- ([yshift=0.51in]current page.south east);
   \node[white,font=\sffamily\bfseries,align=center] (t) at ([yshift=1.85in]current page.south)
-    {\fontsize{28}{33}\selectfont IAMD MBSE SysEng Integration\\[2pt]\fontsize{28}{33}\selectfont Into DevSecOps};
+    {\fontsize{28}{33}\selectfont IAMD MBSE Integration\\[2pt]\fontsize{28}{33}\selectfont Into DevSecOps};
   \node[white,font=\sffamily,anchor=north] (s) at ([yshift=-0.10in]t.south) {\Large\scshape Notional Plan};
   \node[white,font=\sffamily,anchor=north,align=center] at ([yshift=-0.10in]s.south)
     {\large Halberd: a 12-week SysML v1 to v2 port \quad{\normalsize\color{white!75!black}\textbullet\ October 2026}};
@@ -115,7 +115,7 @@ COVER
 \begin{titlepage}
 \centering
 \vspace*{1.6in}
-{\fontsize{30}{36}\selectfont\bfseries IAMD MBSE SysEng Integration\\[4pt] Into DevSecOps\par}
+{\fontsize{30}{36}\selectfont\bfseries IAMD MBSE Integration\\[4pt] Into DevSecOps\par}
 \vspace{10pt}
 {\fontsize{22}{26}\selectfont\scshape Notional Plan\par}
 \vspace{14pt}

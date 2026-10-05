@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Halberd: a 12-week SysML v1 to v2 port, run on the kit</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a;
+         max-width: 1100px; margin: 2em auto; padding: 0 1.5em; line-height: 1.5; }
+  h1 { font-size: 20pt; border-bottom: 2px solid #444; padding-bottom: 0.2em; }
+  h2 { font-size: 15pt; margin-top: 2em; border-bottom: 1px solid #999; padding-bottom: 0.15em; }
+  h3 { font-size: 12.5pt; margin-top: 1.5em; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  pre { background: #f4f4f4; border: 1px solid #ddd; padding: 0.8em 1em; overflow-x: auto; }
+  code { background: #f4f4f4; padding: 0.1em 0.3em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 10pt; }
+  th, td { border: 1px solid #bbb; padding: 0.4em 0.6em; text-align: left; vertical-align: top; }
+  th { background: #e8e8e8; }
+  td.n, th.n { text-align: right; white-space: nowrap; }
+  tr:nth-child(even) td { background: #fafafa; }
+  tr.blk td { background: #fff4e5; }
+  .note { color: #555; font-size: 10pt; }
+</style>
+</head>
+<body>
+<h1>Halberd: a 12-week SysML v1 to v2 port, run on the kit</h1>
+
+<p><strong>Halberd is fictional and notional, and so is every number here.</strong> Its legacy SysML v1 model
+holds 1,960 in-scope items across 7 organizations, and 1,450 DOORS requirements. One solutions architect
+ports it to SysML v2 text under a DevSecOps pipeline, one segment at a time, starting Monday 5 October 2026:
+two-week sprints, a baseline tagged every 4 weeks, a standup every working day, and the status meeting hears
+the alphabet &mdash; the 26 metrics A&ndash;Z of <a href="STATUS-METRICS.html">STATUS-METRICS.html</a>.
+Thanksgiving and 24&ndash;25 December are holidays, so this is 56 working days.</p>
+
+<p>This page is the public view. The project itself is a real kit project, built by compiling one stand-up
+file per day through the kit's own ledger (<code>lib/Standup.pm</code>, <code>lib/Scrum.pm</code>,
+<code>lib/Ledger.pm</code>); <code>data/</code> is never committed, so rebuild it with one command:</p>
+<pre>perl sim/halberd-gen.pl                                   # data/halberd: journal, 56 stand-ups, answers; and this page
+perl bin/ledger.pl -f data/halberd/scrum.txt bal Sprint:3   # the ledger: 330 items done in sprint 3
+perl bin/scrum.pl  -f data/halberd/scrum.txt items done Halberd
+perl agile.pl --today 2026-11-05 data/halberd              # the cockpit on a blocked day
+perl bin/status-metrics.pl ...                             # the A-Z collector: see STATUS-METRICS.html, Appendix A</pre>
+<p>The metric dashboard, prefilled with Halberd's end-of-sprint-6 numbers, is
+<a href="STATUS-DASHBOARD.html">STATUS-DASHBOARD.html</a>; the weekly A&ndash;Z snapshot is Appendix C of
+<a href="STATUS-METRICS.html">STATUS-METRICS.html</a>.</p>
+<h2>Backlog: segments as epics</h2>
+<p>Tome <em>Halberd SysML v2 port</em>. Each task ports a day's worth of v1 items, in items (the journal's unit); the epics are the 7 segments, in the order they are ported.</p>
+<table><tr><th>Epic</th><th>Segment</th><th class='n'>v1 items</th><th class='n'>Tasks</th><th>Worked</th></tr>
+<tr><td>E</td><td>Systems Engineering &amp; Integration</td><td class='n'>368</td><td class='n'>12</td><td>2026-10-05 to 2026-10-20</td></tr>
+<tr><td>V</td><td>Interceptor Development</td><td class='n'>350</td><td class='n'>11</td><td>2026-10-21 to 2026-11-03</td></tr>
+<tr><td>B</td><td>Battle Management &amp; Fire Control</td><td class='n'>330</td><td class='n'>10</td><td>2026-11-04 to 2026-11-17</td></tr>
+<tr><td>T</td><td>Test &amp; Evaluation</td><td class='n'>292</td><td class='n'>7</td><td>2026-11-18 to 2026-11-25</td></tr>
+<tr><td>G</td><td>Government Program Office</td><td class='n'>160</td><td class='n'>5</td><td>2026-11-30 to 2026-12-04</td></tr>
+<tr><td>M</td><td>Manufacturing &amp; Production</td><td class='n'>244</td><td class='n'>8</td><td>2026-12-07 to 2026-12-15</td></tr>
+<tr><td>L</td><td>Logistics &amp; Sustainment</td><td class='n'>216</td><td class='n'>6</td><td>2026-12-16 to 2026-12-23</td></tr>
+</table>
+<p class='note'>A carried task counts in the segment being worked when it was committed; the 7 rows add up to all 1,960 items.</p>
+<h2>Release burn-down</h2>
+<svg viewBox="0 0 640 200" width="640" height="200" role="img" aria-label="Release burn-down" style="max-width:100%;height:auto">
+<rect x="52.0" y="14.0" width="71.4" height="156.0" fill="#1f4e79"/>
+<text x="87.7" y="11.0" font-size="10" text-anchor="middle" fill="#333">1,960</text>
+<text x="87.7" y="184" font-size="10" text-anchor="middle" fill="#555">Start</text>
+<rect x="135.4" y="37.9" width="71.4" height="132.1" fill="#1f4e79"/>
+<text x="171.1" y="34.9" font-size="10" text-anchor="middle" fill="#333">1,660</text>
+<text x="171.1" y="184" font-size="10" text-anchor="middle" fill="#555">S1</text>
+<rect x="218.9" y="65.7" width="71.4" height="104.3" fill="#1f4e79"/>
+<text x="254.6" y="62.7" font-size="10" text-anchor="middle" fill="#333">1,310</text>
+<text x="254.6" y="184" font-size="10" text-anchor="middle" fill="#555">S2</text>
+<rect x="302.3" y="92.0" width="71.4" height="78.0" fill="#1f4e79"/>
+<text x="338.0" y="89.0" font-size="10" text-anchor="middle" fill="#333">980</text>
+<text x="338.0" y="184" font-size="10" text-anchor="middle" fill="#555">S3</text>
+<rect x="385.7" y="119.1" width="71.4" height="50.9" fill="#1f4e79"/>
+<text x="421.4" y="116.1" font-size="10" text-anchor="middle" fill="#333">640</text>
+<text x="421.4" y="184" font-size="10" text-anchor="middle" fill="#555">S4</text>
+<rect x="469.1" y="147.7" width="71.4" height="22.3" fill="#1f4e79"/>
+<text x="504.9" y="144.7" font-size="10" text-anchor="middle" fill="#333">280</text>
+<text x="504.9" y="184" font-size="10" text-anchor="middle" fill="#555">S5</text>
+<rect x="552.6" y="170.0" width="71.4" height="0.0" fill="#1f4e79"/>
+<text x="588.3" y="167.0" font-size="10" text-anchor="middle" fill="#333">0</text>
+<text x="588.3" y="184" font-size="10" text-anchor="middle" fill="#555">S6</text>
+</svg>
+<table><tr><th>Sprint</th><th>Dates</th><th class='n'>Committed</th><th class='n'>Done</th><th class='n'>Carried over</th><th class='n'>Done % (X)</th><th class='n'>v1 items left</th></tr>
+<tr><td>1</td><td>2026-10-05 to 2026-10-16</td><td class='n'>320</td><td class='n'>300</td><td class='n'>20</td><td class='n'>94</td><td class='n'>1,660</td></tr>
+<tr><td>2</td><td>2026-10-19 to 2026-10-30</td><td class='n'>360</td><td class='n'>350</td><td class='n'>10</td><td class='n'>97</td><td class='n'>1,310</td></tr>
+<tr><td>3</td><td>2026-11-02 to 2026-11-13</td><td class='n'>375</td><td class='n'>330</td><td class='n'>45</td><td class='n'>88</td><td class='n'>980</td></tr>
+<tr><td>4</td><td>2026-11-16 to 2026-11-25</td><td class='n'>360</td><td class='n'>340</td><td class='n'>20</td><td class='n'>94</td><td class='n'>640</td></tr>
+<tr><td>5</td><td>2026-11-30 to 2026-12-11</td><td class='n'>370</td><td class='n'>360</td><td class='n'>10</td><td class='n'>97</td><td class='n'>280</td></tr>
+<tr><td>6</td><td>2026-12-14 to 2026-12-23</td><td class='n'>280</td><td class='n'>280</td><td class='n'>0</td><td class='n'>100</td><td class='n'>0</td></tr>
+</table>
+<p class='note'>Committed, done, carried and done % are computed from the compiled journal by <code>Scrum::sprint_summary</code>, the same code the kit's reports use; the generator stops if any of them differs from the doc.</p>
+<h2>Funding and earned value</h2>
+<p>A notional FY27 funding journal sits beside the stand-up journal, in the same ledger format: <code>data/halberd/funding.ledger</code>. Each segment is budgeted at a notional $150 per v1 item, time-phased over the days the plan works it (<code>~ Monthly from &hellip; to &hellip;</code>); $323,400 is authorized on 1 October (budget at completion $294,000 plus a 10% reserve); labor posts weekly from the items actually ported, and sprint 3 overran while it waited on the shared runner. Percent complete comes from the stand-ups, so earned value is computed, not estimated.</p>
+<pre>perl bin/ledger.pl -f data/halberd/funding.ledger bal -M Expense --depth 3            # spend by month
+perl bin/ledger.pl -f data/halberd/funding.ledger budget -M -b 2026-10-01 -e 2027-01-01 # budget vs actual by month
+perl bin/ledger.pl -f data/halberd/funding.ledger evm --now 2026-11-30 --complete-file data/halberd/complete-2026-11-30.csv
+perl bin/ledger.pl -f data/halberd/funding.ledger forecast --now 2026-11-30 --months 2 Assets   # when the money runs out</pre>
+<svg viewBox="0 0 720 260" width="720" height="260" role="img" aria-label="Cumulative cost, end of each week" style="max-width:100%;height:auto">
+<line x1="70" x2="708" y1="226.0" y2="226.0" stroke="#e2e2e2"/><text x="66" y="229.0" font-size="10" text-anchor="end" fill="#555">$0</text>
+<line x1="70" x2="708" y1="177.0" y2="177.0" stroke="#e2e2e2"/><text x="66" y="180.0" font-size="10" text-anchor="end" fill="#555">$74,704</text>
+<line x1="70" x2="708" y1="128.0" y2="128.0" stroke="#e2e2e2"/><text x="66" y="131.0" font-size="10" text-anchor="end" fill="#555">$149,408</text>
+<line x1="70" x2="708" y1="79.0" y2="79.0" stroke="#e2e2e2"/><text x="66" y="82.0" font-size="10" text-anchor="end" fill="#555">$224,111</text>
+<line x1="70" x2="708" y1="30.0" y2="30.0" stroke="#e2e2e2"/><text x="66" y="33.0" font-size="10" text-anchor="end" fill="#555">$298,815</text>
+<text x="128.0" y="240" font-size="10" text-anchor="middle" fill="#555">16 Oct</text>
+<text x="244.0" y="240" font-size="10" text-anchor="middle" fill="#555">30 Oct</text>
+<text x="360.0" y="240" font-size="10" text-anchor="middle" fill="#555">13 Nov</text>
+<text x="476.0" y="240" font-size="10" text-anchor="middle" fill="#555">25 Nov</text>
+<text x="592.0" y="240" font-size="10" text-anchor="middle" fill="#555">11 Dec</text>
+<text x="708.0" y="240" font-size="10" text-anchor="middle" fill="#555">23 Dec</text>
+<polyline points="70.0,214.7 128.0,198.8 186.0,182.5 244.0,165.4 302.0,148.4 360.0,132.2 418.0,112.9 476.0,96.1 534.0,78.4 592.0,65.1 650.0,46.4 708.0,33.2" fill="none" stroke="#999" stroke-width="2" stroke-dasharray="5 4"/>
+<line x1="70" x2="88" y1="14" y2="14" stroke="#999" stroke-width="2" stroke-dasharray="5 4"/><text x="92" y="18" font-size="11" fill="#1a1a1a">Planned (BCWS)</text>
+<polyline points="70.0,212.2 128.0,196.5 186.0,179.8 244.0,162.0 302.0,145.3 360.0,129.6 418.0,112.9 476.0,96.1 534.0,78.4 592.0,60.7 650.0,45.0 708.0,33.2" fill="none" stroke="#1f4e79" stroke-width="2"/>
+<line x1="198" x2="216" y1="14" y2="14" stroke="#1f4e79" stroke-width="2"/><text x="220" y="18" font-size="11" fill="#1a1a1a">Earned (BCWP)</text>
+<polyline points="70.0,212.2 128.0,196.5 186.0,180.3 244.0,163.1 302.0,144.3 360.0,126.7 418.0,109.5 476.0,92.3 534.0,74.9 592.0,57.5 650.0,41.8 708.0,30.0" fill="none" stroke="#c0504d" stroke-width="2"/>
+<line x1="319" x2="337" y1="14" y2="14" stroke="#c0504d" stroke-width="2"/><text x="341" y="18" font-size="11" fill="#1a1a1a">Actual (ACWP)</text>
+</svg>
+<svg viewBox="0 0 720 260" width="720" height="260" role="img" aria-label="Funds remaining, end of each week" style="max-width:100%;height:auto">
+<line x1="70" x2="708" y1="226.0" y2="226.0" stroke="#e2e2e2"/><text x="66" y="229.0" font-size="10" text-anchor="end" fill="#555">$0</text>
+<line x1="70" x2="708" y1="177.0" y2="177.0" stroke="#e2e2e2"/><text x="66" y="180.0" font-size="10" text-anchor="end" fill="#555">$75,600</text>
+<line x1="70" x2="708" y1="128.0" y2="128.0" stroke="#e2e2e2"/><text x="66" y="131.0" font-size="10" text-anchor="end" fill="#555">$151,200</text>
+<line x1="70" x2="708" y1="79.0" y2="79.0" stroke="#e2e2e2"/><text x="66" y="82.0" font-size="10" text-anchor="end" fill="#555">$226,800</text>
+<line x1="70" x2="708" y1="30.0" y2="30.0" stroke="#e2e2e2"/><text x="66" y="33.0" font-size="10" text-anchor="end" fill="#555">$302,400</text>
+<text x="128.0" y="240" font-size="10" text-anchor="middle" fill="#555">16 Oct</text>
+<text x="244.0" y="240" font-size="10" text-anchor="middle" fill="#555">30 Oct</text>
+<text x="360.0" y="240" font-size="10" text-anchor="middle" fill="#555">13 Nov</text>
+<text x="476.0" y="240" font-size="10" text-anchor="middle" fill="#555">25 Nov</text>
+<text x="592.0" y="240" font-size="10" text-anchor="middle" fill="#555">11 Dec</text>
+<text x="708.0" y="240" font-size="10" text-anchor="middle" fill="#555">23 Dec</text>
+<polyline points="70.0,30.0 128.0,45.6 186.0,61.6 244.0,78.6 302.0,97.1 360.0,114.5 418.0,131.5 476.0,148.5 534.0,165.7 592.0,182.8 650.0,198.4 708.0,210.1" fill="none" stroke="#2e7d4f" stroke-width="2"/>
+<line x1="70" x2="88" y1="14" y2="14" stroke="#2e7d4f" stroke-width="2"/><text x="92" y="18" font-size="11" fill="#1a1a1a">Funds remaining</text>
+</svg>
+<h3>Earned value at 2026-10-30</h3>
+<table><tr><th>Segment</th><th class='n'>% done</th><th class='n'>BAC</th><th class='n'>BCWS</th><th class='n'>BCWP</th><th class='n'>ACWP</th><th class='n'>CV</th><th class='n'>SV</th><th class='n'>CPI</th><th class='n'>SPI</th><th class='n'>EAC</th></tr>
+<tr><td>E Systems Engineering &amp; Integration</td><td class='n'>100%</td><td class='n'>$55,200</td><td class='n'>$55,200</td><td class='n'>$55,200</td><td class='n'>$54,894</td><td class='n'>$306</td><td class='n'>$0</td><td class='n'>1.01</td><td class='n'>1.00</td><td class='n'>$54,894</td></tr>
+<tr><td>V Interceptor Development</td><td class='n'>81%</td><td class='n'>$52,500</td><td class='n'>$37,234</td><td class='n'>$42,300</td><td class='n'>$41,031</td><td class='n'>$1,269</td><td class='n'>$5,066</td><td class='n'>1.03</td><td class='n'>1.14</td><td class='n'>$50,925</td></tr>
+<tr><td>B Battle Management &amp; Fire Control</td><td class='n'>0%</td><td class='n'>$49,500</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>-</td><td class='n'>-</td><td class='n'>-</td></tr>
+<tr><td>T Test &amp; Evaluation</td><td class='n'>0%</td><td class='n'>$40,800</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>-</td><td class='n'>-</td><td class='n'>-</td></tr>
+<tr><td>G Government Program Office</td><td class='n'>0%</td><td class='n'>$27,000</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>-</td><td class='n'>-</td><td class='n'>-</td></tr>
+<tr><td>M Manufacturing &amp; Production</td><td class='n'>0%</td><td class='n'>$36,600</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>-</td><td class='n'>-</td><td class='n'>-</td></tr>
+<tr><td>L Logistics &amp; Sustainment</td><td class='n'>0%</td><td class='n'>$32,400</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>-</td><td class='n'>-</td><td class='n'>-</td></tr>
+<tr><td><strong>Total</strong></td><td class='n'>33%</td><td class='n'>$294,000</td><td class='n'>$92,434</td><td class='n'>$97,500</td><td class='n'>$95,925</td><td class='n'>$1,575</td><td class='n'>$5,066</td><td class='n'>1.02</td><td class='n'>1.05</td><td class='n'>$289,251</td></tr>
+</table>
+<h3>Earned value at 2026-11-25</h3>
+<table><tr><th>Segment</th><th class='n'>% done</th><th class='n'>BAC</th><th class='n'>BCWS</th><th class='n'>BCWP</th><th class='n'>ACWP</th><th class='n'>CV</th><th class='n'>SV</th><th class='n'>CPI</th><th class='n'>SPI</th><th class='n'>EAC</th></tr>
+<tr><td>E Systems Engineering &amp; Integration</td><td class='n'>100%</td><td class='n'>$55,200</td><td class='n'>$55,200</td><td class='n'>$55,200</td><td class='n'>$54,894</td><td class='n'>$306</td><td class='n'>$0</td><td class='n'>1.01</td><td class='n'>1.00</td><td class='n'>$54,894</td></tr>
+<tr><td>V Interceptor Development</td><td class='n'>100%</td><td class='n'>$52,500</td><td class='n'>$52,500</td><td class='n'>$52,500</td><td class='n'>$52,455</td><td class='n'>$45</td><td class='n'>$0</td><td class='n'>1.00</td><td class='n'>1.00</td><td class='n'>$52,455</td></tr>
+<tr><td>B Battle Management &amp; Fire Control</td><td class='n'>100%</td><td class='n'>$49,500</td><td class='n'>$49,500</td><td class='n'>$49,500</td><td class='n'>$54,522</td><td class='n'>-$5,022</td><td class='n'>$0</td><td class='n'>0.91</td><td class='n'>1.00</td><td class='n'>$54,522</td></tr>
+<tr><td>T Test &amp; Evaluation</td><td class='n'>100%</td><td class='n'>$40,800</td><td class='n'>$40,800</td><td class='n'>$40,800</td><td class='n'>$42,024</td><td class='n'>-$1,224</td><td class='n'>$0</td><td class='n'>0.97</td><td class='n'>1.00</td><td class='n'>$42,024</td></tr>
+<tr><td>G Government Program Office</td><td class='n'>0%</td><td class='n'>$27,000</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>-</td><td class='n'>-</td><td class='n'>-</td></tr>
+<tr><td>M Manufacturing &amp; Production</td><td class='n'>0%</td><td class='n'>$36,600</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>-</td><td class='n'>-</td><td class='n'>-</td></tr>
+<tr><td>L Logistics &amp; Sustainment</td><td class='n'>0%</td><td class='n'>$32,400</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>-</td><td class='n'>-</td><td class='n'>-</td></tr>
+<tr><td><strong>Total</strong></td><td class='n'>67%</td><td class='n'>$294,000</td><td class='n'>$198,000</td><td class='n'>$198,000</td><td class='n'>$203,895</td><td class='n'>-$5,895</td><td class='n'>$0</td><td class='n'>0.97</td><td class='n'>1.00</td><td class='n'>$302,753</td></tr>
+</table>
+<p>Funds remaining $119,505; average burn over the last two months $95,925 a month; at that rate the money lasts 1.2 more months (to 2027-01-03).</p>
+<h3>Earned value at 2026-12-23</h3>
+<table><tr><th>Segment</th><th class='n'>% done</th><th class='n'>BAC</th><th class='n'>BCWS</th><th class='n'>BCWP</th><th class='n'>ACWP</th><th class='n'>CV</th><th class='n'>SV</th><th class='n'>CPI</th><th class='n'>SPI</th><th class='n'>EAC</th></tr>
+<tr><td>E Systems Engineering &amp; Integration</td><td class='n'>100%</td><td class='n'>$55,200</td><td class='n'>$55,200</td><td class='n'>$55,200</td><td class='n'>$54,894</td><td class='n'>$306</td><td class='n'>$0</td><td class='n'>1.01</td><td class='n'>1.00</td><td class='n'>$54,894</td></tr>
+<tr><td>V Interceptor Development</td><td class='n'>100%</td><td class='n'>$52,500</td><td class='n'>$52,500</td><td class='n'>$52,500</td><td class='n'>$52,455</td><td class='n'>$45</td><td class='n'>$0</td><td class='n'>1.00</td><td class='n'>1.00</td><td class='n'>$52,455</td></tr>
+<tr><td>B Battle Management &amp; Fire Control</td><td class='n'>100%</td><td class='n'>$49,500</td><td class='n'>$49,500</td><td class='n'>$49,500</td><td class='n'>$54,522</td><td class='n'>-$5,022</td><td class='n'>$0</td><td class='n'>0.91</td><td class='n'>1.00</td><td class='n'>$54,522</td></tr>
+<tr><td>T Test &amp; Evaluation</td><td class='n'>100%</td><td class='n'>$40,800</td><td class='n'>$40,800</td><td class='n'>$40,800</td><td class='n'>$42,024</td><td class='n'>-$1,224</td><td class='n'>$0</td><td class='n'>0.97</td><td class='n'>1.00</td><td class='n'>$42,024</td></tr>
+<tr><td>G Government Program Office</td><td class='n'>100%</td><td class='n'>$27,000</td><td class='n'>$27,000</td><td class='n'>$27,000</td><td class='n'>$26,460</td><td class='n'>$540</td><td class='n'>$0</td><td class='n'>1.02</td><td class='n'>1.00</td><td class='n'>$26,460</td></tr>
+<tr><td>M Manufacturing &amp; Production</td><td class='n'>100%</td><td class='n'>$36,600</td><td class='n'>$36,600</td><td class='n'>$36,600</td><td class='n'>$36,060</td><td class='n'>$540</td><td class='n'>$0</td><td class='n'>1.01</td><td class='n'>1.00</td><td class='n'>$36,060</td></tr>
+<tr><td>L Logistics &amp; Sustainment</td><td class='n'>100%</td><td class='n'>$32,400</td><td class='n'>$32,400</td><td class='n'>$32,400</td><td class='n'>$32,400</td><td class='n'>$0</td><td class='n'>$0</td><td class='n'>1.00</td><td class='n'>1.00</td><td class='n'>$32,400</td></tr>
+<tr><td><strong>Total</strong></td><td class='n'>100%</td><td class='n'>$294,000</td><td class='n'>$294,000</td><td class='n'>$294,000</td><td class='n'>$298,815</td><td class='n'>-$4,815</td><td class='n'>$0</td><td class='n'>0.98</td><td class='n'>1.00</td><td class='n'>$298,815</td></tr>
+</table>
+<p>At the finish: $298,815 spent against a $294,000 budget (CPI 0.98); $24,585 of the $323,400 authorized is left, so the overrun came out of the reserve.</p>
+<p class='note'>CPI = earned / actual (above 1 is under cost); SPI = earned / planned (above 1 is ahead). EAC = BAC / CPI. All of it from <code>Ledger::evm</code> and <code>Ledger::forecast</code>, the same code as <code>bin/ledger.pl evm</code> and <code>forecast</code>.</p>
+<h2>Sprints: burn-down and daily standups</h2>
+<p>Each standup answers yesterday, today and blockers, in the alphabet. Blocked days are shaded.</p>
+<h3>Sprint 1: 2026-10-05 to 2026-10-16</h3>
+<p>Committed 320. Done 300. Carried over 20. Done % 94 (X).</p>
+<svg viewBox="0 0 640 220" width="640" height="220" role="img" aria-label="Sprint 1 burn-down (committed items left)" style="max-width:100%;height:auto">
+<line x1="46" x2="628" y1="186.0" y2="186.0" stroke="#ddd"/><text x="42" y="189.0" font-size="10" text-anchor="end" fill="#555">0</text>
+<line x1="46" x2="628" y1="104.0" y2="104.0" stroke="#ddd"/><text x="42" y="107.0" font-size="10" text-anchor="end" fill="#555">160</text>
+<line x1="46" x2="628" y1="22.0" y2="22.0" stroke="#ddd"/><text x="42" y="25.0" font-size="10" text-anchor="end" fill="#555">320</text>
+<text x="46.0" y="200" font-size="10" text-anchor="middle" fill="#555">Start</text>
+<text x="162.4" y="200" font-size="10" text-anchor="middle" fill="#555">06 Oct</text>
+<text x="278.8" y="200" font-size="10" text-anchor="middle" fill="#555">08 Oct</text>
+<text x="395.2" y="200" font-size="10" text-anchor="middle" fill="#555">12 Oct</text>
+<text x="511.6" y="200" font-size="10" text-anchor="middle" fill="#555">14 Oct</text>
+<text x="628.0" y="200" font-size="10" text-anchor="middle" fill="#555">16 Oct</text>
+<polyline points="46.0,22.0 104.2,38.4 162.4,54.8 220.6,71.2 278.8,87.6 337.0,104.0 395.2,120.4 453.4,136.8 511.6,153.2 569.8,169.6 628.0,186.0" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4 3"/>
+<polyline points="46.0,22.0 104.2,22.0 162.4,32.8 220.6,50.7 278.8,72.2 337.0,93.8 395.2,108.6 453.4,126.5 511.6,142.9 569.8,160.9 628.0,175.8" fill="none" stroke="#1f4e79" stroke-width="2.2"/>
+<circle cx="46.0" cy="22.0" r="3" fill="#1f4e79"/>
+<circle cx="104.2" cy="22.0" r="3" fill="#1f4e79"/>
+<circle cx="162.4" cy="32.8" r="3" fill="#1f4e79"/>
+<circle cx="220.6" cy="50.7" r="3" fill="#1f4e79"/>
+<circle cx="278.8" cy="72.2" r="3" fill="#1f4e79"/>
+<circle cx="337.0" cy="93.8" r="3" fill="#1f4e79"/>
+<circle cx="395.2" cy="108.6" r="3" fill="#1f4e79"/>
+<circle cx="453.4" cy="126.5" r="3" fill="#1f4e79"/>
+<circle cx="511.6" cy="142.9" r="3" fill="#1f4e79"/>
+<circle cx="569.8" cy="160.9" r="3" fill="#1f4e79"/>
+<circle cx="628.0" cy="175.8" r="3" fill="#1f4e79"/>
+<text x="46" y="13" font-size="11" fill="#1a1a1a">Sprint 1 burn-down (committed items left) &#8212; <tspan fill="#1f4e79">actual</tspan>, <tspan fill="#777">ideal (dashed)</tspan></text>
+</svg>
+<table><tr><th>Day</th><th class='n'>Ported</th><th class='n'>Left</th><th>Yesterday</th><th>Today</th><th>Blockers</th></tr>
+<tr><td>Mon&nbsp;05 Oct</td><td class='n'>0</td><td class='n'>1,960</td><td>Nothing yet; the pipeline goes up today.</td><td>Setting up the repo, the pre-commit gate and the CI lint job.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;06 Oct</td><td class='n'>21</td><td class='n'>1,939</td><td>The pipeline is up: pre-commit gate and CI lint job, 0/0 to merge (E).</td><td>Continuing Systems Engineering &amp; Integration.</td><td>None.</td></tr>
+<tr><td>Wed&nbsp;07 Oct</td><td class='n'>35</td><td class='n'>1,904</td><td>21 more elements under configuration control, now 1% (A), all merged at 0/0 (E).</td><td>More of Systems Engineering &amp; Integration goes under configuration control today.</td><td>None.</td></tr>
+<tr><td>Thu&nbsp;08 Oct</td><td class='n'>42</td><td class='n'>1,862</td><td>35 more elements under configuration control, now 3% (A), all merged at 0/0 (E).</td><td>Bringing more of Systems Engineering &amp; Integration under the pipeline.</td><td>None.</td></tr>
+<tr><td>Fri&nbsp;09 Oct</td><td class='n'>42</td><td class='n'>1,820</td><td>42 more elements under configuration control, now 5% (A), all merged at 0/0 (E).</td><td>Continuing Systems Engineering &amp; Integration.</td><td>None.</td></tr>
+<tr><td>Mon&nbsp;12 Oct</td><td class='n'>29</td><td class='n'>1,791</td><td>42 more elements under configuration control, now 7% (A), all merged at 0/0 (E).</td><td>Importing the first DOORS module.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;13 Oct</td><td class='n'>35</td><td class='n'>1,756</td><td>29 more elements under configuration control, now 9% (A), all merged at 0/0 (E). The first DOORS module is in, and requirements are now linking to model elements (C). 2 orphan and 4 unverified requirements, flagged to owners (F, G).</td><td>Bringing more of Systems Engineering &amp; Integration under the pipeline.</td><td>None.</td></tr>
+<tr><td>Wed&nbsp;14 Oct</td><td class='n'>32</td><td class='n'>1,724</td><td>35 more elements under configuration control, now 10% (A), all merged at 0/0 (E). 1 of 2 zone-crossing interfaces still need a security requirement (Q).</td><td>Continuing Systems Engineering &amp; Integration.</td><td>None.</td></tr>
+<tr><td>Thu&nbsp;15 Oct</td><td class='n'>35</td><td class='n'>1,689</td><td>32 more elements under configuration control, now 12% (A), all merged at 0/0 (E). 54 of 1,450 DOORS requirements linked (C).</td><td>More of Systems Engineering &amp; Integration goes under configuration control today.</td><td>None.</td></tr>
+<tr><td>Fri&nbsp;16 Oct</td><td class='n'>29</td><td class='n'>1,660</td><td>35 more elements under configuration control, now 14% (A), all merged at 0/0 (E). 3 interface mismatches caught at merge to date, 0 reached integration (H).</td><td>Bringing more of Systems Engineering &amp; Integration under the pipeline.</td><td>None.</td></tr>
+</table>
+<h3>Sprint 2: 2026-10-19 to 2026-10-30</h3>
+<p>Committed 360. Done 350. Carried over 10. Done % 97 (X). Includes HAL-10, 20 items carried in from sprint 1.</p>
+<svg viewBox="0 0 640 220" width="640" height="220" role="img" aria-label="Sprint 2 burn-down (committed items left)" style="max-width:100%;height:auto">
+<line x1="46" x2="628" y1="186.0" y2="186.0" stroke="#ddd"/><text x="42" y="189.0" font-size="10" text-anchor="end" fill="#555">0</text>
+<line x1="46" x2="628" y1="104.0" y2="104.0" stroke="#ddd"/><text x="42" y="107.0" font-size="10" text-anchor="end" fill="#555">180</text>
+<line x1="46" x2="628" y1="22.0" y2="22.0" stroke="#ddd"/><text x="42" y="25.0" font-size="10" text-anchor="end" fill="#555">360</text>
+<text x="46.0" y="200" font-size="10" text-anchor="middle" fill="#555">Start</text>
+<text x="162.4" y="200" font-size="10" text-anchor="middle" fill="#555">20 Oct</text>
+<text x="278.8" y="200" font-size="10" text-anchor="middle" fill="#555">22 Oct</text>
+<text x="395.2" y="200" font-size="10" text-anchor="middle" fill="#555">26 Oct</text>
+<text x="511.6" y="200" font-size="10" text-anchor="middle" fill="#555">28 Oct</text>
+<text x="628.0" y="200" font-size="10" text-anchor="middle" fill="#555">30 Oct</text>
+<polyline points="46.0,22.0 104.2,38.4 162.4,54.8 220.6,71.2 278.8,87.6 337.0,104.0 395.2,120.4 453.4,136.8 511.6,153.2 569.8,169.6 628.0,186.0" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4 3"/>
+<polyline points="46.0,22.0 104.2,36.1 162.4,53.0 220.6,68.5 278.8,85.3 337.0,99.4 395.2,114.0 453.4,132.2 511.6,148.6 569.8,166.9 628.0,181.4" fill="none" stroke="#1f4e79" stroke-width="2.2"/>
+<circle cx="46.0" cy="22.0" r="3" fill="#1f4e79"/>
+<circle cx="104.2" cy="36.1" r="3" fill="#1f4e79"/>
+<circle cx="162.4" cy="53.0" r="3" fill="#1f4e79"/>
+<circle cx="220.6" cy="68.5" r="3" fill="#1f4e79"/>
+<circle cx="278.8" cy="85.3" r="3" fill="#1f4e79"/>
+<circle cx="337.0" cy="99.4" r="3" fill="#1f4e79"/>
+<circle cx="395.2" cy="114.0" r="3" fill="#1f4e79"/>
+<circle cx="453.4" cy="132.2" r="3" fill="#1f4e79"/>
+<circle cx="511.6" cy="148.6" r="3" fill="#1f4e79"/>
+<circle cx="569.8" cy="166.9" r="3" fill="#1f4e79"/>
+<circle cx="628.0" cy="181.4" r="3" fill="#1f4e79"/>
+<text x="46" y="13" font-size="11" fill="#1a1a1a">Sprint 2 burn-down (committed items left) &#8212; <tspan fill="#1f4e79">actual</tspan>, <tspan fill="#777">ideal (dashed)</tspan></text>
+</svg>
+<table><tr><th>Day</th><th class='n'>Ported</th><th class='n'>Left</th><th>Yesterday</th><th>Today</th><th>Blockers</th></tr>
+<tr><td>Mon&nbsp;19 Oct</td><td class='n'>31</td><td class='n'>1,629</td><td>29 more elements under configuration control, now 15% (A), all merged at 0/0 (E). 12 orphan and 20 unverified requirements, flagged to owners (F, G).</td><td>Continuing Systems Engineering &amp; Integration.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;20 Oct</td><td class='n'>37</td><td class='n'>1,592</td><td>31 more elements under configuration control, now 17% (A), all merged at 0/0 (E). 2 of 5 zone-crossing interfaces still need a security requirement (Q).</td><td>Finishing Systems Engineering &amp; Integration; it should be gated by end of day.</td><td>None.</td></tr>
+<tr><td>Wed&nbsp;21 Oct</td><td class='n'>34</td><td class='n'>1,558</td><td>37 more elements under configuration control, now 19% (A), all merged at 0/0 (E). Systems Engineering &amp; Integration is now gated on every merge: 1 of 7 segments (B). 138 of 1,450 DOORS requirements linked (C).</td><td>Bringing more of Interceptor Development under the pipeline.</td><td>None.</td></tr>
+<tr><td>Thu&nbsp;22 Oct</td><td class='n'>37</td><td class='n'>1,521</td><td>34 more elements under configuration control, now 21% (A), all merged at 0/0 (E). 8 interface mismatches caught at merge to date, 0 reached integration (H).</td><td>Continuing Interceptor Development.</td><td>None.</td></tr>
+<tr><td>Fri&nbsp;23 Oct</td><td class='n'>31</td><td class='n'>1,490</td><td>37 more elements under configuration control, now 22% (A), all merged at 0/0 (E). 36 orphan and 49 unverified requirements, flagged to owners (F, G).</td><td>More of Interceptor Development goes under configuration control today.</td><td>None.</td></tr>
+<tr><td>Mon&nbsp;26 Oct</td><td class='n'>32</td><td class='n'>1,458</td><td>31 more elements under configuration control, now 24% (A), all merged at 0/0 (E). 3 of 7 zone-crossing interfaces still need a security requirement (Q).</td><td>Bringing more of Interceptor Development under the pipeline.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;27 Oct</td><td class='n'>40</td><td class='n'>1,418</td><td>32 more elements under configuration control, now 26% (A), all merged at 0/0 (E). 233 of 1,450 DOORS requirements linked (C).</td><td>Continuing Interceptor Development.</td><td>None.</td></tr>
+<tr><td>Wed&nbsp;28 Oct</td><td class='n'>36</td><td class='n'>1,382</td><td>40 more elements under configuration control, now 28% (A), all merged at 0/0 (E). 13 interface mismatches caught at merge to date, 0 reached integration (H).</td><td>More of Interceptor Development goes under configuration control today.</td><td>None.</td></tr>
+<tr><td>Thu&nbsp;29 Oct</td><td class='n'>40</td><td class='n'>1,342</td><td>36 more elements under configuration control, now 29% (A), all merged at 0/0 (E). 56 orphan and 70 unverified requirements, flagged to owners (F, G).</td><td>Generating the interface table from the model.</td><td>None.</td></tr>
+<tr><td>Fri&nbsp;30 Oct</td><td class='n'>32</td><td class='n'>1,310</td><td>40 more elements under configuration control, now 32% (A), all merged at 0/0 (E). The interface table is now generated from the model: 1 of 12 program documents (L), 0 hand edits (M). 2 of 9 zone-crossing interfaces still need a security requirement (Q).</td><td>Tagging baseline 1.</td><td>None.</td></tr>
+</table>
+<h3>Sprint 3: 2026-11-02 to 2026-11-13</h3>
+<p>Committed 375. Done 330. Carried over 45. Done % 88 (X). Includes HAL-21, 10 items carried in from sprint 2.</p>
+<svg viewBox="0 0 640 220" width="640" height="220" role="img" aria-label="Sprint 3 burn-down (committed items left)" style="max-width:100%;height:auto">
+<line x1="46" x2="628" y1="186.0" y2="186.0" stroke="#ddd"/><text x="42" y="189.0" font-size="10" text-anchor="end" fill="#555">0</text>
+<line x1="46" x2="628" y1="103.8" y2="103.8" stroke="#ddd"/><text x="42" y="106.8" font-size="10" text-anchor="end" fill="#555">188</text>
+<line x1="46" x2="628" y1="22.0" y2="22.0" stroke="#ddd"/><text x="42" y="25.0" font-size="10" text-anchor="end" fill="#555">375</text>
+<text x="46.0" y="200" font-size="10" text-anchor="middle" fill="#555">Start</text>
+<text x="162.4" y="200" font-size="10" text-anchor="middle" fill="#555">03 Nov</text>
+<text x="278.8" y="200" font-size="10" text-anchor="middle" fill="#555">05 Nov</text>
+<text x="395.2" y="200" font-size="10" text-anchor="middle" fill="#555">09 Nov</text>
+<text x="511.6" y="200" font-size="10" text-anchor="middle" fill="#555">11 Nov</text>
+<text x="628.0" y="200" font-size="10" text-anchor="middle" fill="#555">13 Nov</text>
+<polyline points="46.0,22.0 104.2,38.4 162.4,54.8 220.6,71.2 278.8,87.6 337.0,104.0 395.2,120.4 453.4,136.8 511.6,153.2 569.8,169.6 628.0,186.0" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4 3"/>
+<polyline points="46.0,22.0 104.2,35.6 162.4,51.7 220.6,66.6 278.8,82.8 337.0,96.3 395.2,109.0 453.4,124.3 511.6,138.3 569.8,153.6 628.0,166.3" fill="none" stroke="#1f4e79" stroke-width="2.2"/>
+<circle cx="46.0" cy="22.0" r="3" fill="#1f4e79"/>
+<circle cx="104.2" cy="35.6" r="3" fill="#1f4e79"/>
+<circle cx="162.4" cy="51.7" r="3" fill="#1f4e79"/>
+<circle cx="220.6" cy="66.6" r="3" fill="#1f4e79"/>
+<circle cx="278.8" cy="82.8" r="3" fill="#1f4e79"/>
+<circle cx="337.0" cy="96.3" r="3" fill="#1f4e79"/>
+<circle cx="395.2" cy="109.0" r="3" fill="#1f4e79"/>
+<circle cx="453.4" cy="124.3" r="3" fill="#1f4e79"/>
+<circle cx="511.6" cy="138.3" r="3" fill="#1f4e79"/>
+<circle cx="569.8" cy="153.6" r="3" fill="#1f4e79"/>
+<circle cx="628.0" cy="166.3" r="3" fill="#1f4e79"/>
+<text x="46" y="13" font-size="11" fill="#1a1a1a">Sprint 3 burn-down (committed items left) &#8212; <tspan fill="#1f4e79">actual</tspan>, <tspan fill="#777">ideal (dashed)</tspan></text>
+</svg>
+<table><tr><th>Day</th><th class='n'>Ported</th><th class='n'>Left</th><th>Yesterday</th><th>Today</th><th>Blockers</th></tr>
+<tr><td>Mon&nbsp;02 Nov</td><td class='n'>31</td><td class='n'>1,279</td><td>32 more elements under configuration control, now 33% (A), all merged at 0/0 (E). Baseline 1 is tagged: 650 elements (D), and it rebuilds identically (S). 340 of 1,450 DOORS requirements linked (C).</td><td>More of Interceptor Development goes under configuration control today.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;03 Nov</td><td class='n'>37</td><td class='n'>1,242</td><td>31 more elements under configuration control, now 35% (A), all merged at 0/0 (E). 18 interface mismatches caught at merge to date, 0 reached integration (H).</td><td>Finishing Interceptor Development; it should be gated by end of day.</td><td>None.</td></tr>
+<tr class='blk'><td>Wed&nbsp;04 Nov</td><td class='n'>34</td><td class='n'>1,208</td><td>37 more elements under configuration control, now 37% (A), all merged at 0/0 (E). Interceptor Development is now gated on every merge: 2 of 7 segments (B). 63 orphan and 78 unverified requirements, flagged to owners (F, G).</td><td>Continuing Battle Management &amp; Fire Control.</td><td>Waiting on a shared runner. Gating locally with the pre-commit hook meanwhile (Y).</td></tr>
+<tr class='blk'><td>Thu&nbsp;05 Nov</td><td class='n'>37</td><td class='n'>1,171</td><td>34 more elements under configuration control, now 38% (A), all merged at 0/0 (E).</td><td>More of Battle Management &amp; Fire Control goes under configuration control today.</td><td>Still waiting on the shared runner (Y).</td></tr>
+<tr class='blk'><td>Fri&nbsp;06 Nov</td><td class='n'>31</td><td class='n'>1,140</td><td>37 more elements under configuration control, now 40% (A), all merged at 0/0 (E). 454 of 1,450 DOORS requirements linked (C).</td><td>Bringing more of Battle Management &amp; Fire Control under the pipeline.</td><td>Runner still pending; asked for it again (Y).</td></tr>
+<tr><td>Mon&nbsp;09 Nov</td><td class='n'>29</td><td class='n'>1,111</td><td>31 more elements under configuration control, now 42% (A), all merged at 0/0 (E). 25 interface mismatches caught at merge to date, 0 reached integration (H). The shared runner is live.</td><td>Continuing Battle Management &amp; Fire Control.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;10 Nov</td><td class='n'>35</td><td class='n'>1,076</td><td>29 more elements under configuration control, now 43% (A), all merged at 0/0 (E). 56 orphan and 72 unverified requirements, flagged to owners (F, G).</td><td>More of Battle Management &amp; Fire Control goes under configuration control today.</td><td>None.</td></tr>
+<tr><td>Wed&nbsp;11 Nov</td><td class='n'>32</td><td class='n'>1,044</td><td>35 more elements under configuration control, now 45% (A), all merged at 0/0 (E). 3 of 14 zone-crossing interfaces still need a security requirement (Q).</td><td>Generating the first ICD view and diffing it against the legacy ICD.</td><td>None.</td></tr>
+<tr><td>Thu&nbsp;12 Nov</td><td class='n'>35</td><td class='n'>1,009</td><td>32 more elements under configuration control, now 47% (A), all merged at 0/0 (E). Drift checks found 47 discrepancies in the legacy ICDs, flagged for correction (T). 558 of 1,450 DOORS requirements linked (C).</td><td>Continuing Battle Management &amp; Fire Control.</td><td>None.</td></tr>
+<tr><td>Fri&nbsp;13 Nov</td><td class='n'>29</td><td class='n'>980</td><td>35 more elements under configuration control, now 49% (A), all merged at 0/0 (E). 30 interface mismatches caught at merge to date, 0 reached integration (H).</td><td>More of Battle Management &amp; Fire Control goes under configuration control today.</td><td>None.</td></tr>
+</table>
+<h3>Sprint 4: 2026-11-16 to 2026-11-25</h3>
+<p>Committed 360. Done 340. Carried over 20. Done % 94 (X). Includes HAL-32, 45 items carried in from sprint 3.</p>
+<svg viewBox="0 0 640 220" width="640" height="220" role="img" aria-label="Sprint 4 burn-down (committed items left)" style="max-width:100%;height:auto">
+<line x1="46" x2="628" y1="186.0" y2="186.0" stroke="#ddd"/><text x="42" y="189.0" font-size="10" text-anchor="end" fill="#555">0</text>
+<line x1="46" x2="628" y1="104.0" y2="104.0" stroke="#ddd"/><text x="42" y="107.0" font-size="10" text-anchor="end" fill="#555">180</text>
+<line x1="46" x2="628" y1="22.0" y2="22.0" stroke="#ddd"/><text x="42" y="25.0" font-size="10" text-anchor="end" fill="#555">360</text>
+<text x="46.0" y="200" font-size="10" text-anchor="middle" fill="#555">Start</text>
+<text x="191.5" y="200" font-size="10" text-anchor="middle" fill="#555">17 Nov</text>
+<text x="337.0" y="200" font-size="10" text-anchor="middle" fill="#555">19 Nov</text>
+<text x="482.5" y="200" font-size="10" text-anchor="middle" fill="#555">23 Nov</text>
+<text x="628.0" y="200" font-size="10" text-anchor="middle" fill="#555">25 Nov</text>
+<polyline points="46.0,22.0 118.8,42.5 191.5,63.0 264.2,83.5 337.0,104.0 409.8,124.5 482.5,145.0 555.2,165.5 628.0,186.0" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4 3"/>
+<polyline points="46.0,22.0 118.8,36.1 191.5,53.0 264.2,68.5 337.0,85.3 409.8,99.4 482.5,124.0 555.2,151.8 628.0,176.9" fill="none" stroke="#1f4e79" stroke-width="2.2"/>
+<circle cx="46.0" cy="22.0" r="3" fill="#1f4e79"/>
+<circle cx="118.8" cy="36.1" r="3" fill="#1f4e79"/>
+<circle cx="191.5" cy="53.0" r="3" fill="#1f4e79"/>
+<circle cx="264.2" cy="68.5" r="3" fill="#1f4e79"/>
+<circle cx="337.0" cy="85.3" r="3" fill="#1f4e79"/>
+<circle cx="409.8" cy="99.4" r="3" fill="#1f4e79"/>
+<circle cx="482.5" cy="124.0" r="3" fill="#1f4e79"/>
+<circle cx="555.2" cy="151.8" r="3" fill="#1f4e79"/>
+<circle cx="628.0" cy="176.9" r="3" fill="#1f4e79"/>
+<text x="46" y="13" font-size="11" fill="#1a1a1a">Sprint 4 burn-down (committed items left) &#8212; <tspan fill="#1f4e79">actual</tspan>, <tspan fill="#777">ideal (dashed)</tspan></text>
+</svg>
+<table><tr><th>Day</th><th class='n'>Ported</th><th class='n'>Left</th><th>Yesterday</th><th>Today</th><th>Blockers</th></tr>
+<tr><td>Mon&nbsp;16 Nov</td><td class='n'>31</td><td class='n'>949</td><td>29 more elements under configuration control, now 50% (A), all merged at 0/0 (E). 47 orphan and 63 unverified requirements, flagged to owners (F, G).</td><td>Bringing more of Battle Management &amp; Fire Control under the pipeline.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;17 Nov</td><td class='n'>37</td><td class='n'>912</td><td>31 more elements under configuration control, now 52% (A), all merged at 0/0 (E). 1 of 16 zone-crossing interfaces still need a security requirement (Q).</td><td>Finishing Battle Management &amp; Fire Control; it should be gated by end of day.</td><td>None.</td></tr>
+<tr><td>Wed&nbsp;18 Nov</td><td class='n'>34</td><td class='n'>878</td><td>37 more elements under configuration control, now 53% (A), all merged at 0/0 (E). Battle Management &amp; Fire Control is now gated on every merge: 3 of 7 segments (B). 3 of 7 segment owners now merge their own changes (Z). 670 of 1,450 DOORS requirements linked (C).</td><td>More of Test &amp; Evaluation goes under configuration control today.</td><td>None.</td></tr>
+<tr><td>Thu&nbsp;19 Nov</td><td class='n'>37</td><td class='n'>841</td><td>34 more elements under configuration control, now 55% (A), all merged at 0/0 (E). 36 interface mismatches caught at merge to date, 0 reached integration (H).</td><td>Bringing more of Test &amp; Evaluation under the pipeline.</td><td>None.</td></tr>
+<tr><td>Fri&nbsp;20 Nov</td><td class='n'>31</td><td class='n'>810</td><td>37 more elements under configuration control, now 57% (A), all merged at 0/0 (E). 51 orphan and 61 unverified requirements, flagged to owners (F, G).</td><td>Continuing Test &amp; Evaluation.</td><td>None.</td></tr>
+<tr><td>Mon&nbsp;23 Nov</td><td class='n'>54</td><td class='n'>756</td><td>31 more elements under configuration control, now 59% (A), all merged at 0/0 (E). 3 of 19 zone-crossing interfaces still need a security requirement (Q).</td><td>More of Test &amp; Evaluation goes under configuration control today.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;24 Nov</td><td class='n'>61</td><td class='n'>695</td><td>54 more elements under configuration control, now 61% (A), all merged at 0/0 (E). 804 of 1,450 DOORS requirements linked (C).</td><td>Wiring the T2 pre-flight prediction inputs to the model.</td><td>None.</td></tr>
+<tr><td>Wed&nbsp;25 Nov</td><td class='n'>55</td><td class='n'>640</td><td>61 more elements under configuration control, now 65% (A), all merged at 0/0 (E). 64 of 64 pre-flight prediction parameters now come from the model (O), and 12 of 12 prediction runs name their baseline (P). 41 interface mismatches caught at merge to date, 0 reached integration (H).</td><td>Tagging baseline 2 before the holiday.</td><td>None.</td></tr>
+</table>
+<h3>Sprint 5: 2026-11-30 to 2026-12-11</h3>
+<p>Committed 370. Done 360. Carried over 10. Done % 97 (X). Includes HAL-40, 20 items carried in from sprint 4.</p>
+<svg viewBox="0 0 640 220" width="640" height="220" role="img" aria-label="Sprint 5 burn-down (committed items left)" style="max-width:100%;height:auto">
+<line x1="46" x2="628" y1="186.0" y2="186.0" stroke="#ddd"/><text x="42" y="189.0" font-size="10" text-anchor="end" fill="#555">0</text>
+<line x1="46" x2="628" y1="104.0" y2="104.0" stroke="#ddd"/><text x="42" y="107.0" font-size="10" text-anchor="end" fill="#555">185</text>
+<line x1="46" x2="628" y1="22.0" y2="22.0" stroke="#ddd"/><text x="42" y="25.0" font-size="10" text-anchor="end" fill="#555">370</text>
+<text x="46.0" y="200" font-size="10" text-anchor="middle" fill="#555">Start</text>
+<text x="162.4" y="200" font-size="10" text-anchor="middle" fill="#555">01 Dec</text>
+<text x="278.8" y="200" font-size="10" text-anchor="middle" fill="#555">03 Dec</text>
+<text x="395.2" y="200" font-size="10" text-anchor="middle" fill="#555">07 Dec</text>
+<text x="511.6" y="200" font-size="10" text-anchor="middle" fill="#555">09 Dec</text>
+<text x="628.0" y="200" font-size="10" text-anchor="middle" fill="#555">11 Dec</text>
+<polyline points="46.0,22.0 104.2,38.4 162.4,54.8 220.6,71.2 278.8,87.6 337.0,104.0 395.2,120.4 453.4,136.8 511.6,153.2 569.8,169.6 628.0,186.0" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4 3"/>
+<polyline points="46.0,22.0 104.2,36.2 162.4,53.9 220.6,69.9 278.8,87.6 337.0,101.8 395.2,116.0 453.4,133.7 511.6,149.7 569.8,167.4 628.0,181.6" fill="none" stroke="#1f4e79" stroke-width="2.2"/>
+<circle cx="46.0" cy="22.0" r="3" fill="#1f4e79"/>
+<circle cx="104.2" cy="36.2" r="3" fill="#1f4e79"/>
+<circle cx="162.4" cy="53.9" r="3" fill="#1f4e79"/>
+<circle cx="220.6" cy="69.9" r="3" fill="#1f4e79"/>
+<circle cx="278.8" cy="87.6" r="3" fill="#1f4e79"/>
+<circle cx="337.0" cy="101.8" r="3" fill="#1f4e79"/>
+<circle cx="395.2" cy="116.0" r="3" fill="#1f4e79"/>
+<circle cx="453.4" cy="133.7" r="3" fill="#1f4e79"/>
+<circle cx="511.6" cy="149.7" r="3" fill="#1f4e79"/>
+<circle cx="569.8" cy="167.4" r="3" fill="#1f4e79"/>
+<circle cx="628.0" cy="181.6" r="3" fill="#1f4e79"/>
+<text x="46" y="13" font-size="11" fill="#1a1a1a">Sprint 5 burn-down (committed items left) &#8212; <tspan fill="#1f4e79">actual</tspan>, <tspan fill="#777">ideal (dashed)</tspan></text>
+</svg>
+<table><tr><th>Day</th><th class='n'>Ported</th><th class='n'>Left</th><th>Yesterday</th><th>Today</th><th>Blockers</th></tr>
+<tr><td>Mon&nbsp;30 Nov</td><td class='n'>32</td><td class='n'>608</td><td>55 more elements under configuration control, now 67% (A), all merged at 0/0 (E). Test &amp; Evaluation is now gated on every merge: 4 of 7 segments (B). 4 of 7 segment owners now merge their own changes (Z). Baseline 2 is tagged: 1,320 elements (D), rebuilds identically (S). 39 orphan and 48 unverified requirements, flagged to owners (F, G).</td><td>More of Government Program Office goes under configuration control today.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;01 Dec</td><td class='n'>40</td><td class='n'>568</td><td>32 more elements under configuration control, now 69% (A), all merged at 0/0 (E).</td><td>Bringing more of Government Program Office under the pipeline.</td><td>None.</td></tr>
+<tr><td>Wed&nbsp;02 Dec</td><td class='n'>36</td><td class='n'>532</td><td>40 more elements under configuration control, now 71% (A), all merged at 0/0 (E). 960 of 1,450 DOORS requirements linked (C).</td><td>Continuing Government Program Office.</td><td>None.</td></tr>
+<tr><td>Thu&nbsp;03 Dec</td><td class='n'>40</td><td class='n'>492</td><td>36 more elements under configuration control, now 73% (A), all merged at 0/0 (E).</td><td>Reviewing threat and mitigation coverage with the ISSM.</td><td>None.</td></tr>
+<tr><td>Fri&nbsp;04 Dec</td><td class='n'>32</td><td class='n'>460</td><td>40 more elements under configuration control, now 75% (A), all merged at 0/0 (E). 2 of 12 recorded threats lack a traced mitigation (R). 30 orphan and 37 unverified requirements, flagged to owners (F, G).</td><td>Measuring lead time on the last 10 merges.</td><td>None.</td></tr>
+<tr><td>Mon&nbsp;07 Dec</td><td class='n'>32</td><td class='n'>428</td><td>32 more elements under configuration control, now 77% (A), all merged at 0/0 (E). Government Program Office is now gated on every merge: 5 of 7 segments (B). 5 of 7 segment owners now merge their own changes (Z). A model change now reaches a reviewed baseline in 4 days; the old change board cycle took 19 (N).</td><td>Continuing Manufacturing &amp; Production.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;08 Dec</td><td class='n'>40</td><td class='n'>388</td><td>32 more elements under configuration control, now 78% (A), all merged at 0/0 (E). 1,078 of 1,450 DOORS requirements linked (C).</td><td>More of Manufacturing &amp; Production goes under configuration control today.</td><td>None.</td></tr>
+<tr><td>Wed&nbsp;09 Dec</td><td class='n'>36</td><td class='n'>352</td><td>40 more elements under configuration control, now 80% (A), all merged at 0/0 (E). 47 interface mismatches caught at merge to date, 0 reached integration (H).</td><td>Generating the remaining ICD views.</td><td>None.</td></tr>
+<tr><td>Thu&nbsp;10 Dec</td><td class='n'>40</td><td class='n'>312</td><td>36 more elements under configuration control, now 82% (A), all merged at 0/0 (E). 8 of 12 program documents now come straight from the model (L), about 30 labor hours saved per baseline (J). 21 orphan and 27 unverified requirements, flagged to owners (F, G).</td><td>Continuing Manufacturing &amp; Production.</td><td>None.</td></tr>
+<tr><td>Fri&nbsp;11 Dec</td><td class='n'>32</td><td class='n'>280</td><td>40 more elements under configuration control, now 84% (A), all merged at 0/0 (E). 0 of 25 zone-crossing interfaces still need a security requirement (Q).</td><td>More of Manufacturing &amp; Production goes under configuration control today.</td><td>None.</td></tr>
+</table>
+<h3>Sprint 6: 2026-12-14 to 2026-12-23</h3>
+<p>Committed 280. Done 280. Carried over 0. Done % 100 (X). Includes HAL-51, 10 items carried in from sprint 5.</p>
+<svg viewBox="0 0 640 220" width="640" height="220" role="img" aria-label="Sprint 6 burn-down (committed items left)" style="max-width:100%;height:auto">
+<line x1="46" x2="628" y1="186.0" y2="186.0" stroke="#ddd"/><text x="42" y="189.0" font-size="10" text-anchor="end" fill="#555">0</text>
+<line x1="46" x2="628" y1="104.0" y2="104.0" stroke="#ddd"/><text x="42" y="107.0" font-size="10" text-anchor="end" fill="#555">140</text>
+<line x1="46" x2="628" y1="22.0" y2="22.0" stroke="#ddd"/><text x="42" y="25.0" font-size="10" text-anchor="end" fill="#555">280</text>
+<text x="46.0" y="200" font-size="10" text-anchor="middle" fill="#555">Start</text>
+<text x="191.5" y="200" font-size="10" text-anchor="middle" fill="#555">15 Dec</text>
+<text x="337.0" y="200" font-size="10" text-anchor="middle" fill="#555">17 Dec</text>
+<text x="482.5" y="200" font-size="10" text-anchor="middle" fill="#555">21 Dec</text>
+<text x="628.0" y="200" font-size="10" text-anchor="middle" fill="#555">23 Dec</text>
+<polyline points="46.0,22.0 118.8,42.5 191.5,63.0 264.2,83.5 337.0,104.0 409.8,124.5 482.5,145.0 555.2,165.5 628.0,186.0" fill="none" stroke="#999" stroke-width="1.5" stroke-dasharray="4 3"/>
+<polyline points="46.0,22.0 118.8,39.0 191.5,59.5 264.2,78.2 337.0,98.7 409.8,115.7 482.5,138.0 555.2,163.2 628.0,186.0" fill="none" stroke="#1f4e79" stroke-width="2.2"/>
+<circle cx="46.0" cy="22.0" r="3" fill="#1f4e79"/>
+<circle cx="118.8" cy="39.0" r="3" fill="#1f4e79"/>
+<circle cx="191.5" cy="59.5" r="3" fill="#1f4e79"/>
+<circle cx="264.2" cy="78.2" r="3" fill="#1f4e79"/>
+<circle cx="337.0" cy="98.7" r="3" fill="#1f4e79"/>
+<circle cx="409.8" cy="115.7" r="3" fill="#1f4e79"/>
+<circle cx="482.5" cy="138.0" r="3" fill="#1f4e79"/>
+<circle cx="555.2" cy="163.2" r="3" fill="#1f4e79"/>
+<circle cx="628.0" cy="186.0" r="3" fill="#1f4e79"/>
+<text x="46" y="13" font-size="11" fill="#1a1a1a">Sprint 6 burn-down (committed items left) &#8212; <tspan fill="#1f4e79">actual</tspan>, <tspan fill="#777">ideal (dashed)</tspan></text>
+</svg>
+<table><tr><th>Day</th><th class='n'>Ported</th><th class='n'>Left</th><th>Yesterday</th><th>Today</th><th>Blockers</th></tr>
+<tr><td>Mon&nbsp;14 Dec</td><td class='n'>29</td><td class='n'>251</td><td>32 more elements under configuration control, now 86% (A), all merged at 0/0 (E). 1,210 of 1,450 DOORS requirements linked (C).</td><td>Bringing more of Manufacturing &amp; Production under the pipeline.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;15 Dec</td><td class='n'>35</td><td class='n'>216</td><td>29 more elements under configuration control, now 87% (A), all merged at 0/0 (E).</td><td>Finishing Manufacturing &amp; Production; it should be gated by end of day.</td><td>None.</td></tr>
+<tr><td>Wed&nbsp;16 Dec</td><td class='n'>32</td><td class='n'>184</td><td>35 more elements under configuration control, now 89% (A), all merged at 0/0 (E). Manufacturing &amp; Production is now gated on every merge: 6 of 7 segments (B). 6 of 7 segment owners now merge their own changes (Z). 13 orphan and 18 unverified requirements, flagged to owners (F, G).</td><td>Rebuilding the gate after this morning's parser update.</td><td>None.</td></tr>
+<tr><td>Thu&nbsp;17 Dec</td><td class='n'>35</td><td class='n'>149</td><td>32 more elements under configuration control, now 91% (A), all merged at 0/0 (E). The gate broke on a parser update and was restored in 2 hours (W). ICD views regenerate in 6 minutes (K).</td><td>Bringing more of Logistics &amp; Sustainment under the pipeline.</td><td>None.</td></tr>
+<tr><td>Fri&nbsp;18 Dec</td><td class='n'>29</td><td class='n'>120</td><td>35 more elements under configuration control, now 92% (A), all merged at 0/0 (E). 1,333 of 1,450 DOORS requirements linked (C).</td><td>Continuing Logistics &amp; Sustainment.</td><td>None.</td></tr>
+<tr><td>Mon&nbsp;21 Dec</td><td class='n'>38</td><td class='n'>82</td><td>29 more elements under configuration control, now 94% (A), all merged at 0/0 (E).</td><td>More of Logistics &amp; Sustainment goes under configuration control today.</td><td>None.</td></tr>
+<tr><td>Tue&nbsp;22 Dec</td><td class='n'>43</td><td class='n'>39</td><td>38 more elements under configuration control, now 96% (A), all merged at 0/0 (E). 6 orphan and 9 unverified requirements, flagged to owners (F, G).</td><td>Bringing more of Logistics &amp; Sustainment under the pipeline.</td><td>None.</td></tr>
+<tr><td>Wed&nbsp;23 Dec</td><td class='n'>39</td><td class='n'>0</td><td>43 more elements under configuration control, now 98% (A), all merged at 0/0 (E).</td><td>Tagging baseline 3.</td><td>None.</td></tr>
+</table>
+<hr><p class='note'>Generated by <code>sim/halberd-gen.pl</code> from <code>docs/src/status-metrics.md</code>. Edit the doc or the generator, not this page.</p>
+</body>
+</html>

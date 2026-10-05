@@ -254,6 +254,7 @@ if ($o{pdf}) {                                                   # XeLaTeX in a 
     my $tmp = File::Temp::tempdir(CLEANUP => 1);
     File::Copy::copy($o{tex}, "$tmp/HALBERD.tex") or die "cannot copy $o{tex}: $!\n";
     File::Copy::copy($cover, "$tmp/cover-art.jpg") if -f $cover;
+    File::Copy::copy("$ROOT/docs/img/status-dashboard.png", "$tmp/status-dashboard.png") if -f "$ROOT/docs/img/status-dashboard.png";   # the dashboard figure after the contents
     my $log = `cd "$tmp" && latexmk -xelatex -interaction=nonstopmode -halt-on-error HALBERD.tex 2>&1`;
     -f "$tmp/HALBERD.pdf" && $? == 0 or die "latexmk failed:\n" . join("\n", (split /\n/, $log)[-25 .. -1]) . "\n";
     (my $pdf = $o{tex}) =~ s/\.tex$/.pdf/;

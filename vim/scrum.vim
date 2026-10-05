@@ -3,6 +3,17 @@
 let s:root = expand('<sfile>:p:h:h')
 let g:scrum_daily = get(g:, 'scrum_daily', s:root . '/bin/daily.pl')
 execute 'set runtimepath+=' . fnameescape(s:root . '/vim')
+let s:doc = s:root . '/vim/doc'                     " :help agile -- the kit's offline help (vim/doc/agile.txt); its tags are rebuilt here
+if isdirectory(s:doc) && filewritable(s:doc) == 2   " when missing or older than a help file, silently (a read-only copy keeps what it has)
+  if getftime(s:doc . '/tags') < max(map(glob(s:doc . '/*.txt', 0, 1), 'getftime(v:val)'))
+    silent! execute 'helptags ' . fnameescape(s:doc)
+  endif
+endif
+filetype plugin on                                  " vim/ftplugin: per-filetype commands and keys (IDEF0)
+augroup filetypedetect                              " register vim/ftdetect even when ~/.vimrc ran syntax on / filetype on first
+  execute 'source ' . fnameescape(s:root . '/vim/ftdetect/scrum.vim')
+  execute 'source ' . fnameescape(s:root . '/vim/ftdetect/sysml.vim')
+augroup END
 
 function! s:Daily(args) abort
   execute '!perl ' . shellescape(g:scrum_daily) . ' ' . a:args
@@ -220,4 +231,5 @@ augroup scrum_standup
   autocmd FileType standup setlocal complete+=k iskeyword+=- commentstring=;\ %s
   autocmd FileType standup execute 'setlocal dictionary+=' . fnameescape(s:Journal())
   autocmd FileType ledger  setlocal iskeyword+=-,: commentstring=;\ %s
+  autocmd FileType markdown if search('^```idef0', 'nw') | runtime ftplugin/idef0.vim | endif   " literate IDEF0 models get \i... too
 augroup END

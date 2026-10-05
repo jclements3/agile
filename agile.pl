@@ -7,6 +7,9 @@
 #                                      journal on every load, and a "Rebuild reports" button that runs
 #                                      daily.pl report. Localhost only, core Perl only. Ctrl-C stops it.
 #   perl agile.pl --no-open [PROJECT]  just write the file
+#   perl agile.pl help [TOPIC | search WORDS | error "MESSAGE" | --html | --md | --check]
+#                                      the offline help (lib/Help.pm, source vim/doc/agile.txt)
+#   perl agile.pl practice [N | check N | reset N]   hands-on lessons in data/practice/ (lib/Practice.pm)
 #
 # The default is the static page: nothing listens, nothing runs in the background, and the page is a
 # plain file you can put on a share. Serve mode is a convenience for a second screen.
@@ -20,6 +23,9 @@ use Scrum;
 use Standup qw(read_conf);
 use Cockpit;
 use Roster ();
+
+if (@ARGV && $ARGV[0] =~ /^(?:help|--help|-h)$/) { require Help; exit Help::cli(@ARGV) }      # before the options: help works anywhere
+if (@ARGV && $ARGV[0] eq 'practice') { shift @ARGV; require Practice; exit Practice::cli(@ARGV) }
 
 my %o = (port => 8090);
 GetOptions(\%o, 'no-open', 'port=i', 'today=s') or exit 2;   # --today YYYY-MM-DD: the cockpit's "today" (replays, simulations); default: the real date
@@ -40,7 +46,8 @@ sub page {                                     # the cockpit, fresh from the jou
     $quad_page = -f "$proj/$quad_page" ? "$base$rel/$quad_page" : undef;
     my %doc = map { $_ => (-f "$ROOT/docs/$_.html" ? "${base}docs/$_.html" : undef) } qw(TUTORIAL TRAINING);
     cockpit_html($s, marking => $conf, days => days_from_standups($s, "$proj/$conf->{standups}", $conf->{history_days}), plates => $plates, plates_file => "$proj/$conf->{reports}/plates.html", quad_page => $quad_page,
-                 tutorial => $doc{TUTORIAL}, training => $doc{TRAINING}, roster => Roster::read_roster("$proj/roster.txt"), readback_clean_days => $conf->{readback_clean_days} // 5);
+                 tutorial => $doc{TUTORIAL}, training => $doc{TRAINING}, roster => Roster::read_roster("$proj/roster.txt"), readback_clean_days => $conf->{readback_clean_days} // 5,
+                 funding => ($conf->{funding} ? Cockpit::funding_snapshot("$proj/$conf->{funding}", ($conf->{complete} ? "$proj/$conf->{complete}" : undef), _today()) : undef));   # scrum.conf: funding = FILE, complete = GLOB
 }
 sub _today { $o{today} // do { my @t = localtime; sprintf '%04d-%02d-%02d', $t[5] + 1900, $t[4] + 1, $t[3] } }
 sub open_browser {

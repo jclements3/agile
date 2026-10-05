@@ -1,0 +1,2034 @@
+*agile.txt*	Offline help for the agile kit (Perl + Vim + Git, nothing to install)
+
+The agile kit's help                                     *agile* *agile-help*
+
+This is the kit's help. It works with nothing but Git for Windows: its Perl
+and its Vim. The same text is in four places:
+
+  In Vim               :help agile   :help :STown   :help agile-err-...
+  On the command line  perl agile.pl help TOPIC
+                       perl agile.pl help search WORDS
+                       perl agile.pl help error "PASTED MESSAGE"
+                       perl bin/daily.pl help compile   (also scrum.pl, ledger.pl)
+  As a page            docs/HELP.html (open it in Edge; it prints well)
+  Hands on             perl agile.pl practice
+
+Moving around in Vim: put the cursor on a link (a word between bars) and
+press CTRL-] to follow it, CTRL-O to come back. |agile-howto| lists the
+runbooks.
+
+==============================================================================
+CONTENTS                                                      *agile-contents*
+
+ 1. How do I...? (runbooks)                                   |agile-howto|
+ 2. Getting started                                           |agile-start|
+ 3. daily.pl, the day-to-day driver                           |agile-daily|
+ 4. The stand-up file and its verbs                           |agile-standup|
+ 5. The journal (scrum.txt)                                   |agile-journal|
+ 6. scrum.conf                                                |agile-conf|
+ 7. The chat: Y/T/B statuses, #est and #vote                  |agile-ytb|
+ 8. agile.pl: the cockpit, help and practice                  |agile-pl|
+ 9. Vim: commands and keys                                    |agile-vim|
+10. scrum.pl, ledger.pl, cal.pl, chat.pl                      |agile-lowlevel|
+11. IDEF0 models                                              |agile-idef0|
+12. Writing: memos and documents                              |agile-writing|
+13. The kit itself: tests, release, pipeline                  |agile-kit|
+14. Simulations, training and practice projects               |agile-sim|
+15. Model-based tools (SysML, status metrics)                 |agile-mbse|
+16. Practice lessons                                          |agile-practice|
+17. Vim basics                                                |agile-vim-basics|
+18. Troubleshooting                                           |agile-errors|
+19. Quick reference                                           |agile-quickref|
+
+In the command lines below, "daily.pl" is short for
+"perl ~/projects/agile/bin/daily.pl" (your clone's path). Set an alias once
+and type it as written here: |agile-alias|.
+
+==============================================================================
+1. HOW DO I...?                                                  *agile-howto*
+
+Each runbook is the commands in order and a "you are done when" check. Run
+them from Git Bash inside the project directory (any directory below the
+one holding scrum.conf works).
+
+  First day after cloning the kit                 |agile-howto-first-day|
+  Run the daily townhall                          |agile-howto-townhall|
+  Plan a sprint (Day 1)                           |agile-howto-planning|
+  Close a sprint: review and report (Day 14)      |agile-howto-review|
+  Refine the master backlog (Day 9)               |agile-howto-refinement|
+  Add a person or a team                          |agile-howto-people|
+  Write the weekly A-Z metrics report             |agile-howto-metrics-weekly|
+  Port one segment from SysML v1 to v2            |agile-howto-port-segment|
+  Import a DOORS export                           |agile-howto-doors|
+  Write a status memo                             |agile-howto-memo|
+  Publish the reports and the status mail         |agile-howto-publish|
+  Track funding and earned value                  |agile-howto-funding|
+  Recover from a bad compile                      |agile-howto-bad-compile|
+  Back up and commit the project data             |agile-howto-backup|
+  Find help when something is unclear             |agile-howto-help|
+
+------------------------------------------------------------------------------
+First day after cloning the kit                       *agile-howto-first-day*
+
+You need Git for Windows (Git Bash, its Perl and its Vim). Nothing else.
+
+1. Get the kit. From a clone: >
+    mkdir -p ~/projects && cd ~/projects
+    git clone URL agile
+<   or from a release zip (|agile-release|): unzip it, then check it: >
+    sha256sum -c agile-v1.0.zip.sha256
+<
+2. Check that it works on this machine (each line ends "all N passed"): >
+    cd ~/projects/agile
+    for t in tests/*.t; do perl $t | tail -1; done
+<
+3. Set up Vim and a shell alias (|agile-vimrc|, |agile-alias|): >
+    echo 'syntax on'                               >> ~/.vimrc
+    echo 'source ~/projects/agile/vim/scrum.vim'   >> ~/.vimrc
+    echo "alias daily='perl ~/projects/agile/bin/daily.pl'" >> ~/.bashrc
+    source ~/.bashrc
+<   Tell git who you are once, or daily.pl commit cannot commit: >
+    git config --global user.name "Your Name"
+    git config --global user.email you@example.com
+<
+4. Build the demo project and look at the cockpit (|agile-demo|): >
+    perl sim/training.pl --fast
+    perl agile.pl
+<
+5. Make your own project (|agile-first-project|): >
+    daily.pl init ~/scrum/myprogram
+    cd ~/scrum/myprogram
+    vim scrum.conf
+<
+6. Do practice lesson 1 (|agile-practice-1|): >
+    perl ~/projects/agile/agile.pl practice 1
+<
+You are done when: the tests all pass, `vim` then `:help agile` opens this
+file, `perl agile.pl` opens the demo cockpit in the browser, and
+`perl agile.pl practice check 1` says "lesson 1: done".
+
+------------------------------------------------------------------------------
+Run the daily townhall                                  *agile-howto-townhall*
+
+One Teams call for every team, 08:30 to 08:45; people type Y/T/B in the
+chat. The whole loop is in |agile-ytb|; the operating model is
+docs/WORKFLOW.html section 4. Times are a suggestion.
+
+1. 08:05, five minutes of recall (|agile-daily-drill|): >
+    :SDrill            (or: daily.pl drill)
+<
+2. 08:10, draft today's statuses from yesterday's (|agile-daily-propose|): >
+    daily.pl propose
+<   Paste the block into the meeting chat when it opens.
+3. 08:15, cards for each member, optional (|agile-daily-cards|): >
+    daily.pl cards               (--send mails them through Outlook)
+<
+4. 08:30, attendance from the calendar, optional (|agile-daily-attend|): >
+    daily.pl attend
+<
+5. 08:30-08:45, lint the chat while people are still on the call: >
+    :STown                       (\sw)
+<   In Teams: CTRL-A CTRL-C in the meeting chat. In Vim: \sp pastes and lints.
+   \sy puts the replies on the clipboard; CTRL-V them into the chat.
+   :SSend Name opens a 1:1 chat with that person's reply filled in.
+6. 08:45, download the meeting's attendance report (Teams: Attendance tab)
+   to standups/DATE-attendance.csv, then: >
+    :SJoined                     (daily.pl joined)
+<
+7. After the call, the two minutes at the keyboard: >
+    :SAnswers                    (daily.pl answers --assume)
+    :STally                      only if there were #est or #vote rounds
+<   Open today's stand-up file (:SNew), uncomment the suggested lines you
+   accept (done, unblock, punt, hold, pass), add anything else, then: >
+    :SDry                        (\sd) shows what compile would write
+    :SCompile                    (\sc)
+    :SReport                     (\sr)
+    daily.pl health
+    :SDraft                      or daily.pl brief, on mail days
+    :SCommit
+<   Or all of step 7 after the edits in one go: daily.pl all --draft
+You are done when: `daily.pl status` says "no pending stand-up files", the
+sprint line shows today's done points, and `git log -1` in the project says
+"standup DATE".
+
+See also: |agile-daily-lint|, |agile-daily-answers|, |agile-ack|,
+|agile-howto-publish|.
+
+------------------------------------------------------------------------------
+Plan a sprint (Day 1)                                   *agile-howto-planning*
+
+1. See what is ready: >
+    daily.pl backlog TEAM        each team's backlog, by priority then age
+    daily.pl velocity            what each team has been finishing
+<
+2. Make today's file and write the plan, one section per team: >
+    :SNew
+<   Under each "== Team" line: >
+    sprint 7
+    cap 24
+    commit B-13 Ann Lee
+    commit B-1221                last sprint's carryover comes back with commit
+    new! B-16 2 Spike on track fusion p:1 e:"B1 Fire Control" o:"Cy Ray"
+<   The sprint number can be on the second line of the file for all teams.
+3. Check the plan before you write it: >
+    :SDry
+    daily.pl sprint 7            after compile: Load% per team
+<   Load over 100% turns a team amber, over 110% red.
+4. Write it and publish: >
+    :SCompile
+    :SReport
+    :SCommit
+<
+You are done when: `daily.pl sprint` shows the new sprint with every team's
+Load% at or under 100%, `daily.pl members` shows no "unassigned" line, and
+`daily.pl status` says "sprint 7: 0/N ... done".
+
+See also: |agile-verb-commit|, |agile-verb-cap|, |agile-verb-sprint|.
+
+------------------------------------------------------------------------------
+Close a sprint: review and report (Day 14)                *agile-howto-review*
+
+1. See what is still open: >
+    daily.pl sprint
+    daily.pl blocked
+<
+2. After the demo, sweep every open task in today's file (:SNew), per team: >
+    done B-11 B-121
+    carry B-1221                 not finished: to next sprint's planning
+    drop B-23                    out of the sprint
+    redo B-101 demo found the reset mail unsent
+    note retro: pair on the ICD next sprint
+<
+3. Compile and write the reports: >
+    :SDry
+    :SCompile
+    daily.pl review              the sprint report, reports/sprint-N-report.*
+    daily.pl report
+    daily.pl rollup              on the first review of a month
+<
+4. Commit and mark the close: >
+    daily.pl commit
+    git tag sprint-7
+<
+You are done when: `daily.pl sprint 7` shows Open 0 for every team,
+reports/sprint-7-report.html exists, and `git status` in the project is
+clean.
+
+See also: |agile-daily-review|, |agile-daily-velocity|, |agile-howto-planning|.
+
+------------------------------------------------------------------------------
+Refine the master backlog (Day 9)                     *agile-howto-refinement*
+
+1. Intake new work to the master backlog, in today's file: >
+    == Master
+    new M-2 8 Cross-segment timing budget p:1 e:"E1 Engineer" t:"E Systems"
+<
+2. Hand tasks to teams, retire stale ones: >
+    == SEI
+    refine M-1                   master backlog -> SEI's backlog
+    prune E-12223 merged into E-12222
+<
+3. Size them in the townhall with #est rounds (|agile-est-vote|), then: >
+    :STally                      writes est lines into today's file
+<   Uncomment the est lines you accept, then :SDry and :SCompile.
+You are done when: `daily.pl backlog` (the master backlog) holds only what
+you mean to keep, and `daily.pl backlog TEAM` lists the refined tasks with
+sizes.
+
+------------------------------------------------------------------------------
+Add a person or a team                                    *agile-howto-people*
+
+1. A person, name exactly as Teams shows it: >
+    daily.pl roster add "Lee, Ann" ann.lee@example.com Alpha Lead ACME
+    daily.pl roster              lists and checks against the journal
+<
+2. A team appears when a task is filed under it: a "== Gamma" section with a
+   new line, compiled. Give it a capacity with cap at the next planning.
+3. Add the new people to the townhall invitation: >
+    daily.pl invite --dry        then without --dry to open it in Outlook
+<
+You are done when: `daily.pl roster` ends ", roster and journal agree".
+
+------------------------------------------------------------------------------
+Write the weekly A-Z metrics report               *agile-howto-metrics-weekly*
+
+The 26 status metrics (A to Z) of a SysML v2 model under the pipeline,
+collected from the model's git repository and its exports
+(|agile-status-metrics|; definitions in docs/STATUS-METRICS.html). To see
+it work first: perl sim/status-metrics-sim.pl ~/sm-demo builds the 12-week
+Halberd example (repo, exports, metrics.json, history.jsonl).
+
+1. Once: write metrics.json (repo, exports, segments, totals; Appendix A of
+   docs/STATUS-METRICS.html, or copy the one the simulation writes) and
+   freeze the denominators from the legacy exports: >
+    perl bin/status-metrics.pl init --config metrics.json --xmi legacy.xmi --reqif export.reqif
+<
+2. Every working day, after the day's merges (a scheduled task or by hand): >
+    perl bin/status-metrics.pl collect --config metrics.json --history history.jsonl
+<   One snapshot is appended to history.jsonl. --as-of DATE collects a past
+   day.
+3. Friday, the report: >
+    perl bin/status-metrics.pl report --config metrics.json --history history.jsonl --out report
+<   It writes report/status-weekly.md (the A-Z table), report/status-daily.csv
+   (open in Excel) and report/dashboard.json.
+4. The dashboard: open docs/STATUS-DASHBOARD.html in Edge, paste
+   dashboard.json into the "Data (JSON)" panel and press Apply.
+5. For the status memo, paste rows of status-weekly.md into memo.md
+   (|agile-howto-memo|).
+You are done when: report/status-weekly.md has this week's column, the
+dashboard shows today's date, and history.jsonl has one line per working day.
+
+------------------------------------------------------------------------------
+Port one segment from SysML v1 to v2                *agile-howto-port-segment*
+
+The legacy model is a Cameo/MagicDraw XMI export; the target is SysML v2
+text under model/SEGMENT/ in the model's git repository. The full guide is
+docs/SYSML-PORT.html; the tools are |agile-xmi2sysml|, |agile-sysml| and
+|agile-model-pl|. Practice it: |agile-practice-8|.
+
+1. Export from Cameo: File > Export To > Eclipse UML2 (v5.x) XMI File, with
+   stereotype applications included; save it as
+   exports/DATE-legacy.xmi, outside the model repo.
+2. Read the mapping report first (unmapped types, stereotypes not
+   converted, type references not resolved): >
+    perl ~/projects/agile/bin/xmi2sysml.pl --report exports/DATE-legacy.xmi
+<
+3. Convert into a branch, grammar-checked: >
+    cd model-repo
+    git switch -c port/SEGMENT
+    perl ~/projects/agile/bin/xmi2sysml.pl --out ../scratch --check ../exports/DATE-legacy.xmi
+    cp -r ../scratch/SEGMENT model/
+<   (Convert into a scratch directory and copy only the segment being ported:
+   a re-run overwrites hand edits. Requirements come out as one-line
+   requirement usages, the form status-metrics counts; --req-style def
+   writes requirement def blocks instead.)
+4. Work the TODO lines (each names the v1 type and xmi:id): >
+    :vimgrep /TODO/ model/SEGMENT/**/*.sysml
+    :copen
+<
+5. Check it: >
+    perl ~/projects/agile/tools/sysml/sysml.pl check model/SEGMENT/*.sysml
+    perl ~/projects/agile/tools/sysml/model.pl lint
+    perl ~/projects/agile/tools/sysml/model.pl check
+<   In Vim: \mx this file, \ml the model, \mk the outline (|agile-vim-sysml|).
+6. Commit the segment and merge through the gate: >
+    git add -p model/SEGMENT
+    git commit -m "port: SEGMENT from legacy.xmi DATE"
+<
+You are done when: sysml.pl check and model.pl lint exit 0 ("errors=0"),
+:vimgrep /TODO/ finds none you have not accepted, and the segment is
+committed.
+
+------------------------------------------------------------------------------
+Import a DOORS export                                      *agile-howto-doors*
+
+DOORS requirements become SysML v2 requirements carrying their doorsId
+(|agile-reqif2sysml|; details in docs/SYSML-PORT.html).
+
+1. Export from DOORS: File > Export > ReqIF (a .reqif or .reqifz) with
+   Object Heading, Object Text, the absolute number and the verification
+   method. CSV is the fallback (columns Object Identifier, Object Level,
+   Object Heading, Object Text, Verification Method).
+2. Look first: >
+    perl ~/projects/agile/bin/reqif2sysml.pl --report exports/DATE-system.reqif
+<
+3. Convert into the model repo; DOORS drops the module prefix from the
+   absolute number, so put it back with --id-prefix: >
+    perl ~/projects/agile/bin/reqif2sysml.pl --id-prefix SYS- --out model --layout "_reqs/{pkg}.sysml" --check exports/DATE-system.reqif
+<   From CSV: add --csv and --col id="ID" --col text="Requirement" for
+   columns with other names.
+4. The trace against the model (metrics C, F, G, I: linked, orphans,
+   unverified, completeness): >
+    perl ~/projects/agile/bin/reqif2sysml.pl --report --model model exports/DATE-system.reqif
+<
+5. Commit the requirements files.
+You are done when: the requirement files pass sysml.pl check, and the
+--report --model run lists the orphans and unverified ids you will work.
+
+------------------------------------------------------------------------------
+Write a status memo                                         *agile-howto-memo*
+
+1. Gather the facts (each prints text you can paste): >
+    daily.pl status
+    daily.pl quad
+    daily.pl health
+<
+2. Write memo.md in Vim: one paragraph per point, lists for sub-points,
+   "# SUBJECT" for a centred heading. Mark portions if your program does:
+   {CUI}phrase{/}. In Vim, :r !daily.pl quad pulls text into the buffer.
+3. Render it (|agile-memo|): >
+    perl ~/projects/agile/tools/memo/md2memo.pl memo.md > memo.pdf
+    perl ~/projects/agile/tools/memo/md2memo.pl --plain memo.md > memo.txt
+<   From Vim: :!perl ~/projects/agile/tools/memo/md2memo.pl % > memo.pdf
+You are done when: memo.pdf opens in Edge with numbered paragraphs (1. a.
+(1)) and, when marked, the banner on every page.
+
+------------------------------------------------------------------------------
+Publish the reports and the status mail                  *agile-howto-publish*
+
+1. Check the marking set-up before anything leaves your desk: >
+    daily.pl check
+<
+2. Write every report (reports/ is regenerated each time): >
+    daily.pl report
+    perl ~/projects/agile/agile.pl ~/scrum/myprogram    the cockpit page
+<
+3. Mail (Outlook drafts; nothing is sent until you press Send): >
+    daily.pl draft               the status mail to the leads (to/cc)
+    daily.pl brief               the short BLUF mail to leadership
+    daily.pl cards --draft       one card per member (--send sends them)
+<
+4. Optionally put today's metrics into the stand-up meeting body: >
+    daily.pl post                (--send also updates the attendees)
+<
+You are done when: the drafts are open in Outlook and
+reports/DATE-status.html matches what you are sending. If a draft is
+refused, read |agile-err-marking-refused|.
+
+------------------------------------------------------------------------------
+Track funding and earned value                          *agile-howto-funding*
+
+The funding journal is a separate ledger file (not the scrum journal),
+read by ledger.pl (|agile-ledger|). The Halberd example has one: run
+perl sim/halberd-gen.pl, then look at data/halberd/funding.ledger and its
+complete-DATE.csv files.
+
+1. Write funding.ledger in Vim: book the funds under Assets (so the funding
+   side of a budget is not reported as a budget row), the time-phased
+   budgets, and the spending, e.g. weekly labor: >
+    2026-10-01 Funding received
+        Assets:Funding:Halberd      $500,000.00
+        Income:Contract
+    ~ Monthly from 2026-10-01 to 2027-01-01
+        Expense:Labor:Halberd        $120,000.00
+        Assets:Funding:Halberd
+    2026-10-09 Labor week 1
+        Expense:Labor:Halberd         $28,000.00
+        Assets:Funding:Halberd
+<   ("until" works as well as "to"; a budget is prorated by day at the
+   window edges.) Check it: perl bin/ledger.pl -f funding.ledger check
+2. Spending month by month, and against the budget: >
+    perl bin/ledger.pl -f funding.ledger bal -M Expense --depth 3
+    perl bin/ledger.pl -f funding.ledger budget -M -b 2026-10-01 -e 2027-01-01
+<
+3. Earned value: write the percent complete per account in a CSV
+   (complete-DATE.csv, lines "account,pct"), then: >
+    perl bin/ledger.pl -f funding.ledger evm --now 2026-10-31 --complete-file complete-2026-10-31.csv
+<   or give it inline: --complete Expense:Labor:Halberd=40 (repeatable).
+4. When does the money run out: >
+    perl bin/ledger.pl -f funding.ledger forecast --now 2026-10-31 --months 2 Assets
+<
+5. Put it on the cockpit: in scrum.conf set funding = funding.ledger and
+   complete = complete-*.csv (|agile-conf-funding|), then perl agile.pl
+   PROJECT and open the Funding tab.
+You are done when: `ledger.pl check` prints "ok", evm shows a CPI and SPI
+for every account (no "without a percent complete" line), forecast gives a
+run-out date for the funding account, and the cockpit's Funding tab shows
+the chart.
+
+See also: |agile-ledger-evm|, |agile-ledger-forecast|, |agile-ledger-monthly|.
+
+------------------------------------------------------------------------------
+Recover from a bad compile                           *agile-howto-bad-compile*
+
+A stand-up file with a mistake is rejected whole, every error listed:
+nothing is half-applied. Fix the lines and compile again.
+
+1. Before compile: :SDry (daily.pl --dry compile) is free. Use it until it
+   prints no errors. Each error names the file and line; look the message
+   up with: >
+    perl ~/projects/agile/agile.pl help error "PASTED MESSAGE"
+<
+2. Compiled, but one line was wrong: never edit the journal's history.
+   Post the correction as a verb in a new file: carry what you wrongly
+   marked done, est to the right size, commit what you dropped.
+3. Compiled, and the whole file was wrong, not yet committed: >
+    git diff scrum.txt            what the compile appended
+    git checkout -- scrum.txt
+<   then delete the "# compiled ..." first line of the stand-up file, fix
+   it, and compile again.
+4. Compiled and committed: >
+    git revert HEAD
+<   then as in step 3: remove the "# compiled" line, fix, compile.
+5. The journal itself will not load (you edited it by hand): >
+    daily.pl status               the first error, with its line number
+    perl ~/projects/agile/bin/ledger.pl -f scrum.txt check
+<
+You are done when: `daily.pl status` loads without an error and says "no
+pending stand-up files", and `git status` is clean after `daily.pl commit`.
+
+See also: |agile-err-not-applied|, |agile-err-already-compiled|.
+
+------------------------------------------------------------------------------
+Back up and commit the project data                      *agile-howto-backup*
+
+Each project is its own git repository (daily.pl init made it). The kit's
+own repository never holds journal data: data/ is ignored.
+
+1. Every day, after compile: >
+    daily.pl commit              git add -A and commit "standup DATE"
+<
+2. Once: a second copy on approved storage, a bare repository on a share: >
+    git init --bare //server/share/scrum/myprogram.git
+    git remote add origin //server/share/scrum/myprogram.git
+    git push -u origin HEAD
+<   then after each commit: git push
+3. Or a single file you can copy anywhere: >
+    git bundle create ../myprogram-DATE.bundle --all
+<   Restore with: git clone myprogram-DATE.bundle myprogram
+4. Before a big change (a hand edit of scrum.txt): >
+    git tag before-edit
+<
+You are done when: `git status` is clean, `git log -1` shows today, and
+`git push` (or the bundle) is up to date. Remember the marking: the
+repository is marked whenever its content is (|agile-conf-banner|).
+
+------------------------------------------------------------------------------
+Find help when something is unclear                        *agile-howto-help*
+
+1. A command or key: >
+    perl agile.pl help compile          or in Vim: :help agile-daily-compile
+    daily.pl help lint
+<
+2. A word you remember: >
+    perl agile.pl help search carryover
+<
+3. An error: copy the message and paste it: >
+    perl agile.pl help error "standups/2026-10-05.txt:7: unknown verb 'don'"
+<
+4. The worked example: docs/TRAINING.html replays a whole sprint.
+You are done when: you found the section; if nothing matched, the words you
+searched for are worth a note in the help source (vim/doc/agile.txt).
+
+==============================================================================
+2. GETTING STARTED                                               *agile-start*
+
+The kit is plain text and core Perl: the journal is a ledger file you edit
+in Vim, and Perl compiles and reports it. Nothing is installed and nothing
+needs the network. docs/README.html is the overview, docs/WORKFLOW.html the
+operating model, docs/TUTORIAL.html the editing walkthrough, and
+docs/TRAINING.html a replay of one whole sprint.
+
+------------------------------------------------------------------------------
+Getting the kit                                                  *agile-clone*
+
+Clone it anywhere (nothing depends on the location), or unzip a release
+(|agile-release|). Git Bash is the shell for everything here. Run the tests
+once to know this machine's Perl is fine: >
+    cd ~/projects/agile
+    for t in tests/*.t; do perl $t | tail -1; done
+<
+Layout: bin/ (the commands), lib/ (the modules), vim/ (Vim support and
+this help), tests/, docs/, sim/ (simulations and generators), tools/ (IDEF0,
+memo, SysML), data/ (your projects, never committed to the kit).
+
+------------------------------------------------------------------------------
+Setting up Vim                                                   *agile-vimrc*
+
+Add to ~/.vimrc (Git Bash: vim ~/.vimrc): >
+    syntax on
+    source ~/projects/agile/vim/scrum.vim
+    let g:markdown_fenced_languages = ['idef0']
+<
+The source line adds the :S commands and \s keys (|agile-vim|), the file
+types (stand-up, journal, chat, drill, IDEF0) and this help: it registers
+vim/doc and runs :helptags there when the tags file is missing or older than
+the help files. The leader key is \ unless you set mapleader. Check with
+:help agile and :command S.
+
+------------------------------------------------------------------------------
+A shell alias                                                    *agile-alias*
+
+The help writes "daily.pl"; with an alias you can type it that way.
+In ~/.bashrc: >
+    alias daily='perl ~/projects/agile/bin/daily.pl'
+    alias agile='perl ~/projects/agile/agile.pl'
+<
+daily.pl finds the project's scrum.conf by searching upward from the
+current directory, so `cd` into the project first.
+
+------------------------------------------------------------------------------
+Your first project                                       *agile-first-project*
+
+One directory per program, its own git repository: >
+    daily.pl init ~/scrum/myprogram
+    cd ~/scrum/myprogram
+<
+init writes scrum.conf, an example scrum.txt (all comments), standups/,
+reports/, .gitignore and .gitattributes, and runs git init. Then:
+1. Edit scrum.conf: recipients, the townhall time, facilitator (your Teams
+   display name), the marking (|agile-conf|).
+2. Add people: daily.pl roster add "Lee, Ann" ann@example.com Alpha Lead ACME
+3. Seed the backlog: daily.pl new, then new lines under "== Team"
+   (|agile-verb-new|), then compile. The first file says "sprint 1"; tasks
+   you commit there start the sprint.
+Keep projects anywhere; under the kit, data/NAME is ignored by the kit's git.
+
+------------------------------------------------------------------------------
+Project files                                                    *agile-files*
+
+scrum.conf           settings (|agile-conf|)
+scrum.txt            the journal (|agile-journal|); compile writes it
+standups/DATE.txt    the day's stand-up notes (|agile-standup|); you write it
+standups/DATE[-Team]-chat.txt      the pasted Teams meeting chat
+standups/DATE-Team-answers.txt     Y/T/B per person, written by answers
+standups/DATE-proposals.txt        written by propose; a +1 accepts a line
+standups/DATE[-Team]-attendance.csv  the Teams attendance download
+roster.txt           the people: Name | email | Team | Role | Org
+attendance.csv       who answered, joined, declined (appended)
+drill.txt            your memory-drill progress (personal)
+reports/             everything daily.pl report writes; not committed
+
+------------------------------------------------------------------------------
+The demo project (DroneCorp)                                      *agile-demo*
+
+data/demo is the sample townhall project: DroneCorp, a notional racing-drone
+company, ten teams, its backlog derived from an IDEF0 model. It is built,
+and rebuilt, by the training replay: >
+    perl sim/training.pl --fast
+    perl agile.pl                 the cockpit for data/demo
+<
+training.pl wipes data/demo every run and refuses any other directory
+(|agile-training|). A fresh clone has no data/: run it once.
+
+------------------------------------------------------------------------------
+The Halberd project                                            *agile-halberd*
+
+Halberd is a fictional, notional air and missile defense program used as
+the running example across the kit. Its pieces:
+- data/halberd: the 12-week SysML v1 to v2 port run as a kit project, one
+  team, six sprints, a stand-up every working day, plus funding.ledger and
+  complete-DATE.csv for earned value (|agile-howto-funding|). Build it: >
+    perl sim/halberd-gen.pl             also writes docs/HALBERD.html
+    perl sim/halberd-gen.pl --no-html
+    perl agile.pl data/halberd          the cockpit, with a Funding tab
+<   It reads docs/src/status-metrics.md and checks the compiled journal
+  against it sprint by sprint (|agile-halberd-gen|).
+- docs/HALBERD.html: the same, as a page to read without running anything;
+  docs/STATUS-DASHBOARD.html: the A-Z dashboard with Halberd's numbers.
+- examples/halberd: the SysML v2 text model (28 files, seven segments)
+  that exercises sysml.pl and model.pl; its README.md shows every
+  command (|agile-model-pl|): >
+    perl tools/sysml/model.pl --root examples/halberd lint
+<
+- tools/idef0/examples/halberd/halberd.md: the IDEF0 program model, seven
+  models, one per organization (|agile-idef0|): >
+    perl tools/idef0/idef0.pl lint tools/idef0/examples/halberd/halberd.md
+<
+- The status-metrics simulation: perl sim/status-metrics-sim.pl OUTDIR
+  (|agile-status-metrics|).
+Practice lessons 2, 3 and 7 use a copy of data/halberd (|agile-practice|).
+
+------------------------------------------------------------------------------
+The lab project                                                     *agile-lab*
+
+data/lab is the project for practising the townhall loop without a team:
+|agile-rehearsal| writes a realistic chat into it and |agile-lab-run| runs
+unattended days against it.
+
+==============================================================================
+3. DAILY.PL, THE DAY-TO-DAY DRIVER                               *agile-daily*
+
+    daily.pl [OPTIONS] COMMAND [ARGS]       (no command: status)
+
+Every command finds scrum.conf upward from the current directory.
+
+Each day            new  compile  report  draft  brief  commit  all  status
+Before the call     drill  propose  cards  attend  invite  meetings
+During the call     lint
+After the call      answers  chat  joined  ai  post
+Views               sprint  velocity  backlog  members  epics  roadmap
+                    blocked  quad  health
+Reports             review  rollup  csv
+Setup and checks    init  check  roster  help
+
+One command's help: daily.pl help COMMAND (or :help agile-daily-COMMAND).
+
+------------------------------------------------------------------------------
+Options for every command                                *agile-daily-options*
+
+--today YYYY-MM-DD   act as if it were that day (catch up, replay, rehearse)
+-c FILE, --conf FILE use that scrum.conf instead of searching upward
+--dry                compile: show what would be written, write nothing;
+                     invite: show the invitation, create nothing
+--team T             cards, drill: one team
+--to A --cc B --subject S   draft, brief: override scrum.conf
+--force              draft, brief, cards, invite: go on despite marking errors
+--send / --draft     cards: send the mails / open them as drafts; post: send
+--reply --confirm --private --table      lint (|agile-daily-lint|)
+--guess --assume     answers (|agile-daily-answers|)
+-n N --sheet --grade FILE                drill (|agile-daily-drill|)
+--until YYYY-MM-DD   invite: the last day of the series
+
+------------------------------------------------------------------------------
+The commands                                           *agile-daily-commands*
+
+daily.pl help                                               *agile-daily-help*
+daily.pl help COMMAND, daily.pl --help, daily.pl -h
+Prints this chapter, or one command's section. Works outside a project.
+
+daily.pl init [DIR]                                         *agile-daily-init*
+Make a project in DIR (default: here): scrum.conf, scrum.txt, standups/,
+reports/, .gitignore, .gitattributes, and git init. Existing files are kept.
+Prints the next steps. See |agile-first-project|.
+
+daily.pl new [TEAM...]                                       *agile-daily-new*
+Create (or just name) today's stand-up file standups/DATE.txt: the date, the
+current sprint, and a "== Team" section per team with its open tasks listed
+as comments. Prints "created" or "exists" and the path. Vim: :SNew (\sn).
+
+daily.pl status                                           *agile-daily-status*
+The journal at a glance: tasks, current sprint, teams, pending (not yet
+compiled) stand-up files, and the sprint's done points. The default
+command. It also proves the journal loads: an error here names the line.
+
+daily.pl compile                                         *agile-daily-compile*
+daily.pl --dry compile
+Apply every pending stand-up file, oldest first: validate every line,
+append the ledger entries to the journal, and mark the file "# compiled".
+A file with any error is NOT applied (every error is listed) and compile
+stops there. --dry prints what would be appended and writes nothing.
+Vim: :SCompile (\sc), :SDry (\sd). Errors: |agile-err-not-applied|.
+
+daily.pl report                                           *agile-daily-report*
+Write every report into reports/: dashboard.html, tree.html, roadmap.html,
+cockpit.html, DATE-status.html/.txt, DATE-brief.html/.txt,
+DATE-quad.html/.txt, sprint-N-report.*, MONTH-rollup.*, and the CSVs.
+Marked when scrum.conf sets a banner. Vim: :SReport (\sr).
+
+daily.pl draft [--to A] [--cc B] [--subject S] [--force]   *agile-daily-draft*
+The status mail as an Outlook draft (classic Outlook on Windows): metrics,
+blockers, today's notes, flags, the AI summary if any. You review and send.
+Refuses on a marking error unless --force. Vim: :SDraft.
+
+daily.pl brief [--to A] [--cc B] [--subject S]              *agile-daily-brief*
+The short leadership mail (one sentence and up to five bullets), as an
+Outlook draft. Same marking gate as draft.
+
+daily.pl commit                                           *agile-daily-commit*
+git add -A and commit "standup DATE" in the project. Prints "committed" or
+"nothing to commit". Vim: :SCommit.
+
+daily.pl all [--draft]                                       *agile-daily-all*
+compile, report, (draft with --draft), commit. Stops after compile if a file
+was rejected. Vim: :SAll (\sa).
+
+daily.pl check                                             *agile-daily-check*
+Load the journal and check the marking set-up: "ok: N tasks, teams ...,
+sprints ..." and "marking: ok/off" or the problems. Exit 1 on a marking
+error. Run it after editing scrum.conf.
+
+daily.pl drill [TEAM] [-n 12]                              *agile-daily-drill*
+daily.pl drill --sheet [TEAM]     daily.pl drill --grade FILE
+The memory drill: question cards from the journal and roster (teams and
+initials, tomes, epics, who owns what, blockers); you type terse answers
+(ids, codes, initials, any order; ? for don't know, q to stop). Progress is
+kept in drill.txt (Leitner boxes). --sheet writes reports/DATE-drill.txt to
+answer in Vim; --grade grades it (what :w does). Vim: :SDrill (\sm).
+
+daily.pl propose [TEAM...] [--private]                   *agile-daily-propose*
+Today's status for each person, drafted from yesterday's answers and the
+journal, one paste-ready line each. Writes standups/DATE-proposals.txt so a
+"+1" in the chat accepts the line (|agile-ack|). --private writes
+reports/DATE-propose.html with a 1:1 Teams link per person. Vim: :SPropose.
+
+daily.pl cards [--team T] [--send | --draft]               *agile-daily-cards*
+Each member's card (their sprint tasks, blockers, the Y/T/B reminder) to
+reports/DATE-cards.txt and .html (with Teams 1:1 links). --send mails them
+through Outlook, --draft opens them as drafts. Vim: :SCards.
+
+daily.pl attend                                           *agile-daily-attend*
+Attendee responses of today's stand-up meetings (Outlook calendar, or the
+mock fixture) into today's stand-up file as comments and suggested absent
+lines, and into attendance.csv.
+
+daily.pl invite [--dry] [--until YYYY-MM-DD] [--force]    *agile-daily-invite*
+The recurring weekday townhall in Outlook/Teams, the roster as attendees,
+at townhall_start for townhall_minutes, the Y/T/B rules in the body. Opens
+it for you to review and send. --dry prints it only. Refuses an attendee
+outside mail_domains unless --force.
+
+daily.pl meetings                                       *agile-daily-meetings*
+Today's calendar: time, subject, Teams or not, number invited.
+
+daily.pl lint [FILE | -] [--reply] [--confirm] [--private] [--table]
+                                                            *agile-daily-lint*
+Check every Y/T/B status in a pasted chat (default: today's chat files)
+while people are still on the call. One line per person:
+FILE:LINE: ERROR|warn|ok Name: reason. "-" reads standard input:
+powershell Get-Clipboard | daily.pl lint -
+--reply      only the lines to paste back into the chat
+--confirm    also a read-back for clean statuses (until readback_clean_days)
+--private    reports/DATE-lint.html: a Teams 1:1 link per person
+--table      what the parser understood: state, who, Y, T, B, note
+Exit 1 when any status has an ERROR. Vim: :SLint (\sl), :STown, :SLintReply.
+The messages: |agile-err-lint-no-ytb|, |agile-err-lint-dup-delim|.
+
+daily.pl answers [--guess] [--assume]                    *agile-daily-answers*
+Parse today's chat files for Y/T/B answers: write
+standups/DATE-Team-answers.txt, raise flags (silent, blocked N days, same
+plan N days, unknown ids, done claims), log attendance, and append
+suggested lines (done, unblock, absent, punt, hold, pass, all commented for
+you to confirm) to today's stand-up file. --guess accepts the lint's
+"did you mean" reading where the strict one failed; --assume records the
+silent with their proposal, marked assumed (never moves points).
+Vim: :SAnswers.
+
+daily.pl chat [FILE]                                        *agile-daily-chat*
+Tally #est and #vote rounds in today's chat (|agile-est-vote|) and append
+est lines (commented unless there was consensus) and vote notes to today's
+stand-up file. Vim: :STally (\st).
+
+daily.pl joined [FILE...]                                 *agile-daily-joined*
+Teams attendance-report downloads (standups/DATE[-Team]-attendance.csv)
+into attendance.csv with join, leave and minutes. Vim: :SJoined.
+
+daily.pl ai                                                   *agile-daily-ai*
+Build the prompt for your approved AI service from today's answers, flags,
+metrics and history. With ai_backend = paste it writes
+reports/DATE-ai-prompt.txt: paste it into the service, save the reply as
+reports/DATE-ai-response.txt, then daily.pl report includes it. Metrics
+never come from the AI. Vim: :SAi, :SAiPrompt, :SAiResponse.
+
+daily.pl post [--send]                                      *agile-daily-post*
+Today's metrics text into each stand-up meeting's body in Outlook; --send
+also sends the update to the attendees.
+
+daily.pl roster                                           *agile-daily-roster*
+daily.pl roster add "Name" email Team "Role" "Org"
+List the people by team and check them against the journal (owners not in
+the roster, team mismatches, missing e-mail). add adds or updates a person;
+the name must be exactly what Teams shows.
+
+daily.pl health [TEAM]                                    *agile-daily-health*
+Every metric of the operating model against its threshold: blocked age,
+load, done by day 8, velocity, predictability, carryover, bus factor,
+unassigned, on-time, punt rate, backlog depth and age, intake, epic targets,
+consensus, declines, silence. One line per signal with what to do. Exit 1
+on a red.
+
+daily.pl review [N]                                       *agile-daily-review*
+The sprint report (Day 14) for sprint N (default: current): per team commit,
+done, carry, load, velocity, predictability, punts, interrupts; printed and
+written to reports/sprint-N-report.txt and .html.
+
+daily.pl rollup [YYYY-MM]                                 *agile-daily-rollup*
+The monthly roll-up (epics, intake vs done, backlog age, attendance),
+printed and written to reports/MONTH-rollup.txt and .html.
+
+daily.pl csv [TABLE]                                         *agile-daily-csv*
+TABLE is items, sprints, epics, intake or health: one table to the screen.
+No TABLE: all of them to reports/TABLE.csv (UTF-8 with a BOM, for Excel).
+
+daily.pl quad [TEAM]                                        *agile-daily-quad*
+The weekly quad: Technical Priorities (TODO, OPEN, DONE, WAIT, HOLD, PUNT,
+DROP with REDO, PASS, SYNC marks), Watch Items, 30/60/90 Milestones,
+Accomplishments, and the punt-rate table. Vim: :SQuad.
+
+daily.pl sprint [N]                                       *agile-daily-sprint*
+Per team: capacity, committed, done, open, carryover, removed, done %,
+load %; then each team's open tasks. Vim: :SSprint.
+
+daily.pl velocity                                       *agile-daily-velocity*
+Committed and done per sprint per team, and the average done.
+
+daily.pl backlog [TEAM]                                  *agile-daily-backlog*
+The master backlog, or one team's: id, points, priority, epic, owner, age,
+title. Vim: :SBacklog.
+
+daily.pl members [TEAM]                                  *agile-daily-members*
+Each owner's work in progress, done this sprint and queued, and committed
+tasks with no owner. Vim: :SMembers.
+
+daily.pl epics                                             *agile-daily-epics*
+Roll-up by tome and epic: tasks, points, done, in sprint, backlog, done %.
+
+daily.pl roadmap                                         *agile-daily-roadmap*
+Epics by tome across sprints, with a forecast from velocity. Vim: :SRoadmap.
+
+daily.pl blocked                                         *agile-daily-blocked*
+Blocked tasks, oldest first, with days blocked: over 3 "escalate", over 5
+"yours". Vim: :SBlocked.
+
+==============================================================================
+4. THE STAND-UP FILE AND ITS VERBS                    *agile-standup* *agile-verbs*
+
+standups/DATE.txt is where you type. One verb per line under a "== Team"
+header; ; or # starts a comment. A file with any error is rejected whole.
+More files on one day are fine: DATE-b.txt. Example: >
+    2026-10-05
+    sprint 7
+    == Alpha
+    done A-11 A-12
+    block A-13 waiting on the ICD from SEI
+    new A-14 5 Login MFA p:1 e:"A1 Access" t:"A Platform" o:"Lee, Ann"
+    note Bob out Friday
+<
+Verb                   Does                                  Points move
+done ID...             finished (passed the Definition of Done)
+                                                   Committed -> Done
+carry ID...            not finished; to next sprint  Committed -> Carryover
+drop ID...             out of the sprint             Committed -> Removed
+commit ID [OWNER]      into this sprint     backlog/carryover -> Committed
+new ID PTS TITLE [p:N e:EPIC t:TOME o:OWNER]   intake  -> Backlog:Team
+new! ID PTS TITLE ...  intake straight into this sprint    -> Committed
+refine ID              master (or another team's) backlog -> this team's
+prune ID REASON        retire a backlog task           Backlog -> Removed
+est ID PTS             re-estimate (posts the difference)
+assign ID OWNER        change the owner
+block ID REASON        blocked (WAIT on the quad) until unblock ID
+hold ID REASON         interrupted (HOLD) until resume ID
+punt ID REASON         too hard as written          Committed -> Backlog
+redo ID REASON         found wrong after the demo     Done -> Committed
+pass ID TEAM           another team should do it   -> TEAM's Committed
+sync ID ID...          coordinated across teams; they share DONE
+cap N                  the team's capacity this sprint
+note TEXT  risk TEXT  absent NAME...                  report only
+sprint N               the sprint (top of the file, or in a section)
+
+------------------------------------------------------------------------------
+The rules of the file                                     *agile-standup-rules*
+
+- The date comes from the file name (standups/2026-10-05.txt) or a
+  YYYY-MM-DD line at the top.
+- "== Team" starts a team's section; "== Master" is the master backlog
+  (new lines there go to Backlog:Master); "==" alone ends a section.
+- Quote values with spaces: o:"Bob Ray", e:"B1 Fire Control". commit and
+  assign take the rest of the line as the owner: commit A-1 Bob Ray.
+- Owner names must be spelled exactly as Teams shows them; "Last, First"
+  works everywhere.
+- Ids are any word without spaces (A-11, HAL-3). Several ids on one done,
+  carry, drop, unblock or resume line are fine.
+- A first line "# compiled DATE" means the file was applied; compile skips
+  it. Never remove that line unless you have taken its entries out of the
+  journal (|agile-howto-bad-compile|).
+- In Vim, CTRL-X CTRL-K completes a task id from the journal.
+
+------------------------------------------------------------------------------
+The verbs one by one                                       *agile-verb-list*
+
+done ID...                                                  *agile-verb-done*
+Committed -> Done in this sprint, for each id. The task must be committed in
+this sprint for this team (|agile-err-not-committed|).
+
+carry ID...                                                *agile-verb-carry*
+Committed -> Carryover: not finished. The next sprint's planning brings it
+back with commit ID.
+
+drop ID...                                                  *agile-verb-drop*
+Committed -> Removed: out of the sprint and out of scope. For a task still
+in a backlog use prune.
+
+commit ID [OWNER]                                         *agile-verb-commit*
+Into this sprint's commitment, from the team's backlog, the master backlog
+or last sprint's carryover; the owner is optional (the rest of the line).
+
+new ID PTS TITLE [p:N] [e:EPIC] [t:TOME] [o:OWNER]           *agile-verb-new*
+new! ID PTS TITLE ...                                       *agile-verb-new!*
+Intake: a new task into the team's backlog (or, under "== Master", the
+master backlog). new! puts it straight into this sprint and tags it
+interrupt: 1, so interrupts are measurable. p: priority (lower first), e:
+epic, t: tome, o: owner. The id must be new (|agile-err-task-exists|).
+
+refine ID                                                 *agile-verb-refine*
+From the master backlog (or another team's backlog) into this team's.
+
+prune ID REASON                                            *agile-verb-prune*
+Retire a backlog task: to this sprint's Removed; the reason is kept on the
+posting. For committed work use drop.
+
+est ID PTS                                                   *agile-verb-est*
+Re-estimate to PTS wherever the task's points are: the difference is posted,
+history stays. #est rounds in the chat write these lines (|agile-est-vote|).
+
+assign ID OWNER                                           *agile-verb-assign*
+Change the owner (the rest of the line).
+
+block ID REASON                                            *agile-verb-block*
+unblock ID                                               *agile-verb-unblock*
+Mark a task blocked, with the reason; it shows in every report, aging,
+until unblocked. Over 3 days: escalate; over 5: yours (|agile-daily-blocked|).
+
+hold ID REASON                                              *agile-verb-hold*
+resume ID                                                 *agile-verb-resume*
+Interrupted by higher-priority work: stays committed, HOLD on the quad.
+
+punt ID REASON                                              *agile-verb-punt*
+Too hard as written (any reason): Committed -> the team's backlog (TODO) for
+replanning. Counted in the punt rate.
+
+redo ID REASON                                              *agile-verb-redo*
+Found wrong after the demo: last sprint's Done -> this sprint's Committed.
+
+pass ID TEAM                                                *agile-verb-pass*
+Started it, another team should do it: the whole task to TEAM's Committed in
+the same sprint; that team assigns an owner.
+
+sync ID ID...                                               *agile-verb-sync*
+Tasks coordinated across teams this sprint: they share DONE (none counts
+until all are done).
+
+cap N                                                        *agile-verb-cap*
+The team's capacity this sprint (load = committed / cap).
+
+note TEXT                                                   *agile-verb-note*
+risk TEXT                                                   *agile-verb-risk*
+absent NAME...                                            *agile-verb-absent*
+Report-only lines: they appear in the status mail and reports, move no
+points. "note retro: ..." records a retro action.
+
+sprint N                                                  *agile-verb-sprint*
+The sprint the file (or the section) belongs to. Without it, the journal's
+current sprint. The first file of a project says sprint 1.
+
+==============================================================================
+5. THE JOURNAL (SCRUM.TXT)                                     *agile-journal*
+
+A double-entry ledger in ledger-cli format. A task's points move between
+accounts, and the account they sit in is the task's state: >
+    Backlog:Master -> Backlog:TEAM -> Sprint:N:TEAM:Committed -> Done
+                                                    -> Carryover
+                                                    -> Removed
+<   Equity:Intake balances new tasks. Points are conserved; history is never
+rewritten. Compile writes almost everything; you read it (:SJournal, \sj).
+
+An entry is a date, a payee, and postings that sum to zero: >
+    2026-09-23 Intake B-11 Define Software Requirements
+        Backlog:BMC2       5 SP   ; id: B-11, epic: B1 Fire Control, owner: Ann, prio: 1
+        Equity:Intake
+<
+A capacity block: >
+    ~ Sprint 7
+        Alpha    24 SP
+<
+------------------------------------------------------------------------------
+Task metadata                                             *agile-journal-meta*
+
+On a posting comment, "key: value" pairs after "; ". Later values override
+earlier ones.
+id        the task id (required on every posting that moves a task)
+title     from the payee after the id, or title:
+prio      priority, lower first
+epic      the epic ("B1 Fire Control"); tome  the tome above it
+owner     the owner (Teams display name)
+team      the team
+blocked   the blocker reason; empty = unblocked
+hold      the hold reason; empty = resumed
+punt redo pass sync    set by those verbs
+interrupt 1 on new! tasks
+target    YYYY-MM-DD: the epic's target date (on any of its tasks)
+
+------------------------------------------------------------------------------
+Editing the journal by hand                               *agile-journal-edit*
+
+Only three safe cases, none of which move points: metadata fixes (owner,
+epic, tome, prio on an intake line; :%s works for a renamed tome), bulk
+intake at program start (better: sim/idef0-backlog.pl, |agile-idef0-backlog|),
+and capacity blocks. After any hand edit: daily.pl status (it re-reads the
+journal and reports the first error with a line number), then commit. Never
+renumber or delete postings: corrections are new postings.
+
+==============================================================================
+6. SCRUM.CONF                                                     *agile-conf*
+
+key = value lines; # starts a comment; paths are relative to the file.
+daily.pl init writes a commented one. daily.pl check validates it.
+
+------------------------------------------------------------------------------
+The keys                                                     *agile-conf-keys*
+
+journal                                                   *agile-conf-journal*
+The journal file. Default scrum.txt.
+
+standups                                                 *agile-conf-standups*
+The stand-up directory. Default standups.
+
+reports                                                   *agile-conf-reports*
+Where report writes. Default reports (keep it out of git).
+
+unit                                                         *agile-conf-unit*
+The unit of the points: SP by default (Halberd uses items).
+
+to                                                             *agile-conf-to*
+cc                                                             *agile-conf-cc*
+Recipients of draft and brief (comma-separated).
+
+subject_prefix                                     *agile-conf-subject_prefix*
+Put at the start of every mail subject, e.g. INTERNAL.
+
+banner                                                     *agile-conf-banner*
+The marking banner (INTERNAL, COMPANY CONFIDENTIAL, ...). Empty: nothing is
+marked. When set, every report, mail and printed page carries it, and the
+marking gate runs before mail (|agile-err-marking-refused|).
+
+marking_owner                                       *agile-conf-marking_owner*
+marking_category                                 *agile-conf-marking_category*
+marking_handling                                 *agile-conf-marking_handling*
+marking_poc                                           *agile-conf-marking_poc*
+The marking block under the banner: who owns the material, its category,
+handling, and who to ask. check warns when owner or POC is empty.
+
+mail_domains                                         *agile-conf-mail_domains*
+Comma-separated domains; mail may only go to them (check, draft, brief,
+cards, invite refuse otherwise).
+
+history_days                                         *agile-conf-history_days*
+Previous days of answers used for "stuck" and "blocked N days". Default 5.
+
+default_team                                         *agile-conf-default_team*
+The team of standups/DATE-chat.txt when the file name has no team.
+
+facilitator                                           *agile-conf-facilitator*
+Your Teams display name (; between several): your own chat lines are not
+linted as statuses.
+
+readback_clean_days                           *agile-conf-readback_clean_days*
+After this many clean statuses in a row a person gets a read-back only on
+errors (lint --confirm). Default 5.
+
+townhall_subject                                 *agile-conf-townhall_subject*
+townhall_start                                     *agile-conf-townhall_start*
+townhall_minutes                                 *agile-conf-townhall_minutes*
+townhall_location                               *agile-conf-townhall_location*
+The invitation daily.pl invite creates: subject, start (HH:MM), length in
+minutes, location (default "Microsoft Teams Meeting").
+
+calendar                                                 *agile-conf-calendar*
+outlook (default) or mock.
+
+calendar_fixture                                 *agile-conf-calendar_fixture*
+With calendar = mock: a JSON file of events (examples/cal-fixture.json; make
+one from the real calendar with cal.pl dump). Everything then runs offline.
+
+standup_match                                       *agile-conf-standup_match*
+A pattern that picks the stand-up meetings out of the calendar.
+Default stand-?up.
+
+team_from_subject                               *agile-conf-team_from_subject*
+A pattern whose first group is the team in a meeting subject.
+
+attendance                                             *agile-conf-attendance*
+The attendance log. Default attendance.csv.
+
+min_minutes                                           *agile-conf-min_minutes*
+joined: fewer minutes than this counts as brief. Default 3.
+
+drill                                                       *agile-conf-drill*
+The memory-drill progress file. Default drill.txt.
+
+funding                                                   *agile-conf-funding*
+complete                                                 *agile-conf-complete*
+funding = FILE: a ledger journal of the program's money; the cockpit then
+has a Funding tab (funds remaining, burn per month, run-out date, a chart,
+earned value). complete = GLOB: the percent-complete CSVs; the newest one
+dated on or before today feeds earned value. Both relative to the project
+directory. See |agile-howto-funding|.
+
+ai_backend                                             *agile-conf-ai_backend*
+paste (default: write the prompt, you paste the reply), curl (an
+OpenAI-style endpoint through Git's curl) or mock (tests).
+
+ai_url                                                     *agile-conf-ai_url*
+ai_model                                                 *agile-conf-ai_model*
+ai_key_env                                             *agile-conf-ai_key_env*
+ai_curl                                                   *agile-conf-ai_curl*
+ai_curl_args                                         *agile-conf-ai_curl_args*
+ai_mock_response                                 *agile-conf-ai_mock_response*
+For ai_backend = curl: the endpoint, the model name, the NAME of the
+environment variable that holds the key (never the key itself), the curl
+command (default curl) and extra arguments. ai_mock_response is the canned
+reply for mock.
+
+==============================================================================
+7. THE CHAT: Y/T/B STATUSES, #EST AND #VOTE                        *agile-ytb*
+
+People post one line in the meeting chat, capital Y T B as separators, task
+ids in it: >
+    Y did B-11   T doing B-12   B none
+<   Also accepted: "Y: ... / T: ... / B: ..." on separate lines, yesterday:
+today: blockers:, and 1/2/3. A name before the Y is ignored. Lowercase y t b
+work only when unambiguous. A person's last message wins, so a repost
+replaces the first.
+
+What lint checks: the three fields are there, in order, not empty; Y and T
+each name a task id; the ids exist in the journal. ERROR means the status
+cannot be used; warn means it parses but says little.
+
+The replies (lint --reply) go back into the chat, or 1:1 with --private:
+"Did you mean: ...?" for an error, "Got it. Add the task id next time" for
+a warning, and with --confirm a read-back "I read your status as: ...".
+
+Acknowledging a proposed status                                    *agile-ack*
+After daily.pl propose, a person accepts their proposed line by typing +1,
+y, ok or a thumbs-up. answers and lint read standups/DATE-proposals.txt.
+
+#est and #vote rounds                                         *agile-est-vote*
+In the meeting type "#est B-104"; people answer with numbers. "#vote Ship
+Friday? y/n" or "#vote Name: A B C" for a vote. After the meeting paste the
+chat (:SChat) and run :STally (daily.pl chat): each round is tallied
+(consensus, or median with outliers; plurality, majority or tie) and written
+into today's stand-up file as est lines (ready when there was consensus,
+commented otherwise) and note vote lines. Without markers:
+chat.pl --est ID --since 09:07 FILE (|agile-chat-pl|).
+
+==============================================================================
+8. AGILE.PL: THE COCKPIT, HELP AND PRACTICE                         *agile-pl*
+
+agile.pl [--no-open] [--today D] [PROJECT]                   *agile-cockpit*
+Rebuild PROJECT's reports (daily.pl report) and write ./dashboard.html next
+to agile.pl, the cockpit: one self-contained page with daily, weekly,
+sprint, monthly, backlog tree, roadmap, quad, people and IDEF0 tabs, and
+open it. PROJECT defaults to data/demo. --no-open only writes the file.
+--today sets the cockpit's date. Vim: :SCockpit.
+
+agile.pl serve [--port 8090] [PROJECT]                         *agile-serve*
+The same page served on http://127.0.0.1:8090/, rebuilt on every load, with
+a "Rebuild reports" button. Localhost only. CTRL-C stops it.
+
+agile.pl help [TOPIC | search WORDS | error MSG]             *agile-help-cmd*
+This help on the command line. TOPIC is a tag (agile-daily-lint), a
+command (lint, compile), a verb (carry), a scrum.conf key (banner), a Vim
+command (STown) or a runbook (townhall). Also:
+--html [FILE]   regenerate docs/HELP.html from vim/doc/
+--md [FILE]     regenerate docs/help/quickref.md (the binder chapter)
+--check         what the help is missing: untagged commands, keys, verbs,
+                conf keys; messages not in the catalog; broken links
+--tags          every tag
+
+agile.pl practice [N | check N | reset N]                  *agile-practice-cmd*
+The lessons (|agile-practice|): no argument lists them; N sets up lesson N
+in data/practice/lessonN and prints the task; check N says what is done
+and what is missing; reset N removes the sandbox. --dir DIR puts the
+sandboxes elsewhere.
+
+==============================================================================
+9. VIM: COMMANDS AND KEYS                                          *agile-vim*
+
+vim/scrum.vim defines these in every buffer. They find scrum.conf upward
+from the current file. The leader is \ (\sn means \ then s then n).
+
+------------------------------------------------------------------------------
+The keys                                                      *agile-vim-keys*
+
+\sn  :SNew        today's stand-up file
+\sd  :SDry        save, show what compile would write
+\sc  :SCompile    save and compile
+\sa  :SAll        save, compile, report, commit
+\ss  :SStatus     the status line
+\sr  :SReport     write the reports
+\sj  :SJournal    open the journal
+\st  :STally      save, tally #est/#vote rounds
+\sl  :SLint       save, lint the chat (errors to the quickfix list)
+\sw  :STown       the townhall tab: chat | lint table | replies
+\sp               paste the clipboard into the chat and lint
+\sy               the replies to the clipboard
+\sm  :SDrill      the memory-drill sheet
+CTRL-X CTRL-K     complete a task id from the journal (insert mode)
+
+------------------------------------------------------------------------------
+The commands                                              *agile-vim-commands*
+
+:SNew [TEAM...]                                                        *:SNew*
+\sn                                                                      *\sn*
+daily.pl new, then open the file at the end.
+
+:SDry                                                                  *:SDry*
+\sd                                                                      *\sd*
+Save, then daily.pl --dry compile.
+
+:SCompile                                                          *:SCompile*
+\sc                                                                      *\sc*
+Save, then daily.pl compile.
+
+:SAll                                                                  *:SAll*
+\sa                                                                      *\sa*
+Save, then daily.pl all (compile, report, commit).
+
+:SStatus                                                            *:SStatus*
+\ss                                                                      *\ss*
+daily.pl status.
+
+:SReport                                                            *:SReport*
+\sr                                                                      *\sr*
+daily.pl report.
+
+:SDraft                                                              *:SDraft*
+daily.pl draft (the status mail as an Outlook draft).
+
+:SCommit                                                            *:SCommit*
+daily.pl commit.
+
+:SSprint [N]                                                        *:SSprint*
+:SBacklog [TEAM]                                                   *:SBacklog*
+:SMembers [TEAM]                                                   *:SMembers*
+:SBlocked                                                          *:SBlocked*
+:SRoadmap                                                          *:SRoadmap*
+:SQuad [TEAM]                                                         *:SQuad*
+The views (|agile-daily-sprint| and the following) in the message area.
+
+:SJournal                                                          *:SJournal*
+\sj                                                                      *\sj*
+Open the project's journal (scrum.conf's journal key).
+
+:SCockpit                                                          *:SCockpit*
+Rebuild ./dashboard.html for this project (agile.pl --no-open); press F5 in
+the browser.
+
+:STig                                                                  *:STig*
+Browse the project's git history in tig (Git for Windows ships it): j/k
+walk the commits, Enter shows a diff, q returns to Vim.
+
+:SDocs ARGS                                                           *:SDocs*
+bin/docs2txt.pl with ARGS: :SDocs grep -i ICD ~/specs/*.pdf (|agile-docs2txt|).
+
+:SChat                                                                *:SChat*
+:SChatTeam TEAM                                                   *:SChatTeam*
+Open today's chat file (standups/DATE-chat.txt, or DATE-TEAM-chat.txt) to
+paste the Teams chat into.
+
+:STally                                                              *:STally*
+\st                                                                      *\st*
+Save, then daily.pl chat: tally #est/#vote rounds into today's file.
+
+:SAnswers                                                          *:SAnswers*
+daily.pl answers.
+
+:SLint                                                                *:SLint*
+\sl                                                                      *\sl*
+Save and lint the current chat buffer; errors go to the quickfix list (:cn
+jumps to the person). Inside :STown it refreshes the two side windows.
+
+:SLintReply                                                      *:SLintReply*
+daily.pl lint --reply on the current chat buffer.
+
+:STown                                                                *:STown*
+\sw                                                                      *\sw*
+The townhall in one tab, no mouse: today's chat on the left, the lint table
+top right, the replies bottom right. CTRL-W h/j/k/l moves between them.
+
+\sp                                                                      *\sp*
+Paste the clipboard (the Teams chat: CTRL-A CTRL-C there) at the end of the
+chat buffer, save, and lint. Use inside :STown.
+
+\sy                                                                      *\sy*
+The replies window to the clipboard, ready for CTRL-V into Teams.
+
+:SSend NAME                                                           *:SSend*
+Open the 1:1 Teams chat with NAME's reply filled in (needs roster.txt with
+their e-mail). Press Send in Teams.
+
+:SPropose [TEAM]                                                   *:SPropose*
+daily.pl propose.
+
+:SDrill [TEAM]                                                       *:SDrill*
+\sm                                                                      *\sm*
+A sheet of the cards due today. Type after each ">"; Enter jumps to the next
+blank one; the last Enter (or :w) grades the sheet in place. Write a
+mnemonic after "hook:" on a miss; :w keeps it.
+
+:SCards [ARGS]                                                       *:SCards*
+daily.pl cards.
+
+:SJoined                                                            *:SJoined*
+daily.pl joined.
+
+:SAi                                                                    *:SAi*
+:SAiPrompt                                                        *:SAiPrompt*
+:SAiResponse                                                    *:SAiResponse*
+daily.pl ai; open today's prompt file; open today's response file (paste
+the AI's reply there and save).
+
+------------------------------------------------------------------------------
+The file types                                              *agile-vim-files*
+
+standup   standups/*.txt (not the chats): verbs, ids, comments coloured;
+          CTRL-X CTRL-K completes ids from the journal
+ledger    scrum.txt, *.ledger, *.journal
+teamschat standups/*-chat.txt: Y T B delimiters, ids, a stray lowercase
+          delimiter in a warning colour
+drill     reports/*-drill.txt (the drill sheet)
+idef0     *.idef0, or a .txt whose first line says -*- mode: idef0 -*-
+Check a buffer's type with :set ft?
+
+==============================================================================
+10. SCRUM.PL, LEDGER.PL, CAL.PL, CHAT.PL                      *agile-lowlevel*
+
+Lower-level tools over one layer each, for scripting and ad hoc questions.
+They do not read scrum.conf, so their output is never marked: use daily.pl
+for anything that leaves your desk.
+
+------------------------------------------------------------------------------
+scrum.pl                                                         *agile-scrum*
+
+    perl bin/scrum.pl [-f JOURNAL] [--today D] COMMAND [N] [ARGS]
+
+-f FILE (or $SCRUM_FILE; default scrum.txt), --today, --last N (velocity),
+-o FILE (dashboard, roadmap, tree, csv), --to --cc --subject (draft),
+--text (email). N is a sprint number (default: current).
+help: perl bin/scrum.pl help [COMMAND].
+
+sprint [N]                                                *agile-scrum-sprint*
+The sprint table and open tasks.
+velocity [--last N]                                     *agile-scrum-velocity*
+Committed and done per sprint; average over the last N finished sprints.
+backlog [TEAM]                                           *agile-scrum-backlog*
+The master backlog or a team's.
+members [TEAM]                                           *agile-scrum-members*
+Per owner: in progress, done, queued.
+epics                                                      *agile-scrum-epics*
+Roll-up by tome and epic.
+roadmap [-o FILE]                                        *agile-scrum-roadmap*
+Epics by tome across sprints as text, or an HTML page with -o.
+items [STATE] [TEAM]                                       *agile-scrum-items*
+Raw task query; STATE is master, backlog, committed, done, carryover,
+removed or closed: scrum.pl items committed Bravo.
+dashboard [-o FILE]                                    *agile-scrum-dashboard*
+A self-contained HTML dashboard (default dashboard.html).
+tree [-o FILE]                                              *agile-scrum-tree*
+The backlog tree as HTML (default tree.html).
+email [N] [--text]                                         *agile-scrum-email*
+The status mail, HTML (or text) on the screen.
+draft [N] --to A [--cc B] [--subject S]                    *agile-scrum-draft*
+That mail as an Outlook draft.
+csv [TABLE] [-o FILE]                                        *agile-scrum-csv*
+items, sprints, epics, intake or health as CSV.
+check                                                      *agile-scrum-check*
+Load the journal: "ok: N items, teams ..., sprints ...".
+
+------------------------------------------------------------------------------
+ledger.pl                                                       *agile-ledger*
+
+    perl bin/ledger.pl [-f FILE] [OPTIONS] COMMAND [ACCOUNT-REGEX...]
+
+A plain-text double-entry ledger (ledger-cli format), used for the scrum
+journal and for anything else: money, hours, funding. -f FILE (or
+$LEDGER_FILE; default ledger.txt). Account regexes after the command are
+ORed, case-insensitive: bal groceries repairs.
+-p PERIOD (2026, 2026-09, 2026-Q3)  -b DATE (from)  -e DATE (before)
+--depth N  -C cleared only  -R real only  -E show zeros  --payee RE
+-M, --monthly  month by month (bal, reg, budget)
+--now YYYY-MM-DD   the status date of evm and forecast (through the end of
+                   that day; default today)
+--months N     forecast's burn window (default 3)
+--complete ACCOUNT=PCT  --complete-file FILE   evm's percent complete
+help: perl bin/ledger.pl help [COMMAND].
+
+bal [ACCOUNT...]                              *agile-ledger-bal* *agile-ledger-balance*
+The balance tree. ledger.pl -f scrum.txt bal Sprint:42 shows a sprint.
+
+reg [ACCOUNT...]                         *agile-ledger-reg* *agile-ledger-register*
+One line per posting with a running balance.
+
+budget [-p PERIOD]                                       *agile-ledger-budget*
+The ~ periodic budget entries against the actuals (default: this month).
+
+-M, --monthly                                           *agile-ledger-monthly*
+With bal: an account by month table with a Total. With reg: one line per
+account per month with a running total. With budget: Month, Account,
+Budget, Actual, Remaining for each month.
+
+evm [--complete ACCT=PCT]... [--complete-file F] [--now D]  *agile-ledger-evm*
+Earned value per account: Account, %done, BAC, BCWS (planned), BCWP (earned
+= BAC x percent complete), ACWP (actual), CV, SV, CPI, SPI, EAC, VAC, and a
+Total. Needs dated budgets: "~ Monthly from YYYY-MM-DD to YYYY-MM-DD" (or
+"until"). Percent complete: --complete ACCOUNT=PCT, repeatable, PCT as
+0-100, 0.x or 55%; or --complete-file FILE, CSV lines "account,pct" (a
+header and # comments are allowed). An account's percent covers its
+sub-accounts. --now sets the status date (default today).
+
+forecast [--months 3] [--now D] [ACCOUNT...]          *agile-ledger-forecast*
+Funding run-out per account: Account, Balance, Burn/month (the average
+monthly spend over the last N whole months), Months left, Runs out.
+forecast --months 2 Assets limits it to the funding accounts.
+
+csv                                                         *agile-ledger-csv*
+Postings as CSV: date,status,payee,account,amount,commodity.
+
+check                                                     *agile-ledger-check*
+Parse and verify every transaction balances: "ok: N transactions".
+
+accounts                                               *agile-ledger-accounts*
+payees                                                   *agile-ledger-payees*
+The distinct account or payee names.
+
+------------------------------------------------------------------------------
+cal.pl                                                             *agile-cal*
+
+    perl bin/cal.pl [--mock FIXTURE.json] [--date D] COMMAND
+
+The Outlook calendar through PowerShell COM (classic Outlook only).
+list (default), dump (JSON; save it as a fixture for calendar = mock),
+attend [MATCH], lines [MATCH], post ID|MATCH [--file F | --text T] [--send],
+create --subject S --start DATETIME [--attendee A]... [--weekdays], ps
+(print the PowerShell it would run).
+
+------------------------------------------------------------------------------
+chat.pl                                                        *agile-chat-pl*
+
+    perl bin/chat.pl [--est ID | --vote Q] [--since HH:MM] [--lines] FILE|-
+
+Tally #est and #vote rounds in a pasted chat; --est/--vote tally without
+markers from --since; --lines prints the stand-up lines; --messages lists
+the parsed messages.
+
+==============================================================================
+11. IDEF0 MODELS                                                 *agile-idef0*
+
+An IDEF0 model is plain text: a model line, activities nested by two
+spaces, ports with links. tools/idef0/idef0.pl validates and renders it;
+the cockpit's IDEF0 tab shows the plates. The full reference is
+tools/idef0/README.md. >
+    # -*- mode: idef0 -*-
+    tD Design                         t model, letter D
+      a# Define Quad Spec             a activity
+        i# Pilot Requirements         i input, c control, m mechanism
+        o# Quad Spec > F|Cut Frame Parts|Quad Spec    o output, > goes to
+<   # or ; starts a comment, ## a doc comment. A model is a .idef0 file, a
+.txt file whose first line is the mode line, or ```idef0 blocks in Markdown.
+
+idef0.pl COMMANDS                                       *agile-idef0-commands*
+    perl tools/idef0/idef0.pl COMMAND FILE...
+
+idef0.pl lint FILE...                                       *agile-idef0-lint*
+Validate; FILE:LINE: error|warning: ...; exit 1 on errors. Lint every model
+of a project in one command so links between models resolve.
+
+idef0.pl text FILE...                                       *agile-idef0-text*
+The plates as character art, form-feed paginated.
+
+idef0.pl html FILE...                                       *agile-idef0-html*
+A drawing set in one HTML page, the plates as SVG.
+
+idef0.pl svg NODE FILE...                                    *agile-idef0-svg*
+One plate (e.g. E22) as a standalone SVG.
+
+idef0.pl dump FILE...                                       *agile-idef0-dump*
+The numbered model tree(s).
+
+idef0.pl links FILE...                                     *agile-idef0-links*
+The project's interface table.
+
+idef0.pl fmt [--number|--auto] [--write] FILE...             *agile-idef0-fmt*
+Rewrite tag suffixes: --number freezes the derived numbers, --auto puts #
+back (models keep their letter); --write edits in place. fmt checks
+structure only, not links.
+
+The wrappers idef0lint, idef2text, idef2html, idef2svg, idef0fmt do the same.
+Keep rendered output out of the model directory: a *.txt glob would lint a
+plates.txt as a model.
+
+------------------------------------------------------------------------------
+IDEF0 in Vim                                                 *agile-vim-idef0*
+
+In an IDEF0 buffer (and Markdown with ```idef0 blocks):
+\il  :IdefLint          lint this file; errors to the quickfix list
+\iL  :IdefLintProject   lint every model in this directory
+\iv  :IdefPlates        the plates as text in a split
+\id  :IdefDump          the numbered tree
+\ik  :IdefLinks         the interface table
+\in  :IdefNumber        fmt --number on this file
+\iu  :IdefAuto          fmt --auto on this file
+\if  :IdefFollow        jump to the target of this line's < or > link
+\io                     a new sibling line below, in insert mode
+za zc zo                fold a subtree (folds follow the indentation)
+
+:IdefLint                                                          *:IdefLint*
+\il                                                                      *\il*
+Save and lint this file; the errors open in the quickfix list (:cn next).
+
+:IdefLintProject                                            *:IdefLintProject*
+\iL                                                                      *\iL*
+Lint every *.txt and *.idef0 in this file's directory together, so links
+between models resolve.
+
+:IdefPlates                                                      *:IdefPlates*
+\iv                                                                      *\iv*
+The project's plates as text in a scratch split.
+
+:IdefDump                                                          *:IdefDump*
+\id                                                                      *\id*
+The numbered node tree.
+
+:IdefLinks                                                        *:IdefLinks*
+\ik                                                                      *\ik*
+The interface table.
+
+:IdefNumber                                                      *:IdefNumber*
+\in                                                                      *\in*
+fmt --number --write: freeze the derived numbers into the tags.
+
+:IdefAuto                                                          *:IdefAuto*
+\iu                                                                      *\iu*
+fmt --auto --write: back to # (models keep their letter).
+
+:IdefFollow                                                      *:IdefFollow*
+\if                                                                      *\if*
+Jump to the port at the other end of this line's link.
+
+\io                                                                      *\io*
+A new line below with the same indent and tag letter, ready to type a name.
+
+------------------------------------------------------------------------------
+From a model to a backlog                                *agile-idef0-backlog*
+
+    perl sim/idef0-backlog.pl MODEL.md [--date D] [--sprint N] [--cap N --commit]
+    perl sim/idef0-backlog.pl MODEL.md --roster [--people N]
+
+Turns a model into a planning stand-up file the kit compiles: model -> tome
+and team, level-1 activity -> epic, leaf -> task, cross-model link -> an
+interface task in the destination team. --cap N --commit also commits each
+team's top tasks up to N. This is how data/demo is built.
+
+==============================================================================
+12. WRITING: MEMOS AND DOCUMENTS                               *agile-writing*
+
+md2memo.pl                                                        *agile-memo*
+    perl tools/memo/md2memo.pl [--ps|--text|--plain] [--font times|courier]
+         [--indent PTS] [--mark] [--default CLS] [--banner page|doc] FILE.md
+
+Markdown to a DoD-style memorandum on US Letter, 1" margins: numbered
+paragraphs (1. a. (1) (a)), uppercase headings, ruled tables, code blocks.
+Output: PDF (default), PostScript (--ps), text with underline (--text) or
+plain ASCII (--plain), to standard output. Pure Perl; no TeX or Office.
+Marking: tag a phrase {CUI}...{/} or {S//NF}...{/}; each portion is marked
+in the margin with the roll-up of its tags, and every page gets top and
+bottom banners. The full syntax is at the top of tools/memo/md2memo.pl; a
+worked example is tools/memo/examples/status-report.md. Runbook:
+|agile-howto-memo|.
+
+docs2txt.pl                                                   *agile-docs2txt*
+    perl bin/docs2txt.pl FILE...                text of each file
+    perl bin/docs2txt.pl -o DIR FILE...         DIR/NAME.txt per file
+    perl bin/docs2txt.pl grep [-i] PATTERN FILE...   FILE:LINE: match
+    perl bin/docs2txt.pl tools                  which converters were found
+
+Read PDF, .docx, .doc, .odt and .html as text through converters Git for
+Windows ships (pdftotext, docx2txt, antiword, odt2txt). Vim: :SDocs.
+:r !perl ~/projects/agile/bin/docs2txt.pl grep -i shall spec.pdf pulls the
+"shall" statements into the buffer, to turn into new lines.
+
+==============================================================================
+13. THE KIT ITSELF: TESTS, RELEASE, PIPELINE                       *agile-kit*
+
+Tests                                                            *agile-tests*
+    for t in tests/*.t; do perl $t | tail -1; done   every suite, one line each
+    perl tests/help.t                                one suite, every check
+
+Each suite ends "# all N passed". Run them after pulling a new version and
+before you change anything in bin/ or lib/.
+
+release.pl                                                     *agile-release*
+    perl bin/release.pl [--tag v1.0]
+
+A zip of the committed tree (no data/, no reports) in
+release/agile-TAG.zip with a SHA-256 beside it, for another machine. Refuses
+on uncommitted changes. On the target: sha256sum -c the .sha256, unzip, then
+daily.pl init in a project directory.
+
+devsecops.pl                                                 *agile-devsecops*
+    perl bin/devsecops.pl [--quick] [--open]
+
+Runs the kit's own pipeline gates here (the tests under every Perl found,
+syntax checks, a secrets scan, the marking gate, repository hygiene) and
+writes ./devsecops.html, a status dashboard. --quick skips the test suites.
+Exit 1 on a gap.
+
+townhall.tcl                                            *agile-townhall-tcl*
+    wish ~/projects/agile/bin/townhall.tcl ~/scrum/myprogram
+
+The meeting console (Tcl/Tk as shipped with Git for Windows): a paste box
+that saves and lints the chat on every paste, the replies with a copy
+button, the roster ticking off who answered, and buttons that run the
+daily.pl commands. It draws only; daily.pl decides everything. :STown is the
+keyboard-only twin.
+
+==============================================================================
+14. SIMULATIONS, TRAINING AND PRACTICE PROJECTS                    *agile-sim*
+
+Standalone tools in sim/, outside the tested kit. Each one's options are at
+the top of the file.
+
+sim/training.pl [--fast]                                      *agile-training*
+Wipes and rebuilds data/demo by really running one sprint of daily.pl and
+git commands (planning, ten townhall days, refinement, review), narrated, and
+writes docs/TRAINING.html, a playable replay. --fast skips the pauses.
+Refuses any directory not named demo unless --force.
+
+sim/halberd-gen.pl [--dir PATH] [--no-html]                *agile-halberd-gen*
+Builds data/halberd (|agile-halberd|) from docs/src/status-metrics.md: 56
+stand-up files compiled through the real pipeline, checked sprint by sprint
+against the document. --dir must end in data/halberd (it is wiped).
+Writes docs/HALBERD.html unless --no-html.
+
+sim/rehearsal.pl [--date D] [--seed N] [--mistakes N] [--silent N] [--out F]
+                                                             *agile-rehearsal*
+Writes a realistic Teams chat paste into the current project's standups/:
+one status per task owner, in the styles people use, with the usual
+mistakes seeded and N people silent. The answer key goes to the error
+output: who is wrong and why. Then practise lint, answers and the replies.
+
+sim/lab-run.pl [--days 10] [--start D] [--seed N] [--fix 0.7]  *agile-lab-run*
+N unattended townhall days against the current project: rehearsal, lint,
+replies, reposts, answers, confirming the suggested lines, compile, report,
+commit; anything unexpected is written to the report as a finding.
+
+sim/history-gen.pl [--dir PATH] [--sprints N] [--seed N]  *agile-history-gen*
+Two years of ten teams (data/history) compiled through the real pipeline,
+and HISTORY.html: every sprint coloured by the status leadership would have
+seen.
+
+sim/drill-sim.pl, sim/fuzz-chat.pl, sim/daily-job-sim.pl   *agile-sim-other*
+Stress tests of the memory drill and the chat parsers, and a time-accounting
+simulation of the role at scale (docs/SCHEDULE.html).
+
+==============================================================================
+15. MODEL-BASED TOOLS (SYSML, STATUS METRICS)                     *agile-mbse*
+
+These tools are separate from the scrum journal.
+
+status-metrics.pl                                       *agile-status-metrics*
+    perl bin/status-metrics.pl init    --config metrics.json --xmi legacy.xmi --reqif export.reqif
+    perl bin/status-metrics.pl collect --config metrics.json [--as-of DATE] --history history.jsonl
+    perl bin/status-metrics.pl report  --config metrics.json --history history.jsonl --out DIR
+    perl bin/status-metrics.pl COMMAND --help
+
+The 26 status metrics (A to Z) of docs/STATUS-METRICS.html, from a SysML v2
+model repository and its exports (separate from the scrum journal). init
+freezes the denominators from the legacy XMI and ReqIF once; collect appends
+one snapshot a day to the history; report writes status-weekly.md,
+status-daily.csv and dashboard.json (paste it into docs/STATUS-DASHBOARD.html,
+"Data (JSON)", Apply). Needs git on PATH. metrics.json names the repo, the
+exports directory, the segments and totals, and lint_cmd / gen_cmd (the
+commands it runs: tools/sysml/model.pl lint prints the elements=N errors=E
+warnings=W line it reads). The repo conventions it expects (model/SEGMENT/,
+doorsId on requirements, CODEOWNERS, baseline-N tags, exports gate.log,
+ci_jobs.csv, tracker/sprint-N.csv ...) are in "Running it in this kit" at the
+end of docs/STATUS-METRICS.html.
+perl sim/status-metrics-sim.pl OUTDIR builds the 12-week Halberd example
+(repo, exports, metrics.json, history.jsonl). Runbook:
+|agile-howto-metrics-weekly|.
+
+xmi2sysml.pl                                                 *agile-xmi2sysml*
+    perl bin/xmi2sysml.pl --report FILE.xmi
+    perl bin/xmi2sysml.pl --out DIR [--layout '{seg}/{pkg}.sysml'] [--check] FILE.xmi
+    perl bin/xmi2sysml.pl --stdout FILE.xmi
+
+A SysML v1 XMI export (Cameo / MagicDraw) to SysML v2 text, one file per
+top-level package (DIR/SEGMENT/PACKAGE.sysml). --report: elements in by
+xmi:type, ported vs remaining (metric A), stereotypes, the unmapped list.
+Nothing is dropped: what has no mapping becomes a // TODO line with its
+xmi:id. Options: --req-style usage|def (usage, the default: one-line
+requirement usages, the form status-metrics counts; def: requirement def
+blocks), --name PKG (the package for elements outside any package), --check
+(also run tools/sysml/sysml.pl check over the output). Exit 0 ok, 1 when the
+self-check or --check finds a problem, 2 on bad usage or unreadable input.
+The output is deterministic, and a re-run overwrites hand edits: convert
+into a scratch directory once a segment is hand-fixed.
+Runbook: |agile-howto-port-segment|.
+
+reqif2sysml.pl                                              *agile-reqif2sysml*
+    perl bin/reqif2sysml.pl --report [--model DIR] FILE.reqif
+    perl bin/reqif2sysml.pl --out DIR [--layout '{seg}/{pkg}.sysml'] [--check] FILE.reqif|.reqifz|.csv
+
+DOORS requirements (ReqIF, zipped ReqIF, or a CSV export) to SysML v2
+requirements with their doorsId, one file per DOORS module. --report counts
+requirements, verification methods, headings, orphans and links; with
+--model DIR it adds the trace against existing SysML v2 text (C linked, F
+orphans, G unverified, I completeness). Options: --req-style usage|def
+(usage is the default), --id-prefix SYS- (put the module prefix back on
+absolute numbers), --id-attr / --vm-attr / --text-attr / --heading-attr NAME
+(ReqIF attribute names), --attr NAME (copy an attribute, repeatable), --name
+PKG, --csv with --col id=NAME --col text=NAME --col heading=NAME --col
+level=NAME --col vm=NAME, --sep C, --stdout, --check. A heading without text
+becomes a nested package; text becomes a requirement; neither becomes a
+TODO. Runbook: |agile-howto-doors|.
+
+sysml.pl                                                         *agile-sysml*
+    perl tools/sysml/sysml.pl check FILE...     file:line:col: error: ...; exit 1
+    perl tools/sysml/sysml.pl corpus [DIR...]   every .sysml/.kerml under DIRs
+    perl tools/sysml/sysml.pl tokens FILE       the token stream (debugging)
+    perl tools/sysml/sysml.pl grammar           rules, keywords, symbols
+    perl tools/sysml/sysml.pl crosscheck [N] [SEED]   against the Pilot (needs Java)
+
+A SysML v2 / KerML syntax checker generated at start-up from the official
+grammars vendored in tools/sysml/vendor. A diagnostic names the furthest
+token the grammar could not accept and what it expected there. corpus with no
+directory checks the 404 vendored library and example files (about 40 s).
+Details: tools/sysml/README.md. In Vim: \mx (|agile-vim-sysml|).
+
+model.pl                                                      *agile-model-pl*
+    perl tools/sysml/model.pl [--root DIR] COMMAND [options]
+
+The project tool for a SysML v2 text model: the project is the nearest
+directory upward holding model/ (or --root DIR), configured by its
+sysml.conf (noun_root, verb_root, ...). Commands:
+lint [--no-grammar]   SysML checks without Java; prints "lint: N file(s), E
+                      error(s), W warning(s)" and "elements=N errors=E
+                      warnings=W" (status-metrics' lint_cmd); exit 1 on errors
+check                 the 2..9 outline rule and the @L level tags; exit 1
+stats                 size, counts, nesting, depths, then check
+nouns | verbs [--plain] [--ascii]   the part tree / the function tree
+docs                  regenerate docs/Nouns.md, Verbs.md, idef0/, Traceability.md
+idef0                 regenerate docs/idef0/ only (through tools/idef0)
+trace [--strict]      requirement -> satisfied by -> verified by
+tags                  a Vim tags file: CTRL-] on a name or a DOORS id
+new part NAME --in PARENT | new verb NAME --in PARENT   scaffolding
+rename OLD NEW [--write] [--any]    rename a definition everywhere (dry run)
+backlog [--agile=DIR]  the IDEF0 set as a planning stand-up file (sim/idef0-backlog.pl)
+precommit | install-hooks   the pre-commit checks / install the git hook
+validate              full compile with the Pilot engine (needs Java; exit 3
+                      without it)
+libnames DIR          refresh the offline standard-library names
+The worked example is examples/halberd (its README shows every command):
+perl tools/sysml/model.pl --root examples/halberd lint. In Vim: |agile-vim-sysml|.
+
+------------------------------------------------------------------------------
+SysML in Vim                                                 *agile-vim-sysml*
+
+In a .sysml buffer (vim/ftplugin/sysml.vim; :make uses vim/compiler/sysml.vim),
+inside a project with model/ above it. Results go to the quickfix list.
+\ml  :SysLint       lint the whole model
+\mk  :SysCheck      the 2..9 outline rule and @L level tags
+\mx  :SysSyntax     this file only, against the official grammar
+\mv  :SysValidate   full compile with the Pilot (needs Java)
+\md  :SysDocs       regenerate docs/
+\mr  :SysTrace      the traceability matrix, in a split
+\mn  :SysNouns      the part tree, in a split
+\mb  :SysVerbs      the function tree, in a split
+\mt  :SysTags       write the tags file (then CTRL-] jumps, CTRL-T back)
+
+:SysLint                                                            *:SysLint*
+\ml                                                                      *\ml*
+model.pl lint over the model; errors to the quickfix list (:cn, :cp).
+
+:SysCheck                                                          *:SysCheck*
+\mk                                                                      *\mk*
+model.pl check: the outline rule and level tags.
+
+:SysSyntax                                                        *:SysSyntax*
+\mx                                                                      *\mx*
+sysml.pl check on this file.
+
+:SysValidate                                                    *:SysValidate*
+\mv                                                                      *\mv*
+model.pl validate (skipped cleanly without Java).
+
+:SysDocs                                                            *:SysDocs*
+\md                                                                      *\md*
+model.pl docs.
+
+:SysTrace                                                          *:SysTrace*
+\mr                                                                      *\mr*
+model.pl trace, shown in a split.
+
+:SysNouns                                                          *:SysNouns*
+\mn                                                                      *\mn*
+model.pl nouns --plain, in a split.
+
+:SysVerbs                                                          *:SysVerbs*
+\mb                                                                      *\mb*
+model.pl verbs --plain, in a split.
+
+:SysTags                                                            *:SysTags*
+\mt                                                                      *\mt*
+model.pl tags: CTRL-] on any definition, requirement or DOORS id.
+
+==============================================================================
+16. PRACTICE LESSONS                                          *agile-practice*
+
+Hands-on lessons in sandbox projects under data/practice/ (ignored by git;
+throw them away any time). Each lesson sets up a fresh project, prints the
+task, and checks your result: >
+    perl agile.pl practice                list the lessons
+    perl agile.pl practice 1              set up lesson 1, print the task
+    perl agile.pl practice check 1        what is done, what is missing
+    perl agile.pl practice reset 1        remove the sandbox
+<   Work inside the sandbox (cd data/practice/lesson1). The task text below
+says daily.pl for perl KIT/bin/daily.pl (|agile-alias|). Each check prints
+"lesson N: done" when everything is right.
+
+------------------------------------------------------------------------------
+Lesson 1: the first stand-up file and compile               *agile-practice-1*
+
+Sandbox: a new, empty project (daily.pl init).
+Task:
+1. Make today's file: daily.pl new (or :SNew in Vim).
+2. Under its "sprint 1" line add a team and three tasks, and commit two of
+   them with a capacity: >
+    == Alpha
+    cap 10
+    new AL-1 3 Set up the build p:1 e:"A1 Tooling" o:"Ann Lee"
+    new AL-2 5 Write the ICD p:2 e:"A1 Tooling" o:"Bob Ray"
+    new AL-3 2 Draft the test plan p:3 e:"A1 Tooling" o:"Ann Lee"
+    commit AL-1 Ann Lee
+    commit AL-2 Bob Ray
+<
+3. daily.pl --dry compile until it is clean, then daily.pl compile.
+4. daily.pl status, daily.pl sprint, then daily.pl commit.
+Check: three or more tasks in the journal, two or more committed in sprint
+1, a capacity for sprint 1, no pending stand-up file, and a git commit.
+
+------------------------------------------------------------------------------
+Lesson 2: carry, block and unblock                          *agile-practice-2*
+
+Sandbox: a copy of the Halberd project, mid-sprint, compiled up to
+yesterday.
+Task:
+1. daily.pl sprint: note the open tasks of the current sprint.
+2. In today's file (daily.pl new), block the oldest open task with a
+   reason: block HAL-N waiting on the shared runner. Compile.
+3. Make a second file for today, standups/DATE-b.txt, with the same first
+   two lines (the date, sprint N) and "== Halberd". In it: unblock that
+   task, and carry another open task. Compile.
+4. daily.pl blocked (now empty), daily.pl commit.
+Check: today a task was blocked with a reason and unblocked again, a task
+went to Carryover today, nothing pending, and a commit after the set-up.
+
+------------------------------------------------------------------------------
+Lesson 3: close the sprint and report                       *agile-practice-3*
+
+Sandbox: a copy of the Halberd project, mid-sprint.
+Task: close the current sprint as on Day 14 (|agile-howto-review|).
+1. daily.pl sprint: every open task.
+2. In today's file mark each one done or carry, compile.
+3. daily.pl review, daily.pl report, daily.pl commit.
+Check: no open points left in the current sprint,
+reports/sprint-N-report.txt and reports/DATE-status.html exist, nothing
+pending, a commit after the set-up.
+
+------------------------------------------------------------------------------
+Lesson 4: the townhall chat lint                            *agile-practice-4*
+
+Sandbox: the DroneCorp backlog planned yesterday, with today's chat pasted
+in standups/DATE-chat.txt by sim/rehearsal.pl (mistakes seeded). The answer
+key is in .answer-key.txt; read it after you try.
+Task:
+1. daily.pl lint: who has an ERROR and why (|agile-ytb|)?
+2. daily.pl lint --reply: the replies you would post.
+3. For each ERROR, add a corrected repost at the end of the chat file, as
+   the person would post it: a line "[9:01 AM] Name" then their status
+   "Y ... T ... B none" with their task ids. Their last message wins.
+4. daily.pl lint again until there is no ERROR, then daily.pl answers.
+Check: lint finds no ERROR in today's chat, and today's answers file exists.
+In Vim the same is :STown, \sp, \sl.
+
+------------------------------------------------------------------------------
+Lesson 5: the memory drill                                  *agile-practice-5*
+
+Sandbox: the DroneCorp project.
+Task:
+1. daily.pl drill --sheet Contracting (or :SDrill Contracting in Vim).
+2. Open the sheet it names; answer at least six cards after the ">" marks:
+   ids, codes, initials. Look things up with daily.pl backlog Contracting
+   and daily.pl members Contracting first if you like: that is reading,
+   the drill is recall.
+3. Grade it: daily.pl drill --grade reports/DATE-drill.txt (or :w).
+Check: drill.txt holds at least six graded cards and at least one right.
+
+------------------------------------------------------------------------------
+Lesson 6: IDEF0 lint, fix, plates                           *agile-practice-6*
+
+Sandbox: model/, a five-model IDEF0 project with errors seeded in
+model/design.txt.
+Task:
+1. perl KIT/tools/idef0/idef0.pl lint model/*.txt (or \iL in Vim).
+2. Fix every error (|agile-err-idef0-tabs|, |agile-err-idef0-direction| and
+   the others in |agile-errors|) until lint says 0 error(s).
+3. The plates: >
+    perl KIT/tools/idef0/idef0.pl html model/*.txt > plates.html
+    perl KIT/tools/idef0/idef0.pl text model/*.txt > plates.txt
+<
+Check: lint reports no errors, and plates.html holds SVG plates newer than
+every model file.
+
+------------------------------------------------------------------------------
+Lesson 7: a status memo                                     *agile-practice-7*
+
+Sandbox: the Halberd project and memo.md, a memo with TODO marks.
+Task (|agile-howto-memo|):
+1. daily.pl status and daily.pl quad for the facts.
+2. Replace every TODO in memo.md; say which sprint this is ("sprint N").
+3. perl KIT/tools/memo/md2memo.pl memo.md > memo.pdf
+   perl KIT/tools/memo/md2memo.pl --plain memo.md > memo.txt
+Check: no TODO left, the current sprint number named, memo.pdf is a PDF
+newer than memo.md, and memo.txt exists.
+
+------------------------------------------------------------------------------
+Lesson 8: port a segment to SysML v2                        *agile-practice-8*
+
+Sandbox: legacy.xmi (a small Cameo export, tests/fixtures/xmi2sysml) and an
+empty model repository (git init) with a sysml.conf.
+Task (|agile-howto-port-segment|):
+1. perl KIT/bin/xmi2sysml.pl --report legacy.xmi: how many elements are
+   left as TODO?
+2. perl KIT/bin/xmi2sysml.pl --out model --check legacy.xmi
+3. perl KIT/tools/sysml/sysml.pl check model/*/*.sysml (or \mx in Vim).
+4. Work the TODO lines: :vimgrep #// TODO# model/**/*.sysml. For each one
+   either model the element by hand or keep the line and mark it reviewed by
+   changing "// TODO" to "// TODO(reviewed)". Write in NOTES.txt one line,
+   "TODO: N", N being the number of TODO lines left (count lines, not the
+   report's figure: :vimgrep shows them).
+5. git add model NOTES.txt, git commit -m "port: legacy.xmi".
+Check: .sysml files under model/, sysml.pl check passes, every TODO line is
+fixed or marked TODO(reviewed), NOTES.txt says how many are left (and the
+number is right), and the work is committed.
+
+==============================================================================
+17. VIM BASICS                                            *agile-vim-basics*
+
+The Vim that ships with Git for Windows is all you need. docs/VIM-CHEATSHEET.html
+is the one-page sheet (modes, moving, editing, search, windows, clipboard,
+folds, quickfix) next to the kit's own keys; vimtutor in Git Bash is a
+30-minute lesson; :help is Vim's own manual. The few that matter most:
+Esc            normal mode; when in doubt, press Esc
+i a o          insert before, after, on a new line
+:w :q :wq :q!  save, quit, both, quit without saving
+u CTRL-R .     undo, redo, repeat the last change
+dd yy p        delete a line, copy a line, paste
+/text n        search, next
+"+p "+yy       paste from / copy to the Windows clipboard
+:e!            reload a file a tool rewrote
+CTRL-] CTRL-O  follow a help link, come back
+
+==============================================================================
+18. TROUBLESHOOTING                                         *agile-trouble*
+
+Every message the kit prints on an error is in the catalog, |agile-errors|
+(vim/doc/agile-errors.txt), with what it means and the fix. Paste one: >
+    perl agile.pl help error "PASTED MESSAGE"
+<
+When there is no message:
+- A :S command does nothing or says scrum.conf is missing: you are not in a
+  project directory. :pwd, then :cd to the project (|agile-err-no-scrum-conf|).
+- :help agile says "Sorry, no help": the source line is not in ~/.vimrc, or
+  vim/doc is not writable so :helptags could not run; run
+  :helptags ~/projects/agile/vim/doc once.
+- A report looks stale: daily.pl report rewrites reports/; press F5 in the
+  browser; agile.pl rebuilds ./dashboard.html.
+- Numbers look wrong: the journal is the truth. daily.pl sprint, then
+  :SJournal and * on the task id to walk its postings.
+- Mail does not open: draft, brief, cards and invite need classic Outlook on
+  Windows (|agile-err-powershell|). Everything else works without it.
+
+==============================================================================
+19. QUICK REFERENCE                                          *agile-quickref*
+
+The most used commands                              *agile-quickref-commands*
+
+Every day       daily.pl new | --dry compile | compile | report | commit
+                daily.pl all --draft          (compile, report, draft, commit)
+Townhall        daily.pl propose | lint | lint --reply | answers --assume
+                Vim: \sw (:STown)  \sp paste+lint  \sy replies  :SSend Name
+Looking         daily.pl status | sprint | blocked | backlog TEAM | members
+                daily.pl quad | health | velocity | roadmap | epics
+Sprint          daily.pl review | rollup | csv
+People          daily.pl roster | roster add "Name" email Team Role Org
+Mail            daily.pl check | draft | brief | cards --draft
+Cockpit         perl agile.pl PROJECT
+Help            perl agile.pl help TOPIC | search WORDS | error "MESSAGE"
+Practice        perl agile.pl practice N | practice check N
+Ledger          perl bin/ledger.pl -f FILE bal | reg | budget | evm | forecast
+IDEF0           perl tools/idef0/idef0.pl lint | html | text FILE...
+Memo            perl tools/memo/md2memo.pl memo.md > memo.pdf
+
+ vim:tw=78:ts=8:ft=help:norl:

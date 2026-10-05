@@ -1,0 +1,999 @@
+*agile-errors.txt*	The agile kit's messages: what each means and the fix
+
+Every message the kit's commands print when something goes wrong, with what
+it means and what to do. Paste a message on the command line and the
+matching entry is printed: >
+    perl agile.pl help error "standups/2026-10-05.txt:7: unknown verb 'don'"
+<
+"Pattern:" lines are the messages as the code writes them; * stands for the
+part that changes (a file name, a task id). Messages from a stand-up file
+start with FILE:LINE: so you can jump there (in Vim: :e +LINE FILE).
+
+==============================================================================
+1. PROJECT AND FILES                                            *agile-errors*
+
+------------------------------------------------------------------------------
+                                                     *agile-err-no-scrum-conf*
+no scrum.conf found here or above (run: daily.pl init)
+
+  Pattern: no scrum.conf found here or above
+  Pattern: has no scrum.conf (run daily.pl init there first)
+  Pattern: no such project directory
+  Pattern: no scrum.conf here or above
+  Pattern: no such file: *
+  From:    daily.pl (any command), agile.pl, the :S commands, sim/rehearsal.pl
+  Means:   The command looks for scrum.conf in the current directory and
+           every directory above it, and found none (or -c named a file
+           that does not exist, or agile.pl was given a directory that is
+           not a project).
+  Fix:     cd into the project first (the directory daily.pl init made, or
+           any directory below it), or pass -c PATH/scrum.conf. For
+           agile.pl, give the project path: perl agile.pl ~/scrum/myprogram.
+           No project yet: daily.pl init DIR (|agile-first-project|).
+           In Vim, :pwd shows where you are; :cd to the project.
+
+------------------------------------------------------------------------------
+                                                      *agile-err-cannot-write*
+cannot write FILE: REASON
+
+  Pattern: cannot write *: *
+  Pattern: cannot append *: *
+  Pattern: cannot append to *: *
+  Pattern: help: cannot write *: *
+  Pattern: idef0: cannot write *: *
+  Pattern: cannot write devsecops.html: *
+  From:    daily.pl (report, review, rollup, csv, drill, propose, lint,
+           answers, cards, init), agile.pl, scrum.pl, Roster.pm, Ai.pm,
+           Attendance.pm, Calendar.pm, Standup.pm, idef0.pl fmt --write
+  Means:   The file could not be opened for writing. REASON is the system's
+           words: "Permission denied" (read-only, or open and locked in
+           another program: Excel holds a CSV open, OneDrive or antivirus is
+           syncing it), "No such file or directory" (the directory is
+           missing), "No space left on device".
+  Fix:     Close the file in Excel or the browser, wait for OneDrive, check
+           the directory exists and is yours (ls -ld DIR), then run the
+           command again. Reports are regenerated every time, so nothing is
+           lost by re-running.
+
+------------------------------------------------------------------------------
+                                                       *agile-err-cannot-read*
+cannot read FILE: REASON  /  cannot open FILE: REASON
+
+  Pattern: cannot read *: *
+  Pattern: cannot open *: *
+  Pattern: help: cannot read *: *
+  Pattern: idef0: cannot read *: [Errno *
+  Pattern: cannot read logo *: *
+  From:    daily.pl (chat, answers, lint, attend, drill --grade), chat.pl,
+           cal.pl, Ledger.pm, Standup.pm, Answers.pm, Attendance.pm,
+           Calendar.pm (calendar_fixture), idef0.pl
+  Means:   The named file is missing or cannot be read: a typo in the path,
+           a file not yet created (today's chat before you pasted it), or a
+           scrum.conf key (journal, calendar_fixture) pointing nowhere.
+  Fix:     ls the path. Paths in scrum.conf are relative to scrum.conf.
+           For today's chat: :SChat creates it, paste, :w.
+
+------------------------------------------------------------------------------
+                                                      *agile-err-cannot-chdir*
+cannot chdir DIR: REASON
+
+  Pattern: cannot chdir *: *
+  From:    daily.pl, daily.pl init, devsecops.pl
+  Means:   The project (or kit) directory cannot be entered: removed,
+           renamed, or on a drive that is not connected.
+  Fix:     Check the path (ls -ld DIR). Reconnect the share, or run init
+           with a directory you own.
+
+------------------------------------------------------------------------------
+                                                   *agile-err-daily-commands*
+commands: init new status compile report ...
+
+  Pattern: commands: init new status compile report draft brief commit
+  From:    daily.pl
+  Means:   The command word is not one daily.pl knows (a typo, or an
+           option before the command that needs a value: -c FILE).
+  Fix:     The list printed is every command. daily.pl help COMMAND for
+           one; perl agile.pl help search WORD to find it (|agile-daily|).
+
+------------------------------------------------------------------------------
+                                                   *agile-err-unknown-command*
+unknown command 'X' (sprint velocity backlog ...)
+
+  Pattern: unknown command '*' (sprint velocity
+  Pattern: unknown command '*' (bal reg
+  Pattern: idef0: unknown command *
+  From:    scrum.pl, ledger.pl, idef0.pl
+  Means:   The first word after the options is not a command of that tool.
+  Fix:     The parentheses list every command. scrum.pl help, ledger.pl
+           help (|agile-scrum|, |agile-ledger|, |agile-idef0-commands|).
+
+------------------------------------------------------------------------------
+                                                       *agile-err-usage*
+usage: ...
+
+  Pattern: usage: daily.pl rollup [YYYY-MM]
+  Pattern: usage: daily.pl roster add "Name" email Team "Role" "Org"
+  Pattern: --until wants YYYY-MM-DD
+  Pattern: usage: perl agile.pl help search WORDS
+  Pattern: usage: perl agile.pl help error
+  Pattern: usage: docs2txt.pl grep [-i] PATTERN FILE...
+  Pattern: -o needs a directory
+  Pattern: usage: idef0 svg NODE FILE...
+  Pattern: usage: md2memo.pl
+  Pattern: --banner must be page or doc
+  Pattern: --font must be times or courier
+  Pattern: usage: perl agile.pl practice
+  From:    daily.pl rollup, roster add, invite; agile.pl help; docs2txt.pl;
+           idef0.pl svg; md2memo.pl; agile.pl practice
+  Means:   An argument is missing or in the wrong form; the message shows
+           the right form.
+  Fix:     Run it again as shown. Dates are YYYY-MM-DD, months YYYY-MM.
+           Quote names with spaces: roster add "Lee, Ann" ...
+
+==============================================================================
+2. COMPILING A STAND-UP FILE                             *agile-errors-compile*
+
+A stand-up file is checked whole: every error in it is listed, and nothing
+from it is applied until all are fixed. Fix the lines, :SDry until clean,
+then :SCompile. Each message starts with the file (and line).
+
+------------------------------------------------------------------------------
+                                                      *agile-err-not-applied*
+FILE: NOT applied
+
+  Pattern: : NOT applied
+  From:    daily.pl compile (and all, :SCompile)
+  Means:   The stand-up file named has at least one error (listed under
+           this line) and none of it went into the journal. Files after it
+           were not tried either.
+  Fix:     Look each listed error up (they are below), fix the file, then
+           daily.pl --dry compile until it prints no errors, then compile.
+           Runbook: |agile-howto-bad-compile|.
+
+------------------------------------------------------------------------------
+                                                      *agile-err-unknown-verb*
+FILE:LINE: unknown verb 'X'
+
+  Pattern: unknown verb '*'
+  From:    Standup.pm (compile, --dry compile)
+  Means:   The first word of the line is not a verb: a typo (don, comit),
+           a sentence typed as a line, or a status pasted without ; in
+           front.
+  Fix:     Use a verb from |agile-verbs|, or put ; before free text, or
+           write it as note TEXT.
+
+------------------------------------------------------------------------------
+                                                        *agile-err-needs-team*
+FILE:LINE: 'VERB' needs a team section (== Team) first
+
+  Pattern: needs a team section (== Team) first
+  From:    Standup.pm
+  Means:   A verb line comes before any "== Team" header (or after a bare
+           "==" that ended the section). Only note and risk may stand
+           outside a section.
+  Fix:     Add "== Team" above the line (the team's exact name, as in
+           daily.pl sprint), or "== Master" for the master backlog.
+
+------------------------------------------------------------------------------
+                                                         *agile-err-verb-args*
+FILE:LINE: VERB needs an id (and other missing arguments)
+
+  Pattern: hold needs an id
+  Pattern: punt needs an id
+  Pattern: redo needs an id
+  Pattern: commit needs an id
+  Pattern: block needs an id
+  Pattern: refine needs an id
+  Pattern: prune needs an id
+  Pattern: pass needs id and the receiving team
+  Pattern: sync needs two or more ids
+  Pattern: assign needs id and owner
+  Pattern: est needs id and points
+  Pattern: cap needs a number
+  Pattern: new needs: id points title
+  From:    Standup.pm
+  Means:   The verb is right but its arguments are not: a missing id, a
+           missing owner or team, points that are not a number (est A-1
+           five), or new without points (new A-1 Title).
+  Fix:     The forms are in |agile-verbs|: new ID PTS TITLE [p:N e:EPIC
+           t:TOME o:OWNER], est ID PTS, assign ID OWNER, pass ID TEAM,
+           sync ID ID, cap N. Quote multi-word values: o:"Bob Ray".
+
+------------------------------------------------------------------------------
+                                                           *agile-err-no-date*
+FILE: no date (put YYYY-MM-DD in the file name or on the first line)
+
+  Pattern: no date (put YYYY-MM-DD in the file name or on the first line)
+  From:    Standup.pm
+  Means:   The stand-up file's name has no date and no line of the file is
+           a bare date.
+  Fix:     Name it standups/YYYY-MM-DD.txt (daily.pl new does), or put the
+           date alone on the first line.
+
+------------------------------------------------------------------------------
+                                                        *agile-err-no-sprint*
+FILE: no sprint number (add 'sprint N')
+
+  Pattern: no sprint number (add 'sprint N')
+  From:    Standup.pm
+  Means:   The journal has no sprint yet and the file does not say which
+           sprint it is (a new project's first file).
+  Fix:     Put "sprint 1" on the line after the date (|agile-verb-sprint|).
+
+------------------------------------------------------------------------------
+                                                      *agile-err-unknown-task*
+FILE: unknown task 'ID'
+
+  Pattern: unknown task '*'
+  From:    Standup.pm
+  Means:   No task with that id is in the journal, nor created earlier in
+           this file. Usually a typo (B-12 for B-121), or the new line for
+           it is in a later file.
+  Fix:     daily.pl backlog TEAM or :SJournal and /ID to find the right id.
+           In Vim, CTRL-X CTRL-K completes ids from the journal. To create
+           it: new ID PTS TITLE in this file.
+
+------------------------------------------------------------------------------
+                                                       *agile-err-task-exists*
+FILE: task 'ID' already exists
+
+  Pattern: task '*' already exists
+  From:    Standup.pm (new, new!)
+  Means:   A new line uses an id that is already in the journal (or twice
+           in this file). Ids are never reused, even for removed tasks.
+  Fix:     Pick a new id. To bring an existing task into the sprint use
+           commit; to resize it use est.
+
+------------------------------------------------------------------------------
+                                                    *agile-err-not-committed*
+FILE: 'ID' is not committed in sprint N for TEAM (at: ACCOUNTS)
+
+  Pattern: is not committed in sprint * for *
+  From:    Standup.pm (done, carry, drop, punt, pass)
+  Means:   These verbs move a task out of this sprint's Committed account
+           for this team, and the task is not there. "at:" says where its
+           points are: a backlog (commit it first), Done (already done),
+           Carryover, another team's sprint (wrong section), or "nowhere"
+           (removed). A "sprint N" line for the wrong sprint does this to
+           every line.
+  Fix:     Put the line under the right "== Team"; check the file's sprint
+           number; daily.pl sprint shows what is committed. For a task in
+           a backlog use commit first; to retire it from a backlog use
+           prune.
+
+------------------------------------------------------------------------------
+                                                    *agile-err-not-in-backlog*
+FILE: 'ID' is not in a backlog or carryover for TEAM (at: ACCOUNTS)
+
+  Pattern: is not in a backlog or carryover for *
+  Pattern: is not in the master backlog or another team's backlog
+  Pattern: is not in a backlog (at: *); use drop for committed work
+  From:    Standup.pm (commit, refine, prune)
+  Means:   commit takes a task from the team's backlog, the master backlog
+           or a past sprint's Carryover; refine from the master or another
+           team's backlog; prune from a backlog. The task is elsewhere,
+           shown after "at:" (already committed, done, removed).
+  Fix:     Already in the sprint: nothing to do. Committed work you want
+           out: drop (or carry). A task of another team: refine it into
+           this team's backlog first, or put the line under that team.
+
+------------------------------------------------------------------------------
+                                                         *agile-err-no-points*
+FILE: 'ID' has no points to re-estimate
+
+  Pattern: has no points to re-estimate
+  From:    Standup.pm (est)
+  Means:   The task has no points anywhere (done and closed, or removed),
+           so there is nothing to resize.
+  Fix:     Estimate open work only. To change history, post a new task.
+
+------------------------------------------------------------------------------
+                                                    *agile-err-redo-not-done*
+FILE: 'ID' is not Done for TEAM in any sprint (at: ...); redo is for finished work
+
+  Pattern: is not Done for * in any sprint
+  From:    Standup.pm (redo)
+  Means:   redo brings a task that was done back into this sprint; this
+           one was never done for this team.
+  Fix:     For work still committed, nothing is needed; for another team's
+           task put the line under that team.
+
+------------------------------------------------------------------------------
+                                                 *agile-err-already-compiled*
+FILE is already in JOURNAL: marked it compiled, applied nothing
+
+  Pattern: is already in *: marked it compiled, applied nothing
+  From:    Standup.pm (compile)
+  Means:   An earlier compile appended this file's entries but could not
+           mark the file (it was locked). The kit noticed and did not apply
+           it twice. A warning, not an error.
+  Fix:     Nothing. To change what it did, see |agile-howto-bad-compile|.
+
+------------------------------------------------------------------------------
+                                              *agile-err-journal-write-failed*
+writing JOURNAL failed (...): check the end of the journal ...
+
+  Pattern: failed (*): check the end of the journal before compiling again
+  Pattern: cannot mark * compiled (*); it is applied
+  From:    Standup.pm (compile)
+  Means:   The disk was full or the journal (or stand-up file) was locked
+           by another program while compile wrote it. The first message:
+           the journal may end with a partial entry and the stand-up file is
+           NOT marked compiled. The second: the entries are in, the mark is
+           not; the next compile notices.
+  Fix:     Close what holds the file (an editor, OneDrive). After the first
+           message, git diff scrum.txt: remove a partial last entry (or git
+           checkout -- scrum.txt), then compile again.
+
+==============================================================================
+3. THE JOURNAL AND LEDGER FILES                          *agile-errors-ledger*
+
+------------------------------------------------------------------------------
+                                                      *agile-err-journal-line*
+FILE:LINE: unrecognised line / bad date / bad amount ...
+
+  Pattern: unexpected indented line
+  Pattern: bad date '*'
+  Pattern: cannot include '*': *
+  Pattern: unrecognised line: *
+  Pattern: bad amount '*'
+  Pattern: bad price '*'
+  From:    Ledger.pm (every command that reads the journal: daily.pl
+           status and all others, scrum.pl, ledger.pl)
+  Means:   A line of the journal (usually a hand edit) does not parse:
+           a posting not under a dated transaction line, a date not
+           YYYY-MM-DD, an amount that is not a number with a unit, a single
+           space between account and amount (two or more are needed).
+  Fix:     Open the file at the line (vim +LINE scrum.txt), compare with the
+           lines around it, fix it, then daily.pl status. If you did not
+           edit it: git diff scrum.txt; git checkout -- scrum.txt.
+
+------------------------------------------------------------------------------
+                                                         *agile-err-unbalanced*
+FILE:LINE: transaction does not balance (off by N)
+
+  Pattern: transaction does not balance (off by *)
+  Pattern: more than one posting without an amount
+  From:    Ledger.pm
+  Means:   The postings of an entry do not sum to zero, or two postings
+           leave their amount out (only one may).
+  Fix:     Make the amounts sum to zero, or leave exactly one amount out
+           (it balances the rest). In the scrum journal every move is a
+           pair: -5 SP out of one account, 5 SP into another.
+
+------------------------------------------------------------------------------
+                                                         *agile-err-bad-period*
+bad period 'X' (want YYYY, YYYY-MM or YYYY-Qn)
+
+  Pattern: bad period '*' (want YYYY, YYYY-MM or YYYY-Qn)
+  Pattern: budget: need period or begin+end
+  Pattern: bad --begin
+  Pattern: bad --end
+  Pattern: bad --now (want YYYY-MM-DD)
+  From:    ledger.pl
+  Means:   A date option is not in a form ledger.pl reads.
+  Fix:     -p 2026, -p 2026-09 or -p 2026-Q3; -b and -e and --now take
+           YYYY-MM-DD.
+
+------------------------------------------------------------------------------
+                                                        *agile-err-evm-budget*
+evm: budget '~ ...' (FILE:LINE) needs 'from DATE to DATE' ...
+
+  Pattern: needs 'from DATE to DATE' to give a budget at completion
+  From:    ledger.pl evm
+  Means:   Earned value needs time-phased budgets: a "~ Monthly" entry with
+           no window has no budget at completion.
+  Fix:     Write the budget as ~ Monthly from 2026-10-01 to 2027-01-01
+           (|agile-howto-funding|).
+
+------------------------------------------------------------------------------
+                                                          *agile-err-complete*
+percent complete for 'ACCOUNT' is not a number / is over 100
+
+  Pattern: percent complete for '*' is not a number
+  Pattern: percent complete for '*' is over 100
+  Pattern: --complete wants ACCOUNT=PCT, got '*'
+  Pattern: want 'account,pct'
+  From:    ledger.pl evm (--complete, --complete-file)
+  Means:   A percent-complete value is malformed: not a number, over 100,
+           an option without "=", or a CSV line that is not "account,pct".
+  Fix:     --complete Expense:Labor=40 (also 0.4 or 40%); CSV lines like
+           Expense:Labor,40 (a header line and # comments are fine).
+
+------------------------------------------------------------------------------
+                                                          *agile-err-csv-table*
+csv: unknown table 'X' (items sprints epics intake health)
+
+  Pattern: csv: unknown table '*'
+  From:    daily.pl csv, scrum.pl csv
+  Means:   The table name is not one of the list.
+  Fix:     Use one of the names shown; daily.pl csv with no name writes all.
+
+==============================================================================
+4. THE CHAT, LINT AND ANSWERS                              *agile-errors-chat*
+
+lint prints FILE:LINE: ERROR|warn|ok Name: reason. ERROR: the status cannot
+be used; warn: it parses but tells the kit little. The fix is the person's
+repost, prompted by lint --reply (|agile-ytb|).
+
+------------------------------------------------------------------------------
+                                                      *agile-err-lint-no-ytb*
+ERROR Name: no Y/T/B found / no B found
+
+  Pattern: no Y/T/B found
+  Pattern: no * found
+  From:    Answers.pm (lint, answers)
+  Means:   The person's message has no Y, T and B delimiters at all, or
+           lacks one of them ("no B found": they left out the blockers).
+  Fix:     Reply with the format: Y did B-11 T doing B-12 B none. "B none"
+           is data. A repost replaces the first message.
+
+------------------------------------------------------------------------------
+                                                    *agile-err-lint-dup-delim*
+ERROR Name: 'B' appears 2 times: capitalize the one that is the delimiter
+
+  Pattern: appears * times: capitalize the one that is the delimiter
+  From:    Answers.pm
+  Means:   Lowercase y t b are accepted only when unambiguous; here a letter
+           occurs twice ("will b in the lab"), so the kit will not guess.
+           lint --reply offers its best reading as "Did you mean ...?".
+  Fix:     The person reposts with capital Y T B, or thumbs-up the "did you
+           mean"; then daily.pl answers --guess takes that reading.
+
+------------------------------------------------------------------------------
+                                                        *agile-err-lint-empty*
+ERROR Name: T is empty; B is empty (write 'none')
+
+  Pattern: is empty (write 'none')
+  Pattern: * is empty
+  From:    Answers.pm (lint, answers)
+  Means:   The delimiters are there but a field has nothing after it: only
+           "Y: ..." was posted, or "B" with nothing. A blocker field must
+           say none when there is none.
+  Fix:     The person reposts all three: Y did B-11 T doing B-12 B none.
+
+------------------------------------------------------------------------------
+                                                        *agile-err-lint-order*
+ERROR Name: out of order: expected Y ... T ... B ...
+
+  Pattern: out of order: expected Y ... T ... B ...
+  From:    Answers.pm
+  Means:   All three delimiters are there but not in the order Y, T, B.
+  Fix:     Repost in order.
+
+------------------------------------------------------------------------------
+                                                        *agile-err-lint-no-id*
+warn Name: no task id in Y (e.g. B-11) / ID is not in the journal
+
+  Pattern: no task id in * (e.g. *)
+  Pattern: * is not in the journal
+  From:    Answers.pm
+  Means:   The status parses, but Y or T names no task id, so it cannot be
+           tied to the journal; or an id is not in the journal (a typo).
+  Fix:     lint --reply says "Add the task id next time" or "X isn't in the
+           backlog -- typo?". A warning does not stop answers.
+
+------------------------------------------------------------------------------
+                                                      *agile-err-no-chat-file*
+no chat file for DATE / no chat files for DATE / no Y/T/B answers found
+
+  Pattern: no chat file
+  Pattern: no chat files for *
+  Pattern: no Y/T/B answers found
+  Pattern: no #est / #vote markers
+  Pattern: no answers files for *
+  Pattern: no attendance reports for *
+  From:    daily.pl lint, answers, chat, ai, joined
+  Means:   Today's input file is not there yet, or it holds no statuses or
+           rounds. The file names are standups/DATE-chat.txt (or
+           DATE-TEAM-chat.txt) for the chat and
+           standups/DATE[-TEAM]-attendance.csv for the attendance download.
+  Fix:     :SChat, paste the Teams chat (CTRL-A CTRL-C there), :w. For ai,
+           run answers first. --today D if you are catching up a past day.
+
+------------------------------------------------------------------------------
+                                                     *agile-err-roster-check*
+NAME owns tasks in the journal but is not in roster.txt (roster check)
+
+  Pattern: owns tasks in the journal but is not in roster.txt
+  Pattern: roster team '*' differs from the journal's '*'
+  Pattern: is in roster.txt but owns no task in the journal
+  Pattern: no e-mail (1:1 links and the invite will skip them)
+  Pattern: *: no team
+  Pattern: * appears twice (lines *
+  Pattern: no e-mails in roster.txt
+  From:    daily.pl roster, invite
+  Means:   roster.txt and the journal disagree: an owner's name is spelled
+           differently (it must be the Teams display name, exactly), a
+           person's team changed, a line has no e-mail, or a name is listed
+           twice.
+  Fix:     daily.pl roster add "Name" email Team Role Org updates a line; or
+           edit roster.txt (Name | email | Team | Role | Org). To fix the
+           journal side: assign ID "Right Name" in a stand-up file.
+
+==============================================================================
+5. MAIL, CALENDAR, AI                                      *agile-errors-mail*
+
+------------------------------------------------------------------------------
+                                                  *agile-err-marking-refused*
+refusing: fix the marking errors above, or run again with --force
+
+  Pattern: refusing: fix the marking errors above
+  Pattern: error: recipient * is outside mail_domains
+  From:    daily.pl draft, brief, cards --send/--draft, invite, check
+  Means:   scrum.conf sets mail_domains and a recipient (to, cc, an
+           attendee) is outside them. Nothing was opened or sent.
+  Fix:     Correct the address in scrum.conf (to, cc) or roster.txt, or the
+           mail_domains list; daily.pl check to confirm. --force only if
+           you are sure the recipient may receive the material.
+
+------------------------------------------------------------------------------
+                                                     *agile-err-marking-warn*
+warn: marking_owner is empty ... (marking advisories)
+
+  Pattern: warn: marking_owner is empty
+  Pattern: warn: marking_poc is empty
+  Pattern: warn: subject_prefix is empty while a banner is set
+  From:    daily.pl check, draft, brief, cards, invite
+  Means:   A banner is set but the marking block is incomplete. Advisory:
+           mail still goes.
+  Fix:     Fill marking_owner, marking_poc and subject_prefix in scrum.conf
+           (|agile-conf-banner|).
+
+------------------------------------------------------------------------------
+                                                        *agile-err-powershell*
+powershell.exe failed (is this Windows with Outlook installed?)
+
+  Pattern: powershell.exe failed (is this Windows with Outlook installed?)
+  Pattern: powershell failed (rc=*)
+  Pattern: bad JSON from PowerShell
+  Pattern: cannot run *: *
+  Pattern: create: need subject and start
+  Pattern: post needs an event id or subject pattern
+  Pattern: no event matching '*'
+  Pattern: commands: list dump attend
+  From:    daily.pl draft, brief, cards, invite, attend, post, meetings;
+           scrum.pl draft; cal.pl
+  Means:   The Outlook steps drive classic Outlook through PowerShell COM.
+           This fails when not on Windows, with "new Outlook" (it has no
+           COM), with Outlook not set up, or when a policy blocks it.
+  Fix:     On Windows, open classic Outlook once and try again. Offline or
+           elsewhere set calendar = mock and calendar_fixture = FILE.json in
+           scrum.conf for the calendar steps, and send mail by pasting
+           reports/DATE-status.html. docs/TEST-PLAN.html is the 30-minute
+           check of this layer on a laptop.
+
+------------------------------------------------------------------------------
+                                                                *agile-err-ai*
+AI request failed: ... / unknown ai_backend / ai_url not set
+
+  Pattern: AI request failed: *
+  Pattern: unknown ai_backend '*'
+  Pattern: ai_url not set in scrum.conf
+  Pattern: cannot run curl: *
+  Pattern: curl failed (rc=*): *
+  Pattern: bad JSON from AI endpoint: *
+  Pattern: no text in AI response: *
+  From:    daily.pl ai
+  Means:   With ai_backend = curl the kit calls an OpenAI-style endpoint
+           through Git's curl; the call failed (no network, wrong URL, a
+           key variable not set, a proxy) or the reply was not the expected
+           JSON.
+  Fix:     Use ai_backend = paste (the default): daily.pl ai writes the
+           prompt, you paste it into the approved service and save the reply
+           as reports/DATE-ai-response.txt. Nothing else depends on the AI.
+           Otherwise check ai_url, ai_model and ai_key_env (|agile-conf-ai_url|).
+
+------------------------------------------------------------------------------
+                                                            *agile-err-not-git*
+not a git repository (git init first)
+
+  Pattern: not a git repository (git init first)
+  From:    daily.pl commit, all
+  Means:   The project directory is not a git repository (made by hand, or
+           copied without .git).
+  Fix:     In the project: git init, git config core.autocrlf false, then
+           daily.pl commit (|agile-howto-backup|).
+
+==============================================================================
+6. THE KIT'S OTHER TOOLS                                   *agile-errors-tools*
+
+------------------------------------------------------------------------------
+                                                        *agile-err-docs2txt*
+FILE: TOOL not found / no converter for .EXT
+
+  Pattern: not found (Git for Windows ships it in mingw64/bin or usr/bin)
+  Pattern: no converter for .*
+  Pattern: failed on *
+  From:    docs2txt.pl, :SDocs
+  Means:   The converter for that format (pdftotext, docx2txt, antiword,
+           odt2txt) is not on this machine, or it failed on the file (a
+           scanned PDF has no text).
+  Fix:     perl bin/docs2txt.pl tools shows which were found. Git for
+           Windows ships them; a minimal Git install may not.
+
+------------------------------------------------------------------------------
+                                                          *agile-err-release*
+working tree not clean: commit first
+
+  Pattern: working tree not clean: commit first
+  Pattern: git tag failed
+  Pattern: git archive failed
+  From:    release.pl
+  Means:   A release is built from a commit, so uncommitted changes stop
+           it; or the tag already exists.
+  Fix:     git status; commit or stash; use a new tag name.
+
+------------------------------------------------------------------------------
+                                                    *agile-err-report-failed*
+daily.pl report failed / cannot listen on 127.0.0.1:PORT
+
+  Pattern: daily.pl report failed
+  Pattern: cannot listen on 127.0.0.1:*: *
+  From:    agile.pl, agile.pl serve
+  Means:   The report step for the cockpit failed (its own message is
+           above this one), or the port is in use (serve is already
+           running in another window).
+  Fix:     Run daily.pl report in the project to see the error. For serve:
+           close the other one, or --port 8091.
+
+------------------------------------------------------------------------------
+                                                            *agile-err-memo*
+bad classification 'X'
+
+  Pattern: bad classification '*'
+  From:    md2memo.pl
+  Means:   A marking tag {X}...{/} uses a class md2memo does not know.
+  Fix:     Classes are U, CUI, C, S, TS, with controls after //:
+           {S//NF}...{/}. Write a literal brace as \{.
+
+------------------------------------------------------------------------------
+                                                         *agile-err-practice*
+practice: no lesson N / lesson N is not set up
+
+  Pattern: practice: no lesson *
+  Pattern: practice: lesson * is not set up
+  Pattern: practice: lesson * needs *
+  Pattern: practice: *
+  From:    agile.pl practice
+  Means:   The lesson number is not in the list, its sandbox has not been
+           made yet (run practice N first), or a lesson needs a tool or file
+           that is not in this copy of the kit.
+  Fix:     perl agile.pl practice lists the lessons; practice N sets one up;
+           practice reset N starts it over.
+
+==============================================================================
+7. IDEF0 MODELS                                            *agile-errors-idef0*
+
+idef0.pl lint prints FILE:LINE: error: ... or warning: ...; in Vim the list
+is the quickfix list (\il, then :cn).
+
+------------------------------------------------------------------------------
+                                                       *agile-err-idef0-tabs*
+tabs in indentation; use 2 spaces per level
+
+  Pattern: tabs in indentation; use 2 spaces per level
+  Pattern: indentation of * is not a multiple of *
+  Pattern: indentation jumps from level * to *
+  From:    idef0.pl lint
+  Means:   Nesting is by indentation, two spaces per level: a tab, an odd
+           number of spaces, or a child indented two levels below its
+           parent.
+  Fix:     In Vim the IDEF0 buffer uses 2-space indents: >> and << shift by
+           one level; :retab turns tabs into spaces.
+
+------------------------------------------------------------------------------
+                                                      *agile-err-idef0-parse*
+cannot parse line / line has no name / no parent
+
+  Pattern: cannot parse line: *
+  Pattern: line has no name
+  Pattern: line has no parent model/activity
+  Pattern: not allowed in a name (link paths follow < or >)
+  Pattern: empty segment in link path
+  Pattern: model root 't' must be at indentation 0
+  Pattern: activity nested under a port
+  Pattern: port nested under a port
+  From:    idef0.pl lint
+  Means:   A line is not "TAG# Name [> or < link]" (tags: t model, a
+           activity, i c o m ports), a name is missing, a line is nested
+           under a port, a name holds a | (only link paths use |), or the
+           model line is indented.
+  Fix:     Compare with a line that lints: "  a# Define Quad Spec",
+           "    o# Quad Spec > F|Cut Frame Parts|Quad Spec".
+
+------------------------------------------------------------------------------
+                                                  *agile-err-idef0-direction*
+outputs declare goes-to with '>', not '<'
+
+  Pattern: outputs declare goes-to with '>', not '<'
+  Pattern: ports declare comes-from with '<', not '>'
+  Pattern: link source '*' is '*' -- flows must originate at an output
+  Pattern: link destination '*' is an output
+  From:    idef0.pl lint
+  Means:   An output (o) says where its flow goes with >; an input,
+           control or mechanism (i c m) says where it comes from with <.
+           A flow starts at an output and ends at an i, c or m.
+  Fix:     Flip the arrow, or move the link to the other end of the flow.
+
+------------------------------------------------------------------------------
+                                                *agile-err-idef0-broken-link*
+broken link: cannot resolve 'A|B|Flow'
+
+  Pattern: broken link: cannot resolve '*'
+  Pattern: has no unique port for flow '*'; add the port or use o1/i1 form
+  Pattern: one-sided cross-model link: *
+  Pattern: has no producer; did you mean '*'?
+  Pattern: has no consumer; did you mean '*'?
+  From:    idef0.pl lint
+  Means:   A link path names a model, activity or flow that is not there
+           (spelling, or the other model was not linted with this one), an
+           activity has two ports for the flow, a cross-model link is
+           declared on one side only, or a flow is produced or consumed
+           nowhere.
+  Fix:     Lint the whole project together (\iL, or idef0.pl lint
+           model/*.txt) so cross-model links resolve; fix the spelling the
+           message suggests; add the reciprocal < or > on the other side.
+           \if jumps to a link's target.
+
+------------------------------------------------------------------------------
+                                                  *agile-err-idef0-numbering*
+bad suffix / duplicate model letter / more than 9 activities
+
+  Pattern: bad model suffix *: use a single letter or #
+  Pattern: duplicate model letter '*' (also *)
+  Pattern: more than 9 activities on one plate
+  Pattern: pinned number * must be a single digit 1-9
+  Pattern: duplicate pinned digit * on plate * (also line *)
+  Pattern: bad activity suffix *
+  Pattern: asserted number * but position derives *
+  Pattern: asserted numbers are for activities; ports take # or a digit
+  Pattern: pinned port number * must be a single digit 1-9
+  Pattern: bad port suffix *
+  From:    idef0.pl lint, fmt
+  Means:   The character after the tag letter is the number: # derives it
+           from position, a digit pins it. Models need distinct letters; a
+           plate holds at most nine activities.
+  Fix:     Use # unless you mean to pin (\iu, fmt --auto, resets them);
+           split a plate with more than nine children one level down.
+
+------------------------------------------------------------------------------
+                                                      *agile-err-idef0-other*
+unclosed ```idef0 fence / doc comment / no plate / fmt refusing
+
+  Pattern: unclosed ```idef0 fence at end of file
+  Pattern: doc comment has no element line to attach to
+  Pattern: idef0: no plate *
+  Pattern: fmt: refusing to rewrite files with errors
+  From:    idef0.pl
+  Means:   A Markdown model's ```idef0 block is not closed; a ## doc
+           comment is not followed by a line; svg was given a node that does
+           not exist (idef0.pl dump lists them); fmt will not touch a file
+           that does not lint.
+  Fix:     Close the fence with ```; fix the lint errors first, then fmt.
+
+==============================================================================
+8. THE MODEL PORT AND SYSML TOOLS                         *agile-errors-sysml*
+
+------------------------------------------------------------------------------
+                                                        *agile-err-port-usage*
+usage: xmi2sysml.pl ... / nothing to do / --req-style is def or usage
+
+  Pattern: usage: xmi2sysml.pl
+  Pattern: usage: reqif2sysml.pl
+  Pattern: --req-style is def or usage
+  Pattern: nothing to do: give --out DIR
+  Pattern: xmi2sysml: *
+  Pattern: reqif2sysml: *
+  From:    xmi2sysml.pl, reqif2sysml.pl
+  Means:   The command line is incomplete (no input file, or no --out,
+           --stdout or --report), an option has a wrong value, or the input
+           could not be read: the rest of the message names the file and the
+           problem (exit 2). A message of the form FILE:LINE: ... after the
+           tool name is an XML problem: see agile-err-xml.
+  Fix:     Give one input file and one of --out DIR, --stdout or --report
+           (perl agile.pl help xmi2sysml / reqif2sysml). --req-style takes
+           usage (the default) or def.
+
+------------------------------------------------------------------------------
+                                                   *agile-err-port-no-checker*
+tools/sysml/sysml.pl not found; structural self-check only
+
+  Pattern: tools/sysml/sysml.pl not found; structural self-check only
+  From:    xmi2sysml.pl --check, reqif2sysml.pl --check
+  Means:   --check runs the SysML v2 grammar checker over the output, and this
+           copy of the kit has no tools/sysml. Only the tool's own structural
+           check ran. A warning.
+  Fix:     Use a full copy of the kit (tools/sysml/ is part of it), or check
+           the files later with perl tools/sysml/sysml.pl check.
+
+------------------------------------------------------------------------------
+                                                               *agile-err-xml*
+FILE:LINE: end tag </X> does not match <Y> (and other XML errors)
+
+  Pattern: unterminated comment
+  Pattern: unterminated CDATA section
+  Pattern: unterminated processing instruction
+  Pattern: unterminated DOCTYPE
+  Pattern: unterminated end tag
+  Pattern: end tag </*> does not match <*>
+  Pattern: end tag </*> with nothing open
+  Pattern: unterminated start tag
+  Pattern: empty tag
+  Pattern: malformed attributes in <*>
+  Pattern: missing end tag for <*>
+  Pattern: no root element
+  Pattern: parse_string: *
+  From:    XmlLite.pm, through xmi2sysml.pl, reqif2sysml.pl and status-
+           metrics.pl init
+  Means:   The XMI or ReqIF file is not well-formed XML: it was cut off (a
+           partial download or copy), edited by hand, or is not XML at all (a
+           .mdzip, a zipped file renamed). The message names the line.
+  Fix:     Export again from Cameo or DOORS and copy the whole file. Open it
+           at the line (vim +LINE FILE) to see the damage. Give xmi2sysml the
+           model file (the one with <uml:Model>), not a profile file.
+
+------------------------------------------------------------------------------
+                                                            *agile-err-reqifz*
+FILE: IO::Uncompress::Unzip is not available / not a zip / no .reqif file inside
+
+  Pattern: IO::Uncompress::Unzip is not available in this Perl
+  Pattern: not a zip (*)
+  Pattern: no .reqif file inside the archive
+  From:    reqif2sysml.pl, Reqif.pm (a .reqifz)
+  Means:   A .reqifz is a zip holding the .reqif. This Perl cannot unzip, the
+           file is not a zip, or no .reqif is inside it.
+  Fix:     Unzip it (unzip FILE.reqifz in Git Bash) and give the .reqif
+           inside; or export plain ReqIF from DOORS.
+
+------------------------------------------------------------------------------
+                                                         *agile-err-doors-csv*
+FILE: no id column (have: ...); name it with --col id=NAME
+
+  Pattern: no rows
+  Pattern: no column '*' (have: *)
+  Pattern: no id column (have: *); name it with --col id=NAME
+  Pattern: no text column (have: *); name it with --col text=NAME
+  From:    reqif2sysml.pl --csv
+  Means:   The DOORS CSV is empty, or its header has no column the tool
+           recognises as the id or the text (Object Identifier, Object Text),
+           or a --col names a column that is not there. The message lists the
+           columns it has.
+  Fix:     Name the columns: --col id="ID" --col text="Requirement" (also
+           heading, level, vm), spelled exactly as in the header. Check the
+           separator with --sep ';' if the columns run together.
+
+------------------------------------------------------------------------------
+                                              *agile-err-status-metrics-usage*
+usage: status-metrics.pl {init,collect,report} ... error: ...
+
+  Pattern: usage: status-metrics.pl {init,collect,report}
+  Pattern: status-metrics.pl: error: *
+  From:    status-metrics.pl
+  Means:   The command or an option is wrong or missing: init needs --config
+           --xmi --reqif; collect needs --config (and --history); report needs
+           --config and --history (and --out). The error part says which.
+  Fix:     perl bin/status-metrics.pl COMMAND --help prints the options; the
+           runbook is agile-howto-metrics-weekly.
+
+------------------------------------------------------------------------------
+                                               *agile-err-status-metrics-json*
+json: expected ':' at offset N (metrics.json or history.jsonl)
+
+  Pattern: json: trailing data at offset *
+  Pattern: json: expected ':' at offset *
+  Pattern: json: expected ',' or '}' at offset *
+  Pattern: json: expected ',' or ']' at offset *
+  Pattern: json: unexpected input at offset *
+  Pattern: json: unterminated string
+  From:    status-metrics.pl (reading metrics.json or a line of history.jsonl)
+  Means:   The JSON is malformed at that character offset: a missing comma or
+           quote, a trailing comma, a comment (JSON has none), or a history
+           line cut short by an interrupted collect.
+  Fix:     Open the file and go to the offset (in Vim: :goto N+1). For
+           history.jsonl, delete a broken last line and collect that day again
+           with --as-of DATE.
+
+------------------------------------------------------------------------------
+                                                *agile-err-status-metrics-git*
+git ...: exit N / gen_cmd ...: exit N / tag ...: not baseline-<number>
+
+  Pattern: git *: exit *
+  Pattern: gen_cmd *: exit *
+  Pattern: git archive *: *
+  Pattern: tag *: not baseline-<number>
+  Pattern: git log *: not a two-parent merge
+  Pattern: fork: *
+  Pattern: chdir *: *
+  Pattern: exec *: *
+  From:    status-metrics.pl collect
+  Means:   A command the collector runs failed: git (the repo path in
+           metrics.json is wrong, or git is not on PATH), the gen_cmd or
+           lint_cmd from metrics.json, or a repo convention is broken (a tag
+           named baseline-something that is not baseline-N; a commit taken for
+           a merge that has one parent).
+  Fix:     Run the same command by hand in the repo to see its error. Check
+           repo, gen_cmd and lint_cmd in metrics.json. Rename a stray tag (git
+           tag -d) so only baseline-N tags remain.
+
+------------------------------------------------------------------------------
+                                               *agile-err-status-metrics-data*
+bad date / bad timestamp / FILE: no date
+
+  Pattern: bad timestamp: *
+  Pattern: bad date: *
+  Pattern: *: no date
+  From:    status-metrics.pl collect (the exports)
+  Means:   An export file has a date the collector cannot read (dates are
+           YYYY-MM-DD, timestamps ISO 8601), or a runs/*/provenance.txt has no
+           date= line.
+  Fix:     Fix the named file in the exports directory; the formats are in
+           Appendix A of docs/STATUS-METRICS.html.
+
+------------------------------------------------------------------------------
+                                                       *agile-err-sysml-usage*
+usage: perl tools/sysml/sysml.pl check FILE... / model.pl: no model/ directory
+
+  Pattern: usage: perl tools/sysml/sysml.pl check FILE...
+  Pattern: model.pl: no model/ directory
+  Pattern: [--root DIR] COMMAND [options]
+  Pattern: usage: * rename OLD NEW [--write] [--any]
+  Pattern: usage: * libnames PATH/TO/sysml.library
+  Pattern: cannot cd to *: *
+  Pattern: timeout
+  From:    tools/sysml/sysml.pl, tools/sysml/model.pl
+  Means:   No command or a wrong one; or model.pl was run outside a project
+           (it looks upward for a directory holding model/); or the Pilot
+           engine stalled (validate, crosscheck: timeout).
+  Fix:     cd into the model project or give --root DIR (perl
+           tools/sysml/model.pl --root examples/halberd lint). The command
+           list prints with no arguments. A timeout only affects the optional
+           Java checks.
+
+------------------------------------------------------------------------------
+                                                  *agile-err-model-new-rename*
+new: NAME must be a PascalCase identifier / rename: 'X' already exists
+
+  Pattern: new: NAME must be a PascalCase identifier
+  Pattern: new: '*' already exists in
+  Pattern: new: no
+  Pattern: new: cannot find '*' in
+  Pattern: rename: '*' is not a definition name
+  Pattern: rename: '*' already exists
+  Pattern: rename: '*' is a SysML keyword
+  From:    tools/sysml/model.pl new, rename
+  Means:   The new name is not PascalCase, is taken, or is a SysML keyword; or
+           the --in PARENT is not a part def (new part) or a calc/action def
+           (new verb); or the old name is not a definition.
+  Fix:     Pick another name (BeamControl, not beam_control); check the parent
+           with model.pl nouns or verbs; rename --any renames any identifier;
+           rename is a dry run until --write.
+
+------------------------------------------------------------------------------
+                                                      *agile-err-model-config*
+idef0: no calc def or action def named 'X' (verb_root in sysml.conf)
+
+  Pattern: idef0: no calc def or action def named '*'
+  Pattern: backlog: cannot find the agile kit
+  Pattern: install-hooks: * is not inside a git working tree
+  From:    tools/sysml/model.pl idef0, docs, backlog, install-hooks
+  Means:   sysml.conf's verb_root names no function in the model; backlog
+           cannot find sim/idef0-backlog.pl; or the project is not in a git
+           repository.
+  Fix:     Fix verb_root (and noun_root) in sysml.conf; give --agile=DIR or
+           set AGILE_HOME to the kit; git init the model repository first.
+
+==============================================================================
+9. INTERNAL INVARIANTS                                  *agile-err-internal*
+
+These messages mean a bug in the kit or a broken copy of it, not something
+you did. Note the command you ran and the message, and get a fresh copy of
+the kit (git status shows local changes; git checkout -- FILE restores one).
+
+  Internal: : unknown function '*'
+  Internal: : empty list
+  Internal: range: zero step
+  Internal: chunksOf: n must be > 0
+  Internal: unwrap: *
+
+ vim:tw=78:ts=8:ft=help:norl:

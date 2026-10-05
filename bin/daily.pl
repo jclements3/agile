@@ -23,9 +23,11 @@ use File::Spec;
 
 my %o;
 @ARGV = map { Ledger::decode_text($_) } @ARGV;                  # arguments are UTF-8 bytes from the shell: roster add "Zo\x{eb} \x{c5}ngstr\x{f6}m" ...     # everything inside is characters (Ledger::read_text decodes); the terminal gets UTF-8
+if (@ARGV && $ARGV[0] =~ /^(?:help|--help|-h)$/) { require Help; exit Help::tool_cli('daily', @ARGV) }   # before the options and the scrum.conf search: help works anywhere
 GetOptionsFromArray(\@ARGV, 'c|conf=s' => \$o{conf}, 'today=s' => \$o{today}, 'dry' => \$o{dry}, 'draft' => \$o{draft},
     'to=s' => \$o{to}, 'cc=s' => \$o{cc}, 'subject=s' => \$o{subject}, 'team=s' => \$o{team}, 'send' => \$o{send}, 'force' => \$o{force}, 'guess' => \$o{guess}, 'reply' => \$o{reply}, 'assume' => \$o{assume}, 'private' => \$o{private}, 'table' => \$o{table}, 'confirm' => \$o{confirm}, 'n=i' => \$o{n}, 'sheet' => \$o{sheet}, 'grade=s' => \$o{grade}, 'until=s' => \$o{until}) or exit 2;
 my $cmd = shift @ARGV // 'status';
+if ($cmd eq 'help') { require Help; exit Help::tool_cli('daily', @ARGV) }
 binmode STDIN, ':encoding(UTF-8)';                           # the drill's typed answers
 binmode $_, ':encoding(UTF-8)' for \*STDOUT, \*STDERR;
 

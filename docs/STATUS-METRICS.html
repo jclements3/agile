@@ -20,7 +20,18 @@
   th, td { border: 1px solid #bbb; padding: 0.3em 0.6em; text-align: left; vertical-align: top; }
   th { background: #e8e8e8; }
   a { color: #0b5cad; }
-  @media print { body { margin: 0; max-width: none; } }
+  table.standup { table-layout: fixed; width: 100%; }
+  table.standup th:nth-child(1) { width: 9%; } table.standup th:nth-child(2), table.standup th:nth-child(3) { width: 6.5%; }
+  table.standup th:nth-child(4) { width: 38%; } table.standup th:nth-child(5) { width: 24%; } table.standup th:nth-child(6) { width: 16%; }
+  @page { size: letter; margin: 0.55in 0.6in; }
+  @media print {
+    body { margin: 0; max-width: none; padding: 0; font-size: 9.5pt; line-height: 1.35; }
+    h1 { font-size: 15pt; margin-top: 1.2em; } h2 { font-size: 12pt; margin-top: 1.2em; break-after: avoid; } h3 { break-after: avoid; }
+    table { font-size: 8pt; width: 100%; } th, td { padding: 2px 4px; } tr { break-inside: avoid; }
+    pre { white-space: pre-wrap; font-size: 8pt; padding: 0.4em 0.6em; overflow: visible; }
+    pre.mermaid { display: none; }   /* chart source: the table under each one carries the same numbers */
+    p.mh { margin-top: 0.6em; } li { margin: 0.1em 0; }
+  }
 p.mh{margin:0.9em 0 0.15em;font-weight:600}
 ul.phr{margin:0.1em 0 0.4em;padding-left:1.4em}
 ul.phr li{margin:0.15em 0}
@@ -1010,7 +1021,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 <h2 id="daily-standups">Daily standups</h2>
 <h3 id="sprint-1-weeks-1-and-2">Sprint 1 (weeks 1 and 2)</h3>
 <p><strong>Week 1</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />
@@ -1073,7 +1084,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 </tbody>
 </table>
 <p><strong>Week 2</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />
@@ -1137,7 +1148,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 </table>
 <h3 id="sprint-2-weeks-3-and-4">Sprint 2 (weeks 3 and 4)</h3>
 <p><strong>Week 3</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />
@@ -1200,7 +1211,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 </tbody>
 </table>
 <p><strong>Week 4</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />
@@ -1264,7 +1275,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 </table>
 <h3 id="sprint-3-weeks-5-and-6">Sprint 3 (weeks 5 and 6)</h3>
 <p><strong>Week 5</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />
@@ -1327,7 +1338,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 </tbody>
 </table>
 <p><strong>Week 6</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />
@@ -1391,7 +1402,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 </table>
 <h3 id="sprint-4-weeks-7-and-8">Sprint 4 (weeks 7 and 8)</h3>
 <p><strong>Week 7</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />
@@ -1454,7 +1465,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 </tbody>
 </table>
 <p><strong>Week 8</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />
@@ -1502,7 +1513,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 </table>
 <h3 id="sprint-5-weeks-9-and-10">Sprint 5 (weeks 9 and 10)</h3>
 <p><strong>Week 9</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />
@@ -1565,7 +1576,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 </tbody>
 </table>
 <p><strong>Week 10</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />
@@ -1629,7 +1640,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 </table>
 <h3 id="sprint-6-weeks-11-and-12">Sprint 6 (weeks 11 and 12)</h3>
 <p><strong>Week 11</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />
@@ -1692,7 +1703,7 @@ usual three questions (yesterday, today, blockers), in the alphabet.</p>
 </tbody>
 </table>
 <p><strong>Week 12</strong></p>
-<table style="width:100%;">
+<table class="standup" style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
 <col style="width: 16%" />

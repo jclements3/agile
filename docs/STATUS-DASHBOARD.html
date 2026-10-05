@@ -22,7 +22,7 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.45 Barlow,"Segoe UI",Roboto,Arial,sans-serif}
-.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 48px}
+.wrap{max-width:2400px;margin:0 auto;padding:12px 16px 32px}
 h1,h2,.num,.tb b{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif}
 /* title block */
 .tb{display:grid;grid-template-columns:2fr repeat(3,1fr);border:2px solid var(--ink);background:var(--sheet)}
@@ -33,31 +33,36 @@ h1,h2,.num,.tb b{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif}
 .tb h1{margin:0;font-size:26px;font-weight:700;line-height:1.1}
 @media (max-width:640px){.tb{grid-template-columns:1fr 1fr}.tb>div:first-child{grid-column:1/-1;border-bottom:1px solid var(--ink)}.tb>div:nth-child(2){border-left:0}.tb>div:nth-child(4){border-left:0;border-top:1px solid var(--ink)}.tb>div:nth-child(3){}}
 /* hero scale */
-.hero{margin:22px 0 8px;background:var(--sheet);border:1px solid var(--rule);padding:16px 16px 28px}
+.hero{margin:10px 0 2px;background:var(--sheet);border:1px solid var(--rule);padding:8px 14px 22px;display:grid;grid-template-columns:minmax(260px,auto) 1fr;gap:4px 24px;align-items:center}
+.hero .scale{grid-column:2;grid-row:1 / span 2}
+@media (max-width:760px){.hero{display:block}}
 .hero .head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
-.hero .num{font-size:64px;font-weight:700;line-height:1}
-.hero p{margin:4px 0 14px;color:var(--ink2);max-width:70ch}
-.scale{position:relative;height:30px;border:1.5px solid var(--ink);background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),var(--rule) calc(10% - 1px) 10%)}
+.hero .num{font-size:40px;font-weight:700;line-height:1}
+.hero p{margin:0;color:var(--ink2);font-size:13px;max-width:60ch}
+.scale{position:relative;height:22px;border:1.5px solid var(--ink);background:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),var(--rule) calc(10% - 1px) 10%)}
 .scale .fill{position:absolute;inset:0 auto 0 0;background:var(--ink);transition:width .6s}
 .scale .prev{position:absolute;top:-6px;bottom:-6px;width:0;border-left:2px dashed var(--watch)}
-.scale .ticks{position:absolute;left:0;right:0;top:34px;display:flex;justify-content:space-between;font-size:11px;color:var(--ink2)}
+.scale .ticks{position:absolute;left:0;right:0;top:26px;display:flex;justify-content:space-between;font-size:11px;color:var(--ink2)}
 /* sections */
-h2{font-size:22px;font-weight:600;margin:28px 0 8px;border-bottom:1.5px solid var(--ink);padding-bottom:2px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.tile{background:var(--sheet);border:1px solid var(--rule);padding:12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+h2{font-size:20px;font-weight:600;margin:14px 0 6px;border-bottom:1.5px solid var(--ink);padding-bottom:2px}
+/* the six groups flow side by side: three across on a wide screen, two on a laptop, one on a phone */
+#sections{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,560px),1fr));gap:4px 20px;align-items:start}
+.grp{min-width:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:8px}
+.tile{background:var(--sheet);border:1px solid var(--rule);padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .tile.sel{outline:2px solid var(--info);outline-offset:-2px}
 .top{display:flex;align-items:center;gap:8px}
-.bal{flex:none;width:28px;height:28px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;font:600 15px "Barlow Condensed",Arial,sans-serif}
-.name{font-weight:600;font-size:14px;line-height:1.2;flex:1}
+.bal{flex:none;width:24px;height:24px;border:1.5px solid var(--ink);border-radius:50%;display:grid;place-items:center;font:600 15px "Barlow Condensed",Arial,sans-serif}
+.name{font-weight:600;font-size:13px;line-height:1.15;flex:1}
 .st{font-size:12px;font-weight:600}
 .st.ok{color:var(--ok)}.st.watch{color:var(--watch)}.st.act{color:var(--act)}.st.info{color:var(--info)}
 .mid{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
-.num{font-size:34px;font-weight:600;line-height:1}
-svg.spark{width:96px;height:30px;flex:none}
-.phrase{font-size:13.5px;color:var(--ink2);margin:0}
-.inc{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);cursor:pointer;margin-top:auto}
+.num{font-size:28px;font-weight:600;line-height:1}
+svg.spark{width:80px;height:26px;flex:none}
+.phrase{font-size:12.5px;line-height:1.35;color:var(--ink2);margin:0}
+.inc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);cursor:pointer;margin-top:auto}
 /* round robin */
-.rr{margin-top:28px;background:var(--sheet);border:2px solid var(--ink);padding:14px}
+.rr{margin-top:16px;background:var(--sheet);border:2px solid var(--ink);padding:14px}
 .rr h2{margin-top:0}
 .rr output{display:block;font-size:16px;line-height:1.55;min-height:3em;max-width:80ch}
 button{font:600 14px Barlow,Arial,sans-serif;color:var(--sheet);background:var(--ink);border:0;padding:8px 14px;cursor:pointer}
@@ -164,12 +169,12 @@ function render(){
   document.getElementById("fill").style.width=Math.max(0,Math.min(100,a.v||0))+"%";
   const pv=document.getElementById("prev");pv.style.display=a.prev!=null?"":"none";pv.style.left=(a.prev||0)+"%";
   document.getElementById("scale").setAttribute("aria-label",`${a.v}% under configuration control, previously ${a.prev}%`);
-  document.getElementById("sections").innerHTML=SECTIONS.map(([name,ls])=>`<h2>${name}</h2><div class="grid">${[...ls].map(L=>{
+  document.getElementById("sections").innerHTML=SECTIONS.map(([name,ls])=>`<section class="grp"><h2>${name}</h2><div class="grid">${[...ls].map(L=>{
     const d=vars(L),[cls,txt]=status(L),on=data.sel.includes(L);
     return `<article class="tile${on?" sel":""}"><div class="top"><div class="bal">${L}</div><div class="name">${esc(DEF[L].n)}</div><div class="st ${cls}">${txt}</div></div>
     <div class="mid"><div class="num">${esc(fill(DEF[L].f,d))}</div><span class="st ${cls}">${spark(d.hist)}</span></div>
     <p class="phrase">${esc(fill(DEF[L].p,d))}</p>
-    <label class="inc"><input type="checkbox" data-l="${L}" ${on?"checked":""}> Use in round-robin</label></article>`}).join("")}</div>`).join("");
+    <label class="inc"><input type="checkbox" data-l="${L}" ${on?"checked":""}> Use in round-robin</label></article>`}).join("")}</div></section>`).join("");
   renderRR();
 }
 function renderRR(){const s=[..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"].filter(L=>data.sel.includes(L)).map(L=>fill(DEF[L].p,vars(L)));

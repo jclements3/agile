@@ -1,6 +1,8 @@
 // Segment G (Government Program Office): the stakeholder needs, from the capability requirements.
 package StakeholderNeeds {
     doc /* What the users and the program office need from Halberd, in their words. */
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
     requirement stk01 { attribute doorsId = "HAL-STK-001"; doc /* Halberd shall defend an assigned area against a ballistic threat. */ }
     requirement stk02 { attribute doorsId = "HAL-STK-002"; doc /* Halberd shall take direction from, and report to, higher echelon command. */ }
     requirement stk03 { attribute doorsId = "HAL-STK-003"; doc /* Halberd shall share its air picture with adjacent defense units. */ }

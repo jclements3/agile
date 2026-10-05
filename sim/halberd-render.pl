@@ -185,6 +185,16 @@ INTRO
         $o .= "<p class='note'>CPI = earned / actual (above 1 is under cost); SPI = earned / planned (above 1 is ahead). EAC = BAC / CPI. All of it from <code>Ledger::evm</code> and <code>Ledger::forecast</code>, the same code as <code>bin/ledger.pl evm</code> and <code>forecast</code>.</p>\n";
     }
 
+    # ---- the model views: the SVGs sim/halberd-views.pl draws into docs/img (linked, not inlined)
+    $o .= "<h2>Model views</h2>\n<p>The ported model is <code>examples/halberd</code>: SysML v2 text in seven segment folders, with SecMeta markings, "
+        . "trust zones on the parts at a security boundary, and a threat register (STRIDE category and CAPEC id per threat). "
+        . "<code>tools/sysml/model.pl draw</code> draws it and <code>model.pl gate</code> checks it; the gate fails on exactly the planted gaps "
+        . "(3 orphan and 4 unverified requirements, 1 uncovered zone crossing, 2 open threats). Open a view for tooltips and highlighted links:</p>\n<ul>\n";
+    for my $v ([ tree => 'Part decomposition' ], [ trace => 'Requirement trace (S satisfied, V verified)' ], [ ibd => 'Interconnection by trust zone' ], [ pkg => 'Packages and markings' ]) {
+        $o .= "<li><a href=\"img/halberd-$v->[0].svg\">$v->[1]</a> (<code>docs/img/halberd-$v->[0].svg</code>)</li>\n";
+    }
+    $o .= "</ul>\n<p class='note'>Redraw after a model change: <code>perl sim/halberd-views.pl</code>. In Vim: <code>\\mw \\mq \\mi \\mp</code>, the gate <code>\\mg</code>.</p>\n\n";
+
     $o .= "<h2>Sprints: burn-down and daily standups</h2>\n<p>Each standup answers yesterday, today and blockers, in the alphabet. Blocked days are shaded.</p>\n";
     for my $p (@$plan) {
         my $sp = $p->{sprint}; my @sd = @{ $p->{days} };

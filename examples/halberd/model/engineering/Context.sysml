@@ -6,6 +6,8 @@ package SystemContext {
     private import InterfaceDefinitions::*;
     private import KillChain::*;
     private import StakeholderNeeds::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     part def HalberdContext {
         doc /* The system of interest and the external actors it exchanges data with. */
@@ -47,7 +49,7 @@ package SystemContext {
         satisfy stk08 by halberd;
     }
 
-    part def BallisticThreat { doc /* The object Halberd defends against. Notional: no characteristics are modeled. */ }
-    part def HigherEchelonCommand { doc /* The command that tasks Halberd and receives its reports. */ port tacticalLink : ~TacticalLinkPort; }
-    part def AdjacentDefenseUnit { doc /* A neighbouring defense unit that shares its air picture. */ port tacticalLink : ~TacticalLinkPort; }
+    part def BallisticThreat { @TrustZone { zone = Zone::untrusted; } doc /* The object Halberd defends against. Notional: no characteristics are modeled. */ }
+    part def HigherEchelonCommand { @TrustZone { zone = Zone::untrusted; } doc /* The command that tasks Halberd and receives its reports. */ port tacticalLink : ~TacticalLinkPort; }
+    part def AdjacentDefenseUnit { @TrustZone { zone = Zone::untrusted; } doc /* A neighbouring defense unit that shares its air picture. */ port tacticalLink : ~TacticalLinkPort; }
 }

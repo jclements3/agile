@@ -1,6 +1,8 @@
 // Segment B (Battle Management & Fire Control): fire control segment requirements.
 package FireControlRequirements {
     doc /* The fire control segment specification. */
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
     requirement fcR01 { attribute doorsId = "HAL-BMF-001"; doc /* Fire control shall keep one integrated picture from all sensor reports. */ }
     requirement fcR02 { attribute doorsId = "HAL-BMF-002"; doc /* Threat evaluation shall apply the engagement doctrine in force. */ }
     requirement fcR03 { attribute doorsId = "HAL-BMF-003"; doc /* The weapon schedule shall never assign one interceptor to two threats. */ }

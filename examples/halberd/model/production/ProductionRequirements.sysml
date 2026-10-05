@@ -1,6 +1,8 @@
 // Segment M (Manufacturing & Production): production requirements.
 package ProductionRequirements {
     doc /* What Manufacturing shall do to deliver conforming rounds and canisters. */
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
     requirement prdR01 { attribute doorsId = "HAL-PRD-001"; doc /* Every production lot shall pass lot acceptance before delivery. */ }
     requirement prdR02 { attribute doorsId = "HAL-PRD-002"; doc /* Every round and canister shall be traceable by serial number to its lot. */ }
     requirement prdR03 { attribute doorsId = "HAL-PRD-003"; doc /* Canisters shall be sealed at the factory and opened only at launch. */ }

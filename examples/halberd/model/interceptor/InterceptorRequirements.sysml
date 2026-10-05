@@ -1,6 +1,8 @@
 // Segment V (Interceptor Development): interceptor segment requirements.
 package InterceptorRequirements {
     doc /* The interceptor segment specification. */
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
     requirement intR01 { attribute doorsId = "HAL-INT-001"; doc /* The booster shall separate cleanly from the kill vehicle. */ }
     requirement intR02 { attribute doorsId = "HAL-INT-002"; doc /* The kill vehicle shall divert to correct its course in the endgame. */ }
     requirement intR03 { attribute doorsId = "HAL-INT-003"; doc /* The seeker shall take over from in-flight updates for terminal homing. */ }

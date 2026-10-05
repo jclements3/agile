@@ -2,6 +2,8 @@
 package EngageAndAssess {
     doc /* From the engagement plan to the engagement record. */
     private import KillChainItems::**;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     action def LaunchInterceptor { doc /* Launch the interceptor the plan calls for. */ in plan : EngagementPlan; out result : LaunchEvent; }
     action def GuideInterceptor {

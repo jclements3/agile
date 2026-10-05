@@ -4,6 +4,8 @@ package FireControlSoftwareDefs {
     doc /* The software configuration items of fire control. */
     private import Conventions::*;
     private import FireControlRequirements::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     part def FireControlSoftware {
         @L3System;

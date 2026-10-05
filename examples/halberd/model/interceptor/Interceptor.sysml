@@ -6,6 +6,8 @@ package Interceptor {
     private import InterfaceDefinitions::*;
     private import InterceptorComponents::*;
     private import InterceptorRequirements::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     part def InterceptorSegment {
         @L2Segment;
@@ -15,7 +17,8 @@ package Interceptor {
     }
     part def InterceptorRound {
         @L3System;
-        doc /* A tactical round: booster, kill vehicle and avionics. */
+        @TrustZone { zone = Zone::untrusted; }
+        doc /* A tactical round: booster, kill vehicle and avionics. In flight it is reached only over the uplink. */
         part booster : BoosterStage;
         part killVehicle : KillVehicle;
         part avionics : AvionicsSection;

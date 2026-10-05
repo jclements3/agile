@@ -6,6 +6,8 @@ package KillChain {
     private import KillChainItems::**;
     private import SenseAndDecide::*;
     private import EngageAndAssess::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     action def DefendAgainstThreat {
         doc /* Defend the assigned area against one threat, from first detection to the engagement record. */

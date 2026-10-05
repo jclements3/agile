@@ -5,6 +5,8 @@ package Launch {
     private import Conventions::*;
     private import InterfaceDefinitions::*;
     private import ProductionRequirements::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     part def LaunchSegment {
         @L2Segment;
@@ -19,6 +21,7 @@ package Launch {
     }
     part def Launcher {
         @L3System;
+        @TrustZone { zone = Zone::dmz; }
         doc /* Holds canisters, raises them and fires them on command. */
         part electronics : LauncherElectronics;
         part erector : ErectorAssembly;

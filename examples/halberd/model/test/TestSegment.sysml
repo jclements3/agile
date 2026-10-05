@@ -3,6 +3,8 @@ package TestAndTraining {
     doc /* Range instrumentation for flight tests and the crew trainer. */
     private import Conventions::*;
     private import TestRequirements::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     part def TestSegment {
         @L2Segment;

@@ -25,14 +25,14 @@ One segment folder per Halberd organization (the seven models of `halberd.md`):
 | folder | letter | organization | what it holds |
 |---|---|---|---|
 | `model/program/` | G | Government Program Office | the enterprise (top of the part tree) and what each segment satisfies; the stakeholder needs |
-| `model/engineering/` | E | Systems Engineering & Integration | conventions (level tags, the `Threat` metadata), the system context and allocations, ports and interface definitions, system requirements, the sensor segment, the threat register |
+| `model/engineering/` | E | Systems Engineering & Integration | conventions (level tags), the SecMeta security library (markings, zones, threats), the system context and allocations, ports and interface definitions, system requirements, the sensor segment, the threat register |
 | `model/interceptor/` | V | Interceptor Development | the interceptor segment, the round and its assemblies, interceptor requirements |
 | `model/firecontrol/` | B | Battle Management & Fire Control | the fire control segment and software, the kill chain (the verb tree) and its flows, fire control requirements |
 | `model/test/` | T | Test & Evaluation | the test and training segment, test requirements, and every verification case |
 | `model/production/` | M | Manufacturing & Production | the launch segment (launchers and canisters), production requirements |
 | `model/sustainment/` | L | Logistics & Sustainment | the support segment, sustainment requirements |
 
-What is in it: 28 files, 35 packages; a 6-level part tree (65 part defs, 2 to 9 children at every
+What is in it: 29 files, 36 packages (one is the SecMeta security library); a 6-level part tree (65 part defs, 2 to 9 children at every
 level, each tagged `@L1Enterprise` ... `@L6Component`); the kill chain -- detect, track, identify,
 decide, engage, assess -- as 22 action defs, 4 levels deep, each with one `out result`; 21 flow
 items; 5 port and 4 interface definitions; 66 requirements (8 stakeholder needs, 29 system,
@@ -57,12 +57,12 @@ project upward from any folder inside it).
 **Syntax, against the official grammar**
 
     $ perl tools/sysml/sysml.pl check examples/halberd/model/*/*.sysml
-    sysml: 28 file(s), 0 error(s)
+    sysml: 29 file(s), 0 error(s)
 
 **Lint and the outline rule**
 
     $ perl tools/sysml/model.pl --root examples/halberd lint
-    lint: 28 file(s), 0 error(s), 0 warning(s)
+    lint: 29 file(s), 0 error(s), 0 warning(s)
     elements=226 errors=0 warnings=0
 
     $ perl tools/sysml/model.pl --root examples/halberd check
@@ -132,18 +132,39 @@ That is `sim/idef0-backlog.pl` on the IDEF0 set: one team per step, an epic per 
 per leaf, and an interface task in the receiving team for every hand-off -- a stand-up file the kit
 compiles into a journal (`daily.pl compile`).
 
+**Security markings, trust zones, threats -- and the gate**
+
+`model/engineering/SecMeta.sysml` is the security vocabulary the views toolkit reads (`tools/sysml/views/`, a copy of
+its `library/SecMeta.sysml` with the status-metrics threat attributes). Every root package carries
+`@Marking { level = Level::U; }`, except `SystemVerification` and `AcceptanceTests`, marked `CUI` -- notional labels
+only, everything here is notional and unclassified -- so the no-write-down check has something to check (no U package
+depends on them). `@TrustZone` sits on the parts at a boundary: the enterprise (trusted), the launcher (dmz), the round
+in flight, the higher command, the adjacent unit and the threat (untrusted). The security requirements `secR01`-`secR07`
+carry `@SecurityRequirement`, and five of them `@Mitigates { threat = "..."; }`; each crossing names its covering
+requirement in `secReq`; each threat line has a STRIDE category and a CAPEC id.
+
+    $ perl tools/sysml/model.pl --root examples/halberd draw ibd       # ibd.svg; also tree, trace, pkg
+    $ perl tools/sysml/model.pl --root examples/halberd threats --today 2026-10-05
+    $ perl tools/sysml/model.pl --root examples/halberd gate --today 2026-10-05
+    ...
+    check: 5 check(s) run, 10 error(s), 0 warning(s) -> FAIL
+
+The gate fails on exactly the planted gaps: 7 trace errors (the 3 orphans and 4 unverified requirements above), 1 zone
+crossing (`ifcAdjacentUnit`), 2 open threats (`counterfeitPart`, `insiderMisuse`); markings and text are clean. The
+four views are committed as `docs/img/halberd-{tree,trace,ibd,pkg}.svg` in the kit (`perl sim/halberd-views.pl`).
+
 **Vim**
 
 Open any `.sysml` file under `examples/halberd/`: `:make lint` / `:make check` fill the quickfix
 list; `\ml \mk \mx \mv \md \mr \mn \mb \mt` run lint, check, this file's syntax, validate, docs,
-trace, nouns, verbs and tags. Run `perl tools/sysml/model.pl --root examples/halberd tags` once
+trace, nouns, verbs and tags; `\mw \mq \mi \mp` draw the views, `\mg` runs the gate, `\mW` opens the live viewer. Run `perl tools/sysml/model.pl --root examples/halberd tags` once
 (it writes `examples/halberd/tags`), then Ctrl-] on any name or DOORS id jumps to it.
 
 **Full compile (optional, needs Java)**
 
     $ perl tools/sysml/model.pl --root examples/halberd validate
-    validate: compiling 28 files with the Pilot engine (...-all.jar) ...
-    validate: 28 file(s), 0 error(s), 0 warning(s)
+    validate: compiling 29 files with the Pilot engine (...-all.jar) ...
+    validate: 29 file(s), 0 error(s), 0 warning(s)
 
 With Java and the SysML v2 Pilot jar the whole model, names and types included, compiles clean.
 Without them `validate` says what is missing and exits 3; `lint` covers the same ground offline.

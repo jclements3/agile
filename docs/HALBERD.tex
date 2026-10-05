@@ -222,6 +222,35 @@ L Logistics \& Sustainment & 100\% & \$32,400 & \$32,400 & \$32,400 & \$32,400 &
 \textbf{At the finish:} \$298,815 spent against a \$294,000 budget (CPI 0.98); \$24,585 of the \$323,400 authorized is left, so the overrun came out of the reserve.
 
 {\figfont\itshape CPI = earned / actual (above 1 is under cost); SPI = earned / planned (above 1 is ahead); EAC = BAC / CPI. The same numbers come from \texttt{bin/ledger.pl evm} and \texttt{forecast}.\par}
+\section{Model views}
+The ported model is \texttt{examples/halberd}: SysML v2 text in seven segment folders, with SecMeta security markings, trust zones on the parts at a security boundary, and a threat register with a STRIDE category and a CAPEC id per threat. The kit draws it with \texttt{tools/sysml/model.pl draw} and checks it with \texttt{model.pl gate}; these four views are \texttt{docs/img/halberd-\{tree,trace,ibd,pkg\}.svg}, redrawn by \texttt{perl sim/halberd-views.pl} after a model change.
+\begin{Verbatim}[fontsize=\figfont,frame=lines,framesep=6pt]
+perl tools/sysml/model.pl --root examples/halberd draw tree    # also trace, ibd, pkg
+perl tools/sysml/model.pl --root examples/halberd gate --today 2026-12-23
+\end{Verbatim}
+The gate fails on exactly the gaps planted in the example: three requirements nothing satisfies and four nothing verifies, one zone crossing (the link to the adjacent defense unit) no security requirement covers, and two threats (counterfeit part, insider misuse) with no mitigation. The markings check passes: every root package is marked, U except the two verification packages marked CUI as notional labels (the content is notional and unclassified), and no lower package depends on a higher one.
+
+\IfFileExists{halberd-tree.pdf}{%
+\begin{figure}[p]\centering
+\includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{halberd-tree.pdf}
+\caption{Part decomposition: the enterprise, its six segments and their parts, six levels deep. (\texttt{docs/img/halberd-tree.svg})}
+\end{figure}}{}
+\IfFileExists{halberd-trace.pdf}{%
+\begin{figure}[p]\centering
+\includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{halberd-trace.pdf}
+\caption{Requirement trace: satisfying parts, the 66 requirements with their satisfied (S) and verified (V) status, and the verification cases. (\texttt{docs/img/halberd-trace.svg})}
+\end{figure}}{}
+\IfFileExists{halberd-ibd.pdf}{%
+\begin{figure}[p]\centering
+\includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{halberd-ibd.pdf}
+\caption{Interconnection by trust zone: the system context and the enterprise. Covered zone crossings are solid; the one uncovered crossing is dashed. (\texttt{docs/img/halberd-ibd.svg})}
+\end{figure}}{}
+\IfFileExists{halberd-pkg.pdf}{%
+\begin{figure}[p]\centering
+\includegraphics[width=\textwidth,height=0.82\textheight,keepaspectratio]{halberd-pkg.pdf}
+\caption{Packages, their dependencies and markings (the SecMeta library hidden). (\texttt{docs/img/halberd-pkg.svg})}
+\end{figure}}{}
+\clearpage
 \section{Sprints and daily stand-ups}
 Each stand-up answers yesterday, today and blockers, in the alphabet of the A--Z metrics. A dagger\blk{} marks a blocked day.
 \subsection{Sprint 1: 5 October 2026 to 16 October 2026}

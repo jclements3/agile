@@ -1,7 +1,9 @@
 // Segment B (Battle Management & Fire Control): the information that flows along the kill chain.
 // Notional: each item is a named flow, with no content modeled.
 package KillChainItems {
-    doc /* The flows between kill-chain functions: what each step takes in and hands on. */
+    doc /* The flows between kill-chain functions -- what each step takes in and hands on -- and the health data equipment reports. */
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     package Inputs {
         doc /* What the kill chain receives from outside: the mission inputs record and its fields. */
@@ -41,4 +43,6 @@ package KillChainItems {
         item def KillAssessment { doc /* The judgement of whether the threat was defeated. */ }
         item def EngagementRecord { doc /* The complete record of one engagement. */ }
     }
+
+    item def HealthReport { doc /* Health and fault data from a launcher or a round, for maintainers (not a kill-chain flow). */ }
 }

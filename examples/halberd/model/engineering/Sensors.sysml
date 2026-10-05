@@ -4,6 +4,8 @@ package Sensors {
     doc /* The sensors that find and report objects in the surveillance volume. */
     private import Conventions::*;
     private import InterfaceDefinitions::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     part def SensorSegment {
         @L2Segment;

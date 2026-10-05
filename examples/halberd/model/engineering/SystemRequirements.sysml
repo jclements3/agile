@@ -3,6 +3,8 @@
 // parts that satisfy them and with the verification cases (segment T).
 package SystemRequirements {
     doc /* The Halberd system specification. */
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     package Functions {
         doc /* What the system shall do, one kill-chain step at a time. */
@@ -30,13 +32,13 @@ package SystemRequirements {
 
     package Security {
         doc /* How the system shall protect its data and control paths. */
-        requirement secR01 { attribute doorsId = "HAL-SYS-020"; doc /* The system shall authenticate every message on external tactical links. */ }
-        requirement secR02 { attribute doorsId = "HAL-SYS-021"; doc /* The system shall encrypt the in-flight uplink. */ }
-        requirement secR03 { attribute doorsId = "HAL-SYS-022"; doc /* Launchers shall execute only authenticated launch commands. */ }
-        requirement secR04 { attribute doorsId = "HAL-SYS-023"; doc /* Every software build shall be signed, and the signature checked before loading. */ }
-        requirement secR05 { attribute doorsId = "HAL-SYS-024"; doc /* The maintenance network shall be isolated from the tactical network. */ }
-        requirement secR06 { attribute doorsId = "HAL-SYS-025"; doc /* The system shall log security-relevant events for audit. */ }
-        requirement secR07 { attribute doorsId = "HAL-SYS-026"; doc /* Operator functions shall be limited by role. */ }
+        requirement secR01 { attribute doorsId = "HAL-SYS-020"; @SecurityRequirement; @Mitigates { threat = "spoofedTacticalMessage"; } doc /* The system shall authenticate every message on external tactical links. */ }
+        requirement secR02 { attribute doorsId = "HAL-SYS-021"; @SecurityRequirement; @Mitigates { threat = "interceptedUplink"; } doc /* The system shall encrypt the in-flight uplink. */ }
+        requirement secR03 { attribute doorsId = "HAL-SYS-022"; @SecurityRequirement; @Mitigates { threat = "forgedLaunchCommand"; } doc /* Launchers shall execute only authenticated launch commands. */ }
+        requirement secR04 { attribute doorsId = "HAL-SYS-023"; @SecurityRequirement; @Mitigates { threat = "tamperedSoftwareBuild"; } doc /* Every software build shall be signed, and the signature checked before loading. */ }
+        requirement secR05 { attribute doorsId = "HAL-SYS-024"; @SecurityRequirement; @Mitigates { threat = "maintenancePivot"; } doc /* The maintenance network shall be isolated from the tactical network. */ }
+        requirement secR06 { attribute doorsId = "HAL-SYS-025"; @SecurityRequirement; doc /* The system shall log security-relevant events for audit. */ }
+        requirement secR07 { attribute doorsId = "HAL-SYS-026"; @SecurityRequirement; doc /* Operator functions shall be limited by role. */ }
     }
 
     package Lifecycle {

@@ -222,6 +222,31 @@ TITLE
             . "The same numbers come from \\texttt{bin/ledger.pl evm} and \\texttt{forecast}.\\par}\n";
     }
 
+    # ---- the model views (docs/img/halberd-*.svg, greyed and converted to PDF by halberd-gen.pl --pdf; skipped without rsvg-convert)
+    $o .= "\\section{Model views}\n"
+        . "The ported model is \\texttt{examples/halberd}: SysML v2 text in seven segment folders, with SecMeta security markings, trust zones "
+        . "on the parts at a security boundary, and a threat register with a STRIDE category and a CAPEC id per threat. The kit draws it with "
+        . "\\texttt{tools/sysml/model.pl draw} and checks it with \\texttt{model.pl gate}; these four views are "
+        . "\\texttt{docs/img/halberd-\\{tree,trace,ibd,pkg\\}.svg}, redrawn by \\texttt{perl sim/halberd-views.pl} after a model change.\n"
+        . "\\begin{Verbatim}[fontsize=\\figfont,frame=lines,framesep=6pt]\n"
+        . "perl tools/sysml/model.pl --root examples/halberd draw tree    # also trace, ibd, pkg\n"
+        . "perl tools/sysml/model.pl --root examples/halberd gate --today 2026-12-23\n"
+        . "\\end{Verbatim}\n"
+        . "The gate fails on exactly the gaps planted in the example: three requirements nothing satisfies and four nothing verifies, "
+        . "one zone crossing (the link to the adjacent defense unit) no security requirement covers, and two threats (counterfeit part, "
+        . "insider misuse) with no mitigation. The markings check passes: every root package is marked, U except the two verification "
+        . "packages marked CUI as notional labels (the content is notional and unclassified), and no lower package depends on a higher one.\n\n";
+    for my $v ([ 'tree', 'Part decomposition: the enterprise, its six segments and their parts, six levels deep.' ],
+               [ 'trace', 'Requirement trace: satisfying parts, the 66 requirements with their satisfied (S) and verified (V) status, and the verification cases.' ],
+               [ 'ibd', 'Interconnection by trust zone: the system context and the enterprise. Covered zone crossings are solid; the one uncovered crossing is dashed.' ],
+               [ 'pkg', 'Packages, their dependencies and markings (the SecMeta library hidden).' ]) {
+        my ($k, $cap) = @$v;
+        $o .= "\\IfFileExists{halberd-$k.pdf}{%\n\\begin{figure}[p]\\centering\n"
+            . "\\includegraphics[width=\\textwidth,height=0.82\\textheight,keepaspectratio]{halberd-$k.pdf}\n"
+            . "\\caption{" . _lx_tx($cap) . " (\\texttt{docs/img/halberd-$k.svg})}\n\\end{figure}}{}\n";
+    }
+    $o .= "\\clearpage\n";
+
     # ---- sprints and stand-ups
     $o .= "\\section{Sprints and daily stand-ups}\nEach stand-up answers yesterday, today and blockers, in the alphabet of the A--Z metrics. "
         . "A dagger\\blk{} marks a blocked day.\n";

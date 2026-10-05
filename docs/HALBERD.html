@@ -164,6 +164,16 @@ perl bin/ledger.pl -f data/halberd/funding.ledger forecast --now 2026-11-30 --mo
 </table>
 <p>At the finish: $298,815 spent against a $294,000 budget (CPI 0.98); $24,585 of the $323,400 authorized is left, so the overrun came out of the reserve.</p>
 <p class='note'>CPI = earned / actual (above 1 is under cost); SPI = earned / planned (above 1 is ahead). EAC = BAC / CPI. All of it from <code>Ledger::evm</code> and <code>Ledger::forecast</code>, the same code as <code>bin/ledger.pl evm</code> and <code>forecast</code>.</p>
+<h2>Model views</h2>
+<p>The ported model is <code>examples/halberd</code>: SysML v2 text in seven segment folders, with SecMeta markings, trust zones on the parts at a security boundary, and a threat register (STRIDE category and CAPEC id per threat). <code>tools/sysml/model.pl draw</code> draws it and <code>model.pl gate</code> checks it; the gate fails on exactly the planted gaps (3 orphan and 4 unverified requirements, 1 uncovered zone crossing, 2 open threats). Open a view for tooltips and highlighted links:</p>
+<ul>
+<li><a href="img/halberd-tree.svg">Part decomposition</a> (<code>docs/img/halberd-tree.svg</code>)</li>
+<li><a href="img/halberd-trace.svg">Requirement trace (S satisfied, V verified)</a> (<code>docs/img/halberd-trace.svg</code>)</li>
+<li><a href="img/halberd-ibd.svg">Interconnection by trust zone</a> (<code>docs/img/halberd-ibd.svg</code>)</li>
+<li><a href="img/halberd-pkg.svg">Packages and markings</a> (<code>docs/img/halberd-pkg.svg</code>)</li>
+</ul>
+<p class='note'>Redraw after a model change: <code>perl sim/halberd-views.pl</code>. In Vim: <code>\mw \mq \mi \mp</code>, the gate <code>\mg</code>.</p>
+
 <h2>Sprints: burn-down and daily standups</h2>
 <p>Each standup answers yesterday, today and blockers, in the alphabet. Blocked days are shaded.</p>
 <h3>Sprint 1: 2026-10-05 to 2026-10-16</h3>

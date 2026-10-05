@@ -5,6 +5,8 @@ package FireControl {
     private import InterfaceDefinitions::*;
     private import FireControlSoftwareDefs::*;
     private import FireControlRequirements::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     part def FireControlSegment {
         @L2Segment;

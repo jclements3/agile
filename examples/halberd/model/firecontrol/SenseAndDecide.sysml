@@ -2,6 +2,8 @@
 package SenseAndDecide {
     doc /* Leaf functions from sensor returns to the engagement plan. */
     private import KillChainItems::**;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     action def ConditionSignals { doc /* Filter and calibrate raw returns. */ in returns : SensorReturns; out result : ConditionedSignals; }
     action def DeclareDetections { doc /* Declare detections where the sensors are tasked. */ in signals : ConditionedSignals; in tasking : SensorTasking; out result : DetectionSet; }

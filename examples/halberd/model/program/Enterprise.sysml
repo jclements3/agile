@@ -15,9 +15,12 @@ package Enterprise {
     private import Launch::*;
     private import Support::*;
     private import TestAndTraining::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     part def HalberdEnterprise {
         @L1Enterprise;
+        @TrustZone { zone = Zone::trusted; }
         doc /* The whole fielded capability: everything the program builds, fields and sustains. */
         part sensors : SensorSegment;
         part fireControl : FireControlSegment;
@@ -26,11 +29,12 @@ package Enterprise {
         part support : SupportSegment;
         part testAndTraining : TestSegment;
 
-        // segment-to-segment connections, typed by the interface definitions
+        // segment-to-segment connections, typed by the interface definitions; a zone crossing names the
+        // security requirement that covers it (secReq), as the crossings in engineering/Context.sysml do
         interface sensorReports : SensorReportInterface connect producer ::> sensors.surveillanceRadar.reports to consumer ::> fireControl.engagementControlStation.sensorIn;
-        interface inflightUplink : InflightUplinkInterface connect transmitter ::> fireControl.communications.uplink to receiver ::> interceptors.round.avionics.uplink;
-        interface launchControl : LaunchControlInterface connect commander ::> fireControl.engagementControlStation.launchOut to launcher ::> launchers.launcher.launchIn;
-        interface maintenanceData : MaintenanceDataInterface connect source ::> launchers.launcher.maintenance to sink ::> support.depot.diagnostics.maintenance;
+        interface inflightUplink : InflightUplinkInterface connect transmitter ::> fireControl.communications.uplink to receiver ::> interceptors.round.avionics.uplink { attribute secReq = "secR02"; }
+        interface launchControl : LaunchControlInterface connect commander ::> fireControl.engagementControlStation.launchOut to launcher ::> launchers.launcher.launchIn { attribute secReq = "secR03"; }
+        interface maintenanceData : MaintenanceDataInterface connect source ::> launchers.launcher.maintenance to sink ::> support.depot.diagnostics.maintenance { attribute secReq = "secR05"; }
 
         // what each segment satisfies (sysX07 is deliberately left without a satisfy: an orphan)
         satisfy sysF01 by sensors;

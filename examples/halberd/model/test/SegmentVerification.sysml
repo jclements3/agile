@@ -13,6 +13,8 @@ package SegmentVerification {
     private import ProductionRequirements::*;
     private import SustainmentRequirements::*;
     private import TestRequirements::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     verification def VerifyFireControlSoftware {
         doc /* Qualification test of each fire control software build. */

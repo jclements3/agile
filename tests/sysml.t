@@ -55,9 +55,9 @@ sub edit { my ($f, $from, $to) = @_; my $t = slurp($f); my $c = $t =~ s/\Q$from\
 
 # ---------------------------------------------------------------- 1. sysml.pl: the grammar
 my @model = grep { /\.sysml\z/ } files_under("$EX/model");
-check 'the example has 28 model files in 7 segment folders', scalar(@model) . ' ' . scalar(do { my %d = map { m{/model/([^/]+)/} ? ($1 => 1) : () } @model; keys %d }), '28 7';
+check 'the example has 29 model files in 7 segment folders', scalar(@model) . ' ' . scalar(do { my %d = map { m{/model/([^/]+)/} ? ($1 => 1) : () } @model; keys %d }), '29 7';
 my ($o, $rc) = run(undef, $SYSML, 'check', @model);
-check 'sysml.pl check: every example file parses', "$rc " . (split /\n/, $o)[-1], '0 sysml: 28 file(s), 0 error(s)';
+check 'sysml.pl check: every example file parses', "$rc " . (split /\n/, $o)[-1], '0 sysml: 29 file(s), 0 error(s)';
 ($o, $rc) = run(undef, $SYSML, 'grammar');
 like 'sysml.pl grammar: both grammars load (vendored release + errata), nothing undefined', $o, qr/^kerml\s+\d+ rules.*\nsysml\s+\d+ rules, \d+ keywords, \d+ symbols, start RootNamespace\n\z/;
 
@@ -84,7 +84,7 @@ for my $name (sort keys %snippet) {
 # ---------------------------------------------------------------- 2. model.pl on a copy of the example
 my $p = fresh('halberd');
 ($o, $rc) = run(undef, $MODEL, '--root', $p, 'lint');
-check 'lint: 0 errors, 0 warnings, and the collector line', "$rc\n$o", "0\nlint: 28 file(s), 0 error(s), 0 warning(s)\nelements=226 errors=0 warnings=0\n";
+check 'lint: 0 errors, 0 warnings, and the collector line', "$rc\n$o", "0\nlint: 29 file(s), 0 error(s), 0 warning(s)\nelements=226 errors=0 warnings=0\n";
 ($o, $rc) = run(undef, $MODEL, '--root', $p, 'check');
 check 'check: no level-tag mismatches, no outline violations', $rc, 0;
 like '  ... and says so', $o, qr/\@L tag mismatches\s+0\n.*violations\s+0\n\z/s;
@@ -92,7 +92,7 @@ like '  ... and says so', $o, qr/\@L tag mismatches\s+0\n.*violations\s+0\n\z/s;
 my %stat = $o =~ /^(\S[^\n]*?)\s{2,}(\d+)\s*$/mg;
 check 'stats: element counts', join(' ', map { "$_=" . ($stat{$_} // '?') } 'files', 'packages', 'part defs (nouns)', 'action defs (verbs)',
         'item defs', 'port defs', 'interface defs', 'requirements', 'verification defs', 'satisfy', 'verify', 'allocate', 'interface usages'),
-    'files=28 packages=35 part defs (nouns)=65 action defs (verbs)=22 item defs=21 port defs=5 interface defs=4 requirements=66 verification defs=15 satisfy=63 verify=62 allocate=9 interface usages=10';
+    'files=29 packages=36 part defs (nouns)=65 action defs (verbs)=22 item defs=21 port defs=5 interface defs=4 requirements=66 verification defs=15 satisfy=63 verify=62 allocate=9 interface usages=10';
 like 'stats: the noun tree is 6 levels from HalberdEnterprise', $o, qr/Nouns \(parts\) from HalberdEnterprise ==\ndepth\s+6 levels\n.*\ndefinitions per level\s+L1=1, L2=6, L3=13, L4=30, L5=8, L6=3\n/;
 like 'stats: the verb tree is 4 levels from DefendAgainstThreat', $o, qr/Verbs \(functions\) from DefendAgainstThreat ==\ndepth\s+4 levels\n/;
 ($o, $rc) = run(undef, $MODEL, '--root', $p, 'trace');
@@ -139,8 +139,8 @@ edit("$f3/model/interceptor/Interceptor.sysml", 'part motor : RocketMotor;', 'pa
 edit("$f3/model/firecontrol/KillChain.sysml", 'in launchEvent = launch.result;', 'in launchEvent = launchEvent;');
 edit("$f3/model/firecontrol/KillChain.sysml", 'action track : Track { in detections = detect.result; }', 'action track : Track { in detections = detect.result }');
 ($o, $rc) = run(undef, $MODEL, '--root', $f3, 'lint');
-like 'fault: lint fails (exit 1) and counts 2 errors, 1 warning', "$rc $o", qr/^1 .*lint: 28 file\(s\), 2 error\(s\), 1 warning\(s\)\nelements=226 errors=2 warnings=1\n\z/s;
-like '  ... a syntax error, from the grammar', $o, qr/^\S*model\/firecontrol\/KillChain\.sysml:15:\d+: error: syntax: unexpected '\}'/m;
+like 'fault: lint fails (exit 1) and counts 2 errors, 1 warning', "$rc $o", qr/^1 .*lint: 29 file\(s\), 2 error\(s\), 1 warning\(s\)\nelements=226 errors=2 warnings=1\n\z/s;
+like '  ... a syntax error, from the grammar', $o, qr/^\S*model\/firecontrol\/KillChain\.sysml:17:\d+: error: syntax: unexpected '\}'/m;
 like '  ... an unresolved type', $o, qr/^\S*model\/interceptor\/Interceptor\.sysml:\d+:\d+: error: unresolved type 'RocketMotr'/m;
 like "  ... a binding that silently means the child's own parameter", $o, qr/: warning: in 'guide : GuideInterceptor', 'launchEvent' in the binding of 'launchEvent' means GuideInterceptor's own parameter/;
 my $f4 = fresh('f-trace');

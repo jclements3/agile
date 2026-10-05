@@ -4,6 +4,8 @@ package AcceptanceTests {
     private import VerificationCases::*;
     private import SystemContext::*;
     private import StakeholderNeeds::*;
+    private import SecMeta::*;
+    @Marking { level = Level::CUI; }   // a notional label: the content is notional and unclassified
 
     verification def AcceptOperationalCapability {
         doc /* Operational test: a crew defends an area in a joint exercise. */

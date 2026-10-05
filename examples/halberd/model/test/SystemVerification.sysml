@@ -5,6 +5,8 @@ package SystemVerification {
     private import VerificationCases::*;
     private import Enterprise::*;
     private import SystemRequirements::**;
+    private import SecMeta::*;
+    @Marking { level = Level::CUI; }   // a notional label: the content is notional and unclassified
 
     verification def VerifySensingChain {
         doc /* Detection, tracking and classification, sensor to console, against simulated and live targets. */

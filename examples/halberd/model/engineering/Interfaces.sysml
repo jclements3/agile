@@ -2,7 +2,8 @@
 package InterfaceDefinitions {
     doc /* Every segment boundary is a port definition plus an interface definition that joins two ports. */
     private import KillChainItems::**;
-    private import Support::HealthReport;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     port def SensorDataPort { doc /* Sensor reports out of a sensor. */ out item reports : DetectionSet; }
     port def UplinkPort { doc /* In-flight updates to an interceptor. */ out item updates : InflightUpdates; }

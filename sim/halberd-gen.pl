@@ -14,7 +14,8 @@
 # Standalone planning/simulation tool -- not part of the tested kit (lib/, bin/, tests/). Core Perl.
 #
 # Usage:  perl sim/halberd-gen.pl [--dir PATH] [--doc FILE] [--html FILE] [--tex FILE] [--no-html] [--pdf]
-#   --pdf also builds docs/HALBERD.pdf from docs/HALBERD.tex (needs XeLaTeX + latexmk; the PDF is committed)
+#   --pdf also builds docs/HALBERD.pdf from docs/HALBERD.tex (needs XeLaTeX + latexmk; the PDF is committed); its Model views
+#         section greys docs/img/halberd-*.svg (drawn by sim/halberd-views.pl) and converts them with rsvg-convert (left out without it)
 use strict;
 use warnings;
 use FindBin;
@@ -255,6 +256,19 @@ if ($o{pdf}) {                                                   # XeLaTeX in a 
     File::Copy::copy($o{tex}, "$tmp/HALBERD.tex") or die "cannot copy $o{tex}: $!\n";
     File::Copy::copy($cover, "$tmp/cover-art.jpg") if -f $cover;
     File::Copy::copy("$ROOT/docs/img/status-dashboard.png", "$tmp/status-dashboard.png") if -f "$ROOT/docs/img/status-dashboard.png";   # the dashboard figure after the contents
+    require File::Spec;
+    if (system('rsvg-convert --version > ' . File::Spec->devnull . ' 2>&1') == 0) {   # the model views, in grey, as PDF figures
+        for my $k (qw(tree trace ibd pkg)) {
+            my $svg = "$ROOT/docs/img/halberd-$k.svg";
+            next unless -f $svg;
+            open my $in, '<:raw', $svg or die "cannot read $svg: $!\n";
+            my $t = do { local $/; <$in> };
+            close $in;
+            $t =~ s/#([0-9a-fA-F]{6})\b/_grey($1)/ge;               # black and white, like the rest of the document
+            _write_raw("$tmp/halberd-$k.svg", $t);
+            system('rsvg-convert', '-f', 'pdf', '-o', "$tmp/halberd-$k.pdf", "$tmp/halberd-$k.svg") == 0 or die "rsvg-convert failed on $svg\n";
+        }
+    } else { print "rsvg-convert not found: the Model views figures are left out of the PDF\n" }
     my $log = `cd "$tmp" && latexmk -xelatex -interaction=nonstopmode -halt-on-error HALBERD.tex 2>&1`;
     -f "$tmp/HALBERD.pdf" && $? == 0 or die "latexmk failed:\n" . join("\n", (split /\n/, $log)[-25 .. -1]) . "\n";
     (my $pdf = $o{tex}) =~ s/\.tex$/.pdf/;
@@ -262,4 +276,6 @@ if ($o{pdf}) {                                                   # XeLaTeX in a 
     print "wrote $pdf\n";
 }
 
+sub _write_raw { my ($f, $t) = @_; open my $fh, '>:raw', $f or die "cannot write $f: $!\n"; print $fh $t; close $fh or die "cannot write $f: $!\n" }
+sub _grey { my @c = map { hex } unpack '(A2)3', shift; my $g = int(0.299 * $c[0] + 0.587 * $c[1] + 0.114 * $c[2] + 0.5); sprintf '#%02x%02x%02x', $g, $g, $g }
 sub _write { my ($f, $t) = @_; open my $fh, '>:encoding(UTF-8)', $f or die "cannot write $f: $!\n"; print $fh $t; close $fh or die "cannot write $f: $!\n" }

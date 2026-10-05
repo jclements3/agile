@@ -4,6 +4,8 @@ package Support {
     private import Conventions::*;
     private import InterfaceDefinitions::*;
     private import SustainmentRequirements::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     part def SupportSegment {
         @L2Segment;
@@ -32,5 +34,4 @@ package Support {
     part def SpareRoundStorage { @L4Subsystem; doc /* Monitored storage for spare rounds in their canisters. */ }
     part def RoundTestSet { @L4Subsystem; doc /* Checks a round in its canister. */ }
     part def ToolKit { @L4Subsystem; doc /* Hand tools and handling equipment. */ }
-    item def HealthReport { doc /* Health and fault data from a launcher or a round. */ }
 }

@@ -2,6 +2,8 @@
 package SeekerComponents {
     doc /* Components of the seeker. */
     private import Conventions::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     part def SeekerOptics { @L6Component; doc /* Collects the scene. */ }
     part def FocalPlaneArray { @L6Component; doc /* Turns the scene into an image. */ }

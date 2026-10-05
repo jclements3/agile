@@ -3,6 +3,8 @@ package InterceptorComponents {
     doc /* Assemblies of the booster, the kill vehicle and the avionics section. */
     private import Conventions::*;
     private import SeekerComponents::*;
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
 
     part def RocketMotor { @L5Assembly; doc /* The booster motor. */ }
     part def ThrustVectorControl { @L5Assembly; doc /* Steers the booster. */ }

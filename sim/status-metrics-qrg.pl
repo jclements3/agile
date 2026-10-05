@@ -130,7 +130,23 @@ my @why = ('How much of the model is in the pipeline yet?', 'Is what is there co
            'Do analysis and simulation draw on the model?', 'What security and configuration risk has the pipeline closed?', 'Is the team delivering steadily?');
 $t .= "$mark[$_] & " . tx($groups[$_]{name}) . " (" . join('', map { $_->{L} } @{ $groups[$_]{metrics} }) . ") & $why[$_]\\\\\n" for 0 .. $#groups;
 $t .= "\\end{tabularx}\n";
-$t .= "\\columnbreak\n";
+$t .= "\\head{SysML v1 \\textrightarrow{} v2 at a glance}\n\\begin{minipage}{\\linewidth}{\\footnotesize\\begin{tabularx}{\\linewidth}{\@{}>{\\raggedright\\arraybackslash}X >{\\ttfamily\\raggedright\\arraybackslash}X\@{}}\n\\toprule\nv1 (Cameo XMI) & v2 text\\\\\n\\midrule\n"
+    . "Block; part property & part def; part\\\\\n"
+    . "Reference property; value property & ref part; attribute\\\\\n"
+    . "ValueType / DataType; Enumeration & attribute def; enum def\\\\\n"
+    . "Port, proxy/flow port; InterfaceBlock & port; port def (\\textasciitilde{} conjugated)\\\\\n"
+    . "Connector; binding connector & connect a.p to b.q; bind\\\\\n"
+    . "Activity; Signal; Generalization & action def; item def; :>\\\\\n"
+    . "Requirement (DOORS id) & requirement \\{ doorsId \\}\\\\\n"
+    . "Satisfy; Verify; DeriveReqt & satisfy; verify; derivation\\\\\n"
+    . "State machine, OCL, diagrams & // TODO (by hand)\\\\\n"
+    . "\\bottomrule\n\\end{tabularx}}\n"
+    . "\\vspace{3pt}{\\footnotesize\\ttfamily\n"
+    . "perl bin/xmi2sysml.pl --report legacy.xmi\\\\\n"
+    . "perl bin/xmi2sysml.pl --out model --check legacy.xmi\\\\\n"
+    . "perl bin/reqif2sysml.pl --report --model model export.reqif\\\\\n"
+    . "perl tools/sysml/model.pl lint\\par}\n"
+    . "\\vspace{2pt}{\\small Report, convert a segment, fix its TODOs, lint at 0/0, commit. Moves A--I, Q, T. Guide: \\texttt{docs/SYSML-PORT.html}.}\\par\\end{minipage}\n";
 $t .= "\\head{What moves which letter}\n{\\small\\begin{tabularx}{\\linewidth}{\@{}>{\\raggedright\\arraybackslash}X >{\\sffamily\\bfseries}l >{\\raggedright\\arraybackslash}X\@{}}\n\\toprule\nWhat I did & Moves & What I say\\\\\n\\midrule\n";
 $t .= join('', map { tx($_->[0]) . " & " . tx($_->[1]) . " & " . tx($_->[2]) . "\\\\\n" } @key);
 $t .= "\\bottomrule\n\\end{tabularx}}\n";
@@ -146,8 +162,7 @@ $t .= "\\head{Collecting the numbers}\n{\\footnotesize\\ttfamily\n"
     . "perl bin/status-metrics.pl report \\textbackslash\\\\\\hspace*{1em}--config metrics.json --history history.jsonl --out report\\par}\n"
     . "\\vspace{3pt}{\\small \\texttt{init} once (freezes the denominators), \\texttt{collect} daily, \\texttt{report} weekly: "
     . "\\texttt{status-weekly.md}, \\texttt{status-daily.csv}, \\texttt{dashboard.json}. Help: \\texttt{perl agile.pl help status-metrics}.}\\par\n";
-$t .= "\\head{More}\n{\\small Definitions and collection methods: \\texttt{docs/STATUS-METRICS.html}. The worked example, day by day "
-    . "(stand-ups, burn-downs, funding): \\texttt{docs/HALBERD.pdf}.\\par}\n";
+$t .= "\\vspace{2pt}{\\small Full definitions: \\texttt{docs/STATUS-METRICS.html}; the worked example: \\texttt{docs/HALBERD.pdf}.\\par}\n";
 $t .= "\\end{multicols}\n\\end{document}\n";
 
 open my $fh, '>:encoding(UTF-8)', $o{tex} or die "cannot write $o{tex}: $!\n";

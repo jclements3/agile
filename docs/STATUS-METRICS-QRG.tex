@@ -87,7 +87,28 @@ no data & Nothing collected yet (W before the first broken gate).\\
 \ding{58} & Risk retired (QRST) & What security and configuration risk has the pipeline closed?\\
 \ding{72} & Flow (agile) (UVWXYZ) & Is the team delivering steadily?\\
 \end{tabularx}
-\columnbreak
+\head{SysML v1 \textrightarrow{} v2 at a glance}
+\begin{minipage}{\linewidth}{\footnotesize\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X >{\ttfamily\raggedright\arraybackslash}X@{}}
+\toprule
+v1 (Cameo XMI) & v2 text\\
+\midrule
+Block; part property & part def; part\\
+Reference property; value property & ref part; attribute\\
+ValueType / DataType; Enumeration & attribute def; enum def\\
+Port, proxy/flow port; InterfaceBlock & port; port def (\textasciitilde{} conjugated)\\
+Connector; binding connector & connect a.p to b.q; bind\\
+Activity; Signal; Generalization & action def; item def; :>\\
+Requirement (DOORS id) & requirement \{ doorsId \}\\
+Satisfy; Verify; DeriveReqt & satisfy; verify; derivation\\
+State machine, OCL, diagrams & // TODO (by hand)\\
+\bottomrule
+\end{tabularx}}
+\vspace{3pt}{\footnotesize\ttfamily
+perl bin/xmi2sysml.pl --report legacy.xmi\\
+perl bin/xmi2sysml.pl --out model --check legacy.xmi\\
+perl bin/reqif2sysml.pl --report --model model export.reqif\\
+perl tools/sysml/model.pl lint\par}
+\vspace{2pt}{\small Report, convert a segment, fix its TODOs, lint at 0/0, commit. Moves A--I, Q, T. Guide: \texttt{docs/SYSML-PORT.html}.}\par\end{minipage}
 \head{What moves which letter}
 {\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X >{\sffamily\bfseries}l >{\raggedright\arraybackslash}X@{}}
 \toprule
@@ -117,7 +138,6 @@ perl bin/status-metrics.pl init \textbackslash\\\hspace*{1em}--config metrics.js
 perl bin/status-metrics.pl collect \textbackslash\\\hspace*{1em}--config metrics.json --history history.jsonl\\[1pt]
 perl bin/status-metrics.pl report \textbackslash\\\hspace*{1em}--config metrics.json --history history.jsonl --out report\par}
 \vspace{3pt}{\small \texttt{init} once (freezes the denominators), \texttt{collect} daily, \texttt{report} weekly: \texttt{status-weekly.md}, \texttt{status-daily.csv}, \texttt{dashboard.json}. Help: \texttt{perl agile.pl help status-metrics}.}\par
-\head{More}
-{\small Definitions and collection methods: \texttt{docs/STATUS-METRICS.html}. The worked example, day by day (stand-ups, burn-downs, funding): \texttt{docs/HALBERD.pdf}.\par}
+\vspace{2pt}{\small Full definitions: \texttt{docs/STATUS-METRICS.html}; the worked example: \texttt{docs/HALBERD.pdf}.\par}
 \end{multicols}
 \end{document}

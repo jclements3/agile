@@ -20,21 +20,14 @@ jobs:
         run: '"/c/Program Files/Git/usr/bin/perl.exe" -v | sed -n 2p'
       - name: test suite
         shell: bash
-        run: |
-          rc=0
-          for t in tests/*.t; do
-            out=$("/c/Program Files/Git/usr/bin/perl.exe" "$t" 2>&1) || rc=1
-            echo "$out" | tail -1 | sed "s#^#$t  #"
-            echo "$out" | grep -v '^ok' | grep -v '^1\.\.' | grep -v '^# all' || true
-          done
-          exit $rc
+        run: '"/c/Program Files/Git/usr/bin/perl.exe" tests/run.pl -v'    # every suite in parallel, one line each; failing suites in full
       - name: help covers every command and message
         shell: bash
         run: '"/c/Program Files/Git/usr/bin/perl.exe" agile.pl help --check'
       - name: syntax check every script under the target Perl
         shell: bash
         run: |
-          for f in bin/*.pl agile.pl sim/*.pl sim/status-metrics/*.pl tools/idef0/idef0.pl tools/memo/md2memo.pl tools/sysml/sysml.pl tools/sysml/model.pl drills/drill.pl drills/toolbelt.pl; do "/c/Program Files/Git/usr/bin/perl.exe" -Ilib -c "$f" || exit 1; done
+          for f in bin/*.pl agile.pl sim/*.pl sim/status-metrics/*.pl tools/idef0/idef0.pl tools/memo/md2memo.pl tools/sysml/sysml.pl tools/sysml/model.pl tools/sysml/v1v2.pl tools/sysml/doors2v2.pl tools/sysml/views/*.pl tools/sysml/views/binder/*.pl drills/drill.pl drills/toolbelt.pl tests/run.pl; do "/c/Program Files/Git/usr/bin/perl.exe" -Ilib -c "$f" || exit 1; done
       - name: training replay (exercises daily.pl, git and the IDEF0 toolkit end to end)
         shell: bash
         run: |
@@ -52,11 +45,4 @@ jobs:
       - name: git identity (daily.pl commit is under test)
         run: git config --global user.email ci@example.invalid && git config --global user.name ci
       - name: test suite
-        run: |
-          rc=0
-          for t in tests/*.t; do
-            out=$(perl "$t" 2>&1) || rc=1
-            echo "$out" | tail -1 | sed "s#^#$t  #"
-            echo "$out" | grep -v '^ok' | grep -v '^1\.\.' | grep -v '^# all' || true
-          done
-          exit $rc
+        run: perl tests/run.pl -v

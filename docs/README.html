@@ -44,6 +44,7 @@ lib/Xmi.pm       SysML v1 XMI (Cameo/MagicDraw) -> SysML v2 text             tes
 lib/Reqif.pm     DOORS ReqIF/CSV -> SysML v2 requirements, C/F/G/I trace     tests/reqif2sysml.t 49 tests
 lib/Ledger.pm    ledger journal: bal/reg/budget (-M), evm, forecast          tests/ledger.t   109 tests
 tools/sysml/     SysML v2: sysml.pl (grammar-exact syntax), model.pl (lint, trees, IDEF0, trace)  tests/sysml.t 41 tests
+tools/sysml/views/  SVG views (tree, trace, ibd, pkg), plates, diff, threats, the gate; v1v2.pl, doors2v2.pl  tests/sysml-views.t 52 tests
 tools/idef0/     IDEF0 lint/plates/fmt; DroneCorp, quadfactory and Halberd models
 tools/memo/      md2memo.pl: Markdown -> DoD-style memo PDF/text with marking   tests/memo.t 10 tests
 examples/halberd/ the notional Halberd SysML v2 model (sim/halberd-gen.pl builds data/halberd)  tests/halberd.t 12 tests
@@ -408,9 +409,15 @@ perl bin/reqif2sysml.pl --report --model model export.reqif     linked / orphan 
 
 <pre>perl tools/sysml/sysml.pl check FILE...                       syntax against the official SysML v2 grammar
 perl tools/sysml/model.pl --root examples/halberd lint         lint; also check, stats, nouns, verbs, trace, docs, idef0, backlog, tags
-perl tools/sysml/model.pl --root examples/halberd validate     full compile (only where Java and the Pilot jar exist)</pre>
+perl tools/sysml/model.pl --root examples/halberd validate     full compile (only where Java and the Pilot jar exist)
+perl tools/sysml/model.pl --root examples/halberd draw trace   an SVG view: tree, trace, ibd (trust zones) or pkg (markings)
+perl tools/sysml/model.pl --root examples/halberd diff --git baseline-1   a change as colored views + a change list
+perl tools/sysml/model.pl --root examples/halberd gate         text, trace, markings, zones, threats -> PASS|FAIL</pre>
 
-<p>See <code>tools/sysml/README.md</code> and <code>examples/halberd/README.md</code>.</p>
+<p>See <code>tools/sysml/README.md</code>, <code>tools/sysml/views/README.txt</code> and <code>examples/halberd/README.md</code>.
+The views of Halberd are in <code>docs/img/halberd-{tree,trace,ibd,pkg}.svg</code> (<code>perl sim/halberd-views.pl</code>).
+For exports the main converters cannot read (older Cameo, <code>.mdzip</code>, UTF-16 or Windows-1252 DOORS CSV) use the
+fallback converters <code>tools/sysml/v1v2.pl</code> and <code>doors2v2.pl</code> (<a href="SYSML-PORT.html#fallback">SYSML-PORT.html</a>).</p>
 
 <h2>Halberd: the worked example</h2>
 
@@ -432,6 +439,11 @@ perl bin/ledger.pl -f funding.ledger forecast --now 2026-11-30 --months 2 Assets
 
 <p>Set <code>funding = funding.ledger</code> and <code>complete = complete-*.csv</code> in <code>scrum.conf</code> and the cockpit
 gains a Funding tab.</p>
+
+<h2>A local SysML v2 model assistant (optional)</h2>
+
+<p><a href="OLLAMA.md">OLLAMA.md</a>: getting and installing Qwen3-4B-SysMLv2 with Ollama on the laptop (approvals first),
+and checking everything it writes with <code>sysml.pl check</code> and <code>model.pl lint</code>.</p>
 
 <h2>Memos and Vim</h2>
 

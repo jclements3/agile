@@ -285,7 +285,11 @@ tD Design                    t model (letter D)
 <tr><td>\mr  :SysTrace</td><td>requirement &rarr; satisfied by &rarr; verified by, in a split</td></tr>
 <tr><td>\mn \mb  :SysNouns :SysVerbs</td><td>the part tree / the function tree</td></tr>
 <tr><td>\mt  :SysTags</td><td>build the tags file; then Ctrl-] on a name or DOORS id, Ctrl-t back</td></tr>
-<tr><td>:make lint|check|validate</td><td>the same through Vim's compiler (outside a project: <code>sysml.pl check %</code>)</td></tr>
+<tr><td>\mw \mq \mi \mp  :SysDraw</td><td>draw the tree / trace / ibd (trust zones) / pkg (markings) view to <code>KIND.svg</code>; <code>g:sysml_svg_viewer</code> opens it</td></tr>
+<tr><td>\mW  :SysView</td><td>the live viewer (<code>wish bin/sysml-view.tcl</code>): redraws on save; 1-4 view, +/- zoom, click = file:line</td></tr>
+<tr><td>\mf  \mo</td><td>viewer: highlight the name under the cursor / open the file:line last clicked</td></tr>
+<tr><td>\mg  :SysGate</td><td>the validate gate (text, trace, markings, zones, threats); findings to the quickfix list</td></tr>
+<tr><td>:make lint|check|validate|gate</td><td>the same through Vim's compiler (outside a project: <code>sysml.pl check %</code>)</td></tr>
 </table>
 </section>
 

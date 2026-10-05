@@ -79,7 +79,7 @@ for my $p (@perls) {
          evidence => ($bad ? "$bad suite(s) FAILED" : "$n tests, " . scalar(@lines) . " suites, all passed") . " -- $ver", detail => join "\n", @lines);
 }
 {   my @bad;
-    for my $f (sorted(glob('bin/*.pl'), 'agile.pl', glob('sim/*.pl'), glob('sim/status-metrics/*.pl'), 'tools/idef0/idef0.pl', 'tools/memo/md2memo.pl', 'tools/sysml/sysml.pl', 'tools/sysml/model.pl', 'drills/drill.pl', 'drills/toolbelt.pl', glob('lib/*.pm'))) { my $r = sh(qq("$^X" -Ilib -c "$f")); push @bad, "$f: $r" unless $r =~ /syntax OK/ }
+    for my $f (sorted(glob('bin/*.pl'), 'agile.pl', glob('sim/*.pl'), glob('sim/status-metrics/*.pl'), 'tools/idef0/idef0.pl', 'tools/memo/md2memo.pl', 'tools/sysml/sysml.pl', 'tools/sysml/model.pl', 'tools/sysml/v1v2.pl', 'tools/sysml/doors2v2.pl', glob('tools/sysml/views/*.pl'), glob('tools/sysml/views/binder/*.pl'), 'drills/drill.pl', 'drills/toolbelt.pl', 'tests/run.pl', glob('lib/*.pm'))) { my $r = sh(qq("$^X" -Ilib -c "$f")); push @bad, "$f: $r" unless $r =~ /syntax OK/ }
     gate(id => 'syntax', pillar => 'CI: build, lint, test', name => 'perl -c on every script and module', state => @bad ? 'gap' : 'ok',
          evidence => @bad ? scalar(@bad) . ' failed' : 'all compile (strict + warnings everywhere)', detail => join "\n", @bad);
 }

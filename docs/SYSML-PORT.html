@@ -197,7 +197,41 @@ written by one tool resolve against definitions written by the other. Other name
       run it over every fixture output in both requirement styles.</li>
   <li>Neither is a full semantic validator. When you can, open a segment in a SysML v2 tool (the Pilot implementation or a vendor
       tool) before you baseline it.</li>
+  <li>Review a ported segment as pictures and as a diff: <code>perl tools/sysml/model.pl draw tree|trace|ibd|pkg</code> draws the
+      part tree, the trace, the interconnection by trust zone and the packages with their markings;
+      <code>model.pl diff --git baseline-1</code> colors what a change added, changed and removed and lists it for the merge request;
+      <code>model.pl gate</code> runs the text, trace, marking, zone and threat checks and prints one PASS/FAIL line
+      (<code>tools/sysml/views/</code>, <code>perl agile.pl help agile-sysml-views</code>).</li>
 </ul>
+
+<h2 id="fallback">Fallback converters</h2>
+<p><code>bin/xmi2sysml.pl</code> and <code>bin/reqif2sysml.pl</code> stay the main path: they write the forms the status metrics count,
+and their reports feed metrics A, C, F, G and I. Two more converters in <code>tools/sysml/</code> cover exports the main path cannot read.
+Both are core Perl, deterministic (re-run after each export and review the change with <code>model.pl diff</code>), and write
+<code>DIR/model/...</code>, <code>DIR/ids.tsv</code> (source id to v2 name) and <code>DIR/CONVERSION.txt</code> (GNU-format notes;
+each <em>warning</em> is something to finish by hand).</p>
+<table>
+  <tr><th>When</th><th>Use</th></tr>
+  <tr><td>An older Cameo or MagicDraw without the v2 plugin, an export <code>xmi2sysml.pl</code> rejects, or only the
+      <code>.mdzip</code> project file</td>
+      <td><code>perl tools/sysml/v1v2.pl inventory MODEL [--tsv]</code> counts what is there and the trace coverage;
+      <code>check MODEL</code> lists what to fix in Cameo first; <code>convert MODEL -o DIR [--package 'A::B'] [--prefix P]
+      [--marking U] [--typemap F]</code> converts the whole model or one package slice (outside references become stubs);
+      <code>reqs REQS -o F.sysml --package NAME</code> converts a ReqIF or CSV requirement table only.
+      MODEL is <code>.xmi</code>, <code>.uml</code>, <code>.xml</code> or the <code>.mdzip</code> itself.</td></tr>
+  <tr><td>DOORS CSV or TSV saved as UTF-16 or Windows-1252, DOORS Next ReqIF with information objects, or several modules
+      whose links must resolve against each other</td>
+      <td><code>perl tools/sysml/doors2v2.pl -o DIR [--prefix P] [--tests MODULE] [--design MODULE] [--keep ATTR]
+      [--map FIELD=COLUMN] [--marking L] EXPORT...</code>. Headings become requirement groups, information objects become
+      comments, the DOORS ID stays the short name; verify links to <code>--tests</code> modules become verification defs,
+      satisfy links from <code>--design</code> modules become satisfy lines with placeholder parts, the rest become dependencies.</td></tr>
+</table>
+<p>Their output keeps the DOORS or v1 id as the requirement's short name (<code>requirement &lt;'SYS-12'&gt; name { ... }</code>),
+not the one-line <code>attribute doorsId</code> form the status-metrics collector counts: add the <code>doorsId</code> attribute
+(or convert again with the main path once it reads the export) before you report C, F and G from that segment. <code>--marking</code> adds a SecMeta <code>@Marking</code> to each
+root package; copy <code>tools/sysml/views/library/SecMeta.sysml</code> into the model first. The converters' fixtures and
+goldens run in <code>tools/sysml/views/tests/run.sh</code>; usage: <code>tools/sysml/views/README.txt</code>,
+<code>perl agile.pl help agile-v1v2</code>.</p>
 
 <h2>Limits</h2>
 <ul>

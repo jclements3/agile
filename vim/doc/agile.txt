@@ -633,9 +633,10 @@ the running example across the kit. Its pieces:
   against it sprint by sprint (|agile-halberd-gen|).
 - docs/HALBERD.html: the same, as a page to read without running anything;
   docs/STATUS-DASHBOARD.html: the A-Z dashboard with Halberd's numbers.
-- examples/halberd: the SysML v2 text model (28 files, seven segments)
-  that exercises sysml.pl and model.pl; its README.md shows every
-  command (|agile-model-pl|): >
+- examples/halberd: the SysML v2 text model (29 files, seven segments,
+  with SecMeta markings, trust zones and threats) that exercises sysml.pl,
+  model.pl and the views toolkit (|agile-sysml-views|); its README.md
+  shows every command (|agile-model-pl|): >
     perl tools/sysml/model.pl --root examples/halberd lint
 <
 - tools/idef0/examples/halberd/halberd.md: the IDEF0 program model, seven
@@ -1806,8 +1807,160 @@ precommit | install-hooks   the pre-commit checks / install the git hook
 validate              full compile with the Pilot engine (needs Java; exit 3
                       without it)
 libnames DIR          refresh the offline standard-library names
+draw tree|trace|ibd|pkg [-o FILE]   an SVG view (|agile-model-draw|)
+plates [-o DIR]       drawing plates from the views (|agile-model-plates|)
+diff OLD_DIR | diff --git REV   a change, as pictures (|agile-model-diff|)
+threats [--today D]   the threat table and its checks (|agile-model-threats|)
+gate [--today D]      the validate gate, PASS or FAIL (|agile-model-gate|)
 The worked example is examples/halberd (its README shows every command):
 perl tools/sysml/model.pl --root examples/halberd lint. In Vim: |agile-vim-sysml|.
+
+------------------------------------------------------------------------------
+The SysML views toolkit                                    *agile-sysml-views*
+
+tools/sysml/views/ holds standalone core-Perl tools that read any SysML v2
+text model (a directory or files) and draw or check it. Each one runs on
+its own (perl tools/sysml/views/TOOL.pl ...); model.pl draw, plates, diff,
+threats and gate run them on the current project's model/ and pass every
+other option through (a --root after the command is the tool's, not the
+project's). Diagnostics are GNU format, FILE:LINE: error|warning|note: ...;
+exit 0 clean, 1 findings, 2 usage or input error. Outputs are deterministic:
+pin dates with --today / --date.
+The security checks read the SecMeta library (tools/sysml/views/library/
+SecMeta.sysml; copy it into model/): @Marking { level = Level::U; } on every
+root package, @TrustZone { zone = Zone::dmz; } on parts at a boundary,
+@SecurityRequirement and @Mitigates { threat = "t"; } on requirements, and
+threats as metadata t : Threat { stride; capec; asset; mitigation; } lines
+(or @Threat on an element). DrawingMeta.sysml beside it adds @Drawing for
+plates. The binder scripts sysml-gate.pl and sysml-trace.pl (text checks,
+satisfied + verified leaves) are in views/binder/. Golden harness: bash
+tools/sysml/views/tests/run.sh (tests/sysml-views.t runs it). Usage of every
+tool: tools/sysml/views/README.txt. A live view beside Vim:
+|agile-sysml-view|.
+
+------------------------------------------------------------------------------
+model.pl draw                                               *agile-model-draw*
+                                                        *agile-sysml-tree-svg*
+                                                       *agile-sysml-trace-svg*
+                                                         *agile-sysml-ibd-svg*
+                                                         *agile-sysml-pkg-svg*
+    perl tools/sysml/model.pl draw tree|trace|ibd|pkg [-o FILE] [options]
+    perl tools/sysml/views/sysml-tree-svg.pl [-o tree.svg] DIR|FILE...
+
+One SVG view of the model, written to KIND.svg in the current directory
+(or -o FILE), titled "TITLE: ..." from sysml.conf unless --title is given.
+tree   sysml-tree-svg.pl: the part decomposition, left to right, each part
+       expanded through its type (--root NAME, --all, --depth N, --features,
+       --outline, --hide-meta A,B, --compare OLD [--changed]).
+trace  sysml-trace-svg.pl: satisfying parts | requirements with S/V status
+       | verification cases; the same leaf and gap counts as the binder's
+       trace (--gaps, --match REGEX, --package P, --mono for print,
+       --compare OLD [--changed]).
+ibd    sysml-ibd-svg.pl: parts, ports and connections colored by trust zone;
+       error: a zone crossing no satisfied @SecurityRequirement covers
+       (by its subject, or named in the connection's secReq attribute);
+       warning: fromZone/toZone attributes that disagree with the zones;
+       note: the attack surface (--root NAME).
+pkg    sysml-pkg-svg.pl: packages, dependencies and markings; errors: a
+       root package with no @Marking, write-down (a lower package imports or
+       references a higher one); warnings: text leakage, dependency cycles
+       (--nested, --hide P,Q, --levels U,CUI).
+Open the SVG in a browser: hover for links, tooltips carry doc and
+FILE:LINE. Halberd's four views: docs/img/halberd-*.svg (perl
+sim/halberd-views.pl). In Vim: \mw \mq \mi \mp (|:SysDraw|).
+
+------------------------------------------------------------------------------
+model.pl plates                                           *agile-model-plates*
+                                                          *agile-sysml-plates*
+    perl tools/sysml/model.pl plates [-o DIR] [--date D] [--source T] ...
+
+Drawing plates (ISO 5457 sheet, ISO 7200 title block) from the model's view
+usages, or one per top tree, wired def, trace and packages with --auto or
+when the model has no views. Writes DIR/NUMBER.svg and DIR/plates.html
+(default DIR: plates; print it to PDF from the browser). Options: --size
+auto|A4..A0, --color, --owner, --creator, --approver, --status, --rev,
+--date (default today), --prefix DWG, --source (default git describe),
+--min-text MM. @Drawing { ... } (DrawingMeta.sysml) overrides any field.
+
+------------------------------------------------------------------------------
+model.pl diff                                               *agile-model-diff*
+                                                            *agile-sysml-diff*
+    perl tools/sysml/model.pl diff [-o PREFIX] [--changed] OLD_DIR [NEW_DIR]
+    perl tools/sysml/model.pl diff [-o PREFIX] --git OLD[..NEW] [PATH...]
+
+A model change as a review: PREFIX-tree.svg and PREFIX-trace.svg colored by
+change (added green, changed amber, removed red), PREFIX-packages.svg and
+PREFIX-ibd.svg of the new version, and PREFIX-changes.txt (GNU format, for
+the merge request or Vim's quickfix). The markings, zones and threats
+checks run on both sides: "new finding" / "resolved". The new side
+defaults to this model (NEW_DIR, or the working tree's model/ with --git).
+Exit 1 when the change adds a requirement gap or an error finding.
+--today D is passed to the threat check. --git needs git (Git Bash).
+
+------------------------------------------------------------------------------
+model.pl threats                                         *agile-model-threats*
+                                                         *agile-sysml-threats*
+    perl tools/sysml/model.pl threats [--today YYYY-MM-DD]
+
+The threat table (threat, STRIDE, CAPEC, mitigated by, status), then the
+checks: every threat has one of the six STRIDE categories and a CAPEC-n id
+(SEC-2); every threat is named by a @Mitigates on a requirement that is
+satisfied and verified (SEC-3); a current @RiskAcceptance (approver set,
+expires >= today) turns an open threat into a listed warning; a threat's
+mitigation attribute must match its @Mitigates. Exit 1 on errors.
+
+------------------------------------------------------------------------------
+model.pl gate                                               *agile-model-gate*
+                                                           *agile-sysml-check*
+    perl tools/sysml/model.pl gate [--today D] [--strict] [--only a,b]
+                                   [--svg DIR]
+
+The validate gate in one command (sysml-check.pl): text (bare imports,
+keywords as names, units, docs, braces), trace (every leaf satisfied and
+verified), markings, zones, threats; one line at the end: check: N check(s)
+run, E error(s), W warning(s) -> PASS|FAIL. Exit 0 pass, 1 fail. Accepted
+risks are listed but pass unless --strict. --svg DIR also writes the four
+pictures. On Halberd it fails on exactly the planted gaps: 7 trace, 1 zone
+crossing, 2 threats. In Vim: \mg (|:SysGate|), findings in the quickfix list.
+
+------------------------------------------------------------------------------
+The live viewer: sysml-view.tcl                             *agile-sysml-view*
+                                                          *agile-sysml-svg2tk*
+    wish bin/sysml-view.tcl [PROJECT-DIR] [--view tree|trace|ibd|pkg] [--root NAME]
+    wish bin/sysml-view.tcl PROJECT-DIR --view V --export-ps FILE
+    perl tools/sysml/views/svg2tk.pl FILE.svg
+
+A window beside Vim (Tcl/Tk as shipped with Git for Windows: wish.exe) that
+shows one view of the model and redraws within a second or two of a save.
+The drawing comes from the same drawers as |agile-model-draw|; Tk cannot
+show SVG, so svg2tk.pl turns each SVG into canvas primitives (size, rect,
+line, poly, text, title lines). Keys: 1-4 the view, + - zoom, 0 fit, r
+redraw, q quit; the wheel zooms, a right-drag pans. Hover shows the
+element; a click copies its FILE:LINE and writes it to ~/.sysml-view/jump
+(Vim's \mo opens it). Vim's \mf writes the name under the cursor to
+~/.sysml-view/focus: the viewer highlights it and scrolls to it ("follow"
+re-roots the IBD there). --export-ps draws once, writes PostScript and
+exits (printing, tests; headless: xvfb-run -a wish ...). PROJECT-DIR
+defaults to the nearest directory upward holding model/. In Vim: \mW.
+
+------------------------------------------------------------------------------
+v1v2.pl, doors2v2.pl: the fallback converters                     *agile-v1v2*
+                                                              *agile-doors2v2*
+    perl tools/sysml/v1v2.pl inventory|check MODEL   (.xmi, .uml or .mdzip)
+    perl tools/sysml/v1v2.pl convert MODEL -o DIR [--package 'A::B']
+    perl tools/sysml/v1v2.pl reqs REQS -o F.sysml --package NAME
+    perl tools/sysml/doors2v2.pl -o DIR [--tests MODULE] EXPORT...
+
+The main path is |agile-xmi2sysml| and |agile-reqif2sysml| (they write the
+forms the status metrics count). Use these when that path cannot read the
+export: v1v2.pl takes older Cameo exports and the .mdzip project file
+itself (inventory, a pre-conversion check, convert one package slice with
+stubs, a --typemap for unresolved types; writes ids.tsv and CONVERSION.txt);
+doors2v2.pl takes DOORS 9 / DOORS Next CSV or TSV in UTF-8, UTF-16 or
+Windows-1252 and ReqIF, keeps headings, information objects (as comments),
+links (verify, satisfy, derive, refine, trace) and the DOORS ID. Both are
+deterministic: re-run after each export and review with model.pl diff.
+Details: docs/SYSML-PORT.html, "Fallback converters".
 
 ------------------------------------------------------------------------------
 SysML in Vim                                                 *agile-vim-sysml*
@@ -1823,6 +1976,10 @@ inside a project with model/ above it. Results go to the quickfix list.
 \mn  :SysNouns      the part tree, in a split
 \mb  :SysVerbs      the function tree, in a split
 \mt  :SysTags       write the tags file (then CTRL-] jumps, CTRL-T back)
+\mw \mq \mi \mp  :SysDraw tree|trace|ibd|pkg   draw a view (KIND.svg)
+\mg  :SysGate       the validate gate, findings to the quickfix list
+\mW  :SysView       the live viewer for this project (|agile-sysml-view|)
+\mf  \mo           viewer: show the name under the cursor / open its click
 
 :SysLint                                                            *:SysLint*
 \ml                                                                      *\ml*
@@ -1859,6 +2016,33 @@ model.pl verbs --plain, in a split.
 :SysTags                                                            *:SysTags*
 \mt                                                                      *\mt*
 model.pl tags: CTRL-] on any definition, requirement or DOORS id.
+
+:SysDraw {kind}                                                     *:SysDraw*
+\mw                                                                      *\mw*
+\mq                                                                      *\mq*
+\mi                                                                      *\mi*
+\mp                                                                      *\mp*
+model.pl draw tree / trace / ibd / pkg: KIND.svg in the current directory
+(|agile-model-draw|). Set g:sysml_svg_viewer (for example 'explorer.exe' in
+Git Bash, 'xdg-open' on Linux) to open it after drawing.
+
+:SysGate                                                            *:SysGate*
+\mg                                                                      *\mg*
+model.pl gate: the findings in the quickfix list, the PASS/FAIL line last
+(|agile-model-gate|).
+
+:SysView                                                            *:SysView*
+\mW                                                                      *\mW*
+Start the live viewer (|agile-sysml-view|) for this project in the
+background: wish bin/sysml-view.tcl PROJECT. g:sysml_wish names the wish
+program (default "wish"; Git for Windows has it in mingw64/bin).
+
+\mf                                                                      *\mf*
+Write the name under the cursor (or, on a keyword or blank, the enclosing
+def's name) to ~/.sysml-view/focus: the viewer highlights it.
+
+\mo                                                                      *\mo*
+Open the FILE:LINE last clicked in the viewer (~/.sysml-view/jump).
 
 ==============================================================================
 16. PRACTICE LESSONS                                          *agile-practice*

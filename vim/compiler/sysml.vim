@@ -3,6 +3,7 @@
 "   :make lint       grammar-exact syntax, unresolved types, imports, duplicates, self-bindings
 "   :make check      the 2..9 outline rule and @L level tags
 "   :make validate   full compile with the SysML v2 Pilot engine (needs Java; skipped otherwise)
+"   :make gate       the validate gate: text, trace, markings, zones, threats (tools/sysml/views)
 " Outside a project, :make checks this file's syntax only (tools/sysml/sysml.pl check).
 if exists('current_compiler') | finish | endif
 let current_compiler = 'sysml'

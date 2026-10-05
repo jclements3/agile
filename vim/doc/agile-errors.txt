@@ -984,6 +984,167 @@ idef0: no calc def or action def named 'X' (verb_root in sysml.conf)
   Fix:     Fix verb_root (and noun_root) in sysml.conf; give --agile=DIR or
            set AGILE_HOME to the kit; git init the model repository first.
 
+------------------------------------------------------------------------------
+                                                       *agile-err-views-usage*
+usage: perl sysml-tree-svg.pl ... / sysml-check: X: no such file or directory
+
+  Pattern: usage: perl sysml-tree-svg.pl
+  Pattern: usage: perl sysml-trace-svg.pl
+  Pattern: usage: perl sysml-ibd-svg.pl
+  Pattern: usage: perl sysml-pkg-svg.pl
+  Pattern: usage: perl sysml-plates.pl
+  Pattern: usage: perl sysml-diff.pl
+  Pattern: usage: perl sysml-threats.pl
+  Pattern: usage: perl sysml-check.pl
+  Pattern: usage: * draw tree|trace|ibd|pkg [-o FILE] [tool options]
+  Pattern: sysml-*: *: no such file or directory
+  Pattern: sysml-*: --changed needs --compare
+  Pattern: sysml-plates: --size must be auto, A4, A3, A2, A1 or A0
+  Pattern: sysml-threats: --today must be YYYY-MM-DD
+  Pattern: sysml-check: unknown check '*' (known: *)
+  Pattern: sysml-check: *: *
+  Pattern: sysml-*: no part def '*'
+  Pattern: model.pl: * is missing (the tools/sysml/views toolkit)
+  Pattern: usage: perl svg2tk.pl FILE.svg
+  Pattern: svg2tk: cannot read *: *
+  Pattern: svg2tk: *: no <svg> element
+  Pattern: *.svg: *
+  Pattern: */plates.html: *
+  From:    tools/sysml/views/*.pl, model.pl draw, plates, diff, threats,
+           gate; svg2tk.pl (through bin/sysml-view.tcl)
+  Means:   A wrong option or value, no model directory or file, a --root
+           that names no part def, --changed without --compare, or the
+           output file or directory cannot be written. svg2tk: the drawer
+           wrote no SVG (its own message is in the viewer's status line). "is missing": the
+           kit copy has no tools/sysml/views (exit 2 in every case).
+  Fix:     model.pl draw takes tree, trace, ibd or pkg; run model.pl inside
+           a project or with --root DIR before the command (a --root after
+           it is the tool's: a part def name). model.pl nouns lists the part
+           defs; --today and --date take YYYY-MM-DD. Get a fresh copy of the
+           kit if the toolkit is missing (|agile-sysml-views|).
+
+------------------------------------------------------------------------------
+                                                    *agile-err-views-findings*
+FILE:LINE: error: root package 'P' has no @Marking (and the other findings)
+
+  Pattern: root package '*' has no @Marking
+  Pattern: package '*' imports * package '*'
+  Pattern: package '*' references * element '*'
+  Pattern: text in * package '*' names * element '*'
+  Pattern: package dependency cycle: *
+  Pattern: crosses * with no satisfied security requirement
+  Pattern: declares fromZone/toZone * but its ends sit in *
+  Pattern: attack surface: *
+  Pattern: connection end '*' is not a part or port of '*'
+  Pattern: requirement * not satisfied
+  Pattern: requirement * not verified
+  Pattern: target '*' not found
+  Pattern: target '*' is ambiguous; using the first
+  Pattern: specializes unknown '*'
+  Pattern: part '*' has type '*' that is not a part def here
+  Pattern: recursive composition: '*' : *
+  Pattern: view '*': expose '*' matches nothing
+  Pattern: view '*': nothing to draw
+  Pattern: view '*': render * is not supported
+  Pattern: plate '*' could not be drawn
+  Pattern: plate *: diagram text is * mm on *, below * mm
+  From:    model.pl gate, draw and plates; sysml-check.pl, sysml-pkg-svg.pl,
+           sysml-ibd-svg.pl, sysml-trace-svg.pl, sysml-tree-svg.pl,
+           sysml-plates.pl
+  Means:   A gate finding (|agile-model-gate|). Markings: every root package
+           needs @Marking { level = Level::X; }; a lower package may not
+           import or reference a higher one (write-down); a higher
+           element's name in a lower package's text is a leak; packages
+           should not depend on each other in a cycle. Zones: a connection
+           between two trust zones needs a satisfied @SecurityRequirement,
+           by its subject or named in the connection's secReq attribute;
+           its fromZone/toZone attributes must say what @TrustZone says.
+           Trace: a leaf requirement is satisfied and verified, by itself
+           or a group above it. A note is information, not a failure.
+           Drawing warnings: a type or supertype the files given do not
+           define (pass the whole model), a part that contains itself, a
+           view whose expose or render the plates cannot draw, a plate
+           whose text would print smaller than --min-text.
+  Fix:     Add the marking (and private import SecMeta::*;), mark the
+           importing package at least as high or move the element, rename
+           the leaking text; add or name the covering requirement and its
+           satisfy; fix the zone attributes or the @TrustZone; add the
+           satisfy or verify. model.pl draw pkg / ibd / trace shows each
+           finding in red; perl agile.pl help agile-sysml-views.
+
+------------------------------------------------------------------------------
+                                                     *agile-err-views-threats*
+threat 'T' is not mitigated by any requirement / no CAPEC id
+
+  Pattern: threat '*' is not mitigated by any requirement
+  Pattern: threat '*' is mitigated only by requirements that are not *
+  Pattern: threat '*': no STRIDE category
+  Pattern: threat '*': STRIDE category '*' is not one of the six
+  Pattern: threat '*': no CAPEC id
+  Pattern: threat '*': CAPEC id '*' is not CAPEC-n
+  Pattern: threat '*': mitigation = "*" but no @Mitigates on '*' names it
+  Pattern: threat '*': @Mitigates on * but mitigation = ""
+  Pattern: @Mitigates on requirement '*' names unknown threat '*'
+  Pattern: @Mitigates on requirement '*' names no threat
+  Pattern: risk acceptance on threat '*' *
+  Pattern: accepted by risk acceptance
+  From:    model.pl threats and gate; sysml-threats.pl
+  Means:   Every threat needs one of the six STRIDE categories (Spoofing,
+           Tampering, Repudiation, Information disclosure, Denial of
+           service, Elevation of privilege) and a CAPEC-n id, and a
+           @Mitigates { threat = "T"; } on a requirement that is satisfied
+           and verified. The status-metrics line form also carries
+           mitigation = "REQ": it must name the same requirement. A risk
+           acceptance needs an approver and an expiry date not yet past;
+           a current one makes the open threat a listed warning.
+  Fix:     Add the mitigating requirement (with @Mitigates, a satisfy and a
+           verify), or a @RiskAcceptance with approver and expires; correct
+           the category or the id; keep mitigation and @Mitigates in step.
+           --today YYYY-MM-DD pins the date for repeatable runs.
+
+------------------------------------------------------------------------------
+                                                        *agile-err-views-diff*
+sysml-diff: 'git ls-tree ...' failed / REV: no .sysml files under PATH
+
+  Pattern: sysml-diff: 'git *' failed
+  Pattern: sysml-diff: 'git show *' failed
+  Pattern: sysml-diff: *: no .sysml files under *
+  Pattern: sysml-diff: * failed
+  Pattern: *-changes.txt: *
+  From:    model.pl diff, sysml-diff.pl
+  Means:   git does not know the revision, the current directory is not
+           in the repository, or the revision has no .sysml files under the
+           paths; or one of the view tools the diff runs failed (its message
+           is above).
+  Fix:     Run inside the model's git repository (Git Bash); git tag and git
+           log --oneline show what OLD..NEW can be; give the path to the
+           model (model.pl diff adds model/ when no path is given).
+
+------------------------------------------------------------------------------
+                                                     *agile-err-v1v2-doors2v2*
+v1v2: FILE: no XMI or ReqIF member found / doors2v2: FILE: empty file
+
+  Pattern: v1v2: *
+  Pattern: doors2v2: *
+  Pattern: usage: perl doors2v2.pl
+  Pattern: *: error: no closing '*'
+  Pattern: *: error: unexpected </*>
+  Pattern: *: error: unclosed <*>
+  Pattern: *: error: malformed XML*
+  From:    tools/sysml/v1v2.pl, tools/sysml/doors2v2.pl (|agile-v1v2|)
+  Means:   The command line is incomplete or an option has a bad value (an
+           identifier is expected for --package and --marking), or an input
+           cannot be read: a .mdzip without a model member, a zip the core
+           unzip cannot open, a CSV with broken quoting, a --typemap line
+           that is not KEY<TAB>V2TYPE[<TAB>UNIT]. FILE:LINE: error: ... is
+           an XML problem at that line. "using member" says which file of a
+           .mdzip was read (information, exit 0).
+  Fix:     perl tools/sysml/v1v2.pl with no arguments prints its usage.
+           Unzip a .mdzip or .reqifz by hand if the zip module is missing
+           and pass the member; re-export a broken XML or CSV file from
+           Cameo or DOORS. The main path for exports it can read is
+           xmi2sysml.pl / reqif2sysml.pl (|agile-err-port-usage|).
+
 ==============================================================================
 9. CODING DRILLS                                       *agile-errors-drills*
 

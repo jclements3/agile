@@ -203,6 +203,13 @@ $t .= <<'POST';
 \item \cmd{perl tools/sysml/model.pl lint} and \cmd{check} (outline rule, level tags) on the whole model (Vim: \cmd{\textbackslash ml}, \cmd{\textbackslash mk}).
 \item Not a full semantic validator: open a segment in a SysML v2 tool before you baseline it, when you can.
 \end{itemize}
+\head{Draw and review the model}
+\begin{cmds}
+perl tools/sysml/model.pl draw tree|trace|ibd|pkg  \# KIND.svg
+perl tools/sysml/model.pl diff --git baseline-1    \# what changed
+perl tools/sysml/model.pl gate                     \# PASS|FAIL
+\end{cmds}
+{\small \cmd{trace --mono} prints in black and white; \cmd{ibd} colors trust zones, \cmd{pkg} markings. \cmd{diff} writes colored views and a GNU change list for the merge request; \cmd{gate} = text, trace, markings, zones, threats (Vim: \cmd{\textbackslash mw \textbackslash mq \textbackslash mi \textbackslash mp}, \cmd{\textbackslash mg}). Exports the converters reject: \cmd{tools/sysml/v1v2.pl} (old Cameo, \cmd{.mdzip}), \cmd{doors2v2.pl} (UTF-16/cp1252 CSV).}\par
 \head{How the port feeds A--Z}
 \begin{itemize}
 \item \textbf{A}: \cmd{status-metrics.pl init --xmi} freezes the denominator with \cmd{uml:(Class|Port|Property|Connector|Activity)}; the report's \emph{ported vs remaining} counts the same set.

@@ -29,6 +29,7 @@ metrics and their action thresholds, and the feedback loops. `docs/TEST-PLAN.htm
 Run from the repo root:
 
     for t in tests/*.t; do perl $t | tail -1; done   # run every test suite, print each summary line
+    perl tests/run.pl [-j N] [-v]                     # the same in parallel (~3x faster), one line per suite; -v prints failing suites in full
     perl tests/scrum.t                                # run a single suite (verbose TAP output)
     "/mnt/c/Program Files/Git/bin/bash.exe" -lc 'cd /c/Users/clementsj/projects/agile && for t in tests/*.t; do perl $t | tail -1; done'   # from WSL: the same suite under the TARGET Perl (Git for Windows, cygwin build) -- run before every commit that touches bin/ or lib/
     #   inside Git Bash, not by calling usr/bin/perl.exe from WSL: suites that shell out (perl, cp) need Git's PATH, and Git's Perl sees the repo as /c/..., not /mnt/c/...
@@ -45,7 +46,7 @@ There is no build step and no package manager — everything is `use lib` agains
 Test suites map 1:1 to the libs: `tests/prelude.t`, `tests/ledger.t`, `tests/quad.t`,
 `tests/scrum.t`, `tests/standup.t`, `tests/calendar.t`, `tests/chat.t`, `tests/answers.t`,
 `tests/attendance.t`, `tests/quad.t`, `tests/roster.t`, `tests/cockpit.t`, `tests/drill.t`, `tests/metrics.t`, `tests/status_metrics.t`,
-`tests/xmi2sysml.t`, `tests/reqif2sysml.t`, `tests/sysml.t`, `tests/halberd.t`, `tests/memo.t`, `tests/help.t`, `tests/drills.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
+`tests/xmi2sysml.t`, `tests/reqif2sysml.t`, `tests/sysml.t`, `tests/sysml-views.t`, `tests/halberd.t`, `tests/memo.t`, `tests/help.t`, `tests/drills.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
 `Calendar.pm`'s COM calls offline.
 
 CLI entry points (`bin/`): `daily.pl` is the day-to-day driver; `scrum.pl`, `ledger.pl`,
@@ -141,14 +142,34 @@ is the project tool (root = nearest dir upward holding `model/`, configured by `
 status-metrics.pl reads as lint_cmd; `validate` needs Java + the Pilot jar and exits 3 without). Both use `lib/Prelude.pm`.
 Vim: `vim/{ftdetect,syntax,ftplugin,compiler}/sysml.vim`.
 
+**SysML views toolkit (`tools/sysml/views/`, standalone core-Perl scripts, each runnable on its own):** `sysml-{tree,trace,ibd,pkg}-svg.pl`
+(part tree; trace with S/V status, `--mono` for print; interconnection by SecMeta trust zone with the SEC-1 boundary check; packages with
+@Marking and the no-write-down / leakage / cycle checks), `sysml-plates.pl` (ISO title-block plates), `sysml-diff.pl` (two versions or
+`--git A..B`: colored views + a GNU change list), `sysml-threats.pl` (STRIDE + CAPEC on every threat, mitigation closure),
+`sysml-check.pl` (the gate: the binder scripts in `views/binder/`, then markings, zones, threats -> PASS|FAIL). `model.pl draw
+tree|trace|ibd|pkg | plates | diff | threats | gate` wrap them for the project's `model/` and pass options through (a `--root` after
+those commands is the tool's). `views/library/{SecMeta,DrawingMeta}.sysml` are the vocabularies they read. Two extensions bind them to
+the status-metrics line forms: ibd reads `interface x { end ::> a; end ::> b; attribute fromZone/toZone/secReq = "..."; }` (secReq
+names the covering requirement; mismatched zone attributes warn) and threats reads `metadata t : Threat { asset; mitigation; stride;
+capec; }` (mitigation must match the requirement's `@Mitigates`). Golden harness: `bash tools/sysml/views/tests/run.sh` (`--bless`
+after a reviewed change; it also covers the fallback converters `tools/sysml/v1v2.pl` -- older Cameo XMI / .mdzip -- and
+`tools/sysml/doors2v2.pl` -- DOORS CSV in UTF-16/cp1252, information objects; the main path stays xmi2sysml/reqif2sysml).
+`tests/sysml-views.t` runs the harness (skips without bash) and every wrapper on Halberd; `sim/halberd-views.pl` redraws
+`docs/img/halberd-{tree,trace,ibd,pkg}.svg` (deterministic, checked by the test) after a model change. `bin/sysml-view.tcl` (wish, as shipped
+with Git for Windows) is a live viewer of those drawings beside Vim: `tools/sysml/views/svg2tk.pl` turns a drawer's SVG into canvas
+primitives (Tk 8.6 has no SVG), it redraws on save, and talks to Vim through `~/.sysml-view/{focus,jump}` (`\mf` / `\mo`, `\mW` starts
+it); `--export-ps FILE` draws once headless (tests use it under xvfb-run when present).
+
 **Halberd, the running example (notional; nothing in it is real):** one fictional air and missile defense program, seven
 organizations (G E V B T M L), used everywhere: `tools/idef0/examples/halberd/halberd.md` (the IDEF0 program model),
-`examples/halberd/` (the SysML v2 model, segment folders = the seven organizations, with planted gaps: 3 orphan and 4 unverified
-requirements, 1 uncovered zone crossing, 2 open threats; its `docs/` is generated -- after a model change run
+`examples/halberd/` (the SysML v2 model, segment folders = the seven organizations, with SecMeta markings -- U, CUI on the two verification
+packages as notional labels -- trust zones and STRIDE/CAPEC threats, and planted gaps: 3 orphan and 4 unverified
+requirements, 1 uncovered zone crossing, 2 open threats, exactly what `model.pl gate` fails on; its `docs/` is generated -- after a model change run
 `perl tools/sysml/model.pl --root examples/halberd docs`, `tests/sysml.t` fails on stale docs), `docs/src/status-metrics.md`
 (the 12-week port, Appendix C/D), and `sim/halberd-gen.pl`, which compiles that port into `data/halberd` through
 Standup.pm/Scrum.pm (56 stand-ups, sprint totals checked against the doc) plus a notional FY27 `funding.ledger` and
-percent-complete CSVs, and writes `docs/HALBERD.html` (`sim/halberd-render.pl`) and `docs/HALBERD.tex` (`sim/halberd-latex.pl`, black and white); `--pdf` also builds
+percent-complete CSVs, and writes `docs/HALBERD.html` (`sim/halberd-render.pl`) and `docs/HALBERD.tex` (`sim/halberd-latex.pl`, black and white, with a "Model
+views" section of the four docs/img SVGs, greyed and converted with rsvg-convert at build time, skipped if it is missing); `--pdf` also builds
 `docs/HALBERD.pdf` with XeLaTeX + latexmk (not on the target laptop, so the PDF is committed). `tests/halberd.t` checks it and that the
 committed page is current: after changing either script, rerun `perl sim/halberd-gen.pl`. Halberd must stay generic: no
 real program names, no content from any private model.

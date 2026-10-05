@@ -79,7 +79,7 @@ for my $p (@perls) {
          evidence => ($bad ? "$bad suite(s) FAILED" : "$n tests, " . scalar(@lines) . " suites, all passed") . " -- $ver", detail => join "\n", @lines);
 }
 {   my @bad;
-    for my $f (sorted(glob('bin/*.pl'), 'agile.pl', glob('sim/*.pl'), 'tools/idef0/idef0.pl', glob('lib/*.pm'))) { my $r = sh(qq("$^X" -Ilib -c "$f")); push @bad, "$f: $r" unless $r =~ /syntax OK/ }
+    for my $f (sorted(glob('bin/*.pl'), 'agile.pl', glob('sim/*.pl'), glob('sim/status-metrics/*.pl'), 'tools/idef0/idef0.pl', 'tools/memo/md2memo.pl', 'tools/sysml/sysml.pl', 'tools/sysml/model.pl', glob('lib/*.pm'))) { my $r = sh(qq("$^X" -Ilib -c "$f")); push @bad, "$f: $r" unless $r =~ /syntax OK/ }
     gate(id => 'syntax', pillar => 'CI: build, lint, test', name => 'perl -c on every script and module', state => @bad ? 'gap' : 'ok',
          evidence => @bad ? scalar(@bad) . ' failed' : 'all compile (strict + warnings everywhere)', detail => join "\n", @bad);
 }
@@ -92,7 +92,9 @@ gate(id => 'replay', pillar => 'CI: build, lint, test', name => 'End-to-end: the
      detail => 'perl sim/training.pl --fast');
 
 # -- security gates
-{   my $hits = sh(q{grep -rnIE --exclude-dir=.git --exclude-dir=data --exclude-dir=reports -e 'AKIA[0-9A-Z]{16}' -e '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' -e '(api[_-]?key|secret|token|password)\s*[:=]\s*["'"'"'][^"'"'"']{8,}' . | grep -v 'devsecops.pl\|ai_key_env\|password=\$' | head -5});
+{   my @allow = map { qr/$_/ } grep { /\S/ && !/^\s*#/ } map { s/\r?\n$//r } do { open my $af, '<', '.secrets-allow' or (); <$af> };   # documented fakes (.secrets-allow; gitleaks: .gitleaks.toml)
+    my $hits = join "\n", (grep { my $l = $_; !grep { $l =~ $_ } @allow } split /\n/, sh(q{grep -rnIE --exclude-dir=.git --exclude-dir=data --exclude-dir=reports -e 'AKIA[0-9A-Z]{16}' -e '-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' -e '(api[_-]?key|secret|token|password)\s*[:=]\s*["'"'"'][^"'"'"']{8,}' . | grep -v 'devsecops.pl\|ai_key_env\|password=\$\|^\./\.secrets-allow:\|^\./\.gitleaks\.toml:'}))[0 .. 4];
+    $hits = join "\n", grep { defined } split /\n/, $hits;
     gate(id => 'secrets', pillar => 'Security gates', name => 'Secrets detection (keys, tokens, passwords in the tree)', state => $hits =~ /\S/ ? 'gap' : 'ok',
          evidence => $hits =~ /\S/ ? 'possible secrets found' : 'no key/token/password patterns in the tree; the AI key is read from an env var (ai_key_env), never a file',
          detail => $hits || 'gitleaks runs the same check in CI (security.yml)');
@@ -108,7 +110,7 @@ gate(id => 'replay', pillar => 'CI: build, lint, test', name => 'End-to-end: the
          detail => $out);
 }
 gate(id => 'deps', pillar => 'Security gates', name => 'Dependencies: core Perl only (the SBOM is the interpreter)',
-     state => (sh(q{grep -rhoE '^use [A-Z][A-Za-z:]+' lib bin agile.pl | sort -u | grep -vE '^use (strict|warnings|utf8|lib|FindBin|Getopt::Long|Cwd|POSIX|File::|JSON::PP|Digest::|IO::|List::Util|Encode|Time::|Scalar::Util|Prelude|Ledger|Scrum|Standup|Calendar|Chat|Answers|Ai|Attendance|Cockpit)'}) =~ /\S/ ? 'partial' : 'ok'),
+     state => (sh(q{grep -rhoE '^use [A-Z][A-Za-z:]+' lib bin agile.pl | sort -u | grep -vE '^use (strict|warnings|utf8|lib|FindBin|Getopt::Long|Cwd|POSIX|File::|JSON::PP|Digest::|IO::|List::Util|Encode|Time::|Scalar::Util|Prelude|Ledger|Scrum|Standup|Calendar|Chat|Answers|Ai|Attendance|Cockpit|Archive::Tar|StatusMetrics)'}) =~ /\S/ ? 'partial' : 'ok'),
      evidence => 'no CPAN, no XS, no network at build or run time; curl only for the optional AI endpoint',
      detail => sh(q{grep -rhoE '^use [A-Z][A-Za-z:]+' lib bin agile.pl | sort | uniq -c | sort -rn | head -14}));
 gate(id => 'sast', pillar => 'Security gates', name => 'Static analysis for Perl (perlcritic)', state => 'partial',

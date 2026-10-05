@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vim cheatsheet for the kit</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 10.5pt; color: #1a1a1a;
+         max-width: 1100px; margin: 1.5em auto; padding: 0 1.5em; line-height: 1.4; }
+  h1 { font-size: 18pt; border-bottom: 2px solid #444; padding-bottom: 0.2em; margin-bottom: 0.3em; }
+  h2 { font-size: 13pt; margin: 1.2em 0 0.3em; border-bottom: 1px solid #999; padding-bottom: 0.1em; }
+  code, pre, kbd { font-family: Consolas, "Courier New", monospace; font-size: 9.5pt; }
+  kbd, code { background: #f0f0f0; padding: 0 0.25em; border-radius: 2px; }
+  pre { background: #f4f4f4; border: 1px solid #ddd; padding: 0.5em 0.8em; margin: 0.4em 0; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 0.3em 0 0.6em; }
+  td { border-bottom: 1px solid #e2e2e2; padding: 0.18em 0.4em; vertical-align: top; }
+  td:first-child { white-space: nowrap; width: 1%; font-family: Consolas, "Courier New", monospace; font-size: 9.5pt; }
+  .cols { column-count: 2; column-gap: 2.2em; }
+  .cols section { break-inside: avoid; }
+  .note { color: #555; font-size: 9.5pt; }
+  @media (max-width: 760px) { .cols { column-count: 1; } }
+  @media print { body { margin: 0; max-width: none; font-size: 9pt; } h2 { margin-top: 0.8em; } a { color: inherit; } }
+</style>
+</head>
+<body>
+
+<h1>Vim cheatsheet for the kit</h1>
+<p>Everything here runs in the Vim that ships with Git for Windows (Git Bash: <code>vim</code>), nothing to install.
+<kbd>\</kbd> is the leader key, so <kbd>\sn</kbd> means press <kbd>\</kbd> then <kbd>s</kbd> <kbd>n</kbd>. Vim's own
+help: <code>:help</code>, and <code>vimtutor</code> in Git Bash is a 30-minute hands-on lesson.</p>
+
+<h2>One-time setup</h2>
+<pre>echo 'syntax on'                                         &gt;&gt; ~/.vimrc
+echo 'source ~/projects/agile/vim/scrum.vim'             &gt;&gt; ~/.vimrc   # your clone's path
+echo "let g:markdown_fenced_languages = ['idef0']"       &gt;&gt; ~/.vimrc   # colour ```idef0 blocks in .md models</pre>
+<p class="note">That one <code>source</code> line turns on every mode below: the file types are recognised by name, so opening a file
+picks its mode. Check with <code>:set ft?</code>.</p>
+
+<div class="cols">
+
+<section>
+<h2>Help, offline</h2>
+<table>
+<tr><td>:help agile</td><td>the kit's help: runbooks, commands, verbs, scrum.conf keys</td></tr>
+<tr><td>:help :STown  :help \sw</td><td>any :S/:Idef/:Sys command or \s/\i/\m key by name</td></tr>
+<tr><td>:help agile-howto</td><td>"How do I...?": the runbooks</td></tr>
+<tr><td>:help agile-err-</td><td>then Tab: the error catalog; or in Git Bash <code>perl agile.pl help error "MESSAGE"</code></td></tr>
+<tr><td>Ctrl-] Ctrl-o</td><td>follow a help link / come back</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Vim's modes, in one breath</h2>
+<table>
+<tr><td>Esc</td><td><b>Normal</b> mode: move and command. When in doubt, press Esc.</td></tr>
+<tr><td>i a o</td><td><b>Insert</b>: before cursor / after cursor / new line below (<kbd>O</kbd> above)</td></tr>
+<tr><td>v V Ctrl-v</td><td><b>Visual</b>: characters / lines / a block (columns)</td></tr>
+<tr><td>:</td><td><b>Command line</b>: <code>:w</code> save, <code>:q</code> quit, <code>:wq</code>, <code>:q!</code> quit without saving</td></tr>
+<tr><td>u Ctrl-r</td><td>undo / redo</td></tr>
+<tr><td>.</td><td>repeat the last change</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Move</h2>
+<table>
+<tr><td>h j k l</td><td>left, down, up, right</td></tr>
+<tr><td>w b e</td><td>next word / back a word / end of word</td></tr>
+<tr><td>0 ^ $</td><td>line start / first non-blank / line end</td></tr>
+<tr><td>gg G 42G</td><td>top / bottom / line 42</td></tr>
+<tr><td>Ctrl-d Ctrl-u</td><td>half a page down / up</td></tr>
+<tr><td>% </td><td>matching bracket</td></tr>
+<tr><td>* #</td><td>next / previous use of the word under the cursor (a task id, a flow name)</td></tr>
+<tr><td>Ctrl-o Ctrl-i</td><td>back / forward through where you have been</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Edit</h2>
+<table>
+<tr><td>x dd yy p</td><td>delete char / delete line / copy line / paste below</td></tr>
+<tr><td>dw cw ciw</td><td>delete word / change word / change the whole word under the cursor</td></tr>
+<tr><td>cc C D</td><td>change line / change to end / delete to end</td></tr>
+<tr><td>&gt;&gt; &lt;&lt;</td><td>indent / outdent a line (in Visual: the selection). IDEF0 nesting is indentation</td></tr>
+<tr><td>J</td><td>join the next line onto this one</td></tr>
+<tr><td>Ctrl-n</td><td>(Insert) complete a word from open files; in stand-ups, task ids from the journal</td></tr>
+<tr><td>:'&lt;,'&gt;norm I; </td><td>comment out the selected lines (puts <code>; </code> before each)</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Search and replace</h2>
+<table>
+<tr><td>/text n N</td><td>search forward, next, previous (<code>?text</code> searches back)</td></tr>
+<tr><td>:%s/old/new/g</td><td>replace everywhere; add <code>c</code> to confirm each</td></tr>
+<tr><td>:noh</td><td>clear the search highlight</td></tr>
+<tr><td>:vimgrep /HAL-12/ **/*.txt</td><td>search files; results in the quickfix list (<code>:cw</code>)</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Windows, tabs, buffers</h2>
+<table>
+<tr><td>:sp :vs</td><td>split across / side by side (with a file name: open it there)</td></tr>
+<tr><td>Ctrl-w h j k l</td><td>move to the window left, down, up, right</td></tr>
+<tr><td>Ctrl-w o  Ctrl-w c</td><td>only this window / close this window</td></tr>
+<tr><td>:tabnew gt gT</td><td>new tab / next tab / previous tab</td></tr>
+<tr><td>:e file  :ls  :b 3</td><td>open / list open files / switch to buffer 3</td></tr>
+<tr><td>:e!</td><td>reload from disk, dropping changes (after a tool rewrote the file)</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Clipboard (Windows)</h2>
+<table>
+<tr><td>"+p</td><td>paste from the Windows clipboard (Teams chat, Outlook, Word)</td></tr>
+<tr><td>"+yy  "+y</td><td>copy a line / the selection to the Windows clipboard</td></tr>
+<tr><td>:%y+</td><td>copy the whole file to the clipboard</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Folds and the quickfix list</h2>
+<table>
+<tr><td>za zc zo</td><td>toggle / close / open the fold under the cursor</td></tr>
+<tr><td>zM zR</td><td>close all / open all</td></tr>
+<tr><td>:cw :cn :cp</td><td>show the error list / next error / previous error</td></tr>
+<tr><td>Enter</td><td>(in the list) jump to that file and line</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Run a tool</h2>
+<table>
+<tr><td>:!cmd</td><td>run a shell command; <code>%</code> is this file: <code>:!perl tools/memo/md2memo.pl % &gt; memo.pdf</code></td></tr>
+<tr><td>:r !cmd</td><td>insert a command's output here (<code>:r !date +\%F</code>)</td></tr>
+<tr><td>:'&lt;,'&gt;!sort</td><td>filter the selected lines through a command</td></tr>
+<tr><td>:terminal</td><td>a Git Bash shell in a Vim window</td></tr>
+</table>
+</section>
+
+</div>
+
+<h2>The kit's modes</h2>
+<p class="note">The <kbd>\s…</kbd> keys and <code>:S…</code> commands work in any buffer inside a project (they find
+<code>scrum.conf</code> upward from the file). The <kbd>\i…</kbd> keys work only in an IDEF0 buffer.</p>
+
+<div class="cols">
+
+<section>
+<h2>Stand-up notes &mdash; <code>standups/YYYY-MM-DD.txt</code></h2>
+<table>
+<tr><td>\sn  :SNew [Team]</td><td>today's file, one section per team, the open items listed</td></tr>
+<tr><td>Ctrl-n</td><td>(Insert) complete a task id from the journal</td></tr>
+<tr><td>\sd  :SDry</td><td>save, then show what compile would write</td></tr>
+<tr><td>\sc  :SCompile</td><td>save, then compile today's notes into the journal</td></tr>
+<tr><td>\ss  :SStatus</td><td>today at a glance</td></tr>
+<tr><td>\sa  :SAll</td><td>save, compile, report, draft the mail</td></tr>
+<tr><td>:SCommit  :STig</td><td>commit the project / browse its git history</td></tr>
+</table>
+<pre>2026-10-05
+sprint 1
+== Halberd
+cap 320
+new HAL-1 21 "Port 21 v1 items" e:"E Systems Engineering" o:JC
+commit HAL-1 JC
+done HAL-1                      ; one verb per line; ; starts a comment
+carry HAL-2
+block HAL-3 waiting on the shared runner
+unblock HAL-3
+note Interceptor Development is gated on every merge</pre>
+<p class="note">Also: <code>hold</code>/<code>resume</code>, <code>punt</code>, <code>redo</code>, <code>pass ID Team</code>,
+<code>sync ID ID</code>, <code>est</code>, <code>assign</code>, <code>risk</code>, <code>absent</code>. The full list is the
+header of <code>lib/Standup.pm</code>.</p>
+</section>
+
+<section>
+<h2>The townhall &mdash; <code>standups/*-chat.txt</code></h2>
+<table>
+<tr><td>\sw  :STown</td><td>one tab: chat left, lint table top right, replies bottom right</td></tr>
+<tr><td>\sp</td><td>paste the Teams chat (Ctrl-A, Ctrl-C there) at the end and lint it</td></tr>
+<tr><td>\sl  :SLint</td><td>save and lint the chat</td></tr>
+<tr><td>\sy</td><td>replies to the clipboard, ready for Ctrl-V into Teams</td></tr>
+<tr><td>:SSend Bob</td><td>open the 1:1 Teams chat with Bob's reply filled in</td></tr>
+<tr><td>:SChat  :SChatTeam T</td><td>open today's chat file (joint / one team's)</td></tr>
+<tr><td>\st  :STally</td><td>tally <code>#est</code> / <code>#vote</code> rounds into the stand-up file</td></tr>
+<tr><td>:SAnswers</td><td>Y/T/B per person by team: flags, suggested verbs, attendance</td></tr>
+<tr><td>:SPropose  :SLintReply</td><td>suggested journal lines / a reply for this chat</td></tr>
+</table>
+</section>
+
+<section>
+<h2>The journal &mdash; <code>scrum.txt</code> (ledger)</h2>
+<table>
+<tr><td>\sj  :SJournal</td><td>open the project's journal</td></tr>
+<tr><td>* on an id</td><td>every posting for that task</td></tr>
+<tr><td>za</td><td>fold a transaction (<code>:set fdm=indent</code> first)</td></tr>
+<tr><td>\sr  :SReport</td><td>rebuild the reports</td></tr>
+<tr><td>:SSprint [n]  :SBacklog [T]</td><td>sprint summary / a team's backlog</td></tr>
+<tr><td>:SBlocked  :SRoadmap  :SMembers</td><td>blocked work / roadmap / who is on which team</td></tr>
+<tr><td>:SQuad [T]  :SCockpit</td><td>the daily quad / the cockpit page</td></tr>
+<tr><td>:SCards  :SJoined</td><td>index cards / who joined the townhall</td></tr>
+<tr><td>:!perl bin/ledger.pl -f % bal Sprint:3</td><td>the ledger itself, on this journal</td></tr>
+</table>
+<p class="note">Don't hand-edit compiled history; fix it with a new stand-up line so the audit trail stays whole.</p>
+</section>
+
+<section>
+<h2>Funding and earned value &mdash; <code>funding.ledger</code></h2>
+<table>
+<tr><td>:!perl bin/ledger.pl -f % bal -M Expense</td><td>spend per account, a column per month</td></tr>
+<tr><td>:!perl bin/ledger.pl -f % budget -M -b 2026-10-01 -e 2027-01-01</td><td>budget vs actual, month by month</td></tr>
+<tr><td>:!perl bin/ledger.pl -f % evm --now DATE --complete-file complete-DATE.csv</td><td>earned value: BCWS BCWP ACWP CV SV CPI SPI EAC</td></tr>
+<tr><td>:!perl bin/ledger.pl -f % forecast --now DATE Assets</td><td>funds left, burn per month, run-out date</td></tr>
+<tr><td>:SCockpit</td><td>the Funding tab (scrum.conf: <code>funding = funding.ledger</code>, <code>complete = complete-*.csv</code>)</td></tr>
+</table>
+<pre>~ Monthly from 2026-10-05 to 2026-12-24     ; a time-phased budget
+    Expense:Labor:Halberd:E   $9,000.00
+    Assets:Funding:Halberd
+
+2026-10-09 * Week 1 labor                   ; weekly timecards
+    Expense:Labor:Halberd:E   $3,000.00
+    Assets:Funding:Halberd</pre>
+<p class="note">Worked example: <code>perl sim/halberd-gen.pl</code>, then <code>data/halberd/funding.ledger</code>.</p>
+</section>
+
+<section>
+<h2>The memory drill &mdash; <code>reports/*-drill.txt</code></h2>
+<table>
+<tr><td>\sm  :SDrill [Team]</td><td>a sheet of due cards: tree, people, initials</td></tr>
+<tr><td>Enter</td><td>type after each <code>&gt;</code>, Enter jumps to the next blank one</td></tr>
+<tr><td>last Enter or :w</td><td>grade it in place; misses get a <code>hook:</code> line for a mnemonic</td></tr>
+</table>
+</section>
+
+<section>
+<h2>IDEF0 models &mdash; <code>*.idef0</code>, <code>*.txt</code> with a modeline, <code>```idef0</code> in <code>.md</code></h2>
+<table>
+<tr><td>\il  :IdefLint</td><td>lint this file; errors go to the quickfix list (<code>:cn</code>)</td></tr>
+<tr><td>\iL  :IdefLintProject</td><td>lint every model in this directory (links resolve across files)</td></tr>
+<tr><td>\iv  :IdefPlates</td><td>the project's plates as text, in a split</td></tr>
+<tr><td>\id  :IdefDump</td><td>the numbered node tree</td></tr>
+<tr><td>\ik  :IdefLinks</td><td>the interface table</td></tr>
+<tr><td>\in  :IdefNumber</td><td>fmt --number: freeze derived numbers into the tags</td></tr>
+<tr><td>\iu  :IdefAuto</td><td>fmt --auto: back to <code>#</code> (models keep their letter)</td></tr>
+<tr><td>\if  :IdefFollow</td><td>jump to the target of this line's <code>&lt;</code>/<code>&gt;</code> link</td></tr>
+<tr><td>\io</td><td>new sibling line below (same indent and tag), in Insert</td></tr>
+<tr><td>za zc zo</td><td>fold a subtree (folds follow the indentation); Tab indents by 2 spaces</td></tr>
+</table>
+<pre># -*- mode: idef0 -*-        a .txt is a model when line 1 says so
+tD Design                    t model (letter D)
+  a# Define Quad Spec        a activity; nesting by 2 spaces
+    i# Pilot Requirements    i input  c control  o output  m mechanism
+    o# Quad Spec &gt; F|Cut Frame Parts|Quad Spec      &gt; feeds, &lt; fed by
+    ## doc comment           # or ; comment</pre>
+<p class="note">Outside Vim: <code>tools/idef0/idef0lint</code>, <code>idef2html</code>, <code>idef2svg</code>; see
+<code>tools/idef0/README.md</code>. The Emacs twin is <code>tools/idef0/idef0-mode.el</code>.</p>
+</section>
+
+<section>
+<h2>SysML v2 models &mdash; <code>*.sysml</code>, <code>*.kerml</code></h2>
+<table>
+<tr><td>\ml  :SysLint</td><td>lint the whole model (the project is the nearest folder up holding <code>model/</code>); errors to the quickfix list</td></tr>
+<tr><td>\mk  :SysCheck</td><td>the 2..9 outline rule and the <code>@L</code> level tags</td></tr>
+<tr><td>\mx  :SysSyntax</td><td>this file against the official SysML v2 grammar</td></tr>
+<tr><td>\mv  :SysValidate</td><td>full compile with the Pilot engine (only where Java is installed)</td></tr>
+<tr><td>\md  :SysDocs</td><td>regenerate <code>docs/</code>: nouns, verbs, IDEF0, traceability</td></tr>
+<tr><td>\mr  :SysTrace</td><td>requirement &rarr; satisfied by &rarr; verified by, in a split</td></tr>
+<tr><td>\mn \mb  :SysNouns :SysVerbs</td><td>the part tree / the function tree</td></tr>
+<tr><td>\mt  :SysTags</td><td>build the tags file; then Ctrl-] on a name or DOORS id, Ctrl-t back</td></tr>
+<tr><td>:make lint|check|validate</td><td>the same through Vim's compiler (outside a project: <code>sysml.pl check %</code>)</td></tr>
+</table>
+</section>
+
+<section>
+<h2>Porting SysML v1 and DOORS to v2</h2>
+<table>
+<tr><td>:r !perl bin/xmi2sysml.pl --report legacy.xmi</td><td>paste the mapping summary (ported vs remaining, the TODO list) here</td></tr>
+<tr><td>:!perl bin/xmi2sysml.pl --out model --check legacy.xmi</td><td>write <code>model/&lt;segment&gt;/*.sysml</code> and grammar-check it</td></tr>
+<tr><td>:!perl bin/reqif2sysml.pl --report --model model export.reqif</td><td>DOORS requirements linked / orphan / unverified</td></tr>
+<tr><td>:vimgrep /TODO/ model/**/*.sysml | copen</td><td>every element the port left for a person (<code>:cn</code> / <code>:cp</code> to walk them)</td></tr>
+<tr><td>:!perl tools/sysml/sysml.pl check %</td><td>grammar-check this file after hand-fixing a TODO</td></tr>
+</table>
+<p class="note">The whole workflow is in <code>docs/SYSML-PORT.html</code>; the worked model is <code>examples/halberd/</code>.</p>
+</section>
+
+<section>
+<h2>Writing and documents</h2>
+<table>
+<tr><td>:!perl tools/memo/md2memo.pl % &gt; memo.pdf</td><td>this Markdown as a DoD-style memo (PDF)</td></tr>
+<tr><td>:r !perl tools/memo/md2memo.pl --plain %</td><td>the memo as text, into the buffer</td></tr>
+<tr><td>:SDocs grep -i ICD specs/*.pdf</td><td>search PDF/Word documents as text</td></tr>
+<tr><td>:SAi  :SAiPrompt  :SAiResponse</td><td>the AI status summary: build the prompt / open it / open the reply</td></tr>
+<tr><td>:set spell  ]s  z=</td><td>spell check / next misspelling / suggestions</td></tr>
+<tr><td>gq}</td><td>rewrap the paragraph (<code>:set tw=100</code> first)</td></tr>
+</table>
+</section>
+
+</div>
+
+<p class="note">Kept in step with <code>vim/scrum.vim</code>, <code>vim/ftplugin/idef0.vim</code>, <code>vim/ftplugin/sysml.vim</code> and <code>vim/ftdetect/</code>;
+<code>:command S</code> and <code>:map \</code> list what your copy actually defines.</p>
+</body>
+</html>

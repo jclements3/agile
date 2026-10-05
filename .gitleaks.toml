@@ -1,0 +1,13 @@
+# gitleaks (security.yml): the default rules, minus the documented fake keys the DevSecOps chapter of
+# thewheel/ uses to teach secrets scanning. Same list as .secrets-allow, which bin/devsecops.pl reads.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "documented fake keys used as teaching examples"
+regexes = [
+  '''AKIAIOSFODNN7EXAMPLE''',
+  '''AKIAABCDEFGHIJKLMNOP''',
+  '''Zx9Kq2Lm8Rt4Vw6Y''',
+  '''hunter2hunter2''',
+]

@@ -38,10 +38,14 @@ There is no build step and no package manager — everything is `use lib` agains
 
     perl bin/devsecops.pl [--quick]     # run the kit's own pipeline gates here (tests on every Perl found, syntax, secrets, marking, hygiene) -> ./devsecops.html, a DevSecOps-style status dashboard; exit 1 on a gap
     perl bin/release.pl [--tag vX]      # release/agile-<tag|sha>.zip (+ .sha256) from the committed tree, for the target laptop; refuses on a dirty tree
+    perl agile.pl help [TOPIC | search WORDS | error "MSG" | errors]   # offline help from vim/doc/agile.txt + agile-errors.txt; --html / --md regenerate docs/HELP.html, docs/help/quickref.md; --check lists what the help is missing
+    perl agile.pl practice [N | check N | reset N]                     # hands-on lessons in data/practice/lessonN (lib/Practice.pm)
+    perl bin/daily.pl help [CMD]                                       # also scrum.pl / ledger.pl help [CMD]; works outside a project
 
 Test suites map 1:1 to the libs: `tests/prelude.t`, `tests/ledger.t`, `tests/quad.t`,
 `tests/scrum.t`, `tests/standup.t`, `tests/calendar.t`, `tests/chat.t`, `tests/answers.t`,
-`tests/attendance.t`, `tests/quad.t`, `tests/roster.t`, `tests/cockpit.t`, `tests/drill.t`, `tests/metrics.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
+`tests/attendance.t`, `tests/quad.t`, `tests/roster.t`, `tests/cockpit.t`, `tests/drill.t`, `tests/metrics.t`, `tests/status_metrics.t`,
+`tests/xmi2sysml.t`, `tests/reqif2sysml.t`, `tests/sysml.t`, `tests/halberd.t`, `tests/memo.t`, `tests/help.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
 `Calendar.pm`'s COM calls offline.
 
 CLI entry points (`bin/`): `daily.pl` is the day-to-day driver; `scrum.pl`, `ledger.pl`,
@@ -108,6 +112,70 @@ JavaScript; the reports under `reports/` stay no-JS because they are printed and
 from any subdirectory of a project created with `daily.pl init`. `calendar = mock` +
 `calendar_fixture = <file.json>` in `scrum.conf` runs the whole calendar-dependent flow offline
 against a JSON fixture (see `examples/cal-fixture.json`) instead of hitting real Outlook.
+
+**Status metrics A-Z (separate tool, not the scrum journal):** `bin/status-metrics.pl init|collect|report` +
+`lib/StatusMetrics.pm` collect the 26 status metrics of `docs/STATUS-METRICS.html` from a SysML v2 text model repo (git) and
+its exports, and write `status-weekly.md` / `status-daily.csv` / `dashboard.json`. A core-Perl port of a Python kit
+(`collect.py`): outputs must stay byte-identical to it, which is why it has its own Python-compatible JSON codec (ordered
+keys, `json.dumps` spacing; `StatusMetrics::Str` keeps number-looking strings quoted) rather than JSON::PP.
+`sim/status-metrics-sim.pl OUTDIR` builds the 12-week Halberd example as a real repo (its tools `sim/status-metrics/lint.pl`
+and `gen_docs.pl` are copied into the simulated repo); `tests/status_metrics.t` runs sim -> collect -> report and checks
+against Appendix C/D of the doc and the Python goldens in `tests/status-metrics/` (kept `-text` in .gitattributes: the CSV is CRLF).
+Not to be confused with `lib/Metrics.pm` (the scrum journal's thresholds).
+
+**Model port, SysML v1 / DOORS -> SysML v2 text (separate tools):** `bin/xmi2sysml.pl` (`lib/Xmi.pm`) converts a Cameo/MagicDraw XMI
+export into one `.sysml` file per top-level package; `bin/reqif2sysml.pl` (`lib/Reqif.pm`) converts DOORS ReqIF (.reqif/.reqifz) or
+CSV into requirements with `doorsId`, and `--model DIR` reports metrics C/F/G/I against existing v2 text. Both share
+`lib/XmlLite.pm` (a core-Perl streaming XML reader; XML::Parser is not core) and `lib/SysmlText.pm` (names, requirement shapes,
+structural self-check); `--check` also runs `tools/sysml/sysml.pl check`. Unmapped elements are never dropped: each becomes a
+`// TODO uml:<type> (xmi:id ...)` line and is listed by `--report`. The default `--req-style usage` writes the one-line requirement
+form `bin/status-metrics.pl` counts (`def` writes `requirement def` blocks). Goldens in `tests/fixtures/{xmi2sysml,reqif2sysml}/expected/`
+(regenerate with `REGEN=1 perl tests/xmi2sysml.t`). Day-to-day guide: `docs/SYSML-PORT.html`.
+
+**SysML v2 tools:** `tools/sysml/sysml.pl check FILE...|corpus|grammar|tokens|crosscheck` is a syntax checker built at start-up from
+the vendored official KerML/SysML v2 grammars (`tools/sysml/vendor/sysml-v2-release/`, EPL-2.0, plus `lib/SysML/*-errata.kebnf`);
+`tools/sysml/model.pl [--root DIR] lint|check|stats|nouns|verbs|docs|idef0|trace|tags|new|rename|backlog|precommit|install-hooks|validate`
+is the project tool (root = nearest dir upward holding `model/`, configured by `<root>/sysml.conf`; `idef0` calls
+`tools/idef0/idef0.pl`, `backlog` calls `sim/idef0-backlog.pl`; `lint` ends with the `elements=N errors=E warnings=W` line
+status-metrics.pl reads as lint_cmd; `validate` needs Java + the Pilot jar and exits 3 without). Both use `lib/Prelude.pm`.
+Vim: `vim/{ftdetect,syntax,ftplugin,compiler}/sysml.vim`.
+
+**Halberd, the running example (notional; nothing in it is real):** one fictional air and missile defense program, seven
+organizations (G E V B T M L), used everywhere: `tools/idef0/examples/halberd/halberd.md` (the IDEF0 program model),
+`examples/halberd/` (the SysML v2 model, segment folders = the seven organizations, with planted gaps: 3 orphan and 4 unverified
+requirements, 1 uncovered zone crossing, 2 open threats; its `docs/` is generated -- after a model change run
+`perl tools/sysml/model.pl --root examples/halberd docs`, `tests/sysml.t` fails on stale docs), `docs/src/status-metrics.md`
+(the 12-week port, Appendix C/D), and `sim/halberd-gen.pl`, which compiles that port into `data/halberd` through
+Standup.pm/Scrum.pm (56 stand-ups, sprint totals checked against the doc) plus a notional FY27 `funding.ledger` and
+percent-complete CSVs, and writes `docs/HALBERD.html` (`sim/halberd-render.pl`). `tests/halberd.t` checks it and that the
+committed page is current: after changing either script, rerun `perl sim/halberd-gen.pl`. Halberd must stay generic: no
+real program names, no content from any private model.
+
+**Funding and earned value (lib/Ledger.pm):** budgets can be dated (`~ Monthly from DATE to DATE`, prorated by day at the
+edges; undated ones behave as before); `bin/ledger.pl` has `-M/--monthly` for bal/reg/budget, `evm` (BCWS/BCWP/ACWP, CV, SV,
+CPI, SPI, EAC, VAC from dated budgets + `--complete ACCT=PCT` / `--complete-file`), and `forecast` (balance, average monthly burn
+over `--months N`, run-out date); `--now DATE` sets the status date. Book funds under `Assets:` so the funding side of a budget
+entry is not a budget row. `scrum.conf` keys `funding = FILE` and `complete = GLOB` add the cockpit's Funding tab
+(`Cockpit::funding_snapshot`). Negative amounts print `$-1.00`, as ledger-cli does (tests rely on it).
+
+**Help (one source, four outputs):** `vim/doc/agile.txt` and `vim/doc/agile-errors.txt` (Vim help format) are the only source.
+`lib/Help.pm` renders them for `:help agile` (`vim/scrum.vim` runs :helptags; `vim/doc/tags` is git-ignored), `agile.pl help`,
+`daily.pl|scrum.pl|ledger.pl help`, `docs/HELP.html` and `docs/help/quickref.md` (both generated and committed: regenerate with
+`perl agile.pl help --html` / `--md`; the quickref is also the binder chapter `thewheel/src/46-agile-kit-quickref.md`).
+`tests/help.t` derives what must be documented from the code (daily.pl's %cmds, Scrum::run and Ledger::run commands, :S/:Idef/:Sys
+commands, \s/\i/\m keys, Standup verbs, scrum.conf keys) and requires every die/warn/STDERR/error-push message to match a `Pattern:`
+in agile-errors.txt (or an `Internal:` line for bug-only invariants), so a new command or message needs its help entry in the same
+change. `lib/Practice.pm` builds lesson sandboxes from daily.pl init, sim/halberd-gen.pl, sim/idef0-backlog.pl and sim/rehearsal.pl;
+the lesson texts are the `*agile-practice-N*` sections.
+
+**Other tools:** `tools/memo/md2memo.pl` (Markdown -> DoD-style memo as PDF/PS/text with portion and banner marking;
+`tests/memo.t` pins the sample's output by SHA-256). `tools/idef0/` also carries the Halberd IDEF0 model, the parity suite
+against the Python reference (`cd tools/idef0 && sh tests/parity.sh`, needs python3; html and `fmt --auto` are known,
+counted divergences) and the Emacs mode; `tools/idef0-kit/` is the original Python/Rust kit with its design notes.
+`docs/VIM-CHEATSHEET.html` is the one-page Vim reference for every mode; `vim/ftplugin/idef0.vim` is the Vim twin of the
+Emacs IDEF0 mode. `thewheel/` is the 90-day binder (git subtree of the binder repo; pull with
+`git subtree pull --prefix=thewheel <binder repo> master`). Secrets gates: `.secrets-allow` (devsecops.pl) and
+`.gitleaks.toml` (CI) list the documented fake keys the binder's DevSecOps chapter uses as teaching examples -- exact values only.
 
 ## Architecture
 

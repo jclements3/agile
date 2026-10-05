@@ -36,6 +36,16 @@ lib/Roster.pm    roster.txt: the people, checked against the journal       tests
 lib/Cockpit.pm   the cockpit: one self-contained page, JSON snapshot       tests/cockpit.t  53 tests
 lib/Drill.pm     the memory drill: backlog and people, recalled            tests/drill.t    65 tests
 lib/Metrics.pm   every metric vs its threshold; sprint report, roll-up, CSV tests/metrics.t 87 tests
+lib/StatusMetrics.pm the A-Z status metrics of a model repo (git + exports)  tests/status_metrics.t 50 tests
+lib/Help.pm      offline help: vim/doc/agile.txt as :help, agile.pl help, HELP.html     tests/help.t     339 tests
+lib/Practice.pm  practice lessons in sandbox projects (agile.pl practice)
+lib/Xmi.pm       SysML v1 XMI (Cameo/MagicDraw) -> SysML v2 text             tests/xmi2sysml.t 73 tests
+lib/Reqif.pm     DOORS ReqIF/CSV -> SysML v2 requirements, C/F/G/I trace     tests/reqif2sysml.t 49 tests
+lib/Ledger.pm    ledger journal: bal/reg/budget (-M), evm, forecast          tests/ledger.t   109 tests
+tools/sysml/     SysML v2: sysml.pl (grammar-exact syntax), model.pl (lint, trees, IDEF0, trace)  tests/sysml.t 41 tests
+tools/idef0/     IDEF0 lint/plates/fmt; DroneCorp, quadfactory and Halberd models
+tools/memo/      md2memo.pl: Markdown -> DoD-style memo PDF/text with marking   tests/memo.t 10 tests
+examples/halberd/ the notional Halberd SysML v2 model (sim/halberd-gen.pl builds data/halberd)  tests/halberd.t 12 tests
 bin/daily.pl     the daily driver          bin/scrum.pl, bin/ledger.pl, bin/cal.pl, bin/chat.pl  lower-level CLIs
 vim/scrum.vim    :SNew :SCompile :SReport :SDraft :SAll  + syntax for both file types
 examples/        two-team journal and a rendered dashboard</pre>
@@ -353,6 +363,79 @@ vim   :SDocs grep -i ICD ~/specs/*.pdf                   the same from Vim;  :ST
 
 <p>The converters (<code>pdftotext</code>, <code>docx2txt</code>, <code>antiword</code>, <code>odt2txt</code>) and <code>tig</code> are
 part of Git for Windows, so nothing is installed. Use <code>:STig</code> before <code>:SCommit</code> to review what a compile appended.</p>
+
+<h2>Status metrics A-Z for a model repo (a separate tool)</h2>
+
+<p>Separate from the scrum journal: <code>bin/status-metrics.pl</code> collects the 26 status metrics (A to Z) of a SysML v2
+text model under a DevSecOps pipeline -- configuration control, requirements trace, lint, baselines, generated documents,
+interface and threat coverage, merges and CI -- from the model's git repo and its exports, once a day, and builds the status
+tables. <a href="STATUS-METRICS.html">STATUS-METRICS.html</a> defines every metric, the phrases that report it, how each is
+collected (Appendix A), the dashboard data format (Appendix B) and a worked 12-week example (Appendices C and D).</p>
+
+<pre>perl bin/status-metrics.pl init    --config metrics.json --xmi legacy.xmi --reqif export.reqif   once: freeze the denominators
+perl bin/status-metrics.pl collect --config metrics.json --history history.jsonl               daily: one snapshot appended
+perl bin/status-metrics.pl report  --config metrics.json --history history.jsonl --out report  status-weekly.md, status-daily.csv, dashboard.json
+perl sim/status-metrics-sim.pl OUTDIR                                                     the 12-week Halberd example as a real repo + exports</pre>
+
+<p>It needs <code>git</code> on PATH. A port of a Python kit: its outputs are byte-identical to the Python collector's
+(<code>tests/status_metrics.t</code> checks them against the Python kit's sample report and the doc's Appendix C and D).</p>
+
+<h2>Help, offline</h2>
+
+<p>Everything works without a network or an AI: <a href="HELP.html">HELP.html</a> starts with the runbooks ("How do I...?"),
+then the reference, then the error catalog. The same text is in Vim and on the command line:</p>
+<pre>:help agile   :help :STown   :help agile-howto        in Vim (CTRL-] follows a link, CTRL-O comes back)
+perl agile.pl help compile                            one section
+perl agile.pl help search carryover                   ranked sections
+perl agile.pl help error "PASTED MESSAGE"             what an error means and the fix
+perl agile.pl practice 1                              hands-on lessons; practice check 1 checks your work</pre>
+
+<h2>Porting the legacy model: SysML v1 XMI and DOORS to SysML v2 text</h2>
+
+<p><code>bin/xmi2sysml.pl</code> turns a Cameo/MagicDraw XMI export into SysML v2 text, one file per top-level package;
+<code>bin/reqif2sysml.pl</code> turns a DOORS ReqIF or CSV export into requirements carrying <code>doorsId</code>, and
+reports metrics C, F, G and I against the model. Nothing is dropped: whatever has no mapping becomes a <code>// TODO</code> line
+and is listed by <code>--report</code>. <a href="SYSML-PORT.html">SYSML-PORT.html</a> is the day-to-day guide.</p>
+
+<pre>perl bin/xmi2sysml.pl --report legacy.xmi                      ported vs remaining, and every element left as a TODO
+perl bin/xmi2sysml.pl --out model --check legacy.xmi            model/&lt;segment&gt;/&lt;Package&gt;.sysml, grammar-checked
+perl bin/reqif2sysml.pl --id-prefix SYS- --out model export.reqifz
+perl bin/reqif2sysml.pl --report --model model export.reqif     linked / orphan / unverified</pre>
+
+<h2>SysML v2 models (tools/sysml)</h2>
+
+<pre>perl tools/sysml/sysml.pl check FILE...                       syntax against the official SysML v2 grammar
+perl tools/sysml/model.pl --root examples/halberd lint         lint; also check, stats, nouns, verbs, trace, docs, idef0, backlog, tags
+perl tools/sysml/model.pl --root examples/halberd validate     full compile (only where Java and the Pilot jar exist)</pre>
+
+<p>See <code>tools/sysml/README.md</code> and <code>examples/halberd/README.md</code>.</p>
+
+<h2>Halberd: the worked example</h2>
+
+<p>Halberd is a fictional, notional air and missile defense program used across the kit: an IDEF0 program model, a SysML v2
+system model with planted traceability gaps, the 12-week port of its legacy model with a stand-up for every working day, and
+an FY27 funding journal with earned value. <code>perl sim/halberd-gen.pl</code> builds it as a real project in
+<code>data/halberd</code>; <a href="HALBERD.html">HALBERD.html</a> shows the result without running anything, and
+<a href="STATUS-DASHBOARD.html">STATUS-DASHBOARD.html</a> is the A-Z metric dashboard with Halberd's sprint 6 numbers.</p>
+
+<h2>Funding and earned value</h2>
+
+<p>The ledger tracks money as well as points. Date a budget (<code>~ Monthly from 2026-10-05 to 2026-12-24</code>), post labor
+against it, and:</p>
+
+<pre>perl bin/ledger.pl -f funding.ledger bal -M Expense --depth 3              spend per account, a column per month
+perl bin/ledger.pl -f funding.ledger budget -M -b 2026-10-01 -e 2027-01-01 budget vs actual by month
+perl bin/ledger.pl -f funding.ledger evm --now 2026-11-30 --complete-file complete-2026-11-30.csv
+perl bin/ledger.pl -f funding.ledger forecast --now 2026-11-30 --months 2 Assets   funds left, burn, run-out date</pre>
+
+<p>Set <code>funding = funding.ledger</code> and <code>complete = complete-*.csv</code> in <code>scrum.conf</code> and the cockpit
+gains a Funding tab.</p>
+
+<h2>Memos and Vim</h2>
+
+<p><code>perl tools/memo/md2memo.pl status.md &gt; status.pdf</code> writes a DoD-style memorandum from Markdown, with portion and
+banner marking from <code>{CUI}...{/}</code> tags (see <code>tools/memo/README.md</code>). <a href="VIM-CHEATSHEET.html">VIM-CHEATSHEET.html</a>
+is a one-page Vim reference for every mode in the kit: stand-ups, the townhall, the journal, funding, the drill, IDEF0 and SysML.</p>
 
 <h2>Other views</h2>
 

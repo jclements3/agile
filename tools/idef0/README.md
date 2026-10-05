@@ -36,9 +36,11 @@ pick up a `plates.txt` and lint it as model source.
     tests/parity.sh        # 105 cases: every command x every input, stdout+stderr+exit
     python3 tests/fuzz.py 250   # random mutants of dronecorp.md vs reference
 
-## Known inherited bug
+## Divergence from the Python reference
 
-`fmt --auto` writes `t#` on model lines, dropping the model letter;
-letters then re-derive from names (Contracting and Customer Support
-both become C) and dronecorp.md no longer lints. Both implementations
-do this; the README of idef0-kit says `t` should keep its letter.
+`fmt --auto` keeps the model letter on `t` lines (as the idef0-kit
+README specifies) and resets only activity and port suffixes to `#`.
+The Python reference still writes `t#`, which re-derives letters from
+names (Contracting and Customer Support both become C) so dronecorp.md
+no longer lints; the parity tests' `fmt --auto` cases therefore differ
+from the reference on model lines by design.

@@ -1209,7 +1209,9 @@ sub cmd_fmt {
             if (defined $mode && $mode eq 'number') {
                 $sfx = $node->{tag} eq 't' ? $node->{letter} : $node->{number};
             } elsif (defined $mode && $mode eq 'auto') {
-                $sfx = '#';
+                # models keep their letter: re-deriving it from the name collides
+                # (Contracting and Customer Support would both become C)
+                $sfx = $node->{tag} eq 't' ? $node->{letter} : '#';
             } else {
                 $sfx = $node->{suffix} ne '' ? $node->{suffix} : '#';
             }

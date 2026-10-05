@@ -16,6 +16,8 @@
   td:first-child { white-space: nowrap; width: 1%; font-family: Consolas, "Courier New", monospace; font-size: 9.5pt; }
   .cols { column-count: 2; column-gap: 2.2em; }
   .cols section { break-inside: avoid; }
+  table.long td:first-child { white-space: normal; width: 52%; overflow-wrap: anywhere; }
+  pre { white-space: pre-wrap; overflow-wrap: anywhere; }
   .note { color: #555; font-size: 9.5pt; }
   @media (max-width: 760px) { .cols { column-count: 1; } }
   @media print { body { margin: 0; max-width: none; font-size: 9pt; } h2 { margin-top: 0.8em; } a { color: inherit; } }
@@ -89,7 +91,7 @@ picks its mode. Check with <code>:set ft?</code>.</p>
 
 <section>
 <h2>Search and replace</h2>
-<table>
+<table class="long">
 <tr><td>/text n N</td><td>search forward, next, previous (<code>?text</code> searches back)</td></tr>
 <tr><td>:%s/old/new/g</td><td>replace everywhere; add <code>c</code> to confirm each</td></tr>
 <tr><td>:noh</td><td>clear the search highlight</td></tr>
@@ -190,7 +192,7 @@ header of <code>lib/Standup.pm</code>.</p>
 
 <section>
 <h2>The journal &mdash; <code>scrum.txt</code> (ledger)</h2>
-<table>
+<table class="long">
 <tr><td>\sj  :SJournal</td><td>open the project's journal</td></tr>
 <tr><td>* on an id</td><td>every posting for that task</td></tr>
 <tr><td>za</td><td>fold a transaction (<code>:set fdm=indent</code> first)</td></tr>
@@ -206,7 +208,7 @@ header of <code>lib/Standup.pm</code>.</p>
 
 <section>
 <h2>Funding and earned value &mdash; <code>funding.ledger</code></h2>
-<table>
+<table class="long">
 <tr><td>:!perl bin/ledger.pl -f % bal -M Expense</td><td>spend per account, a column per month</td></tr>
 <tr><td>:!perl bin/ledger.pl -f % budget -M -b 2026-10-01 -e 2027-01-01</td><td>budget vs actual, month by month</td></tr>
 <tr><td>:!perl bin/ledger.pl -f % evm --now DATE --complete-file complete-DATE.csv</td><td>earned value: BCWS BCWP ACWP CV SV CPI SPI EAC</td></tr>
@@ -234,7 +236,7 @@ header of <code>lib/Standup.pm</code>.</p>
 
 <section>
 <h2>Coding drills &mdash; <code>:DrillTrain</code>, <code>drills/</code></h2>
-<table>
+<table class="long">
 <tr><td>:DrillTrain [N]</td><td>the memory trainer: type each solution from memory as the hint fades; a perfect level unlocks the next</td></tr>
 <tr><td>\dc  :DrillAnswer</td><td>check the answer (Ctrl-G Ctrl-G in insert mode)</td></tr>
 <tr><td>\dg  :DrillGiveUp</td><td>show the solution (a miss on the blind rep)</td></tr>
@@ -274,7 +276,7 @@ tD Design                    t model (letter D)
 
 <section>
 <h2>SysML v2 models &mdash; <code>*.sysml</code>, <code>*.kerml</code></h2>
-<table>
+<table class="long">
 <tr><td>\ml  :SysLint</td><td>lint the whole model (the project is the nearest folder up holding <code>model/</code>); errors to the quickfix list</td></tr>
 <tr><td>\mk  :SysCheck</td><td>the 2..9 outline rule and the <code>@L</code> level tags</td></tr>
 <tr><td>\mx  :SysSyntax</td><td>this file against the official SysML v2 grammar</td></tr>
@@ -289,7 +291,7 @@ tD Design                    t model (letter D)
 
 <section>
 <h2>Porting SysML v1 and DOORS to v2</h2>
-<table>
+<table class="long">
 <tr><td>:r !perl bin/xmi2sysml.pl --report legacy.xmi</td><td>paste the mapping summary (ported vs remaining, the TODO list) here</td></tr>
 <tr><td>:!perl bin/xmi2sysml.pl --out model --check legacy.xmi</td><td>write <code>model/&lt;segment&gt;/*.sysml</code> and grammar-check it</td></tr>
 <tr><td>:!perl bin/reqif2sysml.pl --report --model model export.reqif</td><td>DOORS requirements linked / orphan / unverified</td></tr>
@@ -301,7 +303,7 @@ tD Design                    t model (letter D)
 
 <section>
 <h2>Writing and documents</h2>
-<table>
+<table class="long">
 <tr><td>:!perl tools/memo/md2memo.pl % &gt; memo.pdf</td><td>this Markdown as a DoD-style memo (PDF)</td></tr>
 <tr><td>:r !perl tools/memo/md2memo.pl --plain %</td><td>the memo as text, into the buffer</td></tr>
 <tr><td>:SDocs grep -i ICD specs/*.pdf</td><td>search PDF/Word documents as text</td></tr>

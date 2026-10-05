@@ -21,6 +21,9 @@
   th { background: #e8e8e8; }
   a { color: #0b5cad; }
   @media print { body { margin: 0; max-width: none; } }
+p.mh{margin:0.9em 0 0.15em;font-weight:600}
+ul.phr{margin:0.1em 0 0.4em;padding-left:1.4em}
+ul.phr li{margin:0.15em 0}
 </style>
 </head>
 <body>
@@ -30,89 +33,141 @@
 <p>Report the outcome and the count. Every [N] comes from the collection method for its metric in
 Appendix A. There are 26 metrics, A to Z. Appendix B gives the data format for the dashboard. Appendix C runs Halberd through 12 weeks. Appendix D gives its daily standups and sprint burn-downs.</p>
 <h2 id="coverage">Coverage</h2>
-<p>A. <strong>% under configuration control</strong>
-- “[N]% of the IAMD architecture is now under configuration control as text, up from [N]%.”
-- “[N] elements entered configuration control this sprint.”
-B. <strong>Segments gated</strong>
-- “[N] of [N] segments are now gated on every merge.”
-- “[N] segments joined the pipeline this sprint.”
-C. <strong>Requirements linked</strong>
-- “[N] of [N] DOORS requirements are now linked to model elements.”
-- “[N] requirements were linked this week.”
-D. <strong>Elements in baseline</strong>
-- “Baseline [N] holds [N] elements, up [N] from the last baseline.”
-- “[N] new elements entered the baseline this sprint, all linted 0/0.”</p>
+<p class="mh">A. <strong>% under configuration control</strong></p>
+<ul class="phr">
+<li>“[N]% of the IAMD architecture is now under configuration control as text, up from [N]%.”</li>
+<li>“[N] elements entered configuration control this sprint.”</li>
+</ul>
+<p class="mh">B. <strong>Segments gated</strong></p>
+<ul class="phr">
+<li>“[N] of [N] segments are now gated on every merge.”</li>
+<li>“[N] segments joined the pipeline this sprint.”</li>
+</ul>
+<p class="mh">C. <strong>Requirements linked</strong></p>
+<ul class="phr">
+<li>“[N] of [N] DOORS requirements are now linked to model elements.”</li>
+<li>“[N] requirements were linked this week.”</li>
+</ul>
+<p class="mh">D. <strong>Elements in baseline</strong></p>
+<ul class="phr">
+<li>“Baseline [N] holds [N] elements, up [N] from the last baseline.”</li>
+<li>“[N] new elements entered the baseline this sprint, all linted 0/0.”</li>
+</ul>
 <h2 id="quality">Quality</h2>
-<p>E. <strong>Lint errors / warnings</strong>
-- “The model lints [N] errors / [N] warnings across [N] elements.”
-- “All [N] merges this sprint passed at 0/0.”
-F. <strong>Orphan requirements</strong>
-- “There are [N] orphan requirements in [segment]. Last week there were [N].”
-- “[N] orphans remain, and each has an owner.”
-G. <strong>Unverified requirements</strong>
-- “The trace found [N] requirements with no verification method. They’re flagged to their owners.”
-- “Unverified requirements dropped from [N] to [N].”
-H. <strong>Interface mismatches caught at merge</strong>
-- “The pipeline caught [N] interface mismatches before review. Under the old process, they would have been found at integration.”
-- “[N] mismatches were caught at merge this sprint, and [N] reached integration.”
-I. <strong>Trace completeness</strong>
-- “[N]% of requirements are traced satisfy-to-verify end to end.”
-- “[N] of [N] segments have a complete trace.”</p>
+<p class="mh">E. <strong>Lint errors / warnings</strong></p>
+<ul class="phr">
+<li>“The model lints [N] errors / [N] warnings across [N] elements.”</li>
+<li>“All [N] merges this sprint passed at 0/0.”</li>
+</ul>
+<p class="mh">F. <strong>Orphan requirements</strong></p>
+<ul class="phr">
+<li>“There are [N] orphan requirements in [segment]. Last week there were [N].”</li>
+<li>“[N] orphans remain, and each has an owner.”</li>
+</ul>
+<p class="mh">G. <strong>Unverified requirements</strong></p>
+<ul class="phr">
+<li>“The trace found [N] requirements with no verification method. They’re flagged to their owners.”</li>
+<li>“Unverified requirements dropped from [N] to [N].”</li>
+</ul>
+<p class="mh">H. <strong>Interface mismatches caught at merge</strong></p>
+<ul class="phr">
+<li>“The pipeline caught [N] interface mismatches before review. Under the old process, they would have been found at integration.”</li>
+<li>“[N] mismatches were caught at merge this sprint, and [N] reached integration.”</li>
+</ul>
+<p class="mh">I. <strong>Trace completeness</strong></p>
+<ul class="phr">
+<li>“[N]% of requirements are traced satisfy-to-verify end to end.”</li>
+<li>“[N] of [N] segments have a complete trace.”</li>
+</ul>
 <h2 id="time-and-cost">Time and cost</h2>
-<p>J. <strong>Labor hours saved</strong>
-- “Interface tables are now generated, not hand-built. That saves about [N] labor hours per baseline.”
-- “That’s [N] hours saved this quarter on [document type].”
-K. <strong>Regeneration time</strong>
-- “ICD views now regenerate in [N] minutes. The old process took [N] days.”
-- “A full document set rebuilds from the model in [N] minutes.”
-L. <strong>Documents generated, not hand-built</strong>
-- “[N] of [N] [document type] now come straight from the model.”
-- “Drawing plates now come from model views. That’s [N] plates this sprint.”
-M. <strong>Hand edits</strong>
-- “Generated documents needed [N] hand edits this sprint.”
-- “Hand edits to [document type] went from [N] per baseline to [N].”
-N. <strong>Lead time</strong>
-- “A model change now reaches a reviewed baseline in [N] days. Before, it took [N] days.”
-- “Median lead time from merge request to merge is [N] hours.”</p>
+<p class="mh">J. <strong>Labor hours saved</strong></p>
+<ul class="phr">
+<li>“Interface tables are now generated, not hand-built. That saves about [N] labor hours per baseline.”</li>
+<li>“That’s [N] hours saved this quarter on [document type].”</li>
+</ul>
+<p class="mh">K. <strong>Regeneration time</strong></p>
+<ul class="phr">
+<li>“ICD views now regenerate in [N] minutes. The old process took [N] days.”</li>
+<li>“A full document set rebuilds from the model in [N] minutes.”</li>
+</ul>
+<p class="mh">L. <strong>Documents generated, not hand-built</strong></p>
+<ul class="phr">
+<li>“[N] of [N] [document type] now come straight from the model.”</li>
+<li>“Drawing plates now come from model views. That’s [N] plates this sprint.”</li>
+</ul>
+<p class="mh">M. <strong>Hand edits</strong></p>
+<ul class="phr">
+<li>“Generated documents needed [N] hand edits this sprint.”</li>
+<li>“Hand edits to [document type] went from [N] per baseline to [N].”</li>
+</ul>
+<p class="mh">N. <strong>Lead time</strong></p>
+<ul class="phr">
+<li>“A model change now reaches a reviewed baseline in [N] days. Before, it took [N] days.”</li>
+<li>“Median lead time from merge request to merge is [N] hours.”</li>
+</ul>
 <h2 id="digital-thread">Digital thread</h2>
-<p>O. <strong>Parameters sourced from the model</strong>
-- “[N] of [N] sim parameters now come from the model, not spreadsheets.”
-- “[N] parameters moved from spreadsheets to the model this sprint.”
-P. <strong>Sim runs pinned to a baseline</strong>
-- “[N] of [N] sim runs this sprint name the exact baseline that fed them.”
-- “[N] sim results in this review trace to baseline [N].”</p>
+<p class="mh">O. <strong>Parameters sourced from the model</strong></p>
+<ul class="phr">
+<li>“[N] of [N] sim parameters now come from the model, not spreadsheets.”</li>
+<li>“[N] parameters moved from spreadsheets to the model this sprint.”</li>
+</ul>
+<p class="mh">P. <strong>Sim runs pinned to a baseline</strong></p>
+<ul class="phr">
+<li>“[N] of [N] sim runs this sprint name the exact baseline that fed them.”</li>
+<li>“[N] sim results in this review trace to baseline [N].”</li>
+</ul>
 <h2 id="risk-retired">Risk retired</h2>
-<p>Q. <strong>Uncovered zone crossings</strong>
-- “There are [N] uncovered zone crossings across [N] interfaces.”
-- “[N] interfaces cross a trust zone, and each one has a security requirement or it can’t merge.”
-R. <strong>Unmitigated threats</strong>
-- “All [N] recorded threats are traced to a mitigation and a requirement.”
-- “Unmitigated threats went from [N] to [N].”
-S. <strong>Reproducible baselines</strong>
-- “Baseline [N] is tagged and reproducible. Any sim run can name the exact model that fed it.”
-- “[N] baselines tagged to date, and [N] of them rebuild identically.”
-T. <strong>Drift (model vs. documents)</strong>
-- “Drift between the model and the ICDs is [N] lines, because they regenerate on every change.”
-- “Drift checks found [N] discrepancies in legacy documents. They’re flagged for correction.”</p>
+<p class="mh">Q. <strong>Uncovered zone crossings</strong></p>
+<ul class="phr">
+<li>“There are [N] uncovered zone crossings across [N] interfaces.”</li>
+<li>“[N] interfaces cross a trust zone, and each one has a security requirement or it can’t merge.”</li>
+</ul>
+<p class="mh">R. <strong>Unmitigated threats</strong></p>
+<ul class="phr">
+<li>“All [N] recorded threats are traced to a mitigation and a requirement.”</li>
+<li>“Unmitigated threats went from [N] to [N].”</li>
+</ul>
+<p class="mh">S. <strong>Reproducible baselines</strong></p>
+<ul class="phr">
+<li>“Baseline [N] is tagged and reproducible. Any sim run can name the exact model that fed it.”</li>
+<li>“[N] baselines tagged to date, and [N] of them rebuild identically.”</li>
+</ul>
+<p class="mh">T. <strong>Drift (model vs. documents)</strong></p>
+<ul class="phr">
+<li>“Drift between the model and the ICDs is [N] lines, because they regenerate on every change.”</li>
+<li>“Drift checks found [N] discrepancies in legacy documents. They’re flagged for correction.”</li>
+</ul>
 <h2 id="flow-agile">Flow (agile)</h2>
-<p>U. <strong>Merges per sprint</strong>
-- “[N] model changes merged this sprint, all gated.”
-- “Merge volume went from [N] to [N] per sprint.”
-V. <strong>Change failure rate</strong>
-- “[N]% of merges needed a fix-forward, against a target of under [N]%.”
-- “[N] merges were reverted this sprint.”
-W. <strong>Time to restore</strong>
-- “A broken gate was restored in [N] hours.”
-- “Median time to green after a failure is [N] minutes.”
-X. <strong>Done %</strong>
-- “This sprint, [N]% of committed items are done.”
-- “[N] of [N] [segment] items are done.”
-Y. <strong>Blocked days</strong>
-- “There were [N] blocked days this sprint, all waiting on [runner/access/license].”
-- “Blocked days dropped from [N] to [N] after [fix].”
-Z. <strong>Active contributors</strong>
-- “[N] of [N] engineers merged a model change this sprint.”
-- “[N] engineers have merged at least one model change to date.”</p>
+<p class="mh">U. <strong>Merges per sprint</strong></p>
+<ul class="phr">
+<li>“[N] model changes merged this sprint, all gated.”</li>
+<li>“Merge volume went from [N] to [N] per sprint.”</li>
+</ul>
+<p class="mh">V. <strong>Change failure rate</strong></p>
+<ul class="phr">
+<li>“[N]% of merges needed a fix-forward, against a target of under [N]%.”</li>
+<li>“[N] merges were reverted this sprint.”</li>
+</ul>
+<p class="mh">W. <strong>Time to restore</strong></p>
+<ul class="phr">
+<li>“A broken gate was restored in [N] hours.”</li>
+<li>“Median time to green after a failure is [N] minutes.”</li>
+</ul>
+<p class="mh">X. <strong>Done %</strong></p>
+<ul class="phr">
+<li>“This sprint, [N]% of committed items are done.”</li>
+<li>“[N] of [N] [segment] items are done.”</li>
+</ul>
+<p class="mh">Y. <strong>Blocked days</strong></p>
+<ul class="phr">
+<li>“There were [N] blocked days this sprint, all waiting on [runner/access/license].”</li>
+<li>“Blocked days dropped from [N] to [N] after [fix].”</li>
+</ul>
+<p class="mh">Z. <strong>Active contributors</strong></p>
+<ul class="phr">
+<li>“[N] of [N] engineers merged a model change this sprint.”</li>
+<li>“[N] engineers have merged at least one model change to date.”</li>
+</ul>
 <h2 id="round-robin-template">Round-robin template</h2>
 <p>“[N]% of [segment] is now under the pipeline (A). [N] new traces (C). [N] interface mismatches caught at merge (H). Next: [segment].”</p>
 <hr />
@@ -121,95 +176,135 @@ Z. <strong>Active contributors</strong>
 segment. Requirements carry a <code>doorsId</code> attribute. Baselines are tagged <code>baseline-*</code>. The lint
 prints a summary line, and gate failures are logged to <code>.gate.log</code> with an error code. Adjust
 paths and patterns to match the repo. <code>PAT</code> is the element pattern defined in A.</p>
-<p><strong>A. % under configuration control</strong>
-- Values: elements in v2 text ÷ elements in the legacy v1 model × 100, plus the previous report’s %.
-- v2 count: take the element count from the lint summary. Fallback:
-<code>PAT='^\s*(part|port|interface|connection|requirement|action|item|attribute)( def)?\b'</code>
-<code>grep -rhE "$PAT" model --include=*.sysml | wc -l</code>
-- v1 count: count once from the legacy XMI export, restricted to in-scope types:
-<code>grep -cE 'xmi:type="uml:(Class|Port|Property|Connector|Activity)"' legacy.xmi</code>
-- Freeze the v1 count as the denominator, and record the date and filter you used.</p>
-<p><strong>B. Segments gated</strong>
-- Total: <code>ls -d model/*/ | wc -l</code>
-- Gated: the paths covered by the CI lint job (or the pre-commit hook path list):
-<code>grep -c '^model/' CODEOWNERS</code>
-- Joined this sprint: the difference from last sprint’s count.</p>
-<p><strong>C. Requirements linked</strong>
-- Total: the DOORS module object count from the ReqIF export:
-<code>grep -c '&lt;SPEC-OBJECT ' export.reqif</code>
-- Linked: <code>grep -rhoE 'doorsId *= *"[^"]+"' model | sort -u | wc -l</code></p>
-<p><strong>D. Elements in baseline</strong>
-- Run A’s pattern against a tag: <code>git grep -hE "$PAT" baseline-2 -- 'model/*.sysml' | wc -l</code>
-- The increase is the count at this tag minus the count at the previous tag.</p>
-<p><strong>E. Lint errors / warnings</strong>
-- Errors, warnings and elements: read the lint summary line on <code>main</code>.
-- Merges at 0/0: <code>git log --merges --first-parent main --since=&lt;sprint start&gt; --oneline | wc -l</code>
-Because the gate refuses anything above 0/0, every merge counted here passed at 0/0.</p>
-<p><strong>F. Orphan requirements</strong> (requirements that nothing satisfies)
-- Prefer the trace report. Fallback:
-<code>comm -23 &lt;(grep -rhoE 'requirement def \w+' model | awk '{print $3}' | sort -u) &lt;(grep -rhoE 'satisfy \w+' model | awk '{print $2}' | sort -u) | wc -l</code></p>
-<p><strong>G. Unverified requirements</strong>
-- Same as F, with <code>verify</code> in place of <code>satisfy</code>.</p>
-<p><strong>H. Interface mismatches caught at merge</strong>
-- <code>grep -c '&lt;interface error code&gt;' .gate.log</code> for the sprint window, or the count of CI jobs failed with that code.
-- Reached integration: interface defects logged at integration in the defect tracker.</p>
-<p><strong>I. Trace completeness</strong>
-- Requirements that are both satisfied and verified ÷ total requirements × 100, using F and G.
-- A segment counts as complete when its F and G are both 0.</p>
-<p><strong>J. Labor hours saved</strong>
-- Manual hours per artifact × artifacts generated per baseline (L).
-- Get manual hours from charge records for the last hand-built version, or from the document owner’s estimate.
-- Write down the source. This one is an estimate, so expect someone to ask.</p>
-<p><strong>K. Regeneration time</strong>
-- Generated: the CI job duration, or <code>time make docs</code>.
-- Old process: the schedule or charge records for the last manual update.</p>
-<p><strong>L. Documents generated</strong>
-- Generated: <code>ls generated/ | wc -l</code> (or the count by document type).
-- Total: the document list (CDRL or the program document tree).</p>
-<p><strong>M. Hand edits</strong>
-- Commits that touch released documents but aren’t generator output:
-<code>git log --since=&lt;sprint start&gt; --oneline -- released/ | grep -vc 'generated'</code>
-- Or count redlines on the release review.</p>
-<p><strong>N. Lead time</strong>
-- From merge request open to merge, from the CI server’s MR history.
-- Git-only fallback: the time from the branch’s first commit to its merge commit,
-<code>git log --format=%ci</code> on each.
-- Report the median. Get the before value from the old change-board cycle records.</p>
-<p><strong>O. Parameters sourced from the model</strong>
-- Generated: the parameter count in the generated parameter files,
-<code>grep -chE '^\s*#define|=' generated/params/* | awk '{s+=$1} END {print s}'</code>
-- Total: the sim input inventory (every parameter the sims read), counted once and frozen like A’s denominator.</p>
-<p><strong>P. Sim runs pinned to a baseline</strong>
-- Pinned: runs whose provenance file names a baseline tag and model hash,
-<code>grep -l 'model_baseline=' runs/*/provenance.txt | wc -l</code>
-- Total: <code>ls -d runs/*/ | wc -l</code> for the sprint window.</p>
-<p><strong>Q. Uncovered zone crossings</strong>
-- From the security section of the lint report: interfaces whose ends sit in different zones, and of those, how many lack a satisfied security requirement.</p>
-<p><strong>R. Unmitigated threats</strong>
-- Total: <code>grep -rc '@Threat' model | awk -F: '{s+=$2} END {print s}'</code>
-- Unmitigated: the security lint’s mitigation-closure count.</p>
-<p><strong>S. Reproducible baselines</strong>
-- Tagged: <code>git tag -l 'baseline-*' | wc -l</code>
-- Reproducible: check out each tag, rebuild, and compare <code>sha256sum</code> of the generated outputs with the hashes recorded at tagging.</p>
-<p><strong>T. Drift</strong>
-- Diff the generated tables against the legacy tables:
-<code>diff &lt;(sort generated/icd.csv) &lt;(sort legacy/icd.csv) | grep -c '^[&lt;&gt;]'</code></p>
-<p><strong>U. Merges per sprint</strong>
-- <code>git log --merges --first-parent main --since=&lt;start&gt; --until=&lt;end&gt; --oneline | wc -l</code></p>
-<p><strong>V. Change failure rate</strong>
-- Reverts and fix-forwards ÷ merges (U) × 100:
-<code>git log --first-parent main --since=&lt;start&gt; --oneline | grep -ciE '^\w+ (revert|fix-forward)'</code>
-- Adopt a commit prefix convention so this count works.</p>
-<p><strong>W. Time to restore</strong>
-- The time from the first red pipeline on <code>main</code> to the next green one, from the CI history.
-- Fallback: the timestamps in <code>.gate.log</code>.</p>
-<p><strong>X. Done %</strong>
-- Items done ÷ items committed at sprint start × 100, from the tracker.</p>
-<p><strong>Y. Blocked days</strong>
-- The sum of days each item carried the blocked flag, from the tracker. Group the total by blocker.</p>
-<p><strong>Z. Active contributors</strong>
-- Contributors: <code>git log --first-parent main --since=&lt;start&gt; --format=%an -- model | sort -u | wc -l</code>
-- Total: the team roster for the model.</p>
+<p class="mh"><strong>A. % under configuration control</strong></p>
+<ul class="phr">
+<li>Values: elements in v2 text ÷ elements in the legacy v1 model × 100, plus the previous report’s %.</li>
+<li>v2 count: take the element count from the lint summary. Fallback:<br><code>PAT='^\s*(part|port|interface|connection|requirement|action|item|attribute)( def)?\b'</code><br><code>grep -rhE "$PAT" model --include=*.sysml | wc -l</code></li>
+<li>v1 count: count once from the legacy XMI export, restricted to in-scope types:<br><code>grep -cE 'xmi:type="uml:(Class|Port|Property|Connector|Activity)"' legacy.xmi</code></li>
+<li>Freeze the v1 count as the denominator, and record the date and filter you used.</li>
+</ul>
+<p class="mh"><strong>B. Segments gated</strong></p>
+<ul class="phr">
+<li>Total: <code>ls -d model/*/ | wc -l</code></li>
+<li>Gated: the paths covered by the CI lint job (or the pre-commit hook path list):<br><code>grep -c '^model/' CODEOWNERS</code></li>
+<li>Joined this sprint: the difference from last sprint’s count.</li>
+</ul>
+<p class="mh"><strong>C. Requirements linked</strong></p>
+<ul class="phr">
+<li>Total: the DOORS module object count from the ReqIF export:<br><code>grep -c '&lt;SPEC-OBJECT ' export.reqif</code></li>
+<li>Linked: <code>grep -rhoE 'doorsId *= *"[^"]+"' model | sort -u | wc -l</code></li>
+</ul>
+<p class="mh"><strong>D. Elements in baseline</strong></p>
+<ul class="phr">
+<li>Run A’s pattern against a tag: <code>git grep -hE "$PAT" baseline-2 -- 'model/*.sysml' | wc -l</code></li>
+<li>The increase is the count at this tag minus the count at the previous tag.</li>
+</ul>
+<p class="mh"><strong>E. Lint errors / warnings</strong></p>
+<ul class="phr">
+<li>Errors, warnings and elements: read the lint summary line on <code>main</code>.</li>
+<li>Merges at 0/0: <code>git log --merges --first-parent main --since=&lt;sprint start&gt; --oneline | wc -l</code></li>
+</ul>
+<p class="mh">Because the gate refuses anything above 0/0, every merge counted here passed at 0/0.</p>
+<p class="mh"><strong>F. Orphan requirements</strong> (requirements that nothing satisfies)</p>
+<ul class="phr">
+<li>Prefer the trace report. Fallback:<br><code>comm -23 &lt;(grep -rhoE 'requirement def \w+' model | awk '{print $3}' | sort -u) &lt;(grep -rhoE 'satisfy \w+' model | awk '{print $2}' | sort -u) | wc -l</code></li>
+</ul>
+<p class="mh"><strong>G. Unverified requirements</strong></p>
+<ul class="phr">
+<li>Same as F, with <code>verify</code> in place of <code>satisfy</code>.</li>
+</ul>
+<p class="mh"><strong>H. Interface mismatches caught at merge</strong></p>
+<ul class="phr">
+<li><code>grep -c '&lt;interface error code&gt;' .gate.log</code> for the sprint window, or the count of CI jobs failed with that code.</li>
+<li>Reached integration: interface defects logged at integration in the defect tracker.</li>
+</ul>
+<p class="mh"><strong>I. Trace completeness</strong></p>
+<ul class="phr">
+<li>Requirements that are both satisfied and verified ÷ total requirements × 100, using F and G.</li>
+<li>A segment counts as complete when its F and G are both 0.</li>
+</ul>
+<p class="mh"><strong>J. Labor hours saved</strong></p>
+<ul class="phr">
+<li>Manual hours per artifact × artifacts generated per baseline (L).</li>
+<li>Get manual hours from charge records for the last hand-built version, or from the document owner’s estimate.</li>
+<li>Write down the source. This one is an estimate, so expect someone to ask.</li>
+</ul>
+<p class="mh"><strong>K. Regeneration time</strong></p>
+<ul class="phr">
+<li>Generated: the CI job duration, or <code>time make docs</code>.</li>
+<li>Old process: the schedule or charge records for the last manual update.</li>
+</ul>
+<p class="mh"><strong>L. Documents generated</strong></p>
+<ul class="phr">
+<li>Generated: <code>ls generated/ | wc -l</code> (or the count by document type).</li>
+<li>Total: the document list (CDRL or the program document tree).</li>
+</ul>
+<p class="mh"><strong>M. Hand edits</strong></p>
+<ul class="phr">
+<li>Commits that touch released documents but aren’t generator output:<br><code>git log --since=&lt;sprint start&gt; --oneline -- released/ | grep -vc 'generated'</code></li>
+<li>Or count redlines on the release review.</li>
+</ul>
+<p class="mh"><strong>N. Lead time</strong></p>
+<ul class="phr">
+<li>From merge request open to merge, from the CI server’s MR history.</li>
+<li>Git-only fallback: the time from the branch’s first commit to its merge commit,<br><code>git log --format=%ci</code> on each.</li>
+<li>Report the median. Get the before value from the old change-board cycle records.</li>
+</ul>
+<p class="mh"><strong>O. Parameters sourced from the model</strong></p>
+<ul class="phr">
+<li>Generated: the parameter count in the generated parameter files,<br><code>grep -chE '^\s*#define|=' generated/params/* | awk '{s+=$1} END {print s}'</code></li>
+<li>Total: the sim input inventory (every parameter the sims read), counted once and frozen like A’s denominator.</li>
+</ul>
+<p class="mh"><strong>P. Sim runs pinned to a baseline</strong></p>
+<ul class="phr">
+<li>Pinned: runs whose provenance file names a baseline tag and model hash,<br><code>grep -l 'model_baseline=' runs/*/provenance.txt | wc -l</code></li>
+<li>Total: <code>ls -d runs/*/ | wc -l</code> for the sprint window.</li>
+</ul>
+<p class="mh"><strong>Q. Uncovered zone crossings</strong></p>
+<ul class="phr">
+<li>From the security section of the lint report: interfaces whose ends sit in different zones, and of those, how many lack a satisfied security requirement.</li>
+</ul>
+<p class="mh"><strong>R. Unmitigated threats</strong></p>
+<ul class="phr">
+<li>Total: <code>grep -rc '@Threat' model | awk -F: '{s+=$2} END {print s}'</code></li>
+<li>Unmitigated: the security lint’s mitigation-closure count.</li>
+</ul>
+<p class="mh"><strong>S. Reproducible baselines</strong></p>
+<ul class="phr">
+<li>Tagged: <code>git tag -l 'baseline-*' | wc -l</code></li>
+<li>Reproducible: check out each tag, rebuild, and compare <code>sha256sum</code> of the generated outputs with the hashes recorded at tagging.</li>
+</ul>
+<p class="mh"><strong>T. Drift</strong></p>
+<ul class="phr">
+<li>Diff the generated tables against the legacy tables:<br><code>diff &lt;(sort generated/icd.csv) &lt;(sort legacy/icd.csv) | grep -c '^[&lt;&gt;]'</code></li>
+</ul>
+<p class="mh"><strong>U. Merges per sprint</strong></p>
+<ul class="phr">
+<li><code>git log --merges --first-parent main --since=&lt;start&gt; --until=&lt;end&gt; --oneline | wc -l</code></li>
+</ul>
+<p class="mh"><strong>V. Change failure rate</strong></p>
+<ul class="phr">
+<li>Reverts and fix-forwards ÷ merges (U) × 100:<br><code>git log --first-parent main --since=&lt;start&gt; --oneline | grep -ciE '^\w+ (revert|fix-forward)'</code></li>
+<li>Adopt a commit prefix convention so this count works.</li>
+</ul>
+<p class="mh"><strong>W. Time to restore</strong></p>
+<ul class="phr">
+<li>The time from the first red pipeline on <code>main</code> to the next green one, from the CI history.</li>
+<li>Fallback: the timestamps in <code>.gate.log</code>.</li>
+</ul>
+<p class="mh"><strong>X. Done %</strong></p>
+<ul class="phr">
+<li>Items done ÷ items committed at sprint start × 100, from the tracker.</li>
+</ul>
+<p class="mh"><strong>Y. Blocked days</strong></p>
+<ul class="phr">
+<li>The sum of days each item carried the blocked flag, from the tracker. Group the total by blocker.</li>
+</ul>
+<p class="mh"><strong>Z. Active contributors</strong></p>
+<ul class="phr">
+<li>Contributors: <code>git log --first-parent main --since=&lt;start&gt; --format=%an -- model | sort -u | wc -l</code></li>
+<li>Total: the team roster for the model.</li>
+</ul>
 <h1 id="appendix-b-dashboard-data">Appendix B: dashboard data</h1>
 <p><code>status-dashboard.html</code> reads one JSON object, and <code>perl bin/status-metrics.pl report</code> writes it as <code>dashboard.json</code>. Paste it into the dashboard’s data panel and select Apply.
 Each metric is keyed by its letter. <code>v</code> is the current value, <code>prev</code> the last report, and <code>hist</code>
@@ -845,42 +940,66 @@ U, V, X and Y are sprint metrics, so they report on sprint-close weeks only.</p>
 <p>F and G rise first, because porting surfaces gaps the v1 model hid, and then they fall as owners
 close them. That curve is the story to tell.</p>
 <h2 id="week-by-week">Week by week</h2>
-<p><strong>Week 1</strong>
-- My list: Repo, pre-commit gate and CI lint job set up. Ported 140 E items.
-- Status: “The Halberd model is now under the pipeline. 7% of the architecture is under configuration control (A), and every merge is gated at 0 errors / 0 warnings (E). Next: Systems Engineering &amp; Integration.”</p>
-<p><strong>Week 2</strong>
-- My list: Ported 160 E items. Imported the first DOORS module.
-- Status: “15% under configuration control (A). 90 of 1,450 DOORS requirements are linked to model elements (C). The pipeline caught 4 interface mismatches before review (H). 21 model changes merged this sprint, all gated (U).”</p>
-<p><strong>Week 3</strong>
-- My list: E finished. Started V.
-- Status: “1 of 7 segments is now gated on every merge (B). The trace found 55 requirements with no verification method, and they’re flagged to their owners (G). 41 requirements have nothing satisfying them yet (F).”</p>
-<p><strong>Week 4</strong>
-- My list: Ported 180 V items. Replaced the hand-built interface table with a generated one. Tagged baseline-1.
-- Status: “Baseline 1 holds 650 elements (D), and it rebuilds identically (S). 1 of 12 program documents now comes straight from the model (L), with 0 hand edits (M).”</p>
-<p><strong>Week 5</strong>
-- My list: V finished. Started B. Lost 3 days waiting on a runner.
-- Status: “2 of 7 segments gated (B). 4 of 13 interfaces crossing a trust zone lack a security requirement, and they can’t merge until they’re covered (Q). There were 3 blocked days, all waiting on a shared runner (Y).”</p>
-<p><strong>Week 6</strong>
-- My list: Ported 160 B items. Generated the first ICD view and diffed it against the legacy ICD.
-- Status: “50% under configuration control (A). Drift checks found 47 discrepancies in the legacy ICDs, flagged for correction (T). Orphan requirements are down from 66 to 47 (F). 88% of committed items are done this sprint (X).”</p>
-<p><strong>Week 7</strong>
-- My list: B finished. Started T.
-- Status: “3 of 7 segments gated (B). 39 interface mismatches have been caught at merge to date, and 0 reached integration (H). 3 of 7 segment owners now merge their own changes (Z).”</p>
-<p><strong>Week 8</strong>
-- My list: T finished. Wired the T2 pre-flight prediction inputs to the model. Tagged baseline-2.
-- Status: “Baseline 2 holds 1,320 elements (D). 64 of 64 pre-flight prediction parameters now come from the model, not spreadsheets (O), and 12 of 12 prediction runs name the baseline that fed them (P). There are 0 uncovered zone crossings across 21 interfaces (Q).”</p>
-<p><strong>Week 9</strong>
-- My list: G finished, including the milestone review packages.
-- Status: “5 of 7 segments gated (B). 68% of requirements are traced satisfy-to-verify (I). A model change now reaches a reviewed baseline in 4 days; the old change board cycle took 19 (N). 2 of 12 recorded threats lack a traced mitigation (R).”</p>
-<p><strong>Week 10</strong>
-- My list: Ported 180 M items.
-- Status: “86% under configuration control (A). 1,210 of 1,450 requirements linked (C). 8 of 12 program documents come straight from the model (L), which saves about 30 labor hours per baseline (J).”</p>
-<p><strong>Week 11</strong>
-- My list: M finished. Started L. The gate broke on a parser update and was fixed the same morning.
-- Status: “6 of 7 segments gated (B). Unverified requirements are down to 11 (G). ICD views regenerate in 6 minutes; the old process took 4 days (K). A broken gate was restored in 2 hours (W).”</p>
-<p><strong>Week 12</strong>
-- My list: L finished. The v1 list is at 0. Tagged baseline-3.
-- Status: “100% of the Halberd architecture is under configuration control (A), and all 7 segments are gated (B). Baseline 3 holds 1,960 elements and rebuilds identically (D, S). 99% of requirements are traced end to end, and the last 7 are with their owners (I, F, G). 4% of merges this sprint needed a fix-forward (V).”</p>
+<p class="mh"><strong>Week 1</strong></p>
+<ul class="phr">
+<li>My list: Repo, pre-commit gate and CI lint job set up. Ported 140 E items.</li>
+<li>Status: “The Halberd model is now under the pipeline. 7% of the architecture is under configuration control (A), and every merge is gated at 0 errors / 0 warnings (E). Next: Systems Engineering &amp; Integration.”</li>
+</ul>
+<p class="mh"><strong>Week 2</strong></p>
+<ul class="phr">
+<li>My list: Ported 160 E items. Imported the first DOORS module.</li>
+<li>Status: “15% under configuration control (A). 90 of 1,450 DOORS requirements are linked to model elements (C). The pipeline caught 4 interface mismatches before review (H). 21 model changes merged this sprint, all gated (U).”</li>
+</ul>
+<p class="mh"><strong>Week 3</strong></p>
+<ul class="phr">
+<li>My list: E finished. Started V.</li>
+<li>Status: “1 of 7 segments is now gated on every merge (B). The trace found 55 requirements with no verification method, and they’re flagged to their owners (G). 41 requirements have nothing satisfying them yet (F).”</li>
+</ul>
+<p class="mh"><strong>Week 4</strong></p>
+<ul class="phr">
+<li>My list: Ported 180 V items. Replaced the hand-built interface table with a generated one. Tagged baseline-1.</li>
+<li>Status: “Baseline 1 holds 650 elements (D), and it rebuilds identically (S). 1 of 12 program documents now comes straight from the model (L), with 0 hand edits (M).”</li>
+</ul>
+<p class="mh"><strong>Week 5</strong></p>
+<ul class="phr">
+<li>My list: V finished. Started B. Lost 3 days waiting on a runner.</li>
+<li>Status: “2 of 7 segments gated (B). 4 of 13 interfaces crossing a trust zone lack a security requirement, and they can’t merge until they’re covered (Q). There were 3 blocked days, all waiting on a shared runner (Y).”</li>
+</ul>
+<p class="mh"><strong>Week 6</strong></p>
+<ul class="phr">
+<li>My list: Ported 160 B items. Generated the first ICD view and diffed it against the legacy ICD.</li>
+<li>Status: “50% under configuration control (A). Drift checks found 47 discrepancies in the legacy ICDs, flagged for correction (T). Orphan requirements are down from 66 to 47 (F). 88% of committed items are done this sprint (X).”</li>
+</ul>
+<p class="mh"><strong>Week 7</strong></p>
+<ul class="phr">
+<li>My list: B finished. Started T.</li>
+<li>Status: “3 of 7 segments gated (B). 39 interface mismatches have been caught at merge to date, and 0 reached integration (H). 3 of 7 segment owners now merge their own changes (Z).”</li>
+</ul>
+<p class="mh"><strong>Week 8</strong></p>
+<ul class="phr">
+<li>My list: T finished. Wired the T2 pre-flight prediction inputs to the model. Tagged baseline-2.</li>
+<li>Status: “Baseline 2 holds 1,320 elements (D). 64 of 64 pre-flight prediction parameters now come from the model, not spreadsheets (O), and 12 of 12 prediction runs name the baseline that fed them (P). There are 0 uncovered zone crossings across 21 interfaces (Q).”</li>
+</ul>
+<p class="mh"><strong>Week 9</strong></p>
+<ul class="phr">
+<li>My list: G finished, including the milestone review packages.</li>
+<li>Status: “5 of 7 segments gated (B). 68% of requirements are traced satisfy-to-verify (I). A model change now reaches a reviewed baseline in 4 days; the old change board cycle took 19 (N). 2 of 12 recorded threats lack a traced mitigation (R).”</li>
+</ul>
+<p class="mh"><strong>Week 10</strong></p>
+<ul class="phr">
+<li>My list: Ported 180 M items.</li>
+<li>Status: “86% under configuration control (A). 1,210 of 1,450 requirements linked (C). 8 of 12 program documents come straight from the model (L), which saves about 30 labor hours per baseline (J).”</li>
+</ul>
+<p class="mh"><strong>Week 11</strong></p>
+<ul class="phr">
+<li>My list: M finished. Started L. The gate broke on a parser update and was fixed the same morning.</li>
+<li>Status: “6 of 7 segments gated (B). Unverified requirements are down to 11 (G). ICD views regenerate in 6 minutes; the old process took 4 days (K). A broken gate was restored in 2 hours (W).”</li>
+</ul>
+<p class="mh"><strong>Week 12</strong></p>
+<ul class="phr">
+<li>My list: L finished. The v1 list is at 0. Tagged baseline-3.</li>
+<li>Status: “100% of the Halberd architecture is under configuration control (A), and all 7 segments are gated (B). Baseline 3 holds 1,960 elements and rebuilds identically (D, S). 99% of requirements are traced end to end, and the last 7 are with their owners (I, F, G). 4% of merges this sprint needed a fix-forward (V).”</li>
+</ul>
 <p>All 26 letters appear at least once across the 12 weeks.</p>
 <h1 id="appendix-d-halberd-daily-standups-and-sprint-burn-downs">Appendix D: Halberd daily standups and sprint burn-downs</h1>
 <p>This follows Appendix C, day by day: the same notional 1,960 v1 items and 1,450 DOORS

@@ -1,0 +1,14 @@
+Title: De-duplicate, keep order
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: seen-hash filter
+Timebox: 5
+Kind: stdio
+
+Input: one line of zero or more tokens separated by spaces.
+Output: the first occurrence of each token, in input order, joined by
+single spaces. An empty line gives an empty line.
+
+Examples
+  red blue red green blue  ->  red blue green
+  z z                      ->  z

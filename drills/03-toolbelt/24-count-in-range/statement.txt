@@ -1,0 +1,16 @@
+Title: Count values in a range
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: two binary searches (lower and upper bound)
+Timebox: 8
+Kind: function
+Call: count_in_range(\@sorted, $lo, $hi) -> $count
+
+The list is sorted ascending (duplicates allowed). Return how many values
+lie in [lo, hi], inclusive, in O(log n): find the first index >= lo and the
+first index > hi by binary search, and subtract. No scanning.
+
+Examples
+  count_in_range([1, 3, 3, 5, 7], 3, 5)  ->  3
+  count_in_range([1, 3, 3, 5, 7], 8, 9)  ->  0
+  count_in_range([], 0, 10)              ->  0

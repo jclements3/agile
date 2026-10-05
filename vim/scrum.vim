@@ -3,6 +3,8 @@
 let s:root = expand('<sfile>:p:h:h')
 let g:scrum_daily = get(g:, 'scrum_daily', s:root . '/bin/daily.pl')
 execute 'set runtimepath+=' . fnameescape(s:root . '/vim')
+" coding drills: :DrillTrain (the memory trainer), :DrillOpen, :DrillTest (drills/drill.pl)
+execute 'source ' . fnameescape(s:root . '/vim/plugin/drills.vim')
 let s:doc = s:root . '/vim/doc'                     " :help agile -- the kit's offline help (vim/doc/agile.txt); its tags are rebuilt here
 if isdirectory(s:doc) && filewritable(s:doc) == 2   " when missing or older than a help file, silently (a read-only copy keeps what it has)
   if getftime(s:doc . '/tags') < max(map(glob(s:doc . '/*.txt', 0, 1), 'getftime(v:val)'))

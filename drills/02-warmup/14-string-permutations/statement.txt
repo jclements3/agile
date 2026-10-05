@@ -1,0 +1,15 @@
+Title: Permutations of a string
+LeetCode: 47. Permutations II (similar; strings, sorted output)
+Origin: warmup
+Pattern: recursion with de-duplication
+Timebox: 8
+Kind: function
+Call: string_permutations($s) -> [ sorted distinct strings ]
+
+Return every distinct ordering of the characters of $s, sorted. Write the
+recursion yourself. The empty string has one ordering: the empty string.
+
+Examples
+  string_permutations("abc")  ->  ["abc", "acb", "bac", "bca", "cab", "cba"]
+  string_permutations("aab")  ->  ["aab", "aba", "baa"]
+  string_permutations("")     ->  [""]

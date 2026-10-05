@@ -1,0 +1,15 @@
+Title: Every node reachable from a start
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: depth-first search with a seen set
+Timebox: 10
+Kind: function
+Call: reachable(\%adj, $start) -> [nodes]
+
+%adj maps each node to the list of nodes it has an edge to (directed). Return
+every node reachable from $start, including $start, in any order, each once.
+
+Examples
+  adj a: [b, c]  b: [d]  c: [d]  d: []  e: []
+  reachable(adj, 'a')  ->  [a, b, c, d]
+  reachable(adj, 'e')  ->  [e]

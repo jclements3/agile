@@ -1,0 +1,13 @@
+Title: Balanced brackets
+LeetCode: 20. Valid Parentheses (a pointer only: the statement below is this kit's own)
+Origin: ladder
+Pattern: stack
+Timebox: 10
+Kind: stdio
+
+Input: line 1 is n; then n strings made only of the characters ()[]{}.
+Output: for each string, YES if every bracket is closed by the matching
+kind in the right order, else NO.
+
+Examples
+  3 / {[]} / [(]) / ))   ->  YES / NO / NO

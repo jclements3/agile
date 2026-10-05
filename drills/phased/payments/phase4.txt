@@ -1,0 +1,11 @@
+PHASE 4 of 4: look-alikes and no answer at all
+----------------------------------------------
+Several orders can have the same amount close together in time. The
+matching must still be deterministic: take the candidate with the lowest
+combined difference (amount difference + time difference) first.
+
+Some inputs have no valid matching at all. Detect that and report it (ok => 0
+and a reason, or a die whose message is your stated contract) instead of
+returning something that looks right.
+
+Say out loud the complexity of what you have now.

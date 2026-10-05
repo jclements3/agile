@@ -1,0 +1,10 @@
+PHASE 2 of 4: the feeds do not tick together
+--------------------------------------------
+Feed B now reports about twice as often as feed A, and no timestamp lines up
+exactly with another. A detection in A and one in B are the same object when
+they are close enough in time AND close enough in bearing.
+
+Tolerances to start from: 0.75 s in time, 2.5 degrees in bearing. Make them
+options with defaults (%opt), because they will move.
+
+Adapt what you have. Do not start over.

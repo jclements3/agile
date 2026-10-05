@@ -1,0 +1,13 @@
+Title: Sort by length, then alphabetically
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: two-level sort key
+Timebox: 3
+Kind: function
+Call: by_len_then_alpha(\@words) -> [ sorted ]
+
+Sort the words shortest first; words of equal length alphabetically.
+
+Examples
+  by_len_then_alpha(["bb", "a", "ccc", "aa"])  ->  ["a", "aa", "bb", "ccc"]
+  by_len_then_alpha([])                        ->  []

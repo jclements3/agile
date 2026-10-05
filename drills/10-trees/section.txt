@@ -1,0 +1,2 @@
+Title: Trees
+Recursion carries state down (ranges, depth) and results up; breadth-first search reads a tree level by level.

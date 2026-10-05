@@ -1,0 +1,13 @@
+Title: Count the common values
+LeetCode: 349. Intersection of Two Arrays (similar; this asks only for the count)
+Origin: lessons
+Pattern: set intersection with a hash
+Timebox: 5
+Kind: function
+Call: count_common(\@a, \@b) -> $count
+
+Return how many distinct values appear in both lists, in O(n + m).
+
+Examples
+  count_common([1, 2, 2, 3], [2, 3, 3, 4])  ->  2
+  count_common([1], [2])                    ->  0

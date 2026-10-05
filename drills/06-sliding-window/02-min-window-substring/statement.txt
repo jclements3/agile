@@ -1,0 +1,16 @@
+Title: Smallest window covering a pattern
+LeetCode: 76. Minimum Window Substring (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: sliding window with a need-count
+Timebox: 25
+Kind: function
+Call: min_window($s, $t) -> $substring
+
+Return the shortest contiguous piece of $s that contains every character of
+$t, counting repeats (if $t has two 'a', the piece needs two). When several
+are equally short, return the leftmost. Return '' when none exists.
+
+Examples
+  min_window('xaybzac', 'abc')  ->  'bzac'
+  min_window('aa', 'aa')        ->  'aa'
+  min_window('a', 'b')          ->  ''

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Coding drills: the first 90 days</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a;
+         max-width: 1100px; margin: 2em auto; padding: 0 1.5em; line-height: 1.5; }
+  h1 { font-size: 18pt; border-bottom: 2px solid #444; padding-bottom: 0.2em; margin-top: 0; }
+  h2 { font-size: 14pt; margin-top: 2em; border-bottom: 1px solid #999; padding-bottom: 0.15em; }
+  h3 { font-size: 12pt; margin-top: 1.5em; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  pre { background: #f4f4f4; border: 1px solid #ddd; padding: 0.8em 1em; overflow-x: auto; }
+  code { background: #f4f4f4; padding: 0.1em 0.3em; }
+  pre code { background: none; padding: 0; }
+  ul, ol { margin: 0.5em 0; }
+  li { margin: 0.3em 0; }
+  table { border-collapse: collapse; margin: 0.8em 0; font-size: 10pt; }
+  th, td { border: 1px solid #bbb; padding: 0.3em 0.6em; text-align: left; vertical-align: top; }
+  th { background: #e8e8e8; }
+  .note { border-left: 4px solid #c90; background: #fff8e6; padding: 0.5em 1em; margin: 1em 0; }
+  a { color: #0b5cad; }
+  @media print { body { margin: 0; max-width: none; } h2 { break-before: page; } pre, table { break-inside: avoid; } }
+</style>
+</head>
+<body>
+
+<h1>Coding drills: the first 90 days</h1>
+
+<p>A solutions architect who stops writing code starts proposing pipelines he could not build. This kit keeps the hands on
+the keyboard with interview-style problems, solved in core Perl on a laptop that has only Git for Windows: its Perl, its
+Vim and Git Bash. There is nothing to install, no network and no admin right needed.</p>
+
+<p>It implements the binder's chapter <em>Coding drills</em>: the ladder of small problems from trivial to hard, the habits
+every session trains, the phased drill in which the requirements change, the refresher plan and the drill log. It adds
+about 130 more problems in technique sections, the Perl toolbelt as a runnable file, and a Vim memory trainer.</p>
+
+<ul>
+  <li><code>drills/drill.pl</code> lists the problems, starts the clock, runs the tests, gates the reference solutions, keeps the log
+      and says what to do next. The logic is in <code>lib/Drills.pm</code>.</li>
+  <li><code>:DrillTrain</code> in Vim is the memory game: type each solution from memory, with the hint fading rep by rep.</li>
+  <li><code>perl agile.pl practice 9</code> is a guided first run: start, solve, test and log one ladder problem.</li>
+  <li>The reference for every command, key and message is the kit's help: <code>perl agile.pl help drills</code>, or
+      <code>:help agile-drills</code> in Vim (<a href="HELP.html">HELP.html</a>).</li>
+</ul>
+
+<div class="note">Your work never goes into the kit. Your solutions, the attempts, the drill log and the trainer's progress are in
+the <strong>workspace</strong>: <code>~/drills-work</code>, or <code>$DRILLS_WORK</code>, or <code>--dir DIR</code> on any command.
+Make it a git repository and commit after each session, as the binder says. Never use work data in a drill.</div>
+
+<h2>Session 0: set up and prove it</h2>
+<ol>
+  <li>In Git Bash, an alias saves typing (put it in <code>~/.bashrc</code>):
+<pre><code>alias drill='perl ~/projects/agile/drills/drill.pl'
+mkdir -p ~/drills-work &amp;&amp; cd ~/drills-work &amp;&amp; git init</code></pre></li>
+  <li>Vim: the kit's <code>vim/scrum.vim</code> in <code>~/.vimrc</code> loads the drill commands too
+      (<code>source ~/projects/agile/vim/scrum.vim</code>). <code>:help agile-drills</code> proves it.</li>
+  <li>Prove the runner on the first rung, then break it on purpose:
+<pre><code>drill start p00            # the stub is ~/drills-work/p00-pong.pl; the clock starts
+vim ~/drills-work/p00-pong.pl
+drill test p00             # pass per case, "1/1 passed", exit 0
+# break the file, run drill test p00 again: a FAIL line with expected and got, exit 1 (echo $?)</code></pre></li>
+  <li>Retype the toolbelt from memory until it runs: <code>perl ~/projects/agile/drills/toolbelt.pl</code> shows the idioms;
+      every lookup you need is a line in the log.</li>
+  <li>Read <em>The habits</em> below twice, the eight questions especially.</li>
+</ol>
+<p>You are done when <code>drill test p00</code> passes, a broken file fails, and the questions come out roughly in order.</p>
+
+<h2>The habits every session trains</h2>
+<ol>
+  <li><strong>Questions before code.</strong> At least five before typing. When an answer is unknown, write
+      <code># ASSUME: ...</code> at the top of the file: that comment makes a changed requirement a one-line edit.</li>
+  <li><strong>Say it out loud.</strong> The pattern, the complexity and one edge case before the first line. Fifteen seconds of
+      silence means you are stuck: say where.</li>
+  <li><strong>Small named functions:</strong> parse, validate, solve, report. A changed requirement then touches one.</li>
+  <li><strong>Tests first and often.</strong> <code>drill test ID</code> after every edit (<code>\dt</code> in Vim). Never eyeball output.</li>
+  <li><strong>Brute force first, then improve.</strong> A correct slow answer beats an elegant wrong one.</li>
+  <li><strong>Close properly:</strong> what you would do with more time, what you would test, where it breaks at scale.</li>
+</ol>
+<h3>The eight questions</h3>
+<ol>
+  <li>What is the input size: hundreds or millions? (Sets the complexity target; a small n licenses brute force.)</li>
+  <li>Are the inputs non-empty, and are paired collections the same length? (The change most often planned.)</li>
+  <li>Can there be duplicates? Must I keep the input order?</li>
+  <li>What happens when there is no valid answer: a marker, an error, nothing?</li>
+  <li>On ties, is any valid answer acceptable, or is there a tie-break?</li>
+  <li>Are values bounded? Negatives, decimals, empty fields?</li>
+  <li>Does it fit in memory, or is it a stream?</li>
+  <li>Run once, or in a loop where I should precompute?</li>
+</ol>
+
+<h2>The 90 days</h2>
+<p>The binder's refresher block is a setup session and seven practice sessions. Run them one a week from the first week (or as
+seven days in a quiet week), with ten minutes of recall in Vim on two other days. After the block, keep the weekly cadence.
+<code>drill next</code> follows the same plan and always names one thing to do.</p>
+<table>
+  <tr><th>When</th><th>Session</th><th>What</th><th>Commands</th></tr>
+  <tr><td>Week 1</td><td>0, setup</td><td>The workspace, the habits, p00 proven, the toolbelt read</td><td><code>drill start p00</code>, <code>drill test p00</code>, <code>perl drills/toolbelt.pl</code></td></tr>
+  <tr><td>Week 2</td><td>1, foundations</td><td>Toolbelt from memory; ladder t0 (about 2 min each) and t1 (about 5)</td><td><code>drill next</code>, <code>drill check t0</code>, <code>drill check t1</code></td></tr>
+  <tr><td>Week 3</td><td>2, the core patterns</td><td>The four input shapes; ladder t2 (about 10 min each). Say pattern and complexity first.</td><td><code>drill check t2</code></td></tr>
+  <tr><td>Week 4</td><td>3, the first phased drill</td><td>60 minutes, timed, narrated; a 15-minute break; review</td><td><code>drill phased</code>, <code>drill phased 1</code> ... <code>phased test 4</code></td></tr>
+  <tr><td>Week 5</td><td>4, the hard classics</td><td>Rebuild the weakest pattern cold; ladder t3 (about 20 min each)</td><td><code>drill start ID --fresh</code>, <code>drill check t3</code></td></tr>
+  <tr><td>Week 6</td><td>5, the pro tier</td><td>Ladder t4 (about 25 min each); a second phased drill, other scenario</td><td><code>drill check ladder</code>, <code>drill phased 1 --scenario payments</code></td></tr>
+  <tr><td>Week 7</td><td>6, taper</td><td>Recall only: the complexity table, the toolbelt once, the trainer</td><td><code>:DrillTrain</code></td></tr>
+  <tr><td>Week 8</td><td>7, teach-back</td><td>One t2 or t3 problem with a colleague: one types, one navigates</td><td><code>drill show ID</code></td></tr>
+  <tr><td>Weeks 9 to 13</td><td>keeping sharp</td><td>Weekly: one problem re-solved cold (t5 field drills first, then the weakest section). Monthly: the phased drill with fresh data.</td><td><code>drill next</code>, <code>DRILL_SEED=99 drill phased 1</code></td></tr>
+  <tr><td>Any spare 15 minutes</td><td>field drills</td><td>Ladder t5: the text jobs of the work itself. All eight before session 6.</td><td><code>drill check t5</code></td></tr>
+</table>
+<p>Miss a session: resume where you left off. Never run sessions 3 and 5 back to back. After every session, log it before you stop.</p>
+
+<h3>One session, step by step</h3>
+<ol>
+  <li><code>drill next</code>: one problem and why (a failed one first, then the ladder in order, then the plan).</li>
+  <li><code>drill show ID</code>: read it twice. Ask the questions, write the assumptions as comments.</li>
+  <li><code>drill start ID</code>: the stub in the workspace, the clock on. In Vim, <code>\do</code> on the statement does the same.</li>
+  <li>Edit, <code>drill test ID</code> (<code>\dt</code>), repeat. The first case is the sample; solve from it, then let the rest speak.</li>
+  <li>Blow the timebox: <code>drill solution ID</code>, read it, close it, and re-solve from a blank file the next day
+      (<code>drill start ID --fresh</code>).</li>
+  <li><code>drill log ID "what was slow"</code>: minutes and result filled in.</li>
+  <li>Five minutes of <code>:DrillTrain</code>.</li>
+</ol>
+
+<h2>The commands</h2>
+<table>
+  <tr><th>Command</th><th>Does</th></tr>
+  <tr><td><code>drill list [SECTION]</code></td><td>Every problem: id, pattern, timebox, your status</td></tr>
+  <tr><td><code>drill show ID</code></td><td>The statement</td></tr>
+  <tr><td><code>drill start ID [--fresh]</code></td><td>The stub to <code>WORKSPACE/ID.pl</code>, the start time recorded</td></tr>
+  <tr><td><code>drill test ID [FILE] [--ref]</code></td><td>The tests: pass or FAIL per case, expected and got, the run time, minutes since start</td></tr>
+  <tr><td><code>drill check [SECTION | tN | ID-PREFIX]</code></td><td>Every file you have (the binder's <code>./check.sh</code>): N passed, M failed, K not started</td></tr>
+  <tr><td><code>drill solution ID [--force]</code></td><td>The reference and its notes, only after an attempt</td></tr>
+  <tr><td><code>drill log [ID [MIN] [pass|fail] [NOTES]]</code></td><td>Print the log, or append a line</td></tr>
+  <tr><td><code>drill log --session N</code></td><td>Append the binder's session form for Vim</td></tr>
+  <tr><td><code>drill stats</code></td><td>Per section: started, passed, peeked, minutes; the weakest section</td></tr>
+  <tr><td><code>drill next</code></td><td>The next thing to do by the refresher plan</td></tr>
+  <tr><td><code>drill phased [N | test N | solution] [--scenario S]</code></td><td>The four-phase drill</td></tr>
+  <tr><td><code>drill help [COMMAND]</code></td><td>The help</td></tr>
+</table>
+<p>An id can be shortened while it stays unique: <code>p23</code>, <code>two-sum</code>. Function problems are called directly: your
+file defines the sub named on the statement's <code>Call:</code> line and returns the answer. Stdin problems (the ladder) are scripts:
+the case goes to stdin and the output is compared ignoring trailing blanks. Each case has a five-second limit; a die, an exit or an
+endless loop fails that case and nothing more.</p>
+
+<h2>The problems</h2>
+<p>Each section is also a level of the Vim trainer, in this order. Every statement is written for this kit; its
+<code>LeetCode:</code> line names the classic problem it resembles, as a pointer only.</p>
+<table>
+  <tr><th>Level</th><th>Section</th><th>Problems</th><th>Trains</th></tr>
+  <tr><td>1</td><td>ladder</td><td>29</td><td>The binder's ladder, stdin to stdout: t0 noop, t1 basics, t2 patterns, t3 hard, t4 pro (dense specifications), t5 field drills</td></tr>
+  <tr><td>2</td><td>warmup</td><td>27</td><td>Simple to capstone functions: FizzBuzz to a recursive-descent calculator, an LRU cache</td></tr>
+  <tr><td>3</td><td>toolbelt</td><td>26</td><td>Strings, lists, hashes, closures, parsing input, sort keys, counting, binary search by hand</td></tr>
+  <tr><td>4</td><td>arrays-hashing</td><td>11</td><td>Counting, grouping, the seen-hash, canonical keys, a difference array</td></tr>
+  <tr><td>5</td><td>two-pointers</td><td>5</td><td>Closing in from both ends on sorted data</td></tr>
+  <tr><td>6</td><td>sliding-window</td><td>6</td><td>Contiguous runs: grow right, shrink left; the monotonic deque</td></tr>
+  <tr><td>7</td><td>stacks</td><td>6</td><td>Matching, evaluation, the monotonic stack, a min stack</td></tr>
+  <tr><td>8</td><td>binary-search</td><td>4</td><td>Rotated arrays, peaks, binary search on the answer</td></tr>
+  <tr><td>9</td><td>linked-lists</td><td>4</td><td>Rewiring pointers: reverse, merge, two pointers apart, reorder</td></tr>
+  <tr><td>10</td><td>trees</td><td>5</td><td>Depth-first and breadth-first, carrying a range, rebuilding from traversals</td></tr>
+  <tr><td>11</td><td>graphs</td><td>7</td><td>Flood fill, topological sort, cloning, Dijkstra, BFS over words</td></tr>
+  <tr><td>12</td><td>backtracking</td><td>5</td><td>Choose, recurse, undo: subsets, combinations, permutations, a word on a grid, k equal parts</td></tr>
+  <tr><td>13</td><td>dynamic-programming</td><td>8</td><td>Coins, increasing subsequences, edit distance, robbing houses, paths, knapsack</td></tr>
+  <tr><td>14</td><td>intervals</td><td>5</td><td>Sort by start and sweep; earliest end first; rooms by two sorted lists</td></tr>
+  <tr><td>15</td><td>heaps</td><td>4</td><td>Top k, k closest, scheduling, the running median: a heap written by hand (core Perl has none)</td></tr>
+  <tr><td>16</td><td>pro</td><td>6</td><td>Helpers that survive a changed requirement, and three find-the-bug fixes</td></tr>
+</table>
+<p>Each problem is a directory, <code>drills/NN-SECTION/ID/</code>: <code>statement.txt</code> (a header with the LeetCode pointer,
+the pattern, the timebox, the kind and the call, then the contract and examples), <code>tests.pl</code> (the cases, the sample
+first), <code>solution.pl</code> (the reference: its comment block gives the pattern, why it works, the time and space complexity,
+the edge cases and the Perl idioms) and <code>stub.pl</code>. A new problem is a new directory in the same format: write the tests
+before the solution, then <code>drill test ID --ref</code>.</p>
+
+<h2>The phased drill</h2>
+<p>One 60-minute problem that changes four times. It trains the hardest habit: absorbing a changed requirement with a refactor
+instead of a rewrite. Narrate the whole hour; read a phase only when the previous one passes.</p>
+<table>
+  <tr><th>Clock</th><th>Phase</th><th>What you are doing</th></tr>
+  <tr><td>0-5</td><td>Ask</td><td>Five questions, restate the problem, write assumptions as comments. No code.</td></tr>
+  <tr><td>5-10</td><td>Declare</td><td>The approach and its complexity, the function names, two tests.</td></tr>
+  <tr><td>10-25</td><td>Phase 1</td><td>Make it work, brute force allowed.</td></tr>
+  <tr><td>25-40</td><td>Phases 2 and 3</td><td>The requirements change: refactor, re-test after each edit. Say "that changes X, so I touch Y" before typing.</td></tr>
+  <tr><td>40-55</td><td>Phase 4</td><td>Edge and unsolvable cases. State the contract for "no answer".</td></tr>
+  <tr><td>55-60</td><td>Close</td><td>More time, more tests, where it breaks at scale.</td></tr>
+</table>
+<pre><code>drill phased                     # the plan and the scenarios
+drill phased 1                   # phase 1's card; writes WORKSPACE/phased-sensors.pl (a solve sub), starts the clock
+drill phased test 1              # correct and wrong pairs, unpaired counts, PASS or not yet; then phased 2 ...
+drill phased solution            # the reference and what to say out loud, after an attempt
+drill phased 1 --scenario payments    # the second run: orders and payments, same shape, fresh head
+DRILL_SEED=99 drill phased test 2     # fresh sensor data</code></pre>
+<p>Commit after each phase: <code>git diff --stat</code> between phases should show edited functions, not a rewritten file.
+Phase 1 clean, narrated and preceded by questions is the bar; phases 1 to 3 is strong; reaching phase 4 is excellent.
+Write code that survives the changes: small named helpers (<code>close_enough</code>, <code>validate</code>, <code>pair</code>),
+the tolerances as named arguments with defaults (<code>solve(\@a, \@b, t_tol =&gt; 0.75)</code>), validation apart from solving,
+and a hash ref as the result (<code>{ pairs, unpaired_a, unpaired_b, ok, reason }</code>) so "also report the leftovers" needs
+no new signature.</p>
+
+<h2>The Vim trainer</h2>
+<p>The vanishing-cues memory game over the reference solutions. <code>:DrillTrain</code> opens it at the highest level you have
+unlocked. A card shows the first line of a solution, for example <code>sub two_sum {</code>, and you type the rest under the marker
+line. Each card is five reps: the first shows the whole solution to copy, each later one blanks out more of its words, the last
+shows nothing. Only the blind rep counts.</p>
+<ul>
+  <li>Check with <code>\dc</code> (or <code>Ctrl-G Ctrl-G</code> in insert mode). Right: straight on. Wrong: the solution appears
+      under your answer; <code>Space</code> retries the rep.</li>
+  <li><code>\dg</code> gives up: the solution is shown, and on the blind rep it is a miss.</li>
+  <li>A level is cleared only when every card's blind rep was right first try. That unlocks the next level; the progress is in
+      <code>WORKSPACE/trainer.txt</code>.</li>
+  <li>Comments, blank lines, spacing and indentation are ignored; the code must match.</li>
+  <li><code>:DrillLevel N</code> (<code>\dl</code>) replays any unlocked level, <code>\dr</code> replays this one, <code>\dq</code> quits,
+      <code>:DrillReset</code> forgets the progress.</li>
+  <li>Settings: <code>let g:drills_fade_steps = 3</code> for shorter cycles, <code>g:drills_work</code> for another workspace.</li>
+</ul>
+<p>The same plugin carries the ladder keys: <code>\do</code> jumps between a statement and your file (making it, and starting the
+clock, the first time), <code>\dt</code> tests the problem in the buffer, <code>\da</code> checks everything you have. Results
+open in a split.</p>
+
+<h2>The drill log</h2>
+<p><code>WORKSPACE/log.txt</code>, append-only plain text, one line per problem:</p>
+<pre><code># drill log: date | problem | minutes | passed | notes
+2026-10-12 | p11-most-common-char | 6 | pass | tie-break sort key said aloud first
+2026-10-12 | p13-transpose | 9 | fail | parse the header before the rows</code></pre>
+<p><code>drill log ID "note"</code> fills in the minutes since <code>start</code> and the last test's result. After each session,
+<code>drill log --session N</code> appends the binder's form to fill in with <code>vim + log.txt</code>: done, the slowest or
+weakest thing, the lookups you needed, the narration check, the questions check, and one thing to redo. Sessions 4 and 6 read it;
+<code>drill next</code> reads the attempts and puts a failed problem first.</p>
+
+<h2>The Perl toolbelt</h2>
+<p><code>drills/toolbelt.pl</code> is the binder's toolbelt as a runnable file: every idiom with a check. Retype it from memory
+until one pass needs no lookups. The core of it:</p>
+<pre><code>use strict; use warnings;
+use List::Util qw(sum max min first reduce);   # sum0 and uniq are newer than some Perls: write them by hand
+chomp(my @lines = &lt;STDIN&gt;);                  # every line, newline removed
+my ($n, $t) = split ' ', $lines[0];           # split ' ' trims and collapses blanks; split / / does not
+my %count; $count{$_}++ for @x;               # count
+my @top = sort { $count{$b} &lt;=&gt; $count{$a} or $a cmp $b } keys %count;   # by count down, then name up
+my %seen; my @dedup = grep { !$seen{$_}++ } @x;   # first occurrences, in order
+push @{ $group{$k} }, $v;                     # group into a hash of arrays
+my @q = ($start); while (@q) { my $c = shift @q; ... push @q, $next }   # a queue (BFS)
+printf "%.1f\n", $median;                     # fixed decimals: 5 prints 5.0
+sub heap_push { ... } sub heap_pop { ... }    # no heap in core Perl: ten lines each, store -x for a max-heap</code></pre>
+<table>
+  <tr><th>Operation</th><th>Cost</th><th>Say</th></tr>
+  <tr><td>Hash lookup or insert</td><td>O(1) average</td><td>a hash of seen keys replaces a search in a loop</td></tr>
+  <tr><td>Sort</td><td>O(n log n)</td><td>Perl's sort is a merge sort; give a tie-break anyway</td></tr>
+  <tr><td>Binary search</td><td>O(log n)</td><td>by hand, lo and hi, carefully</td></tr>
+  <tr><td>Heap push or pop</td><td>O(log n)</td><td>written by hand</td></tr>
+  <tr><td>grep on a list inside a loop</td><td>O(n<sup>2</sup>) total</td><td>the accidental quadratic</td></tr>
+  <tr><td>BFS or DFS</td><td>O(V + E)</td><td>a grid has R times C cells</td></tr>
+  <tr><td>Memoized recursion</td><td>states times work per state</td><td>coins: amount times coins</td></tr>
+</table>
+<p>Rule of thumb: n up to about 10<sup>4</sup> allows O(n<sup>2</sup>); n up to about 10<sup>6</sup> needs O(n log n) or better.
+Patterns and the words that trigger them: sort then greedy (arrange, pair up, minimize); a hash map (by category, duplicates,
+most common); two pointers (pair sum, merge, within tolerance); intervals (overlap, schedule); a heap (k largest, running median);
+a sliding window (contiguous, longest run, at most k); BFS (shortest path, reachable); memoized DP (count ways, can it be done);
+a stack (balanced, nested); a state machine over a stream (per client, rate, sessions).</p>
+
+<h2>Where the problems come from</h2>
+<p>The ladder is the binder chapter's, with its tests. The technique sections port a personal set of interview solutions
+grouped by technique, plus self-checking lessons and warm-up exercises written earlier in Python; all of them are rewritten here in
+Perl, with new statements, tests and notes. Problem statements are the kit's own words: a LeetCode number and title appear only
+as a pointer to the well-known problem a drill resembles, never its text.</p>
+
+</body>
+</html>

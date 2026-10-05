@@ -1,0 +1,15 @@
+Title: Sign
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: conditionals
+Timebox: 2
+Kind: function
+Call: sign($x) -> -1 | 0 | 1
+
+Return -1 for a negative number, 0 for zero and 1 for a positive number.
+Decimals count too.
+
+Examples
+  sign(-7)    ->  -1
+  sign(0)     ->  0
+  sign(-0.5)  ->  -1

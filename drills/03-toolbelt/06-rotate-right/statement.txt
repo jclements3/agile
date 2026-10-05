@@ -1,0 +1,15 @@
+Title: Rotate right
+LeetCode: 189. Rotate Array (similar; return a new list here)
+Origin: lessons
+Pattern: modulo, then two slices
+Timebox: 4
+Kind: function
+Call: rotate_right(\@xs, $k) -> [ ... ]
+
+Return the list rotated k places to the right: the last k elements move to
+the front. k >= 0 and may be larger than the list. Do not change the input.
+
+Examples
+  rotate_right([1, 2, 3, 4, 5], 2)  ->  [4, 5, 1, 2, 3]
+  rotate_right([1, 2, 3], 5)        ->  [2, 3, 1]
+  rotate_right([], 3)               ->  []

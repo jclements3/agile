@@ -1,0 +1,14 @@
+Title: Pong
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: output reflex
+Timebox: 2
+Kind: stdio
+
+There is no input. Print the word pong on its own line.
+
+The point is to prove the editor, the file name and the test runner work
+end to end before any real problem.
+
+Example
+  (no input)  ->  pong

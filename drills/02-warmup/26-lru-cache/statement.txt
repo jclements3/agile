@@ -1,0 +1,15 @@
+Title: LRU cache
+LeetCode: 146. LRU Cache (a pointer only: the statement below is this kit's own)
+Origin: warmup
+Pattern: hash plus a recency order
+Timebox: 15
+Kind: class
+Call: LRU->new($capacity); $c->put($key, $value); $c->get($key) -> value | undef
+
+A cache holding at most $capacity keys. get returns the value or undef.
+When a put would exceed the capacity, the least recently used key is
+evicted first. Both get (of a present key) and put count as a use.
+
+Example
+  new(2); put a 1; put b 2; get a -> 1; put c 3 (evicts b);
+  get b -> undef; get c -> 3; get a -> 1

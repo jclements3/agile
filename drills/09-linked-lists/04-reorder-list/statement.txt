@@ -1,0 +1,15 @@
+Title: Reorder a list, first-last-second-...
+LeetCode: 143. Reorder List (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: find the middle, reverse the back half, zip
+Timebox: 20
+Kind: function
+Call: reorder_list($head) -> $head
+
+Relink the nodes of L0 -> L1 -> ... -> Ln into L0 -> Ln -> L1 -> Ln-1 -> ...
+in place (move nodes, do not change values) and return the head. Lists of
+zero, one or two nodes are unchanged.
+
+Examples
+  reorder_list(1 -> 2 -> 3 -> 4)       ->  1 -> 4 -> 2 -> 3
+  reorder_list(1 -> 2 -> 3 -> 4 -> 5)  ->  1 -> 5 -> 2 -> 4 -> 3

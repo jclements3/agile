@@ -1,0 +1,15 @@
+Title: Most common character
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: hash counting with a two-level sort key
+Timebox: 5
+Kind: stdio
+
+Input: one non-empty line of lowercase letters.
+Output: the most frequent letter and its count, "c n". On a tie for the
+highest count, choose the letter that comes first in the alphabet.
+
+Examples
+  mississippi  ->  i 4
+  baab         ->  a 2
+  qrs          ->  q 1

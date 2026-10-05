@@ -1,0 +1,13 @@
+Title: Apply twice
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: functions as values
+Timebox: 2
+Kind: function
+Call: apply_twice($code_ref, $x) -> f(f(x))
+
+Given a code reference f and a value x, return f(f(x)).
+
+Examples
+  apply_twice(sub { $_[0] + 3 }, 10)    ->  16
+  apply_twice(sub { $_[0] . "!" }, "go") ->  "go!!"

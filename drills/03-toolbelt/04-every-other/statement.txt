@@ -1,0 +1,13 @@
+Title: Every other element
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: stepped index list
+Timebox: 2
+Kind: function
+Call: every_other(\@xs) -> [ ... ]
+
+Return the elements at positions 0, 2, 4, ... in order.
+
+Examples
+  every_other([1, 2, 3, 4, 5])  ->  [1, 3, 5]
+  every_other([])               ->  []

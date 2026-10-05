@@ -1,0 +1,2 @@
+Title: Dynamic programming
+Name the state, write the recurrence, fill the table from the base cases up (or memoize the recursion).

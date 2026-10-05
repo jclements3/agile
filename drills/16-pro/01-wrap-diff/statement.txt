@@ -1,0 +1,16 @@
+Title: Bearing difference on a circle
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: modular arithmetic: the shorter way round
+Timebox: 5
+Kind: function
+Call: wrap_diff($a, $b) -> $degrees
+
+Return the angle between two bearings in degrees, the shorter way round the
+360-degree circle: always between 0 and 180. Bearings may be decimals and
+may be outside 0..360.
+
+Examples
+  wrap_diff(350, 10)  ->  20
+  wrap_diff(180, 0)   ->  180
+  wrap_diff(0.5, 359) ->  1.5

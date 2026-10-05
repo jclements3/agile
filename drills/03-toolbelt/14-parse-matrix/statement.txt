@@ -1,0 +1,14 @@
+Title: Parse a matrix
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: input shape: R C, then R rows
+Timebox: 4
+Kind: function
+Call: parse_matrix($text) -> [ [row], [row], ... ]
+
+The first line of the text is "R C"; the next R lines hold C integers each.
+Return the matrix as a list of rows.
+
+Examples
+  parse_matrix("2 2\n1 2\n3 4")  ->  [[1, 2], [3, 4]]
+  parse_matrix("1 3\n9 8 7")     ->  [[9, 8, 7]]

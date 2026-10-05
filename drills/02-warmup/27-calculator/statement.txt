@@ -1,0 +1,20 @@
+Title: The calculator
+LeetCode: 227. Basic Calculator II (similar; parentheses, no division here)
+Origin: warmup
+Pattern: recursive descent parsing
+Timebox: 25
+Kind: function
+Call: evaluate($expr) -> $value
+
+Evaluate an integer expression with +, -, * and parentheses, spaces allowed
+anywhere. * binds tighter than + and -; operators of equal strength go left
+to right. No unary minus, no division. Say the grammar before coding:
+
+  expression := term (('+' | '-') term)*
+  term       := factor ('*' factor)*
+  factor     := NUMBER | '(' expression ')'
+
+Examples
+  evaluate("2*(3+4)-5")  ->  9
+  evaluate("10-2-3")     ->  5
+  evaluate(" 12 * 2 ")   ->  24

@@ -1,0 +1,14 @@
+Title: Latest line per key
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: keep the best record per key
+Timebox: 15
+Kind: stdio
+
+Input: lines "YYYY-MM-DD ID status", in any order.
+Output: for every ID, its most recent line (the latest date; on equal dates
+the line that came later in the input), sorted by ID.
+
+Examples
+  2026-02-01 K-1 open / 2026-03-01 K-1 shut   ->  2026-03-01 K-1 shut
+  2026-01-01 Z a / 2026-01-01 Z b             ->  2026-01-01 Z b

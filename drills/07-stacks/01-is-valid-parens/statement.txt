@@ -1,0 +1,16 @@
+Title: Balanced brackets
+LeetCode: 20. Valid Parentheses (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: stack of open brackets
+Timebox: 5
+Kind: function
+Call: is_valid_parens($s) -> 1 or 0
+
+$s holds only the characters ( ) [ ] { }. Return true when every closer
+matches the most recent unclosed opener of the same kind and nothing is left
+open at the end. The empty string is balanced.
+
+Examples
+  is_valid_parens('{[()]}')  ->  1
+  is_valid_parens('(]')      ->  0
+  is_valid_parens('((')      ->  0

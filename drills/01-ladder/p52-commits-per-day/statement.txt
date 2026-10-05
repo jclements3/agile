@@ -1,0 +1,14 @@
+Title: Commits per day
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: count by key, sort keys
+Timebox: 15
+Kind: stdio
+
+Input: git log lines in the form "YYYY-MM-DD message" (the output of
+git log --format='%ad %s' --date=short), newest first or in any order.
+Output: "date count" for every date, oldest first. Empty input prints
+nothing.
+
+Example
+  2026-01-02 fix / 2026-01-01 init / 2026-01-02 docs  ->  2026-01-01 1 / 2026-01-02 2

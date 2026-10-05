@@ -1,0 +1,16 @@
+Title: Longest run after k replacements
+LeetCode: 424. Longest Repeating Character Replacement (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: sliding window, length minus the top count
+Timebox: 20
+Kind: function
+Call: longest_after_replacements($s, $k) -> $length
+
+You may change at most $k characters of $s (uppercase letters) into any other
+letter. Return the length of the longest run of one repeated letter you can
+make.
+
+Examples
+  longest_after_replacements('ABAB', 2)     ->  4
+  longest_after_replacements('AABABBA', 1)  ->  4
+  longest_after_replacements('', 3)         ->  0

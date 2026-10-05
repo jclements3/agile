@@ -1,0 +1,15 @@
+Title: Run-length encode
+LeetCode: 443. String Compression (similar; every run gets a count here)
+Origin: warmup
+Pattern: grouping runs
+Timebox: 5
+Kind: function
+Call: rle_encode($s) -> $encoded
+
+Replace each run of a repeated character by the character and the run's
+length. Every run gets its count, even a run of one.
+
+Examples
+  rle_encode("aaabbc")  ->  "a3b2c1"
+  rle_encode("abc")     ->  "a1b1c1"
+  rle_encode("")        ->  ""

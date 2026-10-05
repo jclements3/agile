@@ -1,0 +1,15 @@
+Title: Second largest
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: distinct values, then a scan
+Timebox: 3
+Kind: function
+Call: second_largest(\@xs) -> $value
+
+Return the second largest DISTINCT value in the list: copies of the maximum
+do not count as second place. The list holds at least two distinct values.
+
+Examples
+  second_largest([1, 5, 3])     ->  3
+  second_largest([5, 1, 5, 3])  ->  3
+  second_largest([-1, -5, -3])  ->  -3

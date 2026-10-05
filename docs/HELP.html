@@ -52,6 +52,7 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-howto-bad-compile">Recover from a bad compile</a></li>
 <li><a href="#t-agile-howto-backup">Back up and commit the project data</a></li>
 <li><a href="#t-agile-howto-help">Find help when something is unclear</a></li>
+<li><a href="#t-agile-howto-practice-coding">Practise coding for an interview</a></li>
 </ul></div>
 <h2 id="start-reference">Reference</h2>
 <div class=cols><ul>
@@ -70,10 +71,11 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-kit">13. THE KIT ITSELF: TESTS, RELEASE, PIPELINE</a></li>
 <li><a href="#t-agile-sim">14. SIMULATIONS, TRAINING AND PRACTICE PROJECTS</a></li>
 <li><a href="#t-agile-mbse">15. MODEL-BASED TOOLS (SYSML, STATUS METRICS)</a><ul><li><a href="#t-agile-vim-sysml">SysML in Vim</a></li></ul></li>
-<li><a href="#t-agile-practice">16. PRACTICE LESSONS</a><ul><li><a href="#t-agile-practice-1">Lesson 1: the first stand-up file and compile</a></li><li><a href="#t-agile-practice-2">Lesson 2: carry, block and unblock</a></li><li><a href="#t-agile-practice-3">Lesson 3: close the sprint and report</a></li><li><a href="#t-agile-practice-4">Lesson 4: the townhall chat lint</a></li><li><a href="#t-agile-practice-5">Lesson 5: the memory drill</a></li><li><a href="#t-agile-practice-6">Lesson 6: IDEF0 lint, fix, plates</a></li><li><a href="#t-agile-practice-7">Lesson 7: a status memo</a></li><li><a href="#t-agile-practice-8">Lesson 8: port a segment to SysML v2</a></li></ul></li>
+<li><a href="#t-agile-practice">16. PRACTICE LESSONS</a><ul><li><a href="#t-agile-practice-1">Lesson 1: the first stand-up file and compile</a></li><li><a href="#t-agile-practice-2">Lesson 2: carry, block and unblock</a></li><li><a href="#t-agile-practice-3">Lesson 3: close the sprint and report</a></li><li><a href="#t-agile-practice-4">Lesson 4: the townhall chat lint</a></li><li><a href="#t-agile-practice-5">Lesson 5: the memory drill</a></li><li><a href="#t-agile-practice-6">Lesson 6: IDEF0 lint, fix, plates</a></li><li><a href="#t-agile-practice-7">Lesson 7: a status memo</a></li><li><a href="#t-agile-practice-8">Lesson 8: port a segment to SysML v2</a></li><li><a href="#t-agile-practice-9">Lesson 9: a coding drill, start to log</a></li></ul></li>
 <li><a href="#t-agile-vim-basics">17. VIM BASICS</a></li>
 <li><a href="#t-agile-trouble">18. TROUBLESHOOTING</a></li>
 <li><a href="#t-agile-quickref">19. QUICK REFERENCE</a></li>
+<li><a href="#t-agile-drills">20. CODING DRILLS</a><ul><li><a href="#t-agile-drills-commands">The commands</a></li><li><a href="#t-agile-drills-files">The files</a></li><li><a href="#t-agile-drills-trainer">The Vim trainer</a></li></ul></li>
 </ul></div>
 <h2 id="start-trouble">Troubleshooting</h2>
 <p>Paste the message: <code>perl agile.pl help error "cannot write reports/x.html: Permission denied"</code>, or find it below.</p>
@@ -148,7 +150,14 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-err-sysml-usage">usage: perl tools/sysml/sysml.pl check FILE... / model.pl: no model/ directory</a></li>
 <li><a href="#t-agile-err-model-new-rename">new: NAME must be a PascalCase identifier / rename: 'X' already exists</a></li>
 <li><a href="#t-agile-err-model-config">idef0: no calc def or action def named 'X' (verb_root in sysml.conf)</a></li>
-<li><a href="#t-agile-err-internal">9. INTERNAL INVARIANTS</a></li>
+<li><a href="#t-agile-errors-drills">9. CODING DRILLS</a></li>
+<li><a href="#t-agile-err-drill-no-problem">drill: no problem matches 'X'</a></li>
+<li><a href="#t-agile-err-drill-no-file">drill: no file FILE (perl drills/drill.pl start ID first)</a></li>
+<li><a href="#t-agile-err-drill-no-attempt">drill: no attempt recorded for ID yet</a></li>
+<li><a href="#t-agile-err-drill-usage">drill: usage: drill.pl COMMAND ...</a></li>
+<li><a href="#t-agile-err-drill-phased">drill: phased: no scenario 'X' / no phase N</a></li>
+<li><a href="#t-agile-err-drill-tests">your file does not load / timeout after 5s / exit(N) called</a></li>
+<li><a href="#t-agile-err-internal">10. INTERNAL INVARIANTS</a></li>
 </ul></div>
 <hr>
 <h2 id="t-agile-howto">1. HOW DO I...? <span class=tag>agile-howto</span></h2>
@@ -167,7 +176,8 @@ Publish the reports and the status mail         <a href="#t-agile-howto-publish"
 Track funding and earned value                  <a href="#t-agile-howto-funding">agile-howto-funding</a>
 Recover from a bad compile                      <a href="#t-agile-howto-bad-compile">agile-howto-bad-compile</a>
 Back up and commit the project data             <a href="#t-agile-howto-backup">agile-howto-backup</a>
-Find help when something is unclear             <a href="#t-agile-howto-help">agile-howto-help</a></pre>
+Find help when something is unclear             <a href="#t-agile-howto-help">agile-howto-help</a>
+Practise coding for an interview                <a href="#t-agile-howto-practice-coding">agile-howto-practice-coding</a></pre>
 <h3 id="t-agile-howto-first-day">First day after cloning the kit <span class=tag>agile-howto-first-day</span></h3>
 <p>You need Git for Windows (Git Bash, its Perl and its Vim). Nothing else.</p>
 <p>1. Get the kit. From a clone:</p>
@@ -425,6 +435,21 @@ daily.pl help lint</pre>
 <p>3. An error: copy the message and paste it:</p>
 <pre class=ex>perl agile.pl help error &quot;standups/2026-10-05.txt:7: unknown verb 'don'&quot;</pre>
 <p>4. The worked example: docs/TRAINING.html replays a whole sprint. You are done when: you found the section; if nothing matched, the words you searched for are worth a note in the help source (vim/doc/agile.txt).</p>
+<h3 id="t-agile-howto-practice-coding">Practise coding for an interview <span class=tag>agile-howto-practice-coding</span></h3>
+<p>One session (30 to 60 minutes), from Git Bash in the kit, all offline. The full plan for the first 90 days is docs/DRILLS.html; the commands are in <a href="#t-agile-drills">agile-drills</a>.</p>
+<p>1. Ask what is next:</p>
+<pre class=ex>perl drills/drill.pl next</pre>
+<p>It names one problem (the first unsolved ladder rung, a failed one to finish, a phased drill, or the weakest section) and why.</p>
+<p>2. Read it, ask the eight questions, start the clock:</p>
+<pre class=ex>perl drills/drill.pl start p12-dedup</pre>
+<p>Your file is ~/drills-work/p12-dedup.pl. Write the assumptions as comments first; say the pattern, the complexity and one edge case aloud.</p>
+<p>3. Edit and test, again and again (in Vim: \do opens your file, \dt tests):</p>
+<pre class=ex>vim ~/drills-work/p12-dedup.pl
+perl drills/drill.pl test p12-dedup</pre>
+<p>4. Log it before you stop (minutes and the result are filled in):</p>
+<pre class=ex>perl drills/drill.pl log p12-dedup &quot;hash of seen tokens; forgot //=&quot;</pre>
+<p>5. Only after an honest attempt, compare: perl drills/drill.pl solution p12-dedup.</p>
+<p>6. Five minutes of recall in Vim: :DrillTrain (<a href="#t-agile-drills-trainer">agile-drills-trainer</a>). You are done when: drill.pl test passes, the log has the line, and you could say the pattern and its complexity without the page.</p>
 <hr>
 <h2 id="t-agile-start">2. GETTING STARTED <span class=tag>agile-start</span></h2>
 <p>The kit is plain text and core Perl: the journal is a ledger file you edit in Vim, and Perl compiles and reports it. Nothing is installed and nothing needs the network. docs/README.html is the overview, docs/WORKFLOW.html the operating model, docs/TUTORIAL.html the editing walkthrough, and docs/TRAINING.html a replay of one whole sprint.</p>
@@ -1233,6 +1258,13 @@ perl KIT/tools/idef0/idef0.pl text model/*.txt &gt; plates.txt</pre>
 <p>3. perl KIT/tools/sysml/sysml.pl check model/*/*.sysml (or \mx in Vim).</p>
 <p>4. Work the TODO lines: :vimgrep #// TODO# model/**/*.sysml. For each one either model the element by hand or keep the line and mark it reviewed by changing &quot;// TODO&quot; to &quot;// TODO(reviewed)&quot;. Write in NOTES.txt one line, &quot;TODO: N&quot;, N being the number of TODO lines left (count lines, not the report's figure: :vimgrep shows them).</p>
 <p>5. git add model NOTES.txt, git commit -m &quot;port: legacy.xmi&quot;. Check: .sysml files under model/, sysml.pl check passes, every TODO line is fixed or marked TODO(reviewed), NOTES.txt says how many are left (and the number is right), and the work is committed.</p>
+<h3 id="t-agile-practice-9">Lesson 9: a coding drill, start to log <span class=tag>agile-practice-9</span></h3>
+<p>Sandbox: an empty drills workspace (the sandbox directory itself; give it to drill.pl with --dir, as the lesson prints). Task (<a href="#t-agile-howto-practice-coding">agile-howto-practice-coding</a>):</p>
+<p>1. perl KIT/drills/drill.pl show p12-dedup --dir SANDBOX: read it twice.</p>
+<p>2. perl KIT/drills/drill.pl start p12-dedup --dir SANDBOX</p>
+<p>3. Write the solution in SANDBOX/p12-dedup.pl (vim; a hash of seen tokens).</p>
+<p>4. perl KIT/drills/drill.pl test p12-dedup --dir SANDBOX until it passes.</p>
+<p>5. perl KIT/drills/drill.pl log p12-dedup --dir SANDBOX &quot;what was slow&quot; Check: p12-dedup was started, the file is no longer the stub, a passing test is recorded, and the drill log has p12-dedup as passed.</p>
 <hr>
 <h2 id="t-agile-vim-basics">17. VIM BASICS <span class=tag>agile-vim-basics</span></h2>
 <p>The Vim that ships with Git for Windows is all you need. docs/VIM-CHEATSHEET.html is the one-page sheet (modes, moving, editing, search, windows, clipboard, folds, quickfix) next to the kit's own keys; vimtutor in Git Bash is a 30-minute lesson; :help is Vim's own manual. The few that matter most:</p>
@@ -1271,9 +1303,93 @@ Mail            daily.pl check | draft | brief | cards --draft
 Cockpit         perl agile.pl PROJECT
 Help            perl agile.pl help TOPIC | search WORDS | error &quot;MESSAGE&quot;
 Practice        perl agile.pl practice N | practice check N
+Drills          perl drills/drill.pl next | start ID | test ID | log ID NOTE
+                Vim: :DrillTrain (the memory trainer)  \do  \dt
 Ledger          perl bin/ledger.pl -f FILE bal | reg | budget | evm | forecast
 IDEF0           perl tools/idef0/idef0.pl lint | html | text FILE...
 Memo            perl tools/memo/md2memo.pl memo.md &gt; memo.pdf</pre>
+<hr>
+<h2 id="t-agile-drills">20. CODING DRILLS <span class=tag>agile-drills</span></h2>
+<p>Interview-style coding practice in core Perl, offline, with nothing but Git for Windows: a ladder of 29 problems from trivial to hard (the binder's &quot;Coding drills&quot; chapter), about 130 more in technique sections (hashing, two pointers, sliding window, stacks, binary search, linked lists, trees, graphs, backtracking, dynamic programming, intervals, heaps), a four-phase drill in which the requirements change, the drill log, the refresher plan, and a Vim</p>
+<p>memory trainer. docs/DRILLS.html is the 90-day guide.</p>
+<pre class=ex>perl drills/drill.pl next              what to do next, and why
+perl drills/drill.pl start ID          your file from the stub, clock on
+perl drills/drill.pl test ID           pass/fail per case, minutes so far
+perl drills/drill.pl log ID NOTE       one line in the drill log</pre>
+<p>Your files, the log and the trainer's progress live in the workspace: ~/drills-work, or $DRILLS_WORK, or --dir DIR on any command. drill.pl never writes inside the kit. An ID can be shortened while it stays unique: p12 for p12-dedup, two-sum. Statements are written for this kit; a LeetCode line in each names the classic problem it resembles, as a pointer only.</p>
+<h3 id="t-agile-drills-commands">The commands <span class=tag>agile-drills-commands</span></h3>
+<h4 id="t-agile-drills-help">drill.pl help [COMMAND] <span class=tag>agile-drills-help</span></h4>
+<p>perl drills/drill.pl help, drill.pl --help This chapter, or one command's section.</p>
+<h4 id="t-agile-drills-list">drill.pl list [SECTION] <span class=tag>agile-drills-list</span></h4>
+<p>Every problem by section (a section is also a trainer level): its id, the pattern, the timebox in minutes and your status (-, started, failed, passed). SECTION is a name (ladder, graphs), a prefix or a level number.</p>
+<h4 id="t-agile-drills-show">drill.pl show ID <span class=tag>agile-drills-show</span></h4>
+<p>Print a problem's statement: the contract, the input and output, the edge cases worth asking about, the examples.</p>
+<h4 id="t-agile-drills-start">drill.pl start ID [--fresh] <span class=tag>agile-drills-start</span></h4>
+<p>Copy the problem's stub (the signature and an empty body) to the workspace as ID.pl, record the start time, print the statement. An existing file is kept; --fresh moves it to old/ and starts again from the stub (the binder's &quot;solve it again cold&quot;).</p>
+<h4 id="t-agile-drills-test">drill.pl test ID [FILE] [--ref] <span class=tag>agile-drills-test</span></h4>
+<p>Run the problem's tests against your file (default: the workspace's ID.pl): pass or FAIL per case with the expected and actual values, the run time and the minutes since start against the timebox. Exit 0 when every case passes. Each case has a time limit (5 s); a die, an exit or an endless loop in your code fails that case, nothing more. --ref tests the reference solution. Function problems are called directly (your file defines the named sub); stdin problems run as a script with the case on stdin, and the output is compared ignoring trailing blanks, as the binder's check.sh does.</p>
+<h4 id="t-agile-drills-check">drill.pl check [SECTION | tN | ID-PREFIX] [--ref] <span class=tag>agile-drills-check</span></h4>
+<p>Test every file you have in the workspace (all of them, a section, a ladder tier such as t2, or ids starting with p2): one line each, then &quot;N passed, M failed, K not started&quot;. The binder's ./check.sh.</p>
+<h4 id="t-agile-drills-solution">drill.pl solution ID [--force] <span class=tag>agile-drills-solution</span></h4>
+<p>Print the reference solution with its notes: the pattern, why it works, the time and space complexity, the edge cases and the Perl idioms. Only after an attempt was recorded (start or test); --force overrides. The log counts every look (the &quot;peeked&quot; column of stats).</p>
+<h4 id="t-agile-drills-log">drill.pl log [ID [MINUTES] [pass|fail] [NOTES]] <span class=tag>agile-drills-log</span></h4>
+<p>drill.pl log --session N With no arguments, print the drill log. With an ID, append one line &quot;date | problem | minutes | passed | notes&quot; to log.txt in the workspace; MINUTES defaults to the time since start, pass/fail to the last test. --session N appends the binder's session form (done, slowest thing, lookups, narration check, questions check, one thing to redo) for you to fill in with Vim. The log is append-only plain text.</p>
+<h4 id="t-agile-drills-stats">drill.pl stats <span class=tag>agile-drills-stats</span></h4>
+<p>Per section: problems, started, passed, peeked, minutes logged; the weakest section you have started; the log's days.</p>
+<h4 id="t-agile-drills-next">drill.pl next <span class=tag>agile-drills-next</span></h4>
+<p>The refresher plan as one suggestion: a problem whose last test failed first; then the ladder in order (t0 and t1 in session 1, t2 in session 2, t3 in session 4, t4 in session 5) with the phased drill after t2 (session 3) and again after t4 (session 5); then the field drills (t5); then the weakest section; when everything passes, the problem passed longest ago, to re-solve cold (start --fresh).</p>
+<h4 id="t-agile-drills-phased">drill.pl phased [N | test N [FILE] | solution] [--scenario S] <span class=tag>agile-drills-phased</span></h4>
+<pre>*agile-drills-phased*</pre>
+<p>The four-phase drill: one problem whose requirements change three times in an hour. With no argument, the clock plan. phased 1 prints phase 1's card, starts the clock and writes phased-SCENARIO.pl (a solve sub to fill in); read phase N+1 only when phase N passes &quot;phased test N&quot;. phased solution is the reference, after an attempt. Scenarios: sensors (pair two sensor feeds) and payments (match orders to payments); a second run uses the other, or DRILL_SEED=99 for fresh sensor data.</p>
+<h3 id="t-agile-drills-files">The files <span class=tag>agile-drills-files</span></h3>
+<pre>drills/NN-SECTION/section.txt     the level's title and a line about it
+drills/NN-SECTION/ID/statement.txt   header lines (Title, LeetCode, Origin,
+                                  Pattern, Timebox, Kind, Call), then the
+                                  contract and examples
+drills/NN-SECTION/ID/tests.pl     the cases, the sample first
+drills/NN-SECTION/ID/solution.pl  the reference: a comment block, then code
+drills/NN-SECTION/ID/stub.pl      what start copies
+drills/phased/SCENARIO/           phase1.txt..phase4.txt, data.pl (the
+                                  checker), solution.pl, stub.pl
+drills/toolbelt.pl                the Perl toolbelt: idioms to retype from
+                                  memory, each proven
+WORKSPACE/ID.pl                   your solutions
+WORKSPACE/attempts.txt            start, test and solution events
+WORKSPACE/log.txt                 the drill log
+WORKSPACE/trainer.txt             the Vim trainer's highest unlocked level</pre>
+<p>Kinds: function (your file defines the sub named in Call), class (a package with new and the methods), stdio (a script: stdin in, stdout out). A new problem is a new directory in the same format, tests first.</p>
+<h3 id="t-agile-drills-trainer">The Vim trainer <span class=tag>agile-drills-trainer</span></h3>
+<p>The &quot;vanishing cues&quot; memory game over the reference solutions. Each section is a level and each solution a card. A card shows the first line of a solution (sub two_sum {) and you type the rest. Every card is a cycle of g:drills_fade_steps reps (default 5): rep 1 shows the whole solution to copy, each later rep blanks out more of its words, the last rep shows nothing. Only that blind rep counts. A wrong answer repeats the rep; giving up on a hinted rep fades it further. A level is cleared only when every card's blind rep was right first try, which unlocks the next level; the highest unlocked level is kept in WORKSPACE/trainer.txt. Comments, blank lines, spacing and indentation are ignored when checking; the code must match. Between cards: Space or Enter continues, l chooses a level, r replays, n starts again, q quits. Settings: g:drills_work (the workspace), g:drills_fade_steps, g:drills_shuffle (0 keeps the cards in order).</p>
+<h4 id="t-_3ADrillTrain">:DrillTrain [N] <span class=tag>:DrillTrain</span></h4>
+<p>Open the trainer at the highest unlocked level, or at level N.</p>
+<h4 id="t-_3ADrillLevel"><span id="t-_5Cdl"></span>:DrillLevel [N] <span class=tag>:DrillLevel \dl</span></h4>
+<pre>\dl                                                                      *\dl*</pre>
+<p>Choose any unlocked level (asks when N is not given).</p>
+<h4 id="t-_3ADrillAnswer"><span id="t-_5Cdc"></span>:DrillAnswer <span class=tag>:DrillAnswer \dc</span></h4>
+<pre>\dc                                                                      *\dc*</pre>
+<p>Check the answer typed under the marker line (in insert mode: CTRL-G CTRL-G). Right: straight on to the next rep or card. Wrong: the solution is shown under your answer.</p>
+<h4 id="t-_3ADrillGiveUp"><span id="t-_5Cdg"></span>:DrillGiveUp <span class=tag>:DrillGiveUp \dg</span></h4>
+<pre>\dg                                                                      *\dg*</pre>
+<p>Show the solution. On the blind rep it counts as a miss.</p>
+<h4 id="t-_3ADrillNext"><span id="t-_5Cdn"></span>:DrillNext <span class=tag>:DrillNext \dn</span></h4>
+<pre>\dn                                                                      *\dn*</pre>
+<p>After a miss or a level result: retry the rep, the next rep, the next card, the level result or the next level (Space and Enter do the same).</p>
+<h4 id="t-_5Cdr">\dr <span class=tag>\dr</span></h4>
+<p>Replay the current level from its first card.</p>
+<h4 id="t-_3ADrillQuit"><span id="t-_5Cdq"></span>:DrillQuit <span class=tag>:DrillQuit \dq</span></h4>
+<pre>\dq                                                                      *\dq*</pre>
+<p>Leave the trainer. Cleared levels are already saved.</p>
+<h4 id="t-_3ADrillReset">:DrillReset <span class=tag>:DrillReset</span></h4>
+<p>Forget all progress: only level 1 is unlocked again (asks first).</p>
+<h4 id="t-_3ADrillOpen"><span id="t-_5Cdo"></span>:DrillOpen <span class=tag>:DrillOpen \do</span></h4>
+<pre>\do                                                                      *\do*</pre>
+<p>Jump between a problem's statement (drills/.../statement.txt) and your file in the workspace. The first time, drill.pl start makes the file and starts the clock.</p>
+<h4 id="t-_3ADrillTest"><span id="t-_5Cdt"></span>:DrillTest <span class=tag>:DrillTest \dt</span></h4>
+<pre>\dt                                                                      *\dt*</pre>
+<p>Save and run drill.pl test on this problem; the result opens in a split.</p>
+<h4 id="t-_3ADrillTestAll"><span id="t-_5Cda"></span>:DrillTestAll [SECTION | tN] <span class=tag>:DrillTestAll \da</span></h4>
+<pre>\da                                                                      *\da*</pre>
+<p>drill.pl check: every file you have in the workspace, in a split.</p>
 <p>vim:tw=78:ts=8:ft=help:norl:</p>
 <hr>
 <h2 id="t-agile-errors">1. PROJECT AND FILES <span class=tag>agile-errors</span></h2>
@@ -1290,7 +1406,7 @@ Fix:     cd into the project first (the directory daily.pl init made, or
          No project yet: daily.pl init DIR (<a href="#t-agile-first-project">agile-first-project</a>).
          In Vim, :pwd shows where you are; :cd to the project.</pre>
 <h3 id="t-agile-err-cannot-write">cannot write FILE: REASON <span class=tag>agile-err-cannot-write</span></h3>
-<p>Pattern: cannot write *: * Pattern: cannot append *: * Pattern: cannot append to *: * Pattern: help: cannot write *: * Pattern: idef0: cannot write *: * Pattern: cannot write devsecops.html: *</p>
+<p>Pattern: cannot write *: * Pattern: cannot append *: * Pattern: cannot append to *: * Pattern: help: cannot write *: * Pattern: idef0: cannot write *: * Pattern: cannot write devsecops.html: * Pattern: drill: cannot write *: *</p>
 <pre>From:    daily.pl (report, review, rollup, csv, drill, propose, lint,
          answers, cards, init), agile.pl, scrum.pl, Roster.pm, Ai.pm,
          Attendance.pm, Calendar.pm, Standup.pm, idef0.pl fmt --write
@@ -1815,7 +1931,66 @@ Means:   sysml.conf's verb_root names no function in the model; backlog
 Fix:     Fix verb_root (and noun_root) in sysml.conf; give --agile=DIR or
          set AGILE_HOME to the kit; git init the model repository first.</pre>
 <hr>
-<h2 id="t-agile-err-internal">9. INTERNAL INVARIANTS <span class=tag>agile-err-internal</span></h2>
+<h2 id="t-agile-errors-drills">9. CODING DRILLS <span class=tag>agile-errors-drills</span></h2>
+<p>Messages from drills/drill.pl and the test runner (<a href="#t-agile-drills">agile-drills</a>). drill.pl prints the usage line for a missing argument; perl drills/drill.pl help COMMAND has the details.</p>
+<h3 id="t-agile-err-drill-no-problem">drill: no problem matches 'X' <span class=tag>agile-err-drill-no-problem</span></h3>
+<p>Pattern: drill: no problem matches '*' Pattern: drill: '*' matches several problems: * Pattern: drill: no section '*'</p>
+<pre>From:    drill.pl show, start, test, check, solution, log, list
+Means:   The id is not one of the problems under drills/, or a shortened
+         id fits more than one (p2 is every t2 rung), or the section name
+         is wrong.
+Fix:     perl drills/drill.pl list shows every id and section; type
+         enough of the id to be unique (p23, two-sum), or the whole id
+         from the list.</pre>
+<h3 id="t-agile-err-drill-no-file">drill: no file FILE (perl drills/drill.pl start ID first) <span class=tag>agile-err-drill-no-file</span></h3>
+<p>Pattern: drill: no file * (perl drills/drill.pl start * first) Pattern: drill: no file * (perl drills/drill.pl phased 1 first)</p>
+<pre>From:    drill.pl test, phased test
+Means:   There is no solution file of yours to test: the problem was not
+         started in this workspace, or the workspace is another one (the
+         default is ~/drills-work; --dir and $DRILLS_WORK change it).
+Fix:     perl drills/drill.pl start ID (or phased 1), or pass the file:
+         drill.pl test ID path/to/file.pl. Same --dir on every command.</pre>
+<h3 id="t-agile-err-drill-no-attempt">drill: no attempt recorded for ID yet <span class=tag>agile-err-drill-no-attempt</span></h3>
+<p>Pattern: drill: no attempt recorded for * yet: *</p>
+<pre>From:    drill.pl solution, phased solution
+Means:   The reference is shown only after an attempt: a start or a test
+         of that problem in this workspace. That keeps the binder's rule,
+         read a solution only after a timed attempt.
+Fix:     Start it and try (drill.pl start ID, drill.pl test ID). If you
+         really need it now: drill.pl solution ID --force (the look is
+         logged).</pre>
+<h3 id="t-agile-err-drill-usage">drill: usage: drill.pl COMMAND ... <span class=tag>agile-err-drill-usage</span></h3>
+<p>Pattern: drill: usage: * Pattern: drill: unknown command '*' (perl drills/drill.pl help) Pattern: drill: '*' is not a number of minutes * Pattern: drill: *</p>
+<pre>From:    drill.pl
+Means:   A command without its argument, a misspelt command, or a log
+         line whose minutes are not a whole number. A message starting
+         &quot;drill:&quot; that is not listed here comes from the same tool: it
+         names the problem.
+Fix:     perl drills/drill.pl help (the commands), drill.pl help COMMAND;
+         minutes are whole numbers: drill.pl log p12 14 pass &quot;note&quot;.</pre>
+<h3 id="t-agile-err-drill-phased">drill: phased: no scenario 'X' / no phase N <span class=tag>agile-err-drill-phased</span></h3>
+<p>Pattern: drill: phased: no scenario '*' (there are: *) Pattern: drill: phased: no scenarios under drills/phased/ Pattern: drill: phased: no phase *</p>
+<pre>From:    drill.pl phased
+Means:   The phase is not 1 to 4, the scenario name is not one under
+         drills/phased/ (sensors, payments), or that folder is missing
+         from this copy of the kit.
+Fix:     perl drills/drill.pl phased lists the plan and the scenarios;
+         phased 1, phased test 1, ... phased 4; --scenario payments.</pre>
+<h3 id="t-agile-err-drill-tests">your file does not load / timeout after 5s / exit(N) called <span class=tag>agile-err-drill-tests</span></h3>
+<p>Pattern: drill: cannot load tests *: * Pattern: your file does not load: * Pattern: timeout after *s Pattern: not run: an earlier case timed out Pattern: exit(*) called: return a value instead</p>
+<pre>From:    drill.pl test and check (the test runner in lib/Drills.pm)
+Means:   Your file has a syntax error or dies while loading (the line
+         number is in the message); a case ran past its time limit (an
+         endless loop: the rest of the cases are skipped); your function
+         called exit, which would end the whole run. &quot;cannot load tests&quot;
+         means the kit's own tests.pl is broken.
+Fix:     perl -c ~/drills-work/ID.pl shows the syntax error. Return the
+         answer from the function instead of printing it or calling
+         exit; stdin problems print and end normally. Check every loop
+         moves toward its end (lo/hi, a queue that empties). A broken
+         tests.pl: get a fresh copy of the kit.</pre>
+<hr>
+<h2 id="t-agile-err-internal">10. INTERNAL INVARIANTS <span class=tag>agile-err-internal</span></h2>
 <p>These messages mean a bug in the kit or a broken copy of it, not something you did. Note the command you ran and the message, and get a fresh copy of the kit (git status shows local changes; git checkout -- FILE restores one).</p>
 <p>Internal: : unknown function '*' Internal: : empty list Internal: range: zero step Internal: chunksOf: n must be &gt; 0 Internal: unwrap: *</p>
 <p>vim:tw=78:ts=8:ft=help:norl:</p>

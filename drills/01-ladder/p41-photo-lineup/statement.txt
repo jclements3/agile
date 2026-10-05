@@ -1,0 +1,18 @@
+Title: Two-row lineup
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: sort both, compare pairwise (exchange argument)
+Timebox: 25
+Kind: stdio
+
+Two groups of the same size n pose for a photo: group 1 in the back row,
+group 2 in the front row. In every column the back person must be strictly
+taller than the front person. Each row may be put in any order.
+
+Input: line 1 holds group 1's heights; line 2 holds group 2's.
+Output: YES, then the back row ascending, then the front row ascending, if
+some arrangement works; otherwise NO.
+
+Examples
+  7 4 / 3 6      ->  YES / 4 7 / 3 6
+  5 5 / 5 1      ->  NO

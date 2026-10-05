@@ -1,0 +1,13 @@
+Title: Running totals
+LeetCode: 1480. Running Sum of 1d Array (a pointer only: the statement below is this kit's own)
+Origin: lessons
+Pattern: prefix sums
+Timebox: 2
+Kind: function
+Call: running_totals(\@xs) -> [ ... ]
+
+Return the list of running sums: element i is the sum of xs[0] .. xs[i].
+
+Examples
+  running_totals([3, 1, 4])  ->  [3, 4, 8]
+  running_totals([])         ->  []

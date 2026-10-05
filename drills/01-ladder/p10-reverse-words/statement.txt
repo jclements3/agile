@@ -1,0 +1,15 @@
+Title: Reverse the words
+LeetCode: 151. Reverse Words in a String (similar; a pointer only: the statement below is this kit's own)
+Origin: ladder
+Pattern: split, reverse, join
+Timebox: 5
+Kind: stdio
+
+Input: one line with at least one word; words are separated by runs of
+blanks, and the line may start or end with blanks.
+Output: the words in reverse order, separated by single spaces.
+
+Examples
+  one two three        ->  three two one
+  "  up   down "       ->  down up
+  word                 ->  word

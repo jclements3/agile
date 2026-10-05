@@ -1,0 +1,15 @@
+Title: Day numbers
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: dates to day counts
+Timebox: 15
+Kind: stdio
+
+Input: line 1 is the date of day 1 (YYYY-MM-DD); every further line is a
+date.
+Output: for each further date, "Dn" where the day-1 date itself is D1, the
+next day D2, and so on; a date before day 1 prints "before".
+
+Examples
+  2026-03-01 / 2026-03-01 / 2026-03-31   ->  D1 / D31
+  2026-03-01 / 2026-02-28                ->  before

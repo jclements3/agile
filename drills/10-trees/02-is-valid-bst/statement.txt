@@ -1,0 +1,16 @@
+Title: Is it a binary search tree?
+LeetCode: 98. Validate Binary Search Tree (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: carry an open (lo, hi) range down
+Timebox: 10
+Kind: function
+Call: is_valid_bst($root) -> 1 | 0
+
+Return true when every node's value is strictly greater than all values in
+its left subtree and strictly less than all values in its right subtree.
+Checking only a node against its two children is not enough. The empty tree
+is valid.
+
+Examples
+  [2, 1, 3]                         ->  true
+  [5, 1, 6, undef, undef, 3, 7]     ->  false (3 is right of 5)

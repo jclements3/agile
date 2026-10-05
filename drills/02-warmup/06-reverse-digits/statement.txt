@@ -1,0 +1,15 @@
+Title: Reverse the digits
+LeetCode: 7. Reverse Integer (similar; no overflow rule here)
+Origin: warmup
+Pattern: string and number conversion
+Timebox: 3
+Kind: function
+Call: reverse_digits($n) -> $m
+
+Return the integer whose digits are those of $n in reverse order. A negative
+number stays negative; trailing zeros of $n disappear (120 gives 21).
+
+Examples
+  reverse_digits(123)  ->  321
+  reverse_digits(-45)  ->  -54
+  reverse_digits(120)  ->  21

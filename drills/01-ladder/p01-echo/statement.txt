@@ -1,0 +1,15 @@
+Title: Echo a line
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: input reflex
+Timebox: 2
+Kind: stdio
+
+Input: one line of text, possibly containing spaces.
+Output: the same line, unchanged.
+
+Do not split and rejoin: runs of spaces inside the line must survive.
+
+Examples
+  hello world   ->  hello world
+  a  b          ->  a  b

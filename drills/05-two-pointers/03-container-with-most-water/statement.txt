@@ -1,0 +1,17 @@
+Title: Most water between two walls
+LeetCode: 11. Container With Most Water (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: two pointers, move the shorter wall
+Timebox: 15
+Kind: function
+Call: max_water(\@heights) -> $area
+
+Wall i stands at position i with height heights[i]. Choose two walls; the
+water they hold is (distance between them) * (the shorter height). Return the
+largest such amount, in O(n).
+
+Constraints: n >= 2; heights >= 0.
+
+Examples
+  max_water([2, 8, 3, 7, 1])  ->  14      (walls 1 and 3: 2 * 7)
+  max_water([4, 4])           ->  4

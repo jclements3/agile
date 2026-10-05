@@ -1,0 +1,16 @@
+Title: Most frequent, with a tie-break
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: counting with a two-level sort key
+Timebox: 4
+Kind: function
+Call: most_frequent(\@xs) -> $value
+
+Return the value that occurs most often. When several values share the
+highest count, return the smallest of them (numerically for numbers,
+alphabetically for words). The list is not empty.
+
+Examples
+  most_frequent([1, 2, 2, 3, 3])     ->  2
+  most_frequent([3, 1, 2])           ->  1
+  most_frequent(["b", "a", "b", "a"]) ->  "a"

@@ -1,0 +1,13 @@
+Title: Count words by length
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: counting hash
+Timebox: 2
+Kind: function
+Call: count_by_length(\@words) -> { length => count }
+
+Return a hash from each word length to how many words have that length.
+
+Examples
+  count_by_length(["a", "bb", "cc", "d"])  ->  { 1 => 2, 2 => 2 }
+  count_by_length([])                      ->  {}

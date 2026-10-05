@@ -1,0 +1,14 @@
+Title: Initials
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: split, map, join
+Timebox: 3
+Kind: function
+Call: initials($full_name) -> "A.B.C."
+
+Return the upper-case first letter of every word of the name, each followed
+by a dot. Words are separated by any run of spaces.
+
+Examples
+  initials("ada king lovelace")  ->  "A.K.L."
+  initials("grace")              ->  "G."

@@ -1,0 +1,14 @@
+Title: Adjacent differences
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: pairwise over neighbours
+Timebox: 2
+Kind: function
+Call: adjacent_diffs(\@xs) -> [ ... ]
+
+Return each element minus the one before it, for every element after the
+first.
+
+Examples
+  adjacent_diffs([5, 3, 8])  ->  [-2, 5]
+  adjacent_diffs([7])        ->  []

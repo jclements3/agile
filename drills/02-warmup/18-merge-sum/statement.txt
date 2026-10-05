@@ -1,0 +1,15 @@
+Title: Merge two hashes, summing values
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: hash merge without mutation
+Timebox: 4
+Kind: function
+Call: merge_sum(\%a, \%b) -> { ... }
+
+Return a new hash holding every key of both inputs: a key present in both
+gets the sum of its two values, any other key keeps its value. Do not change
+either input.
+
+Examples
+  merge_sum({a => 1, b => 2}, {b => 3, c => 4})  ->  {a => 1, b => 5, c => 4}
+  merge_sum({}, {x => 1})                         ->  {x => 1}

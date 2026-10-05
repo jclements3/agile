@@ -1,0 +1,15 @@
+Title: FizzBuzz as data
+LeetCode: 412. Fizz Buzz (a pointer only: the statement below is this kit's own)
+Origin: warmup
+Pattern: loop building a list
+Timebox: 3
+Kind: function
+Call: fizzbuzz($n) -> [ ... ]
+
+Return a list of n strings for the numbers 1..n: "Fizz" for multiples of 3,
+"Buzz" for multiples of 5, "FizzBuzz" for multiples of both, otherwise the
+number itself. Return the list rather than printing it.
+
+Examples
+  fizzbuzz(5)  ->  ["1", "2", "Fizz", "4", "Buzz"]
+  fizzbuzz(0)  ->  []

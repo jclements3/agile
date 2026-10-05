@@ -1,0 +1,14 @@
+Title: Parse a counted list
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: input shape: a count, then values
+Timebox: 3
+Kind: function
+Call: parse_counted($text) -> [ numbers ]
+
+The text's first line is a count n; the second line holds space-separated
+integers. Return the first n of them as numbers.
+
+Examples
+  parse_counted("3\n10 20 30")  ->  [10, 20, 30]
+  parse_counted("1\n7")         ->  [7]

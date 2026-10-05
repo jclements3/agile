@@ -1,0 +1,15 @@
+Title: Edit distance
+LeetCode: 72. Edit Distance (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: two-string table: insert, delete, replace
+Timebox: 20
+Kind: function
+Call: edit_distance($a, $b) -> $n
+
+Return the fewest single-character edits (insert one character, delete one,
+or replace one) that turn string $a into string $b.
+
+Examples
+  edit_distance('table', 'cable')   ->  1
+  edit_distance('', 'abc')          ->  3
+  edit_distance('flaw', 'lawn')     ->  2

@@ -1,0 +1,16 @@
+Title: Shortest distances with weights
+LeetCode: 743. Network Delay Time (similar: this version returns every distance)
+Origin: technique
+Pattern: Dijkstra with a binary heap
+Timebox: 25
+Kind: function
+Call: dijkstra(\%graph, $source) -> { node => distance }
+
+%graph maps a node name to a list of [neighbour, weight] edges (directed,
+weights >= 0). Return a hash ref holding, for every node reachable from
+$source, the length of its shortest path ($source itself is 0). Unreachable
+nodes are left out.
+
+Example
+  graph a: [[b, 4], [c, 1]]  c: [[b, 2]]  b: []
+  dijkstra(graph, 'a')  ->  { a => 0, b => 3, c => 1 }

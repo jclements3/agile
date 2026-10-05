@@ -1,0 +1,16 @@
+Title: Fewest edges between two nodes
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: breadth-first search with distances
+Timebox: 10
+Kind: function
+Call: shortest_steps(\%adj, $start, $goal) -> $n
+
+%adj maps each node to the nodes it has a directed edge to. Return the
+fewest edges on a path from $start to $goal, 0 when they are the same node,
+and -1 when $goal cannot be reached.
+
+Examples
+  adj a: [b, c]  b: [d]  c: [d]  d: []  e: []
+  shortest_steps(adj, 'a', 'd')  ->  2
+  shortest_steps(adj, 'a', 'e')  ->  -1

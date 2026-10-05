@@ -1,0 +1,14 @@
+Title: Invert a hash
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: hash swap
+Timebox: 2
+Kind: function
+Call: invert(\%h) -> { value => key }
+
+Return a hash mapping each value of %h back to its key. The values are
+unique.
+
+Examples
+  invert({ a => 1, b => 2 })  ->  { 1 => "a", 2 => "b" }
+  invert({})                  ->  {}

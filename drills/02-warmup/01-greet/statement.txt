@@ -1,0 +1,14 @@
+Title: Greet
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: string interpolation
+Timebox: 2
+Kind: function
+Call: greet($name) -> "Hello, NAME!"
+
+Return the greeting "Hello, " followed by the name and an exclamation mark.
+The name is used exactly as given, spaces and all; it may be empty.
+
+Examples
+  greet("Grace")  ->  "Hello, Grace!"
+  greet("")       ->  "Hello, !"

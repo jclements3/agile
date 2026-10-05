@@ -1,0 +1,15 @@
+Title: Join as CSV
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: build once with join
+Timebox: 2
+Kind: function
+Call: join_csv(\@nums) -> "1,2,3"
+
+Return the numbers joined by commas, without appending to a string in a
+loop.
+
+Examples
+  join_csv([1, 2, 3])  ->  "1,2,3"
+  join_csv([7])        ->  "7"
+  join_csv([])         ->  ""

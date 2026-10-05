@@ -1,0 +1,14 @@
+Title: Sort by last character
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: stable sort on a derived key
+Timebox: 3
+Kind: function
+Call: sort_by_last_char(\@words) -> [ sorted ]
+
+Sort the words by their last character. Words with the same last character
+keep their input order. Words are non-empty.
+
+Examples
+  sort_by_last_char(["banana", "cherry", "fig"])  ->  ["banana", "fig", "cherry"]
+  sort_by_last_char(["ab", "bb", "cb"])           ->  ["ab", "bb", "cb"]

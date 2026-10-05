@@ -578,6 +578,43 @@ perl agile.pl help error "standups/2026-10-05.txt:7: unknown verb 'don'"
 
 4. The worked example: docs/TRAINING.html replays a whole sprint. You are done when: you found the section; if nothing matched, the words you searched for are worth a note in the help source (vim/doc/agile.txt).
 
+### Practise coding for an interview
+
+One session (30 to 60 minutes), from Git Bash in the kit, all offline. The full plan for the first 90 days is docs/DRILLS.html; the commands are in `agile-drills`.
+
+1. Ask what is next:
+
+```
+perl drills/drill.pl next
+```
+
+It names one problem (the first unsolved ladder rung, a failed one to finish, a phased drill, or the weakest section) and why.
+
+2. Read it, ask the eight questions, start the clock:
+
+```
+perl drills/drill.pl start p12-dedup
+```
+
+Your file is ~/drills-work/p12-dedup.pl. Write the assumptions as comments first; say the pattern, the complexity and one edge case aloud.
+
+3. Edit and test, again and again (in Vim: \\do opens your file, \\dt tests):
+
+```
+vim ~/drills-work/p12-dedup.pl
+perl drills/drill.pl test p12-dedup
+```
+
+4. Log it before you stop (minutes and the result are filled in):
+
+```
+perl drills/drill.pl log p12-dedup "hash of seen tokens; forgot //="
+```
+
+5. Only after an honest attempt, compare: perl drills/drill.pl solution p12-dedup.
+
+6. Five minutes of recall in Vim: :DrillTrain (`agile-drills-trainer`). You are done when: drill.pl test passes, the log has the line, and you could say the pattern and its complexity without the page.
+
 ## The commands and keys used every day
 
 ### The most used commands
@@ -595,12 +632,12 @@ Mail            daily.pl check | draft | brief | cards --draft
 Cockpit         perl agile.pl PROJECT
 Help            perl agile.pl help TOPIC | search WORDS | error "MESSAGE"
 Practice        perl agile.pl practice N | practice check N
+Drills          perl drills/drill.pl next | start ID | test ID | log ID NOTE
+                Vim: :DrillTrain (the memory trainer)  \do  \dt
 Ledger          perl bin/ledger.pl -f FILE bal | reg | budget | evm | forecast
 IDEF0           perl tools/idef0/idef0.pl lint | html | text FILE...
 Memo            perl tools/memo/md2memo.pl memo.md > memo.pdf
 ```
-
-vim:tw=78:ts=8:ft=help:norl:
 
 ### 4. THE STAND-UP FILE AND ITS VERBS
 
@@ -947,7 +984,7 @@ Fix:     On Windows, open classic Outlook once and try again. Offline or
 
 ### cannot write FILE: REASON
 
-Pattern: cannot write \*: \* Pattern: cannot append \*: \* Pattern: cannot append to \*: \* Pattern: help: cannot write \*: \* Pattern: idef0: cannot write \*: \* Pattern: cannot write devsecops.html: \*
+Pattern: cannot write \*: \* Pattern: cannot append \*: \* Pattern: cannot append to \*: \* Pattern: help: cannot write \*: \* Pattern: idef0: cannot write \*: \* Pattern: cannot write devsecops.html: \* Pattern: drill: cannot write \*: \*
 
 ```
 From:    daily.pl (report, review, rollup, csv, drill, propose, lint,

@@ -1,0 +1,2 @@
+Title: Arrays and hashing
+Counting, grouping and remembering what was seen: a hash turns a search inside a loop into one lookup.

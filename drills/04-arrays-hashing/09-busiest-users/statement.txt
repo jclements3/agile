@@ -1,0 +1,15 @@
+Title: Busiest users
+LeetCode: none (an original problem)
+Origin: mock
+Pattern: count by key, then filter by the maximum
+Timebox: 10
+Kind: function
+Call: busiest_users(\@lines) -> [names sorted]
+
+Each line is "user action" (a user name, a space, then the action). Return the
+users with the largest number of lines, sorted alphabetically: one user when
+there is a clear winner, several when they tie. No lines -> [].
+
+Examples
+  busiest_users(['ann login', 'bo save', 'ann save'])  ->  ['ann']
+  busiest_users(['a x', 'b y'])                        ->  ['a', 'b']

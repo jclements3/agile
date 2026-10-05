@@ -1,0 +1,15 @@
+Title: Chunk a list
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: stepped slices
+Timebox: 4
+Kind: function
+Call: chunks(\@xs, $k) -> [ [..], [..], ... ]
+
+Split the list into consecutive pieces of k elements; the last piece may be
+shorter. k >= 1. An empty list gives no pieces.
+
+Examples
+  chunks([1, 2, 3, 4, 5], 2)  ->  [[1, 2], [3, 4], [5]]
+  chunks([1], 5)              ->  [[1]]
+  chunks([], 3)               ->  []

@@ -1,0 +1,14 @@
+Title: Merge two sorted lists
+LeetCode: 88. Merge Sorted Array (similar; return a new list here)
+Origin: lessons
+Pattern: two pointers
+Timebox: 5
+Kind: function
+Call: merge_sorted(\@a, \@b) -> [ sorted ]
+
+Both lists are sorted ascending. Return one sorted list of all their
+values in O(n + m): walk both with two indices; do not concatenate and sort.
+
+Examples
+  merge_sorted([1, 4, 6], [2, 3, 7])  ->  [1, 2, 3, 4, 6, 7]
+  merge_sorted([], [1, 2])            ->  [1, 2]

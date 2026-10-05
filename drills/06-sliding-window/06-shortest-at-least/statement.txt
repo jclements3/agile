@@ -1,0 +1,14 @@
+Title: Shortest run reaching a target sum
+LeetCode: 209. Minimum Size Subarray Sum (a pointer only: the statement below is this kit's own)
+Origin: lessons
+Pattern: variable-size sliding window
+Timebox: 10
+Kind: function
+Call: shortest_at_least(\@xs, $target) -> $length
+
+All values of @xs are positive. Return the length of the shortest contiguous
+run whose sum is at least $target, or 0 if no run reaches it.
+
+Examples
+  shortest_at_least([2, 3, 1, 2, 4, 3], 7)  ->  2     (4 + 3)
+  shortest_at_least([1, 1, 1], 100)         ->  0

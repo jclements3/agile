@@ -47,8 +47,8 @@ my $h = Help::load(root => $ROOT);
 my %count; $count{$_}++ for map { @{ $_->{tags} } } @{ $h->{sections} };
 my @dup = grep { $count{$_} > 1 } sort keys %count;
 ok(!@dup, 'no tag is defined twice', "duplicates: @dup");
-my @odd = grep { !/^(?:agile(?:-[\w!.:-]+)?|:S\w+|:Idef\w+|\\[sim]\w)$/ } sort keys %count;
-ok(!@odd, 'every tag is agile-..., :S..., :Idef... or a \\s/\\i key (no stray *word* in the text)', "odd tags: @odd");
+my @odd = grep { !/^(?:agile(?:-[\w!.:-]+)?|:S\w+|:Idef\w+|:Drill\w+|\\[simd]\w)$/ } sort keys %count;
+ok(!@odd, 'every tag is agile-..., :S..., :Idef..., :Drill... or a \\s/\\i/\\m/\\d key (no stray *word* in the text)', "odd tags: @odd");
 ok(scalar(keys %count) >= 300, 'at least 300 tags (' . scalar(keys %count) . ')');
 
 # ---------------------------------------------------------------- everything the code offers has a tag
@@ -61,6 +61,7 @@ ok(($kind{'scrum.conf'} // 0) >= 30, 'scrum.conf keys found (' . ($kind{'scrum.c
 ok(scalar(grep { $_->[0] =~ /^\\s/ } @req) >= 13 && scalar(grep { $_->[0] =~ /^\\i/ } @req) >= 9, '\\s and \\i keys found in the Vim files');
 ok(scalar(grep { $_->[0] =~ /^:S/ } @req) >= 30 && scalar(grep { $_->[0] =~ /^:Idef/ } @req) >= 8, ':S and :Idef commands found in the Vim files');
 ok(!-f "$ROOT/vim/ftplugin/sysml.vim" || (scalar(grep { $_->[0] =~ /^:Sys/ } @req) >= 9 && scalar(grep { $_->[0] =~ /^\\m/ } @req) >= 9), ':Sys commands and \\m keys found in vim/ftplugin/sysml.vim');
+ok(!-f "$ROOT/drills/drill.pl" || (scalar(grep { $_->[0] =~ /^agile-drills-/ } @req) >= 10 && scalar(grep { $_->[0] =~ /^:Drill/ } @req) >= 8 && scalar(grep { $_->[0] =~ /^\\d/ } @req) >= 8), 'drill.pl commands, :Drill commands and \\d keys found (drills/, vim/plugin/drills.vim)');
 for my $r (@req) { ok($h->{tags}{ $r->[0] }, "help tag *$r->[0]* for $r->[1]") }
 
 # ---------------------------------------------------------------- every message the code prints is in the catalog

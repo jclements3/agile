@@ -1,0 +1,14 @@
+Title: The k smallest
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: sort and slice (or a heap)
+Timebox: 3
+Kind: function
+Call: k_smallest(\@xs, $k) -> [ ascending ]
+
+Return the k smallest values in ascending order (all of them, sorted, when
+there are fewer than k). Duplicates count separately.
+
+Examples
+  k_smallest([5, 1, 8, 3], 2)  ->  [1, 3]
+  k_smallest([4], 3)           ->  [4]

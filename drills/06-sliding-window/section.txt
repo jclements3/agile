@@ -1,0 +1,2 @@
+Title: Sliding window
+A contiguous run that grows on the right and shrinks on the left while a condition holds: longest, shortest, at most k.

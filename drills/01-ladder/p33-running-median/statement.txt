@@ -1,0 +1,17 @@
+Title: Running median
+LeetCode: 295. Find Median from Data Stream (a pointer only: the statement below is this kit's own)
+Origin: ladder
+Pattern: two heaps
+Timebox: 20
+Kind: stdio
+
+Input: line 1 is n; then n integers, one per line.
+Output: after each integer arrives, the median of all integers so far, with
+exactly one decimal place. With an even count the median is the mean of the
+two middle values.
+
+Constraints: n up to 10^5: re-sorting after every arrival is too slow.
+
+Examples
+  3 / 5 / 1 / 3      ->  5.0 / 3.0 / 3.0
+  2 / -2 / 7         ->  -2.0 / 2.5

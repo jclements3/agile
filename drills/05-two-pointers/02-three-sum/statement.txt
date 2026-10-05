@@ -1,0 +1,16 @@
+Title: Three values summing to zero
+LeetCode: 15. 3Sum (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: sort, fix one, two pointers on the rest
+Timebox: 20
+Kind: function
+Call: three_sum(\@nums) -> [[a, b, c], ...]
+
+Return every distinct triple of values (taken from three different positions)
+that sums to 0. Each triple once, no duplicate triples; order does not matter.
+O(n^2) is the target, not O(n^3).
+
+Examples
+  three_sum([-2, 0, 1, 1, 2])  ->  [[-2, 0, 2], [-2, 1, 1]]
+  three_sum([0, 0, 0, 0])      ->  [[0, 0, 0]]
+  three_sum([1, 2])            ->  []

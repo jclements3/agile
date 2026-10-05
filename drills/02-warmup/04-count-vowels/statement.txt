@@ -1,0 +1,15 @@
+Title: Count vowels
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: character counting
+Timebox: 3
+Kind: function
+Call: count_vowels($s) -> $count
+
+Count the characters of $s that are one of a, e, i, o, u, in either case.
+Y is not a vowel here.
+
+Examples
+  count_vowels("Programming")  ->  3
+  count_vowels("AEIOU")        ->  5
+  count_vowels("")             ->  0

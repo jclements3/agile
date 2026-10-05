@@ -1,0 +1,8 @@
+PHASE 2 of 4: card fees
+-----------------------
+Payments now carry card fees, so an amount can differ from its order by a few
+cents, and the payment arrives a little after the order. An order and a
+payment are the same purchase when the amounts are within 0.05 AND the times
+are within 5.0.
+
+Make the two tolerances options with defaults. Adapt; do not rewrite.

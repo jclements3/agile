@@ -1,0 +1,6 @@
+PHASE 3 of 4: uneven lists
+--------------------------
+Some orders were never paid; some payments are strays that match no order.
+Each record may be used in at most one match.
+
+Return the matches AND both leftover lists.

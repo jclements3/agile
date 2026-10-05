@@ -1,0 +1,15 @@
+Title: Combinations that hit a target, reuse allowed
+LeetCode: 39. Combination Sum (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: backtracking with a start index and pruning
+Timebox: 20
+Kind: function
+Call: combination_sum(\@candidates, $target) -> [[...], ...]
+
+The candidates are distinct positive integers. Return every multiset of
+candidates (each may be used any number of times) whose sum is $target,
+each once, in any order; [] when there is none.
+
+Examples
+  combination_sum([2, 3, 6, 7], 7)  ->  [[2, 2, 3], [7]]
+  combination_sum([2], 1)           ->  []

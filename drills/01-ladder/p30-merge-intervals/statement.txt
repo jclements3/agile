@@ -1,0 +1,14 @@
+Title: Merge intervals
+LeetCode: 56. Merge Intervals (a pointer only: the statement below is this kit's own)
+Origin: ladder
+Pattern: sort by start, sweep
+Timebox: 20
+Kind: stdio
+
+Input: line 1 is n; then n lines "start end" (start <= end), in any order.
+Output: the merged intervals, sorted by start, one "start end" per line.
+Intervals are closed: two that share an endpoint (3 4 and 4 9) merge.
+
+Examples
+  3 / 6 8 / 1 4 / 2 5   ->  1 5 / 6 8
+  2 / 3 4 / 4 9         ->  3 9

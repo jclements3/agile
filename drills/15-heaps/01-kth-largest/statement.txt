@@ -1,0 +1,15 @@
+Title: The kth largest value
+LeetCode: 215. Kth Largest Element in an Array (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: min-heap of size k
+Timebox: 15
+Kind: function
+Call: kth_largest(\@nums, $k) -> $value
+
+Return the kth largest value of @nums in sorted order (duplicates count:
+the 2nd largest of [5, 5, 1] is 5). 1 <= k <= n. Sorting everything works;
+the heap version keeps only k values.
+
+Examples
+  kth_largest([3, 2, 1, 5, 6, 4], 2)  ->  5
+  kth_largest([5, 5, 1], 2)           ->  5

@@ -233,6 +233,22 @@ header of <code>lib/Standup.pm</code>.</p>
 </section>
 
 <section>
+<h2>Coding drills &mdash; <code>:DrillTrain</code>, <code>drills/</code></h2>
+<table>
+<tr><td>:DrillTrain [N]</td><td>the memory trainer: type each solution from memory as the hint fades; a perfect level unlocks the next</td></tr>
+<tr><td>\dc  :DrillAnswer</td><td>check the answer (Ctrl-G Ctrl-G in insert mode)</td></tr>
+<tr><td>\dg  :DrillGiveUp</td><td>show the solution (a miss on the blind rep)</td></tr>
+<tr><td>\dn  Space</td><td>continue after a miss or a level result</td></tr>
+<tr><td>\dl  :DrillLevel [N]   \dr</td><td>choose an unlocked level; replay this one</td></tr>
+<tr><td>\dq  :DrillQuit   :DrillReset</td><td>leave (progress is saved); forget the progress</td></tr>
+<tr><td>\do  :DrillOpen</td><td>statement &harr; your file in ~/drills-work (made, clock started, the first time)</td></tr>
+<tr><td>\dt  :DrillTest   \da  :DrillTestAll</td><td>drill.pl test this problem; check everything you have</td></tr>
+</table>
+<pre>perl drills/drill.pl next          the next problem   start ID / test ID / solution ID / log</pre>
+<p class="note">The 90-day routine is <code>docs/DRILLS.html</code>; <code>:help agile-drills</code>.</p>
+</section>
+
+<section>
 <h2>IDEF0 models &mdash; <code>*.idef0</code>, <code>*.txt</code> with a modeline, <code>```idef0</code> in <code>.md</code></h2>
 <table>
 <tr><td>\il  :IdefLint</td><td>lint this file; errors go to the quickfix list (<code>:cn</code>)</td></tr>

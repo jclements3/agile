@@ -1,0 +1,15 @@
+Title: Palindrome, ignoring case
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: compare with the reverse
+Timebox: 2
+Kind: function
+Call: is_palindrome($s) -> 1 | 0
+
+True when the string reads the same forwards and backwards, ignoring upper
+and lower case (every other character counts).
+
+Examples
+  is_palindrome("Noon")   ->  true
+  is_palindrome("hello")  ->  false
+  is_palindrome("")       ->  true

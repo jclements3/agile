@@ -1,0 +1,19 @@
+Title: Find the bug: the last word
+LeetCode: 58. Length of Last Word (similar; here the word itself is returned)
+Origin: lessons
+Pattern: find the bug: whitespace on real input
+Timebox: 5
+Kind: function
+Call: fix_last_word($s) -> $word
+
+Words are runs of non-blank characters. This passes 'hello world' and fails
+on real input:
+
+    sub last_word { my ($s) = @_; my ($w) = $s =~ /(\w+)$/; return $w }
+
+Write fix_last_word: the last word, whatever blanks follow it and whatever
+characters it holds. $s has at least one word.
+
+Examples
+  fix_last_word('hello world  ')  ->  'world'
+  fix_last_word('well-known')     ->  'well-known'

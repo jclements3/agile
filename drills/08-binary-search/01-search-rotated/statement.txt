@@ -1,0 +1,16 @@
+Title: Search a rotated sorted list
+LeetCode: 33. Search in Rotated Sorted Array (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: binary search; one half is always sorted
+Timebox: 20
+Kind: function
+Call: search_rotated(\@nums, $target) -> $index or -1
+
+@nums held distinct values in ascending order and was then rotated: some
+prefix moved to the end ([4, 5, 6, 1, 2, 3]). Return the index of $target, or
+-1 if it is absent, in O(log n).
+
+Examples
+  search_rotated([4, 5, 6, 1, 2, 3], 2)  ->  4
+  search_rotated([4, 5, 6, 1, 2, 3], 7)  ->  -1
+  search_rotated([1], 1)                 ->  0

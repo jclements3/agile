@@ -1,0 +1,15 @@
+Title: A closure that adds
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: closure
+Timebox: 3
+Kind: function
+Call: adder_result($n, $x) -> $n + $x
+
+Build an inner function add(v) that returns v + n, capturing n from the
+outer function, and return add(x). Returning n + x directly misses the
+point: build the closure.
+
+Examples
+  adder_result(5, 3)   ->  8
+  adder_result(-2, 2)  ->  0

@@ -1,0 +1,17 @@
+Title: Slowest speed that finishes in time
+LeetCode: 875. Koko Eating Bananas (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: binary search on the answer
+Timebox: 20
+Kind: function
+Call: min_speed(\@piles, $hours) -> $speed
+
+Each pile holds some items. At speed k you work on one pile per hour and
+remove up to k items from it (a pile of 7 at speed 3 takes 3 hours). Return
+the smallest whole speed k >= 1 that clears every pile within $hours hours.
+
+Constraints: number of piles <= hours <= 10^9; pile sizes >= 1.
+
+Examples
+  min_speed([3, 6, 7, 11], 8)  ->  4
+  min_speed([10], 10)          ->  1

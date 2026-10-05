@@ -1,0 +1,18 @@
+PHASE 1 of 4: pair the detections
+---------------------------------
+Two sensor feeds, A and B, watch the same patch of sky. Each feed reports
+detections; a detection has an id, a time t (seconds) and a bearing in
+degrees.
+
+Pair each detection from feed A with the detection from feed B that is
+looking at the same object. Return the pairs.
+
+That is all you are told. Ask before you type: how many detections, are the
+feeds the same length, what does "the same object" mean, what if nothing
+matches? Write the answers (or your assumptions) as comments.
+
+Your file defines:
+  solve(\@feed_a, \@feed_b, %opt)   each detection is { id => 'A0', t => 10.0, bearing => 91.5 }
+and returns a hash ref:
+  { pairs => [ [$a, $b], ... ], unpaired_a => [...], unpaired_b => [...], ok => 1, reason => '' }
+(keep the detection hash refs you were given in the pairs; unpaired lists may stay empty for now).

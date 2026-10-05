@@ -1,0 +1,2 @@
+Title: Backtracking
+Choose, recurse, un-choose: build every candidate one decision at a time and prune the branches that cannot work.

@@ -1,0 +1,16 @@
+Title: Clone a graph
+LeetCode: 133. Clone Graph (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: BFS with an original -> copy map
+Timebox: 15
+Kind: function
+Call: clone_graph($node) -> $copy
+
+A node is { val => V, neighbors => [NODE, ...] }; edges are undirected, so
+each appears in both nodes' lists. Given one node of a connected graph
+(or undef), return the matching node of a deep copy: every node new, the
+same values and the same neighbour lists in the same order, no node shared
+with the original.
+
+Example (graph as adjacency lists, node i has value i)
+  1: [2, 4]  2: [1, 3]  3: [2, 4]  4: [1, 3]  ->  a copy with the same lists

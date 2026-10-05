@@ -34,7 +34,7 @@ jobs:
       - name: syntax check every script under the target Perl
         shell: bash
         run: |
-          for f in bin/*.pl agile.pl sim/*.pl sim/status-metrics/*.pl tools/idef0/idef0.pl tools/memo/md2memo.pl tools/sysml/sysml.pl tools/sysml/model.pl; do "/c/Program Files/Git/usr/bin/perl.exe" -Ilib -c "$f" || exit 1; done
+          for f in bin/*.pl agile.pl sim/*.pl sim/status-metrics/*.pl tools/idef0/idef0.pl tools/memo/md2memo.pl tools/sysml/sysml.pl tools/sysml/model.pl drills/drill.pl drills/toolbelt.pl; do "/c/Program Files/Git/usr/bin/perl.exe" -Ilib -c "$f" || exit 1; done
       - name: training replay (exercises daily.pl, git and the IDEF0 toolkit end to end)
         shell: bash
         run: |

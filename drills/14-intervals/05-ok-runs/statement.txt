@@ -1,0 +1,17 @@
+Title: Runs of OK flags
+LeetCode: none (an original problem)
+Origin: mock
+Pattern: scan for maximal runs
+Timebox: 15
+Kind: function
+Call: ok_runs(\@flags) -> [$count, $longest, $start]
+
+@flags holds 1 (OK) and 0 (not OK) values in a line. A run is a maximal
+stretch of consecutive OK positions. Return [number of runs, length of the
+longest run, index where the first longest run starts]; [0, 0, -1] when no
+position is OK.
+
+Examples
+  ok_runs([1, 1, 0, 1, 1, 1])  ->  [2, 3, 3]
+  ok_runs([1, 0, 1])           ->  [2, 1, 0]   (a tie: the first wins)
+  ok_runs([0, 0])              ->  [0, 0, -1]

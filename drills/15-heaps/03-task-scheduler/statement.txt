@@ -1,0 +1,16 @@
+Title: Tasks with a cooldown
+LeetCode: 621. Task Scheduler (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: greedy, most frequent first, in cycles of n + 1
+Timebox: 20
+Kind: function
+Call: least_interval(\@tasks, $n) -> $slots
+
+Each task (a letter) takes one time slot. Two runs of the same letter must be
+at least $n slots apart; a slot may be left idle. Tasks may run in any order.
+Return the fewest slots that finish every task.
+
+Examples
+  least_interval([qw(A A A B B B)], 2)  ->  8   (A B idle A B idle A B)
+  least_interval([qw(A A A B B B)], 0)  ->  6
+  least_interval([qw(A B C D)], 3)      ->  4

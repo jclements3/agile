@@ -1,0 +1,14 @@
+Title: Most common word
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: counting with a tie-break
+Timebox: 4
+Kind: function
+Call: most_common_word($text) -> $word
+
+Return the word (whitespace-separated) that occurs most often; on a tie,
+the alphabetically smallest. The text has at least one word.
+
+Examples
+  most_common_word("the cat the dog the")  ->  "the"
+  most_common_word("b a a b")              ->  "a"

@@ -39,6 +39,7 @@ CONTENTS                                                      *agile-contents*
 17. Vim basics                                                |agile-vim-basics|
 18. Troubleshooting                                           |agile-errors|
 19. Quick reference                                           |agile-quickref|
+20. Coding drills (practice for interviews)                   |agile-drills|
 
 In the command lines below, "daily.pl" is short for
 "perl ~/projects/agile/bin/daily.pl" (your clone's path). Set an alias once
@@ -66,6 +67,7 @@ one holding scrum.conf works).
   Recover from a bad compile                      |agile-howto-bad-compile|
   Back up and commit the project data             |agile-howto-backup|
   Find help when something is unclear             |agile-howto-help|
+  Practise coding for an interview                |agile-howto-practice-coding|
 
 ------------------------------------------------------------------------------
 First day after cloning the kit                       *agile-howto-first-day*
@@ -499,6 +501,31 @@ Find help when something is unclear                        *agile-howto-help*
 4. The worked example: docs/TRAINING.html replays a whole sprint.
 You are done when: you found the section; if nothing matched, the words you
 searched for are worth a note in the help source (vim/doc/agile.txt).
+
+------------------------------------------------------------------------------
+Practise coding for an interview                *agile-howto-practice-coding*
+
+One session (30 to 60 minutes), from Git Bash in the kit, all offline. The
+full plan for the first 90 days is docs/DRILLS.html; the commands are in
+|agile-drills|.
+1. Ask what is next: >
+    perl drills/drill.pl next
+<   It names one problem (the first unsolved ladder rung, a failed one to
+   finish, a phased drill, or the weakest section) and why.
+2. Read it, ask the eight questions, start the clock: >
+    perl drills/drill.pl start p12-dedup
+<   Your file is ~/drills-work/p12-dedup.pl. Write the assumptions as
+   comments first; say the pattern, the complexity and one edge case aloud.
+3. Edit and test, again and again (in Vim: \do opens your file, \dt tests): >
+    vim ~/drills-work/p12-dedup.pl
+    perl drills/drill.pl test p12-dedup
+<4. Log it before you stop (minutes and the result are filled in): >
+    perl drills/drill.pl log p12-dedup "hash of seen tokens; forgot //="
+<5. Only after an honest attempt, compare: perl drills/drill.pl solution
+   p12-dedup.
+6. Five minutes of recall in Vim: :DrillTrain (|agile-drills-trainer|).
+You are done when: drill.pl test passes, the log has the line, and you could
+say the pattern and its complexity without the page.
 
 ==============================================================================
 2. GETTING STARTED                                               *agile-start*
@@ -1973,6 +2000,20 @@ Check: .sysml files under model/, sysml.pl check passes, every TODO line is
 fixed or marked TODO(reviewed), NOTES.txt says how many are left (and the
 number is right), and the work is committed.
 
+------------------------------------------------------------------------------
+Lesson 9: a coding drill, start to log                      *agile-practice-9*
+
+Sandbox: an empty drills workspace (the sandbox directory itself; give it
+to drill.pl with --dir, as the lesson prints).
+Task (|agile-howto-practice-coding|):
+1. perl KIT/drills/drill.pl show p12-dedup --dir SANDBOX: read it twice.
+2. perl KIT/drills/drill.pl start p12-dedup --dir SANDBOX
+3. Write the solution in SANDBOX/p12-dedup.pl (vim; a hash of seen tokens).
+4. perl KIT/drills/drill.pl test p12-dedup --dir SANDBOX until it passes.
+5. perl KIT/drills/drill.pl log p12-dedup --dir SANDBOX "what was slow"
+Check: p12-dedup was started, the file is no longer the stub, a passing test
+is recorded, and the drill log has p12-dedup as passed.
+
 ==============================================================================
 17. VIM BASICS                                            *agile-vim-basics*
 
@@ -2027,8 +2068,189 @@ Mail            daily.pl check | draft | brief | cards --draft
 Cockpit         perl agile.pl PROJECT
 Help            perl agile.pl help TOPIC | search WORDS | error "MESSAGE"
 Practice        perl agile.pl practice N | practice check N
+Drills          perl drills/drill.pl next | start ID | test ID | log ID NOTE
+                Vim: :DrillTrain (the memory trainer)  \do  \dt
 Ledger          perl bin/ledger.pl -f FILE bal | reg | budget | evm | forecast
 IDEF0           perl tools/idef0/idef0.pl lint | html | text FILE...
 Memo            perl tools/memo/md2memo.pl memo.md > memo.pdf
+
+==============================================================================
+20. CODING DRILLS                                              *agile-drills*
+
+Interview-style coding practice in core Perl, offline, with nothing but Git
+for Windows: a ladder of 29 problems from trivial to hard (the binder's
+"Coding drills" chapter), about 130 more in technique sections (hashing, two
+pointers, sliding window, stacks, binary search, linked lists, trees, graphs,
+backtracking, dynamic programming, intervals, heaps), a four-phase drill in
+which the requirements change, the drill log, the refresher plan, and a Vim
+memory trainer. docs/DRILLS.html is the 90-day guide. >
+    perl drills/drill.pl next              what to do next, and why
+    perl drills/drill.pl start ID          your file from the stub, clock on
+    perl drills/drill.pl test ID           pass/fail per case, minutes so far
+    perl drills/drill.pl log ID NOTE       one line in the drill log
+<Your files, the log and the trainer's progress live in the workspace:
+~/drills-work, or $DRILLS_WORK, or --dir DIR on any command. drill.pl never
+writes inside the kit. An ID can be shortened while it stays unique: p12 for
+p12-dedup, two-sum. Statements are written for this kit; a LeetCode line in
+each names the classic problem it resembles, as a pointer only.
+
+------------------------------------------------------------------------------
+The commands                                          *agile-drills-commands*
+
+drill.pl help [COMMAND]                                    *agile-drills-help*
+perl drills/drill.pl help, drill.pl --help
+This chapter, or one command's section.
+
+drill.pl list [SECTION]                                    *agile-drills-list*
+Every problem by section (a section is also a trainer level): its id, the
+pattern, the timebox in minutes and your status (-, started, failed,
+passed). SECTION is a name (ladder, graphs), a prefix or a level number.
+
+drill.pl show ID                                           *agile-drills-show*
+Print a problem's statement: the contract, the input and output, the edge
+cases worth asking about, the examples.
+
+drill.pl start ID [--fresh]                               *agile-drills-start*
+Copy the problem's stub (the signature and an empty body) to the workspace
+as ID.pl, record the start time, print the statement. An existing file is
+kept; --fresh moves it to old/ and starts again from the stub (the binder's
+"solve it again cold").
+
+drill.pl test ID [FILE] [--ref]                            *agile-drills-test*
+Run the problem's tests against your file (default: the workspace's ID.pl):
+pass or FAIL per case with the expected and actual values, the run time and
+the minutes since start against the timebox. Exit 0 when every case passes.
+Each case has a time limit (5 s); a die, an exit or an endless loop in your
+code fails that case, nothing more. --ref tests the reference solution.
+Function problems are called directly (your file defines the named sub);
+stdin problems run as a script with the case on stdin, and the output is
+compared ignoring trailing blanks, as the binder's check.sh does.
+
+drill.pl check [SECTION | tN | ID-PREFIX] [--ref]         *agile-drills-check*
+Test every file you have in the workspace (all of them, a section, a ladder
+tier such as t2, or ids starting with p2): one line each, then "N passed, M
+failed, K not started". The binder's ./check.sh.
+
+drill.pl solution ID [--force]                         *agile-drills-solution*
+Print the reference solution with its notes: the pattern, why it works, the
+time and space complexity, the edge cases and the Perl idioms. Only after an
+attempt was recorded (start or test); --force overrides. The log counts
+every look (the "peeked" column of stats).
+
+drill.pl log [ID [MINUTES] [pass|fail] [NOTES]]             *agile-drills-log*
+drill.pl log --session N
+With no arguments, print the drill log. With an ID, append one line
+"date | problem | minutes | passed | notes" to log.txt in the workspace;
+MINUTES defaults to the time since start, pass/fail to the last test.
+--session N appends the binder's session form (done, slowest thing,
+lookups, narration check, questions check, one thing to redo) for you to
+fill in with Vim. The log is append-only plain text.
+
+drill.pl stats                                            *agile-drills-stats*
+Per section: problems, started, passed, peeked, minutes logged; the weakest
+section you have started; the log's days.
+
+drill.pl next                                              *agile-drills-next*
+The refresher plan as one suggestion: a problem whose last test failed
+first; then the ladder in order (t0 and t1 in session 1, t2 in session 2, t3
+in session 4, t4 in session 5) with the phased drill after t2 (session 3)
+and again after t4 (session 5); then the field drills (t5); then the
+weakest section; when everything passes, the problem passed longest ago, to
+re-solve cold (start --fresh).
+
+drill.pl phased [N | test N [FILE] | solution] [--scenario S]
+                                                         *agile-drills-phased*
+The four-phase drill: one problem whose requirements change three times in
+an hour. With no argument, the clock plan. phased 1 prints phase 1's card,
+starts the clock and writes phased-SCENARIO.pl (a solve sub to fill in);
+read phase N+1 only when phase N passes "phased test N". phased solution is
+the reference, after an attempt. Scenarios: sensors (pair two sensor
+feeds) and payments (match orders to payments); a second run uses the
+other, or DRILL_SEED=99 for fresh sensor data.
+
+------------------------------------------------------------------------------
+The files                                                *agile-drills-files*
+
+drills/NN-SECTION/section.txt     the level's title and a line about it
+drills/NN-SECTION/ID/statement.txt   header lines (Title, LeetCode, Origin,
+                                  Pattern, Timebox, Kind, Call), then the
+                                  contract and examples
+drills/NN-SECTION/ID/tests.pl     the cases, the sample first
+drills/NN-SECTION/ID/solution.pl  the reference: a comment block, then code
+drills/NN-SECTION/ID/stub.pl      what start copies
+drills/phased/SCENARIO/           phase1.txt..phase4.txt, data.pl (the
+                                  checker), solution.pl, stub.pl
+drills/toolbelt.pl                the Perl toolbelt: idioms to retype from
+                                  memory, each proven
+WORKSPACE/ID.pl                   your solutions
+WORKSPACE/attempts.txt            start, test and solution events
+WORKSPACE/log.txt                 the drill log
+WORKSPACE/trainer.txt             the Vim trainer's highest unlocked level
+Kinds: function (your file defines the sub named in Call), class (a package
+with new and the methods), stdio (a script: stdin in, stdout out). A new
+problem is a new directory in the same format, tests first.
+
+------------------------------------------------------------------------------
+The Vim trainer                                        *agile-drills-trainer*
+
+The "vanishing cues" memory game over the reference solutions. Each section
+is a level and each solution a card. A card shows the first line of a
+solution (sub two_sum {) and you type the rest. Every card is a cycle of
+g:drills_fade_steps reps (default 5): rep 1 shows the whole solution to
+copy, each later rep blanks out more of its words, the last rep shows
+nothing. Only that blind rep counts. A wrong answer repeats the rep; giving
+up on a hinted rep fades it further. A level is cleared only when every
+card's blind rep was right first try, which unlocks the next level; the
+highest unlocked level is kept in WORKSPACE/trainer.txt. Comments, blank
+lines, spacing and indentation are ignored when checking; the code must
+match. Between cards: Space or Enter continues, l chooses a level, r
+replays, n starts again, q quits. Settings: g:drills_work (the workspace),
+g:drills_fade_steps, g:drills_shuffle (0 keeps the cards in order).
+
+:DrillTrain [N]                                                  *:DrillTrain*
+Open the trainer at the highest unlocked level, or at level N.
+
+:DrillLevel [N]                                                  *:DrillLevel*
+\dl                                                                      *\dl*
+Choose any unlocked level (asks when N is not given).
+
+:DrillAnswer                                                    *:DrillAnswer*
+\dc                                                                      *\dc*
+Check the answer typed under the marker line (in insert mode: CTRL-G
+CTRL-G). Right: straight on to the next rep or card. Wrong: the solution is
+shown under your answer.
+
+:DrillGiveUp                                                    *:DrillGiveUp*
+\dg                                                                      *\dg*
+Show the solution. On the blind rep it counts as a miss.
+
+:DrillNext                                                        *:DrillNext*
+\dn                                                                      *\dn*
+After a miss or a level result: retry the rep, the next rep, the next card,
+the level result or the next level (Space and Enter do the same).
+
+\dr                                                                      *\dr*
+Replay the current level from its first card.
+
+:DrillQuit                                                        *:DrillQuit*
+\dq                                                                      *\dq*
+Leave the trainer. Cleared levels are already saved.
+
+:DrillReset                                                      *:DrillReset*
+Forget all progress: only level 1 is unlocked again (asks first).
+
+:DrillOpen                                                        *:DrillOpen*
+\do                                                                      *\do*
+Jump between a problem's statement (drills/.../statement.txt) and your file
+in the workspace. The first time, drill.pl start makes the file and starts
+the clock.
+
+:DrillTest                                                        *:DrillTest*
+\dt                                                                      *\dt*
+Save and run drill.pl test on this problem; the result opens in a split.
+
+:DrillTestAll [SECTION | tN]                                   *:DrillTestAll*
+\da                                                                      *\da*
+drill.pl check: every file you have in the workspace, in a split.
 
  vim:tw=78:ts=8:ft=help:norl:

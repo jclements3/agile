@@ -1,0 +1,2 @@
+Title: Linked lists
+Rewire pointers one node at a time; a dummy head and two pointers a fixed gap apart solve most of them.

@@ -1,0 +1,17 @@
+Title: Pairs within budget
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: sort, then two pointers
+Timebox: 10
+Kind: stdio
+
+Input: line 1 is a budget t; line 2 holds n integers, unsorted, possibly
+negative.
+Output: how many index pairs i < j have x[i] + x[j] <= t.
+
+Constraints: n up to 2*10^5. The answer does not depend on order, which
+licenses a sort.
+
+Examples
+  6 / 5 1 2 4   ->  3
+  0 / 1 1       ->  0

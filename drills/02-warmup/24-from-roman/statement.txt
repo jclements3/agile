@@ -1,0 +1,15 @@
+Title: From Roman numerals
+LeetCode: 13. Roman to Integer (a pointer only: the statement below is this kit's own)
+Origin: warmup
+Pattern: one pass with a look-ahead
+Timebox: 5
+Kind: function
+Call: from_roman($numeral) -> $n
+
+Turn a valid Roman numeral back into an integer. A symbol worth less than the
+symbol after it is subtracted (IV is 4); otherwise it is added.
+
+Examples
+  from_roman("MCMXCIV")  ->  1994
+  from_roman("LVIII")    ->  58
+  from_roman("III")      ->  3

@@ -1,0 +1,17 @@
+Title: Longest consecutive run
+LeetCode: 128. Longest Consecutive Sequence (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: hash set, count only from run starts
+Timebox: 15
+Kind: function
+Call: longest_consecutive(\@nums) -> $length
+
+The values of @nums, in any order, may contain runs of consecutive integers
+(5, 6, 7, ...). Return the length of the longest such run. Duplicates count
+once. Sorting is O(n log n); do it in O(n).
+
+Constraints: n up to 10^5; integers, possibly negative; the empty list gives 0.
+
+Examples
+  longest_consecutive([10, 3, 20, 1, 2, 4])  ->  4      (1 2 3 4)
+  longest_consecutive([])                    ->  0

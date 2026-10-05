@@ -1,0 +1,23 @@
+Title: Find the bug: merging touching intervals
+LeetCode: 56. Merge Intervals (similar; here the input is already sorted)
+Origin: lessons
+Pattern: find the bug: a boundary comparison
+Timebox: 10
+Kind: function
+Call: fix_merge(\@intervals) -> [[s, e], ...]
+
+The intervals are inclusive, non-empty and sorted by start. This merges the
+happy path and gets one family wrong:
+
+    sub merge {
+        my ($iv) = @_;
+        my @out = ([ @{ $iv->[0] } ]);
+        for my $x (@$iv[1 .. $#$iv]) {
+            if ($x->[0] < $out[-1][1]) { $out[-1][1] = $x->[1] if $x->[1] > $out[-1][1] }
+            else { push @out, [@$x] }
+        }
+        return \@out;
+    }
+
+Write fix_merge, which also merges touching intervals: [[1, 2], [2, 3]]
+becomes [[1, 3]].

@@ -45,7 +45,7 @@ There is no build step and no package manager — everything is `use lib` agains
 Test suites map 1:1 to the libs: `tests/prelude.t`, `tests/ledger.t`, `tests/quad.t`,
 `tests/scrum.t`, `tests/standup.t`, `tests/calendar.t`, `tests/chat.t`, `tests/answers.t`,
 `tests/attendance.t`, `tests/quad.t`, `tests/roster.t`, `tests/cockpit.t`, `tests/drill.t`, `tests/metrics.t`, `tests/status_metrics.t`,
-`tests/xmi2sysml.t`, `tests/reqif2sysml.t`, `tests/sysml.t`, `tests/halberd.t`, `tests/memo.t`, `tests/help.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
+`tests/xmi2sysml.t`, `tests/reqif2sysml.t`, `tests/sysml.t`, `tests/halberd.t`, `tests/memo.t`, `tests/help.t`, `tests/drills.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
 `Calendar.pm`'s COM calls offline.
 
 CLI entry points (`bin/`): `daily.pl` is the day-to-day driver; `scrum.pl`, `ledger.pl`,
@@ -162,11 +162,21 @@ entry is not a budget row. `scrum.conf` keys `funding = FILE` and `complete = GL
 `lib/Help.pm` renders them for `:help agile` (`vim/scrum.vim` runs :helptags; `vim/doc/tags` is git-ignored), `agile.pl help`,
 `daily.pl|scrum.pl|ledger.pl help`, `docs/HELP.html` and `docs/help/quickref.md` (both generated and committed: regenerate with
 `perl agile.pl help --html` / `--md`; the quickref is also the binder chapter `thewheel/src/46-agile-kit-quickref.md`).
-`tests/help.t` derives what must be documented from the code (daily.pl's %cmds, Scrum::run and Ledger::run commands, :S/:Idef/:Sys
-commands, \s/\i/\m keys, Standup verbs, scrum.conf keys) and requires every die/warn/STDERR/error-push message to match a `Pattern:`
+`tests/help.t` derives what must be documented from the code (daily.pl's %cmds, drill.pl's %CMDS, Scrum::run and Ledger::run commands, :S/:Idef/:Sys/:Drill
+commands, \s/\i/\m/\d keys, Standup verbs, scrum.conf keys) and requires every die/warn/STDERR/error-push message to match a `Pattern:`
 in agile-errors.txt (or an `Internal:` line for bug-only invariants), so a new command or message needs its help entry in the same
 change. `lib/Practice.pm` builds lesson sandboxes from daily.pl init, sim/halberd-gen.pl, sim/idef0-backlog.pl and sim/rehearsal.pl;
 the lesson texts are the `*agile-practice-N*` sections.
+
+**Coding drills (separate from the scrum kit):** `drills/drill.pl list|show|start|test|check|solution|log|stats|next|phased|help`
+(`lib/Drills.pm`) is interview-style practice in core Perl for the binder's coding-drills chapter:
+`drills/NN-SECTION/ID/{statement.txt,tests.pl,solution.pl,stub.pl}` (158 problems in 16 sections; `01-ladder` is the binder's
+29-rung stdin/stdout ladder, the rest call a named sub or class), `drills/phased/{sensors,payments}/` (the four-phase drill)
+and `drills/toolbelt.pl`. Learner state (ID.pl, attempts.txt, log.txt, trainer.txt) lives in the workspace (`~/drills-work`,
+`$DRILLS_WORK` or `--dir`), never in the kit. Tests run in a child perl with a per-case alarm, so learner code cannot crash
+drill.pl. `vim/autoload/drills.vim` + `vim/plugin/drills.vim` (sourced by `vim/scrum.vim`) are the `:DrillTrain` vanishing-cues
+memory trainer (one level per section, cards from the solutions) and `:DrillOpen`/`:DrillTest`/`:DrillTestAll` (`\do \dt \da`).
+Statements are the kit's own words; the `LeetCode:` line is a pointer only (tests/drills.t checks). Guide: `docs/DRILLS.html`.
 
 **Other tools:** `tools/memo/md2memo.pl` (Markdown -> DoD-style memo as PDF/PS/text with portion and banner marking;
 `tests/memo.t` pins the sample's output by SHA-256). `tools/idef0/` also carries the Halberd IDEF0 model, the parity suite

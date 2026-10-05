@@ -1,0 +1,18 @@
+Title: Two sum
+LeetCode: 1. Two Sum (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: hash map of value -> first index
+Timebox: 10
+Kind: function
+Call: two_sum(\@nums, $target) -> [$i, $j]
+
+Return the indices [i, j], i < j, of two elements of @nums whose values add up
+to $target. When several pairs work, return the one with the smallest j (and,
+for that j, the smallest i). Return [] when no pair exists.
+
+Constraints: 2 <= n <= 10^5; integers, possibly negative.
+
+Examples
+  two_sum([4, 9, 1, 6], 10)  ->  [1, 2]
+  two_sum([5, 5], 10)        ->  [0, 1]
+  two_sum([1, 2], 7)         ->  []

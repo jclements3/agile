@@ -1,0 +1,16 @@
+Title: Reverse a linked list
+LeetCode: 206. Reverse Linked List (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: pointer rewiring
+Timebox: 5
+Kind: function
+Call: reverse_list($head) -> $new_head
+
+A node is a hash { val => V, next => NODE }; the last node's next is undef.
+Reverse the list in place by rewiring the next links and return the new
+head. An empty list (undef) stays empty.
+
+Examples (lists shown as their values)
+  reverse_list(7 -> 8 -> 9)  ->  9 -> 8 -> 7
+  reverse_list(4)            ->  4
+  reverse_list(undef)        ->  undef

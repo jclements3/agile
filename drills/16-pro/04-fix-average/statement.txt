@@ -1,0 +1,19 @@
+Title: Find the bug: an average
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: find the bug: choose the empty-input contract
+Timebox: 5
+Kind: function
+Call: fix_average(\@xs) -> $mean
+
+This passes every test with numbers in it and dies on one input:
+
+    use List::Util qw(sum);
+    sub average { my ($xs) = @_; return sum(@$xs) / @$xs }
+
+Write fix_average: the mean of @xs, and 0 for an empty list. Say the
+contract out loud: choosing it is the skill.
+
+Examples
+  fix_average([1, 2, 3])  ->  2
+  fix_average([])         ->  0

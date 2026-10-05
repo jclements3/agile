@@ -1,0 +1,16 @@
+Title: Remove the nth node from the end
+LeetCode: 19. Remove Nth Node From End of List (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: two pointers n apart, dummy head
+Timebox: 10
+Kind: function
+Call: remove_nth_from_end($head, $n) -> $head
+
+Unlink the node that is n-th counting from the end (n = 1 is the last node)
+and return the head, which changes when the first node is removed. n is
+always between 1 and the length. Do it in one pass.
+
+Examples
+  remove_nth_from_end(1 -> 2 -> 3 -> 4, 2)  ->  1 -> 2 -> 4
+  remove_nth_from_end(9, 1)                 ->  empty
+  remove_nth_from_end(5 -> 6, 2)            ->  6

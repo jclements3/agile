@@ -42,6 +42,7 @@ cannot write FILE: REASON
   Pattern: help: cannot write *: *
   Pattern: idef0: cannot write *: *
   Pattern: cannot write devsecops.html: *
+  Pattern: drill: cannot write *: *
   From:    daily.pl (report, review, rollup, csv, drill, propose, lint,
            answers, cards, init), agile.pl, scrum.pl, Roster.pm, Ai.pm,
            Attendance.pm, Calendar.pm, Standup.pm, idef0.pl fmt --write
@@ -984,7 +985,106 @@ idef0: no calc def or action def named 'X' (verb_root in sysml.conf)
            set AGILE_HOME to the kit; git init the model repository first.
 
 ==============================================================================
-9. INTERNAL INVARIANTS                                  *agile-err-internal*
+9. CODING DRILLS                                       *agile-errors-drills*
+
+Messages from drills/drill.pl and the test runner (|agile-drills|). drill.pl
+prints the usage line for a missing argument; perl drills/drill.pl help
+COMMAND has the details.
+
+------------------------------------------------------------------------------
+                                                  *agile-err-drill-no-problem*
+drill: no problem matches 'X'
+
+  Pattern: drill: no problem matches '*'
+  Pattern: drill: '*' matches several problems: *
+  Pattern: drill: no section '*'
+  From:    drill.pl show, start, test, check, solution, log, list
+  Means:   The id is not one of the problems under drills/, or a shortened
+           id fits more than one (p2 is every t2 rung), or the section name
+           is wrong.
+  Fix:     perl drills/drill.pl list shows every id and section; type
+           enough of the id to be unique (p23, two-sum), or the whole id
+           from the list.
+
+------------------------------------------------------------------------------
+                                                     *agile-err-drill-no-file*
+drill: no file FILE (perl drills/drill.pl start ID first)
+
+  Pattern: drill: no file * (perl drills/drill.pl start * first)
+  Pattern: drill: no file * (perl drills/drill.pl phased 1 first)
+  From:    drill.pl test, phased test
+  Means:   There is no solution file of yours to test: the problem was not
+           started in this workspace, or the workspace is another one (the
+           default is ~/drills-work; --dir and $DRILLS_WORK change it).
+  Fix:     perl drills/drill.pl start ID (or phased 1), or pass the file:
+           drill.pl test ID path/to/file.pl. Same --dir on every command.
+
+------------------------------------------------------------------------------
+                                                  *agile-err-drill-no-attempt*
+drill: no attempt recorded for ID yet
+
+  Pattern: drill: no attempt recorded for * yet: *
+  From:    drill.pl solution, phased solution
+  Means:   The reference is shown only after an attempt: a start or a test
+           of that problem in this workspace. That keeps the binder's rule,
+           read a solution only after a timed attempt.
+  Fix:     Start it and try (drill.pl start ID, drill.pl test ID). If you
+           really need it now: drill.pl solution ID --force (the look is
+           logged).
+
+------------------------------------------------------------------------------
+                                                    *agile-err-drill-usage*
+drill: usage: drill.pl COMMAND ...
+
+  Pattern: drill: usage: *
+  Pattern: drill: unknown command '*' (perl drills/drill.pl help)
+  Pattern: drill: '*' is not a number of minutes *
+  Pattern: drill: *
+  From:    drill.pl
+  Means:   A command without its argument, a misspelt command, or a log
+           line whose minutes are not a whole number. A message starting
+           "drill:" that is not listed here comes from the same tool: it
+           names the problem.
+  Fix:     perl drills/drill.pl help (the commands), drill.pl help COMMAND;
+           minutes are whole numbers: drill.pl log p12 14 pass "note".
+
+------------------------------------------------------------------------------
+                                                    *agile-err-drill-phased*
+drill: phased: no scenario 'X' / no phase N
+
+  Pattern: drill: phased: no scenario '*' (there are: *)
+  Pattern: drill: phased: no scenarios under drills/phased/
+  Pattern: drill: phased: no phase *
+  From:    drill.pl phased
+  Means:   The phase is not 1 to 4, the scenario name is not one under
+           drills/phased/ (sensors, payments), or that folder is missing
+           from this copy of the kit.
+  Fix:     perl drills/drill.pl phased lists the plan and the scenarios;
+           phased 1, phased test 1, ... phased 4; --scenario payments.
+
+------------------------------------------------------------------------------
+                                                     *agile-err-drill-tests*
+your file does not load / timeout after 5s / exit(N) called
+
+  Pattern: drill: cannot load tests *: *
+  Pattern: your file does not load: *
+  Pattern: timeout after *s
+  Pattern: not run: an earlier case timed out
+  Pattern: exit(*) called: return a value instead
+  From:    drill.pl test and check (the test runner in lib/Drills.pm)
+  Means:   Your file has a syntax error or dies while loading (the line
+           number is in the message); a case ran past its time limit (an
+           endless loop: the rest of the cases are skipped); your function
+           called exit, which would end the whole run. "cannot load tests"
+           means the kit's own tests.pl is broken.
+  Fix:     perl -c ~/drills-work/ID.pl shows the syntax error. Return the
+           answer from the function instead of printing it or calling
+           exit; stdin problems print and end normally. Check every loop
+           moves toward its end (lo/hi, a queue that empties). A broken
+           tests.pl: get a fresh copy of the kit.
+
+==============================================================================
+10. INTERNAL INVARIANTS                                 *agile-err-internal*
 
 These messages mean a bug in the kit or a broken copy of it, not something
 you did. Note the command you ran and the message, and get a fresh copy of

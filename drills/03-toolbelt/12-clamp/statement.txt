@@ -1,0 +1,15 @@
+Title: Clamp with defaults
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: default arguments, min/max
+Timebox: 3
+Kind: function
+Call: clamp($x, $lo, $hi) -> $y      ($lo defaults to 0, $hi to 10)
+
+Pin x into the range [lo, hi]: below lo gives lo, above hi gives hi,
+otherwise x. lo and hi are optional, defaulting to 0 and 10.
+
+Examples
+  clamp(15)        ->  10
+  clamp(-3)        ->  0
+  clamp(5, 0, 4)   ->  4

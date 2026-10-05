@@ -1,0 +1,14 @@
+Title: Paths across a grid
+LeetCode: 62. Unique Paths (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: grid DP, one rolling row
+Timebox: 10
+Kind: function
+Call: unique_paths($rows, $cols) -> $n
+
+Moving only right or down, how many different paths lead from the top-left
+cell to the bottom-right cell of a rows x cols grid? Both are at least 1.
+
+Examples
+  unique_paths(3, 3)  ->  6
+  unique_paths(1, 5)  ->  1

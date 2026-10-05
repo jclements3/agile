@@ -1,0 +1,15 @@
+Title: Percent with one decimal
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: sprintf formatting
+Timebox: 2
+Kind: function
+Call: percent($part, $whole) -> "75.0%"
+
+Return part / whole as a percentage with exactly one decimal place and a
+percent sign. whole is not zero.
+
+Examples
+  percent(3, 4)  ->  "75.0%"
+  percent(1, 3)  ->  "33.3%"
+  percent(2, 3)  ->  "66.7%"

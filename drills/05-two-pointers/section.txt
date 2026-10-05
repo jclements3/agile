@@ -1,0 +1,2 @@
+Title: Two pointers
+Two indices that close in from both ends (or walk together) over sorted or symmetric data, replacing a nested loop with one pass.

@@ -1,0 +1,14 @@
+Title: Next greater value
+LeetCode: 503. Next Greater Element II (similar; this list does not wrap around)
+Origin: lessons
+Pattern: monotonic stack
+Timebox: 10
+Kind: function
+Call: next_greater(\@xs) -> [...]
+
+For each element, return the first later element that is strictly larger, or
+-1 when none follows. O(n).
+
+Examples
+  next_greater([2, 1, 2, 4, 3])  ->  [4, 2, 4, -1, -1]
+  next_greater([5, 4, 3])        ->  [-1, -1, -1]

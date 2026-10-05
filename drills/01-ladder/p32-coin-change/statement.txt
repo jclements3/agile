@@ -1,0 +1,17 @@
+Title: Fewest coins
+LeetCode: 322. Coin Change (a pointer only: the statement below is this kit's own)
+Origin: ladder
+Pattern: bottom-up dynamic programming
+Timebox: 20
+Kind: stdio
+
+Input: line 1 holds the positive coin values; line 2 is an amount >= 0.
+Output: the fewest coins (any value may be reused) adding up exactly to the
+amount, or -1 if no combination does. Amount 0 needs 0 coins.
+
+Greedy is a trap: with coins 1 5 6 and amount 10, 6+1+1+1+1 uses five coins
+but 5+5 uses two.
+
+Examples
+  1 5 6 / 10  ->  2
+  4 / 6       ->  -1

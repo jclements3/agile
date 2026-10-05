@@ -1,0 +1,15 @@
+Title: Deepest nesting
+LeetCode: 1614. Maximum Nesting Depth of the Parentheses (a pointer only: the statement below is this kit's own)
+Origin: lessons
+Pattern: a stack's height, without the stack
+Timebox: 5
+Kind: function
+Call: max_paren_depth($s) -> $depth
+
+$s is a balanced string of ( and ) only. Return the deepest nesting level: the
+largest number of brackets open at the same moment.
+
+Examples
+  max_paren_depth('(()(()))')  ->  3
+  max_paren_depth('()()')      ->  1
+  max_paren_depth('')          ->  0

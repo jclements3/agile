@@ -1,0 +1,15 @@
+Title: Moving average
+LeetCode: 346. Moving Average from Data Stream (similar; a whole list here)
+Origin: warmup
+Pattern: sliding window sum
+Timebox: 5
+Kind: function
+Call: moving_average(\@xs, $k) -> [ averages ]
+
+Return the average of every window of k consecutive values, in order.
+len(xs) >= k >= 1. The averages are plain numbers (1.5, 2.5, ...).
+
+Examples
+  moving_average([1, 2, 3, 4], 2)  ->  [1.5, 2.5, 3.5]
+  moving_average([1, 1, 1], 3)     ->  [1]
+  moving_average([5], 1)           ->  [5]

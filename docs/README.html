@@ -39,6 +39,7 @@ lib/Metrics.pm   every metric vs its threshold; sprint report, roll-up, CSV test
 lib/StatusMetrics.pm the A-Z status metrics of a model repo (git + exports)  tests/status_metrics.t 50 tests
 lib/Help.pm      offline help: vim/doc/agile.txt as :help, agile.pl help, HELP.html     tests/help.t     339 tests
 lib/Practice.pm  practice lessons in sandbox projects (agile.pl practice)
+lib/Drills.pm    coding drills: problems, tests, the log, the refresher plan (drills/drill.pl)   tests/drills.t   85 tests
 lib/Xmi.pm       SysML v1 XMI (Cameo/MagicDraw) -> SysML v2 text             tests/xmi2sysml.t 73 tests
 lib/Reqif.pm     DOORS ReqIF/CSV -> SysML v2 requirements, C/F/G/I trace     tests/reqif2sysml.t 49 tests
 lib/Ledger.pm    ledger journal: bal/reg/budget (-M), evm, forecast          tests/ledger.t   109 tests
@@ -388,7 +389,8 @@ then the reference, then the error catalog. The same text is in Vim and on the c
 perl agile.pl help compile                            one section
 perl agile.pl help search carryover                   ranked sections
 perl agile.pl help error "PASTED MESSAGE"             what an error means and the fix
-perl agile.pl practice 1                              hands-on lessons; practice check 1 checks your work</pre>
+perl agile.pl practice 1                              hands-on lessons; practice check 1 checks your work
+perl drills/drill.pl next                             coding drills: the next problem to solve (<a href="DRILLS.html">DRILLS.html</a>)</pre>
 
 <h2>Porting the legacy model: SysML v1 XMI and DOORS to SysML v2 text</h2>
 

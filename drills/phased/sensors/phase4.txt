@@ -1,0 +1,10 @@
+PHASE 4 of 4: wrap-around and no answer at all
+----------------------------------------------
+Bearings wrap: 359 degrees and 1 degree are 2 degrees apart, not 358.
+
+Some inputs have no valid pairing under the tolerances at all. Detect that
+and say so (ok => 0 and a reason, or a die whose message is your stated
+contract) instead of returning something that looks like an answer.
+
+Then say out loud: what is the complexity of what you have now, and what
+would you change at 100,000 detections per feed?

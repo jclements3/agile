@@ -1,0 +1,17 @@
+Title: Top k frequent values
+LeetCode: 347. Top K Frequent Elements (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: count, then bucket by count
+Timebox: 10
+Kind: function
+Call: top_k_frequent(\@nums, $k) -> [...]
+
+Return the $k values that occur most often in @nums, in any order. The input
+guarantees the answer is unique (no tie at the k-th place).
+
+Constraints: 1 <= k <= number of distinct values; n up to 10^5. Aim for better
+than sorting all the counts: O(n).
+
+Examples
+  top_k_frequent([4, 4, 4, 7, 7, 9], 2)  ->  [4, 7]
+  top_k_frequent([3], 1)                 ->  [3]

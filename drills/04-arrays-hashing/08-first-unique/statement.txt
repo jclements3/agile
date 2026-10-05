@@ -1,0 +1,14 @@
+Title: First character that never repeats
+LeetCode: 387. First Unique Character in a String (similar; this returns the character, not its index)
+Origin: patterns
+Pattern: count, then scan in order
+Timebox: 5
+Kind: function
+Call: first_unique($s) -> $char
+
+Return the first character of $s that occurs exactly once in $s, or '_' when
+there is none (including the empty string).
+
+Examples
+  first_unique('lever')  ->  'l'
+  first_unique('xxyy')   ->  '_'

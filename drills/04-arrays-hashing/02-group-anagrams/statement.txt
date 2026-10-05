@@ -1,0 +1,18 @@
+Title: Group anagrams
+LeetCode: 49. Group Anagrams (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: hash of a canonical key -> list
+Timebox: 10
+Kind: function
+Call: group_anagrams(\@words) -> [[...], ...]
+
+Two words are anagrams when they use the same letters the same number of
+times. Split @words into groups of mutual anagrams and return the groups as a
+list of lists. The order of the groups and of the words inside a group does
+not matter.
+
+Constraints: lowercase words, possibly empty strings; up to 10^4 words.
+
+Examples
+  group_anagrams(['ten', 'net', 'cat', 'act', 'dog'])  ->  [['ten','net'], ['cat','act'], ['dog']]
+  group_anagrams([''])                                ->  [['']]

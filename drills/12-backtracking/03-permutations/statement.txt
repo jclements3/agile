@@ -1,0 +1,14 @@
+Title: All orderings
+LeetCode: 46. Permutations (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: swap into place, recurse, swap back
+Timebox: 15
+Kind: function
+Call: permutations(\@nums) -> [[...], ...]
+
+The values are distinct. Return all n! orderings of @nums, each an array ref,
+in any order.
+
+Examples
+  permutations([1, 2])  ->  [[1, 2], [2, 1]]
+  permutations([5])     ->  [[5]]

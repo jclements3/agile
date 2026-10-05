@@ -1,0 +1,14 @@
+PHASE 1 of 4: match orders to payments
+--------------------------------------
+You have a list of orders and a list of payments. Each record has an id, a
+time and an amount. Match each order to the payment that pays for it.
+Return the matches.
+
+That is all you are told. Ask before you type, and write the answers (or
+your assumptions) as comments.
+
+Your file defines:
+  solve(\@orders, \@payments, %opt)   each record is { id => 'O1', time => 10.0, amount => 25.00 }
+and returns a hash ref:
+  { pairs => [ [$order, $payment], ... ], unpaired_a => [...], unpaired_b => [...], ok => 1, reason => '' }
+(unpaired_a = orders left over, unpaired_b = payments left over; keep the hash refs you were given).

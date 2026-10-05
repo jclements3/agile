@@ -1,0 +1,17 @@
+Title: Two sum, stdin to stdout
+LeetCode: 1. Two Sum (a pointer only: the statement below is this kit's own)
+Origin: ladder
+Pattern: hash map of value -> earliest index
+Timebox: 10
+Kind: stdio
+
+Input: line 1 is a target t; line 2 holds n >= 2 integers x[0..n-1].
+Output: "i j" (0-based, i < j) with x[i] + x[j] = t. Among all such pairs
+pick the smallest j, then the smallest i. Print "none" if no pair works.
+
+Constraints: n up to 10^5, so the double loop is the trap.
+
+Examples
+  10 / 4 9 1 6   ->  1 2
+  2 / 1 1 1      ->  0 1
+  5 / 1 1        ->  none

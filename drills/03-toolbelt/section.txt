@@ -1,0 +1,2 @@
+Title: The Perl toolbelt
+The everyday idioms as small exercises: strings, lists, hashes, closures, parsing input, sort keys, counting, windows and binary search. Type them until no lookup is needed.

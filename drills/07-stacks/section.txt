@@ -1,0 +1,2 @@
+Title: Stacks
+Push, pop, peek: the most recent unmatched thing. Balanced brackets, expression evaluation and monotonic stacks.

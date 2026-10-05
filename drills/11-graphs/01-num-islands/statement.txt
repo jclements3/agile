@@ -1,0 +1,17 @@
+Title: Count the islands
+LeetCode: 200. Number of Islands (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: flood fill each unvisited land cell
+Timebox: 15
+Kind: function
+Call: num_islands(\@rows) -> $count
+
+The grid is an array ref of equal-length strings of '1' (land) and '0'
+(water). Land cells joined up, down, left or right form one island; diagonal
+contact does not join. Return the number of islands. Do not let the caller's
+grid change.
+
+Examples
+  num_islands(['11000', '11000', '00100', '00011'])  ->  3
+  num_islands(['101', '010', '101'])                 ->  5
+  num_islands(['000'])                               ->  0

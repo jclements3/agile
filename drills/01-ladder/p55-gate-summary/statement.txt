@@ -1,0 +1,19 @@
+Title: Gate summary from diagnostics
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: regex match, count, exit status
+Timebox: 15
+Kind: stdio
+
+Input: tool output with diagnostics shaped "file:line: severity: message"
+(severity is error or warning) mixed with other lines, which are ignored.
+
+Output: "F file(s): E error(s), W warning(s)", where F counts the distinct
+files with at least one diagnostic. The exit status is 1 when there was any
+error, else 0.
+
+Ask: should a Windows path with a drive letter (C:\x:3: error: ...) work?
+State your choice.
+
+Example
+  a.txt:1: warning: w / done   ->  1 file(s): 0 error(s), 1 warning(s)   (exit 0)

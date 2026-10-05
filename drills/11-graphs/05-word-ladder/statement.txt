@@ -1,0 +1,16 @@
+Title: Word ladder length
+LeetCode: 127. Word Ladder (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: BFS over one-letter changes
+Timebox: 25
+Kind: function
+Call: ladder_length($begin, $end, \@words) -> $n
+
+Change $begin into $end one letter at a time; every intermediate word and
+$end itself must be in @words ($begin need not be). All words are lowercase
+and the same length. Return the number of words in the shortest such
+sequence, counting $begin and $end, or 0 when there is none.
+
+Examples
+  ladder_length('cold', 'warm', [qw(cord card ward warm word wore)])  ->  5
+  ladder_length('ab', 'cd', [qw(ad)])                                ->  0

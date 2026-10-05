@@ -1,0 +1,16 @@
+Title: Sum a pair
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: parse and compute
+Timebox: 2
+Kind: stdio
+
+Input: one line with two integers a and b, each between -10^9 and 10^9.
+Output: a + b.
+
+Ask why the bounds are stated: in a language with 32-bit int the sum can
+overflow. Perl's integers are 64-bit here.
+
+Examples
+  10 5      ->  15
+  -4 -6     ->  -10

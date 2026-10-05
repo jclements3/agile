@@ -1,0 +1,16 @@
+Title: Rebuild a tree from preorder and inorder
+LeetCode: 105. Construct Binary Tree from Preorder and Inorder Traversal (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: recursive split on the root, index map
+Timebox: 20
+Kind: function
+Call: build_tree(\@preorder, \@inorder) -> $root
+
+Given the preorder (node, left, right) and inorder (left, node, right) listings
+of a binary tree with distinct values, rebuild the tree and return its root
+(nodes { val, left, right }). Empty lists give undef.
+
+Examples (result in level order)
+  preorder [3, 9, 20, 15, 7], inorder [9, 3, 15, 20, 7]
+     ->  [3, 9, 20, undef, undef, 15, 7]
+  preorder [1, 2], inorder [2, 1]  ->  [1, 2]

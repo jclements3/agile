@@ -1,0 +1,15 @@
+Title: Convert to any base
+LeetCode: 504. Base 7 (similar; any base from 2 to 16 here)
+Origin: warmup
+Pattern: repeated division
+Timebox: 5
+Kind: function
+Call: to_base($n, $b) -> $digits
+
+Write the non-negative integer n in base b (2 <= b <= 16) with digits
+0-9 and upper-case A-F.
+
+Examples
+  to_base(255, 16)  ->  "FF"
+  to_base(5, 2)     ->  "101"
+  to_base(0, 8)     ->  "0"

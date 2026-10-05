@@ -1,0 +1,14 @@
+Title: Split into k equal sums
+LeetCode: 698. Partition to K Equal Sum Subsets (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: bucket filling with pruning
+Timebox: 25
+Kind: function
+Call: can_partition_k(\@nums, $k) -> 1 | 0
+
+The values are positive integers. Return true when @nums can be split into
+$k groups (every value in exactly one group) whose sums are all equal.
+
+Examples
+  can_partition_k([4, 3, 2, 3, 5, 2, 1], 4)  ->  true (5, 1+4, 2+3, 2+3)
+  can_partition_k([1, 2, 3, 4], 3)           ->  false

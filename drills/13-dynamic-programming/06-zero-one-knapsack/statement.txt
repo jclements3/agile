@@ -1,0 +1,16 @@
+Title: 0/1 knapsack
+LeetCode: none (a classic; no LeetCode problem states it plainly)
+Origin: technique
+Pattern: 1-D DP over capacity, filled from the top down
+Timebox: 20
+Kind: function
+Call: knapsack(\@weights, \@values, $capacity) -> $best
+
+Item i has weight $weights[i] and value $values[i]; each item can be taken at
+most once. Return the largest total value whose total weight is at most
+$capacity.
+
+Examples
+  knapsack([5, 4, 6, 3], [10, 40, 30, 50], 10)  ->  90   (items 2 and 4)
+  knapsack([4, 2], [100, 7], 3)                 ->  7
+  knapsack([], [], 5)                           ->  0

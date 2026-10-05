@@ -1,0 +1,15 @@
+Title: How many rooms?
+LeetCode: 253. Meeting Rooms II (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: sweep sorted starts against sorted ends
+Timebox: 15
+Kind: function
+Call: min_rooms(\@meetings) -> $n
+
+Each meeting is [start, end) (half-open: a meeting ending at 10 frees its room
+for one starting at 10). Return the fewest rooms that hold every meeting.
+
+Examples
+  min_rooms([[0, 30], [5, 10], [15, 20]])  ->  2
+  min_rooms([[7, 10], [2, 4]])             ->  1
+  min_rooms([])                            ->  0

@@ -1,0 +1,14 @@
+Title: Word lengths
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: hash from a list
+Timebox: 3
+Kind: function
+Call: word_lengths($sentence) -> { word => length }
+
+Return a hash mapping each whitespace-separated word of the sentence to its
+length. A repeated word appears once. An empty sentence gives an empty hash.
+
+Examples
+  word_lengths("the quick fox")  ->  { the => 3, quick => 5, fox => 3 }
+  word_lengths("go go go")       ->  { go => 2 }

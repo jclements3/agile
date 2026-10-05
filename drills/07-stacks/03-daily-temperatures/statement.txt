@@ -1,0 +1,14 @@
+Title: Days until warmer
+LeetCode: 739. Daily Temperatures (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: monotonic stack of indices
+Timebox: 15
+Kind: function
+Call: days_until_warmer(\@temps) -> [...]
+
+For each day, return how many days you must wait for a strictly warmer day;
+0 when no warmer day follows. O(n).
+
+Examples
+  days_until_warmer([70, 68, 72, 71, 75])  ->  [2, 1, 2, 1, 0]
+  days_until_warmer([50, 50])              ->  [0, 0]

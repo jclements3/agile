@@ -1,0 +1,13 @@
+Title: Transpose a matrix
+LeetCode: 867. Transpose Matrix (a pointer only: the statement below is this kit's own)
+Origin: ladder
+Pattern: parse a matrix
+Timebox: 5
+Kind: stdio
+
+Input: line 1 is "R C"; then R lines of C integers each.
+Output: the transpose: C lines of R integers, space-separated.
+
+Examples
+  2 2 / 1 2 / 3 4   ->  1 3 / 2 4
+  1 3 / 5 6 7       ->  5 / 6 / 7

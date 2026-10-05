@@ -1,0 +1,17 @@
+Title: Blocked days per task
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: open/close events per key
+Timebox: 15
+Kind: stdio
+
+Input: events "YYYY-MM-DD ID block" or "YYYY-MM-DD ID unblock" in date
+order, then a last line "today YYYY-MM-DD".
+
+Output: every task that was ever blocked, sorted by ID, as "ID days": the
+total days blocked over all its stretches. A stretch ends at its unblock
+date (same day = 0 days) or, if still open, at today. Add " !" when any
+single stretch lasted more than 5 days.
+
+Example
+  2026-01-01 T-1 block / 2026-01-09 T-1 unblock / today 2026-01-10  ->  T-1 8 !

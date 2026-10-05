@@ -1,0 +1,14 @@
+Title: Top three names
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: sort descending with an ascending tie-break
+Timebox: 4
+Kind: function
+Call: top3_names(\@pairs) -> [ names ]      (each pair is [name, score])
+
+Return the names of the three highest scores, highest first; equal scores
+in name order. Fewer than three pairs: return them all.
+
+Examples
+  top3_names([["ada", 90], ["bob", 95], ["cy", 90], ["dee", 99]])  ->  ["dee", "bob", "ada"]
+  top3_names([["b", 1], ["a", 1], ["c", 1]])                         ->  ["a", "b", "c"]

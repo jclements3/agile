@@ -1,0 +1,14 @@
+Title: Rectangle area
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: arithmetic
+Timebox: 2
+Kind: function
+Call: rect_area($width, $height) -> $area
+
+Return width times height. Either side may be a decimal or zero.
+
+Examples
+  rect_area(3, 4)    ->  12
+  rect_area(2.5, 4)  ->  10
+  rect_area(0, 99)   ->  0

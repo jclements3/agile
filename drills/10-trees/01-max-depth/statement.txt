@@ -1,0 +1,16 @@
+Title: Depth of a binary tree
+LeetCode: 104. Maximum Depth of Binary Tree (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: depth-first recursion
+Timebox: 5
+Kind: function
+Call: max_depth($root) -> $n
+
+A node is { val => V, left => NODE, right => NODE }. Return the number of
+nodes on the longest path from the root down to a leaf. An empty tree
+(undef) has depth 0.
+
+Examples (trees in level order, undef = no child)
+  [3, 9, 20, undef, undef, 15, 7]  ->  3
+  [1]                              ->  1
+  []                               ->  0

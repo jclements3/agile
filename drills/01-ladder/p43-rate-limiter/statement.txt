@@ -1,0 +1,21 @@
+Title: Sliding-window rate limiter
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: per-key queue over a stream
+Timebox: 25
+Kind: stdio
+
+Input: line 1 is "W L": a window of W seconds and a limit of L requests per
+client. Then lines "ts client" until end of input, timestamps never
+decreasing.
+
+A request at time ts is denied when its client already has L allowed
+requests with timestamps in the half-open window (ts - W, ts]. Denied
+requests never count against the limit.
+
+Output: every denied request as "ts client", in input order; or "ok" if
+none was denied.
+
+Examples
+  4 1 / 1 x / 3 x / 5 x   ->  3 x
+  2 1 / 1 y / 3 y         ->  ok

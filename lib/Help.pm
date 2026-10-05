@@ -112,7 +112,7 @@ sub plain {                                                      # Vim help mark
 
 # ---------------------------------------------------------------- lookup
 my @PREFIX = ('', 'agile-', 'agile-daily-', 'agile-howto-', 'agile-verb-', 'agile-conf-', 'agile-scrum-', 'agile-ledger-',
-              'agile-err-', 'agile-practice-', 'agile-idef0-', ':', ':S', ':Idef');
+              'agile-err-', 'agile-practice-', 'agile-idef0-', ':', ':S', ':Idef', 'agile-drills-', ':Drill');
 sub resolve {                                                    # name -> section (exact tag, then common prefixes, then any case)
     my ($h, $name) = @_;
     return undef unless defined $name && length $name;
@@ -489,6 +489,13 @@ sub required_tags {                                              # -> ( [tag, wh
     my $sy = _slurp("$r/vim/ftplugin/sysml.vim") // '';
     push @req, map { [ ":$_", ":$_ (vim/ftplugin/sysml.vim)" ] } ($sy =~ /^command!.*?\s(Sys\w+)\s/mg);
     push @req, map { [ "\\$_", "\\$_ (vim/ftplugin/sysml.vim)" ] } ($sy =~ /<LocalLeader>(\w+)\s/g);
+    my $dr = _slurp("$r/drills/drill.pl") // '';                # the coding drills: drill.pl's %CMDS, the :Drill commands, the \d keys
+    if ($dr =~ /my %CMDS = \((.*?)\n\);/s) { my $t = $1; push @req, map { [ "agile-drills-$_", "drill.pl $_" ] } ($t =~ /(\w+)\s*=>\s*\\&/g) }
+    for my $vf ('vim/plugin/drills.vim', 'vim/autoload/drills.vim') {
+        my $vt = _slurp("$r/$vf") // '';
+        push @req, map { [ ":$_", ":$_ ($vf)" ] } ($vt =~ /^command!.*?\s(Drill\w+)\s/mg);
+        push @req, map { [ "\\$_", "\\$_ ($vf)" ] } ($vt =~ /<(?:Local)?Leader>(\w+)\s/g);
+    }
     my $st = _slurp("$r/lib/Standup.pm") // '';
     my %verb;
     $verb{$_} = 1 for ($st =~ /\$verb eq '([\w!]+)'/g);
@@ -503,12 +510,13 @@ sub required_tags {                                              # -> ( [tag, wh
     if (my $dc = _slurp("$r/data/demo/scrum.conf")) { $conf{$_} = 1 for ($dc =~ /^\s*(\w+)\s*=/mg) }
     push @req, map { [ "agile-conf-$_", "scrum.conf key $_" ] } sort keys %conf;
     my %pending = ('bin/status-metrics.pl' => 'agile-status-metrics', 'bin/xmi2sysml.pl' => 'agile-xmi2sysml', 'bin/reqif2sysml.pl' => 'agile-reqif2sysml',
-                   'tools/sysml/sysml.pl' => 'agile-sysml', 'tools/sysml/model.pl' => 'agile-model-pl');
+                   'tools/sysml/sysml.pl' => 'agile-sysml', 'tools/sysml/model.pl' => 'agile-model-pl', 'drills/drill.pl' => 'agile-drills',
+                   'vim/plugin/drills.vim' => 'agile-drills-trainer');
     for my $p (sort keys %pending) { push @req, [ $pending{$p}, "$p exists" ] if -f "$r/$p" }
     my %seen; grep { !$seen{ $_->[0] }++ } @req;
 }
 
-our @MESSAGE_FILES = (qw(agile.pl tools/idef0/idef0.pl tools/memo/md2memo.pl tools/sysml/sysml.pl tools/sysml/model.pl));
+our @MESSAGE_FILES = (qw(agile.pl tools/idef0/idef0.pl tools/memo/md2memo.pl tools/sysml/sysml.pl tools/sysml/model.pl drills/drill.pl));
 our %PENDING_FILES = ();                                         # files whose catalog sections are still placeholders: none
 sub message_files {
     my $r = shift // root();

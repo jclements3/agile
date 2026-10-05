@@ -1,0 +1,16 @@
+Title: Palindrome, letters and digits only
+LeetCode: 125. Valid Palindrome (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: two pointers from both ends
+Timebox: 5
+Kind: function
+Call: is_palindrome_alnum($s) -> 1 or 0
+
+Return true when $s reads the same forwards and backwards once everything but
+letters and digits is ignored and case is folded. Use O(1) extra space: do
+not build the cleaned string.
+
+Examples
+  is_palindrome_alnum('No lemon, no melon')  ->  1
+  is_palindrome_alnum('ab, c')               ->  0
+  is_palindrome_alnum(' , ')                 ->  1

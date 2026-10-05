@@ -1,0 +1,14 @@
+Title: The last k events
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: bounded queue
+Timebox: 3
+Kind: function
+Call: last_k(\@events, $k) -> [ ... ]
+
+Return the last k events in their original order (all of them when there
+are fewer than k). Walk the events once, keeping at most k.
+
+Examples
+  last_k([1, 2, 3, 4], 2)  ->  [3, 4]
+  last_k([1], 5)           ->  [1]

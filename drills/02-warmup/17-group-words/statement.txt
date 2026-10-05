@@ -1,0 +1,14 @@
+Title: Group by first letter
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: hash of arrays
+Timebox: 4
+Kind: function
+Call: group_words(\@words) -> { letter => [words] }
+
+Return a hash from each first letter to the list of words starting with it,
+each list in the order the words appear. Words are non-empty.
+
+Examples
+  group_words(["ant", "bee", "ape"])  ->  { a => ["ant", "ape"], b => ["bee"] }
+  group_words([])                     ->  {}

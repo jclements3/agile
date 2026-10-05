@@ -1,0 +1,15 @@
+Title: Validate the feeds first
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: separate validation from solving
+Timebox: 5
+Kind: function
+Call: validate_feeds(\@a, \@b) -> 'empty feed' | undef
+
+Return the string 'empty feed' when either list is empty, otherwise undef.
+Trivial on purpose: the point is that validation is its own function, so a
+new rule ("some inputs are now invalid") has one place to go.
+
+Examples
+  validate_feeds([], [1])   ->  'empty feed'
+  validate_feeds([1], [2])  ->  undef

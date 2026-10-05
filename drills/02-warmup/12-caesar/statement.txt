@@ -1,0 +1,15 @@
+Title: Caesar cipher
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: modular arithmetic on character codes
+Timebox: 5
+Kind: function
+Call: caesar($s, $k) -> $shifted
+
+Shift every letter k places forward in the alphabet, wrapping from z to a,
+keeping its case. Anything that is not a letter is unchanged. k >= 0.
+
+Examples
+  caesar("abc", 2)            ->  "cde"
+  caesar("XYZ", 3)            ->  "ABC"
+  caesar("Hello, World!", 13) ->  "Uryyb, Jbeyq!"

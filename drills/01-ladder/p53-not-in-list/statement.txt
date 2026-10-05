@@ -1,0 +1,16 @@
+Title: In one list, not the other
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: hash set difference
+Timebox: 15
+Kind: stdio
+
+Input: a first list of ids, one per line, then a line holding only ---,
+then a second list of ids.
+Output: the ids of the first list that are not in the second, in
+first-list order, each once; or a single line "-" when there are none.
+Blank lines are ignored.
+
+Examples
+  X-1 / X-2 / --- / X-1   ->  X-2
+  K / --- / K             ->  -

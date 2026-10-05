@@ -1,0 +1,2 @@
+Title: Binary search
+Halve the range every step: on sorted data, on a rotated array, or on the answer itself when a yes/no test is monotonic.

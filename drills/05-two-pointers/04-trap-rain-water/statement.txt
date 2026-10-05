@@ -1,0 +1,15 @@
+Title: Trapped rain water
+LeetCode: 42. Trapping Rain Water (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: two pointers with running maxima
+Timebox: 25
+Kind: function
+Call: trapped_water(\@heights) -> $units
+
+Columns of width 1 have the given heights. After rain, water sits above a
+column up to the lower of the tallest column on its left and the tallest on
+its right. Return the total units of water held. O(n) time, O(1) space.
+
+Examples
+  trapped_water([3, 0, 2, 0, 4])  ->  7
+  trapped_water([1, 2, 3])        ->  0

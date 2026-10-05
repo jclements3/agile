@@ -1,0 +1,15 @@
+Title: First value seen twice
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: hash set of what was seen
+Timebox: 5
+Kind: function
+Call: first_duplicate(\@xs) -> $value or undef
+
+Scan @xs from left to right and return the first value that appears for the
+second time (the one whose repeat comes earliest). Return undef when every
+value is unique.
+
+Examples
+  first_duplicate([3, 8, 1, 8, 3])  ->  8    (8 repeats before 3 does)
+  first_duplicate([1, 2, 3])        ->  undef

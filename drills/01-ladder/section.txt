@@ -1,0 +1,2 @@
+Title: The ladder
+Twenty-nine stdin-to-stdout problems in six tiers, trivial to field work: t0 noop, t1 basics, t2 patterns, t3 hard, t4 pro, t5 field drills. Solve in order inside the timebox.

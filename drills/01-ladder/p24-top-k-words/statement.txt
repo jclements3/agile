@@ -1,0 +1,15 @@
+Title: Top k words
+LeetCode: 692. Top K Frequent Words (a pointer only: the statement below is this kit's own)
+Origin: ladder
+Pattern: hash counting, two-level sort
+Timebox: 10
+Kind: stdio
+
+Input: line 1 is k; every later line (to end of input) holds words
+separated by whitespace. At least k distinct words appear.
+Output: k lines "word count", most frequent first; equal counts in
+alphabetical order.
+
+Examples
+  1 / x y x       ->  x 2
+  2 / q p / p q   ->  p 2 / q 2

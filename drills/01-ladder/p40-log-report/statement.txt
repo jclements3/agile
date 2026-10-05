@@ -1,0 +1,20 @@
+Title: Error report from messy logs
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: parse, validate, count, report
+Timebox: 25
+Kind: stdio
+
+Input: log lines until end of input. A line is well-formed when it reads
+"STAMP LEVEL SERVICE: MESSAGE": STAMP is any token without spaces, LEVEL is
+exactly INFO, WARN or ERROR, SERVICE is a non-empty name ending in a colon,
+and MESSAGE is the rest (it may be empty). Blank lines are skipped. Every
+other non-blank line is malformed: count it and skip it.
+
+Output: for each service with at least one ERROR line, "service count",
+by count descending then name ascending; then the line "malformed N",
+always printed.
+
+Examples
+  t1 ERROR db: down / t2 TRACE db: x   ->  db 1 / malformed 1
+  (no lines)                           ->  malformed 0

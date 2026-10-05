@@ -1,0 +1,15 @@
+Title: Anagram check
+LeetCode: 242. Valid Anagram (similar; case and spaces ignored here)
+Origin: warmup
+Pattern: canonical form
+Timebox: 4
+Kind: function
+Call: is_anagram($x, $y) -> 1 | 0
+
+True when the two strings use exactly the same letters the same number of
+times, ignoring case and spaces.
+
+Examples
+  is_anagram("Listen", "Silent")            ->  true
+  is_anagram("a gentleman", "elegant man")  ->  true
+  is_anagram("ab", "abb")                   ->  false

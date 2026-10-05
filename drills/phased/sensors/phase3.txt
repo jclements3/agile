@@ -1,0 +1,8 @@
+PHASE 3 of 4: uneven feeds
+--------------------------
+The feeds now have different lengths. Some detections in A have no partner
+in B, and B carries clutter that matches nothing. A detection may be used in
+at most one pair.
+
+Return the pairs AND the detections left over in each feed (unpaired_a,
+unpaired_b).

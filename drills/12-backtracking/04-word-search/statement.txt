@@ -1,0 +1,15 @@
+Title: Find a word in a letter grid
+LeetCode: 79. Word Search (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: DFS with a visited mark, undone on the way back
+Timebox: 20
+Kind: function
+Call: exist(\@rows, $word) -> 1 | 0
+
+The board is an array ref of equal-length strings. Return true when $word can
+be spelled by a path of cells, each step up, down, left or right, using no
+cell twice.
+
+Examples (board ABCE / SFCS / ADEE)
+  exist(board, 'ABCCED')  ->  true
+  exist(board, 'ABCB')    ->  false (B would be reused)

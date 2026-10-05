@@ -1,0 +1,16 @@
+Title: Best sum of k in a row
+LeetCode: 643. Maximum Average Subarray I (similar; this returns the sum)
+Origin: lessons
+Pattern: fixed-size rolling window
+Timebox: 5
+Kind: function
+Call: best_window_sum(\@xs, $k) -> $sum
+
+Return the largest sum of any $k consecutive elements of @xs, in O(n): roll
+the sum along instead of re-adding every window.
+
+Constraints: 1 <= k <= n; integers, possibly negative.
+
+Examples
+  best_window_sum([1, 3, -2, 5, 4], 2)  ->  9
+  best_window_sum([-4, -1, -7], 1)      ->  -1

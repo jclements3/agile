@@ -1,0 +1,14 @@
+Title: Parse key=value lines
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: split on the first separator only
+Timebox: 4
+Kind: function
+Call: parse_config($text) -> { key => number }
+
+Each non-blank line of the text is key=value with an integer value. Return
+the hash. Blank lines are skipped. Split on the FIRST '=' only.
+
+Examples
+  parse_config("a=1\nb=2")     ->  { a => 1, b => 2 }
+  parse_config("x=5\n\ny=6\n") ->  { x => 5, y => 6 }

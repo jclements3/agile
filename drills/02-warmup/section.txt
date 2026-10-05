@@ -1,0 +1,2 @@
+Title: Warm-up
+Thirty-minute reflexes: small functions from trivial to a recursive-descent parser, each one a single idea (formatting, loops, hashes, recursion, dynamic programming, a class).

@@ -1,0 +1,2 @@
+Title: Pro: code that survives a changed requirement
+The helpers a phased drill is made of, and bugs that pass the happy path: small named functions, a stated contract, the boundary checked.

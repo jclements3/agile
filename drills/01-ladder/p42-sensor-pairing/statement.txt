@@ -1,0 +1,21 @@
+Title: Sensor feed pairing
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: candidate list, sort by cost, greedy take
+Timebox: 25
+Kind: stdio
+
+Two feeds report detections "id time bearing" of the same sky. Input:
+line 1 is "t_tol b_tol"; then nA and nA lines for feed A; then nB and nB
+lines for feed B. Ids have no spaces.
+
+Detections a, b are compatible when |a.t - b.t| <= t_tol and their bearing
+difference <= b_tol, the difference wrapping around 360 (350 and 10 are 20
+apart). Repeatedly pair the compatible unused pair with the lowest cost
+|dt| + bearing difference; exact ties go to the smaller A id, then B id.
+
+Output: NO PAIRING if nothing pairs. Otherwise "Aid Bid" per pair by A id,
+then "unpaired A: ids" and "unpaired B: ids" (ids ascending, or "-").
+
+Example
+  1 5 / 1 / a 0 350 / 2 / b 0.5 8 / c 9 0  ->  a b / unpaired A: - / unpaired B: c

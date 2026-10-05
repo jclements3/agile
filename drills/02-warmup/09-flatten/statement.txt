@@ -1,0 +1,15 @@
+Title: Flatten one level
+LeetCode: none (an original problem)
+Origin: warmup
+Pattern: nested loop, one level
+Timebox: 3
+Kind: function
+Call: flatten(\@lists) -> [ ... ]
+
+Given a list of lists, return one list of all their elements in order. Only
+one level: an element that is itself a list stays a list.
+
+Examples
+  flatten([[1, 2], [3], [4, 5]])  ->  [1, 2, 3, 4, 5]
+  flatten([[], [1], []])          ->  [1]
+  flatten([])                     ->  []

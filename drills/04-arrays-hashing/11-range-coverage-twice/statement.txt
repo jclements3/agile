@@ -1,0 +1,15 @@
+Title: Covered at least twice
+LeetCode: 1094. Car Pooling (similar; same difference-array idea)
+Origin: mock
+Pattern: difference array and prefix sum
+Timebox: 15
+Kind: function
+Call: covered_twice($n, \@ranges) -> $count
+
+Items are numbered 1..$n. Each range [a, b] (inclusive, 1 <= a <= b <= n)
+covers items a to b. Return how many items are covered by two or more ranges.
+n can be 10^6 with 10^5 ranges: O(n + q), not O(n * q).
+
+Examples
+  covered_twice(10, [[1, 5], [4, 8], [5, 5]])  ->  2    (items 4 and 5)
+  covered_twice(5, [])                         ->  0

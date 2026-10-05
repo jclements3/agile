@@ -1,0 +1,15 @@
+Title: Min stack
+LeetCode: 155. Min Stack (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: a second stack of running minimums
+Timebox: 10
+Kind: class
+Call: MinStack->new; $s->push($x); $s->pop; $s->top; $s->get_min
+
+Build a stack class whose push, pop, top and get_min all run in O(1). pop
+returns the value removed; top returns the last value pushed and not yet
+popped; get_min returns the smallest value currently on the stack. The tests
+never pop or peek an empty stack.
+
+Example
+  new; push 3; push 1; get_min -> 1; pop -> 1; get_min -> 3; top -> 3

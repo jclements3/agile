@@ -30,6 +30,7 @@ my @LESSONS = (
     { n => 6, kind => 'idef0',     check => \&check_6 },
     { n => 7, kind => 'halberd',   check => \&check_7, memo => 1 },
     { n => 8, kind => 'sysml',     check => \&check_8, needs => [ 'tools/sysml/sysml.pl', 'bin/xmi2sysml.pl' ] },
+    { n => 9, kind => 'drills',    check => \&check_9, needs => [ 'drills/drill.pl', 'drills/01-ladder/p12-dedup/stub.pl' ] },
 );
 my %LESSON = map { $_->{n} => $_ } @LESSONS;
 
@@ -118,6 +119,7 @@ sub setup {
     elsif ($l->{kind} eq 'dronecorp') { _setup_dronecorp($dir, $today, \%info, chat => $l->{chat}) }
     elsif ($l->{kind} eq 'idef0')     { _setup_idef0($dir, \%info) }
     elsif ($l->{kind} eq 'sysml')     { _setup_sysml($dir, \%info) }
+    elsif ($l->{kind} eq 'drills')    { push @{ $info{notes} }, "drill.pl  = perl $ROOT/drills/drill.pl --dir $dir   (the sandbox is the drills workspace)" }
     _setup_memo($dir, \%info) if $l->{memo};
     if (-d "$dir/.git") { $info{head} = _git_commit($dir, "practice lesson $n: set-up") }
     _spit("$dir/.practice", join('', map { "$_ = " . ($info{$_} // '') . "\n" } grep { !ref $info{$_} } sort keys %info));
@@ -375,6 +377,19 @@ sub check_8 {
      [ @f && $open == 0, $open ? "$open TODO line(s) neither fixed nor marked TODO(reviewed)" : "no open TODO lines ($reviewed marked reviewed)" ],
      [ defined $said && $said == $left, !defined $said ? 'NOTES.txt has no "TODO: N" line' : $said == $left ? "NOTES.txt counts $left TODO line(s) left, right" : "NOTES.txt says TODO: $said, but $left TODO line(s) are left" ],
      [ !$lrc && $st !~ /\S/, $lrc ? 'nothing committed yet (git add model NOTES.txt; git commit)' : $st =~ /\S/ ? 'uncommitted changes (git status)' : 'the port is committed' ]);
+}
+sub check_9 {
+    my ($dir, $info) = @_;
+    my $id = 'p12-dedup';
+    my (@start, @pass, @log);
+    for (split /\n/, _slurp("$dir/attempts.txt") // '') { my @f = split /\t/; next unless @f >= 3 && $f[2] eq $id; push @start, 1 if $f[1] eq 'start'; push @pass, 1 if $f[1] eq 'test' && ($f[3] // '') =~ /^pass/ }
+    for (split /\n/, _slurp("$dir/log.txt") // '') { next if /^\s*#/; my @f = map { my $x = $_; $x =~ s/^\s+|\s+$//g; $x } split /\|/, $_, 5; push @log, \@f if @f >= 4 && $f[1] eq $id }
+    my $mine = _slurp("$dir/$id.pl") // '';
+    my $stub = _slurp("$ROOT/drills/01-ladder/$id/stub.pl") // '';
+    ([ scalar @start, @start ? "$id started" : "$id not started (drill.pl start $id)" ],
+     [ $mine ne '' && $mine ne $stub, $mine eq '' ? "no $id.pl in the sandbox" : $mine eq $stub ? "$id.pl is still the stub: write the solution" : "$id.pl holds your solution" ],
+     [ scalar @pass, @pass ? "a passing test of $id is recorded" : "no passing test of $id yet (drill.pl test $id)" ],
+     [ scalar(grep { $_->[3] eq 'pass' } @log), @log ? "the drill log has $id" . ((grep { $_->[3] eq 'pass' } @log) ? '' : ' but not as passed') : "no drill log entry for $id (drill.pl log $id NOTE)" ]);
 }
 
 1;

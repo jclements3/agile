@@ -1,0 +1,2 @@
+Title: Heaps
+Top k, the next event, a running median: core Perl has no heap, so write heap_push and heap_pop once and reuse them.

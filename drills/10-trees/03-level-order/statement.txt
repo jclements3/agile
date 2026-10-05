@@ -1,0 +1,14 @@
+Title: Level-order traversal
+LeetCode: 102. Binary Tree Level Order Traversal (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: breadth-first search, one level per pass
+Timebox: 10
+Kind: function
+Call: level_order($root) -> [[...], [...], ...]
+
+Return the node values level by level, top to bottom, each level left to
+right, as an array ref of array refs. The empty tree gives [].
+
+Examples
+  [3, 9, 20, undef, undef, 15, 7]  ->  [[3], [9, 20], [15, 7]]
+  [1]                              ->  [[1]]

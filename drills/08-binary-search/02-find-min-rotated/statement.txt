@@ -1,0 +1,16 @@
+Title: Smallest value of a rotated list
+LeetCode: 153. Find Minimum in Rotated Sorted Array (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: binary search for the rotation point
+Timebox: 15
+Kind: function
+Call: find_min_rotated(\@nums) -> $min
+
+@nums held distinct values in ascending order and was then rotated by some
+amount (possibly zero). Return its smallest value in O(log n).
+
+Constraints: n >= 1.
+
+Examples
+  find_min_rotated([5, 7, 9, 1, 3])  ->  1
+  find_min_rotated([2, 4, 6])        ->  2

@@ -1,0 +1,16 @@
+Title: Score counts from a tab-separated table
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: fixed-order counting
+Timebox: 15
+Kind: stdio
+
+Input: a tab-separated table whose first line is a header. Column 1 is an
+element id; column 4 is a score, one of: in place, partial, missing,
+unknown (note the space in "in place").
+
+Output: one line per score, always in the order in place, partial, missing,
+unknown, as "score: count" (0 when absent), then "total: N".
+
+Examples
+  header + one row scored missing  ->  in place: 0 / partial: 0 / missing: 1 / unknown: 0 / total: 1

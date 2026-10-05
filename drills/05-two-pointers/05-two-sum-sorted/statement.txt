@@ -1,0 +1,16 @@
+Title: Two sum on sorted input
+LeetCode: 167. Two Sum II - Input Array Is Sorted (a pointer only: the statement below is this kit's own)
+Origin: lessons
+Pattern: two pointers on sorted data
+Timebox: 10
+Kind: function
+Call: two_sum_sorted(\@sorted, $target) -> [$lo, $hi] or undef
+
+@sorted is in ascending order. Return 0-based indices [lo, hi], lo < hi, of two
+values summing to $target, found by moving one pointer from each end (the
+first pair that walk meets). Return undef when there is none. O(1) extra
+space: no hash.
+
+Examples
+  two_sum_sorted([1, 2, 4, 7], 9)  ->  [1, 3]
+  two_sum_sorted([1, 2], 5)        ->  undef

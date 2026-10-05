@@ -1,0 +1,2 @@
+Title: Intervals
+Sort by start (or by end), then sweep once, carrying the interval you are building.

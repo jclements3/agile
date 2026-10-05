@@ -1,0 +1,13 @@
+Title: Min, max, sum
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: parse a count, then a row
+Timebox: 2
+Kind: stdio
+
+Input: line 1 is n (n >= 1); line 2 holds n integers.
+Output: "min max sum" on one line.
+
+Examples
+  3 / 4 -2 10   ->  -2 10 12
+  1 / 7         ->  7 7 7

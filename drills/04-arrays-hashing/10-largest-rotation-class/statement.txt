@@ -1,0 +1,16 @@
+Title: Largest rotation class
+LeetCode: 796. Rotate String (similar; this groups many strings)
+Origin: mock
+Pattern: canonical form as a hash key
+Timebox: 15
+Kind: function
+Call: largest_rotation_class(\@words) -> $size
+
+Two strings are equivalent when one is a rotation of the other: moving some
+leading characters to the end turns one into the other ("abcd" and "cdab").
+Group @words into equivalence classes and return the size of the largest
+class. No words -> 0.
+
+Examples
+  largest_rotation_class(['abcd', 'cdab', 'bcda', 'abdc'])  ->  3
+  largest_rotation_class(['a', 'a', 'b'])                   ->  2

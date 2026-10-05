@@ -1,0 +1,16 @@
+Title: Stairs, 1 to 3 steps at a time
+LeetCode: 70. Climbing Stairs (similar: there the step is 1 or 2)
+Origin: lessons
+Pattern: memoized recurrence
+Timebox: 10
+Kind: function
+Call: climb3($n) -> $ways
+
+Count the different ways to climb n stairs when each move climbs 1, 2 or 3
+stairs (order matters: 1+2 and 2+1 differ). Zero stairs can be climbed one
+way: by doing nothing.
+
+Examples
+  climb3(4)  ->  7
+  climb3(1)  ->  1
+  climb3(0)  ->  1

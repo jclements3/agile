@@ -1,0 +1,16 @@
+Title: Sieve of Eratosthenes
+LeetCode: 204. Count Primes (similar; the primes themselves here)
+Origin: warmup
+Pattern: sieve
+Timebox: 6
+Kind: function
+Call: primes_up_to($n) -> [ primes <= n ]
+
+Return every prime less than or equal to n, ascending, using a sieve: mark
+the multiples of each prime as composite. Be ready to say why crossing off
+can start at p * p.
+
+Examples
+  primes_up_to(20)  ->  [2, 3, 5, 7, 11, 13, 17, 19]
+  primes_up_to(2)   ->  [2]
+  primes_up_to(1)   ->  []

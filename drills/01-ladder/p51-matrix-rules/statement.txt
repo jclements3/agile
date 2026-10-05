@@ -1,0 +1,20 @@
+Title: Matrix rules check
+LeetCode: none (an original problem)
+Origin: ladder
+Pattern: a list of (test, message) rules
+Timebox: 15
+Kind: stdio
+
+Input: the same kind of tab-separated table with a header, six columns: ID,
+element, domain, score, kind (1 to 6, or empty), ref.
+
+Rules, checked per row in this order: the score must be one of in place,
+partial, missing, unknown ("bad score"); an "in place" row needs a kind from
+1 to 4 ("in place needs kind 1-4") and a non-empty ref ("in place needs a
+ref").
+
+Output: one line "ID: message" per broken rule, rows in input order; then
+"OK" when nothing broke, else "N problem(s)".
+
+Example
+  one row: SE-9 x y in place 5 (empty ref)  ->  SE-9: in place needs kind 1-4 / SE-9: in place needs a ref / 2 problem(s)

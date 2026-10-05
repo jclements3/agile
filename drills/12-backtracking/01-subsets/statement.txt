@@ -1,0 +1,14 @@
+Title: All subsets
+LeetCode: 78. Subsets (a pointer only: the statement below is this kit's own)
+Origin: technique
+Pattern: include or exclude each element
+Timebox: 10
+Kind: function
+Call: subsets(\@nums) -> [[...], ...]
+
+The values in @nums are distinct. Return all 2^n subsets (the empty one
+included), each as an array ref, in any order.
+
+Examples
+  subsets([1, 2])  ->  [[], [1], [2], [1, 2]]
+  subsets([])      ->  [[]]

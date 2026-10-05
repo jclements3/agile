@@ -1,0 +1,13 @@
+Title: Interleave two lists
+LeetCode: none (an original problem)
+Origin: lessons
+Pattern: zip by index
+Timebox: 3
+Kind: function
+Call: interleave(\@a, \@b) -> [ a0, b0, a1, b1, ... ]
+
+The two lists have the same length. Return a0, b0, a1, b1, and so on.
+
+Examples
+  interleave([1, 2, 3], [4, 5, 6])  ->  [1, 4, 2, 5, 3, 6]
+  interleave([], [])                ->  []

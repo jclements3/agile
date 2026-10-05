@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1093" height="598" viewBox="0 0 1093 598" font-family="IBM Plex Mono,monospace">
+<rect width="1093" height="598" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<path d="M497,101 H535 Q542,101 542,108 V256 Q542,263 549,263 H605" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="546" y="182" font-size="9">Associations</text>
+<rect x="281" y="56" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="389.0" y="80" font-size="12" text-anchor="middle">Associate Detections<title>Pair each detection with a track, or start a new one.</title></text>
+<text x="491" y="138" font-size="10" text-anchor="end" fill="#555">T1</text>
+<path d="M241,83 H281" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="237" y="80" font-size="9" text-anchor="end">Detection Set  [&lt; D:D2.o1]</text>
+<path d="M389,176 V146" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="393" y="174" font-size="9"><tspan>Fire Control Software</tspan></text>
+<rect x="605" y="218" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="713.0" y="242" font-size="12" text-anchor="middle">Maintain Tracks<title>Update, start and drop tracks.</title></text>
+<text x="815" y="300" font-size="10" text-anchor="end" fill="#555">T2</text>
+<path d="M821,245 H861" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="865" y="242" font-size="9">Track Set  [&gt; I:I1.i1]</text>
+<path d="M713,338 V308" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="717" y="336" font-size="9"><tspan>Fire Control Software</tspan></text>
+<rect x="0" y="544" width="1093" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="544" x2="99" y2="598" stroke="#222"/>
+<line x1="994" y1="544" x2="994" y2="598" stroke="#222"/>
+<text x="10" y="560" font-size="10">NODE</text>
+<text x="10" y="580" font-size="12">T0</text>
+<text x="110" y="560" font-size="10">TITLE</text>
+<text x="110" y="580" font-size="12">Track<title>Associate detections with tracks and keep every track up to date.</title></text>
+<text x="1004" y="560" font-size="10">NUMBER</text>
+<text x="1004" y="580" font-size="12">p.3</text>
+</svg>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1066" height="634" viewBox="0 0 1066 634" font-family="IBM Plex Mono,monospace">
+<rect width="1066" height="634" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<text x="605" y="32" font-size="11">Threat Library</text>
+<path d="M686,36 V254" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<path d="M479,137 H517 Q524,137 524,144 V292 Q524,299 531,299 H587" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="528" y="218" font-size="9">Track Features</text>
+<rect x="272" y="92" width="207" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="375.5" y="116" font-size="12" text-anchor="middle">Characterize Tracks<title>Collect what is observed about each track.</title></text>
+<text x="473" y="174" font-size="10" text-anchor="end" fill="#555">I1</text>
+<path d="M232,119 H272" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="228" y="116" font-size="9" text-anchor="end">Track Set  [&lt; T:T2.o1]</text>
+<path d="M375,212 V182" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="379" y="210" font-size="9"><tspan>Fire Control Software</tspan></text>
+<rect x="587" y="254" width="207" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="690.5" y="278" font-size="12" text-anchor="middle">Classify Threats<title>Match track features against the threat library.</title></text>
+<text x="788" y="336" font-size="10" text-anchor="end" fill="#555">I2</text>
+<path d="M794,281 H834" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="838" y="278" font-size="9">Classified Track Set  [&gt; C:C1.i1]</text>
+<path d="M690,374 V344" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="694" y="372" font-size="9"><tspan>Fire Control Software</tspan></text>
+<rect x="0" y="580" width="1066" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="580" x2="99" y2="634" stroke="#222"/>
+<line x1="967" y1="580" x2="967" y2="634" stroke="#222"/>
+<text x="10" y="596" font-size="10">NODE</text>
+<text x="10" y="616" font-size="12">I0</text>
+<text x="110" y="596" font-size="10">TITLE</text>
+<text x="110" y="616" font-size="12">Identify<title>Decide what each track is, against the threat library.</title></text>
+<text x="977" y="596" font-size="10">NUMBER</text>
+<text x="977" y="616" font-size="12">p.4</text>
+</svg>

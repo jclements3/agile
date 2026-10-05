@@ -1,0 +1,160 @@
+// Errata for vendor/sysml-v2-release/bnf/SysML-textual-bnf.kebnf (release 2026-08).
+//
+// Read after the published SysML grammar (and the KerML grammar and errata); a rule
+// here replaces the published rule of the same name. Each erratum: the published
+// rule, the evidence from the official library or examples, and why.
+
+// E-S1 DefinitionElement: AllocationDefinition is defined but listed nowhere, so
+//   'allocation def' could never be parsed.
+//   Evidence:   sysml.library/Systems Library/Allocations.sysml:11
+//               allocation def Allocation :> BinaryConnection {
+DefinitionElement : Element =
+      Package
+    | LibraryPackage
+    | AnnotatingElement
+    | Dependency
+    | AttributeDefinition
+    | EnumerationDefinition
+    | OccurrenceDefinition
+    | IndividualDefinition
+    | ItemDefinition
+    | PartDefinition
+    | ConnectionDefinition
+    | FlowDefinition
+    | InterfaceDefinition
+    | AllocationDefinition
+    | PortDefinition
+    | ActionDefinition
+    | CalculationDefinition
+    | StateDefinition
+    | ConstraintDefinition
+    | RequirementDefinition
+    | ConcernDefinition
+    | CaseDefinition
+    | AnalysisCaseDefinition
+    | VerificationCaseDefinition
+    | UseCaseDefinition
+    | ViewDefinition
+    | ViewpointDefinition
+    | RenderingDefinition
+    | MetadataDefinition
+    | ExtendedDefinition
+
+// E-S2 LibraryPackage: 'standard' is optional (as E-K2).
+//   Evidence:   examples/sysml/.../14c-Language Extensions.sysml:4  library package 'User Defined Extensions' {
+LibraryPackage =
+    ( isStandard ?= 'standard' )? 'library'
+    ( ownedRelationship += PrefixMetadataMember )*
+    PackageDeclaration PackageBody
+
+// E-S3 FlowEndSubsetting: a single-segment owner is followed by '.' (as in the KerML
+//   FlowEnd rule); without it 'flow A2.a to F.a' cannot be parsed.
+//   Published:  referencedFeature = [QualifiedName] | referencedFeature = FeatureChainPrefix ...
+//   Evidence:   examples/sysml (flow A2.a to F.a;  flow autoFocus.realImage to imager.focusedImage;)
+FlowEndSubsetting : ReferenceSubsetting =
+      referencedFeature = [QualifiedName] '.'
+    | referencedFeature = FeatureChainPrefix
+      { ownedRelatedElement += referencedFeature }
+
+// E-S4 CaseBodyItem: a case body may hold calculation items, including 'return'
+//   (Pilot: CaseBodyItem = CalculationBodyItem | ...).
+//   Published:  ActionBodyItem | ...
+//   Evidence:   sysml.library/Systems Library/Cases.sysml:49     return ref result[0..*] {
+CaseBodyItem : Type =
+      CalculationBodyItem
+    | ownedRelationship += SubjectMember
+    | ownedRelationship += ActorMember
+    | ownedRelationship += ObjectiveMember
+
+// E-S5 SatisfyRequirementUsage: 'assert' and 'not' are optional, and the declaration
+//   after 'requirement' is optional (Pilot grammar). Published has
+//   'assert' ( isNegated ?= 'not' ) 'satisfy' ... 'requirement' UsageDeclaration
+//   Evidence:   sysml.library/Systems Library/Views.sysml:37   satisfy requirement viewpointConformance by that {
+//               examples: satisfy 'vehicle1-c1 Specification' by vehicle1_c1 {
+SatisfyRequirementUsage =
+    OccurrenceUsagePrefix 'assert'? ( isNegated ?= 'not' )? 'satisfy'
+    ( ownedRelationship += OwnedReferenceSubsetting
+      FeatureSpecializationPart?
+    | 'requirement' UsageDeclaration? )
+    ValuePart?
+    ( 'by' ownedRelationship += SatisfactionSubjectMember )?
+    RequirementBody
+
+// E-S6 OccurrenceUsagePrefix: an occurrence usage (item, part, port, occurrence, ...)
+//   may be an end feature (Pilot: ( EndUsagePrefix | BasicUsagePrefix ... ) ...).
+//   Published:  BasicUsagePrefix ( isIndividual ?= 'individual' )? ( portionKind ... )? UsageExtensionKeyword*
+//   Evidence:   sysml.library/Systems Library/Interfaces.sysml:72   end port source: Port :>> BinaryConnection::source;
+//               sysml.library/Systems Library/Items.sysml:142       end touchesToo [0..*] item touchedItemToo :>> ...
+OccurrenceUsagePrefix : OccurrenceUsage =
+    ( EndUsagePrefix
+    | BasicUsagePrefix
+      ( isIndividual ?= 'individual' )?
+      ( portionKind = PortionKind
+        { isPortion = true }
+      )?
+    )
+    UsageExtensionKeyword*
+
+// E-S7 DefaultReferenceUsage: a default (keyword-less) reference usage may be an end
+//   feature, and it needs a declaration (Pilot: ( isEnd ?= 'end' )? RefPrefix
+//   UsageDeclaration ValuePart? UsageBody). With the published 'RefPrefix Usage' every
+//   part is optional, so a stray ';' would parse as an empty reference usage.
+//   Published:  RefPrefix Usage
+//   Evidence:   sysml.library/Systems Library/Connections.sysml:43  end source: Anything :>> BinaryLinkObject::source;
+//               crosscheck: the Pilot rejects a stray ';' inside a body
+//   In the published grammar Identification (and so UsageDeclaration) may be empty, which
+//   is how it expresses the Pilot's 'UsageDeclaration?' elsewhere; a keyword-less usage
+//   needs a real declaration, so it is spelled out here (Pilot FeatureDeclaration).
+DefaultReferenceUsage : ReferenceUsage =
+    ( isEnd ?= 'end' )? RefPrefix
+    ( FeatureIdentification FeatureSpecializationPart?
+    | FeatureSpecializationPart )
+    ValuePart? UsageBody
+
+// E-S8 EntryTransitionMember: after 'then' comes a TransitionSuccession (empty source
+//   end + target), not a TargetSuccession (which has its own 'then' and would need
+//   'then then'). Pilot: 'then' ownedRelatedElement += TransitionSuccession.
+//   Evidence:   examples/sysml/src/examples/Simple Tests/StateTest.sysml:13   entry; then S1;
+EntryTransitionMember : FeatureMembership =
+    MemberPrefix
+    ( ownedRelatedElement += GuardedTargetSuccession
+    | 'then' ownedRelatedElement += TransitionSuccession
+    ) ';'
+
+// E-S9 SendNode: the optional declaration includes the 'action' keyword
+//   (ActionNodeUsageDeclaration = 'action' UsageDeclaration?, as the Pilot uses).
+//   Published:  OccurrenceUsagePrefix ActionUsageDeclaration? 'send' ...
+//   Evidence:   examples/sysml/src/examples/Simple Tests/ActionTest.sysml:34   action snd send {
+SendNode : SendActionUsage =
+    OccurrenceUsagePrefix ActionNodeUsageDeclaration? 'send'
+    ( ownedRelationship += NodeParameterMember SenderReceiverPart?
+    | ownedRelationship += EmptyParameterMember SenderReceiverPart )?
+    ActionBody
+
+// E-S10 EnumeratedValue: an enumerated value may carry prefix metadata
+//   (Pilot: UsageExtensionKeyword* EnumerationUsageKeyword? Usage).
+//   Published:  'enum'? Usage
+//   Evidence:   examples/sysml/src/examples/Simple Tests/MetadataTest.sysml:9   #Security enum secret : ClassificationLevel = 2;
+EnumeratedValue : EnumerationUsage =
+    UsageExtensionKeyword* 'enum'? Usage
+
+// E-S11 ExpressionBody: in SysML an expression body is a calculation body, so it can
+//   declare SysML parameters and usages (Pilot SysML.xtext overrides ExpressionBody
+//   with CalculationBody; the published SysML grammar keeps KerML's FunctionBodyPart).
+//   Evidence:   sysml.library/Domain Libraries/Analysis/TradeStudies.sysml:162   ->selectOne {in ref a {
+//               examples: ->forAll { in i : Natural; private attribute lbcf = lugBolts#(i).coordinateFrame; ... }
+ExpressionBody : Expression =
+    '{' CalculationBodyPart '}'
+
+// E-S13 OwnedCrossFeature: the cross feature after 'end' needs a real declaration (as
+//   in E-S7; Pilot: BasicUsagePrefix UsageDeclaration with a non-empty declaration).
+//   With the published nullable UsageDeclaration, 'end derived constant ref attribute y'
+//   parses 'derived constant ref' as an empty cross feature.
+//   Published:  BasicUsagePrefix UsageDeclaration | SuccessionAsUsage
+//   Evidence:   crosscheck (PartTest.sysml, 'end' inserted before 'derived'); the library's
+//               'end [0..1] item cart' still parses (a multiplicity is a specialization part)
+OwnedCrossFeature : ReferenceUsage =
+      BasicUsagePrefix
+      ( FeatureIdentification FeatureSpecializationPart?
+      | FeatureSpecializationPart )
+    | SuccessionAsUsage

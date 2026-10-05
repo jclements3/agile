@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1093" height="634" viewBox="0 0 1093 634" font-family="IBM Plex Mono,monospace">
+<rect width="1093" height="634" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<text x="641" y="32" font-size="11">Sensor Tasking</text>
+<path d="M722,36 V254" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<path d="M515,137 H553 Q560,137 560,144 V292 Q560,299 567,299 H623" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="564" y="218" font-size="9">Conditioned Signals</text>
+<rect x="317" y="92" width="198" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="416.0" y="116" font-size="12" text-anchor="middle">Condition Signals<title>Filter and calibrate raw returns.</title></text>
+<text x="509" y="174" font-size="10" text-anchor="end" fill="#555">D1</text>
+<path d="M277,119 H317" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="273" y="116" font-size="9" text-anchor="end">Sensor Returns</text>
+<path d="M416,212 V182" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="420" y="210" font-size="9"><tspan>Surveillance Radar</tspan></text>
+<rect x="623" y="254" width="198" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="722.0" y="278" font-size="12" text-anchor="middle">Declare Detections<title>Declare detections where the sensors are tasked.</title></text>
+<text x="815" y="336" font-size="10" text-anchor="end" fill="#555">D2</text>
+<path d="M821,281 H861" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="865" y="278" font-size="9">Detection Set  [&gt; T:T1.i1]</text>
+<path d="M722,374 V344" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="726" y="372" font-size="9"><tspan>Sensor Segment</tspan></text>
+<rect x="0" y="580" width="1093" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="580" x2="99" y2="634" stroke="#222"/>
+<line x1="994" y1="580" x2="994" y2="634" stroke="#222"/>
+<text x="10" y="596" font-size="10">NODE</text>
+<text x="10" y="616" font-size="12">D0</text>
+<text x="110" y="596" font-size="10">TITLE</text>
+<text x="110" y="616" font-size="12">Detect<title>Turn sensor returns into declared detections, looking where the sensors are tasked.</title></text>
+<text x="1004" y="596" font-size="10">NUMBER</text>
+<text x="1004" y="616" font-size="12">p.2</text>
+</svg>

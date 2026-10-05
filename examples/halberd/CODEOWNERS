@@ -1,0 +1,9 @@
+# Halberd segment owners: one line per segment (model/<segment>/), a generic role handle each.
+# The status-metrics collector counts these lines as gated segments (metric B).
+/model/program/      @halberd-program-office
+/model/engineering/  @halberd-se-and-i
+/model/interceptor/  @halberd-interceptor-lead
+/model/firecontrol/  @halberd-fire-control-lead
+/model/test/         @halberd-test-director
+/model/production/   @halberd-production-lead
+/model/sustainment/  @halberd-sustainment-lead

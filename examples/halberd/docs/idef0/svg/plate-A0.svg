@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1057" height="598" viewBox="0 0 1057 598" font-family="IBM Plex Mono,monospace">
+<rect width="1057" height="598" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<path d="M497,101 H535 Q542,101 542,108 V256 Q542,263 549,263 H605" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="546" y="182" font-size="9">Kill Assessment</text>
+<rect x="317" y="56" width="180" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="407.0" y="80" font-size="12" text-anchor="middle">Judge Engagement<title>Decide whether the threat was defeated.</title></text>
+<text x="491" y="138" font-size="10" text-anchor="end" fill="#555">A1</text>
+<path d="M277,83 H317" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="273" y="80" font-size="9" text-anchor="end">Engagement Events  [&lt; E:E2.o1]</text>
+<path d="M407,176 V146" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="411" y="174" font-size="9"><tspan>Fire Control Segment</tspan></text>
+<rect x="605" y="218" width="180" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="695.0" y="242" font-size="12" text-anchor="middle">Report Outcome<title>Record the engagement and report it.</title></text>
+<text x="779" y="300" font-size="10" text-anchor="end" fill="#555">A2</text>
+<path d="M565,263 H605" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="561" y="260" font-size="9" text-anchor="end">Engagement Plan  [&lt; C:C3.o1]</text>
+<path d="M785,245 H825" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="829" y="242" font-size="9">Engagement Record</text>
+<path d="M695,338 V308" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="699" y="336" font-size="9"><tspan>Fire Control Segment</tspan></text>
+<rect x="0" y="544" width="1057" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="544" x2="99" y2="598" stroke="#222"/>
+<line x1="958" y1="544" x2="958" y2="598" stroke="#222"/>
+<text x="10" y="560" font-size="10">NODE</text>
+<text x="10" y="580" font-size="12">A0</text>
+<text x="110" y="560" font-size="10">TITLE</text>
+<text x="110" y="580" font-size="12">Assess<title>Judge each engagement and record it.</title></text>
+<text x="968" y="560" font-size="10">NUMBER</text>
+<text x="968" y="580" font-size="12">p.8</text>
+</svg>

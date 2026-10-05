@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1075" height="598" viewBox="0 0 1075 598" font-family="IBM Plex Mono,monospace">
+<rect width="1075" height="598" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<path d="M497,101 H535 Q542,101 542,108 V256 Q542,263 549,263 H605" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="546" y="182" font-size="9">Launch Event</text>
+<rect x="299" y="56" width="198" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="398.0" y="80" font-size="12" text-anchor="middle">Launch Interceptor<title>Launch the interceptor the plan calls for.</title></text>
+<text x="491" y="138" font-size="10" text-anchor="end" fill="#555">E1</text>
+<path d="M259,83 H299" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="255" y="80" font-size="9" text-anchor="end">Engagement Plan  [&lt; C:C3.o1]</text>
+<path d="M398,176 V146" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="402" y="174" font-size="9"><tspan>Launch Segment</tspan></text>
+<rect x="605" y="218" width="198" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="704.0" y="242" font-size="12" text-anchor="middle">Guide Interceptor<title>Keep the interceptor on course with track updates until it homes on its own.</title></text>
+<text x="797" y="300" font-size="10" text-anchor="end" fill="#555">E2*</text>
+<path d="M565,263 H605" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="561" y="260" font-size="9" text-anchor="end">Track Set  [&lt; T:T2.o1]</text>
+<path d="M803,245 H843" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="847" y="242" font-size="9">Engagement Events  [&gt; A:A1.i1]</text>
+<path d="M704,338 V308" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="708" y="336" font-size="9"><tspan>Interceptor Segment</tspan></text>
+<rect x="0" y="544" width="1075" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="544" x2="99" y2="598" stroke="#222"/>
+<line x1="976" y1="544" x2="976" y2="598" stroke="#222"/>
+<text x="10" y="560" font-size="10">NODE</text>
+<text x="10" y="580" font-size="12">E0</text>
+<text x="110" y="560" font-size="10">TITLE</text>
+<text x="110" y="580" font-size="12">Engage<title>Launch the scheduled interceptors and guide them to their threats.</title></text>
+<text x="986" y="560" font-size="10">NUMBER</text>
+<text x="986" y="580" font-size="12">p.6</text>
+</svg>

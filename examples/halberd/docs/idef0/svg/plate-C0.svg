@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="832" viewBox="0 0 1480 832" font-family="IBM Plex Mono,monospace">
+<rect width="1480" height="832" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<text x="362" y="32" font-size="11">Engagement Doctrine</text>
+<path d="M452,36 V128" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1010" y="68" font-size="11">Fire Authorization</text>
+<path d="M1100,72 V452" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<path d="M560,173 H598 Q605,173 605,180 V328 Q605,335 612,335 H668" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="609" y="254" font-size="9">Threat Priorities</text>
+<path d="M884,335 H922 Q929,335 929,342 V490 Q929,497 936,497 H992" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="933" y="416" font-size="9">Weapon Pairings</text>
+<rect x="344" y="128" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="452.0" y="152" font-size="12" text-anchor="middle">Evaluate Threats<title>Order the threats under the doctrine.</title></text>
+<text x="554" y="210" font-size="10" text-anchor="end" fill="#555">C1</text>
+<path d="M304,155 H344" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="300" y="152" font-size="9" text-anchor="end">Classified Track Set  [&lt; I:I2.o1]</text>
+<path d="M452,248 V218" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="456" y="246" font-size="9"><tspan>Engagement Control Station</tspan></text>
+<rect x="668" y="290" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="776.0" y="314" font-size="12" text-anchor="middle">Pair Weapons<title>Assign available interceptors to the ranked threats.</title></text>
+<text x="878" y="372" font-size="10" text-anchor="end" fill="#555">C2</text>
+<path d="M776,410 V380" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="780" y="408" font-size="9"><tspan>Engagement Control Station</tspan></text>
+<rect x="992" y="452" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="1100.0" y="476" font-size="12" text-anchor="middle">Schedule Engagements<title>Schedule launches, only once fire is authorized.</title></text>
+<text x="1202" y="534" font-size="10" text-anchor="end" fill="#555">C3</text>
+<path d="M1208,479 H1248" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1252" y="476" font-size="9">Engagement Plan  [&gt; E:E1.i1]</text>
+<path d="M1100,572 V542" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1104" y="570" font-size="9"><tspan>Engagement Control Station</tspan></text>
+<rect x="0" y="778" width="1480" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="778" x2="99" y2="832" stroke="#222"/>
+<line x1="1381" y1="778" x2="1381" y2="832" stroke="#222"/>
+<text x="10" y="794" font-size="10">NODE</text>
+<text x="10" y="814" font-size="12">C0</text>
+<text x="110" y="794" font-size="10">TITLE</text>
+<text x="110" y="814" font-size="12">Decide<title>Rank the threats, pair interceptors with them, and schedule authorized launches.</title></text>
+<text x="1391" y="794" font-size="10">NUMBER</text>
+<text x="1391" y="814" font-size="12">p.5</text>
+</svg>

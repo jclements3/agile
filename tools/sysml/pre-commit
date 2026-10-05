@@ -1,0 +1,5 @@
+#!/bin/sh
+# SysML model pre-commit hook: lint, the 2..9 outline rule, and generated docs up to date.
+# A template: 'perl tools/sysml/model.pl install-hooks' fills in the two paths and installs it.
+# Skip once with:  git commit --no-verify
+exec perl "@MODEL_PL@" --root "@ROOT@" precommit

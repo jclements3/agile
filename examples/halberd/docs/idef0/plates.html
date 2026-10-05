@@ -1,0 +1,327 @@
+<!doctype html><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>IDEF0 drawing set</title><style>body{font-family:IBM Plex Mono,monospace;background:#eee;margin:0}
+.plate{background:#fff;margin:10px auto;padding:6px;box-shadow:0 1px 4px #0003;
+width:max-content;max-width:calc(100vw - 20px);overflow-x:auto;scroll-margin-top:4px;
+page-break-after:always}
+.plate svg{display:block;width:auto;height:auto;max-width:calc(100vw - 34px);max-height:calc(100vh - 60px)}
+body.one2one .plate svg{max-width:none;max-height:none}
+.zoom{float:right}.zoom a{margin:0 0 0 4px}.zoom a.on{font-weight:700;color:#000;text-decoration:none;cursor:default}
+@media print{.plate svg{max-width:100%;max-height:none}}
+h1{font-size:16px;margin:18px}
+h1 svg.logo{height:22px;width:auto;color:#eee;vertical-align:-4px;margin-right:14px}
+table{border-collapse:collapse;margin:18px;background:#fff}
+td,th{border:1px solid #999;padding:3px 9px;font-size:12px}
+.p1{display:flex;flex-wrap:wrap;align-items:flex-start;gap:0 18px}.p1 table{margin-top:0}.p1 caption{text-align:left;font-weight:700;font-size:12px;padding:0 0 6px}
+a{color:#27235d}
+.nav{font-size:12px;padding:4px 8px;background:#e4e4e7;border-bottom:1px solid #ddd;
+position:sticky;left:0}
+.nav a{text-decoration:none;margin-right:4px}
+.dim{color:#999}
+details.notes{font-size:12px;max-width:640px;padding:4px 8px;background:#fdfcf2;
+border-bottom:1px solid #eee}
+details.notes p{margin:4px 0}
+.hasdoc{text-decoration:underline dotted 1.5px #6a994e;cursor:help}
+svg a text{cursor:pointer}
+svg a:hover rect{fill:#f5f9ee}
+#tip{position:fixed;display:none;z-index:9;max-width:340px;background:#fffbea;
+border:1px solid #b7a;box-shadow:2px 3px 8px #0004;padding:2px 12px;
+font-size:12.5px;line-height:1.45}
+#tip p{margin:8px 0}
+#tip code{background:#eee8d5;padding:0 3px}
+</style>
+<h1 id='top'>IDEF0 drawing set &mdash; p.1: node index and interface table</h1>
+<div class='p1'>
+<table><caption>Node index</caption><tr><th>NODE</th><th>TITLE</th><th>NUMBER</th></tr>
+<tr><td><a href='#plate-D0'>D0</a></td><td class='hasdoc' data-doc='D0'>Detect</td><td><a href='#plate-D0'>p.2</a></td></tr>
+<tr><td><a href='#plate-T0'>T0</a></td><td class='hasdoc' data-doc='T0'>Track</td><td><a href='#plate-T0'>p.3</a></td></tr>
+<tr><td><a href='#plate-I0'>I0</a></td><td class='hasdoc' data-doc='I0'>Identify</td><td><a href='#plate-I0'>p.4</a></td></tr>
+<tr><td><a href='#plate-C0'>C0</a></td><td class='hasdoc' data-doc='C0'>Decide</td><td><a href='#plate-C0'>p.5</a></td></tr>
+<tr><td><a href='#plate-E0'>E0</a></td><td class='hasdoc' data-doc='E0'>Engage</td><td><a href='#plate-E0'>p.6</a></td></tr>
+<tr><td><a href='#plate-E2'>E2</a></td><td class='hasdoc' data-doc='E2'>Guide Interceptor</td><td><a href='#plate-E2'>p.7</a></td></tr>
+<tr><td><a href='#plate-A0'>A0</a></td><td class='hasdoc' data-doc='A0'>Assess</td><td><a href='#plate-A0'>p.8</a></td></tr>
+</table>
+<table><caption>Interface table</caption><tr><th>SOURCE</th><th>DEST</th><th>FLOW</th></tr>
+<tr><td><a href='#plate-C0'>C3.o1</a></td><td><a href='#plate-A0'>A2.i2</a></td><td>Engagement Plan</td></tr>
+<tr><td><a href='#plate-C0'>C3.o1</a></td><td><a href='#plate-E0'>E1.i1</a></td><td>Engagement Plan</td></tr>
+<tr><td><a href='#plate-D0'>D2.o1</a></td><td><a href='#plate-T0'>T1.i1</a></td><td>Detection Set</td></tr>
+<tr><td><a href='#plate-E0'>E2.o1</a></td><td><a href='#plate-A0'>A1.i1</a></td><td>Engagement Events</td></tr>
+<tr><td><a href='#plate-I0'>I2.o1</a></td><td><a href='#plate-C0'>C1.i1</a></td><td>Classified Track Set</td></tr>
+<tr><td><a href='#plate-T0'>T2.o1</a></td><td><a href='#plate-E0'>E2.i2</a></td><td>Track Set</td></tr>
+<tr><td><a href='#plate-T0'>T2.o1</a></td><td><a href='#plate-I0'>I1.i1</a></td><td>Track Set</td></tr>
+</table>
+</div>
+<div class='plate' id='plate-D0'>
+<div class='nav'><span class='zoom'><a href='#' class='fit on' onclick='return zoom(0)'>fit</a> &middot; <a href='#' class='one' onclick='return zoom(1)'>1:1</a></span><a href='#top'>&#8962; index</a> &middot; <span class='dim'>top plate</span> &middot; <a href='javascript:history.back()'>&#8592; back</a> &middot; <a href='javascript:history.forward()'>fwd &#8594;</a> &middot; <span class='dim'>D0 &middot; p.2</span></div>
+<details class='notes'><summary>notes: Detect</summary><p>Turn sensor returns into declared detections, looking where the sensors are tasked.</p></details>
+<svg xmlns="http://www.w3.org/2000/svg" width="1093" height="634" viewBox="0 0 1093 634" font-family="IBM Plex Mono,monospace">
+<rect width="1093" height="634" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<text x="641" y="32" font-size="11">Sensor Tasking</text>
+<path d="M722,36 V254" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<path d="M515,137 H553 Q560,137 560,144 V292 Q560,299 567,299 H623" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="564" y="218" font-size="9">Conditioned Signals</text>
+<rect x="317" y="92" width="198" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="416.0" y="116" font-size="12" text-anchor="middle" class="hasdoc" data-doc="D1">Condition Signals</text>
+<text x="509" y="174" font-size="10" text-anchor="end" fill="#555">D1</text>
+<path d="M277,119 H317" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="273" y="116" font-size="9" text-anchor="end">Sensor Returns</text>
+<path d="M416,212 V182" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="420" y="210" font-size="9"><tspan>Surveillance Radar</tspan></text>
+<rect x="623" y="254" width="198" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="722.0" y="278" font-size="12" text-anchor="middle" class="hasdoc" data-doc="D2">Declare Detections</text>
+<text x="815" y="336" font-size="10" text-anchor="end" fill="#555">D2</text>
+<path d="M821,281 H861" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="865" y="278" font-size="9">Detection Set  [&gt; T:T1.i1]</text>
+<path d="M722,374 V344" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="726" y="372" font-size="9"><tspan>Sensor Segment</tspan></text>
+<rect x="0" y="580" width="1093" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="580" x2="99" y2="634" stroke="#222"/>
+<line x1="994" y1="580" x2="994" y2="634" stroke="#222"/>
+<text x="10" y="596" font-size="10">NODE</text>
+<text x="10" y="616" font-size="12">D0</text>
+<text x="110" y="596" font-size="10">TITLE</text>
+<text x="110" y="616" font-size="12" class="hasdoc" data-doc="D0">Detect</text>
+<text x="1004" y="596" font-size="10">NUMBER</text>
+<text x="1004" y="616" font-size="12">p.2</text>
+</svg>
+</div>
+<div class='plate' id='plate-T0'>
+<div class='nav'><span class='zoom'><a href='#' class='fit on' onclick='return zoom(0)'>fit</a> &middot; <a href='#' class='one' onclick='return zoom(1)'>1:1</a></span><a href='#top'>&#8962; index</a> &middot; <span class='dim'>top plate</span> &middot; <a href='javascript:history.back()'>&#8592; back</a> &middot; <a href='javascript:history.forward()'>fwd &#8594;</a> &middot; <span class='dim'>T0 &middot; p.3</span></div>
+<details class='notes'><summary>notes: Track</summary><p>Associate detections with tracks and keep every track up to date.</p></details>
+<svg xmlns="http://www.w3.org/2000/svg" width="1093" height="598" viewBox="0 0 1093 598" font-family="IBM Plex Mono,monospace">
+<rect width="1093" height="598" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<path d="M497,101 H535 Q542,101 542,108 V256 Q542,263 549,263 H605" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="546" y="182" font-size="9">Associations</text>
+<rect x="281" y="56" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="389.0" y="80" font-size="12" text-anchor="middle" class="hasdoc" data-doc="T1">Associate Detections</text>
+<text x="491" y="138" font-size="10" text-anchor="end" fill="#555">T1</text>
+<path d="M241,83 H281" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="237" y="80" font-size="9" text-anchor="end">Detection Set  [&lt; D:D2.o1]</text>
+<path d="M389,176 V146" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="393" y="174" font-size="9"><tspan>Fire Control Software</tspan></text>
+<rect x="605" y="218" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="713.0" y="242" font-size="12" text-anchor="middle" class="hasdoc" data-doc="T2">Maintain Tracks</text>
+<text x="815" y="300" font-size="10" text-anchor="end" fill="#555">T2</text>
+<path d="M821,245 H861" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="865" y="242" font-size="9">Track Set  [&gt; I:I1.i1]</text>
+<path d="M713,338 V308" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="717" y="336" font-size="9"><tspan>Fire Control Software</tspan></text>
+<rect x="0" y="544" width="1093" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="544" x2="99" y2="598" stroke="#222"/>
+<line x1="994" y1="544" x2="994" y2="598" stroke="#222"/>
+<text x="10" y="560" font-size="10">NODE</text>
+<text x="10" y="580" font-size="12">T0</text>
+<text x="110" y="560" font-size="10">TITLE</text>
+<text x="110" y="580" font-size="12" class="hasdoc" data-doc="T0">Track</text>
+<text x="1004" y="560" font-size="10">NUMBER</text>
+<text x="1004" y="580" font-size="12">p.3</text>
+</svg>
+</div>
+<div class='plate' id='plate-I0'>
+<div class='nav'><span class='zoom'><a href='#' class='fit on' onclick='return zoom(0)'>fit</a> &middot; <a href='#' class='one' onclick='return zoom(1)'>1:1</a></span><a href='#top'>&#8962; index</a> &middot; <span class='dim'>top plate</span> &middot; <a href='javascript:history.back()'>&#8592; back</a> &middot; <a href='javascript:history.forward()'>fwd &#8594;</a> &middot; <span class='dim'>I0 &middot; p.4</span></div>
+<details class='notes'><summary>notes: Identify</summary><p>Decide what each track is, against the threat library.</p></details>
+<svg xmlns="http://www.w3.org/2000/svg" width="1066" height="634" viewBox="0 0 1066 634" font-family="IBM Plex Mono,monospace">
+<rect width="1066" height="634" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<text x="605" y="32" font-size="11">Threat Library</text>
+<path d="M686,36 V254" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<path d="M479,137 H517 Q524,137 524,144 V292 Q524,299 531,299 H587" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="528" y="218" font-size="9">Track Features</text>
+<rect x="272" y="92" width="207" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="375.5" y="116" font-size="12" text-anchor="middle" class="hasdoc" data-doc="I1">Characterize Tracks</text>
+<text x="473" y="174" font-size="10" text-anchor="end" fill="#555">I1</text>
+<path d="M232,119 H272" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="228" y="116" font-size="9" text-anchor="end">Track Set  [&lt; T:T2.o1]</text>
+<path d="M375,212 V182" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="379" y="210" font-size="9"><tspan>Fire Control Software</tspan></text>
+<rect x="587" y="254" width="207" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="690.5" y="278" font-size="12" text-anchor="middle" class="hasdoc" data-doc="I2">Classify Threats</text>
+<text x="788" y="336" font-size="10" text-anchor="end" fill="#555">I2</text>
+<path d="M794,281 H834" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="838" y="278" font-size="9">Classified Track Set  [&gt; C:C1.i1]</text>
+<path d="M690,374 V344" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="694" y="372" font-size="9"><tspan>Fire Control Software</tspan></text>
+<rect x="0" y="580" width="1066" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="580" x2="99" y2="634" stroke="#222"/>
+<line x1="967" y1="580" x2="967" y2="634" stroke="#222"/>
+<text x="10" y="596" font-size="10">NODE</text>
+<text x="10" y="616" font-size="12">I0</text>
+<text x="110" y="596" font-size="10">TITLE</text>
+<text x="110" y="616" font-size="12" class="hasdoc" data-doc="I0">Identify</text>
+<text x="977" y="596" font-size="10">NUMBER</text>
+<text x="977" y="616" font-size="12">p.4</text>
+</svg>
+</div>
+<div class='plate' id='plate-C0'>
+<div class='nav'><span class='zoom'><a href='#' class='fit on' onclick='return zoom(0)'>fit</a> &middot; <a href='#' class='one' onclick='return zoom(1)'>1:1</a></span><a href='#top'>&#8962; index</a> &middot; <span class='dim'>top plate</span> &middot; <a href='javascript:history.back()'>&#8592; back</a> &middot; <a href='javascript:history.forward()'>fwd &#8594;</a> &middot; <span class='dim'>C0 &middot; p.5</span></div>
+<details class='notes'><summary>notes: Decide</summary><p>Rank the threats, pair interceptors with them, and schedule authorized launches.</p></details>
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="832" viewBox="0 0 1480 832" font-family="IBM Plex Mono,monospace">
+<rect width="1480" height="832" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<text x="362" y="32" font-size="11">Engagement Doctrine</text>
+<path d="M452,36 V128" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1010" y="68" font-size="11">Fire Authorization</text>
+<path d="M1100,72 V452" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<path d="M560,173 H598 Q605,173 605,180 V328 Q605,335 612,335 H668" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="609" y="254" font-size="9">Threat Priorities</text>
+<path d="M884,335 H922 Q929,335 929,342 V490 Q929,497 936,497 H992" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="933" y="416" font-size="9">Weapon Pairings</text>
+<rect x="344" y="128" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="452.0" y="152" font-size="12" text-anchor="middle" class="hasdoc" data-doc="C1">Evaluate Threats</text>
+<text x="554" y="210" font-size="10" text-anchor="end" fill="#555">C1</text>
+<path d="M304,155 H344" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="300" y="152" font-size="9" text-anchor="end">Classified Track Set  [&lt; I:I2.o1]</text>
+<path d="M452,248 V218" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="456" y="246" font-size="9"><tspan>Engagement Control Station</tspan></text>
+<rect x="668" y="290" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="776.0" y="314" font-size="12" text-anchor="middle" class="hasdoc" data-doc="C2">Pair Weapons</text>
+<text x="878" y="372" font-size="10" text-anchor="end" fill="#555">C2</text>
+<path d="M776,410 V380" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="780" y="408" font-size="9"><tspan>Engagement Control Station</tspan></text>
+<rect x="992" y="452" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="1100.0" y="476" font-size="12" text-anchor="middle" class="hasdoc" data-doc="C3">Schedule Engagements</text>
+<text x="1202" y="534" font-size="10" text-anchor="end" fill="#555">C3</text>
+<path d="M1208,479 H1248" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1252" y="476" font-size="9">Engagement Plan  [&gt; E:E1.i1]</text>
+<path d="M1100,572 V542" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1104" y="570" font-size="9"><tspan>Engagement Control Station</tspan></text>
+<rect x="0" y="778" width="1480" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="778" x2="99" y2="832" stroke="#222"/>
+<line x1="1381" y1="778" x2="1381" y2="832" stroke="#222"/>
+<text x="10" y="794" font-size="10">NODE</text>
+<text x="10" y="814" font-size="12">C0</text>
+<text x="110" y="794" font-size="10">TITLE</text>
+<text x="110" y="814" font-size="12" class="hasdoc" data-doc="C0">Decide</text>
+<text x="1391" y="794" font-size="10">NUMBER</text>
+<text x="1391" y="814" font-size="12">p.5</text>
+</svg>
+</div>
+<div class='plate' id='plate-E0'>
+<div class='nav'><span class='zoom'><a href='#' class='fit on' onclick='return zoom(0)'>fit</a> &middot; <a href='#' class='one' onclick='return zoom(1)'>1:1</a></span><a href='#top'>&#8962; index</a> &middot; <span class='dim'>top plate</span> &middot; <a href='javascript:history.back()'>&#8592; back</a> &middot; <a href='javascript:history.forward()'>fwd &#8594;</a> &middot; <span class='dim'>E0 &middot; p.6</span></div>
+<details class='notes'><summary>notes: Engage</summary><p>Launch the scheduled interceptors and guide them to their threats.</p></details>
+<svg xmlns="http://www.w3.org/2000/svg" width="1075" height="598" viewBox="0 0 1075 598" font-family="IBM Plex Mono,monospace">
+<rect width="1075" height="598" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<path d="M497,101 H535 Q542,101 542,108 V256 Q542,263 549,263 H605" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="546" y="182" font-size="9">Launch Event</text>
+<rect x="299" y="56" width="198" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="398.0" y="80" font-size="12" text-anchor="middle" class="hasdoc" data-doc="E1">Launch Interceptor</text>
+<text x="491" y="138" font-size="10" text-anchor="end" fill="#555">E1</text>
+<path d="M259,83 H299" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="255" y="80" font-size="9" text-anchor="end">Engagement Plan  [&lt; C:C3.o1]</text>
+<path d="M398,176 V146" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="402" y="174" font-size="9"><tspan>Launch Segment</tspan></text>
+<a href="#plate-E2">
+<rect x="605" y="218" width="198" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="704.0" y="242" font-size="12" text-anchor="middle" class="hasdoc" data-doc="E2">Guide Interceptor</text>
+<text x="797" y="300" font-size="10" text-anchor="end" fill="#555">E2*</text>
+</a>
+<path d="M565,263 H605" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="561" y="260" font-size="9" text-anchor="end">Track Set  [&lt; T:T2.o1]</text>
+<path d="M803,245 H843" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="847" y="242" font-size="9">Engagement Events  [&gt; A:A1.i1]</text>
+<path d="M704,338 V308" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="708" y="336" font-size="9"><tspan>Interceptor Segment</tspan></text>
+<rect x="0" y="544" width="1075" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="544" x2="99" y2="598" stroke="#222"/>
+<line x1="976" y1="544" x2="976" y2="598" stroke="#222"/>
+<text x="10" y="560" font-size="10">NODE</text>
+<text x="10" y="580" font-size="12">E0</text>
+<text x="110" y="560" font-size="10">TITLE</text>
+<text x="110" y="580" font-size="12" class="hasdoc" data-doc="E0">Engage</text>
+<text x="986" y="560" font-size="10">NUMBER</text>
+<text x="986" y="580" font-size="12">p.6</text>
+</svg>
+</div>
+<div class='plate' id='plate-E2'>
+<div class='nav'><span class='zoom'><a href='#' class='fit on' onclick='return zoom(0)'>fit</a> &middot; <a href='#' class='one' onclick='return zoom(1)'>1:1</a></span><a href='#top'>&#8962; index</a> &middot; <a href='#plate-E0'>&#8593; E0</a> &middot; <a href='javascript:history.back()'>&#8592; back</a> &middot; <a href='javascript:history.forward()'>fwd &#8594;</a> &middot; <span class='dim'>E2 &middot; p.7</span></div>
+<details class='notes'><summary>notes: Guide Interceptor</summary><p>Keep the interceptor on course with track updates until it homes on its own.</p></details>
+<svg xmlns="http://www.w3.org/2000/svg" width="1111" height="598" viewBox="0 0 1111 598" font-family="IBM Plex Mono,monospace">
+<rect width="1111" height="598" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<path d="M515,101 H553 Q560,101 560,108 V256 Q560,263 567,263 H623" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="564" y="182" font-size="9">Inflight Updates</text>
+<rect x="299" y="56" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="407.0" y="80" font-size="12" text-anchor="middle" class="hasdoc" data-doc="E21">Uplink Track Updates</text>
+<text x="509" y="138" font-size="10" text-anchor="end" fill="#555">E21</text>
+<path d="M259,101 H299" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="255" y="98" font-size="9" text-anchor="end">Track Set</text>
+<path d="M407,176 V146" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="411" y="174" font-size="9"><tspan>Interceptor Segment</tspan></text>
+<rect x="623" y="218" width="216" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="731.0" y="242" font-size="12" text-anchor="middle" class="hasdoc" data-doc="E22">Home On Target</text>
+<text x="833" y="300" font-size="10" text-anchor="end" fill="#555">E22</text>
+<path d="M839,245 H879" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="883" y="242" font-size="9">Engagement Events</text>
+<path d="M731,338 V308" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="735" y="336" font-size="9"><tspan>Interceptor Segment</tspan></text>
+<rect x="0" y="544" width="1111" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="544" x2="99" y2="598" stroke="#222"/>
+<line x1="1012" y1="544" x2="1012" y2="598" stroke="#222"/>
+<text x="10" y="560" font-size="10">NODE</text>
+<text x="10" y="580" font-size="12">E2</text>
+<text x="110" y="560" font-size="10">TITLE</text>
+<text x="110" y="580" font-size="12" class="hasdoc" data-doc="E2">Guide Interceptor</text>
+<text x="1022" y="560" font-size="10">NUMBER</text>
+<text x="1022" y="580" font-size="12">p.7</text>
+</svg>
+</div>
+<div class='plate' id='plate-A0'>
+<div class='nav'><span class='zoom'><a href='#' class='fit on' onclick='return zoom(0)'>fit</a> &middot; <a href='#' class='one' onclick='return zoom(1)'>1:1</a></span><a href='#top'>&#8962; index</a> &middot; <span class='dim'>top plate</span> &middot; <a href='javascript:history.back()'>&#8592; back</a> &middot; <a href='javascript:history.forward()'>fwd &#8594;</a> &middot; <span class='dim'>A0 &middot; p.8</span></div>
+<details class='notes'><summary>notes: Assess</summary><p>Judge each engagement and record it.</p></details>
+<svg xmlns="http://www.w3.org/2000/svg" width="1057" height="598" viewBox="0 0 1057 598" font-family="IBM Plex Mono,monospace">
+<rect width="1057" height="598" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<path d="M497,101 H535 Q542,101 542,108 V256 Q542,263 549,263 H605" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="546" y="182" font-size="9">Kill Assessment</text>
+<rect x="317" y="56" width="180" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="407.0" y="80" font-size="12" text-anchor="middle" class="hasdoc" data-doc="A1">Judge Engagement</text>
+<text x="491" y="138" font-size="10" text-anchor="end" fill="#555">A1</text>
+<path d="M277,83 H317" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="273" y="80" font-size="9" text-anchor="end">Engagement Events  [&lt; E:E2.o1]</text>
+<path d="M407,176 V146" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="411" y="174" font-size="9"><tspan>Fire Control Segment</tspan></text>
+<rect x="605" y="218" width="180" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="695.0" y="242" font-size="12" text-anchor="middle" class="hasdoc" data-doc="A2">Report Outcome</text>
+<text x="779" y="300" font-size="10" text-anchor="end" fill="#555">A2</text>
+<path d="M565,263 H605" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="561" y="260" font-size="9" text-anchor="end">Engagement Plan  [&lt; C:C3.o1]</text>
+<path d="M785,245 H825" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="829" y="242" font-size="9">Engagement Record</text>
+<path d="M695,338 V308" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="699" y="336" font-size="9"><tspan>Fire Control Segment</tspan></text>
+<rect x="0" y="544" width="1057" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="544" x2="99" y2="598" stroke="#222"/>
+<line x1="958" y1="544" x2="958" y2="598" stroke="#222"/>
+<text x="10" y="560" font-size="10">NODE</text>
+<text x="10" y="580" font-size="12">A0</text>
+<text x="110" y="560" font-size="10">TITLE</text>
+<text x="110" y="580" font-size="12" class="hasdoc" data-doc="A0">Assess</text>
+<text x="968" y="560" font-size="10">NUMBER</text>
+<text x="968" y="580" font-size="12">p.8</text>
+</svg>
+</div>
+<div id='tip'></div><script>const DOCS={"D0": "<p>Turn sensor returns into declared detections, looking where the sensors are tasked.<\/p>", "D1": "<p>Filter and calibrate raw returns.<\/p>", "D2": "<p>Declare detections where the sensors are tasked.<\/p>", "T0": "<p>Associate detections with tracks and keep every track up to date.<\/p>", "T1": "<p>Pair each detection with a track, or start a new one.<\/p>", "T2": "<p>Update, start and drop tracks.<\/p>", "I0": "<p>Decide what each track is, against the threat library.<\/p>", "I1": "<p>Collect what is observed about each track.<\/p>", "I2": "<p>Match track features against the threat library.<\/p>", "C0": "<p>Rank the threats, pair interceptors with them, and schedule authorized launches.<\/p>", "C1": "<p>Order the threats under the doctrine.<\/p>", "C2": "<p>Assign available interceptors to the ranked threats.<\/p>", "C3": "<p>Schedule launches, only once fire is authorized.<\/p>", "E0": "<p>Launch the scheduled interceptors and guide them to their threats.<\/p>", "E1": "<p>Launch the interceptor the plan calls for.<\/p>", "E2": "<p>Keep the interceptor on course with track updates until it homes on its own.<\/p>", "E21": "<p>Send track updates to the interceptor in flight.<\/p>", "E22": "<p>The interceptor&#x27;s own terminal homing.<\/p>", "A0": "<p>Judge each engagement and record it.<\/p>", "A1": "<p>Decide whether the threat was defeated.<\/p>", "A2": "<p>Record the engagement and report it.<\/p>"};
+function zoom(one){document.body.classList.toggle('one2one',!!one);
+ document.querySelectorAll('.zoom a').forEach(a=>a.classList.toggle('on',a.classList.contains(one?'one':'fit')));
+ try{localStorage.setItem('idef0-zoom',one?'1':'0');}catch(e){}return false;}
+try{if(localStorage.getItem('idef0-zoom')==='1')zoom(1);}catch(e){}
+const tip=document.getElementById('tip');
+let pin=null;
+function show(k,x,y){tip.innerHTML=DOCS[k]||'';tip.style.display='block';
+ const r=tip.getBoundingClientRect();
+ x=Math.min(x+14,innerWidth-r.width-8);y=Math.min(y+16,innerHeight-r.height-8);
+ tip.style.left=Math.max(4,x)+'px';tip.style.top=Math.max(4,y)+'px';}
+function hide(){tip.style.display='none';pin=null;}
+const canHover=matchMedia('(hover:hover)').matches;
+document.addEventListener('mousemove',e=>{if(!canHover||pin)return;
+ const t=e.target.closest?e.target.closest('.hasdoc'):null;
+ if(t)show(t.dataset.doc,e.clientX,e.clientY);else hide();});
+document.addEventListener('click',e=>{
+ const t=e.target.closest?e.target.closest('.hasdoc'):null;
+ if(t&&!t.closest('a')){
+  if(pin===t.dataset.doc){hide();}
+  else{pin=t.dataset.doc;show(pin,e.clientX,e.clientY);}
+  e.stopPropagation();}
+ else if(!e.target.closest('#tip'))hide();});
+</script>

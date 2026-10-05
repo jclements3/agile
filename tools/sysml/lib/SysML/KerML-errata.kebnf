@@ -1,0 +1,25 @@
+// Errata for vendor/sysml-v2-release/bnf/KerML-textual-bnf.kebnf (release 2026-08).
+//
+// The published KEBNF is a hand-maintained rendering of the KerML specification
+// grammar. Where it rejects text that the official library and examples use (and the
+// Pilot implementation accepts), the corrected rule is given here; tools/sysml/sysml.pl
+// reads this file after the published grammar, so a rule here replaces the published
+// one. Each erratum: the published rule, the evidence, and why.
+
+// E-K1 Invariant: the feature declaration is optional.
+//   Published:  FeaturePrefix 'inv' ( 'true' | isNegated ?= 'false' )? FeatureDeclaration ValuePart? FunctionBody
+//   Evidence:   sysml.library/Kernel Libraries/Kernel Data Type Library/Collections.kerml:94
+//               inv { flattenedSize == size(elements) }
+Invariant =
+    FeaturePrefix
+    'inv' ( 'true' | isNegated ?= 'false' )?
+    FeatureDeclaration? ValuePart?
+    FunctionBody
+
+// E-K2 LibraryPackage: 'standard' is optional ('library package' is a user library).
+//   Published:  ( isStandard ?= 'standard' ) 'library' ...
+//   Evidence:   examples/kerml (library package 'Model Library Example')
+LibraryPackage =
+    ( isStandard ?= 'standard' )? 'library'
+    ( ownedRelationship += PrefixMetadataMember )*
+    PackageDeclaration PackageBody

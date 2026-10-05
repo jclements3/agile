@@ -1,0 +1,9 @@
+Object Identifier,Object Level,Object Heading,Object Text,Verification Method,Priority
+CD-1,1,Mission,,,
+CD-101,2,,"The drone shall fly 30 min with a 2 kg parcel
+at 15 m/s.",Test,1
+CD-102,2,,"Carry a ""standard"" 2 kg parcel.",,2
+CD-2,1,Safety,,,
+CD-3,2,Noise,,,
+CD-103,3,,Hover noise at most 70 dBA at 10 m.,Analysis,3
+CD-4,1,Reserved,,,

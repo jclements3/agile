@@ -1,0 +1,84 @@
+xmi2sysml report: courier.xmi
+
+in (xmi:type)                    in  mapped  folded   todo
+uml:Abstraction                   6       6       0      0
+uml:Activity                      3       3       0      0
+uml:ActivityFinalNode             1       0       1      0
+uml:Association                   1       0       1      0
+uml:CallBehaviorAction            1       1       0      0
+uml:Class                        13      13       0      0
+uml:Comment                       2       2       0      0
+uml:Connector                     3       3       0      0
+uml:ConnectorEnd                  6       0       6      0
+uml:Constraint                    1       0       0      1
+uml:ControlFlow                   4       3       0      1
+uml:DataType                      3       3       0      0
+uml:DecisionNode                  1       0       0      1
+uml:Enumeration                   1       1       0      0
+uml:EnumerationLiteral            3       3       0      0
+uml:Generalization                3       0       3      0
+uml:InitialNode                   1       0       1      0
+uml:InstanceSpecification         1       0       0      1
+uml:InstanceValue                 1       0       1      0
+uml:LiteralInteger                2       0       2      0
+uml:LiteralReal                   1       0       1      0
+uml:LiteralUnlimitedNatural       2       0       2      0
+uml:Model                         1       0       1      0
+uml:OpaqueAction                  1       1       0      0
+uml:OpaqueExpression              1       0       0      1
+uml:Operation                     1       0       0      1
+uml:Package                       4       4       0      0
+uml:PackageImport                 1       0       1      0
+uml:Parameter                     2       2       0      0
+uml:Port                          4       4       0      0
+uml:Property                     14      13       1      0
+uml:Region                        1       0       0      1
+uml:Signal                        1       1       0      0
+uml:State                         2       0       0      2
+uml:StateMachine                  1       0       0      1
+total                            94      63      21     10
+
+ported vs remaining (metric A filter uml:Class|Port|Property|Connector|Activity): 37 of 37 ported, 0 remaining
+
+stereotype applications: Allocate 1, BindingConnector 1, Block 8, DeriveReqt 1, FlowPort 2, FlowProperty 2, Hazardous 1, InterfaceBlock 1, ProxyPort 2, Requirement 3, Satisfy 2, TestCase 1, Trace 1, ValueType 3, Verify 1, performanceRequirement 1
+stereotypes not converted: Hazardous 1
+xmi:Extension and xmi:Documentation blocks skipped (diagrams, layout, exporter): 2
+
+out (SysML v2)
+  action                      2
+  action def                  2
+  allocate                    1
+  attribute                   7
+  attribute def               3
+  bind                        1
+  connection                  2
+  dependency                  1
+  derivation                  1
+  doc                         2
+  enum                        3
+  enum def                    1
+  item                        1
+  item def                    1
+  package                     5
+  parameter                   2
+  part                        4
+  part def                    8
+  port                        4
+  port def                    1
+  ref part                    1
+  requirement def             4
+  satisfy                     2
+  succession                  3
+  verification def            1
+  verify                      2
+
+unmapped (TODO in the output): 6
+  uml:Operation              _op_arm                  'arm' no SysML v2 mapping in this converter
+  uml:Constraint             _rule_mass               'massLimit' constraint: OCL: self.mass <= 2.5
+  uml:StateMachine           _sm_fc                   'FlightModes' no SysML v2 mapping in this converter
+  uml:InstanceSpecification  _unit_kg                 'kilogram' no SysML v2 mapping in this converter
+  uml:DecisionNode           _n_dec                   'landed?' activity node not converted
+  uml:ControlFlow            _e3                      activity edge not converted (object flow, or an end that is a decision/fork/pin)
+
+files: behavior/Behavior.sysml courier/Courier.sysml requirements/Requirements.sysml structure/Structure.sysml
+self-check: ok

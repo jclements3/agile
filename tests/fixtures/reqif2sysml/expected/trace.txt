@@ -1,0 +1,10 @@
+
+trace against DIR/model (4 .sysml files)
+C requirements linked (doorsId in the model)       3 of 6
+F orphan requirements (nothing satisfies)               4
+G unverified requirements (no verify)                   5
+I trace completeness (satisfied and verified)        16.7%
+doorsIds in the model but not in this export            1
+not in the model: CD-103 CD-211 CD-999
+orphans: CD-103 CD-210 CD-211 CD-999
+unverified: CD-102 CD-103 CD-210 CD-211 CD-999

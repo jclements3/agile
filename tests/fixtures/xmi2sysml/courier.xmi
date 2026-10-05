@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Cameo Systems Modeler style export (Eclipse UML2 5.x XMI), hand-written fixture: a notional parcel drone -->
+<xmi:XMI xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.omg.org/spec/UML/20131001"
+         xmlns:sysml="http://www.omg.org/spec/SysML/20150709/SysML"
+         xmlns:MD_Customization_for_Requirements__additional_stereotypes="http://www.magicdraw.com/spec/Customization/180/Requirements"
+         xmlns:Safety="http://example.com/profiles/Safety">
+  <xmi:Documentation><xmi:exporter>MagicDraw UML</xmi:exporter><xmi:exporterVersion>2022x</xmi:exporterVersion></xmi:Documentation>
+  <uml:Model xmi:type="uml:Model" xmi:id="eee_1045467100313_135436_1" name="Courier">
+    <packageImport xmi:type="uml:PackageImport" xmi:id="_pi1">
+      <importedPackage href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#_0"/>
+    </packageImport>
+    <packagedElement xmi:type="uml:Package" xmi:id="_pkg_struct" name="Structure">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_c_struct" body="Physical architecture of the Courier drone &amp; its power chain."/>
+      <packagedElement xmi:type="uml:Class" xmi:id="_drone" name="Drone">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_c_drone">
+          <body>A parcel-carrying multirotor.
+Flies at most 40 °C ambient.</body>
+          <annotatedElement xmi:idref="_drone"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_p_airframe" name="airframe" type="_airframe" aggregation="composite" association="_as_air"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_p_battery" name="battery" type="_battery" aggregation="composite">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_p_battery_lo" value="1"/>
+          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_p_battery_hi" value="2"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_p_fc" name="fc" type="_fc" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_p_motors" name="motors" type="_motor" aggregation="composite">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_p_motors_lo" value="4"/>
+          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_p_motors_hi" value="4"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_p_operator" name="operator" type="_operator"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_p_mass" name="mass" type="_vt_mass">
+          <defaultValue xmi:type="uml:LiteralReal" xmi:id="_p_mass_dv" value="1.5"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_p_mode" name="mode" type="_en_mode">
+          <defaultValue xmi:type="uml:InstanceValue" xmi:id="_p_mode_dv" instance="_lit_cruise"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_p_serial" name="serial number">
+          <type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#String"/>
+        </ownedAttribute>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_cn_power" name="power">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_cn_power_e1" role="_port_bat_out" partWithPort="_p_battery"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_cn_power_e2" role="_port_fc_in" partWithPort="_p_fc"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_cn_cmd">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_cn_cmd_e1" role="_port_fc_cmd" partWithPort="_p_fc"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_cn_cmd_e2" role="_port_rpm" partWithPort="_p_motors"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_cn_bind">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_cn_bind_e1" role="_p_mass"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_cn_bind_e2" role="_af_mass" partWithPort="_p_airframe"/>
+        </ownedConnector>
+        <ownedOperation xmi:type="uml:Operation" xmi:id="_op_arm" name="arm"/>
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_rule_mass" name="massLimit">
+          <constrainedElement xmi:idref="_p_mass"/>
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_rule_mass_spec">
+            <body>self.mass &lt;= 2.5</body>
+            <language>OCL</language>
+          </specification>
+        </ownedRule>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_quad" name="QuadDrone">
+        <generalization xmi:type="uml:Generalization" xmi:id="_gen_quad" general="_drone"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_airframe" name="Airframe">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_af_mass" name="mass" type="_vt_mass"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_battery" name="Battery">
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_port_bat_out" name="pwrOut" type="_if_power" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_bat_v" name="nominal voltage" type="_vt_volt"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_fc" name="FlightController">
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_port_fc_in" name="pwrIn" type="_if_power" aggregation="composite" isConjugated="true"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_port_fc_cmd" name="rpmOut" aggregation="composite">
+          <type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Real"/>
+        </ownedAttribute>
+        <ownedBehavior xmi:type="uml:StateMachine" xmi:id="_sm_fc" name="FlightModes">
+          <region xmi:type="uml:Region" xmi:id="_sm_fc_r">
+            <subvertex xmi:type="uml:State" xmi:id="_st_idle" name="Idle"/>
+            <subvertex xmi:type="uml:State" xmi:id="_st_fly" name="Flying"/>
+          </region>
+        </ownedBehavior>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_motor" name="Motor">
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_port_rpm" name="rpmCmd" aggregation="composite">
+          <type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Real"/>
+        </ownedAttribute>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_operator" name="Operator"/>
+      <packagedElement xmi:type="uml:Class" xmi:id="_if_power" name="PowerIF">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_fp_current" name="current" type="_vt_current"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_fp_cmd" name="command" type="_sig_cmd"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="_as_air" memberEnd="_p_airframe _as_air_end">
+        <ownedEnd xmi:type="uml:Property" xmi:id="_as_air_end" name="drone" type="_drone" association="_as_air"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Signal" xmi:id="_sig_cmd" name="Command">
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_sig_cmd_code" name="code">
+          <type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Integer"/>
+        </ownedAttribute>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_pkg_types" name="Types">
+        <packagedElement xmi:type="uml:DataType" xmi:id="_vt_mass" name="Mass">
+          <generalization xmi:type="uml:Generalization" xmi:id="_gen_mass">
+            <general href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Real"/>
+          </generalization>
+        </packagedElement>
+        <packagedElement xmi:type="uml:DataType" xmi:id="_vt_volt" name="Voltage">
+          <generalization xmi:type="uml:Generalization" xmi:id="_gen_volt">
+            <general href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Real"/>
+          </generalization>
+        </packagedElement>
+        <packagedElement xmi:type="uml:DataType" xmi:id="_vt_current" name="Current"/>
+        <packagedElement xmi:type="uml:InstanceSpecification" xmi:id="_unit_kg" name="kilogram"/>
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="_en_mode" name="FlightMode">
+          <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_hover" name="hover"/>
+          <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_cruise" name="cruise"/>
+          <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_lit_return" name="return"/>
+        </packagedElement>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_pkg_beh" name="Behavior">
+      <packagedElement xmi:type="uml:Activity" xmi:id="_act_deliver" name="DeliverParcel">
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_prm_dest" name="destination" direction="in">
+          <type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#String"/>
+        </ownedParameter>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_prm_ok" name="delivered" direction="return">
+          <type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Boolean"/>
+        </ownedParameter>
+        <node xmi:type="uml:InitialNode" xmi:id="_n_init" outgoing="_e1"/>
+        <node xmi:type="uml:CallBehaviorAction" xmi:id="_n_takeoff" name="take off" behavior="_act_takeoff"/>
+        <node xmi:type="uml:OpaqueAction" xmi:id="_n_drop" name="drop"/>
+        <node xmi:type="uml:DecisionNode" xmi:id="_n_dec" name="landed?"/>
+        <node xmi:type="uml:ActivityFinalNode" xmi:id="_n_final"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_e1" source="_n_init" target="_n_takeoff"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_e2" source="_n_takeoff" target="_n_drop"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_e3" source="_n_drop" target="_n_dec"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_e4" source="_n_drop" target="_n_final"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_act_takeoff" name="TakeOff"/>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_act_endtest" name="EnduranceTest"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_pkg_req" name="Requirements">
+      <packagedElement xmi:type="uml:Class" xmi:id="_r_endur" name="Endurance">
+        <nestedClassifier xmi:type="uml:Class" xmi:id="_r_reserve" name="Reserve"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_r_payload" name="Payload"/>
+      <packagedElement xmi:type="uml:Class" xmi:id="_r_cells" name="Battery cells"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_sat1" client="_drone" supplier="_r_endur"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_sat2">
+        <client xmi:idref="_p_airframe"/>
+        <supplier xmi:idref="_r_payload"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_ver1" client="_act_endtest" supplier="_r_endur _r_reserve"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_der1" client="_r_cells" supplier="_r_endur"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_tr1" client="_battery" supplier="_r_cells"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_alloc1" client="_act_deliver" supplier="_drone"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_loose_block" name="GroundStation"/>
+  </uml:Model>
+  <sysml:Block xmi:id="_s1" base_Class="_drone"/>
+  <sysml:Block xmi:id="_s2" base_Class="_quad"/>
+  <sysml:Block xmi:id="_s3" base_Class="_airframe"/>
+  <sysml:Block xmi:id="_s4" base_Class="_battery"/>
+  <sysml:Block xmi:id="_s5" base_Class="_fc"/>
+  <sysml:Block xmi:id="_s6" base_Class="_motor"/>
+  <sysml:Block xmi:id="_s7" base_Class="_operator"/>
+  <sysml:Block xmi:id="_s7b" base_Class="_loose_block"/>
+  <sysml:InterfaceBlock xmi:id="_s8" base_Class="_if_power"/>
+  <sysml:FlowProperty xmi:id="_s9" base_Property="_fp_current" direction="out"/>
+  <sysml:FlowProperty xmi:id="_s9b" base_Property="_fp_cmd" direction="in"/>
+  <sysml:ProxyPort xmi:id="_s10" base_Port="_port_bat_out"/>
+  <sysml:ProxyPort xmi:id="_s11" base_Port="_port_fc_in"/>
+  <sysml:FlowPort xmi:id="_s12" base_Port="_port_rpm" direction="in"/>
+  <sysml:FlowPort xmi:id="_s12b" base_Port="_port_fc_cmd" direction="out"/>
+  <sysml:ValueType xmi:id="_s13" base_DataType="_vt_mass" unit="_unit_kg"/>
+  <sysml:ValueType xmi:id="_s14" base_DataType="_vt_volt"/>
+  <sysml:ValueType xmi:id="_s14b" base_DataType="_vt_current"/>
+  <sysml:BindingConnector xmi:id="_s15" base_Connector="_cn_bind"/>
+  <sysml:Requirement xmi:id="_s16" base_Class="_r_endur" Id="CD-101" Text="The drone shall fly 30 min with a 2 kg parcel&#10;at 15 m/s."/>
+  <sysml:Requirement xmi:id="_s16b" base_Class="_r_reserve" Id="CD-101.1" Text="Land with 10 % charge left."/>
+  <MD_Customization_for_Requirements__additional_stereotypes:performanceRequirement xmi:id="_s17" base_Class="_r_payload" Id="CD-102" Text="Carry a payload of 2 kg." verifyMethod="Test" risk="High"/>
+  <sysml:Requirement xmi:id="_s18" base_Class="_r_cells" Id="CD-210" Text="Use 6S Li-ion cells."/>
+  <sysml:Satisfy xmi:id="_s19" base_Abstraction="_sat1"/>
+  <sysml:Satisfy xmi:id="_s20" base_Abstraction="_sat2"/>
+  <sysml:Verify xmi:id="_s21" base_Abstraction="_ver1"/>
+  <sysml:TestCase xmi:id="_s22" base_Behavior="_act_endtest"/>
+  <sysml:DeriveReqt xmi:id="_s23" base_Abstraction="_der1"/>
+  <sysml:Trace xmi:id="_s24" base_Abstraction="_tr1"/>
+  <sysml:Allocate xmi:id="_s25" base_Abstraction="_alloc1"/>
+  <Safety:Hazardous xmi:id="_s26" base_Class="_battery" level="2"/>
+  <xmi:Extension extender="MagicDraw UML 2022x"><diagram name="ibd Drone"/></xmi:Extension>
+</xmi:XMI>

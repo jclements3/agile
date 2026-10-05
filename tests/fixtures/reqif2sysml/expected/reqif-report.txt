@@ -1,0 +1,18 @@
+reqif2sysml report: courier.reqif
+
+DOORS objects (C total: <SPEC-OBJECT> count)     11
+requirements (objects with text)                  6
+  bare objects (an identifier, no attributes)      0
+  with a verification method                      3
+  without a verification method                   3
+headings (section packages)                       4
+  orphan headings (no requirement below)          1
+empty objects (no text, no heading)               1
+objects in no specification                       1
+hierarchy entries naming a missing object         0
+links                                             3
+  derive 1, satisfy 0, verify 0, trace 1, not between requirements 1
+verification methods: Inspection 1, Test 1, Test, Analysis 1
+
+files: battery-requirements/Battery_Requirements.sysml system-requirements-unplaced/System_Requirements_unplaced.sysml system-requirements/System_Requirements.sysml
+self-check: ok

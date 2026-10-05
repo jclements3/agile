@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Porting SysML v1 and DOORS to SysML v2 text</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a;
+         max-width: 1100px; margin: 2em auto; padding: 0 1.5em; line-height: 1.5; }
+  h1 { font-size: 18pt; border-bottom: 2px solid #444; padding-bottom: 0.2em; margin-top: 0; }
+  h2 { font-size: 14pt; margin-top: 2em; border-bottom: 1px solid #999; padding-bottom: 0.15em; }
+  h3 { font-size: 12pt; margin-top: 1.5em; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  pre { background: #f4f4f4; border: 1px solid #ddd; padding: 0.8em 1em; overflow-x: auto; }
+  code { background: #f4f4f4; padding: 0.1em 0.3em; }
+  pre code { background: none; padding: 0; }
+  ul, ol { margin: 0.5em 0; }
+  li { margin: 0.3em 0; }
+  table { border-collapse: collapse; margin: 0.8em 0; font-size: 10pt; }
+  th, td { border: 1px solid #bbb; padding: 0.3em 0.6em; text-align: left; vertical-align: top; }
+  th { background: #e8e8e8; }
+  .note { border-left: 4px solid #c90; background: #fff8e6; padding: 0.5em 1em; margin: 1em 0; }
+  a { color: #0b5cad; }
+  @media print { body { margin: 0; max-width: none; } }
+</style>
+</head>
+<body>
+
+<h1>Porting SysML v1 and DOORS to SysML v2 text</h1>
+
+<p>Two tools in this kit move a legacy model into SysML v2 textual notation under Git:</p>
+<ul>
+  <li><code>bin/xmi2sysml.pl</code> reads a SysML v1 XMI export from Cameo Systems Modeler or MagicDraw.
+      It writes one <code>.sysml</code> file per top-level package.</li>
+  <li><code>bin/reqif2sysml.pl</code> reads a DOORS module as ReqIF (<code>.reqif</code> or <code>.reqifz</code>) or as CSV.
+      It writes the requirements with their <code>doorsId</code>, plus the trace report behind status metrics C, F, G and I.</li>
+</ul>
+<p>Both are core Perl 5. They run on the Perl that ships with Git for Windows, so the work laptop needs nothing beyond Git for Windows, Vim and Perl.
+They never touch the network, and they write only where you point <code>--out</code>.
+The output feeds the A to Z status metrics (<a href="STATUS-METRICS.html">STATUS-METRICS.html</a>, collected by <code>bin/status-metrics.pl</code>).</p>
+
+<div class="note">The converters give you a starting point, not a finished model. Every element they cannot map becomes a
+<code>// TODO</code> line with its <code>xmi:id</code>, and the report lists each one. Nothing is dropped silently, but a person still
+has to review each segment before it is committed.</div>
+
+<h2>The daily loop</h2>
+<ol>
+  <li>Export the current model from Cameo and the requirements from DOORS (sections below). Put them outside the model repo, for
+      example in <code>exports/</code>, with the date in the name.</li>
+  <li>Read the mapping report <em>before</em> you convert anything:
+<pre><code>perl bin/xmi2sysml.pl --report exports/2026-10-05-legacy.xmi
+perl bin/reqif2sysml.pl --report exports/2026-10-05-system.reqif</code></pre>
+      Check three things in the XMI report: the <strong>unmapped</strong> list, <strong>stereotypes not converted</strong>,
+      and <strong>type references not resolved</strong>. Real exports vary with the tool version, the profiles in use and the export
+      settings. If something you care about shows up there, fix the export first.</li>
+  <li>Convert into a branch of the model repo:
+<pre><code>cd model-repo
+git switch -c port/structure
+perl ../agile/bin/xmi2sysml.pl --out model --check ../exports/2026-10-05-legacy.xmi
+perl ../agile/bin/reqif2sysml.pl --out model --layout "_reqs/{pkg}.sysml" --check ../exports/2026-10-05-system.reqif</code></pre></li>
+  <li>Review the result in Git. Run <code>git status</code> and <code>git diff --stat</code>, then read the diff segment by segment
+      (<code>git diff model/structure</code>, or <code>git difftool</code> with Vim as the diff tool).</li>
+  <li>Work the TODO lines in Vim. List them all in the quickfix window:
+<pre><code>:vimgrep /TODO/ model/**/*.sysml
+:copen</code></pre>
+      Move with <code>:cnext</code> and <code>:cprev</code>. Each TODO line gives the v1 type and the <code>xmi:id</code>, so you can
+      find the element in Cameo.</li>
+  <li>Commit one segment at a time. Stage it with <code>git add -p model/structure</code>, commit it with a message such as
+      <code>port: structure from legacy.xmi 2026-10-05</code>, and merge through the normal gate (lint, then review).</li>
+  <li>Run the metrics: <code>perl bin/status-metrics.pl collect ...</code> (see <a href="#metrics">Feeding the metrics</a>).</li>
+</ol>
+
+<h3>Regenerating without losing hand edits</h3>
+<p>The output is deterministic: the same export gives the same bytes, in the model's own order. Re-running after a new export
+therefore changes only what changed in Cameo. A re-run also overwrites your hand edits in those files. Two rules keep that safe:</p>
+<ul>
+  <li>Once a segment is ported and hand-fixed, stop regenerating it. Convert into a scratch directory
+      (<code>--out ../scratch</code>) and copy over only the segments still being ported.</li>
+  <li>Use <code>--report</code> to count what remains. Its "ported vs remaining" line uses the same type filter as metric A.</li>
+</ul>
+
+<h2>Exporting from Cameo / MagicDraw</h2>
+<ul>
+  <li>Cameo Systems Modeler 19.0 and later (2021x, 2022x, 2024x): <strong>File &gt; Export To &gt; Eclipse UML2 (v5.x) XMI File</strong>.
+      Older MagicDraw: <strong>File &gt; Export To &gt; UML 2.1 XMI File</strong>. Menu names move between versions; pick the
+      plain UML/XMI export, not a "MagicDraw native" or "mdzip" format.</li>
+  <li>Export the whole project, or the packages that form the segments. Each top-level package becomes one file and one segment
+      folder (<code>model/&lt;segment&gt;/&lt;Package&gt;.sysml</code>). Change that with <code>--layout</code>, for example
+      <code>--layout "{pkg}.sysml"</code>.</li>
+  <li>Settings that matter:
+    <ul>
+      <li><strong>Stereotype applications must be included.</strong> Without them, Blocks are plain Classes and requirements have no
+          id or text. They appear at the end of the file as <code>&lt;sysml:Block base_Class="..."/&gt;</code>. The prefix may also be
+          <code>SysML:</code>, <code>Blocks:</code> or <code>MD_Customization_for_Requirements...:</code>; the tool matches on the
+          local name, so any of these works.</li>
+      <li><strong>Used projects and libraries.</strong> Types from a used project, such as SI value types, export as
+          <code>href</code> references to another file. UML and SysML primitives (Real, Integer, Boolean, String) map to
+          <code>ScalarValues::*</code>. Anything else is listed under "type references not resolved"; export the library
+          with the model, or fix those types by hand.</li>
+      <li><strong>Diagrams</strong> export as <code>xmi:Extension</code> blocks. They are counted and skipped.</li>
+    </ul></li>
+  <li>The Eclipse export may write several files: the model plus profile files. Give the converter the model file, the one with
+      <code>&lt;uml:Model&gt;</code> in it.</li>
+</ul>
+
+<h2>Exporting from DOORS</h2>
+<ul>
+  <li><strong>ReqIF</strong> (preferred). DOORS 9: <strong>File &gt; Export &gt; ReqIF</strong>, using a ReqIF definition
+      that includes the module and its link modules. DOORS Next: <strong>Export &gt; ReqIF</strong> from the module or a
+      ReqIF definition. Both may write a <code>.reqifz</code> (a zip), which the tool reads directly. If a Perl ever lacks
+      <code>IO::Uncompress::Unzip</code>, unzip the file and give it the <code>.reqif</code> inside. Both Git for Windows' Perl
+      and Linux Perl ship it.</li>
+  <li>Include these attributes: <em>Object Heading</em> and <em>Object Text</em> (ReqIF.ChapterName and ReqIF.Text), the
+      absolute number (ReqIF.ForeignID), and your verification method attribute. DOORS exports the absolute number without the
+      module prefix, so add the prefix back with <code>--id-prefix SYS-</code>. If your id lives in another attribute, name it with
+      <code>--id-attr "Object Identifier"</code>. Any attribute whose name contains "verif" is taken as the verification method;
+      override that with <code>--vm-attr</code>.</li>
+  <li><strong>CSV</strong> is the fallback. Export a view with the columns <em>Object Identifier</em>, <em>Object Level</em>,
+      <em>Object Heading</em>, <em>Object Text</em> and <em>Verification Method</em>. Columns with those names are found
+      automatically. Name other columns with <code>--col</code>:
+<pre><code>perl bin/reqif2sysml.pl --csv --col id="ID" --col text="Requirement" --col level="Level" --col vm="V Method" --out model module.csv</code></pre>
+      Comma, semicolon or tab separators are detected. Quoted fields may span lines, as DOORS writes multi-line text.</li>
+</ul>
+<p>An object with a heading and no text becomes a nested <code>package</code> (a section). An object with text becomes a
+requirement. An object with neither becomes a TODO line and is counted. Objects that appear in no module hierarchy go to a
+separate <code>... unplaced</code> package, so you can see them.</p>
+
+<h2>The commands</h2>
+<table>
+  <tr><th>Command</th><th>What it does</th></tr>
+  <tr><td><code>perl bin/xmi2sysml.pl --report FILE.xmi</code></td><td>Mapping summary: elements in by <code>xmi:type</code> (mapped / folded / TODO), ported vs remaining for metric A, stereotypes, SysML v2 elements out, the unmapped list.</td></tr>
+  <tr><td><code>perl bin/xmi2sysml.pl --out DIR FILE.xmi</code></td><td>Writes the files (default layout <code>{seg}/{pkg}.sysml</code>) and prints a one-line summary to stderr.</td></tr>
+  <tr><td><code>--stdout</code></td><td>Writes every file to stdout, each after a <code>// file: path</code> line. Useful for a quick look in Vim: <code>perl bin/xmi2sysml.pl --stdout x.xmi | vim -</code>.</td></tr>
+  <tr><td><code>--req-style usage|def</code></td><td><code>usage</code> (the default) writes one-line <code>requirement NAME { ... }</code> usages, the form <code>bin/status-metrics.pl</code> counts and the Halberd example uses. <code>def</code> writes <code>requirement def</code> blocks.</td></tr>
+  <tr><td><code>--name PKG</code></td><td>The package for elements that sit outside any package (default: the model's name, else the file name).</td></tr>
+  <tr><td><code>--check</code></td><td>Also runs <code>tools/sysml/sysml.pl check</code> (the SysML v2 grammar checker) over the files written, when it is in the kit.</td></tr>
+  <tr><td><code>perl bin/reqif2sysml.pl --report FILE.reqif</code></td><td>Requirements, verification methods, headings, orphan headings, empty objects and links.</td></tr>
+  <tr><td><code>perl bin/reqif2sysml.pl --report --model DIR FILE.reqif</code></td><td>Adds the trace against existing SysML v2 text: C linked, F orphans, G unverified, I completeness, with the ids of each.</td></tr>
+  <tr><td><code>--attr NAME</code> (repeatable)</td><td>Copies a DOORS attribute onto each requirement, for example <code>--attr Priority</code>.</td></tr>
+</table>
+<p>Both tools exit 0 when all is well, 1 when the structural self-check (or <code>--check</code>) finds a problem, and 2 on bad
+usage or an unreadable file. A malformed XML file stops the tool with <code>file:line: message</code>.</p>
+
+<h2>What maps to what</h2>
+<table>
+  <tr><th>SysML v1 (XMI)</th><th>SysML v2 text</th></tr>
+  <tr><td>Package (top level)</td><td><code>package</code>, one file per package</td></tr>
+  <tr><td>Block, Class, Component, Actor</td><td><code>part def</code>; generalization becomes <code>:&gt;</code></td></tr>
+  <tr><td>InterfaceBlock, or a Class used only as a port type</td><td><code>port def</code>; FlowProperty becomes <code>in</code>/<code>out</code>/<code>inout</code> <code>item</code> or <code>attribute</code></td></tr>
+  <tr><td>Part property (composite, Block-typed)</td><td><code>part name : Type[m..n];</code></td></tr>
+  <tr><td>Reference property</td><td><code>ref part</code></td></tr>
+  <tr><td>Value property</td><td><code>attribute</code>, with the default value</td></tr>
+  <tr><td>ValueType, DataType, PrimitiveType</td><td><code>attribute def</code>; the 1.x unit is kept as a comment</td></tr>
+  <tr><td>Enumeration</td><td><code>enum def</code> with <code>enum</code> literals</td></tr>
+  <tr><td>Signal</td><td><code>item def</code></td></tr>
+  <tr><td>Port, ProxyPort, FullPort, FlowPort</td><td><code>port name : [~]PortDef;</code>; an atomic flow port becomes <code>port name { in attribute flowValue : T; }</code></td></tr>
+  <tr><td>Connector</td><td><code>connection [name] connect a.p to b.q;</code></td></tr>
+  <tr><td>BindingConnector</td><td><code>bind a = b;</code></td></tr>
+  <tr><td>Activity</td><td><code>action def</code>: parameters, call and opaque actions as <code>action</code>, control flows as <code>first a then b;</code></td></tr>
+  <tr><td>Requirement (and Cameo's requirement kinds)</td><td><code>requirement def</code> with <code>doc</code>, <code>doorsId</code> (the requirement's Id), <code>title</code> (its 1.x name) and <code>verificationMethod</code></td></tr>
+  <tr><td>Satisfy</td><td><code>satisfy R by X;</code></td></tr>
+  <tr><td>Verify, TestCase</td><td><code>verification def</code> with <code>objective { verify R; }</code></td></tr>
+  <tr><td>DeriveReqt</td><td><code>#derivation connection { end #original ::&gt; S; end #derive ::&gt; D; }</code></td></tr>
+  <tr><td>Trace, Refine, Copy, Dependency</td><td><code>dependency from A to B;</code></td></tr>
+  <tr><td>Allocate</td><td><code>allocate A to B;</code></td></tr>
+  <tr><td>Comment</td><td><code>doc /* ... */</code></td></tr>
+</table>
+<p>Requirements are named from their id (<code>CD-101</code> becomes <code>CD_101</code>) in both tools. A requirement ported from
+Cameo and the same requirement read from DOORS therefore get the same name, and <code>satisfy</code>/<code>verify</code> lines
+written by one tool resolve against definitions written by the other. Other names keep their v1 spelling, quoted
+(<code>'serial number'</code>) when they are not plain identifiers or when they are SysML v2 reserved words.</p>
+
+<h2 id="metrics">Feeding the metrics</h2>
+<ul>
+  <li><strong>A, % under configuration control.</strong> <code>status-metrics.pl init --xmi legacy.xmi</code> freezes the
+      denominator with the filter <code>uml:(Class|Port|Property|Connector|Activity)</code>. The xmi2sysml report's "ported vs
+      remaining" line counts the same set, so the two agree on what "all of it" means.</li>
+  <li><strong>C, requirements linked.</strong> The total is the <code>&lt;SPEC-OBJECT&gt;</code> count of the ReqIF export, the first
+      line of the reqif2sysml report. "Linked" is a <code>doorsId</code> found in <code>model/</code>.
+      <code>reqif2sysml.pl --report --model model export.reqif</code> gives both, plus the ids that are missing.</li>
+  <li><strong>F, G and I.</strong> These are the orphan (no <code>satisfy</code>), unverified (no <code>verify</code>) and
+      complete counts from the same <code>--model</code> report, with the ids to send to the owners.</li>
+  <li><strong>Which requirement style to commit.</strong> <code>bin/status-metrics.pl</code> counts requirements written as one-line
+      usages (<code>requirement r1 { attribute doorsId = "..."; }</code>), which is what both tools write by default. Use
+      <code>--req-style def</code> only if you report from the Appendix A <code>grep</code> fallbacks, which count <code>requirement def</code>.
+      The <code>--model</code> trace reads both.</li>
+</ul>
+<p>Checked against the status-metrics simulation (<code>sim/status-metrics-sim.pl</code>): on its exports and final model,
+<code>reqif2sysml.pl --report --model</code> gives C = 1450 of 1450, F = 3 and G = 4, the same values the collector records.</p>
+
+<h2>Checking the output</h2>
+<ul>
+  <li>Every run does a structural self-check. It looks for balanced braces, terminated comments and strings, and checks that every type,
+      specialization, satisfy/verify target, connect end and import names something declared in the output or in the standard
+      library (ScalarValues, ISQ, SI, RequirementDerivation and so on). The check is by name, not by scope.</li>
+  <li><code>--check</code> also runs the kit's SysML v2 grammar checker (<code>tools/sysml/sysml.pl check</code>). The test suites
+      run it over every fixture output in both requirement styles.</li>
+  <li>Neither is a full semantic validator. When you can, open a segment in a SysML v2 tool (the Pilot implementation or a vendor
+      tool) before you baseline it.</li>
+</ul>
+
+<h2>Limits</h2>
+<ul>
+  <li><strong>Diagrams and layout are not converted.</strong> SysML v2 views are defined separately; draw them again from the text.</li>
+  <li><strong>Behaviour is a skeleton.</strong> Activities keep their parameters, call actions and control flows. Decision, merge,
+      fork and join nodes, object flows and pins become TODO lines. State machines, interactions (sequence diagrams) and
+      operations become TODO lines.</li>
+  <li><strong>Constraints and parametrics.</strong> OCL and opaque-expression constraints become TODO lines with the expression
+      text. Constraint blocks become an empty <code>constraint def</code> with a TODO line. Parametric bindings other than plain
+      binding connectors are not converted.</li>
+  <li><strong>Profiles.</strong> Only the SysML 1.x stereotypes listed in the mapping table are understood. Other stereotypes
+      (company profiles, UAF, MARTE and so on) appear as a TODO line on the element they were applied to, and the report counts them.</li>
+  <li><strong>Units.</strong> A ValueType's unit is kept as a comment. Specialize the matching ISQ quantity by hand.</li>
+  <li><strong>Containment.</strong> Nested requirements are written after their parent, not inside it. Their derivation links are kept.</li>
+  <li><strong>Satisfy and verify targets with <code>--req-style def</code></strong> name a definition. That parses, but strict SysML v2 semantics want
+      a requirement usage there. The default, <code>usage</code>, avoids the issue.</li>
+  <li><strong>DOORS.</strong> OLE objects and images in requirement text become <code>[image]</code>. Tables are flattened to
+      <code>a | b</code> rows. Links whose ends are not both requirements, such as a link to a heading, become TODO lines.
+      Link types are classified by name: <em>derive/refine</em>, <em>satisfy</em>, <em>verify/test</em>; anything else is a trace.</li>
+  <li><strong>Size.</strong> The XML is read in 1 MB chunks, but the model is held in memory. A 22 MB XMI with 160,000 elements
+      converts in about 20 seconds and 700 MB on WSL Perl, and in under a minute on Git for Windows' Perl.</li>
+</ul>
+
+</body>
+</html>

@@ -109,7 +109,7 @@ perl bin/xmi2sysml.pl --out model --check legacy.xmi\\
 perl bin/reqif2sysml.pl --report --model model export.reqif\\
 perl tools/sysml/model.pl lint\par}
 \vspace{2pt}{\small Report, convert a segment, fix its TODOs, lint at 0/0, commit. Moves A--I, Q, T. Guide: \texttt{docs/SYSML-PORT.html}.}\par\end{minipage}
-\head{What moves which letter}
+\begin{minipage}{\linewidth}\head{What moves which letter}
 {\small\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}X >{\sffamily\bfseries}l >{\raggedright\arraybackslash}X@{}}
 \toprule
 What I did & Moves & What I say\\
@@ -124,7 +124,7 @@ Wired a sim input to the model & O, P & Parameters sourced; runs pinned to a bas
 Ported a threat or mitigation & R & Unmitigated threats\\
 Closed a sprint & U, V, W, X, Y & Merges; change failure; time to restore; done \%; blocked days\\
 \bottomrule
-\end{tabularx}}
+\end{tabularx}}\end{minipage}
 \head{The dashboard}
 \begin{enumerate}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]
 \item Open \texttt{docs/STATUS-DASHBOARD.html} (one file, works offline).
@@ -138,6 +138,23 @@ perl bin/status-metrics.pl init \textbackslash\\\hspace*{1em}--config metrics.js
 perl bin/status-metrics.pl collect \textbackslash\\\hspace*{1em}--config metrics.json --history history.jsonl\\[1pt]
 perl bin/status-metrics.pl report \textbackslash\\\hspace*{1em}--config metrics.json --history history.jsonl --out report\par}
 \vspace{3pt}{\small \texttt{init} once (freezes the denominators), \texttt{collect} daily, \texttt{report} weekly: \texttt{status-weekly.md}, \texttt{status-daily.csv}, \texttt{dashboard.json}. Help: \texttt{perl agile.pl help status-metrics}.}\par
+\head{Act when\ldots}
+{\small\begin{tabularx}{\linewidth}{@{}>{\sffamily\bfseries}l >{\raggedright\arraybackslash}p{0.33\linewidth} >{\raggedright\arraybackslash}X@{}}
+E & not 0/0 & nothing merges until it is fixed\\
+F, G & up two weeks running & send the id list to the owners\\
+Y & over 3 blocked days & escalate; over 5, it is yours\\
+V & over 15\% & fix the gate before porting more\\
+K & over 15 min & look at the generation step\\
+T & drift above 0 & regenerate before the next baseline\\
+X & under 80\% mid-sprint & cut scope or swarm\\
+\end{tabularx}}
+\head{When each letter changes}
+{\small\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+Daily & \texttt{collect}: every letter's raw count is recorded\\
+Weekly & report A--T (coverage, quality, cost, thread, risk)\\
+Sprint close & U--Z (flow): merges, failures, restore, done \%, blocked, contributors\\
+Each baseline & D, S, N (every 4 weeks): size, reproducible, lead time\\
+\end{tabularx}}
 \vspace{2pt}{\small Full definitions: \texttt{docs/STATUS-METRICS.html}; the worked example: \texttt{docs/HALBERD.pdf}.\par}
 \end{multicols}
 \end{document}

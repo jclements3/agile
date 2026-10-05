@@ -147,9 +147,9 @@ $t .= "\\head{SysML v1 \\textrightarrow{} v2 at a glance}\n\\begin{minipage}{\\l
     . "perl bin/reqif2sysml.pl --report --model model export.reqif\\\\\n"
     . "perl tools/sysml/model.pl lint\\par}\n"
     . "\\vspace{2pt}{\\small Report, convert a segment, fix its TODOs, lint at 0/0, commit. Moves A--I, Q, T. Guide: \\texttt{docs/SYSML-PORT.html}.}\\par\\end{minipage}\n";
-$t .= "\\head{What moves which letter}\n{\\small\\begin{tabularx}{\\linewidth}{\@{}>{\\raggedright\\arraybackslash}X >{\\sffamily\\bfseries}l >{\\raggedright\\arraybackslash}X\@{}}\n\\toprule\nWhat I did & Moves & What I say\\\\\n\\midrule\n";
+$t .= "\\begin{minipage}{\\linewidth}\\head{What moves which letter}\n{\\small\\begin{tabularx}{\\linewidth}{\@{}>{\\raggedright\\arraybackslash}X >{\\sffamily\\bfseries}l >{\\raggedright\\arraybackslash}X\@{}}\n\\toprule\nWhat I did & Moves & What I say\\\\\n\\midrule\n";
 $t .= join('', map { tx($_->[0]) . " & " . tx($_->[1]) . " & " . tx($_->[2]) . "\\\\\n" } @key);
-$t .= "\\bottomrule\n\\end{tabularx}}\n";
+$t .= "\\bottomrule\n\\end{tabularx}}\\end{minipage}\n";
 $t .= "\\head{The dashboard}\n\\begin{enumerate}[leftmargin=1.2em,itemsep=1pt,topsep=2pt]\n"
     . "\\item Open \\texttt{docs/STATUS-DASHBOARD.html} (one file, works offline).\n"
     . "\\item Paste the week's \\texttt{dashboard.json} into \\emph{Data (JSON)}, then \\emph{Apply}.\n"
@@ -162,6 +162,21 @@ $t .= "\\head{Collecting the numbers}\n{\\footnotesize\\ttfamily\n"
     . "perl bin/status-metrics.pl report \\textbackslash\\\\\\hspace*{1em}--config metrics.json --history history.jsonl --out report\\par}\n"
     . "\\vspace{3pt}{\\small \\texttt{init} once (freezes the denominators), \\texttt{collect} daily, \\texttt{report} weekly: "
     . "\\texttt{status-weekly.md}, \\texttt{status-daily.csv}, \\texttt{dashboard.json}. Help: \\texttt{perl agile.pl help status-metrics}.}\\par\n";
+$t .= "\\head{Act when\\ldots}\n{\\small\\begin{tabularx}{\\linewidth}{\@{}>{\\sffamily\\bfseries}l >{\\raggedright\\arraybackslash}p{0.33\\linewidth} >{\\raggedright\\arraybackslash}X\@{}}\n"
+    . "E & not 0/0 & nothing merges until it is fixed\\\\\n"
+    . "F, G & up two weeks running & send the id list to the owners\\\\\n"
+    . "Y & over 3 blocked days & escalate; over 5, it is yours\\\\\n"
+    . "V & over 15\\% & fix the gate before porting more\\\\\n"
+    . "K & over 15 min & look at the generation step\\\\\n"
+    . "T & drift above 0 & regenerate before the next baseline\\\\\n"
+    . "X & under 80\\% mid-sprint & cut scope or swarm\\\\\n"
+    . "\\end{tabularx}}\n";
+$t .= "\\head{When each letter changes}\n{\\small\\begin{tabularx}{\\linewidth}{\@{}>{\\bfseries}l X\@{}}\n"
+    . "Daily & \\texttt{collect}: every letter's raw count is recorded\\\\\n"
+    . "Weekly & report A--T (coverage, quality, cost, thread, risk)\\\\\n"
+    . "Sprint close & U--Z (flow): merges, failures, restore, done \\%, blocked, contributors\\\\\n"
+    . "Each baseline & D, S, N (every 4 weeks): size, reproducible, lead time\\\\\n"
+    . "\\end{tabularx}}\n";
 $t .= "\\vspace{2pt}{\\small Full definitions: \\texttt{docs/STATUS-METRICS.html}; the worked example: \\texttt{docs/HALBERD.pdf}.\\par}\n";
 $t .= "\\end{multicols}\n\\end{document}\n";
 

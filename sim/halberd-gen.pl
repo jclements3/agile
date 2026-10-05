@@ -246,12 +246,14 @@ require "$FindBin::Bin/halberd-render.pl";
 halberd_render($o{html}, days => \@days, sprints => \@sprints, plan => \@plan, seg => \%SEG, journal_rows => \@rows, evm_series => \@evm_series, bac => $bac, authorized => $bac * 1.10);
 print "wrote $o{html}\n";
 require "$FindBin::Bin/halberd-latex.pl";                        # the same, typeset for print (black and white)
-halberd_latex($o{tex}, days => \@days, sprints => \@sprints, plan => \@plan, seg => \%SEG, journal_rows => \@rows, evm_series => \@evm_series, bac => $bac, authorized => $bac * 1.10);
+my $cover = "$ROOT/thewheel/TheWheelCoverBW.pdf";               # the binder's cover as page 1, when the binder is there
+halberd_latex($o{tex}, days => \@days, sprints => \@sprints, plan => \@plan, seg => \%SEG, journal_rows => \@rows, evm_series => \@evm_series, bac => $bac, authorized => $bac * 1.10, cover => 1);
 print "wrote $o{tex}\n";
 if ($o{pdf}) {                                                   # XeLaTeX in a scratch dir; only the PDF comes back
     require File::Temp; require File::Copy;
     my $tmp = File::Temp::tempdir(CLEANUP => 1);
     File::Copy::copy($o{tex}, "$tmp/HALBERD.tex") or die "cannot copy $o{tex}: $!\n";
+    File::Copy::copy($cover, "$tmp/TheWheelCoverBW.pdf") if -f $cover;
     my $log = `cd "$tmp" && latexmk -xelatex -interaction=nonstopmode -halt-on-error HALBERD.tex 2>&1`;
     -f "$tmp/HALBERD.pdf" && $? == 0 or die "latexmk failed:\n" . join("\n", (split /\n/, $log)[-25 .. -1]) . "\n";
     (my $pdf = $o{tex}) =~ s/\.tex$/.pdf/;

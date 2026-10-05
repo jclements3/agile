@@ -246,6 +246,69 @@ S 'cli bad command', 2, $rc;
 { local $ENV{LEDGER_FILE} = "$dir/money.txt"; ($rc, $out) = cli("csv", "Pets") }
 S 'cli env file',  '"date,status,payee,account,amount,commodity\n2026-09-15,,Vet,Expenses:Pets,23,\n"', $out;
 
+# ---- dated budgets, -M, earned value, funding run-out
+open my $ff, ">", "$dir/fund.txt" or die;
+print $ff <<'EOT';
+~ Monthly from 2026-10-05 to 2026-12-24
+    Expense:Labor:E      $40,000.00
+    Expense:Labor:V      $30,000.00
+    Assets:Funding:Halberd
+
+2026-10-01 FY27 funding authorized
+    Assets:Funding:Halberd      $250,000.00
+    Equity:Appropriation
+
+2026-10-16 Sprint 1 labor
+    Expense:Labor:E      $38,400.00
+    Assets:Funding:Halberd
+
+2026-10-30 Sprint 2 labor
+    Expense:Labor:E      $21,000.00
+    Expense:Labor:V      $19,200.00
+    Assets:Funding:Halberd
+
+2026-11-13 Sprint 3 labor
+    Expense:Labor:V      $36,000.00
+    Assets:Funding:Halberd
+EOT
+close $ff;
+S 'periodic_window',  '["monthly","2026-10-05","2026-12-24"]', [ periodic_window('Monthly from 2026/10/05 to 2026-12-24') ];
+S 'periodic_window bare', '["monthly",undef,undef]', [ periodic_window('Monthly') ];
+S 'month_starts',     '["2026-10-01","2026-11-01","2026-12-01"]', [ month_starts('2026-10-05', '2027-01-01') ];
+S 'add_days across a year', '"2027-01-02"', add_days('2026-12-31', 2);
+check 'plan_months prorates the window edges', sprintf('%.4f', plan_months('Monthly from 2026-10-05 to 2026-12-24', '2026-10-01', '2027-01-01')), sprintf('%.4f', 27 / 31 + 1 + 23 / 31);
+check 'plan_months without a window is whole months', plan_months('Monthly', '2026-10-01', '2027-01-01'), 3;
+my $fj = read_journal("$dir/fund.txt");
+my $bg = budget($fj, period => '2026-11');
+S 'windowed budget, a full month', '["$40,000.00","$30,000.00"]', [ map { format_amount($_->{budget}) } @{ $bg->{rows} } ];
+$bg = budget($fj, period => '2027-01');
+S 'windowed budget, after the window', '[0,0]', [ map { format_amount($_->{budget}) } @{ $bg->{rows} } ];
+my $e = evm($fj, status => '2026-11-16', complete => { 'Expense:Labor:E' => 0.7, 'Expense:Labor:V' => 0.4 });
+my ($eE) = grep { $_->{account} eq 'Expense:Labor:E' } @{ $e->{rows} };
+S 'evm E: BAC BCWS BCWP ACWP', '[104516.13,54838.71,73161.29,59400.00]', [ map { sprintf '%.2f', $eE->{$_} } qw(bac bcws bcwp acwp) ];
+S 'evm E: CPI SPI', '[1.23,1.33]', [ map { sprintf '%.2f', $eE->{$_} } qw(cpi spi) ];
+S 'evm total CPI', '0.91', sprintf('%.2f', $e->{total}{cpi});
+$e = evm($fj, status => '2026-11-16', complete => { 'Expense:Labor:E' => 0.7 });
+S 'evm without a percent: no BCWP, no total CPI', '[undef,undef]', [ (grep { $_->{account} eq 'Expense:Labor:V' } @{ $e->{rows} })[0]{bcwp}, $e->{total}{cpi} ];
+my $fc = forecast($fj, status => '2026-12-03', months => 2, account => qr/Funding/);
+S 'forecast: balance, burn, run-out', '[135400.00,57300.00,"2027-02-13"]', [ sprintf('%.2f', $fc->{rows}[0]{balance}), sprintf('%.2f', $fc->{rows}[0]{burn}), $fc->{rows}[0]{runout} ];
+S 'read_complete: 70, 0.4, 55%', '{"A":0.7,"B":0.4,"C":0.55}', read_complete([ 'A=70', 'B=0.4', 'C=55%' ]);
+dies_like 'read_complete: not a number', qr/not a number/, sub { read_complete([ 'A=abc' ]) };
+dies_like 'read_complete: over 100', qr/over 100/, sub { read_complete([ 'A=140' ]) };
+open $fh, '>', "$dir/pct.csv" or die; print $fh "account,pct\n# Halberd\nExpense:Labor:E,70\n"; close $fh;
+S 'read_complete: file', '{"Expense:Labor:E":0.7}', read_complete([], "$dir/pct.csv");
+dies_like 'evm: budget without a window', qr/needs 'from DATE to DATE'/, sub { evm(read_journal("$dir/money.txt"), status => '2026-10-01') };
+($rc, $out) = cli("-f", "$dir/fund.txt", "bal", "-M", "Expense");
+S 'cli bal -M: a column per month', 1, ($out =~ /^Account\s+2026-10\s+2026-11\s+Total$/m && $out =~ /^Expense:Labor:V\s+\$19,200\.00\s+\$36,000\.00\s+\$55,200\.00$/m ? 1 : 0);
+($rc, $out) = cli("-f", "$dir/fund.txt", "reg", "-M", "Funding");
+S 'cli reg -M: running total', 1, ($out =~ /^2026-11\s+Assets:Funding:Halberd\s+\$-36,000\.00\s+\$135,400\.00$/m ? 1 : 0);
+($rc, $out) = cli("-f", "$dir/fund.txt", "budget", "-M", "-b", "2026-10-01", "-e", "2026-12-01", "Labor:V");
+S 'cli budget -M', 1, ($out =~ /^2026-11\s+Expense:Labor:V\s+\$30,000\.00\s+\$36,000\.00\s+\$-6,000\.00$/m ? 1 : 0);
+($rc, $out) = cli("-f", "$dir/fund.txt", "evm", "--now", "2026-11-15", "--complete", "Expense:Labor:E=70");
+S 'cli evm: as of, and the missing percent named', 1, ($out =~ /^Earned value as of 2026-11-15$/m && $out =~ /without a percent complete/ ? 1 : 0);
+($rc, $out) = cli("-f", "$dir/fund.txt", "forecast", "--now", "2026-12-02", "--months", "2", "Funding");
+S 'cli forecast', 1, ($out =~ /^Assets:Funding:Halberd\s+\$135,400\.00\s+\$57,300\.00\s+2\.4\s+2027-02-13$/m ? 1 : 0);
+
 # decode_text: what Windows editors leave behind
 check 'decode_text: BOM + UTF-8', Ledger::decode_text("\xEF\xBB\xBFCaf\xc3\xa9"), "Caf\x{e9}";
 check 'decode_text: Windows-1252 fallback', Ledger::decode_text("Cr\xe8me \x97 \xabx\xbb"), "Cr\x{e8}me \x{2014} \x{ab}x\x{bb}";

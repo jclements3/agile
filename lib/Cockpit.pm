@@ -135,8 +135,38 @@ sub snapshot {                                # snapshot($s, days => [...], atte
         plates => $o{plates}, plates_index => plates_index($o{plates_file}), tutorial => $o{tutorial}, training => $o{training},
         health => $o{health} // [], metrics => $o{metrics} // [],   # Metrics::signals and Metrics::table, computed by daily.pl report
         roster => $o{roster} // [],           # roster.txt: name, email, team, role, org (Roster::read_roster) -- the People tab
+        funding => $o{funding},               # funding_snapshot(): the Funding tab, when scrum.conf names a funding journal
         backlog => { master => [ map { _item($_) } backlog($s) ], teams => { map { my $t = $_; ($t => [ map { _item($_) } backlog($s, $t) ]) } @{ $s->{teams} } } },
     };
+}
+
+# ---------------------------------------------------------------- funding (scrum.conf: funding = FILE, complete = GLOB)
+# funding_snapshot($ledger_file, $complete_glob_or_undef, $today) -> { status, points => [{date, funds, spent}], forecast, evm } or undef
+# funds = balance of the Assets:Funding accounts, spent = cumulative Expense; the newest percent-complete file dated on or
+# before today (complete-YYYY-MM-DD.csv) feeds earned value.
+sub funding_snapshot {
+    my ($file, $glob, $today) = @_;
+    return undef unless defined $file && -f $file;
+    require Ledger;
+    my $j = eval { Ledger::read_journal($file) } or return { error => "$@" };
+    my $status = Ledger::add_days($today, 1);
+    my @d = sort map { $_->{date} } @{ $j->{txns} };
+    return undef unless @d;
+    my @points;
+    my $one = sub { my ($acct, $end) = @_; my $t = Ledger::balance_tree(Ledger::balances(Ledger::postings($j, end => $end, real => 1))); my ($v) = values %{ $t->{$acct} // {} }; $v // 0 };
+    for (my $at = $d[0]; $at lt $status; $at = Ledger::add_days($at, 7)) { push @points, { date => $at, funds => $one->('Assets', Ledger::add_days($at, 1)), spent => $one->('Expense', Ledger::add_days($at, 1)) } }
+    push @points, { date => $today, funds => $one->('Assets', $status), spent => $one->('Expense', $status) } if !@points || $points[-1]{date} ne $today;
+    my $fc = Ledger::forecast($j, status => $status, months => 2, account => qr/^Assets/, depth => 1);
+    my ($complete, $evm);
+    if (defined $glob) {
+        my @c = grep { my ($dt) = /(\d{4}-\d{2}-\d{2})/; !$dt || $dt le $today } sort glob($glob);
+        $complete = $c[-1];
+    }
+    if ($complete && @{ $j->{periodic} }) {
+        my $e = eval { Ledger::evm($j, status => $status, complete => Ledger::read_complete([], $complete)) };
+        $evm = $e ? { %$e, complete_file => $complete } : { error => "$@" };
+    }
+    { status => $today, file => $file, points => \@points, forecast => $fc->{rows}[0], evm => $evm };
 }
 
 # ---------------------------------------------------------------- the page
@@ -246,6 +276,7 @@ CSS
 $JS_ = <<'JS';
 var S = JSON.parse(document.getElementById('snap').textContent);
 var TABS = [['daily','Daily'],['weekly','Weekly'],['quad','Quad'],['sprint','Sprint'],['month','Monthly'],['semester','Semester'],['annual','Annual'],['backlog','Backlog'],['roadmap','Roadmap'],['gantt','Gantt'],['people','People'],['plates','Plates'],['tutorial','Tutorial']];
+if (S.funding && !S.funding.error) TABS.splice(4, 0, ['funding','Funding']);
 var PERIOD = {month:2, semester:13, annual:26, all:9999};
 var COLOR = {green:'#0ca30c', amber:'#c98500', red:'#d03b3b', good:'#0ca30c', warning:'#fab219', critical:'#d03b3b', serious:'#ec835a'};
 function h(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -538,7 +569,36 @@ function plate(node){                         // pick a plate: scroll the iframe
 }
 // ---- app
 var state = {tab: (location.hash || '#daily').slice(1), period: null, q: '', team: '', openOnly: true, plate: null};
-var VIEWS = {daily:viewDaily, weekly:viewWeekly, quad:viewQuad, sprint:viewSprint, month:function(){ return viewPeriod('month'); }, semester:function(){ return viewPeriod('semester'); }, annual:function(){ return viewPeriod('annual'); }, backlog:viewBacklog, roadmap:viewRoadmap, gantt:viewGantt, people:viewPeople, plates:viewPlates, tutorial:viewTutorial};
+function money(v){ if (v == null) return '\u2014'; var n = Math.round(v), neg = n < 0; n = Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); return (neg ? '-' : '') + '$' + n; }
+function viewFunding(){
+  var F = S.funding, P = F.points, f = F.forecast || {};
+  var s = '<h2>Funding <span class="muted">' + h(F.file) + ' &middot; as of ' + h(F.status) + '</span></h2>';
+  s += '<div class="grid"><div class="card"><b>' + money(f.balance) + '</b><br><span class="muted">funds remaining</span></div>'
+     + '<div class="card"><b>' + (f.burn > 0 ? money(f.burn) : '\u2014') + '</b><br><span class="muted">burn / month (last 2 months)</span></div>'
+     + '<div class="card"><b>' + (f.runout ? h(f.runout) : 'not burning') + '</b><br><span class="muted">runs out at that rate' + (f.months != null ? ' (' + f.months.toFixed(1) + ' months)' : '') + '</span></div></div>';
+  var W = 760, H = 240, L = 70, R = 12, T = 26, B = 30, max = 1;
+  P.forEach(function(p){ max = Math.max(max, p.funds, p.spent); });
+  var x = function(i){ return L + (P.length > 1 ? i * (W - L - R) / (P.length - 1) : 0); }, y = function(v){ return T + (H - T - B) * (1 - v / max); };
+  var line = function(k){ return P.map(function(p, i){ return x(i).toFixed(1) + ',' + y(p[k]).toFixed(1); }).join(' '); };
+  var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="max-width:100%;height:auto">';
+  [0, 0.5, 1].forEach(function(t){ svg += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(max * t) + '" y2="' + y(max * t) + '" stroke="#ddd"/><text x="' + (L - 4) + '" y="' + (y(max * t) + 3) + '" font-size="10" text-anchor="end" fill="#666">' + money(max * t) + '</text>'; });
+  P.forEach(function(p, i){ if (i % 2 === 0 || i === P.length - 1) svg += '<text x="' + x(i) + '" y="' + (H - B + 14) + '" font-size="10" text-anchor="middle" fill="#666">' + h(p.date.slice(5)) + '</text>'; });
+  svg += '<polyline points="' + line('funds') + '" fill="none" stroke="#2e7d4f" stroke-width="2"/><polyline points="' + line('spent') + '" fill="none" stroke="#c0504d" stroke-width="2"/>';
+  svg += '<text x="' + L + '" y="14" font-size="11" fill="#2e7d4f">funds remaining</text><text x="' + (L + 120) + '" y="14" font-size="11" fill="#c0504d">spent to date</text></svg>';
+  s += svg;
+  var E = F.evm;
+  if (E && E.error) s += '<p class="muted">Earned value: ' + h(E.error) + '</p>';
+  else if (E && E.rows) {
+    s += '<h2>Earned value <span class="muted">percent complete from ' + h(E.complete_file) + '</span></h2><table><tr><th>Account</th><th class=n>% done</th><th class=n>BAC</th><th class=n>BCWS</th><th class=n>BCWP</th><th class=n>ACWP</th><th class=n>CPI</th><th class=n>SPI</th><th class=n>EAC</th></tr>';
+    E.rows.concat(E.total ? [E.total] : []).forEach(function(r){
+      var c = r.cpi == null ? '' : r.cpi < 0.9 ? 'critical' : r.cpi < 1 ? 'warning' : 'good';
+      s += '<tr><td>' + h(r.account) + '</td><td class=n>' + (r.pct == null ? '\u2014' : Math.round(100 * r.pct) + '%') + '</td><td class=n>' + money(r.bac) + '</td><td class=n>' + money(r.bcws) + '</td><td class=n>' + money(r.bcwp) + '</td><td class=n>' + money(r.acwp) + '</td><td class=n>' + (r.cpi == null ? '\u2014' : chip(c, r.cpi.toFixed(2))) + '</td><td class=n>' + (r.spi == null ? '\u2014' : r.spi.toFixed(2)) + '</td><td class=n>' + money(r.eac) + '</td></tr>';
+    });
+    s += '</table><p class="muted">CPI = earned / actual, SPI = earned / planned; under 1 is over cost / behind. bin/ledger.pl evm and forecast give the same numbers.</p>';
+  }
+  return s;
+}
+var VIEWS = {funding:viewFunding, daily:viewDaily, weekly:viewWeekly, quad:viewQuad, sprint:viewSprint, month:function(){ return viewPeriod('month'); }, semester:function(){ return viewPeriod('semester'); }, annual:function(){ return viewPeriod('annual'); }, backlog:viewBacklog, roadmap:viewRoadmap, gantt:viewGantt, people:viewPeople, plates:viewPlates, tutorial:viewTutorial};
 function render(){
   document.getElementById('tabs').innerHTML = TABS.map(function(t){ return '<button class="' + (state.tab === t[0] ? 'on' : '') + '" onclick="go(\'' + t[0] + '\')">' + t[1] + '</button>'; }).join('');
   var view = document.getElementById('view'); try { view.innerHTML = (VIEWS[state.tab] || viewDaily)(); } catch (e) { view.innerHTML = '<p class="muted">view error: ' + h(e.message) + '</p>'; }

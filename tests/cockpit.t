@@ -54,7 +54,7 @@ S 'script is ASCII-clean', 1, (do { my ($js) = $html =~ m{<script>(.*)</script>}
 S 'no plates -> null', 1, (cockpit_html($s) =~ /"plates":null/ ? 1 : 0);
 S 'build time in the header (a shared screen shows it is live)', 1, ($html =~ /built <b id="built">\d\d:\d\d<\/b>/ ? 1 : 0);
 S 'people tab: roster in the snapshot, view present', '[1,1,1]', do { my $p = cockpit_html($s, roster => [ { name => 'Bob', email => 'b@example.com', team => 'Alpha', role => 'Dev', org => 'ACME' } ], readback_clean_days => 3); [ ($p =~ /"roster":\[\{"email":"b\@example.com","name":"Bob","org":"ACME","role":"Dev","team":"Alpha"\}\]/ ? 1 : 0), ($p =~ /function viewPeople\(\)/ ? 1 : 0), ($p =~ /\['people','People'\]/ ? 1 : 0) ] };
-S 'snapshot keys', '["attendance","backlog","blocked","brief","cards","current","daily","days","epics","file","generated","health","marking","metrics","plates","plates_index","quad","quad_page","roadmap","roster","sprints","teams","training","tree","tutorial","unassigned","unit","velocity"]', [ sorted(keys %{ snapshot($s) }) ];
+S 'snapshot keys', '["attendance","backlog","blocked","brief","cards","current","daily","days","epics","file","funding","generated","health","marking","metrics","plates","plates_index","quad","quad_page","roadmap","roster","sprints","teams","training","tree","tutorial","unassigned","unit","velocity"]', [ sorted(keys %{ snapshot($s) }) ];
 S 'no plates file -> empty index', '[]', plates_index(undef);
 S 'quad in the snapshot: all + per team', '[["Alpha","Bravo"],["OPEN","DONE","OPEN"],31]', do { my $qq = snapshot($s)->{quad}; [ [ sorted(keys %{ $qq->{teams} }) ], [ map { $_->{tag} } @{ $qq->{all}{priorities} } ], $qq->{all}{metrics}{sprint}{pct} ] };
 has 'quad tab', $html, qr/function viewQuad\(\)/, qr/\['quad','Quad'\]/, qr/quad:viewQuad/;
@@ -83,6 +83,27 @@ S 'daily view renders the statuses table', 1, (cockpit_html($s, days => $days) =
   my ($before) = $js =~ /\A(.*?)^var state = /ms;
   my @bad = grep { /^(?:try\s*\{\s*)?state\./ } split /\n/, $before // '';
   S 'no top-level state use before its declaration', '[]', \@bad; }
+
+# ---- the Funding tab: funding_snapshot from a funding journal + percent-complete files
+{
+    my $fd = tempdir(CLEANUP => 1);
+    open my $fh, '>', "$fd/funding.ledger" or die;
+    print $fh "~ Monthly from 2026-10-01 to 2026-12-01\n    Expense:Labor:A  \$10,000.00\n    Assets:Funding\n\n"
+            . "2026-10-01 Funding\n    Assets:Funding  \$30,000.00\n    Equity:FY27\n\n"
+            . "2026-10-30 Labor\n    Expense:Labor:A  \$9,000.00\n    Assets:Funding\n\n"
+            . "2026-11-27 Labor\n    Expense:Labor:A  \$12,000.00\n    Assets:Funding\n";
+    close $fh;
+    for (['2026-10-31', 40], ['2026-11-30', 90], ['2026-12-31', 100]) { open my $c, '>', "$fd/complete-$_->[0].csv" or die; print $c "account,pct\nExpense:Labor:A,$_->[1]\n"; close $c }
+    my $f = Cockpit::funding_snapshot("$fd/funding.ledger", "$fd/complete-*.csv", '2026-11-30');
+    S 'funding: funds and spend at the status date', '[9000,21000]', [ map { 0 + sprintf '%.0f', $f->{points}[-1]{$_} } qw(funds spent) ];
+    S 'funding: weekly points from the first transaction', '"2026-10-01"', $f->{points}[0]{date};
+    S 'funding: burn over the last two months, run-out', '[10500,"2026-12-27"]', [ 0 + sprintf('%.0f', $f->{forecast}{burn}), $f->{forecast}{runout} ];
+    S 'funding: newest complete file not after today', '"complete-2026-11-30.csv"', $f->{evm}{complete_file} =~ s{.*/}{}r;
+    S 'funding: EVM total CPI', '0.86', sprintf('%.2f', $f->{evm}{total}{cpi});
+    S 'funding: no file, no tab', 'undef', Cockpit::funding_snapshot("$fd/nope.ledger", undef, '2026-11-30');
+    my $html = cockpit_html($s, funding => $f);
+    S 'funding: the tab is added when there is funding', 1, ($html =~ /TABS\.splice\(4, 0, \['funding','Funding'\]\)/ && $html =~ /"funding":\{/ ? 1 : 0);
+}
 
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";

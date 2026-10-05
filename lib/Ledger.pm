@@ -91,6 +91,40 @@ sub months_between {                          # whole months from begin to end (
     $n < 1 ? 1 : $n;
 }
 sub this_month { my @t = localtime; sprintf '%04d-%02d', $t[5] + 1900, $t[4] + 1 }
+sub today      { my @t = localtime; sprintf '%04d-%02d-%02d', $t[5] + 1900, $t[4] + 1, $t[3] }
+sub next_month { my ($y, $m) = $_[0] =~ /^(\d{4})-(\d{2})/; sprintf '%04d-%02d-01', _add_months($y, $m, 1) }
+sub month_starts {                            # ('2026-10-05', '2027-01-01') -> ('2026-10-01', '2026-11-01', '2026-12-01')
+    my ($b, $e) = @_;
+    my @out;
+    for (my $s = substr($b, 0, 8) . '01'; $s lt $e; $s = next_month($s)) { push @out, $s }
+    @out;
+}
+sub day_number { my ($y, $m, $d) = split /-/, shift; require Time::Local; int(Time::Local::timegm(0, 0, 12, $d, $m - 1, $y) / 86400) }
+sub add_days { my ($d, $n) = @_; my @t = gmtime((day_number($d) + $n) * 86400 + 43200); sprintf '%04d-%02d-%02d', $t[5] + 1900, $t[4] + 1, $t[3] }
+sub month_fraction {                          # the share of the month starting $ms that lies inside [b, e): 0..1
+    my ($ms, $b, $e) = @_;
+    my $me = next_month($ms);
+    my $lo = defined $b && $b gt $ms ? $b : $ms;
+    my $hi = defined $e && $e lt $me ? $e : $me;
+    return 0 if $lo ge $hi;
+    (day_number($hi) - day_number($lo)) / (day_number($me) - day_number($ms));
+}
+sub periodic_window {                         # 'Monthly from 2026-10-01 to 2027-01-01' -> (kind, from, to); from/to undef when absent
+    my $p = shift;
+    my ($kind) = $p =~ /^(\w+)/;
+    my ($from) = $p =~ /\bfrom\s+(\d[\d\/.-]*)/i;
+    my ($to)   = $p =~ /\b(?:to|until)\s+(\d[\d\/.-]*)/i;
+    (lc($kind // ''), norm_date($from), norm_date($to));
+}
+sub plan_months {                             # months of a ~ entry that fall in [beg, end): whole months as before when the
+    my ($period, $beg, $end, $whole) = @_;    # entry has no from/to; prorated by day inside its window when it does
+    my (undef, $from, $to) = periodic_window($period);
+    return $whole // months_between($beg, $end) unless $from || $to;
+    my $lo = !$from || $beg gt $from ? $beg : $from;
+    my $hi = !$to   || $end lt $to   ? $end : $to;
+    return 0 if $lo ge $hi;
+    sum(0, map { month_fraction($_, $lo, $hi) } month_starts($lo, $hi));
+}
 
 # ---------------------------------------------------------------- parsing
 # journal = { txns => [...], periodic => [...], prices => [...], errors => [...] }
@@ -285,18 +319,19 @@ sub budget {
     my ($beg, $end) = $f{period} ? period_range($f{period}) : ($f{begin}, $f{end});
     die "budget: need period or begin+end\n" unless $beg && $end;
     my $months = months_between($beg, $end);
-    my %per_month;
+    my %planned;                              # account => budget over [beg, end)
     for my $t (@{ $j->{periodic} }) {
         my $k = $t->{period} =~ /^month/i ? 1 : $t->{period} =~ /^year/i ? 1 / 12 : $t->{period} =~ /^week/i ? 52 / 12 : undef;
         next unless defined $k;
+        my $span = plan_months($t->{period}, $beg, $end, $months);
         for my $p (@{ $t->{postings} }) {
             next unless $p->{amount};
             my $a = $p->{amount};
             next if $a->{ (keys %$a)[0] } < 0 && $p->{account} =~ /^(Assets|Liabilities|Equity|Income)\b/i;
-            $per_month{ $p->{account} } = amt_add($per_month{ $p->{account} } // {}, amt_scale($a, $k));
+            $planned{ $p->{account} } = amt_add($planned{ $p->{account} } // {}, amt_scale($a, $k * $span));
         }
     }
-    my @accts = sorted(keys %per_month);
+    my @accts = sorted(keys %planned);
     my @ps    = postings($j, begin => $beg, end => $end, real => 1);
     my (%actual, $unb);
     $unb = {};
@@ -312,7 +347,7 @@ sub budget {
         $unb = amt_add($unb, $p->{amount}) if $roots{$root};
     }
     my @rows = map {
-        my $bud = amt_scale($per_month{$_}, $months);
+        my $bud = $planned{$_};
         my $act = $actual{$_} // {};
         +{ account => $_, budget => $bud, actual => $act, remaining => amt_sub($bud, $act) }
     } @accts;
@@ -389,6 +424,223 @@ sub to_csv {                                  # date,status,payee,account,amount
 }
 sub _csvq { my $s = shift; $s =~ /[",\n]/ ? '"' . ($s =~ s/"/""/gr) . '"' : $s }
 
+# ---------------------------------------------------------------- per month (-M)
+sub _range {                                  # the report window: --period, --begin/--end, else first posting .. day after the last
+    my ($j, %f) = @_;
+    return period_range($f{period}) if $f{period};
+    my @d = sort map { $_->{date} } @{ $j->{txns} };
+    return () unless @d;
+    ($f{begin} // $d[0], $f{end} // add_days($d[-1], 1));
+}
+sub _at_depth { my ($a, $d) = @_; defined $d ? join(':', grep { defined } (split /:/, $a)[ 0 .. $d - 1 ]) : $a }
+sub _table {                                  # rows of cells -> text; first column left, the rest right-aligned
+    my @rows = @_;
+    my @w;
+    for my $r (@rows) { for my $i (0 .. $#$r) { my $l = length $r->[$i]; $w[$i] = $l if !defined $w[$i] || $l > $w[$i] } }
+    join '', map { my $r = $_; join('  ', map { $_ == 0 ? sprintf('%-*s', $w[0], $r->[0]) : sprintf('%*s', $w[$_], $r->[$_] // '') } 0 .. $#$r) =~ s/\s+$//r . "\n" } @rows;
+}
+sub report_bal_monthly {                      # net change per account per month, one column per month, and the total
+    my ($j, %f) = @_;
+    my ($beg, $end) = _range($j, %f) or return '';
+    my @ms = month_starts($beg, $end);
+    my (%cell, %tot);
+    for my $p (postings($j, %f, begin => $beg, end => $end, period => undef)) {
+        my $a = _at_depth($p->{account}, $f{depth});
+        my $m = substr($p->{date}, 0, 7);
+        $cell{$a}{$m} = amt_add($cell{$a}{$m} // {}, $p->{amount});
+        $tot{$a} = amt_add($tot{$a} // {}, $p->{amount});
+    }
+    my @rows = ([ 'Account', (map { substr($_, 0, 7) } @ms), 'Total' ]);
+    for my $a (sorted(keys %cell)) {
+        next if amt_zero($tot{$a}) && !$f{empty} && !grep { !amt_zero($_) } values %{ $cell{$a} };
+        push @rows, [ $a, (map { my $c = $cell{$a}{ substr($_, 0, 7) }; $c && !amt_zero($c) ? format_amount($c) : '' } @ms), format_amount($tot{$a}) ];
+    }
+    _table(@rows);
+}
+sub report_reg_monthly {                      # one line per account per month: that month's net change and the running total
+    my ($j, %f) = @_;
+    my ($beg, $end) = _range($j, %f) or return '';
+    my (%m, $run);
+    $run = {};
+    for my $p (postings($j, %f, begin => $beg, end => $end, period => undef)) {
+        my $a = _at_depth($p->{account}, $f{depth});
+        my $k = substr($p->{date}, 0, 7);
+        $m{$k}{$a} = amt_add($m{$k}{$a} // {}, $p->{amount});
+    }
+    my @rows = ([ 'Month', 'Account', 'Amount', 'Running' ]);
+    for my $k (sorted(keys %m)) {
+        for my $a (sorted(keys %{ $m{$k} })) {
+            $run = amt_add($run, $m{$k}{$a});
+            push @rows, [ $k, $a, format_amount($m{$k}{$a}), format_amount($run) ];
+        }
+    }
+    my @w = map { my $i = $_; maximum(map { length $_->[$i] } @rows) } 0 .. 3;
+    join '', map { sprintf("%-*s  %-*s  %*s  %*s\n", $w[0], $_->[0], $w[1], $_->[1], $w[2], $_->[2], $w[3], $_->[3]) =~ s/\s+\n$/\n/r } @rows;
+}
+sub report_budget_monthly {                   # budget, actual and remaining per budgeted account, month by month
+    my ($j, %f) = @_;
+    my ($beg, $end) = _range($j, %f) or return '';
+    my @rows = ([ 'Month', 'Account', 'Budget', 'Actual', 'Remaining' ]);
+    for my $ms (month_starts($beg, $end)) {
+        my $r = budget($j, begin => $ms, end => next_month($ms));
+        for my $row (@{ $r->{rows} }) {
+            next if $f{account} && $row->{account} !~ $f{account};
+            next if amt_zero($row->{budget}) && amt_zero($row->{actual});
+            push @rows, [ substr($ms, 0, 7), $row->{account}, format_amount($row->{budget}), format_amount($row->{actual}), format_amount($row->{remaining}) ];
+        }
+    }
+    my @w = map { my $i = $_; maximum(map { length $_->[$i] } @rows) } 0 .. 4;
+    join '', map { sprintf("%-*s  %-*s  %*s  %*s  %*s\n", $w[0], $_->[0], $w[1], $_->[1], $w[2], $_->[2], $w[3], $_->[3], $w[4], $_->[4]) } @rows;
+}
+
+# ---------------------------------------------------------------- earned value and funding run-out
+# Percent complete: --complete ACCOUNT=PCT (repeatable) or --complete-file FILE (lines "account,pct", # comments).
+# PCT is 0-100, or 0-1 when written with a decimal point and <= 1. An account's percent applies to it and its sub-accounts.
+sub read_complete {
+    my ($pairs, $file) = @_;
+    my %c;
+    my $put = sub {
+        my ($a, $v, $where) = @_;
+        $a = _trim($a); $v = _trim($v);
+        $v =~ s/%$//;
+        die "$where: percent complete for '$a' is not a number: '$v'\n" unless $v =~ /^\d+(?:\.\d+)?$/;
+        $v = $v <= 1 && $v =~ /\./ ? $v * 100 : $v;
+        die "$where: percent complete for '$a' is over 100: $v\n" if $v > 100;
+        $c{$a} = $v / 100;
+    };
+    for (@{ $pairs // [] }) { my ($a, $v) = /^(.+)=(.*)$/ or die "--complete wants ACCOUNT=PCT, got '$_'\n"; $put->($a, $v, '--complete') }
+    if (defined $file) {
+        my $t = read_text($file) // die "cannot read $file: $!\n";
+        my $ln = 0;
+        for (split /\r?\n/, $t) {
+            $ln++;
+            next if /^\s*(#|;|$)/ || ($ln == 1 && /^\s*account\s*,/i);
+            my ($a, $v) = /^(.*),\s*([^,]*)$/ or die "$file:$ln: want 'account,pct'\n";
+            $put->($a, $v, "$file:$ln");
+        }
+    }
+    \%c;
+}
+sub _pct_for { my ($c, $a) = @_; my @k = sort { length $b <=> length $a } grep { $a eq $_ || index($a, "$_:") == 0 } keys %$c; @k ? $c->{ $k[0] } : undef }
+sub _num { my $x = shift; my ($c) = sorted(keys %$x); defined $c ? ($x->{$c}, $c) : (0, undef) }
+
+# evm($j, status => 'YYYY-MM-DD' (exclusive; default today), complete => {acct => 0..1})
+# Planned value (BCWS) comes from the dated ~ budgets up to the status date, budget at completion (BAC) from their whole
+# window, actual cost (ACWP) from the journal, earned value (BCWP) = BAC x percent complete.
+sub evm {
+    my ($j, %f) = @_;
+    my $status = $f{status} // today();
+    my (%bac, %pv, %plan_begin);
+    for my $t (@{ $j->{periodic} }) {
+        my ($kind, $from, $to) = periodic_window($t->{period});
+        my $k = $kind =~ /^month/ ? 1 : $kind =~ /^year/ ? 1 / 12 : $kind =~ /^week/ ? 52 / 12 : undef;
+        next unless defined $k;
+        die "evm: budget '~ $t->{period}' ($t->{file}:$t->{line}) needs 'from DATE to DATE' to give a budget at completion\n" unless $from && $to;
+        my $all = plan_months($t->{period}, $from, $to);
+        my $now = $status le $from ? 0 : plan_months($t->{period}, $from, $status lt $to ? $status : $to);
+        for my $p (@{ $t->{postings} }) {
+            next unless $p->{amount};
+            my ($n) = _num($p->{amount});
+            next if $n < 0;                   # the funding side of the budget entry
+            next if $f{account} && $p->{account} !~ $f{account};
+            my $a = $p->{account};
+            $bac{$a} = amt_add($bac{$a} // {}, amt_scale($p->{amount}, $k * $all));
+            $pv{$a}  = amt_add($pv{$a}  // {}, amt_scale($p->{amount}, $k * $now));
+            $plan_begin{$a} = $from if !$plan_begin{$a} || $from lt $plan_begin{$a};
+        }
+    }
+    my @accts = sorted(keys %bac);
+    my %ac;
+  POST: for my $p (postings($j, end => $status, real => 1)) {
+        for my $a (@accts) { if ($p->{account} eq $a || index($p->{account}, "$a:") == 0) { $ac{$a} = amt_add($ac{$a} // {}, $p->{amount}); next POST } }
+    }
+    my @rows;
+    for my $a (@accts) {
+        my ($bac, $c) = _num($bac{$a});
+        my ($bcws) = _num($pv{$a});
+        my ($acwp) = _num($ac{$a} // {});
+        my $pct = _pct_for($f{complete} // {}, $a);
+        my $bcwp = defined $pct ? $bac * $pct : undef;
+        push @rows, _evm_row($a, $c, $bac, $bcws, $bcwp, $acwp, $pct);
+    }
+    my $c = @rows ? $rows[0]{commodity} : '$';
+    my %t = (bac => 0, bcws => 0, bcwp => 0, acwp => 0);
+    my $all_known = 1;
+    for my $r (@rows) { $t{$_} += $r->{$_} // 0 for qw(bac bcws acwp); if (defined $r->{bcwp}) { $t{bcwp} += $r->{bcwp} } else { $all_known = 0 } }
+    my $total = @rows ? _evm_row('Total', $c, $t{bac}, $t{bcws}, $all_known ? $t{bcwp} : undef, $t{acwp}, $all_known && $t{bac} ? $t{bcwp} / $t{bac} : undef) : undef;
+    { status => $status, rows => \@rows, total => $total };
+}
+sub _evm_row {
+    my ($a, $c, $bac, $bcws, $bcwp, $acwp, $pct) = @_;
+    my %r = (account => $a, commodity => $c, bac => $bac, bcws => $bcws, bcwp => $bcwp, acwp => $acwp, pct => $pct);
+    if (defined $bcwp) {
+        $r{cv}  = $bcwp - $acwp;
+        $r{sv}  = $bcwp - $bcws;
+        $r{cpi} = $acwp ? $bcwp / $acwp : undef;
+        $r{spi} = $bcws ? $bcwp / $bcws : undef;
+        $r{eac} = $r{cpi} ? $bac / $r{cpi} : undef;
+        $r{etc} = defined $r{eac} ? $r{eac} - $acwp : undef;
+        $r{vac} = defined $r{eac} ? $bac - $r{eac} : undef;
+    }
+    \%r;
+}
+sub report_evm {
+    my ($j, %f) = @_;
+    my $e = evm($j, %f);
+    return "no dated budgets (~ Monthly from DATE to DATE) to measure against\n" unless @{ $e->{rows} };
+    my $m = sub { my ($v, $c) = @_; defined $v ? format_amount({ $c // '$' => $v }) : '-' };
+    my $x = sub { defined $_[0] ? sprintf('%.2f', $_[0]) : '-' };
+    my @rows = ([ 'Account', '%done', 'BAC', 'BCWS', 'BCWP', 'ACWP', 'CV', 'SV', 'CPI', 'SPI', 'EAC', 'VAC' ]);
+    for my $r (@{ $e->{rows} }, $e->{total}) {
+        my $c = $r->{commodity};
+        push @rows, [ $r->{account}, defined $r->{pct} ? sprintf('%.0f%%', 100 * $r->{pct}) : '-',
+                      map({ $m->($r->{$_}, $c) } qw(bac bcws bcwp acwp cv sv)), $x->($r->{cpi}), $x->($r->{spi}), $m->($r->{eac}, $c), $m->($r->{vac}, $c) ];
+    }
+    my $missing = grep { !defined $_->{pct} } @{ $e->{rows} };
+    "Earned value as of $e->{status}\n" . _table(@rows)
+      . ($missing ? "($missing account" . ($missing == 1 ? '' : 's') . " without a percent complete: give --complete ACCOUNT=PCT or --complete-file)\n" : '');
+}
+
+# forecast($j, status => date, months => N): for each account, the balance at the status date, the average monthly burn
+# (net decrease) over the N whole months before it (fewer if the account is younger), and when it reaches zero at that rate.
+sub forecast {
+    my ($j, %f) = @_;
+    my $status = $f{status} // today();
+    my $n = $f{months} // 3;
+    my $win_end = substr($status, 0, 8) . '01';
+    my ($y, $m) = $win_end =~ /^(\d{4})-(\d{2})/;
+    my $win_beg = sprintf '%04d-%02d-01', _add_months($y, $m, -$n);
+    my (%bal, %burn);
+    for my $p (postings($j, end => $status, real => 1)) {
+        next if $f{account} && $p->{account} !~ $f{account};
+        my $a = _at_depth($p->{account}, $f{depth});
+        $bal{$a} = amt_add($bal{$a} // {}, $p->{amount});
+        $burn{$a} = amt_add($burn{$a} // {}, $p->{amount}) if $p->{date} ge $win_beg && $p->{date} lt $win_end && (_num($p->{amount}))[0] < 0;
+    }
+    my (@rows, %first);
+    for my $p (postings($j, end => $status, real => 1)) { my $a = _at_depth($p->{account}, $f{depth}); $first{$a} //= substr($p->{date}, 0, 8) . '01' }
+    for my $a (sorted(keys %bal)) {
+        my ($b, $c) = _num($bal{$a});
+        my ($u) = _num($burn{$a} // {});
+        my $k = grep { $_ ge $first{$a} } month_starts($win_beg, $win_end);   # only months since the account's first posting
+        my $rate = $k ? -$u / $k : 0;
+        my %r = (account => $a, commodity => $c, balance => $b, burn => $rate);
+        if ($rate > 0 && $b > 0) { $r{months} = $b / $rate; $r{runout} = add_days($status, int($r{months} * 30.4375 + 0.5)) }
+        push @rows, \%r;
+    }
+    { status => $status, months => $n, window => [ $win_beg, $win_end ], rows => \@rows };
+}
+sub report_forecast {
+    my ($j, %f) = @_;
+    my $r = forecast($j, %f);
+    my @rows = ([ 'Account', 'Balance', 'Burn/month', 'Months left', 'Runs out' ]);
+    for my $x (@{ $r->{rows} }) {
+        push @rows, [ $x->{account}, format_amount({ $x->{commodity} // '' => $x->{balance} }), $x->{burn} > 0 ? format_amount({ $x->{commodity} // '' => $x->{burn} }) : 'not burning',
+                      defined $x->{months} ? sprintf('%.1f', $x->{months}) : '-', $x->{runout} // '-' ];
+    }
+    "Funding run-out as of $r->{status} (burn = average monthly spend, $r->{window}[0] to $r->{window}[1])\n" . _table(@rows);
+}
+
 # ---------------------------------------------------------------- command-line driver
 sub run {                                     # run(@ARGV) -> exit status; used by bin/ledger.pl
     my @argv = @_;
@@ -398,7 +650,8 @@ sub run {                                     # run(@ARGV) -> exit status; used 
     Getopt::Long::GetOptionsFromArray(\@argv,
         'f|file=s' => \$o{file}, 'b|begin=s' => \$o{begin}, 'e|end=s' => \$o{end}, 'p|period=s' => \$o{period},
         'depth=i' => \$o{depth}, 'C|cleared' => \$o{cleared}, 'R|real' => \$o{real}, 'E|empty' => \$o{empty},
-        'payee=s' => \$o{payee}) or return 2;
+        'payee=s' => \$o{payee}, 'M|monthly' => \$o{monthly}, 'now=s' => \$o{now}, 'months=i' => \$o{months},
+        'complete=s@' => \$o{complete}, 'complete-file=s' => \$o{complete_file}) or return 2;
     my $cmd = shift @argv // 'bal';
     my %f;
     $f{$_} = $o{$_} for grep { defined $o{$_} } qw(begin end period depth cleared real empty);
@@ -408,14 +661,24 @@ sub run {                                     # run(@ARGV) -> exit status; used 
     $f{account} = do { my $re = join '|', @argv; qr/$re/i } if @argv;
     my $j = eval { read_journal($o{file}) };
     if (!$j) { print STDERR $@; return 1 }
-    if    ($cmd eq 'bal' || $cmd eq 'balance')  { print report_bal($j, %f) }
+    my $now = defined $o{now} ? (norm_date($o{now}) // die "bad --now (want YYYY-MM-DD)\n") : undef;
+    my $status = defined $now ? add_days($now, 1) : add_days(today(), 1);   # through the end of that day
+    if ($o{monthly} && $cmd =~ /^(bal|balance)$/)      { print report_bal_monthly($j, %f) }
+    elsif ($o{monthly} && $cmd =~ /^(reg|register)$/)  { print report_reg_monthly($j, %f) }
+    elsif ($o{monthly} && $cmd eq 'budget')            { print report_budget_monthly($j, %f) }
+    elsif ($cmd eq 'bal' || $cmd eq 'balance')  { print report_bal($j, %f) }
     elsif ($cmd eq 'reg' || $cmd eq 'register') { print report_reg($j, %f) }
     elsif ($cmd eq 'budget') { $f{period} = this_month() unless $f{period} || ($f{begin} && $f{end}); print report_budget($j, %f) }
+    elsif ($cmd eq 'evm') {
+        my $c = read_complete($o{complete}, $o{complete_file});
+        print report_evm($j, %f, status => $status, complete => $c) =~ s/as of \S+/'as of ' . add_days($status, -1)/er;
+    }
+    elsif ($cmd eq 'forecast') { print report_forecast($j, %f, status => $status, months => $o{months}) =~ s/run-out as of \S+/'run-out as of ' . add_days($status, -1)/er }
     elsif ($cmd eq 'csv')    { print to_csv(postings($j, %f)) }
     elsif ($cmd eq 'check')  { printf "ok: %d transactions, %d budget entries\n", scalar @{ $j->{txns} }, scalar @{ $j->{periodic} } }
     elsif ($cmd eq 'accounts') { print "$_\n" for sorted(nub(map { $_->{account} } postings($j, %f))) }
     elsif ($cmd eq 'payees')   { print "$_\n" for sorted(nub(map { $_->{payee} } postings($j, %f))) }
-    else { print STDERR "unknown command '$cmd' (bal reg budget csv check accounts payees)\n"; return 2 }
+    else { print STDERR "unknown command '$cmd' (bal reg budget evm forecast csv check accounts payees)\n"; return 2 }
     0;
 }
 

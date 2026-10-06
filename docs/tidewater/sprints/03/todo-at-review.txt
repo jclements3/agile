@@ -1,0 +1,14 @@
+GitLab To-Do lists at the review (2026-11-13 10:00)
+
+  Jim: 0 review(s) requested, 2 open issue(s) assigned
+    #70 Discrepancy reports DR-1 to DR-4 to the prime
+    #72 First sprint review with the program office; the delivery interface with the prime
+
+  Bob: 0 review(s) requested, 3 open issue(s) assigned
+    #66 Learn: reviewing a model change; the rehearsed demo
+    #67 Close the Stations level tags
+    #68 Units and value types
+
+  Tom: 0 review(s) requested, 2 open issue(s) assigned
+    #69 Break the Network <-> Operations cycle
+    #71 The model site on GitLab Pages, rebuilt nightly

@@ -1,0 +1,134 @@
+== Quick reference: Vim for MBSE DevSecOps {#qrg-vim}
+
+Everything here runs in the Vim that ships with Git for Windows (type `vim` in Git Bash). `\` is the leader key: `\ml`
+means press `\`, then `m`, then `l`. One-time set-up: add `syntax on` and `source ~/projects/agile/vim/scrum.vim` (your
+clone's path) to `~/.vimrc`. Offline help: `:help agile`, `:help :SysLint`, `:help \ml`. The kit's full cheat sheet is
+`docs/VIM-CHEATSHEET.html`.
+
+=== Survival {#qrg-vim-survival}
+
+|| Keys | Does ||
+| `Esc` | back to Normal mode; when in doubt, press it |
+| `i` `a` `o` `O` | insert before cursor / after / new line below / above |
+| `:w` `:q` `:wq` `:q!` | save / quit / both / quit without saving |
+| `u` `Ctrl-r` | undo / redo |
+| `h j k l`, `w b`, `0 $` | left down up right; word forward/back; line start/end |
+| `gg` `G` `:42` | top / bottom / line 42 |
+| `Ctrl-d` `Ctrl-u` | half a page down / up |
+| `x` `dd` `dw` `D` | delete character / line / word / to end of line |
+| `yy` `p` `P` | copy line / paste after / before |
+| `cw` `cc` `.` | change word / change line / repeat last change |
+| `v` `V` `Ctrl-v` | select characters / lines / a column block |
+| `>` `<` (in Visual) | indent / outdent the selection |
+| `/text` `n` `N` | search forward; next; previous |
+| `*` | search for the word under the cursor |
+| `:%s/old/new/gc` | replace everywhere, asking each time |
+| `:e FILE` `:e #` | open a file / back to the previous one |
+| `:sp` `:vsp` `Ctrl-w w` | split / vertical split / next window |
+| `:ls` `:b N` | list open files / go to file N |
+| `Ctrl-]` `Ctrl-t` | jump to a definition (needs `\mt` tags) / back |
+| `Ctrl-o` `Ctrl-i` | back / forward through jump positions |
+| `:set list` | show tabs and line ends (spot stray whitespace) |
+Table: Survival Vim
+
+=== SysML v2 files (`*.sysml`) {#qrg-vim-sysml}
+
+|| Keys | Command | Does ||
+| `\ml` | `:SysLint` | lint the whole model; errors to the quickfix list |
+| `\mk` | `:SysCheck` | the 2-to-9 outline rule and the `@L` level tags |
+| `\mx` | `:SysSyntax` | this file against the official SysML v2 grammar |
+| `\mv` | `:SysValidate` | full compile with the Pilot engine (only where Java is installed) |
+| `\md` | `:SysDocs` | regenerate `docs/` |
+| `\mr` | `:SysTrace` | requirement, satisfied by, verified by, in a split |
+| `\mn` `\mb` | `:SysNouns` `:SysVerbs` | the part tree / the function tree |
+| `\mt` | `:SysTags` | build the tags file; then `Ctrl-]` on a name or DOORS id |
+| `\mw` `\mq` `\mi` `\mp` | `:SysDraw tree` (trace, ibd, pkg) | draw a view to an SVG |
+| `\mg` | `:SysGate` | the validate gate; findings to the quickfix list |
+| `\mW` | `:SysView` | the live diagram viewer beside Vim; redraws on save |
+| `\mf` `\mo` | | viewer: highlight the name under the cursor / open the file:line last clicked |
+Table: The kit's SysML keys
+
+=== The quickfix list: from error to line {#qrg-vim-quickfix}
+
+|| Keys | Does ||
+| `\ml` or `:make` | run the check; each error becomes a quickfix entry |
+| `:copen` `:cclose` | show / hide the list of errors |
+| `:cn` `:cp` | next / previous error (jumps to the file and line) |
+| `:cc 3` | go to error 3 |
+| `Enter` (in the list) | jump to that error |
+| `:cnewer` `:colder` | newer / older error lists |
+Table: Quickfix
+
+The checkers print `FILE:LINE:COL: error: MESSAGE`, which Vim reads. To load a pipeline job's log into quickfix,
+save the log and run `:cfile job.log`.
+
+=== Merge conflicts {#qrg-vim-conflicts}
+
+A conflicted file has blocks like this; you keep the right text and delete the three marker lines.
+
+```text
+<<<<<<< HEAD
+        @L4Subsystem;   (your branch's version)
+=======
+        // TODO stereotype Tidewater_Profile:L4Subsystem on this element (...)   (the other side)
+>>>>>>> vendor/prime
+```
+
+|| Keys | Does ||
+| `/^[<=>]\{7}` then `n` | find the next conflict marker |
+| `dd` | delete a marker line or an unwanted line |
+| `V` then `j`...`d` | delete a block of lines |
+| `\mx` | after editing: check the file still parses |
+| `git mergetool --tool=vimdiff` | three-way view; `:diffget LOCAL`, `:diffget REMOTE`, `:diffget BASE` take a side for the hunk under the cursor; `]c` `[c` next / previous difference |
+Table: Conflicts in Vim
+
+To list every marker line in the file at once:
+
+```vim
+:g/^\(<<<<<<<\|=======\|>>>>>>>\)/p
+```
+
+=== Git from Vim {#qrg-vim-git}
+
+|| Keys | Does ||
+| `:!git status` | run any git command and see its output |
+| `:!git diff %` | your changes to the current file |
+| `:!git log --oneline -10 -- %` | the last ten commits that touched this file |
+| `:r !git log -1 --format=\%H` | insert the last commit id below the cursor |
+| `:terminal` | a shell in a Vim window (`Ctrl-w N` to scroll it, `i` to type again) |
+| `:!git blame -L 40,60 %` | who changed lines 40 to 60 |
+| `:e .git/COMMIT_EDITMSG` | (inside `git commit`) the message buffer: write it, `:wq` |
+Table: Git from Vim
+
+=== Issue and merge request Markdown {#qrg-vim-markdown}
+
+Write long descriptions in Vim, then paste or pass them with `--file` / `--description`.
+
+|| Keys | Does ||
+| `:e mr.md` | a scratch file for the description (Markdown highlighting by name) |
+| `:r tools/gitlab/templates/.gitlab/merge_request_templates/Default.md` | read a template in below the cursor |
+| `:setlocal spell` `]s` `z=` | spell check; next misspelling; suggestions |
+| `gqip` | re-wrap the paragraph |
+| `:setlocal tw=0` | no hard wrapping (GitLab joins lines anyway) |
+| `- [ ] ` | a task list item (`- [x] ` done) |
+| `"+y` `"+p` | copy to / paste from the Windows clipboard |
+| `:!perl "$KIT/bin/gitlab.pl" issue note 19 --file %` | post this file as a comment on issue 19 (see [[qrg-gitlab]]) |
+Table: Markdown for GitLab, in Vim
+
+=== Journal and stand-up keys {#qrg-vim-journal}
+
+|| Keys | Command | Does ||
+| `\sn` | `:SNew` | today's stand-up file |
+| `\ss` | `:SStatus` | the journal at a glance |
+| `\sl` | `:SLint` | save and lint the pasted Y/T/B statuses |
+| `\sp` | | paste the chat from the clipboard and lint it |
+| `\sy` | | the replies to the clipboard, ready to paste into the chat |
+| `\sw` | `:STown` | the meeting layout: chat, lint table, replies |
+| `\st` | `:STally` | save and tally `#est` rounds (planning poker) |
+| `\sd` | `:SDry` | save and show what compile would write |
+| `\sc` | `:SCompile` | save and apply the stand-up file |
+| `\sr` | `:SReport` | write the reports |
+| `\sj` | `:SJournal` | open the journal |
+| `\sm` | `:SDrill` | the memory drill sheet |
+| | `:SAnswers` `:SPropose` `:SQuad` `:SSprint` `:SCommit` | answers, proposals, the weekly quad, the sprint, commit |
+Table: Journal keys

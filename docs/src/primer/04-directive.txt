@@ -1,0 +1,421 @@
+== The directive {#directive}
+
+::: note What you have, what you need
+**What you have:** a memo telling you to adopt something you have never done, a skeptical team and twelve weeks.
+
+**What you need from this chapter:** a precise reading of what the memo asks, the team's objections written down so
+none of them get lost, and a definition of "measurable progress" that everyone, including management, agrees to
+before the work starts.
+:::
+
+=== The memo {#directive-memo}
+
+The memo arrived on a Thursday in late September 2026, attached to an email from the program manager with the
+subject line "FYSA -- DevSecOps for SE artifacts -- action required." It was two pages long. The first page is
+reproduced here because the team read it so many times that Bob could later quote it from memory.
+
+```text
+MEMORANDUM FOR TIDEWATER SYSTEMS ENGINEERING
+
+SUBJECT: Adoption of DevSecOps Practices for Systems Engineering Artifacts
+
+1. Effective FY27, program systems engineering artifacts, including the system model, will be
+   developed and maintained using DevSecOps practices on the enterprise DevSecOps platform (GitLab).
+
+2. The Tidewater system model will be transitioned from SysML v1 to SysML v2 textual notation and
+   placed under configuration control in the enterprise GitLab instance. The prime contractor's
+   SysML v1 deliveries under CDRL A003 remain the contractual baseline until further notice; the
+   government will maintain a derived SysML v2 model and keep it current with each delivery.
+
+3. Systems engineering leads will demonstrate:
+   a. automated quality checks on every model change;
+   b. traceability from DOORS requirements to the model, computed rather than hand-maintained;
+   c. peer review and approval of every change, with a complete audit record;
+   d. reproducible baselines;
+   e. measurable progress reported at regular intervals.
+
+4. The Tidewater MBSE lead will brief initial results at the December program management review.
+
+5. Tools and data flows require ISSM approval before use with program data.
+```
+
+The second page listed training resources (a link to the enterprise platform's documentation and a recorded
+webinar), a point of contact in the enterprise DevSecOps office, and a sentence that Tom underlined twice: "Teams
+are encouraged to start small and iterate."
+
+=== Reading it carefully {#directive-reading}
+
+Jim read the memo three times before showing it to anyone. On the third reading Jim did what twenty-six years of
+requirements work had trained Jim to do: treat it as a specification, and separate what it requires from what it
+assumes and what it leaves open.
+
+|| The memo says | What it actually requires | What it leaves open ||
+| model "developed and maintained using DevSecOps practices" | changes made, reviewed, checked and recorded through the platform | which practices; how much is enough |
+| "transitioned ... to SysML v2 textual notation" | a SysML v2 text model exists and is the government's working copy | how faithful the port must be; what to do with what the converter cannot carry |
+| prime's v1 "remains the contractual baseline" | the government cannot change the authoritative model | how the derived v2 model stays current with each drop |
+| "automated quality checks on every model change" | a pipeline that runs on every change and blocks bad ones | which checks |
+| "traceability ... computed rather than hand-maintained" | a trace report produced by a program from the model and DOORS | which measures |
+| "peer review and approval of every change, with a complete audit record" | merge requests, approvals, protected branches | who approves what |
+| "reproducible baselines" | tags that can be rebuilt identically | how often |
+| "measurable progress reported at regular intervals" | numbers, every sprint | which numbers |
+| "brief initial results at the December PMR" | a briefing in about twelve weeks | what "initial results" must show |
+| "ISSM approval before use with program data" | the toolchain must be approved | how long that takes |
+Table: The directive, read as a specification
+
+The right-hand column is long. That is not a complaint about the memo. A directive from leadership is supposed to
+say *what* and leave *how* to the people doing the work. But it meant that most of the important decisions were now
+Jim's, and that the team would have to make them without experience. Jim wrote on the printout: "We decide the
+'how'. Write every decision down, with the reason. If we're wrong, we'll at least know why."
+
+That note became a habit, and it is why this book can explain the thought process behind each decision: the team
+recorded them, first in the wiki and later in merge request descriptions.
+
+=== The meeting with the program manager {#directive-pm}
+
+Jim asked for thirty minutes with the program manager the next morning and brought two questions.
+
+The first was: *what does success look like in December?* The program manager's answer was frank. "Leadership has
+spent money on the platform and on licenses. They want to see that programs are using it and that it does
+something. I need a story I can tell with numbers. I don't need perfection. I need progress I can measure, and I
+need your team not to hate it."
+
+The second question was: *what are we allowed to stop doing?* This mattered more than it sounded. A team of three
+could not port a model, learn a new way of working and keep doing every document-era activity at the same time.
+After some discussion, the program manager agreed to three things:
+
+- the monthly screenshot-based model review package would be replaced by whatever the team could publish from the
+  new system, starting when it was ready;
+- the government's VCRM spreadsheet would be frozen at its current revision and replaced by the computed trace
+  report once the trace report existed;
+- the team would spend no time on Cameo beyond reading each drop, for the duration of the twelve weeks.
+
+::: tip Ask what you can stop doing
+Every change program adds work. Few of them say what to remove. Ask, early, in writing. The three things Jim
+negotiated freed roughly a fifth of the team's time, and that time is what paid for the learning curve.
+:::
+
+=== The team meeting {#directive-team}
+
+Jim scheduled the team meeting for Monday afternoon, 28 September, in the small conference room with the broken
+projector. Jim printed the memo three times, handed out copies, and let Bob and Tom read it in silence.
+
+Bob finished first and put the memo face down on the table.
+
+> So we're doing it again. Three years ago it was "go MBSE." We spent two years clicking every box in the SSDD into
+> Cameo. Now it's "go DevSecOps," and we get to do it all again in a different tool. What happens in three years?
+> -- Bob
+
+Tom read the memo twice, underlined "start small and iterate," and asked a question that sounded practical and was
+actually the deepest objection in the room.
+
+> I run CM. I know what a baseline is, I know what a CCB is, I know what an audit is. What I don't know is what any
+> of these words mean. Pipeline. Merge request. I've never written code. Why can't we just do systems engineering
+> the way we know how to do it, and put the documents in GitLab if they want them in GitLab?
+> -- Tom
+
+Jim did not have good answers yet, and said so. What Jim did instead turned out to be the most useful thing anyone
+did in the first week: Jim went to the whiteboard and wrote down every objection, in the speaker's words, without
+arguing with any of them. "If we can't answer these with evidence by December," Jim said, "then we'll put that in
+the briefing too."
+
+The whiteboard photo went into the team's notes that afternoon. The objections are reproduced here, each with a
+pointer to the part of the book where it is answered. They are worth reading slowly; if you are in the team's
+position, most of them are yours.
+
+::: objection "We already did this once. Modeling took two years and gave us a spider web."
+Bob.
+
+Answer: The spider web is measured in [[cameo]] and untangled a strand at a time: one package loop broken in
+[[sprint-4]], the Legacy Import clutter removed and the trace spaghetti pruned in [[sprint-5]]. The last loop, between
+Stations and DataCenter, is still open after twelve weeks and stays on the scorecard ([[no-spider-web]]). The two years
+went into porting documents by hand into a tool without a workflow; this time the content already exists, a
+converter carries most of it, and the workflow is the point. [[scorecard]] compares the two efforts.
+:::
+
+::: objection "Why can't we just do systems engineering the old way?"
+Tom.
+
+Answer: You can keep doing systems engineering; nothing in this book changes what a requirement, a baseline or a
+review is. What changes is how much of it is done by hand. [[devsecops]] translates every DevSecOps practice into
+the systems engineering practice it implements, and [[minds]] revisits this objection against twelve weeks of
+evidence.
+:::
+
+::: objection "We're systems engineers, not programmers. We don't know how to code."
+Tom and Bob.
+
+Answer: Nothing in the twelve weeks requires programming. The team edits text files in Vim (which they already
+use), types a small number of commands (listed in full in [[survival]] and [[git]]) and reads reports. The pipeline
+is a configuration file of about a hundred lines that calls tools other people wrote; [[pipeline]] explains every
+line.
+:::
+
+::: objection "The contractor owns the model. Anything we do is a copy that will go stale."
+Bob.
+
+Answer: It would, if keeping it current were done by hand. [[operating-model]] sets up a vendor branch that holds
+exactly what the prime delivered, converted, so each new drop is merged into the government's model like any other
+change, with the conflicts shown precisely. [[maintenance]] shows six more drops absorbed this way over the
+following fifteen months.
+:::
+
+::: objection "Nobody outside our team will be able to read SysML v2 text."
+Jim, playing devil's advocate.
+
+Answer: Fewer people could read the Cameo model, because only three people had licenses. The v2 model publishes
+itself as a website with generated diagrams and reports on every baseline ([[tools]], [[sprint-4]]), readable in a
+browser by anyone with access. The text is for the people who maintain the model; the site is for everybody else.
+:::
+
+::: objection "The ISSM will never approve this in time."
+Tom.
+
+Answer: The toolchain is small (Git for Windows, Perl and Vim, already approved on the laptops, plus the enterprise
+GitLab, already approved for the enterprise) and [[sprint-2]] starts the ISSM conversation in week three with a
+written system description. It does cause a three-day block in [[sprint-3]], and the plan absorbs it.
+:::
+
+::: objection "We'll spend twelve weeks learning tools and have nothing to show."
+Bob.
+
+Answer: The plan in [[operating-model]] delivers something measurable every sprint, starting in [[sprint-1]] with a
+working project and a first pipeline, run locally on drop 1 until the runner arrives in [[sprint-2]]. The scorecard below is defined before the work starts, so progress is measured
+against targets the team set, not against hope.
+:::
+
+::: objection "Management will just move the goalposts."
+Tom, quietly, at the end of the meeting.
+
+Answer: Possibly. The defense is the scorecard: agreed in writing in week one, measured automatically, reported
+every sprint. [[briefing]] shows the December briefing built from it.
+:::
+
+::: objection "In three years there'll be another directive."
+Bob.
+
+Answer: Very likely. What survives a change of tools is the habit of keeping the system's description as reviewed,
+versioned, checked text with a computed trace. That habit is tool-independent; [[pitfalls]] discusses how not to
+lock it into GitLab either.
+:::
+
+=== The prime's view {#directive-prime}
+
+Jim called the prime's modeler on Friday 2 October, the afternoon drop 1 arrived, to explain what the government was
+about to do with it. Jim expected resistance. The prime's modeler was cautiously relieved.
+
+> We've been getting comment matrices with screenshots for a year. Half the time we can't tell which diagram the
+> screenshot came from. If you can tell us exactly which element is wrong, by its ID, we can fix it in the next drop.
+> -- the prime's modeler, 2 October
+
+The call settled three working agreements that the rest of the book relies on:
+
+- **The prime keeps delivering what the CDRL requires**, unchanged: XMI, ReqIF, CSV and a manifest with checksums.
+  The government will not ask the prime to change tools or formats.
+- **The government reports problems as discrepancy reports**, one per problem, each naming the element by its v1
+  identifier (the `xmi:id` that the converter keeps on every TODO line and that the drop-to-drop comparison
+  reports), with the evidence and the drop by which the government would like it fixed.
+- **The prime keeps element identifiers stable** between drops, which Cameo does by default as long as elements are
+  edited rather than deleted and recreated. This one agreement is what makes the government's drop-to-drop
+  comparison and merge possible ([[maintenance]]).
+
+::: tip Talk to the contractor early
+The government's derived model depends on the contractor's deliveries in ways the contract does not spell out:
+stable identifiers, consistent export settings, a manifest with checksums. A friendly call before the first drop
+is processed costs an hour and avoids months of friction. Write down what was agreed and send it to the
+contracting officer's representative.
+:::
+
+=== Defining measurable progress {#directive-scorecard}
+
+The most important thing the team produced in the week before sprint 1 was not a tool or a file. It was a single
+page that defined what "measurable progress" would mean, agreed by Jim, the program manager and the deputy program
+manager. The page has three columns that matter: the measure, how it is computed (automatically, from the system,
+never by hand), and the target for week twelve. A fourth column holds the document-era baseline where one exists,
+so the comparison in December is fair.
+
+The rule Jim set for choosing measures was simple: *every measure must be computed by a program from the
+repository or GitLab, and every measure must be something a skeptic in the room would accept as meaningful.* No
+"percentage complete" judged by eye, no counts of meetings held.
+
+|| # | Measure | How it is computed | Week-12 target | Document-era baseline (notional) ||
+| 1 | Conversion debt: TODO lines left by the converter | counted by the pipeline's `todo` job on every change | all structure TODOs closed; behavior started | not applicable |
+| 2 | Change lead time | median hours from merge request opened to merged, from GitLab | under 3 working days | 23 working days |
+| 3 | Gated changes | share of changes to the integration branch that passed the pipeline and were approved by a code owner other than the author | 100% | not measured |
+| 4 | Trace answer time | wall-clock time of the pipeline's `trace` job | under one minute | 2 working days |
+| 5 | Trace measures | requirements linked (C), orphans (F), unverified (G), completeness (I), text drift | computed on every change; every gap has an owner | computed at reviews only |
+| 6 | Discrepancies reported to the prime | discrepancy report issues opened, each with a due drop | every gap found is reported | ad hoc emails |
+| 7 | Spider web in the v2 model | package dependency cycles, duplicate/stale blocks, max relationship ends per block | no cycles, no duplicates | see [[cameo]] |
+| 8 | Pipeline health | share of pipelines passing on the integration branch; longest time from a failure to the next pass | above 90%; restore within one working day | not applicable |
+| 9 | Reproducible baselines | baseline tags whose rebuild matches the recorded checksum | interim baseline tagged and reproducible | revision letters, not reproducible |
+| 10 | Review turnaround | median hours from merge request opened to first approval | under 1 working day | 3 weeks per review package |
+| 11 | Delivery against plan | story points done / committed per sprint, from the journal | 80% or better | not measured |
+| 12 | Team morale | five-question pulse survey (1 to 5) at each retrospective | 3.5 or better, rising | not measured |
+Table: The twelve-week scorecard, as agreed before sprint 1
+
+A few choices on this page deserve explanation, because they reveal the team's thinking.
+
+**Conversion debt is the primary progress measure.** The converter carries most of the v1 model into SysML v2
+automatically, but leaves a `// TODO` comment wherever it meets something it cannot carry (see [[sysmlv2]]). Those
+lines are a precise, countable, shrinking list of work. Unlike "percent complete," a TODO count cannot be argued
+with: either the line is there or it is not. Jim chose it because it is the measure Bob, the strongest skeptic,
+would accept.
+
+**Lead time and review turnaround have document-era baselines.** These are the measures where the new way should
+be dramatically better, and where management will look first. The team was careful to use the same definition on
+both sides (from request to incorporation) and to label the old numbers as notional reconstructions.
+
+**Gated changes must be 100%.** This is the one measure with no tolerance. The memo asks for review and approval
+of *every* change. If even one change reaches the integration branch without a passing pipeline and an approval,
+the audit record has a hole. GitLab's protected branches make this a setting rather than a promise, as [[gitlab-setup]]
+shows.
+
+**Morale is measured.** Including it was the program manager's idea, and it surprised the team. "If your team hates
+this in December," the program manager said, "the numbers won't matter, because it won't last." The pulse survey
+is five questions, answered anonymously at each retrospective on a scale of 1 (strongly disagree) to 5 (strongly
+agree):
+
+1. I understand why we are working this way.
+2. I can do my work in the new tools without help.
+3. The checks catch problems I would have missed.
+4. I can see our progress.
+5. I would choose to keep working this way.
+
+**Nothing is measured by hand.** Every measure on the page comes from the repository, GitLab's records or the team's
+journal, and the pipeline or a script computes it. This was a deliberate break from the document era, where every
+status number was a one-off, like Bob's Wednesday list in [[documents]].
+
+::: warning Agree on the measures before you start
+If you define your measures after the work, you will be accused (correctly) of choosing the ones that look good.
+Define them first, get them signed, and report all of them every sprint, including the ones that look bad. Several
+of the team's measures looked bad in sprint 3. Reporting them anyway is what made the December briefing credible.
+:::
+
+=== Jim's plan in one page {#directive-plan}
+
+With the scorecard agreed, Jim sketched the twelve weeks as six two-week sprints, each with a goal that produced
+something measurable. The detailed plan, and the reasoning behind the sprint length and the size rules for work,
+is in [[operating-model]]; this is the outline that went to the program manager on Friday 2 October, the same day
+the prime delivered drop 1:
+
+|| Sprint | Goal | Evidence at the end ||
+| 1 | A GitLab project the team can work in; drop 1 received and assessed | project, protected branches, a first pipeline drafted and run locally on drop 1 (gating every change starts in sprint 2, when the runner is online), TODO inventory |
+| 2 | Drop 1 on the integration branch through the vendor branch; every change gated | vendor branch, gated merges, TODO burn-down starts |
+| 3 | Network and Types cleaned up; DOORS imported | trace report on every change; first drift found |
+| 4 | Stations cleaned up; gaps reported to the prime | discrepancy reports; the model site |
+| 5 | Data center and operations cleaned up; release rehearsed | structure TODOs closed; release procedure |
+| 6 | Behavior work started; interim baseline; the briefing | baseline-0, release notes, the December briefing |
+Table: The twelve-week plan, as sent to the program manager
+
+At the bottom of the page Jim wrote one more line, which the program manager initialed: "We will report every
+measure every sprint, including the bad ones."
+
+=== The email Jim sent that night {#directive-email}
+
+After the team meeting, Jim went home and wrote an email to Bob and Tom. Jim almost did not send it, and later said
+it was the most important thing written in the twelve weeks. It is reproduced here because it set the tone for
+everything that followed.
+
+```text
+From: Jim
+To: Bob; Tom
+Subject: About today
+
+I don't have answers to most of what you said today, and I'm not going to pretend I do.
+
+Here is what I can promise:
+
+1. We will not port anything by hand that a program can port for us. If we find
+   ourselves clicking boxes again, we stop and rethink.
+2. Every decision we make about how to work goes in writing with the reason, so we can
+   change it when we're wrong.
+3. Every objection on the whiteboard gets an answer with evidence by December, or it goes
+   in the briefing as an open issue. I'll brief it myself.
+4. We measure everything the same way every sprint, including the bad numbers.
+5. If after twelve weeks this is worse than what we had, I will say so to the PM.
+
+What I'm asking:
+
+1. Try it for real for twelve weeks. Not halfway.
+2. Tell me every day what's in your way. That's what the stand-up is for.
+3. Tom, take the pipeline. Bob, take the model. I'll take the plan, the prime and
+   management, and I'll do reviews.
+
+Neither of you has to become a programmer. I checked. The tools are written; we have to
+learn to use them, the way we learned DOORS.
+
+-- Jim
+```
+
+Bob replied the next morning with one line: "Twelve weeks. Then we talk." Tom did not reply, but on Wednesday Tom
+had already requested a GitLab group from the enterprise administrators, three days before Jim had planned to.
+
+::: tip What the email does
+The email does four things a change leader has to do: it admits what is not known, commits to specific behaviors,
+asks for specific behaviors in return, and sets an exit condition. It does not argue with the objections, and it
+does not promise that the new way will be better. It promises that the team will find out honestly.
+:::
+
+=== Week zero {#directive-week0}
+
+The week between the memo and sprint 1 (29 September to 2 October 2026) was not part of any sprint, and Jim used it
+to prepare the ground. Nothing in it required DevSecOps knowledge; all of it was ordinary program work. The full
+checklist is in [[checklists]]; the main items were:
+
+- **Request access early.** Tom asked the enterprise GitLab administrators for a group (`tidewater`), a project
+  (`tidewater/model`), three accounts with the right roles, and a runner, the machine that will execute the
+  pipeline. The administrators' standard turnaround was five working days, so the request had to go in before
+  sprint 1, not during it.
+- **Book the ISSM.** Jim asked for an hour with the ISSM in the second week of sprint 2 to present the toolchain,
+  knowing that approvals take time and that sprint 3 would need them.
+- **Confirm the laptops.** Git for Windows (which includes Git Bash and Perl), Vim and the kit were already on the
+  program's approved software list. Tom checked each laptop's versions so nobody would discover a missing tool on
+  day one.
+- **Agree the scorecard.** The scorecard above was agreed by Thursday 1 October, signed by the program manager and
+  the deputy program manager.
+- **Receive drop 1.** The prime delivered drop 1 on Friday 2 October. Jim logged the delivery against CDRL A003
+  that afternoon and did nothing else with it until Monday. The receipt is the first story of [[sprint-1]].
+- **Set the calendar.** Fifteen-minute stand-ups at 09:00 every working day; sprint planning on the first Monday of
+  each sprint; review and retrospective on the last Friday. Holidays and leave were entered before planning, so
+  sprint capacities would be honest.
+
+::: warning Access requests are on the critical path
+The longest lead time in the first two weeks was not learning git or writing a pipeline. It was waiting for
+accounts, a project and a runner from the enterprise administrators. Submit those requests before you do anything
+else, even before you are sure exactly what you need. You can adjust a project's settings later; you cannot get
+back the week you spent waiting.
+:::
+
+=== What management needed to hear, and when {#directive-management}
+
+The program manager's request ("a story I can tell with numbers") shaped the reporting rhythm for the twelve weeks.
+Jim agreed to three kinds of report, each built from the scorecard:
+
+|| Report | When | Content | Built from ||
+| sprint review | every second Friday | what was finished, demonstrated live; scorecard for the sprint | GitLab, the journal, the pipeline |
+| weekly note | every Friday in between | one paragraph: progress, risks, help needed | the journal's weekly quad |
+| December PMR briefing | end of sprint 6 | the twelve-week scorecard, before and after, the live demo | everything above; see [[briefing]] |
+Table: The twelve-week reporting rhythm
+
+No report would contain a number that had been typed by hand. That rule was hard to keep in sprint 1, when there
+was almost nothing to measure, and Jim kept it anyway: the first sprint review reported a scorecard with most cells
+marked "not yet measurable" and an explanation of when each would become measurable. The program manager later
+said that page was what convinced them the team was serious.
+
+=== Exercises {#directive-exercises}
+
+::: exercise Read your own directive
+Take a directive, policy or tasking memo you have received. Build the three-column table from "The directive, read
+as a specification": what it says, what it requires, what it leaves open. Who decides the open items?
+:::
+
+::: exercise Write down the objections
+Hold a thirty-minute meeting with your team about a change you have been asked to make. Write every objection on
+a whiteboard in the speaker's words, without arguing. Afterwards, for each, write where and how you will answer it,
+and with what evidence.
+:::
+
+::: exercise Pick your measures
+Choose five measures for your own first twelve weeks. For each, write how it will be computed without human
+judgment, what the target is, and what the old-way baseline was. Which of your measures would your most skeptical
+colleague reject, and why?
+:::

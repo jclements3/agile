@@ -196,6 +196,31 @@ ok($rc == 0 && !-e $sb, 'practice reset 1 removes the sandbox');
 ($rc, $out) = run($ROOT, $^X, 'agile.pl', 'practice', '99', '--dir', $base);
 ok($rc == 2 && $out =~ /practice: no lesson 99/, 'an unknown lesson is refused');
 
+# ---------------------------------------------------------------- practice lesson 10 (Tidewater: a first model change), performed
+# Lessons 11-13 (the offline GitLab) are tests/practice.t.
+if (-f "$ROOT/sim/tidewater-v1.pl" && -f "$ROOT/bin/xmi2sysml.pl") {
+    ($rc, $out) = run($TMP, $^X, "$ROOT/agile.pl", q(practice), q(10), q(--dir), q(practice));   # a relative --dir ($TMP/practice = $base)
+    my $s10 = "$base/lesson10";
+    my $st = "$s10/model/physical/stations/Stations.sysml";
+    ok($rc == 0 && -f $st && -f "$s10/model/library/conventions/Conventions.sysml" && -f "$s10/.ci/layout.map" && -d "$s10/.git" && $out =~ /Lesson 10/, 'practice 10 sets up the kickoff.pl scaffold with drop v1.0 converted by the layout map', $out);
+    ($rc, $out) = run($ROOT, $^X, 'agile.pl', 'practice', 'check', '10', '--dir', $base);
+    ok($rc == 1 && $out =~ /StationSegment still has its level TODO/ && $out =~ /does not import Conventions/ && $out !~ /Use of uninit/, 'practice check 10 before the work: says what to change', $out);
+    my $t = slurp($st) // '';
+    my $edit = sub { my ($tag) = @_; my $x = $t;
+        $x =~ s{(    part def StationSegment \{\n)        // TODO stereotype Tidewater_Profile:L2Segment[^\n]*\n}{$1        $tag\n};
+        $x =~ s{(package Stations \{\n)}{$1    private import Conventions::*;\n}; $x };
+    if (open my $fh, '>:raw', $st) { print $fh $edit->('@L2Segmnt;'); close $fh }    # a misspelled tag: lint passes it, the check does not
+    ($rc, $out) = run($ROOT, $^X, 'agile.pl', 'practice', 'check', '10', '--dir', $base);
+    ok($rc == 1 && $out =~ /model\.pl lint: elements=\d+ errors=0 warnings=0/ && $out =~ /has no "\@L2Segment;" line/, 'a misspelled tag: lint passes, practice check 10 catches it', $out);
+    if (open my $fh, '>:raw', $st) { print $fh $edit->('@L2Segment;'); close $fh }
+    run($s10, 'git', 'add', 'model');
+    run($s10, 'git', '-c', 'user.name=Bob', '-c', 'user.email=bob@example.invalid', 'commit', '-q', '-m', 'Tag StationSegment with its level (L2Segment)');
+    ($rc, $out) = run($ROOT, $^X, 'agile.pl', 'practice', 'check', '10', '--dir', $base);
+    ok($rc == 0 && $out =~ /lesson 10: done/, 'practice check 10 after the work: done', $out);
+    ($rc, $out) = run($ROOT, $^X, 'agile.pl', 'practice', 'reset', '10', '--dir', $base);
+    ok($rc == 0 && !-e $s10, 'practice reset 10 removes the sandbox');
+} else { ok(1, "practice lesson 10 # skip sim/tidewater-v1.pl or bin/xmi2sysml.pl not in this checkout") for 1 .. 6 }
+
 # ---------------------------------------------------------------- Vim: :help agile through vim/scrum.vim (when a vim is on PATH)
 my $vim = grep { -x "$_/vim" || -x "$_/vim.exe" } split /:/, $ENV{PATH} // '';
 if ($vim) {

@@ -1,0 +1,126 @@
+== Documents still matter: review stages for generated documents {#documents-stages}
+
+::: survival Where this chapter fits
+What you have: a model that generates most of what used to be hand-written -- the data exchange table, the trace
+report, the verification matrix -- and a handful of documents that are still written by people: the briefing memo,
+the request for enablers, the drop disposition.
+
+What you need: a shared, simple way to say how finished a document is, that management already understands, and a
+clear line between what the pipeline can check and what still needs a human reader.
+:::
+
+A model does not abolish documents. Management still reads memos; the customer still receives deliverables; the
+prime still gets formal letters. What changes is that most of a document's *content* now comes from the model and
+is regenerated on every change, so the question "is this document ready?" splits in two. Part of the answer is
+mechanical and the pipeline can give it. Part of it is judgment, and only a reviewer can.
+
+The team kept the document maturity scale the program already used: the *Document Review Stages* chart, a colour
+and a grade for each stage of a document's life. Everyone on the program knew it, and the point of this chapter is
+that the team did not invent a new vocabulary for documents just because the model moved to GitLab.
+
+=== The scale {#documents-scale}
+
+|| Colour | Stage | Grades | Percent complete | What it means ||
+| (none) | TODO | -- | {{n: 0}} | The document is in the queue. |
+| Grey | Collection | G-, G, G+ | {{n: 1}} to {{n: 24}} | A loose collection of content has been started. |
+| Blue | Compliant | F-, F, F+ | {{n: 25}} to {{n: 45}} | The outline is complete. |
+| Pink | Complete | D-, D, D+ | {{n: 46}} to {{n: 63}} | The content is stable and consistent. |
+| Red | Compelling | C-, C, C+ | {{n: 64}} to {{n: 78}} | Graphics, tables, data, spelling, acronyms and grammar are finalized. |
+| Gold | Comprehensive | B-, B, B+ | {{n: 79}} to {{n: 90}} | The document is sound, coherent and actionable. |
+| White | Copy Ready | A-, A, A+ | {{n: 91}} to {{n: 99}} | It is ready for hard-copy review. |
+| Green | Done | -- | {{n: 100}} | It is releasable. |
+Table: The Document Review Stages, from the program's grading chart.
+
+::: note Two versions of the chart
+The deck the program circulates has two slides. The first (above) gives the full grading scale. The second gives
+shorter descriptions with different percentage bands -- for example, it calls Pink {{n: 45}} to {{n: 75}} percent and uses Green
+for "analysis underway" and White for "done". This book follows the first slide, which is the more detailed one.
+If your program uses the chart, agree which slide governs before the first document is graded.
+:::
+
+=== The stages as GitLab labels {#documents-labels}
+
+A document that people write is tracked by an issue, the same as any other piece of work. Its stage is a *scoped
+label* -- `doc::grey`, `doc::blue` and so on -- and because the labels are scoped, an issue can carry only one of
+them at a time: moving a document to Pink removes Blue automatically. The labels are defined in the project file
+([[gitlab-setup]]); the document's source lives in the repository, and each change to it goes through a merge
+request like a model change.
+
+::: warning The label descriptions in the template do not match the chart
+The project file template (`tools/gitlab/templates/project.conf`) describes the `doc::` labels in proposal
+colour-team terms -- for example, Red as "the reader's view, scored as the customer would score it". The program's
+chart above describes Red as "graphics, tables, data, spelling, acronyms and grammar are finalized". When you adopt
+the labels, copy the descriptions from the chart your program uses, so the label tooltip in GitLab and the chart on
+the wall say the same thing.
+:::
+
+=== Sprint 6: two documents through the stages {#documents-sprint6}
+
+In sprint 6 the team produced two documents for the program review: the twelve-week progress memo
+([[memos]]) and the data exchange table, which is generated from the model's interface definitions. Each had an
+issue, and Jim moved each issue through the stages as reviews finished. You can read the history in the
+simulation's GitLab:
+
+```sh run sandbox=tidewater timeout=180 expect="doc::green"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model issue show 129 | grep -E "^#|doc::"
+```
+
+```sh run expect="Data exchange table"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model issue show 130 | head -3
+```
+
+Both documents went from Grey on 16 December to Green on 24 December, the day of the review. The simulation moves
+them one stage per working day; real documents usually spend longer in Pink and Gold, where the arguments happen.
+What matters is not the speed but that the stage is visible on the board, dated, and attributed: anyone could see
+on Monday that the memo was still Red and the table was already Gold.
+
+=== What the pipeline can check, and what it cannot {#documents-checks}
+
+The stages were written for hand-made documents, where every one of them was a human judgment. For a document
+built from a model, several of them become checks that run on every change. The line between the two is the
+useful thing to agree on.
+
+|| Stage | What the pipeline can check | What still needs a person ||
+| Grey | The file exists in the repository; it renders. | Whether this is the right document to write. |
+| Blue | Every required heading is present; required header fields (for a memo: Memorandum for, From, Subject). | Whether the outline answers the reader's question. |
+| Pink | No placeholders left; every number cited from evidence, not typed; no TODO markers. | Whether the content is consistent in meaning, not just in form. |
+| Red | Generated tables are current (the docs job); figures render; banner and portion markings present. | Spelling and grammar in the prose; whether the graphics say what the text says. |
+| Gold | Nothing new. | Whether it is sound, coherent and actionable -- the management review. |
+| White | The PDF builds cleanly; the marking rolls up correctly. | A last read on paper. |
+| Green | The release or merge is recorded; the issue is closed. | The decision to release. |
+Table: Mechanical checks and human judgment, stage by stage.
+
+The memo tool shows the Pink line directly. Run its check on a fresh copy of the progress memo template, before
+anyone fills it in:
+
+```sh run sandbox=scratch expect="placeholder\(s\) to fill in"
+cp "$KIT/tools/gitlab/templates/memos/progress-memo.md" .
+perl "$KIT/tools/memo/memo-build.pl" --check progress-memo.md || echo "exit status $?"
+```
+
+A memo that still has placeholders cannot be Pink, whatever its author feels. That is the kind of rule the pipeline
+is good at. Whether the memo's ask is the right ask is not.
+
+For generated documents the mechanical part is even larger. The data exchange table is rebuilt from the model on
+every merge request, and the docs job fails if the committed copy is stale ([[pipeline]]). So the table can never be
+"Red" in the sense of out-of-date data: if the data were stale, the merge request would not merge. What review adds
+for a generated table is the reader's question -- does this table say what the interface owners need to know? --
+and that question belongs in Gold.
+
+::: exercise {#ex-documents-grade} Grade a document both ways
+Take a document your team is writing now. Grade it on the chart by hand. Then list which of the "pipeline can
+check" items in the table above it would pass today. Where the two disagree, which one is right?
+:::
+
+=== You can now {#documents-you-can}
+
+- Track a document's maturity on the board with scoped labels, using the stages the program already knows.
+- Separate the mechanical part of a document review from the judgment part, and automate the mechanical part.
+- Explain to management why a generated table cannot be "out of date" once it is checked on every merge request.
+
+=== Applying this to your project {#documents-applying}
+
+Copy the idea of one scoped label per stage and of moving a document's issue as reviews finish. Use your own
+program's stage names, colours and descriptions -- if your program has no chart, the proposal colour-team names in
+the kit's template are a reasonable start. Decide locally which slide or version of a chart governs, and who is
+allowed to move a document to Gold and to Green.

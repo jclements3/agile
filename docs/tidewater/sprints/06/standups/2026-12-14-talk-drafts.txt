@@ -1,0 +1,6 @@
+jim draft:  Y TW-91 Reviewed !20. T TW-111 the memo and briefing chapters, by Dec 24. B none
+jim posted: Y TW-91 Reviewed !20. T TW-111 the memo and briefing chapters, by Dec 24. B none
+bob draft:  Y TW-91 Prune ObservingStation's trace...: done (1 task). T TW-112 write the BuoyModes state def; exhibit it on..., by Dec 24. B none
+bob posted: Y TW-91 Prune ObservingStation's trace: done (1 task). T TW-112 write the BuoyModes state def; exhibit it on, by Dec 24. B none
+tom draft:  Y none T TW-114 level tags in Operations, by Dec 24. B none
+tom posted: Y none T TW-114 level tags in Operations, by Dec 24. B none

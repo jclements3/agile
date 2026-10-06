@@ -1,0 +1,283 @@
+== Systems engineering work, not pipeline work {#se-work}
+
+::: survival The work is the engineering
+What you have: a backlog full of stories, and a nagging feeling that too many of them are about GitLab, runners and
+YAML, and too few are about the system.
+
+What you need: a clear line between systems engineering work (deciding and proving what the system is) and platform
+work (building and keeping the machinery that checks and renders it), a way to see the balance sprint by sprint, and a
+catalog of real engineering stories to fill the backlog with once the machinery runs.
+:::
+
+=== The line {#se-work-line}
+
+Bob asked the question in the second sprint, and the question was a fair one:
+
+> Two sprints in, and I have written a pipeline description, a runner request and a branching guide. When do I do
+> systems engineering again?
+> -- Bob, sprint 2
+
+It is the right question, and the answer has to be a number, not a reassurance. Every story on the Tidewater board
+carries one of three labels:
+
+::: definition The three kinds of work
+work::engineering: deciding or proving what the system is. Requirements, architecture, interfaces, behavior,
+  analysis, verification, change decisions. The output is model content or an engineering judgment someone signs.
+work::platform: building or keeping the machinery that checks, renders and protects the model. Pipelines, runners,
+  GitLab settings, templates, access, the kit version. The output is a working tool.
+work::learning: becoming able to do either. Practice lessons, chapters of this book, pairing at the terminal. The
+  output is a person who can do something they could not do last sprint.
+:::
+
+A quick test for a story you are not sure about: **would a systems engineer from the document era recognize the
+output as engineering?** A closed TODO line that adds `@L2Segment;` to a part: yes, it is a configuration decision
+about the system's structure. A new pipeline job that counts TODO lines: no, it is a tool, however useful. A data
+exchange table generated from the interface items: yes, it is the interface control document, produced differently.
+Deciding who owns `ObservationRecord` so a dependency cycle can be broken: very much yes, it is an architecture
+decision.
+
+The label is not a value judgment. Platform work is how the engineering becomes cheap to check, and learning is how a
+team that had never seen a merge request learned to run one. The point of the label is to make the balance visible, so
+that platform and learning shrink as they should, and so that nobody has to argue from feelings.
+
+=== The balance, sprint by sprint {#se-work-balance}
+
+The split comes straight out of the plan file the simulation runs (`sim/tidewater-plan.pl`), so it cannot be rounded
+in anyone's favour:
+
+```sh run sandbox=kit expect="Sprint 6: .*engineering"
+perl -e 'require "$ENV{KIT}/sim/tidewater-plan.pl"; for my $s (grep { $_->{n} <= 6 } @{ tw_plan() }) { my %w; for my $st (@{ $s->{stories} }) { $w{ $st->{work} } += $_->{p} for @{ $st->{tasks} } } my $t = 0; $t += $_ for values %w; printf "Sprint %d: %4.1f points  engineering %3.0f%%  platform %3.0f%%  learning %3.0f%%\n", $s->{n}, $t, map { 100 * ($w{$_} // 0) / $t } qw(engineering platform learning) }'
+```
+
+The shape is the one to aim for. In the first two sprints platform and learning take most of the points: there is a
+project to create, a runner to get approved, three laptops to set up, git and Vim to learn. From sprint 3 engineering
+takes the larger share, and by sprint 6 most of the work is engineering again, which is the answer to Bob's question, and the one
+to give with these numbers on the screen. GitLab can show the same split live: filter the board or the
+issue list by `work::engineering`, and the milestone page sums the points.
+
+Two warnings about the number. It is a planning measure, not a productivity score: a sprint that is half platform
+because the runner died is a sprint that kept the team working. And it does not go to zero: maintenance sprints still
+carry a story or two of platform work (a runner upgrade, a token rotation, a kit version bump), which is how the
+machinery stays trustworthy.
+
+=== The Tidewater catalog {#se-work-catalog}
+
+These are the engineering stories in Tidewater's plan, grouped by the kind of engineering, with what each one changes in
+the model, the check that proves it, and the artifact someone outside the team can look at. Branch names follow
+`feature/<issue number>-<a few words>` ([[style]]); the issue numbers are left out here because they differ from run to
+run. Sprints are the plan's ([[operating-model]]).
+
+==== Requirements {#se-work-requirements}
+
+|| Story (sprint, epic) | Model change | Check | Artifact ||
+| DOORS modules into the model (S3, E7) | the prime's DOORS export converted into `requirements/` by the vendor import | trace job: C, F, G, I and drift | trace report |
+| First drift and gap analysis from the trace (S3, E7) | none: an analysis of what the trace found | the trace job's numbers | a wiki page, the input to the DRs |
+| Discrepancy reports DR-1 to DR-4 to the prime (S4, E7) | none in the model: issues to the prime | each DR closes when a drop fixes it | DR issues, transmittal memo |
+| Grade our requirements with the recipe (S5, E7) | none: findings on the prime's wording | `recipe` job findings | DR-6 to the prime ([[recipe]]) |
+| Trace completeness, package by package (S8-S16, E7) | satisfy and verify links, one package per sprint | trace ratchet: no new gaps, falling counts | trace report per package |
+| Security requirements through DRs (S30, E16) | none until a drop brings `TW-SEC-*` | trace and gate | DRs, then requirements |
+| Retire TW-SEG-009 (S31, E15) | the requirement marked retired, not deleted | trace excludes retired requirements | the retirement note in the CCB item |
+Table: Requirements stories
+
+The surprise for the team was how many requirements stories change *nothing* in the government model. The requirements
+belong to the prime's DOORS modules; the government's engineering is finding what is wrong with them and saying so in a
+form the prime must answer. That is still the most valuable requirements work on the program, and it is engineering
+by any definition.
+
+==== Architecture {#se-work-architecture}
+
+|| Story (sprint, epic) | Model change | Check | Artifact ||
+| Level conventions for the part tree (S2, E6) | `library/conventions/` with the six level metadata definitions | lint, outline check | the conventions package |
+| Close the Network TODO lines (S3, E6) | level tags; the `include use case` written by hand | lint 0/0; TODO count falls | part tree view |
+| Close the Stations level tags (S4, E6) | `@L2Segment;` through `@L6Component;` on every part | level-tag check | part tree view |
+| Units and value types (S4, E6) | value types specialize ISQ quantities | lint (unresolved types) | none: correctness |
+| Break the Network to Operations cycle (S4, E6) | one dependency moved; the decision recorded in the MR | package view: one cycle fewer | package view |
+| Untangle the Legacy Import package (S5, E6) | the clutter removed from the government model | outline and duplicates | DR-5 to the prime |
+| Procured parts as metadata (S5, E6) | the `Procured` stereotype as `@Procured` metadata | lint | supplier search |
+| Data exchange table for the program review (S6, E8) | flow properties documented on the interfaces | the table regenerates | the data exchange table |
+| Break the Stations to DataCenter cycle (S7, E6) | the decision on who owns `ObservationRecord` | package view: zero cycles | package view, the decision in the MR |
+| Trust zones on the part tree (S26, E16) | `@TrustZone` on each part | `model.pl gate` zones check | interconnection view with zones |
+Table: Architecture stories
+
+==== Behavior {#se-work-behavior}
+
+|| Story (sprint, epic) | Model change | Check | Artifact ||
+| BuoyModes state machine by hand (S6, E8) | `state def BuoyModes`, exhibited on `MooredBuoy` | grammar and lint | the mode list in the docs |
+| Fork, pin and object flow in ObserveCoast (S6, E8) | `fork`, `flow` and successions written by hand | grammar, lint, IDEF0 plates | the A0 plate ([[diagrams]]) |
+| The DailyUpload interaction by hand (S7, E8) | the sequence as messages between occurrences | grammar and lint | none yet: views later |
+| The EnergyBalance constraint expression (S7, E8) | the constraint's expression in v2 | grammar and lint | the expression in the docs |
+Table: Behavior stories
+
+Every behavior story here starts from a converter TODO line, because the converter does not carry v1 state machines,
+interactions or opaque expressions. That makes behavior the part of the port where engineering judgment is unavoidable:
+the v1 diagram says what the prime drew; the v2 text has to say what the system does.
+
+==== Analysis {#se-work-analysis}
+
+|| Story (sprint, epic) | Model change | Check | Artifact ||
+| Energy balance per buoy mode (S21, E15) | notional generation, storage and load per mode in `analysis/` | a job that fails when a mode does not close | the energy table per mode |
+| Observation-to-bulletin latency chain (S23, E15) | a latency on each step from sampling to publishing | the total against TW-STK-002 | the latency chain table |
+| Telemetry trade study (S25, E15) | three variants: cellular, satellite, hybrid | the scoring computes | the trade table |
+| Station availability allocation (S27, E15) | reliability attributes per subsystem | the roll-up computes | availability per station type |
+| Energy balance with the drop-5 reserve term (S33, E15) | the prime's new constraint, carried into the analysis | the energy check | the updated energy table |
+Table: Analysis stories
+
+All the values in Tidewater's analyses are notional; the stories exist to show the pattern: an analysis is model content
+plus a check that fails when the answer is wrong, so a later change that breaks the budget is caught on its merge
+request, not at the next review.
+
+==== Verification {#se-work-verification}
+
+|| Story (sprint, epic) | Model change | Check | Artifact ||
+| VCRM: which requirements are verified, and how (S6, E7) | inspection verdicts entered and signed in `verification/results.csv` | `vcrm` job | the verification matrix |
+| Verification cases for Stations to 100% coverage (S29, E15) | one verification case per Stations requirement | VCRM coverage for Stations | the verification matrix |
+| Security verification cases in the VCRM (S31, E16) | cases for the security requirements | VCRM and gate | the verification matrix |
+Table: Verification stories
+
+==== Change and sustainment {#se-work-change}
+
+|| Story (sprints, epic) | Model change | Check | Artifact ||
+| Take in prime drop v1.1 ... v1.6 (S8, S14, S20, S27, S34, S38; E9, E12, E13) | the vendor import merged; hand edits redone; manual rework from the delta | every gate, plus the delta and impact report | the drop's disposition memo |
+| Hotfix: a wrong satisfy found by the program office (S24, E14) | one satisfy corrected on `main` and `develop` | trace | the hotfix release notes |
+| Baseline 1, 2 and 3 (S20, S30, S39) | none: a tag of what is there | the baseline audit | the release and its package |
+| Monthly status and CCB items (every other sprint) | none: decisions recorded on issues | none | the status memo, CCB minutes |
+Table: Change and sustainment stories
+
+A prime drop is the clearest example of engineering hiding inside a tooling-shaped story. The import itself is a
+command. The work is the disposition: which of the prime's changes the government accepts, which it questions, which
+cost money, and what each one does to requirements and verification. That is change-board work, and it is the reason
+the drop stories are labelled engineering ([[prime-changes]]).
+
+=== What platform work looks like, for contrast {#se-work-platform}
+
+|| Story | Why it is platform ||
+| Create the GitLab group and model project | the place the work happens |
+| Draft the first pipeline and run it locally | a tool that checks the model |
+| Runner online; the first pipeline gates every MR | the tool, made enforcing |
+| TODO burn-down and generated docs in the pipeline | tools that measure and render |
+| The model site on GitLab Pages, rebuilt nightly | a tool that shows the model to others |
+| The trace job becomes a gate | a tool, made stricter |
+| Release and hotfix rehearsal | practice with the release machinery |
+| Pin the kit version | keeping the tools stable |
+Table: Some of Tidewater's platform stories
+
+Notice how many of them exist to make an engineering story cheaper: the trace ratchet makes "Trace completeness"
+measurable; Pages makes the data exchange table visible to the program office; the burn-down makes the port's
+progress a number.
+
+=== A generic catalog for your project {#se-work-generic}
+
+The catalog below is the pattern to build your own backlog from. It follows a list of thirty-eight planned-work items
+collected while this book was written, from a small team modeling a different system; the list mixed engineering and
+platform work in roughly the proportion a team reaches after its first semester, which is itself a useful benchmark.
+Each line is a story title, the model change, and the check that makes it done.
+
+==== Concept and requirements
+
+- **Capture stakeholder needs from the concept of operations.** A requirements package per stakeholder group, each need
+  tagged with its source document. Check: the package resolves (lint).
+- **Define the top-level use cases.** A use case per mission thread, with actors and objectives. Check: a generated
+  use-case table for the customer walkthrough.
+- **Derive system requirements from the needs.** Requirements with measurable constraints and derivation links. Check:
+  the trace fails any system requirement without a parent.
+- **Add a requirement metadata schema.** Verification method, priority, owner, status as metadata. Check: a job fails a
+  requirement missing a required field.
+- **Import the legacy requirements spreadsheet.** A script that turns the CSV into requirement text, run once, kept for
+  the next import. Check: the merge request's diff, reviewed.
+- **Establish the units and quantities library.** Shared value types on ISQ quantities; requirements refactored to use
+  them. Check: lint (no unresolved types).
+
+==== Architecture
+
+- **Define the logical decomposition.** Part definitions for the function blocks, composed into the system context.
+  Check: the part tree view.
+- **Model a subsystem's interfaces.** Port and interface definitions, connections, a satisfy to the interface
+  requirement, a verification case stub. Check: trace coverage for the subsystem.
+- **Allocate functions to physical components.** Allocations at the agreed level. Check: the trace flags unallocated
+  functions.
+- **Model the power subsystem and its budget.** Power draw per part and a roll-up per mode. Check: a job fails when a
+  mode exceeds supply.
+- **Model the mass properties.** Mass with margin per part, rolled up. Check: the mass report.
+- **Model the data bus and its messages.** Item definitions with fields and rates. Check: the generated ICD table.
+- **Model the thermal interfaces.** Heat flows and dissipation. Check: the values handed to the thermal team as a file.
+- **Define an external interface.** The external system as a part, with the agreed protocol and timing. Check: the
+  interface lead is a code owner of the package.
+
+==== Behavior
+
+- **Model the operating modes.** A state definition with transitions and guards, linked to the budgets per mode.
+  Check: grammar and lint; the budgets run per mode.
+- **Model the startup sequence.** An action with ordered steps and timing. Check: total startup time against its
+  requirement.
+- **Model fault detection and recovery.** Fault states and recovery actions, each linked to the hazard it mitigates.
+  Check: a fault-to-response table for the safety review.
+- **Model the end-to-end data timeline.** Latency on each step. Check: the sum against the end-to-end requirement.
+
+==== Analysis and trades
+
+- **Run a trade study.** Candidate variants with their attributes and a weighted scoring. Check: the trade table.
+- **Hook up an external simulation.** A wrapper that reads parameters from the model, runs the simulation, writes
+  results back. Check: the job's artifact.
+- **Allocate reliability.** Failure rates and a series-parallel roll-up. Check: a job fails below the requirement.
+- **Run a sensitivity analysis.** Sweep the key parameters through a budget. Check: the chart for the review package.
+
+==== Verification
+
+- **Write the verification cases for a subsystem.** A case per requirement with method, objective and criteria.
+  Check: verify coverage for the subsystem reaches 100%.
+- **Ingest test results.** A script that maps results to verification cases. Check: the VCRM regenerates.
+- **Record analysis and inspection verdicts.** A signed results format for what is not automated. Check: the VCRM
+  merges them.
+
+==== Baselines and sustainment
+
+- **Prepare a review baseline.** Close the trace gaps, defer what remains, all checks green. Check: the baseline tag
+  and its document set.
+- **Process an engineering change after a review.** The change, its impact report and the change-board approval on the
+  merge request. Check: a minor baseline tag.
+- **Branch for a delivered configuration.** A protected release branch from the qualification tag; fixes land upstream
+  first. Check: the branch rules.
+- **Model a field discrepancy and its fix.** The discrepancy linked to parts and verification cases, a regression case
+  added. Check: the regression passes on both branches.
+- **Retire obsolete requirements.** Mark them retired rather than deleting them. Check: coverage metrics exclude them.
+
+==== And the platform items in the same list
+
+Model style checks; generating the review document package; pinning the tool image; enabling secret and dependency
+scans; code owners per subsystem; an impact report posted on each merge request. Six of thirty-eight: about one in six.
+That is roughly the steady state to expect once the machinery exists, and a useful target when you plan the second
+semester.
+
+=== Splitting an engineering story into tasks {#se-work-splitting}
+
+A story fits in a sprint; a task fits in a week, at most five points ([[operating-model]]). Engineering stories split
+along the engineering, not along the tools. "Close the Stations level tags", split by what an engineer decides, could look like this:
+
+1. Tag the segment and the station parts (L2, L3): 1 point. The levels everyone agrees on.
+2. Tag the subsystems and assemblies (L4, L5): 1 point. Where the v1 profile is most often inconsistent, and a question to
+   the prime's modeler may be needed.
+3. Tag the components (L6) and run the level check: 1 point. The leaves, and the proof.
+
+A split along the tools ("edit the file", "run lint", "open the MR") produces tasks nobody can demo and nobody can
+estimate. A split along the decisions produces tasks a reviewer can check one at a time.
+
+=== Applying this to your project {#se-work-applying}
+
+- **Label every story** `work::engineering`, `work::platform` or `work::learning` from the first sprint, and show the
+  split at every review. The trend answers "when do we do engineering again?" better than any promise.
+- **Expect the first two sprints to be mostly platform and learning,** and say so to management before they start.
+- **Fill the backlog from the catalog,** starting with the requirements and architecture stories your converted model
+  already demands: every TODO line is an engineering decision waiting for a story.
+- **Look for the engineering inside tooling-shaped stories** (prime drops, baselines, hotfixes) and label them by
+  their decisions, not their commands.
+
+::: exercise {#ex-se-work-label} Label your backlog
+Take the next ten stories in your backlog (or Tidewater's sprint 7 plan in `sim/tidewater-plan.pl`) and give each one
+of the three labels. For every story you labelled platform, write one sentence naming the engineering story it makes
+cheaper. If you cannot, ask whether the story is needed now.
+:::
+
+::: exercise {#ex-se-work-split} Split along the decisions
+Split "Break the Stations to DataCenter cycle" into tasks of at most five points each, along the decisions an engineer
+makes rather than the commands they type. Compare your split with the plan's.
+:::

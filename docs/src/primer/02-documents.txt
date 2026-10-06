@@ -1,0 +1,293 @@
+== Thirty years of documents {#documents}
+
+::: note What you have, what you need
+**What you have:** a career's worth of habits for controlling documents, reviewing changes and briefing decisions.
+
+**What you need from this chapter:** a clear list of which of those habits are worth keeping (most of them) and
+which costs they hid. Nothing to type yet.
+:::
+
+=== A Tuesday in 2019 {#documents-tuesday}
+
+The request arrived at 4:10 on a Tuesday afternoon, the way such requests always arrived: as a one-line email from
+the deputy program manager, copied to the program manager, with the subject line "Quick question."
+
+> Jim -- before Thursday's program review, can you tell me which Tidewater requirements don't have a verification
+> method yet? Just a list is fine. Thanks.
+
+It was not a quick question, and everybody on the distribution knew it. The answer lived in four places. The
+System Requirements Specification (SRS), revision C, held the requirement text and a section 4 "Qualification
+provisions" table. The Verification Cross-Reference Matrix (VCRM) was an Excel workbook with one row per
+requirement and a column for the method (test, analysis, inspection, demonstration). The prime contractor kept the
+authoritative requirement text in DOORS and sent a CSV export every month. And the action item tracker, a
+different spreadsheet, held the open items from the last design review, several of which said things like
+"Contractor to propose verification approach for SRS 3.2.7."
+
+Jim forwarded the email to Bob with a single line ("Can you pull this together?") and Bob spent Wednesday doing
+what Bob had done many times before. Bob opened the latest DOORS CSV in Excel, sorted it by object identifier, and
+pasted it next to the VCRM. A lookup formula matched the identifiers. Forty rows did not match, because the VCRM
+still used the paragraph numbers from revision B and DOORS used the new object identifiers. Bob fixed those by hand
+from the cross-reference table in the SRS appendix, found three requirements in DOORS that were not in the VCRM at
+all, found two in the VCRM that DOORS had deleted, checked the action item tracker for the ones with open actions,
+and by 3 p.m. on Wednesday had a list of eleven requirements with no verification method. Jim reformatted it as a
+slide, the deputy program manager presented it on Thursday, and the program review moved on to the next topic.
+
+Two weeks later the prime delivered revision D of the VCRM. Four of the eleven had been fixed. Nobody updated the
+slide, and nobody ran the comparison again until the next "quick question."
+
+::: sidebar Why this scene matters
+Nothing in the scene is a failure. Every person did their job well. Bob's answer was correct on Wednesday
+afternoon. The trouble is that it was correct *only* on Wednesday afternoon, it cost a skilled engineer a day and
+a half, and the work that produced it left no trace that anyone could re-run. Keep that last point in mind; it is
+the whole argument of [[devsecops]] in one sentence.
+:::
+
+=== The document set {#documents-set}
+
+For most of Jim's career, systems engineering on a government program meant producing, reviewing and controlling
+a set of documents. The names vary by organization; Tidewater's set was typical:
+
+|| Document | What it held | Who changed it ||
+| SEMP (Systems Engineering Management Plan) | how the program does systems engineering | the government, rarely |
+| ConOps (Concept of Operations) | who uses the system and how, in prose | the government, once |
+| SRS (System Requirements Specification) | the "shall" statements, numbered paragraphs | the prime, through the CCB |
+| SSDD (System/Subsystem Design Description) | the architecture: segments, subsystems, block diagrams as pictures | the prime |
+| ICDs (Interface Control Documents) | each interface: messages, fields, timing, connectors | the prime, both sides sign |
+| VCRM (Verification Cross-Reference Matrix) | each requirement's verification method and event | the prime, a spreadsheet |
+| RTM (Requirements Traceability Matrix) | parent-child links between requirement levels | the prime, a spreadsheet or DOORS |
+| Risk register, action item tracker | open risks and actions | the government, spreadsheets |
+| Design review packages | slides summarizing all of the above | everybody, for each review |
+Table: The document-era artifact set (typical; Tidewater's names)
+
+Each document had an owner, a revision letter, a change history page and a signature block. Changes moved through
+a formal process: somebody wrote an engineering change proposal (ECP) or a document change request, the request
+went into the queue for the monthly configuration control board (CCB), the board approved, rejected or deferred
+it, and the owner incorporated approved changes into the next revision. Between revisions, changes were tracked as
+"redlines": a marked-up copy of the document, usually a PDF with comments, sometimes a Word file with tracked
+changes, occasionally a printout with handwriting.
+
+The spreadsheets lived alongside the documents and did the work the documents could not. The VCRM was a
+spreadsheet because a matrix is a spreadsheet. The RTM was a spreadsheet because parent-child links between a few
+hundred requirements are rows. The action item tracker was a spreadsheet because everything that did not fit
+anywhere else was a spreadsheet.
+
+The briefings sat on top. Every review, every status meeting and every decision produced slides. The slides
+summarized the documents and spreadsheets, and for the people in the room the slides *were* the system: few
+decision makers read the SRS, but everybody saw the chart.
+
+=== What worked {#documents-worked}
+
+It is fashionable to sneer at document-based systems engineering. This book will not. The document era got a
+great deal right, and almost everything it got right survives into the way of working this book describes.
+
+**Everybody could read the documents.** A Word document or a PDF needs no special software, no license and no
+training. An operator, a test engineer, a contracting officer and a general can all open the SRS. This is a real
+virtue, and the team's fear of losing it is one of the objections in [[directive]].
+
+**The documents were the contract.** The CDRL told the prime to deliver an SRS, and the government accepted or
+rejected it. Signatures meant something. When a dispute arose, the signed revision settled it.
+
+**Changes were reviewed.** Nothing went into a controlled document without a second pair of eyes and a board
+decision. The review culture of the CCB, the habit of asking "who approved this, and when?", is exactly what
+DevSecOps calls *change control*, and it is the habit Tom will build the pipeline around.
+
+**Baselines existed.** "SRS revision C" named a fixed, known set of requirements. Everyone could point at it.
+
+**Traceability was taken seriously.** The RTM and VCRM were tedious to maintain, but the program knew that every
+requirement needed a parent and a verification, and it checked, at least at each review.
+
+::: tip Keep this list
+Hold on to these five virtues: readable by anyone, contractually meaningful, reviewed, baselined, traced. When
+someone tells you DevSecOps throws away good systems engineering practice, ask which of the five it throws away.
+In the chapters that follow, each one is kept, and each one gets cheaper.
+:::
+
+=== What it cost {#documents-cost}
+
+The costs of the document era were real but hidden, because they were paid in engineers' time rather than in a
+budget line. Nobody ever wrote "1.5 days to answer the deputy's question" on a timecard; it was just Wednesday.
+
+To make those costs visible, Jim later reconstructed four of them from the program's last document-era review
+cycle. They are reconstructions, not measurements, and this book labels them as notional wherever they appear.
+They are the "before" column of the scorecard in [[scorecard]].
+
+|| Activity in the document era | Typical effort or elapsed time (notional) ||
+| A requirement change, from change request to incorporated revision | 23 working days |
+| "Which requirements are unverified?", answered from the VCRM, DOORS export and SRS | 2 working days |
+| A model or design review: screenshots in a 60-slide briefing, prepared, reviewed and presented | 3 weeks |
+| Finding text that differs between DOORS and the documents (or the model) | never done systematically |
+Table: The document-era baseline (notional, reconstructed from the last review cycle)
+
+Where did the 23 working days of a requirement change go? Almost none of it was engineering. Jim's reconstruction
+of one change, a clarification to a data-latency requirement, looked like this:
+
+|| Step | Working days (notional) ||
+| Engineer drafts the change request in the CR template | 1 |
+| Change request waits for the next monthly CCB agenda | 11 |
+| CCB meeting; approved with a comment | 1 |
+| Comment resolved by email; revised wording approved by the chair | 3 |
+| Prime incorporates the change into the next SRS revision draft | 4 |
+| Government reviews the draft revision, signs | 3 |
+Table: Where the time went in one requirement change (notional)
+
+Most of the elapsed time is waiting: for a meeting, for a revision, for a signature. The meeting itself took a day,
+and the engineering, deciding what the requirement should say, took less than that. The process was designed for a
+world where making a copy of a document was expensive and distributing it was slow, so changes were batched into
+monthly meetings and quarterly revisions. Batching is efficient when each batch costs a lot. It is wasteful when
+each change could be reviewed, approved and incorporated on the day it is proposed.
+
+The other hidden costs were less visible still.
+
+**Every answer was a one-off.** Bob's Wednesday produced a correct list and a slide. It did not produce anything
+that could be run again. The next time someone asked, Bob started from scratch, because the spreadsheet formulas
+were in a copy of the VCRM that was now two revisions out of date.
+
+**Consistency was nobody's job.** The SRS, the VCRM, the RTM, the DOORS database and the ICDs each held part of
+the truth, and each was maintained by a different person on a different schedule. When they disagreed, which they
+always did a little, the disagreement was found by accident, usually by someone preparing for a review. Requirement
+text in DOORS that differed from the text in the SRS was a known problem with no known size.
+
+**The briefing became the truth.** Because decision makers saw slides, the slides were where decisions were made,
+and the slides were copies of copies. A block diagram drawn for a 2017 review would reappear, slightly edited, in
+2019, long after the architecture had changed. Nobody could say which picture was current.
+
+**Configuration management meant file names.** The program's shared drive held files named
+`SRS_RevC_final.docx`, `SRS_RevC_final_v2.docx`, `SRS_RevC_final_v2_JIM_comments.docx` and, memorably,
+`SRS_RevC_FINAL_use_this_one.docx`. Tom, who ran the CM database, could tell you which file was the signed
+revision. Nobody else could, and the CM database did not know about the working copies at all.
+
+**Knowledge lived in people.** Bob knew why the VCRM's row 214 had a strange formula. Jim knew which ICD
+paragraph had been "temporarily" waived in 2016. When people moved on, the knowledge went with them.
+
+::: objection "The documents worked. We delivered systems with them for thirty years."
+That is true, and nothing in this book disputes it.
+
+Answer: The question is not whether documents can work but what they cost and what they make impossible. The
+document process worked by spending skilled engineers' time on copying, reconciling and waiting. It made it
+impossible to ask the same question twice and get a fresh answer cheaply. The chapters in Part III measure what
+the same questions cost in the new way; [[scorecard]] puts the two side by side.
+:::
+
+=== The habits worth keeping {#documents-habits}
+
+Before the team moves on, it is worth naming the document-era habits that will survive the transition, because the
+team's discouragement in [[directive]] comes partly from believing that everything they know is being thrown out.
+It is not. Here is the translation the book will use, one habit at a time. [[devsecops]] gives the full table.
+
+- **Change requests** become *merge requests*: a proposed change, with a description, reviewed and approved before
+  it is incorporated. The difference is that a merge request contains the actual change, not a description of it,
+  and can be approved the day it is written.
+- **The CCB's approval** becomes *a code owner's approval*: a named person, responsible for an area, approves
+  changes to that area. The board still exists for decisions that need a board; it no longer has to touch every
+  editorial fix.
+- **Baselines** become *tags*: a name fixed to an exact, retrievable state of the model. Revision C becomes
+  `baseline-1`.
+- **The VCRM and RTM** become *reports computed from the model*: instead of maintaining a matrix by hand, the team
+  writes the trace into the model and lets a program compute the matrix whenever anyone asks.
+- **The design review package** becomes *a published site*: the current model, its diagrams and its reports, always
+  generated from the baseline, never pasted.
+- **Redlines** become *diffs*: a precise, line-by-line record of what changed, produced automatically.
+- **The CM database** becomes *the repository's history*: every change, who made it, when, why, and who approved it,
+  kept automatically.
+
+None of these translations is perfect, and the book points out where they break. But the shape of the work is
+recognizably the same. Systems engineering still means knowing what the system must do, how it is put together,
+how each requirement will be shown to be met, and how changes are controlled. What changes is how much of that
+work is done by hand.
+
+=== What the spreadsheets were really doing {#documents-spreadsheets}
+
+Every program has a spreadsheet that nobody is allowed to touch. On Tidewater it was the VCRM, and Tom, who had
+seen every revision of it, once described it as "the most important database on the program, stored in the least
+reliable format we have."
+
+Spreadsheets did three jobs on the program, and it is worth separating them, because each job has a better home in
+the new way of working.
+
+**The spreadsheet as a database.** The VCRM, the RTM, the interface list and the action item tracker were all
+tables of records with identifiers, attributes and relationships between them. That is a database. Spreadsheets
+are a poor database: nothing stops two rows from having the same identifier, a formula from referring to the wrong
+column after someone inserts one, or a copy of the file from drifting away from the original. In the new way, the
+records live in the model (requirements, satisfy and verify relationships) or in GitLab (issues), both of which
+enforce identity and keep history.
+
+**The spreadsheet as a calculator.** Bob's lookup formulas, the trace coverage percentages and the "requirements
+without a verification method" count were calculations over the records. Each calculation was written by hand,
+in one copy of one file, and lost when the file was replaced. In the new way, calculations are small programs that
+run in the pipeline against the current model, every time. The trace report in [[pipeline]] is Bob's Wednesday,
+written once and run thousands of times.
+
+**The spreadsheet as a report.** The colored cells, the filtered views and the pivot tables pasted into slides were
+how the records reached decision makers. In the new way, reports are generated from the model and published
+([[tools]]); nobody formats a cell.
+
+::: sidebar The VCRM's row 214
+Row 214 of the VCRM held a formula that combined three columns and a lookup into a hidden sheet. It computed whether
+a requirement's verification event had been scheduled. Bob wrote it in 2017. In 2021 someone sorted the sheet
+without including the hidden columns, and for four months row 214's formula pointed at the wrong requirement. Nobody
+noticed until a test readiness review. The formula was right; the format was the problem. A calculation that lives
+in a cell is only as safe as every edit anyone ever makes to that file.
+:::
+
+=== A year in the document era {#documents-year}
+
+To see the pattern of the old way, it helps to look at a whole year rather than a single Tuesday. Here is
+Tidewater's systems engineering calendar for a typical year before the Cameo port, reconstructed from the team's
+old meeting invitations. The effort figures are notional.
+
+|| When | Event | What the team did | Effort (notional) ||
+| monthly | CCB | assemble change requests, write the agenda, record decisions, update the change log | 2 days per month |
+| monthly | DOORS export from the prime | reconcile the export against the VCRM and SRS | 1 to 2 days |
+| quarterly | SRS / ICD revision | review the prime's revision against approved changes, comment, sign | 1 to 2 weeks |
+| quarterly | program management review | build the SE section of the briefing (status, risks, TBD/TBR counts) | 3 to 5 days |
+| twice a year | technical review (SRR, PDR, CDR, TRR ...) | review packages, comment matrices, action items | 3 to 6 weeks |
+| ad hoc | "quick questions" | one-off answers from the spreadsheets | about a day each, several a month |
+Table: A document-era year, reconstructed (effort notional)
+
+Add it up and roughly a third of the team's year went into reconciling, reformatting and re-answering: work that
+produced no new engineering knowledge, only fresh copies of old knowledge in a new format. Nobody on the team
+thought of it that way at the time, because each piece of it was necessary given how the information was stored.
+The waste was in the storage, not in the people.
+
+That third of a year is the budget the new way of working draws on. When [[directive]] asks what the team can stop
+doing, and when [[scorecard]] compares effort before and after, this table is where the comparison starts.
+
+=== Why the document era lasted {#documents-lasted}
+
+If the costs were this large, why did the document era last thirty years? It is worth answering honestly, because
+the same forces will push back against the new way.
+
+- **The costs were invisible.** Time spent reconciling spreadsheets was never charged to "reconciling
+  spreadsheets." It was charged to systems engineering. Nobody could see it, so nobody could argue to reduce it.
+- **The contract required documents.** CDRLs named document deliverables with data item descriptions that assumed
+  a document. Changing what the prime delivered meant changing the contract.
+- **Everyone knew how.** A new engineer could be productive with Word and Excel on the first day. Any new way had
+  to compete with zero training cost.
+- **Failures were rare and quiet.** Most of the time, the reconciliations caught the inconsistencies before they
+  mattered. When they did not, the failure appeared months later as a test problem or a rework, far from its cause.
+- **Nothing better was available to this team.** Until SysML v2's textual notation, the alternatives were diagram
+  tools that, as [[cameo]] shows, kept most of the costs and added new ones.
+
+The last point matters most. The team's resistance to the directive is not stubbornness; it is the reasonable
+conclusion of people who were offered an alternative once before and found it worse. The new way has to be better
+on the measures they care about, and it has to show that early.
+
+=== Exercises {#documents-exercises}
+
+::: exercise Count the copies
+Pick one requirement on a program you know. List every place its text appears (documents, spreadsheets, databases,
+slides, emails). For each, write who maintains it and when it was last updated. How many of those places agree,
+word for word, today? How would you find out without reading them all?
+:::
+
+::: exercise Reconstruct a change
+Take one recent change to a controlled document on your program. Reconstruct its timeline as in the table "Where
+the time went in one requirement change". Separate the time spent deciding from the time spent waiting. What
+fraction was waiting?
+:::
+
+::: exercise The five virtues
+For each of the five virtues of the document era (readable by anyone, contractually meaningful, reviewed,
+baselined, traced), write one sentence on how your current process achieves it and one on what it costs. Keep the
+page; you will revisit it after [[scorecard]].
+:::

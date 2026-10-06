@@ -1,0 +1,310 @@
+== Model error catalog {#model-errors}
+
+::: survival When a check says no
+What you have: a message from the grammar check, lint, the outline check, a pipeline job or the recipe checker. It is
+terse, and it was written by a program, not a person.
+
+What you need: what it means in plain words, the usual cause, and the fix. Every message in this appendix was produced
+by a runnable example when this book was built: the example breaks a real Tidewater file, shows the real message,
+and puts the file back.
+:::
+
+=== How to read a message {#errors-reading}
+
+Most messages share one shape:
+
+```text
+model/physical/stations/Stations.sysml:38:21: error: unresolved type 'Hul'
+```
+
+From left to right: the **file**, the **line**, the **column** (characters from the left edge), the **severity**
+(`error` must be fixed before a merge; `warning` should be; `note` is information), and the **message**. In Vim,
+`:make` or the kit's `\ml` (lint) and `\mx` (grammar) put these lines in the quickfix list, and `:cnext` jumps from one
+to the next ([[vim]]).
+
+Two habits save most of the time spent on errors:
+
+- **Fix the first message first.** One missing `;` can produce a cascade; the first message is the cause, the rest are
+  often echoes.
+- **When the line looks fine, look one line up.** Parsers notice a problem where the text stops making sense, which is
+  usually just after the mistake.
+
+The messages come from five places, in the order the pipeline runs them:
+
+|| Tool | What it checks | Pipeline job ||
+| `tools/sysml/sysml.pl check` | the text against the official SysML v2 grammar | `grammar` |
+| `tools/sysml/model.pl lint` | names resolve, no duplicates, brackets balance, imports exist | `lint` |
+| `tools/sysml/model.pl check` | level tags and the 2-to-9 outline rule | `outline` |
+| `ci/job.pl` | the pipeline's own rules: lint at 0/0, ratchets, secrets, docs current | every job |
+| `tools/sysml/req-recipe.pl` | requirement wording against the recipe ([[recipe]]) | `recipe` |
+Table: Where model errors come from
+
+=== The practice model {#errors-setup}
+
+The examples share one sandbox: a model repository made with `kickoff.pl scaffold`, with Tidewater's drop 1 converted
+into it in layers, exactly as the team's first import, with the two roots of the part and function trees named in
+`sysml.conf` (the scaffold leaves them for you to set). To follow along, run this in an empty folder.
+
+```sh run sandbox=scratch expect="elements=[0-9]+ errors=0 warnings=0" timeout=180
+perl "$KIT/tools/gitlab/kickoff.pl" scaffold model --project tidewater/model --title Tidewater --levels L1Network,L2Segment,L3Station,L4Subsystem,L5Assembly,L6Component >/dev/null
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drop >/dev/null
+cd model
+perl "$KIT/bin/xmi2sysml.pl" --out model --layout-map "$KIT/examples/tidewater-v1/layout.map" ../drop/tidewater.xmi
+printf 'noun_root = ObservationNetwork\nverb_root = ObserveCoast\n' >> sysml.conf
+git add -A
+git commit -q -m "Import drop 1"
+perl "$KIT/tools/sysml/model.pl" lint | tail -1
+```
+
+In the examples below, a check that finds a problem is followed by `|| echo "exit status $?"`. A check that passes
+exits with status 0; one that finds errors exits with 1 (2 means it could not run at all). The pipeline reads exactly
+that number to colour a job red or green, and the `echo` shows it to you. Each example starts with
+`git checkout -q -- model`, which puts the model files back the way the last commit had them, so one broken example
+never spills into the next.
+
+=== Grammar check messages {#errors-grammar}
+
+The grammar check reads each file against the official SysML v2 grammar. Its messages all say `unexpected` something,
+then list a few of the things it *would* have accepted there. The list is a hint about what kind of text belongs at
+that spot, not a menu: read the word it calls unexpected, and the line above it.
+
+==== unexpected ...; expected ',', '.', ':' ... -- a missing semicolon {#err-missing-semicolon}
+
+```sh run sandbox=scratch expect="a.sysml:4:9: error: unexpected 'port'(?s:.*)exit status 1"
+printf 'package A {\n    part def Buoy {\n        part hull : Hull\n        port obsOut : ObservationPort;\n    }\n}\n' > a.sysml
+perl "$KIT/tools/sysml/sysml.pl" check a.sysml || echo "exit status $?"
+```
+
+**Means.** Line 3 ends without `;`, so the parser read on into line 4 and stumbled on `port`.
+**Fix.** Add the `;` at the end of the line *above* the one named. Every member line ends with `;` or a `{ ... }`
+body.
+
+==== unexpected end of file -- a brace never closed {#err-eof}
+
+```sh run expect="b.sysml:5:1: error: unexpected end of file"
+printf 'package B {\n    part def Buoy {\n        doc /* A buoy. */\n    }\n' > b.sysml
+perl "$KIT/tools/sysml/sysml.pl" check b.sysml || echo "exit status $?"
+```
+
+**Means.** The file ended while a `{` was still open.
+**Fix.** Count braces from the top; in Vim, put the cursor on a `{` and press `%` to jump to its partner. The kit's
+lint names the line of the brace that is never closed ([[err-never-closed]]), which is often quicker.
+
+==== unexpected 'Name' after a SysML v1 word {#err-v1-word}
+
+```sh run expect="c.sysml:2:19: error: unexpected 'BuoyModes'"
+printf 'package C {\n    state machine BuoyModes {\n        region r { state Observing; }\n    }\n}\n' > c.sysml
+perl "$KIT/tools/sysml/sysml.pl" check c.sysml || echo "exit status $?"
+```
+
+**Means.** `state machine` and `region` are SysML v1 vocabulary. The v2 grammar read `state` as the start of a state
+usage named `machine`, and did not expect a second name.
+**Fix.** Write the v2 form: `state def BuoyModes { entry; then Observing; state Observing; ... }`, and exhibit it on
+the part with `exhibit state modes : BuoyModes;`. [[workbook]] shows the full pattern; this is the mistake a v1
+modeler makes most, and a local AI assistant makes it too ([[local-ai]]).
+
+==== unexpected 'doc' -- a doc comment in quotes {#err-doc-quotes}
+
+```sh run expect="d.sysml:4:9: error: unexpected 'doc'"
+printf 'package D {\n    part def Buoy {\n        attribute mass = 1.5\n        doc "a buoy"\n    }\n}\n' > d.sysml
+perl "$KIT/tools/sysml/sysml.pl" check d.sysml || echo "exit status $?"
+rm a.sysml b.sysml c.sysml d.sysml
+```
+
+**Means.** Two mistakes, and the parser reports the first one it can see: line 3 has no `;`, so `doc` on line 4 is
+unexpected. Fixing that reveals the second: a `doc` comment is written `doc /* text */`, not in quotes.
+**Fix.** `attribute mass = 1.5;` and `doc /* A buoy. */`.
+
+=== Lint messages {#errors-lint}
+
+Lint runs on the whole model at once, so it can see what the grammar check cannot: whether a name you use is declared
+somewhere. It ends with one line the pipeline reads, `elements=N errors=E warnings=W`; the `lint` job fails unless
+both counts are zero.
+
+==== unresolved type {#err-unresolved-type}
+
+```sh run expect="unresolved type 'Hul'(?s:.*)exit status 1"
+cd model
+sed -i 's/part hull : Hull;/part hull : Hul;/' model/physical/stations/Stations.sysml
+perl "$KIT/tools/sysml/model.pl" lint || echo "exit status $?"
+```
+
+**Means.** `Hul` is not declared in any file of the model, nor in the standard library.
+**Fix.** Correct the spelling, or add the `private import` of the package that declares the type. If the name comes
+from the prime's model, it may have been renamed in a newer drop: `xmi2sysml.pl --delta ... --impact` lists renames
+([[qrg-port]]).
+
+==== duplicate member {#err-duplicate}
+
+```sh run expect="package Stations: duplicate member 'Hull'(?s:.*)exit status 1"
+cd model
+git checkout -q -- model
+sed -i '0,/part def Hull {/s//part def Hull { doc \/* a second Hull *\/ }\n    part def Hull {/' model/physical/stations/Stations.sysml
+perl "$KIT/tools/sysml/model.pl" lint || echo "exit status $?"
+```
+
+**Means.** Two members of one package have the same name. Usually a copy-and-paste, or a hand-written element that
+the next prime drop also brought in.
+**Fix.** Keep one. If both are real, rename yours and raise a question with the prime.
+
+==== a SysML keyword cannot be a name {#err-keyword}
+
+```sh run expect="'state' is a SysML keyword and cannot be a name(?s:.*)exit status 1"
+cd model
+git checkout -q -- model
+sed -i 's/part hull : Hull;/part state : Hull;/' model/physical/stations/Stations.sysml
+perl "$KIT/tools/sysml/model.pl" lint || echo "exit status $?"
+```
+
+**Means.** Words such as `state`, `action`, `port`, `in` and `out` are part of the language.
+**Fix.** Choose another name (`hullState`), or quote it (`'state'`) when it must match a name in the prime's model.
+
+==== import of unknown package {#err-import}
+
+```sh run expect="import of unknown package 'Station'(?s:.*)exit status 1"
+cd model
+git checkout -q -- model
+sed -i '0,/private import /s/private import /private import Station::*;\n    private import /' model/physical/stations/Stations.sysml
+perl "$KIT/tools/sysml/model.pl" lint || echo "exit status $?"
+```
+
+**Means.** The package named in the import does not exist (here `Station` for `Stations`).
+**Fix.** Correct the name. Package names are the file's top-level package, not the file name.
+
+==== is never closed {#err-never-closed}
+
+```sh run expect="is never closed(?s:.*)exit status 1"
+cd model
+git checkout -q -- model
+mkdir -p model/library/conventions
+printf 'package Scratch {\n    part def Probe {\n        doc /* unfinished */\n}\n' > model/library/conventions/Scratch.sysml
+perl "$KIT/tools/sysml/model.pl" lint || echo "exit status $?"
+rm model/library/conventions/Scratch.sysml
+```
+
+**Means.** A `{` has no matching `}`. Lint names the line where the unclosed brace *opens*, which the grammar check
+cannot.
+**Fix.** Add the `}` where the element ends.
+
+=== Outline and level-tag messages {#errors-outline}
+
+`model.pl check` prints two sections. **Level tags**: each part definition carries a level tag (`@L2Segment;`), and
+the tag must match the level where the part tree first reaches it. **Outline**: every folder and package should hold
+between 2 and 9 entries, the span a person can take in at a glance.
+
+==== tagged Ln, first reached at Lm {#err-level-tag}
+
+```sh run expect="StationSegment: tagged L4, first reached at L2(?s:.*)exit status 1"
+cd model
+git checkout -q -- model
+sed -i '0,/\/\/ TODO stereotype Tidewater_Profile:L2Segment.*/s//@L4Subsystem;/' model/physical/stations/Stations.sysml
+perl "$KIT/tools/sysml/model.pl" check || echo "exit status $?"
+```
+
+**Means.** `StationSegment` is two steps below the network (level 2), but someone tagged it as a level-4 subsystem.
+**Fix.** Use the tag the TODO line named (`@L2Segment;`). The converter's TODO line always says which stereotype the
+prime applied; copying it is the safe choice.
+
+A misspelled tag (`@L2Segmnt;`) is *not* reported by lint or by the check: it is a different, undeclared name that
+nothing reads. The `outline` job's level count and practice lesson 10's checker catch it ([[vim]]); a review should
+too.
+
+==== outline violations {#err-outline}
+
+```sh run expect="this change adds outline violations(?s:.*)exit status 1"
+cd model
+git checkout -q -- model
+perl ci/job.pl outline || echo "exit status $?"
+```
+
+**Means.** The model has folders or packages with fewer than 2 or more than 9 entries. On a fresh conversion this is
+normal: the prime's packages were never shaped to the rule. The pipeline therefore treats the outline as a
+**ratchet**: `.ci/outline-max` records the number the team accepted, and the job fails only when a change makes it
+worse. This scaffold has no allowance yet, so every violation counts.
+**Fix.** On the first import, record the starting number in `.ci/outline-max` in the same merge request, with the
+reason in the description. After that, never raise it: split the folder or package that grew, and lower the number
+when it falls.
+
+=== Pipeline job messages {#errors-pipeline}
+
+These come from `ci/job.pl`, the small script every job runs ([[pipeline]]). They are written for the person reading
+the job log, so most of them already say what to do.
+
+|| Message | Means | Fix ||
+| `lint is not 0/0 (elements=N errors=E warnings=W)` | lint found something | read `lint.txt` in the job's artifacts, or run `model.pl lint` locally |
+| `this change adds outline violations (N > M): fix them, do not raise .ci/outline-max` | the outline ratchet | split what grew; see [[err-outline]] |
+| `fewer violations than allowed: lower .ci/outline-max to N in this MR` | good news, not an error | lower the number in the same merge request |
+| `this change adds trace gaps: orphans 1 -> 2 (see trace.txt)` | the merge request removed a satisfy or verify, or added a requirement nothing satisfies | restore the link, or link the new requirement, before merging |
+| `this change makes the model more tangled: ...` | the complexity ratchet: a cycle, an upward import, or more fan-out | see [[no-spider-web]] |
+| `docs/ is stale: run model.pl docs and commit` | the generated docs no longer match the model | run `perl $KIT/tools/sysml/model.pl docs` and commit `docs/` |
+| `possible secret committed: remove it, rotate it, then rewrite the branch before it merges` | a token or key pattern in a tracked file | [[rescue-secret]], at once |
+| `KIT is not set: add it under Settings > CI/CD > Variables` | the runner does not know where the kit is | a maintainer sets the `KIT` variable |
+| `the kit on this runner is X, but .kit-version pins Y` | the runner has another kit version than the model asks for | update the runner's kit, or bump `.kit-version` in a reviewed merge request |
+Table: Messages from ci/job.pl
+
+Four of them, produced:
+
+```sh run expect="lint is not 0/0 .elements=[0-9]+ errors=1 warnings=0.(?s:.*)exit status 1"
+cd model
+git checkout -q -- model
+sed -i 's/part hull : Hull;/part hull : Hul;/' model/physical/stations/Stations.sysml
+perl ci/job.pl lint || echo "exit status $?"
+```
+
+```sh run expect="docs/ is stale: run model.pl docs and commit(?s:.*)exit status 1"
+cd model
+git checkout -q -- model
+perl ci/job.pl docs || echo "exit status $?"
+```
+
+```sh run expect="possible secret committed(?s:.*)exit status 1"
+cd model
+git checkout -q -- model
+printf 'GITLAB_TOKEN=glpat-%s\n' AbCdEfGhIjKlMnOpQrSt > notes.txt
+git add notes.txt
+perl ci/job.pl secrets || echo "exit status $?"
+git rm -q --cached notes.txt
+rm notes.txt
+```
+
+```sh run expect="KIT is not set(?s:.*)exit status 2"
+cd model
+env -u KIT perl ci/job.pl lint || echo "exit status $?"
+```
+
+The token in the third example is assembled when the example runs, so the kit's own secret scan never sees a real-
+looking token in this book's source.
+
+=== Requirement recipe findings {#errors-recipe}
+
+`req-recipe.pl` reads requirement text the way a careful reviewer does ([[recipe]]). Its findings are graded:
+`major` (the statement cannot be verified as written), `minor` (it can, but something is missing), `info`.
+
+```sh run expect="major  weak target verb 'provide'(?s:.*)exit status 1"
+cat > reqs.txt <<'EOF'
+The network shall provide marine weather observations for the coastal region it covers. (TW-STK-001)
+
+Each station shall measure wind, air pressure and air temperature, and each buoy shall also measure waves. (TW-SYS-001)
+EOF
+perl "$KIT/tools/sysml/req-recipe.pl" --strict reqs.txt || echo "exit status $?"
+```
+
+|| Finding | Means | Fix ||
+| `weak target verb 'provide'` (also have, be, be able to, support, ensure ...) | no test can show "provide" | name the action: send, store, measure, report |
+| `2 operative verbs (shall, shall)` | two requirements in one sentence | split it; each gets its own ID |
+| `'measure' with no measurable threshold` | a verb that implies a quantity, without one | add the number and unit, or "at least", "within", "every" |
+| `passive 'shall be kept'` | the subject that must act is missing | make the specification target the subject |
+| `vague 'in time'` (also as appropriate, user-friendly, fast ...) | a word two readers read differently | replace it with the measure behind it |
+| missing part `Requirement ID` | no project-unique ID | every requirement needs one |
+Table: Common recipe findings
+
+On Tidewater the requirements belong to the prime's DOORS modules, so the fix for a finding there is a discrepancy
+report to the prime, not an edit in the government model ([[prime-changes]]).
+
+=== When the message is not here {#errors-other}
+
+- Search the kit's help: `perl $KIT/agile.pl help error "the message"` finds the entry for most kit messages.
+- Run the check on the one file alone (`sysml.pl check FILE`); a smaller input gives a clearer message.
+- Undo your last edit (`git diff` shows it) and redo it in two halves; the half that brings the message back holds the
+  mistake.
+- Ask, with the exact message copied, the command you ran, and `git status` ([[rescue-ask]]).

@@ -1,0 +1,443 @@
+pipeline #61 (merge_request_event, refs/merge-requests/18/merge) success, 8 jobs, 130.3 s
+
+==== grammar          check    success   42.7 s
+$ perl ci/job.pl grammar
+$ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
+sysml: 16 file(s), 0 error(s)
+$ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
+ci-reports grammar: 16 check(s), 0 failed, 0 finding(s); grammar_files=16 grammar_errors=0
+
+==== lint             check    success   43.7 s
+$ perl ci/job.pl lint
+$ perl $KIT/tools/sysml/model.pl lint
+lint: 16 file(s), 0 error(s), 0 warning(s)
+elements=138 errors=0 warnings=0
+$ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
+ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=138 lint_errors=0 lint_warnings=0
+
+==== outline          check    success   14.4 s
+$ perl ci/job.pl outline
+$ perl $KIT/tools/sysml/model.pl check
+
+== Level tags ==
+@L tag mismatches         0
+
+== Outline (2..9 children per parent) ==
+violations                17
+    1  directory entries  (model/analysis/)
+    1  package Analysis: members  (model/analysis/Analysis.sysml)
+    1  directory entries  (model/logical/)
+    1  directory entries  (model/physical/allocation/)
+    1  directory entries  (model/physical/datacenter/)
+    1  directory entries  (model/physical/network/)
+    1  directory entries  (model/physical/operations/)
+    1  part def ServiceVessel: parts  (model/physical/operations/Operations.sysml)
+    1  directory entries  (model/physical/stations/)
+   25  package Stations: members  (model/physical/stations/Stations.sysml)
+    1  part def Battery: parts  (model/physical/stations/Stations.sysml)
+    1  directory entries  (model/requirements/model/)
+   32  package Requirements: members  (model/requirements/model/Requirements.sysml)
+    1  directory entries  (model/requirements/segment/)
+    1  directory entries  (model/requirements/stakeholder/)
+    1  directory entries  (model/requirements/system/)
+    1  directory entries  (model/verification/)
+$ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality outline-cq.json --metrics outline.metrics outline.txt
+ci-reports outline: 2 check(s), 1 failed, 17 finding(s); level_tag_mismatches=0 outline_violations=17
+outline violations: 17 (allowed: 17)
+
+==== todo             check    success    7.1 s
+$ perl ci/job.pl todo
+TODO lines remaining: 19
+$ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model
+ci-reports todo: 1 check(s), 0 failed, 19 finding(s); todo_lines=19 todo_lines_analysis=2 todo_lines_library=1 todo_lines_logical=4 todo_lines_physical=12
+
+==== secrets          check    success      9 s
+$ perl ci/job.pl secrets
+no secrets found in 64 tracked files
+
+==== trace            trace    success   26.6 s
+$ perl ci/job.pl trace
+$ perl $KIT/bin/reqif2sysml.pl --report --model model (without the DOORS modules) imports/v1.0/tidewater.reqif
+reqif2sysml report: tidewater.reqif
+
+DOORS objects (C total: <SPEC-OBJECT> count)     35
+requirements (objects with text)                 30
+  bare objects (an identifier, no attributes)      0
+  with a verification method                     24
+  without a verification method                   6
+headings (section packages)                       5
+  orphan headings (no requirement below)          0
+empty objects (no text, no heading)               0
+objects in no specification                       0
+hierarchy entries naming a missing object         0
+links                                            24
+  derive 24, satisfy 0, verify 0, trace 0, not between requirements 0
+verification methods: Analysis 2, Demonstration 4, Inspection 5, Test 13
+
+files: segment-requirements/Segment_Requirements.sysml stakeholder-needs/Stakeholder_Needs.sysml system-requirements/System_Requirements.sysml
+self-check: ok
+
+trace against model (without the DOORS modules) (13 .sysml files)
+C requirements linked (doorsId in the model)     29 of 30
+F orphan requirements (nothing satisfies)               2
+G unverified requirements (no verify)                   9
+I trace completeness (satisfied and verified)        66.7%
+doorsIds in the model but not in this export            1
+text differs from DOORS                                 1
+not in the model: TW-SYS-016
+orphans: TW-SYS-012 TW-SYS-016
+unverified: TW-STK-001 TW-STK-002 TW-STK-003 TW-STK-004 TW-STK-005 TW-STK-006 TW-SYS-011 TW-SYS-016 TW-SEG-002
+drift: TW-SYS-006
+  TW-SYS-006 DOORS: The data center shall publish a marine bulletin twice a day, on a fixed schedule.
+  TW-SYS-006 model: The data center shall publish a marine bulletin on a fixed schedule.
+$ perl $KIT/tools/gitlab/ci-reports.pl trace --junit trace.xml --metrics trace.metrics trace.txt
+ci-reports trace: 14 check(s), 14 failed, 0 finding(s); trace_linked=29 trace_total=30 trace_orphans=2 trace_unverified=9 trace_completeness_pct=66.7 trace_drift=1 trace_not_in_model=1
+trace gaps: 2 orphan(s), 9 unverified, 1 drifted
+$ git worktree add -q --detach /tmp/ci-XXXXXX 66507e96bffb6716e924da153f50a81c8c527d1b
+$ git worktree remove --force /tmp/ci-XXXXXX
+target branch: 29 of 30 linked; 2 orphan(s), 9 unverified, 1 drifted (full report: trace-base.txt)
+no new trace gaps (target branch: orphans 2, unverified 9, drift 1)
+
+==== recipe           trace    success   13.5 s
+$ perl ci/job.pl recipe
+$ perl $KIT/tools/sysml/req-recipe.pl --format text model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
+TW-STK-001  score 85  model/requirements/model/Requirements.sysml:15  (Coastal coverage)
+  The network shall provide marine weather observations for the coastal region it covers.
+    Specification Target        network
+    Operative Verb              shall
+    Target Verb                 provide
+    Precise Object(s)           marine weather observations
+    Modifier(s)                 for
+    Modification(s)             the coastal region it covers
+    Requirement ID              TW-STK-001
+    major  weak target verb 'provide' (the recipe): rarely verifiable -- name the concrete action (send, store, measure, report ...)
+
+TW-STK-002  score 84  model/requirements/model/Requirements.sysml:16  (Timely observations)
+  Forecasters shall receive observations in time to use them in the next bulletin.
+    Specification Target        Forecasters
+    Operative Verb              shall
+    Target Verb                 receive
+    Precise Object(s)           observations
+    Modifier(s)                 in; to; in
+    Modification(s)             time; use them; the next bulletin
+    Requirement ID              TW-STK-002
+    minor  'receive' with no measurable threshold (a number with a unit, within, every, at least, no more than ...)
+    minor  vague wording 'in time': replace it with a measurable criterion
+
+TW-STK-003  score 85  model/requirements/model/Requirements.sysml:17  (Public access)
+  Mariners shall be able to read the latest bulletin and observations from a public service.
+    Specification Target        Mariners
+    Operative Verb              shall
+    Target Verb                 be able to
+    Precise Object(s)           read the latest bulletin and observations
+    Modifier(s)                 from
+    Modification(s)             a public service
+    Requirement ID              TW-STK-003
+    major  weak target verb 'be able to' read: state the action itself ('shall read'), with its threshold
+
+TW-STK-004  score 85  model/requirements/model/Requirements.sysml:18  (Serviceable in the field)
+  Field crews shall be able to service any station from a single service vessel.
+    Specification Target        Field crews
+    Operative Verb              shall
+    Target Verb                 be able to
+    Precise Object(s)           service any station
+    Modifier(s)                 from
+    Modification(s)             a single service vessel
+    Requirement ID              TW-STK-004
+    major  weak target verb 'be able to' service: state the action itself ('shall service'), with its threshold
+
+TW-STK-005  score 92  model/requirements/model/Requirements.sysml:19  (Observation history)
+  Past observations shall be kept so earlier conditions can be reviewed.
+    Specification Target        Past observations
+    Operative Verb              shall
+    Target Verb                 be
+    Precise Object(s)           kept so earlier conditions can be reviewed
+    Requirement ID              TW-STK-005
+    minor  passive voice 'shall be kept': make the specification target the one that acts
+
+TW-STK-006  score 100  model/requirements/model/Requirements.sysml:20  (Off-grid operation)
+  Offshore stations shall keep observing without shore power.
+    Specification Target        Offshore stations
+    Operative Verb              shall
+    Target Verb                 keep
+    Precise Object(s)           observing without shore power
+    Requirement ID              TW-STK-006
+
+TW-SYS-001  score 77  model/requirements/model/Requirements.sysml:24  (Measure conditions)
+  Each station shall measure wind, air pressure and air temperature, and each buoy shall also measure waves.
+    Specification Target        station
+    Operative Verb              shall
+    Target Verb                 measure
+    Precise Object(s)           wind, air pressure and air temperature, and each buoy shall also measure waves
+    Requirement ID              TW-SYS-001
+    major  2 operative verbs (shall, shall): one requirement per statement -- split it
+    minor  'measure' with no measurable threshold (a number with a unit, within, every, at least, no more than ...)
+
+TW-SYS-002  score 92  model/requirements/model/Requirements.sysml:25  (Scheduled transmission)
+  Each station shall transmit its observations to the data center on a fixed schedule.
+    Specification Target        station
+    Operative Verb              shall
+    Target Verb                 transmit
+    Precise Object(s)           its observations
+    Modifier(s)                 to; on
+    Modification(s)             the data center; a fixed schedule
+    Requirement ID              TW-SYS-002
+    minor  'transmit' with no measurable threshold (a number with a unit, within, every, at least, no more than ...)
+
+TW-SYS-003  score 100  model/requirements/model/Requirements.sysml:26  (Ingest)
+  The data center shall ingest every observation it receives.
+    Specification Target        data center
+    Operative Verb              shall
+    Target Verb                 ingest
+    Precise Object(s)           every observation it receives
+    Requirement ID              TW-SYS-003
+
+TW-SYS-004  score 100  model/requirements/model/Requirements.sysml:27  (Quality control)
+  The data center shall flag observations that fail a quality check.
+    Specification Target        data center
+    Operative Verb              shall
+    Target Verb                 flag
+    Precise Object(s)           observations that fail a quality check
+    Requirement ID              TW-SYS-004
+
+TW-SYS-005  score 100  model/requirements/model/Requirements.sysml:28  (Archive)
+  The data center shall archive every observation together with its quality flag.
+    Specification Target        data center
+    Operative Verb              shall
+    Target Verb                 archive
+    Precise Object(s)           every observation together
+    Modifier(s)                 with
+    Modification(s)             its quality flag
+    Requirement ID              TW-SYS-005
+
+TW-SYS-006  score 92  model/requirements/model/Requirements.sysml:29  (Bulletin)
+  The data center shall publish a marine bulletin on a fixed schedule.
+    Specification Target        data center
+    Operative Verb              shall
+    Target Verb                 publish
+    Precise Object(s)           a marine bulletin
+    Modifier(s)                 on
+    Modification(s)             a fixed schedule
+    Requirement ID              TW-SYS-006
+    minor  'publish' with no measurable threshold (a number with a unit, within, every, at least, no more than ...)
+
+TW-SYS-007  score 100  model/requirements/model/Requirements.sysml:30  (Latest observations)
+  The public service shall show the latest observation from every station.
+    Specification Target        public service
+    Operative Verb              shall
+    Target Verb                 show
+    Precise Object(s)           the latest observation
+    Modifier(s)                 from
+    Modification(s)             every station
+    Requirement ID              TW-SYS-007
+
+TW-SYS-008  score 92  model/requirements/model/Requirements.sysml:33  (Observation interface)
+  Stations shall send observations to the data center over the observation interface.
+    Specification Target        Stations
+    Operative Verb              shall
+    Target Verb                 send
+    Precise Object(s)           observations
+    Modifier(s)                 to; over
+    Modification(s)             the data center; the observation interface
+    Requirement ID              TW-SYS-008
+    minor  'send' with no measurable threshold (a number with a unit, within, every, at least, no more than ...)
+
+TW-SYS-009  score 92  model/requirements/model/Requirements.sysml:34  (Health reporting)
+  Stations shall report their health to the data center over the health interface.
+    Specification Target        Stations
+    Operative Verb              shall
+    Target Verb                 report
+    Precise Object(s)           their health
+    Modifier(s)                 to; over
+    Modification(s)             the data center; the health interface
+    Requirement ID              TW-SYS-009
+    minor  'report' with no measurable threshold (a number with a unit, within, every, at least, no more than ...)
+
+TW-SYS-010  score 100  model/requirements/model/Requirements.sysml:35  (Public interface)
+  The data center shall offer observations through a documented public interface.
+    Specification Target        data center
+    Operative Verb              shall
+    Target Verb                 offer
+    Precise Object(s)           observations
+    Modifier(s)                 through
+    Modification(s)             a documented public interface
+    Requirement ID              TW-SYS-010
+
+TW-SYS-011  score 100  model/requirements/model/Requirements.sysml:38  (Own power)
+  Each buoy shall run from its own solar panel and battery.
+    Specification Target        buoy
+    Operative Verb              shall
+    Target Verb                 run
+    Precise Object(s)           from its own solar panel and battery
+    Requirement ID              TW-SYS-011
+
+TW-SYS-012  score 85  model/requirements/model/Requirements.sysml:39  (Vessel access)
+  Every station shall be serviceable from the service vessel.
+    Specification Target        station
+    Operative Verb              shall
+    Target Verb                 be
+    Precise Object(s)           serviceable
+    Modifier(s)                 from
+    Modification(s)             the service vessel
+    Requirement ID              TW-SYS-012
+    major  weak target verb 'be' (the recipe): rarely verifiable -- name the concrete action (send, store, measure, report ...)
+
+TW-SYS-013  score 100  model/requirements/model/Requirements.sysml:40  (Store and forward)
+  Each station shall keep observations it could not send and send them once the link returns.
+    Specification Target        station
+    Operative Verb              shall
+    Target Verb                 keep
+    Precise Object(s)           observations it could not send and send them
+    Modifier(s)                 once
+    Modification(s)             the link returns
+    Requirement ID              TW-SYS-013
+
+TW-SYS-014  score 92  model/requirements/model/Requirements.sysml:41  (Operating mode)
+  Each station shall report its operating mode.
+    Specification Target        station
+    Operative Verb              shall
+    Target Verb                 report
+    Precise Object(s)           its operating mode
+    Requirement ID              TW-SYS-014
+    minor  'report' with no measurable threshold (a number with a unit, within, every, at least, no more than ...)
+
+TW-SYS-015  score 100  model/requirements/model/Requirements.sysml:42  (Bulletin log)
+  The data center shall keep a log of every bulletin it published.
+    Specification Target        data center
+    Operative Verb              shall
+    Target Verb                 keep
+    Precise Object(s)           a log of
+    Modifier(s)                 every
+    Modification(s)             bulletin it published
+    Requirement ID              TW-SYS-015
+
+TW-SEG-001  score 100  model/requirements/model/Requirements.sysml:47  (Sensor height)
+  The buoy hull shall carry the sensor suite above the waterline.
+    Specification Target        buoy hull
+    Operative Verb              shall
+    Target Verb                 carry
+    Precise Object(s)           the sensor suite above the waterline
+    Requirement ID              TW-SEG-001
+
+TW-SEG-002  score 100  model/requirements/model/Requirements.sysml:48  (Watch circle)
+  The mooring shall keep the buoy within its assigned watch circle.
+    Specification Target        mooring
+    Operative Verb              shall
+    Target Verb                 keep
+    Precise Object(s)           the buoy
+    Modifier(s)                 within
+    Modification(s)             its assigned watch circle
+    Requirement ID              TW-SEG-002
+
+TW-SEG-003  score 92  model/requirements/model/Requirements.sysml:49  (State of charge)
+  The power system shall report the battery state of charge.
+    Specification Target        power system
+    Operative Verb              shall
+    Target Verb                 report
+    Precise Object(s)           the battery state of charge
+    Requirement ID              TW-SEG-003
+    minor  'report' with no measurable threshold (a number with a unit, within, every, at least, no more than ...)
+
+TW-SEG-004  score 92  model/requirements/model/Requirements.sysml:50  (Retry)
+  The telemetry unit shall retry a failed transmission.
+    Specification Target        telemetry unit
+    Operative Verb              shall
+    Target Verb                 retry
+    Precise Object(s)           a failed transmission
+    Requirement ID              TW-SEG-004
+    minor  'retry' with no measurable threshold (a number with a unit, within, every, at least, no more than ...)
+
+TW-SEG-009  score 85  model/requirements/model/Requirements.sysml:51  (Lowerable mast)
+  The shore station mast shall be lowerable for maintenance.
+    Specification Target        shore station mast
+    Operative Verb              shall
+    Target Verb                 be
+    Precise Object(s)           lowerable
+    Modifier(s)                 for
+    Modification(s)             maintenance
+    Requirement ID              TW-SEG-009
+    major  weak target verb 'be' (the recipe): rarely verifiable -- name the concrete action (send, store, measure, report ...)
+
+TW-SEG-005  score 100  model/requirements/model/Requirements.sysml:54  (Duplicates)
+  The ingest service shall discard duplicate observations.
+    Specification Target        ingest service
+    Operative Verb              shall
+    Target Verb                 discard
+    Precise Object(s)           duplicate observations
+    Requirement ID              TW-SEG-005
+
+TW-SEG-006  score 100  model/requirements/model/Requirements.sysml:55  (Flag reason)
+  The quality control service shall record why an observation was flagged.
+    Specification Target        quality control service
+    Operative Verb              shall
+    Target Verb                 record
+    Precise Object(s)           why an observation was flagged
+    Requirement ID              TW-SEG-006
+
+TW-SEG-007  score 100  model/requirements/model/Requirements.sysml:56  (Retrieval)
+  The archive shall return any observation by station and time.
+    Specification Target        archive
+    Operative Verb              shall
+    Target Verb                 return
+    Precise Object(s)           any observation
+    Modifier(s)                 by
+    Modification(s)             station and time
+    Requirement ID              TW-SEG-007
+
+TW-SEG-008  score 100  model/requirements/model/Requirements.sysml:57  (Issue time)
+  The publisher shall stamp each bulletin with its issue time.
+    Specification Target        publisher
+    Operative Verb              shall
+    Target Verb                 stamp
+    Precise Object(s)           each bulletin
+    Modifier(s)                 with
+    Modification(s)             its issue time
+    Requirement ID              TW-SEG-008
+
+requirements=30 findings=17 missing=0
+$ perl $KIT/tools/sysml/req-recipe.pl --format codequality -o recipe-cq.json model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
+requirements=30 findings=17 missing=0
+
+==== docs             docs     success     35 s
+$ perl ci/job.pl docs
+$ perl $KIT/tools/sysml/model.pl docs
+wrote docs/Nouns.md (38 lines)
+wrote docs/Verbs.md (7 lines)
+wrote docs/idef0/ObserveCoast.md
+1 file(s): 0 error(s), 0 warning(s), 1 model(s), 6 activities, 0 link(s)
+wrote docs/idef0/plates.html
+wrote docs/idef0/INTERFACES
+wrote docs/idef0/svg/plate-O-0.svg
+wrote docs/idef0/svg/plate-O0.svg
+trace: 60 requirements (60 leaf), 13 not satisfied, 17 not verified -> docs/Traceability.md
+  TW-STK-001: not verified
+  TW-STK-002: not verified
+  TW-STK-003: not verified
+  TW-STK-004: not verified
+  TW-STK-005: not verified
+  TW-STK-006: not verified
+  TW-SYS-008: not satisfied
+  TW-SYS-009: not satisfied
+  TW-SYS-010: not satisfied
+  TW-SYS-011: not verified
+  TW-SYS-012: not satisfied
+  TW-SYS-014: not satisfied
+  TW-SEG-002: not verified
+  TW-SEG-003: not satisfied
+  TW-SEG-009: not verified
+  TW-SEG-002: not verified
+  TW-SEG-003: not satisfied
+  TW-STK-001: not verified
+  TW-STK-002: not verified
+  TW-STK-003: not verified
+  TW-STK-004: not verified
+  TW-STK-005: not verified
+  TW-STK-006: not verified
+  TW-SYS-008: not satisfied
+  TW-SYS-009: not satisfied
+  TW-SYS-010: not satisfied
+  TW-SYS-011: not verified
+  TW-SYS-012: not satisfied
+  TW-SYS-014: not satisfied
+  TW-SYS-016: not satisfied
+docs/ is current

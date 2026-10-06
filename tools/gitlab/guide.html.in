@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GitLab for the model team</title>
+<style>
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a;
+         max-width: 1100px; margin: 2em auto; padding: 0 1.5em; line-height: 1.5; }
+  h1 { font-size: 18pt; border-bottom: 2px solid #444; padding-bottom: 0.2em; margin-top: 0; }
+  h2 { font-size: 14pt; margin-top: 2em; border-bottom: 1px solid #999; padding-bottom: 0.15em; }
+  h3 { font-size: 12pt; margin-top: 1.5em; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  pre { background: #f4f4f4; border: 1px solid #ddd; padding: 0.8em 1em; overflow-x: auto; }
+  pre.src { max-height: 32em; overflow-y: auto; }
+  code { background: #f4f4f4; padding: 0.1em 0.3em; }
+  pre code { background: none; padding: 0; }
+  ul, ol { margin: 0.5em 0; }
+  li { margin: 0.3em 0; }
+  table { border-collapse: collapse; margin: 0.8em 0; font-size: 10pt; }
+  th, td { border: 1px solid #bbb; padding: 0.3em 0.6em; text-align: left; vertical-align: top; }
+  th { background: #e8e8e8; }
+  .note { border-left: 4px solid #c90; background: #fff8e6; padding: 0.5em 1em; margin: 1em 0; }
+  .why { border-left: 4px solid #27235d; background: #f1f0f8; padding: 0.5em 1em; margin: 1em 0; }
+  .why b { color: #27235d; }
+  .toc { columns: 2; font-size: 10pt; }
+  figure { margin: 1em 0; }
+  figcaption { font-size: 9.5pt; color: #555; }
+  svg { max-width: 100%; height: auto; }
+  details > summary { cursor: pointer; font-weight: 600; margin: 0.5em 0; }
+  a { color: #0b5cad; }
+  @media print { body { margin: 0; max-width: none; } pre.src { max-height: none; } details { display: block; } }
+</style>
+</head>
+<body>
+
+<h1>GitLab for the model team</h1>
+<p><em>How a government model team runs a SysML v1 &rarr; v2 port, and the model's maintenance afterwards, in GitLab:
+the features, why each one is worth the trouble, the scripts that set them up, and filled-in samples of every text
+field.</em></p>
+
+<h2 id="who">Who this is for</h2>
+<p>This guide is for systems engineers who have done configuration management for years, with documents, spreadsheets,
+briefings and, lately, a Cameo model, and who have now been told to "do DevSecOps". If that model turned into a spider
+web that nobody could review, and the new direction feels like one more tool on top, this guide is for you.</p>
+<p>Three things to know before you start:</p>
+<ul>
+  <li><strong>Most of DevSecOps is configuration management you already know</strong>, done in smaller pieces and
+      checked by machine. A merge request is a change request. An approval is a CCB signature. The pipeline is a
+      configuration audit. A protected tag is a baseline. The <a href="#glossary">glossary</a> translates every term.</li>
+  <li><strong>Each section below starts with "Why bother"</strong>: the objection a seasoned engineer raises (because
+      the old way worked, or seemed to), and what the feature gives back for the effort.</li>
+  <li><strong>Every new word is defined the first time it appears</strong>, and again in the glossary.</li>
+</ul>
+<div class="why"><b>Why bother at all?</b> The documents-and-briefings way scaled with people: every review, audit and
+status chart was somebody's week. The Cameo model added a tool without changing that, and grew into a web nobody could
+review. Here the model is plain text, split into owned pieces; every change is small, shown line by line, reviewed,
+and audited by machine before it reaches the master copy; and status comes out of the work itself. The effort moves
+from chasing to doing.</div>
+
+<div class="note">The running example is <strong>Tidewater</strong>, a fictional coastal weather-observation network.
+The prime contractor (the fictional Northwind Marine Systems) keeps the authoritative SysML v1 model in Cameo and the
+requirements in DOORS, and delivers them as <em>drops</em>. The government team ports each drop to SysML v2 text in a GitLab
+project and keeps it current: Jim, the MBSE lead responsible for the model, directed this year to follow DevSecOps for
+the first time; Bob, the MBSE engineer; and Tom, the configuration management engineer, who also runs the pipeline.
+None of them had done DevSecOps before. Every name and value is notional. The simulation of 18 months of that work is in
+<code>sim/tidewater-sim.pl</code>; the walk-through of its first 12 weeks is <a href="TIDEWATER.html">TIDEWATER.html</a>.</div>
+
+<ol class="toc">
+  <li><a href="#who">Who this is for</a></li>
+  <li><a href="#why">What GitLab does, in terms you know</a></li>
+  <li><a href="#tools">Which GitLab DevSecOps tools this team uses, and why</a></li>
+  <li><a href="#hierarchy">The work hierarchy in GitLab</a></li>
+  <li><a href="#setup">Setting up the project</a></li>
+  <li><a href="#gitflow">Gitflow</a></li>
+  <li><a href="#protect">Protected branches and tags</a></li>
+  <li><a href="#owners">Code owners and approvals</a></li>
+  <li><a href="#mr">Merge requests</a></li>
+  <li><a href="#cicd">CI/CD from zero</a></li>
+  <li><a href="#pipeline">The pipeline, job by job</a></li>
+  <li><a href="#local">Running the pipeline locally</a></li>
+  <li><a href="#issues">Issues, labels, milestones and boards</a></li>
+  <li><a href="#drops">Prime drops: the vendor branch</a></li>
+  <li><a href="#releases">Releases and baselines</a></li>
+  <li><a href="#wiki">The wiki</a></li>
+  <li><a href="#markdown">Markdown, field by field</a></li>
+  <li><a href="#templates">The templates</a></li>
+  <li><a href="#export">Exports for the status metrics</a></li>
+  <li><a href="#admin">Administration</a></li>
+  <li><a href="#trouble">Troubleshooting</a></li>
+  <li><a href="#glossary">Glossary</a></li>
+  <li><a href="#cli">Command reference</a></li>
+</ol>
+
+<h2 id="why">What GitLab does, in terms you know</h2>
+<p>GitLab is a web server that holds the model's files under version control (a <em>repository</em>: every file, with
+every change ever made to it) and the work around them: change requests, reviews, audits, action items, baselines.
+Each feature below carries one job you already do. The table is the map; the sections after it are the detail.
+GitLab is sold in tiers: <em>Free</em>, <em>Premium</em> and <em>Ultimate</em>; the last column says which one a
+feature needs.</p>
+<table>
+<tr><th>You have always needed</th><th>GitLab feature</th><th>How Tidewater uses it</th><th>Tier</th></tr>
+<tr><td>One place for the model, its history and who changed what</td><td>Project (Git repository)</td><td><code>tidewater/model</code>; SysML v2 text under <code>model/</code></td><td>Free</td></tr>
+<tr><td>Released baselines that never change</td><td>Protected branch <code>main</code>, protected tags <code>baseline-*</code>, Releases</td><td>A baseline is a merge to <code>main</code>, a tag and a release with notes</td><td>Free</td></tr>
+<tr><td>Integration without breaking the model</td><td>Protected branch <code>develop</code>, merge requests, pipelines must succeed</td><td>Every change arrives by MR; the gate is lint 0/0</td><td>Free</td></tr>
+<tr><td>The prime's changes merged with ours</td><td>A protected vendor branch and Git's three-way merge</td><td><code>vendor/prime</code> holds raw converter output of each drop</td><td>Free</td></tr>
+<tr><td>The right person reviews each part</td><td><code>CODEOWNERS</code>, approval rules</td><td>Bob owns structure, Jim owns requirements, Tom owns the pipeline</td><td>Premium (enforced); Free shows owners</td></tr>
+<tr><td>Checks nobody can skip</td><td>CI/CD pipelines, merge checks</td><td>grammar, lint, outline, secrets, trace, docs, delta, baseline</td><td>Free</td></tr>
+<tr><td>Sprints</td><td>Milestones (Free) or iterations (Premium)</td><td><code>Sprint 1</code> &hellip; <code>Sprint 39</code>, two weeks each</td><td>Free</td></tr>
+<tr><td>Stories and tasks</td><td>Issues and tasks, templates, quick actions</td><td>Story and task issues; "Part of #N"</td><td>Free</td></tr>
+<tr><td>Epics and tomes</td><td>Group epics, multi-level epics (Premium/Ultimate) or labels (Free)</td><td><code>epic::*</code> and <code>tome::*</code> labels</td><td>Free (labels)</td></tr>
+<tr><td>Work visible at a glance</td><td>Issue boards with label lists</td><td>The <em>Sprint</em> and <em>Prime</em> boards</td><td>Free</td></tr>
+<tr><td>Mutually exclusive states</td><td>Scoped labels (<code>workflow::ready</code>)</td><td>One workflow, type and priority per issue</td><td>Premium (Free: the names still work, not exclusive)</td></tr>
+<tr><td>Procedures and decisions</td><td>Wiki</td><td>Runbooks, Definitions of Ready and Done, decision records</td><td>Free</td></tr>
+<tr><td>Weekly status</td><td>Pipeline schedules, the REST API</td><td><code>gitlab.pl export</code> feeds <code>bin/status-metrics.pl</code></td><td>Free</td></tr>
+</table>
+
+<h2 id="tools">Which GitLab DevSecOps tools this team uses, and why</h2>
+<div class="why"><b>The objection:</b> "GitLab has hundreds of features. We are three people with a model to port; we
+cannot learn all of that." <b>Why bother:</b> you should not learn all of it. The table below is the short list worth
+the set-up time for a three-person model team, each with the job it takes off your hands. Everything else is
+deliberately left off, and the second table says why, so nobody feels they are missing something.</div>
+<p>Tiers are as of GitLab 17. Check your instance's edition (Help &gt; Help shows it); where a feature needs a tier you do
+not have, the "Set up" column gives the Free-tier way.</p>
+<table>
+<tr><th>Feature</th><th>Tier</th><th>Value for a 3-person MBSE team</th><th>Set up</th></tr>
+<tr><td>Issue boards</td><td>Free</td><td>The action-item tracker everybody sees, with no spreadsheet to update: moving a card changes its status</td><td><code>[labels]</code> in <code>project.conf</code>; Plan &gt; Issue boards, one list per <code>workflow::</code> label</td></tr>
+<tr><td>Scoped labels (<code>key::value</code>)</td><td>Premium</td><td>An item has exactly one status, type and priority; no "in progress and done" cards</td><td>Name labels <code>key::value</code> (setup does). On Free, the names still work; remove the old one yourself</td></tr>
+<tr><td>Milestones as sprints</td><td>Free</td><td>The two-week time box and its list of work, in one place</td><td><code>[milestones] sprints = 2026-10-05 39 2</code></td></tr>
+<tr><td>Burndown and burnup charts</td><td>Premium</td><td>The sprint's progress drawn for you on the milestone page</td><td>Nothing: they appear on each milestone. On Free, use the journal's sprint report</td></tr>
+<tr><td>Time tracking (<code>/estimate</code>, <code>/spend</code>)</td><td>Free</td><td>Sizes tasks in days, keeping the "under a week" rule visible; actuals for the next estimate</td><td>Use the quick actions; templates include <code>/estimate</code></td></tr>
+<tr><td><code>CODEOWNERS</code></td><td>Free (shown) / Premium (enforced)</td><td>The CCB, per package: the right person approves each part of the model</td><td>Commit <code>CODEOWNERS</code>; <code>codeowners:yes</code> under <code>[branches]</code></td></tr>
+<tr><td>Approval rules</td><td>Premium</td><td>A minimum number of approvals on every change, and no self-approval</td><td><code>[approvals] Model review = 1 jim bob</code>; Settings &gt; Merge requests: prevent approval by author</td></tr>
+<tr><td>Protected branches and tags</td><td>Free</td><td>Nobody changes the master copy or a baseline except through an approved change</td><td><code>[branches]</code>, <code>[tags]</code></td></tr>
+<tr><td>Push rules</td><td>Premium</td><td>The server rejects commits with no issue reference, files that should never be committed (exports, <code>.mdzip</code>), and secrets</td><td>Settings &gt; Repository &gt; Push rules: commit message regex <code>#\d+</code>, file name deny list <code>\.(mdzip|exe)$</code>, prevent secrets</td></tr>
+<tr><td>Signed commits</td><td>Free (verified badge) / Premium (reject unsigned)</td><td>Proof of who made each change, beyond the name typed into Git</td><td>Each person adds an SSH or GPG signing key; <code>git config commit.gpgsign true</code></td></tr>
+<tr><td>MR widgets: test results (JUnit)</td><td>Free</td><td>The MR shows which audit check failed and why, without opening a log</td><td>The template's <code>artifacts:reports:junit</code> (from <code>ci-reports.pl</code>)</td></tr>
+<tr><td>MR widgets: Code Quality</td><td>Free (widget) / Premium (in the diff)</td><td>Shows the errors, warnings and TODO lines this change added or removed</td><td><code>artifacts:reports:codequality</code></td></tr>
+<tr><td>MR widgets: metrics</td><td>Premium</td><td>Shows how the numbers moved: TODO lines, lint, trace completeness</td><td><code>artifacts:reports:metrics</code></td></tr>
+<tr><td>Secret Detection</td><td>Free (scan) / Ultimate (MR widget, vulnerability report)</td><td>A token or password committed by mistake is caught before it spreads</td><td><code>include: template: Security/Secret-Detection.gitlab-ci.yml</code>, plus the local <code>secrets</code> job</td></tr>
+<tr><td>Pages</td><td>Free</td><td>A web site of the model's current state for the program office and the prime, who will never open the repository</td><td>The <code>pages</code> job; Deploy &gt; Pages shows the address; set access control to project members</td></tr>
+<tr><td>Environments</td><td>Free</td><td>Records which commit the published site shows, and when it changed</td><td><code>environment: model-site</code> on the <code>pages</code> job</td></tr>
+<tr><td>Releases</td><td>Free</td><td>Each baseline with its notes and evidence, on one page that lists every baseline</td><td>The <code>publish-release</code> job on <code>baseline-*</code> tags</td></tr>
+<tr><td>Package registry (generic)</td><td>Free</td><td>Each prime drop kept exactly as delivered, by version, beside the model it became: the CDRL record</td><td>The <code>drop-package</code> job; nothing to configure (the job token authenticates)</td></tr>
+<tr><td>Scheduled pipelines</td><td>Free</td><td>The weekly status computed on Monday morning, with no one typing it up</td><td>Build &gt; Pipeline schedules, Mondays 06:00; variable <code>STATUS_TOKEN</code></td></tr>
+<tr><td>Audit events</td><td>Premium</td><td>Who changed a protection, a member or a token, and when: the CM office's access log</td><td>Secure &gt; Audit events; review monthly</td></tr>
+<tr><td>Value stream analytics</td><td>Free (project) / Premium (custom stages)</td><td>How long work takes from issue to merge, so the team sees where it waits</td><td>Analyze &gt; Value stream analytics; nothing to set up</td></tr>
+<tr><td>DORA metrics</td><td>Ultimate</td><td>Change frequency, lead time, failure rate and restore time, computed from the <code>model-site</code> environment</td><td>Analyze &gt; CI/CD analytics; mark <code>model-site</code> as a production-tier environment</td></tr>
+<tr><td>Wiki</td><td>Free</td><td>The process, the definitions and the decisions, versioned like the model</td><td><code>gitlab.pl wiki put</code> each page from <code>templates/wiki/</code></td></tr>
+<tr><td>Snippets</td><td>Free</td><td>Shared one-off commands and SysML v2 examples, without a file in the repository</td><td>Code &gt; Snippets; keep them project-level, not personal</td></tr>
+</table>
+<h3>What this team deliberately does not use yet</h3>
+<table>
+<tr><th>Feature</th><th>Tier</th><th>Why not now</th><th>When to revisit</th></tr>
+<tr><td>SAST, dependency scanning, container scanning</td><td>Free (SAST) / Ultimate</td><td>They scan application code, libraries and container images. The repository holds a model in text and no code, libraries or images; Secret Detection covers the one real risk</td><td>When the project starts shipping code (an analysis tool, a generator) or images</td></tr>
+<tr><td>GitLab Requirements Management</td><td>Ultimate</td><td>DOORS stays the requirements authority under the contract. A second requirements database would drift from it; the trace job compares DOORS with the model instead</td><td>If the program moves requirements authority out of DOORS</td></tr>
+<tr><td>Merge trains</td><td>Premium</td><td>They queue many concurrent merges so each is tested on top of the others. Three people rarely have two MRs ready at once, and the merged-results pipeline already tests on the latest target</td><td>When the team grows or merges start colliding</td></tr>
+<tr><td>Epics and iterations</td><td>Premium</td><td>Useful, but labels and milestones do the same job on Free, and the process is written to work either way</td><td>When the instance has Premium: move epic text into group epics</td></tr>
+<tr><td>Auto DevOps, Kubernetes, feature flags, container registry</td><td>Free and up</td><td>There is no application to build, deploy or switch on</td><td>Not for a model repository</td></tr>
+<tr><td>AI assistants (GitLab Duo)</td><td>add-on</td><td>Needs its own approval for government data; see <code>docs/OLLAMA.md</code> for the kit's local, approved-model route</td><td>After an approval decision</td></tr>
+</table>
+
+<h2 id="hierarchy">The work hierarchy in GitLab</h2>
+<div class="why"><b>The objection:</b> "We have a WBS and an IMS. Why tomes, epics, stories and tasks?" <b>Why bother:</b> they are a WBS, sized by time instead of by contract line, so you always know how far away "done" is. A task that takes more than a week is a task nobody can see the end of; splitting it is how the team finds the hidden work early, while there is still time.</div>
+<p>The team sizes work by time, from the biggest to the smallest. One point is one ideal person-day.</p>
+<table>
+<tr><th>Level</th><th>Size limit</th><th>Tidewater example</th><th>GitLab Free</th><th>GitLab Premium / Ultimate</th><th>Agile kit journal</th></tr>
+<tr><td>Project</td><td>years</td><td>The v1 &rarr; v2 port and maintenance, 18 months</td><td>the group <code>tidewater</code></td><td>the group</td><td>one journal: <code>data/tidewater/journal</code></td></tr>
+<tr><td>Tome</td><td>under 1 year (2 semesters)</td><td>Port Tidewater v1 to SysML v2</td><td>label <code>tome::port</code></td><td>top-level epic (Ultimate: multi-level)</td><td><code>t:</code> on each story</td></tr>
+<tr><td>Epic</td><td>under 1 semester (13 sprints)</td><td>Structure port</td><td>issue <code>type::epic</code> + label <code>epic::structure</code></td><td>group epic</td><td><code>e:</code> on each story</td></tr>
+<tr><td>Story</td><td>under 1 sprint</td><td>Close the Stations TODO lines</td><td>issue <code>type::story</code> in milestone <em>Sprint 4</em></td><td>issue in an iteration</td><td>an item <code>TW-&lt;issue&gt;</code></td></tr>
+<tr><td>Task</td><td>under 1 week (&le; 5 points)</td><td>Write <code>state def BuoyModes</code></td><td>issue <code>type::task</code>, "Part of #18"</td><td>task (child work item)</td><td>not recorded: task detail stays in GitLab</td></tr>
+</table>
+<p>The split between GitLab and the journal follows the kit's ownership rule: the architect's journal records stories,
+epics and tomes (what the program steers by); tasks and hours stay in the team's own tool. A story's journal id is its
+GitLab issue number, so <code>TW-18</code> in a stand-up is <code>#18</code> in GitLab.</p>
+<div class="note">On Free, an epic is an ordinary issue carrying <code>type::epic</code>, plus a label its stories carry.
+The epic issue's task list (<code>- [ ] #18</code>) shows progress as "3 of 7 checklist items". On Premium, move the
+text into a group epic and attach the stories; nothing else in the process changes.</div>
+
+<h2 id="setup">Setting up the project</h2>
+<div class="why"><b>The objection:</b> "Somebody clicks through the settings once and we are done." <b>Why bother:</b> the settings <em>are</em> the configuration control rules: who may change the master copy, who approves, what is audited. Kept in a file, they are reviewed, versioned and re-applied like any controlled document, and you can prove at any time that the server still matches them.</div>
+<p>A project is a set of settings as much as a repository. <code>bin/gitlab.pl setup</code> applies them from one file,
+so they are reviewed like code, rebuilt in minutes, and compared with the server at any time. Re-running it is safe: it
+creates what is missing and updates what differs.</p>
+<pre><code># against the real server: a token with the api scope, in an environment variable
+export GITLAB_TOKEN=...                       # never on the command line, never in a file in the repo
+perl bin/gitlab.pl --url https://gitlab.example.com --token-env GITLAB_TOKEN --dry-run setup tools/gitlab/templates/project.conf
+perl bin/gitlab.pl --url https://gitlab.example.com --token-env GITLAB_TOKEN setup tools/gitlab/templates/project.conf
+
+# offline: the same commands against the emulator (a directory)
+perl bin/gitlab.pl --local data/tidewater/gitlab setup tools/gitlab/templates/project.conf
+perl bin/gitlab.pl --local data/tidewater/gitlab --project tidewater/model sprints 2026-10-05 39</code></pre>
+<p><code>--dry-run</code> prints every API call it would make and changes nothing; read it the first time. The
+offline emulator (<code>--local DIR</code>) keeps the project state in <code>DIR/gitlab.json</code> and the repository
+as a bare Git repo, with a server-side hook that enforces the branch and tag protections. It is how this kit tests the
+scripts and runs the simulation, and how you can rehearse a change to the settings before applying it.</p>
+<p>The project file for Tidewater. Lines are <code>key = value</code>; a <code>;</code> starts a comment (not
+<code>#</code>, which label colours use):</p>
+<!--#include templates/project.conf-->
+<h3>The order, the first time</h3>
+<p>Protecting <code>main</code> with <code>push:none</code> also stops the very first push, so the skeleton goes in before
+the protections:</p>
+<ol>
+  <li>Create an empty project <code>tidewater/model</code> (New project &gt; Create blank project, without a README), or let
+      <code>setup</code> create it from a copy of the file that holds only <code>[project]</code>.</li>
+  <li>Push the skeleton to <code>main</code> and create <code>develop</code>:
+<pre><code>git clone https://gitlab.example.com/tidewater/model.git &amp;&amp; cd model
+cp $KIT/tools/gitlab/templates/gitlab-ci.yml .gitlab-ci.yml
+cp $KIT/tools/gitlab/templates/{CODEOWNERS,README.md,CHANGELOG.md} .
+cp -r $KIT/tools/gitlab/templates/.gitlab .
+git add -A &amp;&amp; git commit -m "Project skeleton: pipeline, templates, owners" &amp;&amp; git push -u origin main
+perl $KIT/bin/gitlab.pl flow init            # develop from main, pushed</code></pre></li>
+  <li>Apply the whole file: <code>gitlab.pl setup project.conf</code>. From here on <code>main</code> and <code>develop</code>
+      take changes only by merge request, and <code>develop</code> is the default branch.</li>
+  <li>Register a runner (<a href="#admin">Administration</a>) and check that the CI/CD variable <code>KIT</code> points at
+      the kit's checkout on it.</li>
+  <li>Create the weekly pipeline schedule (Build &gt; Pipeline schedules, Mondays 06:00) and a masked CI/CD variable
+      <code>STATUS_TOKEN</code> holding a <code>read_api</code> project access token.</li>
+  <li>Put the wiki pages from <code>tools/gitlab/templates/wiki/</code>, one command per page:
+      <code>gitlab.pl wiki put "Definition of Done" "templates/wiki/Definition of Done.md"</code>.</li>
+</ol>
+
+<h2 id="gitflow">Gitflow</h2>
+<div class="why"><b>The objection:</b> "We had one master copy and it worked." <b>Why bother:</b> you still have one master copy (<code>develop</code>). Branches are the working copies everyone always made anyway, on their own drives and in e-mail attachments, except that Git knows about them and can bring the changes back in exactly. The baselines get their own branch (<code>main</code>) so a release never waits on, or is disturbed by, the work in progress.</div>
+<p>The model is <em>released</em>: analyses and reviews cite a baseline, and a baseline must never change. Day-to-day
+work must never wait on a release either. Gitflow gives each its own branch: <code>main</code> is exactly the list of
+baselines, <code>develop</code> is where the work integrates, and short-lived branches carry each change. Tidewater
+adds one branch gitflow does not have, <code>vendor/prime</code>, for the prime's drops.</p>
+
+<figure>
+<svg viewBox="0 0 900 290" role="img" aria-label="Gitflow branches for the Tidewater model" font-family="Calibri, Segoe UI, Arial, sans-serif" font-size="12">
+  <g font-weight="600" fill="#1a1a1a">
+    <text x="8" y="34">vendor/prime</text><text x="8" y="84">main</text><text x="8" y="134">release/*, hotfix/*</text>
+    <text x="8" y="184">develop</text><text x="8" y="234">feature/*</text>
+  </g>
+  <g stroke-width="3" fill="none">
+    <line x1="120" y1="30" x2="880" y2="30" stroke="#808082"/>
+    <line x1="120" y1="80" x2="880" y2="80" stroke="#27235d"/>
+    <line x1="170" y1="180" x2="880" y2="180" stroke="#e6af22"/>
+    <line x1="580" y1="130" x2="640" y2="130" stroke="#d6292e"/>
+    <line x1="740" y1="130" x2="790" y2="130" stroke="#d6292e"/>
+    <line x1="330" y1="230" x2="380" y2="230" stroke="#6b7436"/>
+  </g>
+  <g stroke-width="2" fill="none" stroke="#555">
+    <path d="M120 80 L170 180"/>                        <!-- develop from main -->
+    <path d="M120 80 L120 30"/>                         <!-- vendor from the first commit -->
+    <path d="M220 30 L280 180" stroke-dasharray="5 3"/> <!-- drop v1.0 merged (feature/drop-v1.0) -->
+    <path d="M280 180 L330 230"/><path d="M380 230 L430 180"/>
+    <path d="M470 30 L530 180" stroke-dasharray="5 3"/> <!-- drop v1.1 merged -->
+    <path d="M530 180 L580 130"/><path d="M640 130 L640 80"/><path d="M640 80 L690 180"/>
+    <path d="M640 80 L740 130"/><path d="M790 130 L790 80"/><path d="M790 80 L830 180"/>
+  </g>
+  <g stroke="#fff" stroke-width="2">
+    <circle cx="120" cy="80" r="8" fill="#27235d"/>
+    <circle cx="220" cy="30" r="8" fill="#808082"/><circle cx="470" cy="30" r="8" fill="#808082"/>
+    <circle cx="280" cy="180" r="8" fill="#e6af22"/><circle cx="430" cy="180" r="8" fill="#e6af22"/>
+    <circle cx="530" cy="180" r="8" fill="#e6af22"/><circle cx="690" cy="180" r="8" fill="#e6af22"/><circle cx="830" cy="180" r="8" fill="#e6af22"/>
+    <circle cx="330" cy="230" r="8" fill="#6b7436"/><circle cx="380" cy="230" r="8" fill="#6b7436"/>
+    <circle cx="580" cy="130" r="8" fill="#d6292e"/><circle cx="740" cy="130" r="8" fill="#d6292e"/>
+    <circle cx="640" cy="80" r="8" fill="#27235d"/><circle cx="790" cy="80" r="8" fill="#27235d"/>
+  </g>
+  <g fill="#1a1a1a" font-size="11">
+    <text x="104" y="104">skeleton</text>
+    <text x="196" y="18">drop v1.0</text><text x="446" y="18">drop v1.1</text>
+    <text x="300" y="258">feature/18-stations</text>
+    <text x="540" y="118">release/baseline-1</text>
+    <text x="610" y="66">baseline-1</text><text x="760" y="66">baseline-1.1</text>
+    <text x="700" y="118">hotfix</text>
+    <text x="650" y="205">back-merge</text>
+    <text x="236" y="110" fill="#555">feature/drop-v1.0</text>
+  </g>
+  <text x="120" y="282" font-size="11" fill="#555">Dashed: a drop reaches develop through a feature/drop-&lt;version&gt; branch that merges vendor/prime.</text>
+</svg>
+<figcaption>Figure 1. The Tidewater branches over the first baseline. Time runs left to right.</figcaption>
+</figure>
+
+<table>
+<tr><th>Branch</th><th>Created from</th><th>Merges into</th><th>Who pushes</th><th>Who merges</th><th>Lifetime</th></tr>
+<tr><td><code>main</code></td><td>(the first commit)</td><td>&mdash;</td><td>nobody</td><td>maintainers: Jim, Tom</td><td>forever; baselines only</td></tr>
+<tr><td><code>develop</code></td><td><code>main</code></td><td>&mdash;</td><td>nobody</td><td>developers, after approval</td><td>forever; the default branch</td></tr>
+<tr><td><code>feature/&lt;iid&gt;-&lt;slug&gt;</code></td><td><code>develop</code></td><td><code>develop</code></td><td>its author</td><td>&mdash;</td><td>one task or story; deleted on merge</td></tr>
+<tr><td><code>release/baseline-N</code></td><td><code>develop</code></td><td><code>main</code> (then back-merge)</td><td>maintainers</td><td>maintainers</td><td>days</td></tr>
+<tr><td><code>hotfix/&lt;name&gt;</code></td><td><code>main</code></td><td><code>main</code> and <code>develop</code></td><td>maintainers</td><td>maintainers</td><td>hours</td></tr>
+<tr><td><code>vendor/prime</code></td><td>the first commit of <code>main</code></td><td><code>develop</code>, through <code>feature/drop-&lt;version&gt;</code></td><td>Tom only</td><td>nobody</td><td>forever; never edited by hand</td></tr>
+</table>
+
+<h3>Rules the team keeps</h3>
+<ul>
+  <li><strong>Name feature branches after the issue</strong>: <code>feature/19-stations-level-tags</code>. GitLab links the
+      branch to issue 19, and the MR gets "Closes #19" from the template.</li>
+  <li><strong>Merge commits, never squash or rebase-merge.</strong> The merge history is evidence: who changed which
+      package when, how long an MR was open, how many merges needed a fix-forward. The status metrics read it.</li>
+  <li><strong><code>develop</code> is the default branch.</strong> GitLab closes issues named by "Closes #N" only when the
+      MR merges into the default branch; with gitflow that is <code>develop</code>.</li>
+  <li><strong>A feature branch lives less than a week</strong>, like the task it carries. Longer branches drift from the
+      prime's drops and conflict.</li>
+  <li><strong>Releases and hotfixes back-merge</strong> into <code>develop</code> the same day, so a fix is never lost.</li>
+</ul>
+
+<h3>The commands</h3>
+<p><code>gitlab.pl flow</code> does the branch bookkeeping and opens the merge requests, from the current clone:</p>
+<pre><code>perl $KIT/bin/gitlab.pl flow start feature 19-stations-level-tags   # from an up-to-date develop
+# ... edit, commit ...
+perl $KIT/bin/gitlab.pl flow publish                                 # push, and the MR pipeline starts once the MR exists
+perl $KIT/bin/gitlab.pl flow finish --title "Replace the Stations level-tag TODOs" \
+     --template .gitlab/merge_request_templates/Default.md          # MR to develop
+
+perl $KIT/bin/gitlab.pl flow start release baseline-1                # from develop
+perl $KIT/bin/gitlab.pl flow finish --template .gitlab/merge_request_templates/Release.md   # MR to main;
+#   after it merges: tag baseline-1, release, back-merge MR main -> develop
+
+perl $KIT/bin/gitlab.pl flow start hotfix cell-level-tag             # from main
+perl $KIT/bin/gitlab.pl flow sync                                    # fetch; fast-forward develop and main</code></pre>
+<p>The same with plain Git, for when you want to see each step:</p>
+<pre><code>git switch develop &amp;&amp; git pull --ff-only
+git switch -c feature/19-stations-level-tags
+git commit -am "Replace the Stations level-tag TODOs with @L tags" -m "Changelog: changed" -m "Issue: #19"
+git push -u origin feature/19-stations-level-tags \
+    -o merge_request.create -o merge_request.target=develop \
+    -o merge_request.title="Replace the Stations level-tag TODOs" -o merge_request.label="workflow::review"</code></pre>
+<p>The <code>-o merge_request.*</code> <em>push options</em> make GitLab open the MR as part of the push, with no token
+and no web page. They are a quick alternative to <code>flow finish</code>, without the template.</p>
+
+<h2 id="protect">Protected branches and tags</h2>
+<div class="why"><b>The objection:</b> "We trust our people." <b>Why bother:</b> protection is not about trust; it is about accidents. One stray save into the master copy, one baseline overwritten, used to cost a week of reconstruction. Here the server refuses it, for everyone including the project lead, so nobody has to remember the rule.</div>
+<p>Protection is what turns the branch table above from a convention into a rule. Settings &gt; Repository &gt; Protected
+branches and Protected tags; <code>gitlab.pl setup</code> applies the <code>[branches]</code> and <code>[tags]</code>
+sections.</p>
+<table>
+<tr><th>Setting</th><th>Value for <code>main</code> / <code>develop</code></th><th>What it prevents</th></tr>
+<tr><td>Allowed to push and merge</td><td>No one (push); maintainers / developers (merge)</td><td>A change that skipped review and the pipeline</td></tr>
+<tr><td>Allowed to force push</td><td>off</td><td>Rewriting history that baselines, MRs and metrics point at</td></tr>
+<tr><td>Require approval from code owners</td><td>on</td><td>A package changing without its owner seeing it (Premium)</td></tr>
+<tr><td>Protected tag <code>baseline-*</code>, allowed to create</td><td>maintainers</td><td>A baseline created, moved or deleted by mistake: protected tags cannot be updated or deleted from Git</td></tr>
+<tr><td>Pipelines must succeed (merge checks)</td><td>on</td><td>A merge with a red or missing pipeline</td></tr>
+<tr><td>All threads must be resolved</td><td>on</td><td>A merge with an open review question</td></tr>
+</table>
+<p>In the offline emulator the same rules live in a <code>pre-receive</code> hook in the bare repository. A direct push
+to <code>develop</code> is refused the same way GitLab refuses it:</p>
+<pre><code>remote: GitLab: You are not allowed to push code to protected branches on this project.
+ ! [remote rejected] develop -&gt; develop (pre-receive hook declined)</code></pre>
+
+<h2 id="owners">Code owners and approvals</h2>
+<div class="why"><b>The objection:</b> "The CCB meets monthly; that is our approval." <b>Why bother:</b> a monthly board batches a month of changes into one meeting nobody can fully read. Code owners are the CCB split by package and available every day: each change is small enough to read in minutes, and it is approved by the person who knows that part of the model. The monthly board can then review baselines and decisions instead of redlines.</div>
+<p><code>CODEOWNERS</code> says who must approve a change to which path. GitLab reads it from the MR's
+<strong>target</strong> branch, so a change to the file itself only takes effect once it is merged. Sections let one MR
+need approvals from several owners: a change to Stations and to the requirements needs Bob or Jim <em>and</em> Jim.</p>
+<!--#include templates/CODEOWNERS-->
+<div class="note">On GitLab Free the owners are shown on each file and MR, but "require approval from code owners" and
+approval rules need Premium. On Free, the team keeps the rule by convention: the MR template assigns the reviewer, and
+the merge is done by someone other than the author.</div>
+<p>Approval rules (Premium) add a project-wide minimum on top: <code>Model review = 1 jim bob</code> means one approval
+from Jim or Bob on every MR. Set <em>Prevent approval by author</em> and <em>Remove all approvals when commits are added
+to the source branch</em> under Settings &gt; Merge requests.</p>
+
+<h2 id="mr">Merge requests</h2>
+<div class="why"><b>The objection:</b> "An ECP takes weeks; this sounds like more paperwork." <b>Why bother:</b> a merge request is the change request, the redlines, the review comments, the audit results and the approval signature in one page that writes itself from the work. It is less paperwork, not more: nobody assembles a package, and the record cannot be lost or backdated.</div>
+<ol>
+  <li><strong>Open it early as a draft</strong> (<code>Draft:</code> title prefix, or <code>/draft</code>). The pipeline
+      runs on every push, and the reviewer can follow along.</li>
+  <li><strong>Fill the template.</strong> <em>Default</em> for a task, <em>Prime Drop</em> for a drop merge,
+      <em>Release</em> and <em>Hotfix</em> for those branches. The template carries "Closes #N", the checks list, and
+      quick actions that set the label and reviewer.</li>
+  <li><strong>The pipeline runs on the merged result</strong>: the source merged into the current target, the commit
+      that would exist after the merge (Premium calls this merged results pipelines; the emulator always does it).</li>
+  <li><strong>Review in threads.</strong> Comment on a line; propose a change with a <code>suggestion</code> block the
+      author applies with one click; resolve each thread when it is answered.</li>
+  <li><strong>Approve, then merge.</strong> The merge checks are: not a draft, pipeline succeeded, threads resolved,
+      approvals met (code owners included). GitLab writes the merge commit as
+      <code>Merge branch 'feature/19-…' into 'develop'</code>, with the title, "Closes #19" and "See merge request
+      tidewater/model!19".</li>
+</ol>
+<p>A filled-in MR description and its review thread are in <a href="#markdown">Markdown, field by field</a>.</p>
+
+<h2 id="cicd">CI/CD from zero</h2>
+<div class="why"><b>The objection:</b> "CI/CD is for software. We build models and documents." <b>Why bother:</b> strip
+the software words away and CI/CD is two habits a configuration manager already values. One is checking every change
+the day it is made. The other is keeping the deliverables ready to hand over at any moment. The machine does both, so
+people stop doing them by hand at the end.</div>
+
+<h3>CI: continuous integration, in systems engineering words</h3>
+<p><strong>Integration</strong> is bringing one person's change into the master copy. <strong>Continuous</strong> means
+it happens every day, in small pieces, not in a big merge before a review. Each change is <strong>checked
+automatically</strong> before it goes in. In the words you know, CI is a <em>configuration audit plus the peer-review
+checklist, run by the server on every single change</em>.</p>
+<p>For Tidewater, every merge request is checked in a few minutes:</p>
+<ul>
+  <li>Every file is valid SysML v2 text (<code>grammar</code>).</li>
+  <li>Every name points at something that exists (<code>lint</code>).</li>
+  <li>The part tree keeps its shape and level tags (<code>outline</code>).</li>
+  <li>No secret was committed (<code>secrets</code>).</li>
+  <li>Requirements still trace (<code>trace</code>).</li>
+  <li>The generated documents match the model (<code>docs</code>).</li>
+</ul>
+
+<h3>CD: continuous delivery</h3>
+<p><strong>Delivery</strong> means producing the products of the model. For Tidewater those are the generated documents,
+the diagrams, the trace report, the model web site, the release notes and the baselines. <strong>Continuous</strong>
+means the pipeline produces them from the model on every merge, so they are always current and ready to hand over. Nobody
+assembles a delivery package the week before a review. When GitLab talks about <strong>deploy</strong>, here it only
+means two things: publishing the model web site (the <code>pages</code> job) and creating a baseline release (the
+<code>publish-release</code> job).</p>
+
+<h3>The anatomy of a pipeline</h3>
+<figure>
+<svg viewBox="0 0 900 250" role="img" aria-label="The Tidewater pipeline: stages left to right, jobs in each stage" font-family="Calibri, Segoe UI, Arial, sans-serif" font-size="12">
+  <g font-weight="600" fill="#27235d">
+    <text x="20" y="22">check</text><text x="200" y="22">trace</text><text x="340" y="22">docs</text>
+    <text x="480" y="22">delta</text><text x="620" y="22">release</text><text x="760" y="22">publish / report</text>
+  </g>
+  <g fill="#fff" stroke="#27235d" stroke-width="1.5">
+    <rect x="20" y="34" width="140" height="28" rx="14"/><rect x="20" y="70" width="140" height="28" rx="14"/>
+    <rect x="20" y="106" width="140" height="28" rx="14"/><rect x="20" y="142" width="140" height="28" rx="14"/>
+    <rect x="20" y="178" width="140" height="28" rx="14"/>
+    <rect x="200" y="34" width="110" height="28" rx="14" stroke="#e6af22"/>
+    <rect x="340" y="34" width="110" height="28" rx="14"/>
+    <rect x="480" y="34" width="110" height="28" rx="14" stroke-dasharray="4 3"/><rect x="480" y="70" width="110" height="28" rx="14" stroke-dasharray="4 3"/>
+    <rect x="620" y="34" width="120" height="28" rx="14" stroke-dasharray="4 3"/><rect x="620" y="70" width="120" height="28" rx="14" stroke-dasharray="4 3"/>
+    <rect x="760" y="34" width="120" height="28" rx="14" stroke-dasharray="4 3"/><rect x="760" y="70" width="120" height="28" rx="14" stroke-dasharray="4 3"/>
+  </g>
+  <g fill="#1a1a1a">
+    <text x="36" y="53">✓ grammar</text><text x="36" y="89">✓ lint</text><text x="36" y="125">✓ outline</text>
+    <text x="36" y="161">✓ todo</text><text x="36" y="197">✓ secrets</text>
+    <text x="214" y="53">✓ trace</text><text x="354" y="53">✓ docs</text>
+    <text x="494" y="53">delta</text><text x="494" y="89">drop-package</text>
+    <text x="634" y="53">baseline</text><text x="634" y="89">publish-release</text>
+    <text x="774" y="53">pages</text><text x="774" y="89">status</text>
+  </g>
+  <g stroke="#808082" stroke-width="1.5" fill="none"><path d="M160 48 H200"/><path d="M310 48 H340"/><path d="M450 48 H480"/><path d="M590 48 H620"/><path d="M740 48 H760"/></g>
+  <g font-size="11" fill="#555">
+    <text x="20" y="232">✓ passed   dashed: skipped by its rules in this merge request pipeline</text>
+  </g>
+</svg>
+<figcaption>Figure 2. A Tidewater merge request pipeline, as GitLab draws it (Build &gt; Pipelines, then a pipeline).
+Stages run left to right, and the jobs in a stage run together.</figcaption>
+</figure>
+<table>
+<tr><th>Term</th><th>What it is</th><th>Tidewater example</th></tr>
+<tr><td>pipeline</td><td>Every check and product for one change, run by the server</td><td>The pipeline of MR !19</td></tr>
+<tr><td>stage</td><td>A group of jobs that run together. The stages run in order, and a failure stops the later ones</td><td><code>check</code>, then <code>trace</code>, then <code>docs</code></td></tr>
+<tr><td>job</td><td>One check, or one product</td><td><code>lint</code>, <code>pages</code></td></tr>
+<tr><td>script</td><td>The commands a job runs. The job fails if a command fails</td><td><code>perl ci/job.pl lint</code> (the job's logic is in that Perl script, so it runs the same in PowerShell, Git Bash or Linux)</td></tr>
+<tr><td>runner</td><td>The machine that runs the jobs</td><td>A Windows PC with Git for Windows (<a href="#admin">Administration</a>)</td></tr>
+<tr><td>rules</td><td>When a job runs, and when it is skipped</td><td><code>delta</code> runs only for drop branches; <code>baseline</code> only on <code>baseline-*</code> tags</td></tr>
+<tr><td>artifacts</td><td>Files a job keeps after it ends, for download or for later jobs</td><td><code>todo.txt</code>, <code>trace.txt</code>, <code>public/</code></td></tr>
+<tr><td>reports</td><td>Artifacts in a format GitLab draws on the merge request</td><td>JUnit, Code Quality and metrics from <code>ci-reports.pl</code></td></tr>
+<tr><td>environment</td><td>A named place the pipeline delivers to, with a record of what is there now</td><td><code>model-site</code>, the Pages site</td></tr>
+<tr><td>variables</td><td>Named settings the jobs read. They can be masked and protected for secrets</td><td><code>KIT</code> (the kit's path); <code>STATUS_TOKEN</code> (masked)</td></tr>
+<tr><td>cache</td><td>Files kept between pipelines to save time</td><td>Not needed here: the checks take seconds</td></tr>
+<tr><td><code>allow_failure</code></td><td>The job may fail without blocking the merge. It shows yellow</td><td><code>trace</code> started this way in sprint 3; since sprint 4 it is a ratchet instead</td></tr>
+<tr><td><code>when: manual</code></td><td>The job waits for a person to press its play button</td><td>Could guard a release; Tidewater uses protected tags instead</td></tr>
+</table>
+
+<h3>What starts a pipeline</h3>
+<table>
+<tr><th>Trigger</th><th>When</th><th>What runs for Tidewater</th></tr>
+<tr><td>merge request</td><td>An MR is opened or updated</td><td>The checks, on the <em>merged result</em>: your branch merged into the current <code>develop</code>, so you test what will actually exist after the merge</td></tr>
+<tr><td>push</td><td>A branch without an MR changes (<code>develop</code> after a merge, <code>vendor/prime</code>)</td><td>The checks, <code>pages</code> on <code>develop</code>, <code>delta</code> and <code>drop-package</code> on the vendor branch</td></tr>
+<tr><td>tag</td><td>A <code>baseline-*</code> tag is created</td><td><code>baseline</code> (the rebuild audit), then <code>publish-release</code></td></tr>
+<tr><td>schedule</td><td>A timer, set under Build &gt; Pipeline schedules</td><td><code>status</code>, every Friday; the nightly full check (<code>FULL=1</code>) on weekdays</td></tr>
+</table>
+
+<h3>Reading a pipeline and a job log</h3>
+<p>On the MR page, the pipeline line shows one icon per stage: green is passed, red is failed, yellow is failed but
+allowed, grey is skipped. Click a red icon, then the red job, to open its log. A log reads top to bottom, like this one
+with notes added on the right:</p>
+<pre><code>Running with gitlab-runner 17.2 on tidewater-win            &lt;- which runner took the job
+Fetching changes with git depth set to 0...                 &lt;- the runner gets the merged result
+Checking out 3c9e1a2f as detached HEAD (ref is refs/merge-requests/19/merge)
+$ perl ci/job.pl lint                                       &lt;- the job's one script line
+$ /usr/bin/perl /opt/agile/tools/sysml/model.pl lint        &lt;- what ci/job.pl runs, printed before it runs it
+model/physical/stations/Stations.sysml:47:9: error: unresolved type 'Hygrometr'   &lt;- the finding: file, line, column, message
+lint: 13 file(s), 1 error(s), 0 warning(s)
+elements=139 errors=1 warnings=0                            &lt;- the line the gate reads
+$ /usr/bin/perl /opt/agile/tools/gitlab/ci-reports.pl lint --junit lint.xml ...
+ci-reports lint: 2 check(s), 2 failed, 1 finding(s); ...    &lt;- reports for the MR widgets
+lint is not 0/0 (elements=139 errors=1 warnings=0)          &lt;- why the job failed
+Uploading artifacts... lint.txt lint.xml lint-cq.json       &lt;- kept even on failure (when: always)
+ERROR: Job failed: exit code 1                              &lt;- a non-zero exit fails the job</code></pre>
+<p>The fix is in the line that names a file and a line number. Open it in Vim with <code>vim +47 model/physical/stations/Stations.sysml</code>.</p>
+
+<h3>Running it on your own machine first</h3>
+<pre><code>perl $KIT/bin/gitlab.pl ci --list --event merge_request_event --branch feature/19-stations --target develop
+#   which jobs would run for this MR, and the rule that skips each of the others
+perl $KIT/bin/gitlab.pl ci --event merge_request_event --branch feature/19-stations --target develop --var KIT=$KIT
+#   runs them here, stage by stage, with the variables GitLab would set</code></pre>
+
+<h3>Shift left: catch it at the merge, not at integration</h3>
+<p>"Shift left" means moving a check earlier in time, to the left on a schedule chart. An interface mismatch found by
+<code>lint</code> on the day it was typed costs the author five minutes. The same mismatch found at a design review
+months later costs a meeting, a defect report and rework of everything built on it. Status metric H counts this
+directly: the mismatches caught at merge, against those that reached integration.</p>
+
+<h3>The Sec in DevSecOps</h3>
+<ul>
+  <li><strong>Secret detection</strong> on every change: the <code>secrets</code> job and GitLab's own template. A
+      committed token is caught before it is copied into every clone.</li>
+  <li><strong>Protected, masked variables</strong> for credentials. A <em>masked</em> variable is hidden in job logs. A
+      <em>protected</em> variable is given only to pipelines on protected branches and tags, so a feature branch cannot
+      read it.</li>
+  <li><strong>A least-privilege runner.</strong> The runner gets a normal user account, not an administrator. It is
+      registered to this project only and tagged, so other projects' jobs never run on it. It holds no credentials beyond
+      the job's own token.</li>
+  <li><strong>Least-privilege tokens.</strong> Each token gets <code>read_api</code> unless it must write, and an expiry
+      date.</li>
+  <li><strong>Protected branches and tags</strong>, so nothing reaches the master copy or a baseline without the
+      pipeline and an approval.</li>
+</ul>
+
+<h3>Growing a pipeline one job at a time</h3>
+<p>Do not write the whole file on day one. Add one job, live with it for a sprint, then add the next. Each job should
+answer a question a reviewer used to answer by eye.</p>
+<ol>
+  <li><code>grammar</code>: is every file valid SysML v2 text?</li>
+  <li><code>lint</code>: do all the names resolve? Hold it at 0/0 from the first day.</li>
+  <li><code>secrets</code>: is nothing secret committed?</li>
+  <li><code>docs</code>: do the generated documents match the model?</li>
+  <li><code>trace</code>: do the requirements still trace? Start it as <code>allow_failure</code>, then make it a ratchet (fail only on new gaps).</li>
+  <li>The reports (JUnit, Code Quality), so failures show on the MR.</li>
+  <li><code>pages</code>, <code>baseline</code>, <code>publish-release</code>, and the weekly <code>status</code>.</li>
+</ol>
+
+<h3>The minimum pipeline for any SysML v2 text repository</h3>
+<p>Ten lines, enough to start. Set <code>KIT</code> as a CI/CD variable and copy
+<code>tools/gitlab/templates/ci/job.pl</code> to <code>ci/job.pl</code>. In the template, the <code>workflow</code> block
+and the rest come later.</p>
+<pre><code>stages:
+  - check
+
+grammar:
+  stage: check
+  script:
+    - perl ci/job.pl grammar
+
+lint:
+  stage: check
+  script:
+    - perl ci/job.pl lint</code></pre>
+<p>Why <code>perl ci/job.pl NAME</code> and not shell lines: GitLab Runner's Windows shell executor runs PowerShell,
+where <code>$KIT</code> is <code>$env:KIT</code> and <code>$(find ...)</code>, <code>[ -f ... ]</code>, pipes and quoting
+behave differently. A Perl script behaves the same in PowerShell, cmd, Git Bash, a Linux runner, the Docker image and
+<code>gitlab.pl ci</code> on a laptop.</p>
+
+<h2 id="pipeline">The pipeline, job by job</h2>
+<div class="why"><b>The objection:</b> "We audit at the baseline, like always." <b>Why bother:</b> an audit at the end finds a year of problems at once, when they are hardest to fix. The pipeline is the same configuration audit, written down once and run by the server on every change, in minutes. Problems are found the day they are made, by the person who made them, before they reach the master copy. Nobody spends a week preparing for it.</div>
+<p>The pipeline is the part of the process nobody can skip. Each job checks one thing a reviewer would otherwise have
+to check by eye. Every job's script is one line, <code>perl ci/job.pl NAME</code>; <code>ci/job.pl</code> (committed in the
+model repo, from <code>tools/gitlab/templates/ci/job.pl</code>) calls the kit through the CI/CD variable <code>KIT</code>.
+Nothing is installed on the runner beyond Git for Windows (or any Perl 5 with Git).</p>
+<table>
+<tr><th>Stage</th><th>Job</th><th>Runs on</th><th>Checks</th><th>Fails the MR?</th></tr>
+<tr><td>check</td><td><code>grammar</code></td><td>every change</td><td>Every <code>.sysml</code> file parses against the official SysML v2 grammar</td><td>yes</td></tr>
+<tr><td>check</td><td><code>lint</code></td><td>every change</td><td>Names resolve, imports are used; the last line must be <code>errors=0 warnings=0</code></td><td>yes</td></tr>
+<tr><td>check</td><td><code>outline</code></td><td>every change</td><td>2 to 9 children at every level; each part def has its level tag</td><td>only if the change adds a violation (a ratchet against <code>.ci/outline-max</code>)</td></tr>
+<tr><td>check</td><td><code>todo</code></td><td>every change</td><td>Counts <code>// TODO</code> lines: the port burn-down (artifact <code>todo.txt</code>)</td><td>never</td></tr>
+<tr><td>check</td><td><code>secrets</code></td><td>every change</td><td>No access tokens, cloud keys or private keys in the tree</td><td>yes</td></tr>
+<tr><td>trace</td><td><code>trace</code></td><td>every change</td><td>DOORS against the model: linked, orphan, unverified, drifted requirements</td><td>only if the change adds a gap (a ratchet against the merge base); reports only on <code>develop</code></td></tr>
+<tr><td>docs</td><td><code>docs</code></td><td>every change</td><td>Generated docs are committed and current</td><td>yes</td></tr>
+<tr><td>delta</td><td><code>delta</code></td><td><code>vendor/prime</code>, <code>feature/drop-*</code> MRs</td><td>What the prime changed in v1 since the previous drop; which changes need hand rework</td><td>only on error</td></tr>
+<tr><td>release</td><td><code>baseline</code></td><td>tags <code>baseline-*</code></td><td>The tagged tree rebuilds its docs byte for byte, the hash matches the tag message; writes <code>toolchain.txt</code> (kit, Perl, Git, OS, runner, image)</td><td>yes (the tag stays, the release is held)</td></tr>
+<tr><td>delta</td><td><code>drop-package</code></td><td><code>vendor/prime</code></td><td>Files the drop, as delivered, in the generic package registry (<code>prime-drop</code>, by version)</td><td>only on error</td></tr>
+<tr><td>release</td><td><code>publish-release</code></td><td>tags <code>baseline-*</code>, after <code>baseline</code></td><td>Creates the GitLab release with the baseline's CHANGELOG section and the toolchain as notes</td><td>&mdash;</td></tr>
+<tr><td>publish</td><td><code>pages</code></td><td>the default branch</td><td>Publishes the model's web site: generated docs, tree / trace / package views, the trace summary, the TODO burn-down</td><td>never blocks a merge (runs after it)</td></tr>
+<tr><td>report</td><td><code>status</code></td><td>the weekly schedule</td><td>Exports issues, MRs and jobs for the status metrics</td><td>&mdash;</td></tr>
+</table>
+<p>Words used in the table: a <em>job</em> is one check; a <em>stage</em> is a group of jobs that run together, in the order
+listed; a <em>runner</em> is the machine that runs them; an <em>artifact</em> is a file a job keeps (a report, a count);
+a <em>rule</em> says when a job runs.</p>
+<h3>What the merge request shows: reports</h3>
+<p>Each check job also writes its results in the formats GitLab draws on the merge request page, using
+<code>tools/gitlab/ci-reports.pl</code> on the checkers' own output:</p>
+<table>
+<tr><th>Report</th><th>Shown as</th><th>Written by</th><th>Tier</th></tr>
+<tr><td>JUnit XML (<code>reports:junit</code>)</td><td>the test summary: each failed check with its message (one case per model file for grammar and lint; one per requirement gap for trace)</td><td><code>ci-reports.pl grammar|lint|outline|trace --junit</code></td><td>Free</td></tr>
+<tr><td>Code Quality JSON (<code>reports:codequality</code>)</td><td>the findings this change added or fixed: lint errors and warnings, outline violations, TODO lines (as <em>info</em>)</td><td><code>ci-reports.pl ... --codequality</code></td><td>Free (widget), Premium (inline in the diff)</td></tr>
+<tr><td>Metrics (<code>reports:metrics</code>)</td><td>how each number moved against the target branch: <code>todo_lines</code>, <code>lint_errors</code>, <code>trace_completeness_pct</code>, &hellip;</td><td><code>ci-reports.pl ... --metrics</code></td><td>Premium</td></tr>
+</table>
+<pre><code>perl ci/job.pl lint      # runs, in turn:
+perl $KIT/tools/sysml/model.pl lint &gt; lint.txt 2&gt;&amp;1
+perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
+ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=138 lint_errors=0 lint_warnings=0</code></pre>
+<p>A Code Quality finding's <em>fingerprint</em> is a hash of its file, check and message (not its line), so a finding
+keeps its identity when lines above it move, and GitLab can tell "fixed" from "moved".</p>
+<h3>Why these rules</h3>
+<ul>
+  <li><strong><code>workflow:rules</code></strong> give one pipeline per change: an MR gets a merge request pipeline, and
+      the same branch does not also get a branch pipeline. Without it every push to an MR runs twice.</li>
+  <li><strong>The trace job is a ratchet.</strong> Requirement gaps are often the prime's to fix (a discrepancy
+      report); blocking every unrelated MR on them would stop the team without fixing anything. So on a merge request the
+      job also traces the model as it was at the merge base, and fails only when the change <em>adds</em> a gap: removes
+      a satisfy, drops a verify, edits a requirement's text away from DOORS. The existing gaps stay in the widget.</li>
+  <li><strong>Hidden jobs and anchors</strong> (<code>.check</code>, <code>&amp;model_rules</code>) keep the shared rules in
+      one place: the weekly status schedule runs only the report; the nightly schedule (<code>FULL=1</code>) runs the
+      full check and refreshes the site.</li>
+  <li><strong><code>include: template: Security/Secret-Detection.gitlab-ci.yml</code></strong> adds GitLab's own secret
+      scanner, but only when the project variable <code>DOCKER_RUNNER</code> is <code>"true"</code> (the include has its
+      own <code>rules:</code>). The scanner runs in a Docker image; on the team's Windows shell runner its job would wait
+      forever and, with "pipelines must succeed", block every MR. The <code>secrets</code> job is the always-on check: a scan
+      of every tracked file in <code>ci/job.pl</code>, which runs on any runner and on a laptop.</li>
+  <li><strong><code>default: tags: [windows, mbse]</code></strong> sends the jobs to the team's Windows shell runner. On a
+      Docker runner (<code>tools/gitlab/docker</code>) drop the tags or use that runner's own.</li>
+  <li><strong>The outline job is a ratchet.</strong> The converted model inherits outline violations from the prime's
+      structure, most of them fixable only upstream. <code>.ci/outline-max</code> holds the count allowed: a change that adds
+      a violation fails; a change that removes one lowers the number in the same MR. At 0 the rule is absolute.</li>
+</ul>
+<!--#include templates/gitlab-ci.yml-->
+<p>And the script every job runs, <code>ci/job.pl</code>:</p>
+<!--#include templates/ci/job.pl-->
+
+<h2 id="local">Running the pipeline locally</h2>
+<div class="why"><b>The objection:</b> "Why run it myself if the server runs it anyway?" <b>Why bother:</b> it is the desk check before the review. A red check found on your laptop costs a minute; found on the server, it costs a review round and someone else's attention.</div>
+<p><code>gitlab.pl ci</code> reads <code>.gitlab-ci.yml</code>, applies GitLab's rules for the event you name, and runs
+the jobs in the current directory, stage by stage, with the predefined variables GitLab would set. Run it before every
+push: a red job found on the laptop costs a minute; found on the server, it costs a review round.</p>
+<pre><code>cd model                                    # the model repo clone
+export KIT=/c/Users/you/agile
+perl $KIT/bin/gitlab.pl ci --list --event merge_request_event --branch feature/19-stations --target develop
+perl $KIT/bin/gitlab.pl ci --event merge_request_event --branch feature/19-stations --target develop --var KIT=$KIT
+perl $KIT/bin/gitlab.pl ci --job lint       # one job
+perl $KIT/bin/gitlab.pl ci --event tag --tag baseline-1   # what the tag pipeline will do</code></pre>
+<p><code>--list</code> prints which jobs would run and, for the others, which rule skipped them. Included templates are
+reported as "runs on GitLab only". The local runner understands the subset of the CI syntax the Tidewater pipeline uses:
+<code>stages</code>, <code>variables</code>, <code>default</code>, <code>workflow:rules</code>, <code>include</code>
+(reported), hidden jobs, <code>extends</code>, YAML anchors and <code>&lt;&lt;</code> merges, <code>rules</code>
+(<code>if</code>, <code>changes</code>, <code>exists</code>, <code>when</code>, <code>allow_failure</code>),
+<code>only</code>/<code>except</code>, <code>needs</code>, <code>artifacts:paths</code>. Keys it does not need
+(<code>image</code>, <code>services</code>, <code>tags</code>, <code>cache</code>, <code>retry</code>) are accepted and
+ignored.</p>
+
+<h2 id="issues">Issues, labels, milestones and boards</h2>
+<div class="why"><b>The objection:</b> "Our action-item spreadsheet works." <b>Why bother:</b> the spreadsheet works until two people edit it, or until someone asks which change closed an action. An issue is an action item that links to the change that closes it, closes itself when that change is approved, and shows on a board that is always current. Nobody updates a tracker before a meeting.</div>
+<h3>Milestones are sprints</h3>
+<p>One milestone per sprint, <em>Sprint 1</em> to <em>Sprint 39</em>, two weeks each, created at once by the
+<code>[milestones]</code> line of the project file or by <code>gitlab.pl sprints 2026-10-05 39</code>. A story belongs
+to exactly one sprint; if it does not finish, it moves to the next milestone and the move is visible in its history (the
+carryover the journal counts). Premium has <em>iterations</em> with automatic cadences, which do the same job.</p>
+<h3>Labels</h3>
+<p>Labels carry everything a milestone cannot: the type of item, its tome and epic, its place on the board, who fixes
+it. Scoped labels (<code>key::value</code>) are mutually exclusive on Premium: adding <code>workflow::review</code>
+removes <code>workflow::in-progress</code>. On Free the names still group and filter; keep one per scope by habit.</p>
+<table>
+<tr><th>Scope</th><th>Values</th><th>Used for</th></tr>
+<tr><td><code>type::</code></td><td>epic, story, task, defect, discrepancy, drop, spike</td><td>what the item is; templates set it</td></tr>
+<tr><td><code>tome::</code>, <code>epic::</code></td><td>environment, port, maintain; gitlab-project &hellip; sustainment</td><td>the hierarchy above the story</td></tr>
+<tr><td><code>workflow::</code></td><td>ready, in-progress, review, blocked, done</td><td>the board's columns</td></tr>
+<tr><td><code>priority::</code>, <code>severity::</code></td><td>1 to 3</td><td>order; how bad a defect or DR is</td></tr>
+<tr><td><code>owner::</code></td><td>gov, prime</td><td>who fixes it: a defect (gov) or a discrepancy report (prime)</td></tr>
+<tr><td><code>phase::</code></td><td>port, integration, maintenance</td><td>when it was found (status metric H)</td></tr>
+<tr><td><code>area::</code></td><td>one per model package, plus interface, pipeline, gov</td><td>which package; matches the CODEOWNERS sections</td></tr>
+</table>
+<h3>Boards</h3>
+<p>The <em>Sprint</em> board is scoped to the current milestone, with one list per <code>workflow::</code> label: moving a
+card changes the label. The <em>Prime</em> board, scoped to <code>owner::prime</code>, lists the open discrepancy reports
+by severity, and Jim reviews it before each drop.</p>
+<h3>Quick actions and time tracking</h3>
+<p>A line starting with <code>/</code> in a description or comment is a command, run when the text is saved:
+<code>/label</code>, <code>/milestone</code>, <code>/assign</code>, <code>/estimate 2d</code>, <code>/spend 4h</code>,
+<code>/relate #8</code>, <code>/close</code>, <code>/approve</code>, <code>/merge</code>. Templates end with quick actions,
+so a new story is labelled and placed the moment it is created. <code>/estimate</code> on a task is its size in days;
+the five-point limit of a task is the rule <code>/estimate</code> makes visible.</p>
+<p>From the command line:</p>
+<pre><code>perl $KIT/bin/gitlab.pl issue new "Close the Stations TODO lines" --template .gitlab/issue_templates/Story.md \
+     --label type::story --label epic::structure --label tome::port --milestone "Sprint 4" --assign bob
+perl $KIT/bin/gitlab.pl issue new "Write state def BuoyModes" --type task --template .gitlab/issue_templates/Task.md \
+     --label type::task --milestone "Sprint 4" --assign bob
+perl $KIT/bin/gitlab.pl issue link 20 18
+perl $KIT/bin/gitlab.pl issue note 18 "Blocked on the trigger question; asked the prime's modeler. /label ~workflow::blocked"
+perl $KIT/bin/gitlab.pl issue list --label type::story --state opened</code></pre>
+
+<h2 id="drops">Prime drops: the vendor branch</h2>
+<div class="why"><b>The objection:</b> "The prime owns the model; we just read their drops." <b>Why bother:</b> reading drops by hand is how the government ended up a passenger. Merged through the vendor branch, each drop lands in the government's own model automatically, the government's improvements survive, and the delta report says exactly what the prime changed, including what their diagrams hide. That is what lets the government check the deliverable, not just receive it.</div>
+<p>The prime keeps changing its v1 model, during the port and after it. The government's v2 model carries its own
+edits on top of the converter's output: closed TODO lines, level tags, hand-written state machines. Regenerating from a
+new drop would wipe those edits; editing the new drop by hand would take days per drop. The vendor branch makes Git do
+it.</p>
+<ul>
+  <li><code>vendor/prime</code> holds, for each drop, exactly what the converters make of it: <code>model/</code> from the
+      XMI and the ReqIF, and <code>imports/&lt;version&gt;/</code> with the files as delivered. Nobody edits it.</li>
+  <li><code>develop</code> holds the same files plus the government's edits.</li>
+  <li>A new drop is a new commit on <code>vendor/prime</code>. Merging it into <code>develop</code> is a three-way merge
+      whose base is the previous drop: Git applies the prime's changes and keeps the government's edits. It stops only
+      where both sides changed the same lines.</li>
+</ul>
+<pre><code>perl $KIT/bin/gitlab.pl flow vendor /secure/drops/2027-01-08 v1.1
+#  vendor/prime: Import prime drop v1.1 (MANIFEST sha256 ...)       pushed; the delta job runs
+#  feature/drop-v1.1: merged vendor/prime into develop               conflicts: model/analysis/Analysis.sysml</code></pre>
+<p>Two things the merge cannot do, which the process covers:</p>
+<ol>
+  <li><strong>Changes inside what the converter does not carry.</strong> A new state in a v1 state machine changes
+      nothing in the converter's output (the state machine is a single TODO line), so the merge sees no change. The
+      <code>delta</code> job compares the two drops' XMI element by element and marks those lines <em>manual</em>; each
+      becomes a task.</li>
+  <li><strong>Conflicts.</strong> The rule is: take the prime's text, then re-apply the government's edit on top. The
+      intake story lists each conflict and its resolution in the MR.</li>
+</ol>
+<p>The full procedure is the <em>Drop Intake Runbook</em> wiki page (<a href="#wiki">below</a>).</p>
+
+<h2 id="releases">Releases and baselines</h2>
+<div class="why"><b>The objection:</b> "We already number our baselines." <b>Why bother:</b> a number on a cover page can be applied to the wrong file. A protected tag points at exactly one state of every file, cannot be moved, and its pipeline proves the baseline rebuilds byte for byte: the physical configuration audit, done by machine.</div>
+<p>A baseline is three things that point at one commit: the merge of <code>release/baseline-N</code> into
+<code>main</code>, the annotated protected tag <code>baseline-N</code>, and a GitLab release whose notes come from the
+CHANGELOG. The tag message carries <code>sha256=</code> of the generated docs; the tag pipeline rebuilds the docs from
+the tagged model and checks the hash, so "this baseline rebuilds byte for byte" is checked, not claimed.</p>
+<pre><code>perl $KIT/bin/gitlab.pl flow start release baseline-1
+#   move CHANGELOG [Unreleased] under the baseline heading; regenerate docs; commit
+perl $KIT/bin/gitlab.pl flow finish --template .gitlab/merge_request_templates/Release.md
+#   after the merge: tag baseline-1, release with notes, back-merge MR main -> develop
+perl $KIT/bin/gitlab.pl release baseline-1 --notes notes.md --name "Tidewater model baseline-1"   # by hand, if needed</code></pre>
+
+<h3>The model's web site (GitLab Pages)</h3>
+<p>The <code>pages</code> job rebuilds a small web site on every merge to <code>develop</code>: the generated documents,
+the part tree, trace and package views drawn from the model, the requirement trace summary, and the TODO burn-down
+(the port's progress, counted at every merge). GitLab serves it at the project's Pages address (Deploy &gt; Pages); set
+Pages access control to project members. It is for the program office, the prime and review boards: people who need the
+model's current state and will never open a repository. The <em>environment</em> <code>model-site</code> records which
+commit the site shows and when it changed. The front page is written by <code>tools/gitlab/pages-index.pl</code>.</p>
+
+<h2 id="wiki">The wiki</h2>
+<div class="why"><b>The objection:</b> "We have a SEP and a CM plan." <b>Why bother:</b> keep them; the wiki holds the working procedures that sit under them, short enough to read while doing the work, and changed the same week the team changes how it works, with a history of every change.</div>
+<p>The wiki holds what changes slowly and is read often: procedures, definitions and decisions. It is a Git repository
+of Markdown pages (<code>model.wiki.git</code>), so it can be cloned, reviewed and backed up like the model. Tidewater
+starts with these pages, from <code>tools/gitlab/templates/wiki/</code>:</p>
+<table>
+<tr><th>Page</th><th>Holds</th></tr>
+<tr><td>Home</td><td>why the team is doing this, what changes and what stays, the team, the hierarchy, the sprint</td></tr>
+<tr><td>Glossary</td><td>systems engineering and CM terms, and their GitLab and DevSecOps names</td></tr>
+<tr><td>Definition of Ready / Definition of Done</td><td>when a story enters a sprint; when a task, story or drop is done; commit message rules</td></tr>
+<tr><td>Gitflow</td><td>the branch table, the picture, the commands</td></tr>
+<tr><td>Drop Intake Runbook</td><td>a prime drop from receipt to merged</td></tr>
+<tr><td>Baseline Procedure</td><td>cutting <code>baseline-N</code></td></tr>
+<tr><td>Onboarding</td><td>a new member's first day and first task, step by step, with what each step is like in the old way</td></tr>
+<tr><td>Administration</td><td>what is kept running, how often, by whom</td></tr>
+<tr><td>Decision: &hellip;</td><td>one page per decision (a sample is below)</td></tr>
+</table>
+<details><summary>The Drop Intake Runbook page</summary>
+<!--#include templates/wiki/Drop Intake Runbook.md-->
+</details>
+
+<h2 id="markdown">Markdown, field by field</h2>
+<div class="why"><b>The objection:</b> "Another markup language?" <b>Why bother:</b> Markdown is plain text with a few conventions you have used in e-mail for years: <code>**bold**</code>, <code>- item</code>, tables drawn with <code>|</code>. It works in every GitLab field, and the samples below show everything this team needs. Copy one and change the words.</div>
+<p>Every text field in GitLab is GitLab Flavored Markdown: issue and MR descriptions, comments, milestone descriptions,
+release notes, wiki pages, even commit messages (rendered in the UI). Below, each field as the Tidewater team fills it in
+during sprints 1 to 6. The files are in <code>tools/gitlab/samples/</code>; copy one as a starting point.</p>
+
+<h3>The references every field understands</h3>
+<!--#include samples/15-snippet-and-mentions.md-->
+
+<h3>Epic description</h3>
+<p>The goal, the scope as an In/Out table, the stories as a task list (so progress shows as "3 of 7"), the measures and
+the timeline. On Free this is the description of a <code>type::epic</code> issue.</p>
+<!--#include samples/01-epic.md-->
+
+<h3>Story issue</h3>
+<p>Why, then "done" as a checklist someone else can verify, then the tasks with their points. The Definition of Ready
+sits in a collapsed <code>&lt;details&gt;</code> block so it is there without crowding the page.</p>
+<!--#include samples/02-story.md-->
+
+<h3>Task issue</h3>
+<p>"Part of #18" links the task to its story. A code block shows the change; <code>/spend</code> records the time.</p>
+<!--#include samples/03-task.md-->
+
+<h3>Defect</h3>
+<p>What is wrong, the evidence pasted from the job log, what is expected and where that comes from. An alert box
+(<code>&gt; [!note]</code>) records the root cause.</p>
+<!--#include samples/04-defect.md-->
+
+<h3>Discrepancy report to the prime</h3>
+<p>The government does not edit the prime's model. It reports, with facts side by side, one specific request, and a
+closure checklist that the next drop's intake ticks.</p>
+<!--#include samples/05-discrepancy-report.md-->
+
+<h3>Prime drop intake</h3>
+<!--#include samples/06-prime-drop.md-->
+
+<h3>Merge request description</h3>
+<p>"Closes #19" closes the task when the MR merges into the default branch. The local pipeline run goes in a collapsed
+block, so the reviewer can see it was run.</p>
+<!--#include samples/07-merge-request.md-->
+
+<h3>Review thread</h3>
+<p>A line comment with a <code>suggestion</code> block (the author applies it with one click), a reply, a related link
+by quick action, and the approval. <code>suggestion:-0+1</code> replaces the commented line and the one after it.</p>
+<!--#include samples/08-review-thread.md-->
+
+<h3>Issue comments over a sprint</h3>
+<p>Comments are where the stand-up meets GitLab: started, blocked and why, unblocked, time spent, done. The quick
+actions move the card on the board.</p>
+<!--#include samples/09-issue-comments.md-->
+
+<h3>Milestone description (a sprint)</h3>
+<!--#include samples/10-milestone.md-->
+
+<h3>Release notes</h3>
+<!--#include samples/11-release.md-->
+
+<h3>Wiki page: a decision record</h3>
+<p><code>[[_TOC_]]</code>, a status table, a Mermaid diagram and a footnote.</p>
+<!--#include samples/12-wiki-decision.md-->
+
+<h3>Commit messages</h3>
+<p>Subject in the imperative, a blank line, the why, then trailers. <code>Changelog:</code> trailers build the
+CHANGELOG; <code>Issue:</code> and <code>Fixes:</code> link the issue.</p>
+<!--#include samples/13-commit-messages.md-->
+
+<h3>Labels and boards</h3>
+<!--#include samples/14-board-and-labels.md-->
+
+<h2 id="templates">The templates</h2>
+<p>Templates make the fields above the default. GitLab offers every file in <code>.gitlab/issue_templates/</code> and
+<code>.gitlab/merge_request_templates/</code> in a drop-down when an issue or MR is created; a template named
+<code>Default.md</code> is preselected for MRs. All of them are in <code>tools/gitlab/templates/</code>:</p>
+<table>
+<tr><th>Kind</th><th>Templates</th></tr>
+<tr><td>Issue</td><td>Story, Task, Defect, Discrepancy Report, Prime Drop, Epic, Spike</td></tr>
+<tr><td>Merge request</td><td>Default, Prime Drop, Release, Hotfix</td></tr>
+<tr><td>Wiki</td><td>Home, Definition of Ready, Definition of Done, Gitflow, Drop Intake Runbook, Baseline Procedure, Onboarding, Administration</td></tr>
+<tr><td>Repository</td><td><code>gitlab-ci.yml</code>, <code>CODEOWNERS</code>, <code>README.md</code>, <code>CHANGELOG.md</code>, <code>release-notes.md</code></td></tr>
+<tr><td>Project</td><td><code>project.conf</code> (for <code>gitlab.pl setup</code>)</td></tr>
+</table>
+<p>Each template is mostly comments (<code>&lt;!-- … --&gt;</code>, invisible when rendered) that say what goes where,
+and it ends with quick actions that label and place the new item.</p>
+<details><summary>Issue template: Story</summary>
+<!--#include templates/.gitlab/issue_templates/Story.md-->
+</details>
+<details><summary>Issue template: Prime Drop</summary>
+<!--#include templates/.gitlab/issue_templates/Prime Drop.md-->
+</details>
+<details><summary>Issue template: Discrepancy Report</summary>
+<!--#include templates/.gitlab/issue_templates/Discrepancy Report.md-->
+</details>
+<details><summary>Merge request template: Default</summary>
+<!--#include templates/.gitlab/merge_request_templates/Default.md-->
+</details>
+<details><summary>Merge request template: Prime Drop</summary>
+<!--#include templates/.gitlab/merge_request_templates/Prime Drop.md-->
+</details>
+<details><summary>Merge request template: Release</summary>
+<!--#include templates/.gitlab/merge_request_templates/Release.md-->
+</details>
+
+<h2 id="export">Exports for the status metrics</h2>
+<div class="why"><b>The objection:</b> "Status is a briefing chart." <b>Why bother:</b> the chart stays; the numbers on it stop being typed. Every number comes from the work itself, the same way every week, so the briefing becomes a discussion of what the numbers mean rather than an argument about whether they are right.</div>
+<p>The A to Z status metrics (<a href="STATUS-METRICS.html">STATUS-METRICS.html</a>) read the model repository and a
+folder of exports. <code>gitlab.pl export DIR</code> writes the exports from what GitLab knows; the weekly scheduled
+pipeline runs it, and it works the same against the offline emulator.</p>
+<pre><code>perl $KIT/bin/gitlab.pl --url https://gitlab.example.com --token-env STATUS_TOKEN --project tidewater/model \
+     export exports --since 2026-10-05
+perl $KIT/bin/status-metrics.pl collect --config metrics.json --history exports/history.jsonl</code></pre>
+<table>
+<tr><th>File</th><th>Columns</th><th>Feeds</th></tr>
+<tr><td><code>ci_jobs.csv</code></td><td>ts, job, branch, result, minutes</td><td>pipeline health; time to restore a red <code>develop</code> (W); docs regeneration time (K)</td></tr>
+<tr><td><code>mrs.csv</code></td><td>iid, title, author, source, target, created_at, merged_at, lead_hours, labels, state</td><td>MR lead time (N), who merges (Z)</td></tr>
+<tr><td><code>issues.csv</code></td><td>iid, type, title, labels, milestone, assignee, state, created_at, closed_at</td><td>sprint content, carryover, DR closure</td></tr>
+<tr><td><code>defects.csv</code></td><td>id, type, phase, found, closed</td><td>interface mismatches caught before integration (H)</td></tr>
+<tr><td><code>tracker/sprint-N.csv</code></td><td>the stories of sprint N with status, blocked_days, blocker</td><td>sprint completion (X), blocked days and top blocker (Y)</td></tr>
+</table>
+<p>The token needs only <code>read_api</code>. Make it a project access token, store it as a masked, protected CI/CD
+variable, and give it an expiry date (see below).</p>
+
+<h2 id="admin">Administration</h2>
+<div class="why"><b>The objection:</b> "IT runs the servers." <b>Why bother:</b> IT runs GitLab; the project's own upkeep (who has access, which tokens exist, whether the runner works) is configuration management, and it is a few minutes a week when kept up and a crisis when not.</div>
+<p>Tom (configuration management) and Jim (owner) keep the project running. The wiki page <em>Administration</em> is the
+checklist; here is the reasoning.</p>
+<h3>Runners</h3>
+<p>A runner executes the jobs. The pipeline needs Perl, Git and a POSIX shell, and nothing else, so the simplest runner
+is a <strong>Windows shell runner using Git Bash</strong>: the same Perl the team uses on their laptops, so "passes on my
+machine" and "passes in CI" mean the same thing.</p>
+<ol>
+  <li>On the runner machine: install Git for Windows; clone the kit (for example to <code>C:\agile</code>); download
+      <code>gitlab-runner.exe</code> (the approved build) to <code>C:\GitLab-Runner</code>.</li>
+  <li>In GitLab: Settings &gt; CI/CD &gt; Runners &gt; New project runner, tags <code>windows, perl</code>. Copy the runner
+      authentication token (it starts <code>glrt-</code>); it is shown once.</li>
+  <li>Register and install it as a service, from an administrator prompt:
+<pre><code>cd C:\GitLab-Runner
+.\gitlab-runner.exe register --non-interactive --url https://gitlab.example.com --token %RUNNER_TOKEN% ^
+    --executor shell --shell bash --description tidewater-win
+.\gitlab-runner.exe install
+.\gitlab-runner.exe start</code></pre></li>
+  <li>In <code>config.toml</code>, under the runner, add <code>environment = ["KIT=/c/agile"]</code>, or set
+      <code>KIT</code> as a CI/CD variable (the project file does).</li>
+  <li>Keep the kit current on the runner: <code>git -C C:\agile pull</code> weekly, or pin it to a tag and update the pin
+      by MR.</li>
+</ol>
+<h3>Tokens</h3>
+<ul>
+  <li>Use <strong>project access tokens</strong> for automation (the weekly export), never a person's token: they stay
+      valid when people leave, and they show up as a bot in the audit log.</li>
+  <li>Give each token the smallest scope (<code>read_api</code> for exports, <code>api</code> only for <code>setup</code>)
+      and an expiry date. Rotate before expiry: Settings &gt; Access tokens &gt; Rotate, then update the CI/CD variable.</li>
+  <li>Store tokens in masked, protected CI/CD variables or in an environment variable on your machine
+      (<code>--token-env</code>). Never on the command line (shell history) and never in a file in the repo: the
+      <code>secrets</code> job and GitLab's secret detection look for <code>glpat-</code> tokens.</li>
+</ul>
+<h3>Backups</h3>
+<ul>
+  <li>The instance: the GitLab administrator's daily <code>gitlab-backup create</code>, plus the configuration and secrets
+      files kept apart from it.</li>
+  <li>The project, at each baseline: Settings &gt; General &gt; Advanced &gt; Export project (repository, wiki, issues,
+      MRs, labels, milestones), stored with the baseline's release evidence.</li>
+  <li>The repository and the wiki are Git: a <code>git clone --mirror</code> of each, kept on approved storage, is a
+      complete copy of the model's history.</li>
+</ul>
+<h3>Members: on- and offboarding</h3>
+<ul>
+  <li>Add people at the lowest role that lets them work: developer for engineers, maintainer only for those who cut
+      baselines and manage the vendor branch. Set an access expiration date for temporary members.</li>
+  <li>On departure, the same day: remove the member from the group and project, revoke their tokens, rotate any shared
+      variable they could read, reassign their issues and MRs, and update <code>CODEOWNERS</code>.</li>
+  <li>Review the member list each quarter (Manage &gt; Members, sorted by last activity).</li>
+</ul>
+<h3>Audit and upgrades</h3>
+<ul>
+  <li>Audit events (Secure &gt; Audit events, Premium) record changes to protections, members, tokens and approvals.
+      Review them monthly and after every change to <code>project.conf</code>.</li>
+  <li>Before a GitLab upgrade, read the release notes for removed CI keywords and API changes, then run
+      <code>gitlab.pl ci --list</code> and <code>gitlab.pl --dry-run setup</code> against the new version.</li>
+  <li>Compare the server with the project file monthly: <code>gitlab.pl --dry-run setup project.conf</code> prints only
+      what differs.</li>
+</ul>
+
+<h2 id="trouble">Troubleshooting</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td><code>remote: GitLab: You are not allowed to push code to protected branches</code></td><td>A direct push to <code>develop</code> or <code>main</code></td><td>Push a feature branch and open an MR (<code>flow start feature</code>)</td></tr>
+<tr><td>The first push to a new project is refused</td><td><code>main</code> was protected before it existed</td><td>Push the skeleton first, then <code>setup</code> (<a href="#setup">the order</a>)</td></tr>
+<tr><td>Two pipelines for every push to an MR</td><td>No <code>workflow:rules</code></td><td>Keep the <code>workflow</code> block of the template</td></tr>
+<tr><td>Every job fails with <code>KIT is not set</code></td><td>The CI/CD variable is missing or protected and the branch is not</td><td>Set <code>KIT</code> unprotected, or on the runner's <code>environment</code></td></tr>
+<tr><td><code>lint is not 0/0</code></td><td>A name does not resolve, or a warning was left</td><td>Run <code>model.pl lint</code> locally; the line numbers are Vim quickfix format</td></tr>
+<tr><td><code>docs/ is stale</code></td><td>The model changed and the docs were not regenerated</td><td><code>model.pl docs</code>, commit <code>docs/</code></td></tr>
+<tr><td>The MR cannot merge: "code owner approval required"</td><td>A path's owner has not approved</td><td>Ask the owner shown on the file; changing <code>CODEOWNERS</code> in the same MR does not help (it is read from the target)</td></tr>
+<tr><td>The issue did not close when the MR merged</td><td>The MR merged into a branch that is not the default</td><td>Make <code>develop</code> the default branch, or close it with <code>/close</code></td></tr>
+<tr><td>A drop merge conflicts in many files</td><td>Someone edited <code>vendor/prime</code>, or reformatted converted files on <code>develop</code></td><td>Never edit the vendor branch; edit converted files only where a TODO or tag requires it</td></tr>
+<tr><td>The <code>baseline</code> job fails on a tag</td><td>Docs not regenerated before the release merge, or a different kit version</td><td>Fix on a <code>hotfix/</code> branch and tag <code>baseline-N.1</code>; never move the tag</td></tr>
+<tr><td><code>gitlab.pl</code>: <code>401 Unauthorized</code></td><td>The token expired, or lacks the scope</td><td>Rotate it; <code>api</code> for <code>setup</code>, <code>read_api</code> for <code>export</code></td></tr>
+<tr><td>Labels like <code>workflow::ready</code> do not replace each other</td><td>Scoped labels are Premium</td><td>On Free remove the old label yourself (<code>/unlabel</code>), or move the card on the board</td></tr>
+</table>
+
+<h2 id="glossary">Glossary</h2>
+<p>The same glossary is the wiki page <em>Glossary</em> (<code>tools/gitlab/templates/wiki/Glossary.md</code>), so the
+team has it where they work.</p>
+<!--#markdown templates/wiki/Glossary.md-->
+
+<h2 id="cli">Command reference</h2>
+<p><code>bin/gitlab.pl</code> talks to a GitLab server through its REST API (with <code>curl</code>, which Git for Windows
+ships) or to the offline emulator, with the same commands. <code>perl bin/gitlab.pl help COMMAND</code> prints the
+details.</p>
+<pre><code>gitlab.pl [--url URL [--token-env VAR] | --local DIR] [--project PATH] [--as USER] [--now ISO] [--dry-run] COMMAND
+  setup FILE                         apply a project file (settings, members, protections, labels, milestones, rules, variables)
+  sprints START COUNT [--weeks 2] [--prefix "Sprint "]
+  issue new TITLE [--template F] [--label L]... [--milestone M] [--assign U] [--type task|issue|incident]
+  issue list [--state opened|closed|all] [--label L] | show IID | close IID | note IID TEXT|--file F | link IID TARGET
+  mr new --source B [--target B] --title T [--template F] [--label L]... | list | show IID | approve IID | merge IID | note IID TEXT
+  pipeline run REF [--source push|web|schedule] | list | show ID
+  tag NAME REF [--message M] | release TAG [--notes FILE] [--name N]
+  wiki put TITLE FILE | wiki list
+  export DIR [--since DATE] [--until DATE]
+  ci [--file .gitlab-ci.yml] [--event push|merge_request_event|tag|schedule|web] [--branch B] [--target B]
+     [--tag T] [--var K=V]... [--job NAME] [--manual] [--list]
+  flow init | flow start feature|release|hotfix NAME | flow publish | flow finish [--title T] [--template F]
+     | flow vendor DROPDIR VERSION | flow sync
+  help [COMMAND]</code></pre>
+
+<p style="margin-top:3em;font-size:9.5pt;color:#555">Generated from <code>tools/gitlab/guide.html.in</code> by
+<code>perl tools/gitlab/mkguide.pl</code>, which embeds the templates and samples. Tidewater, Northwind Marine Systems
+and every name and value here are fictional.</p>
+
+</body>
+</html>

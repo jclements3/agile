@@ -1,0 +1,81 @@
+              TIDEWATER COASTAL OBSERVATION PROGRAM
+
+TW-SE
+
+21 OCTOBER 2026
+
+MEMORANDUM FOR TIDEWATER PROGRAM MANAGER
+
+FROM: TIDEWATER MBSE LEAD
+
+SUBJECT: ENABLERS NEEDED TO BRIEF MEASURED RESULTS AT THE
+DECEMBER PROGRAM MANAGEMENT REVIEW
+
+REFERENCES: (A) PROGRAM MEMORANDUM, ADOPTION OF DEVSECOPS
+PRACTICES FOR SYSTEMS ENGINEERING ARTIFACTS, 24 SEPTEMBER 2026;
+(B) TWELVE-WEEK SCORECARD AND PLAN, 2 OCTOBER 2026
+
+1.  The team is on track for the December briefing. Drop 1 of the
+prime's model is received, checked against its manifest and
+converted: the converter left 52 items that need a person, and
+the drop goes onto the integration branch this sprint. The first
+pipeline is written and runs locally; it checks every change once
+the runner below is in place.
+
+2.  To keep that date, the team needs the following decisions:
+
++---+---------------+---------------+-----------+---------------+
+| # | Ask           | Why (the      | Needed by | If not        |
+|   |               | outcome it    |           |               |
+|   |               | buys)         |           |               |
++===+===============+===============+===========+===============+
+| 1 | Four          | the team      |  26 Oct   | the           |
+|   | protected     | learns while  |           | conversion    |
+|   | hours a week  | it delivers   |           | burn-down     |
+|   | per person    |               |           | slows by      |
+|   | for training, |               |           | about a third |
+|   | through 18    |               |           |               |
+|   | December      |               |           |               |
++---+---------------+---------------+-----------+---------------+
+| 2 | A two-hour    | the toolchain |   6 Nov   | secret        |
+|   | review slot   | is approved   |           | detection and |
+|   | with the ISSM | for program   |           | runner        |
+|   | for the       | data          |           | hardening     |
+|   | runner and    |               |           | stay          |
+|   | repository    |               |           | unapproved    |
+|   | security      |               |           |               |
+|   | description   |               |           |               |
++---+---------------+---------------+-----------+---------------+
+| 3 | Keep one      | each drop can |  30 Nov   | a drop with a |
+|   | Cameo seat,   | be opened     |           | bad export    |
+|   | for reading   | when its XMI  |           | cannot be     |
+|   | the prime's   | export is in  |           | checked       |
+|   | drops only    | question      |           |               |
++---+---------------+---------------+-----------+---------------+
+| 4 | A second      | no merge      |   8 Jan   | one runner    |
+|   | runner        | waits when    |           | outage blocks |
+|   | machine on    | the first     |           | every merge   |
+|   | the program   | runner is     |           |               |
+|   | network       | down          |           |               |
++---+---------------+---------------+-----------+---------------+
+| 5 | A decision on | approvals     |  15 Jan   | approvals     |
+|   | the GitLab    | enforced by   |           | rely on the   |
+|   | tier that     | the platform, |           | team's        |
+|   | enforces      | not by habit  |           | discipline    |
+|   | code-owner    |               |           | alone         |
+|   | approval      |               |           |               |
+|   | rules         |               |           |               |
++---+---------------+---------------+-----------+---------------+
+
+3.  Until then, the team will keep the review rule by agreement,
+run the pipeline on the single runner, and read drops from their
+XMI exports.
+
+4.  Request a decision on items 1 and 2 by 26 October, and on
+items 3 to 5 at the November program management review.
+
+5.  The point of contact is the undersigned.
+
+JIM
+
+TIDEWATER MBSE LEAD

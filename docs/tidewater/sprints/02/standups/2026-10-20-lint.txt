@@ -1,0 +1,4 @@
+standups/2026-10-20-Model-chat.txt:5: ok    Jim: Y/T/B parsed
+standups/2026-10-20-Model-chat.txt:9: ERROR Bob: no B found
+standups/2026-10-20-Model-chat.txt:11: ok    Tom: Y/T/B parsed
+# 3 answered, 1 error, 0 warnings

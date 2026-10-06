@@ -1,0 +1,60 @@
+Meeting started
+[10:00 AM] Jim
+Refinement for sprint 7. Planning poker: one number per story, in points.
+[10:01 AM] Jim
+#est TW-133 Break the Stations <-> DataCenter cycle
+[10:02 AM] Jim
+2
+[10:02 AM] Tom
+2
+[10:03 AM] Jim
+#est TW-134 The DailyUpload interaction by hand
+[10:04 AM] Jim
+2
+[10:04 AM] Tom
+2
+[10:05 AM] Jim
+#est TW-135 The EnergyBalance constraint expression
+[10:06 AM] Jim
+2
+[10:06 AM] Tom
+2
+[10:07 AM] Jim
+#est TW-136 Retire the Tidewater Profile TODO
+[10:08 AM] Jim
+1
+[10:08 AM] Tom
+1
+[10:09 AM] Jim
+#est TW-137 Pin the kit version
+[10:10 AM] Jim
+2
+[10:10 AM] Tom
+2
+
+---- Chat.pm tallies
+ESTIMATE TW-133 Break the Stations <-> DataCenter cycle  (2 answers at 10:01)
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-134 The DailyUpload interaction by hand  (2 answers at 10:03)
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-135 The EnergyBalance constraint expression  (2 answers at 10:05)
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-136 Retire the Tidewater Profile TODO  (2 answers at 10:07)
+  Jim            1
+  Tom            1
+  consensus: 1
+
+ESTIMATE TW-137 Pin the kit version  (2 answers at 10:09)
+  Jim            2
+  Tom            2
+  consensus: 2
+

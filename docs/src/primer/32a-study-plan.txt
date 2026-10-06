@@ -1,0 +1,119 @@
+== A twelve-week study plan per role {#study-plan}
+
+This book is long because it is a reference as well as a story. Nobody should read it front to back before doing
+anything. This appendix is the order the Tidewater team read it in, week by week, with the practice lessons and
+the exercises that go with each week, and the learning time the plan budgeted for it. Use it as a starting point
+for your own team: the roles matter more than the names.
+
+The three roles:
+
+- **The lead (Jim).** Owns the model, the backlog's tomes and epics, the change board and the conversation with
+  management. Reads for decisions and for the case to make; types fewer commands than the others.
+- **The modeler (Bob).** Does most of the model work: closing TODO lines, writing behavior by hand, reviewing.
+  Reads for SysML v2 and Vim, and practises the most.
+- **The pipeline owner (Tom).** A systems engineer who took on the GitLab project, the runner and the pipeline.
+  Reads for setup, CI/CD and administration.
+
+=== Where the hours come from {#study-plan-hours}
+
+Learning time is planned work, not evenings and weekends ([[lead]], [[stories]]). On Tidewater it is a
+`work::learning` story every sprint, with a task per person, sized like any other task (one point is one ideal
+day, about eight hours). The plan file is the source; print each person's learning tasks from it:
+
+```sh run sandbox=kit expect="Practice lessons 10-11"
+perl -e 'require "./sim/tidewater-plan.pl";
+  for my $s (grep { $_->{n} <= 6 } @{ tw_plan() }) {
+    for my $st (grep { $_->{work} eq "learning" } @{ $s->{stories} }) {
+      printf "S%d %-4s %4.1f h  %s\n", $s->{n}, $_->{who}, 8 * $_->{p}, $_->{t} for @{ $st->{tasks} } } }'
+```
+
+|| Sprint | Jim | Bob | Tom ||
+| 1 | 8 h | 12 h | 12 h |
+| 2 | 4 h | 12 h | 8 h |
+| 3 | 4 h | 8 h | 8 h |
+| 4 | 4 h | 4 h | 4 h |
+| 5 | 4 h | 4 h | 0 h |
+| 6 | 4 h | 0 h | 0 h |
+Table: Learning hours per person per sprint, from the plan (printed by the block above)
+
+The learning share falls as competence rises: see the sprint-by-sprint split in [[bluf]]. Reading this book's
+chapters and doing the practice lessons is what those hours buy. The practice lessons are offline, run on the
+laptop against the kit's GitLab stand-in, and take about forty-five minutes each (`perl agile.pl practice N`;
+`perl agile.pl practice check N` says what to do next).
+
+=== Week zero: everyone {#study-plan-week0}
+
+Before sprint 1, all three read the same short list, so the team starts with one vocabulary:
+
+- [[bluf]] and [[preface]]: what the twelve weeks are, and what they cost.
+- [[directive]]: what management asked for, and the scorecard that will measure it.
+- [[devsecops]]: every DevSecOps term in systems-engineering words.
+- [[survival]], up to the end of the laptop checks; then `perl "$KIT/tools/gitlab/kickoff.pl" doctor` on each
+  laptop.
+
+The lead also reads [[operating-model]] and [[playbook]], because week zero is when the scorecard, the exchange
+agreement with the prime and the first meeting with the security officer happen.
+
+=== Jim, the lead {#study-plan-jim}
+
+|| Week | Read | Do ||
+| 1 | [[operating-model]], [[stories]] | Practice lesson 10; write the Definition of Ready and Done; the exercises in [[stories]] |
+| 2 | [[ceremonies]], [[journal]] | Practice lesson 11 (as the approver); run the first kickoff and stand-ups from the chapter |
+| 3 | [[diagrams]], [[gitlab-setup]] (skim) | Practice lessons 12-13; the request-for-enablers memo ([[memos]]) |
+| 4 | [[recipe]], [[prime-changes]] (the contract parts) | Draft the delivery interface with the prime; the exercises in [[recipe]] |
+| 5 | [[talking]], [[reviewing]] | Draft a stand-up with `talk.pl` and edit it; review one of Bob's merge requests with the checklist |
+| 6 | [[analytics]], [[communicating]] | Run `gitlab.pl analytics`; read the week's quad; write the sprint mail |
+| 7 | [[verification]] (stage 1), [[proving]] | Write the trace page for the program office |
+| 8 | [[lead]] | Plan the second semester's learning budget; the exercises in [[lead]] |
+| 9 | [[memos]], [[se-work]] | Grade the requirements with the recipe; write the discrepancy report on the DOORS wording |
+| 10 | [[scorecard]] | Fill the scorecard from the evidence; check every number against its source |
+| 11 | [[briefing]], [[documents-stages]] | Rehearse the briefing on Day 9; move the briefing memo through the review stages |
+| 12 | [[minds]], [[maintenance]] | Give the briefing; plan the next drop's intake and the next baseline |
+Table: The lead's twelve weeks
+
+=== Bob, the modeler {#study-plan-bob}
+
+|| Week | Read | Do ||
+| 1 | [[survival]], [[git]] | Practice lesson 10; every exercise in [[git]], typed |
+| 2 | [[vim]], [[sysmlv2]] | Practice lesson 11; set up Vim with the kit's SysML support; the exercises in [[vim]] |
+| 3 | [[workbook]] (first half) | Practice lesson 12; the workbook's exercises up to verification cases |
+| 4 | [[workbook]] (second half), [[diagrams]] | Practice lesson 13; draw the four views of the drop-1 model |
+| 5 | [[reviewing]], [[repo-layout]] | Review one of Tom's merge requests with the checklist; the exercises in [[reviewing]] |
+| 6 | [[talking]] | Draft every stand-up with `talk.pl`, then edit it; the "so what?" check on a week of statuses |
+| 7 | [[model-errors]], [[rescue]] | Reproduce three errors from the catalog and fix them; one rescue recipe |
+| 8 | [[recipe]] | Grade the Stations requirements; write two rewrites |
+| 9 | [[no-spider-web]], [[style]] | Read the package view; propose the next cycle break |
+| 10 | [[prime-changes]] (the drop loop) | Run the impact report on the next drop in a sandbox ([[maintenance]]) |
+| 11 | [[verification]] | Write a verification case for a requirement without one |
+| 12 | [[day-in-life]] | Compare your own week with Bob's day in week twelve |
+Table: The modeler's twelve weeks
+
+=== Tom, the pipeline owner {#study-plan-tom}
+
+|| Week | Read | Do ||
+| 1 | [[survival]], [[git]], [[gitlab-setup]] | Practice lesson 10; `kickoff.pl doctor --fix`; request the group and the runner |
+| 2 | [[cicd]], [[runners]] | Practice lesson 11; register the runner; run the pipeline locally with `gitlab.pl ci` |
+| 3 | [[pipeline]] | Practice lesson 12; the exercises in [[pipeline]]; add one job and watch it in a merge request |
+| 4 | [[tools]], [[repo-layout]] | Practice lesson 13; the model site on Pages; the nightly schedule |
+| 5 | [[security]] (the environment half) | Runner hardening with the security officer; the secrets job; the spillage tabletop |
+| 6 | [[admin]] | The monthly drift check (`gitlab.pl setup --diff`); the access review |
+| 7 | [[prime-changes]] (Jenkins and the intake) | The delivery interface with the prime's pipeline; trigger and deploy tokens in a sandbox |
+| 8 | [[maintenance]] (the runbook) | Run the drop intake runbook end to end in a sandbox |
+| 9 | [[talking]], [[ceremonies]] | Narrate a rehearsed demo; rotate the driver |
+| 10 | [[rescue]] | Every rescue recipe, in a scratch repository |
+| 11 | [[maintenance]] (baselines) | Cut a release and a hotfix in a sandbox |
+| 12 | [[analytics]] | Pipeline success rate and duration for the briefing |
+Table: The pipeline owner's twelve weeks
+
+=== Check yourself {#study-plan-check}
+
+At the end of each sprint, each person should be able to say yes to that sprint's "You can now..." list in the
+sprint chapter ([[sprint-1]] to [[sprint-6]]). If the answer is no for two sprints running, the learning budget is
+too small or the backlog too full; that is a conversation for the retrospective, not a private worry.
+
+::: exercise Build your own plan
+Copy the three tables into your team's wiki, rename the roles to your people, and move rows to match your program
+(a team with no supplier drops can skip the drop-loop rows until it has one). Then print your own plan's learning
+tasks the way the block above does, and check that the hours in the tables match what the backlog actually
+reserves.
+:::

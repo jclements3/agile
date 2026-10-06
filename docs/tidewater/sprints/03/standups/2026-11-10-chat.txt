@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y none T TW-55 write up the drift and the trace gaps, by Fri; pairing with Bob after lunch. B none
+[9:02 AM] Bob
+Y none T TW-52 merge the DOORS modules to develop, by Fri. B none
+[9:03 AM] Tom
+Y none T TW-54 runner service account and hardening checklist, by Fri. B TW-54 waiting on the ISSM to approve the runner service account -- need: a date from the ISSM

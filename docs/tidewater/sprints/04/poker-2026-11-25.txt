@@ -1,0 +1,135 @@
+Meeting started
+[10:00 AM] Jim
+Refinement for sprint 5. Planning poker: one number per story, in points.
+[10:01 AM] Jim
+#est TW-89 Learn: the requirement recipe; writing memos from the model
+[10:02 AM] Jim
+1
+[10:02 AM] Bob
+1
+[10:02 AM] Tom
+1
+[10:03 AM] Jim
+#est TW-90 Procured parts as metadata; DataCenter level tags
+[10:04 AM] Jim
+3
+[10:04 AM] Bob
+3
+[10:04 AM] Tom
+5
+[10:04 AM] Jim
+3 to 5. Talk it out: what does the high vote know?
+[10:05 AM] Jim
+#est TW-90 Procured parts as metadata; DataCenter level tags
+[10:06 AM] Jim
+3.5
+[10:06 AM] Bob
+3.5
+[10:06 AM] Tom
+3.5
+[10:07 AM] Jim
+#est TW-91 Prune ObservingStation's trace spaghetti
+[10:08 AM] Jim
+2
+[10:08 AM] Bob
+2
+[10:08 AM] Tom
+2
+[10:09 AM] Jim
+#est TW-92 Untangle the Legacy Import package
+[10:10 AM] Jim
+3
+[10:10 AM] Bob
+3
+[10:10 AM] Tom
+3
+[10:11 AM] Jim
+#est TW-93 The trace job becomes a gate
+[10:12 AM] Jim
+2
+[10:12 AM] Bob
+2
+[10:12 AM] Tom
+2
+[10:13 AM] Jim
+#est TW-94 Grade our requirements with the recipe
+[10:14 AM] Jim
+2
+[10:14 AM] Bob
+2
+[10:14 AM] Tom
+3
+[10:14 AM] Jim
+2 to 3. Talk it out: what does the high vote know?
+[10:15 AM] Jim
+#est TW-94 Grade our requirements with the recipe
+[10:16 AM] Jim
+2
+[10:16 AM] Bob
+2
+[10:16 AM] Tom
+2
+[10:17 AM] Jim
+#est TW-95 Release rehearsal and a spillage tabletop
+[10:18 AM] Jim
+3
+[10:18 AM] Bob
+3
+[10:18 AM] Tom
+3
+
+---- Chat.pm tallies
+ESTIMATE TW-89 Learn: the requirement recipe; writing memos from the model  (3 answers at 10:01)
+  Bob            1
+  Jim            1
+  Tom            1
+  consensus: 1
+
+ESTIMATE TW-90 Procured parts as metadata; DataCenter level tags  (3 answers at 10:03)
+  Bob            3
+  Jim            3
+  Tom            5
+  no consensus: median 3, mode 3, range 3-5
+
+ESTIMATE TW-90 Procured parts as metadata; DataCenter level tags  (3 answers at 10:05)
+  Bob            3.5
+  Jim            3.5
+  Tom            3.5
+  consensus: 3.5
+
+ESTIMATE TW-91 Prune ObservingStation's trace spaghetti  (3 answers at 10:07)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-92 Untangle the Legacy Import package  (3 answers at 10:09)
+  Bob            3
+  Jim            3
+  Tom            3
+  consensus: 3
+
+ESTIMATE TW-93 The trace job becomes a gate  (3 answers at 10:11)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-94 Grade our requirements with the recipe  (3 answers at 10:13)
+  Bob            2
+  Jim            2
+  Tom            3
+  no consensus: median 2, mode 2, range 2-3
+
+ESTIMATE TW-94 Grade our requirements with the recipe  (3 answers at 10:15)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-95 Release rehearsal and a spillage tabletop  (3 answers at 10:17)
+  Bob            3
+  Jim            3
+  Tom            3
+  consensus: 3
+

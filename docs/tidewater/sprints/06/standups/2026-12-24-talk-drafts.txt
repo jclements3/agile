@@ -1,0 +1,4 @@
+jim draft:  Y none T TW-129 doc: Twelve-week progress memo to program..., by Thu. B none
+jim posted: Y none T TW-129 doc: Twelve-week progress memo to program, by Thu; pairing with Bob after lunch. B none
+tom draft:  Y none T TW-117 release branch, CCB concurrence, tag baseline-0,..., by Thu. B none
+tom posted: Y none T TW-117 release branch, CCB concurrence, tag baseline-0,, by Thu; pairing with Jim after lunch. B none

@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-116 VCRM: which requirements are: 1 of 2 tasks done. T TW-118 the twelve-week briefing and memo, by Dec 24; pairing with Bob after lunch. B none
+[9:02 AM] Bob
+Y TW-116 Reviewed !22. T TW-112 write the BuoyModes state def; exhibit it on, by Dec 24. B none
+[9:03 AM] Tom
+Y none T TW-115 document the flow properties in Interfaces, by Dec 24; pairing with Jim after lunch. B none

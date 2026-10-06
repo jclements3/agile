@@ -1,0 +1,408 @@
+== Command reference {#commands}
+
+This appendix lists every command the book uses, grouped by tool, with the options that matter for the process. The
+syntax lines are taken from each tool's own help, which is always the final word: run the help command shown at the
+top of each section when in doubt. Commands are run from Git Bash on Windows (or any shell on Linux) at the root of
+the kit unless the section says otherwise; `perl bin/...` paths are relative to the kit. In the model repository the
+pipeline reaches the same tools through the `KIT` variable, as `perl "$KIT/tools/sysml/model.pl"` and so on.
+
+=== git {#commands-git}
+
+Help: `git help COMMAND` (or `git COMMAND -h` for the short form). The commands below are the ones a model engineer
+uses in a normal month; [[git]] teaches each one from zero.
+
+|| Command | What it does | Configuration management analogy ||
+| `git clone URL` | copy the repository, with its whole history, to your laptop | draw a working copy from the library |
+| `git status` | what you have changed, what is staged, which branch you are on | look at your desk |
+| `git switch develop` | move to an existing branch | pick up the master copy |
+| `git switch -c feature/19-stations-level-tags` | create a branch and move to it | start a working draft |
+| `git pull` | bring the server's new commits into your current branch | receive the latest revision |
+| `git add FILE` | stage a change for the next commit | put a page in the change package |
+| `git restore --staged FILE` | unstage it again | take the page back out |
+| `git restore FILE` | throw away your unsaved changes to a file | discard a draft markup |
+| `git diff` | your changes not yet staged, line by line | compare draft to controlled copy |
+| `git diff --staged` | what the next commit will contain | review the change package |
+| `git commit` | record the staged changes, with a message (opens Vim) | sign a revision |
+| `git push -u origin HEAD` | send your branch to the server the first time | submit the draft for review |
+| `git push` | send further commits on the same branch | update the submission |
+| `git log --oneline --graph --all` | the history of every branch, one line per commit | the revision history block |
+| `git log -p FILE` | every change ever made to a file, with the lines | the file's full change record |
+| `git blame FILE` | who last changed each line, and in which commit | who signed each paragraph |
+| `git merge develop` | bring `develop`'s changes into your branch | incorporate approved changes into your draft |
+| `git merge --abort` | give up a merge that has conflicts and go back | withdraw the incorporation |
+| `git stash` / `git stash pop` | shelve unfinished changes, then bring them back | put a draft in the drawer |
+| `git fetch --prune` | learn about the server's branches; forget deleted ones | update the library catalog |
+| `git branch -d feature/19-stations-level-tags` | delete a local branch after its MR merged | file the finished draft away |
+| `git tag -n baseline-*` | list baselines with their messages | list released baselines |
+| `git show baseline-1` | the tag's message and the commit it marks | read a baseline's record |
+Table: The git commands a model engineer uses
+
+One-time set-up on each laptop:
+
+```sh
+git config --global user.name "Bob"
+git config --global user.email "bob@example.invalid"
+git config --global init.defaultBranch main
+git config --global core.editor vim
+git config --global core.autocrlf false        # the model and the kit are LF text everywhere
+git config --global pull.ff only               # never create surprise merge commits on pull
+ssh-keygen -t ed25519 -C "bob laptop"          # then paste ~/.ssh/id_ed25519.pub into GitLab: Preferences, SSH keys
+ssh -T git@gitlab.example.com                  # check the key works
+```
+
+=== gitlab.pl {#commands-gitlab}
+
+Help: `perl bin/gitlab.pl help` and `perl bin/gitlab.pl help COMMAND`. One command-line tool for GitLab, with two
+back ends: a real server (`--url`, with a token) or the kit's offline emulator (`--local DIR`), which behaves like a
+server for practice, tests and the Tidewater simulation.
+
+```text
+gitlab.pl [--url URL [--token-env VAR] [--sudo] | --local DIR] [--project PATH] [--as USER]
+          [--now ISO] [--dry-run] [--no-cache] COMMAND ...
+```
+
+|| Option | Meaning ||
+| `--url URL` | talk to the GitLab server at URL, with the token in `$GITLAB_TOKEN` |
+| `--token-env VAR` | read the token from another environment variable |
+| `--sudo` | with an administrator token, act as the user named by `--as` |
+| `--local DIR` | use the offline emulator whose state is in DIR (created on first use) |
+| `--project PATH` | the project, such as `tidewater/model` |
+| `--as USER` | act as this user (the emulator: anyone; a server: needs `--sudo`) |
+| `--now ISO` | the emulator's clock, for replaying a dated scenario |
+| `--dry-run` | print each API request instead of sending it |
+| `--no-cache` | the emulator re-runs every pipeline job even when the tree is unchanged |
+Table: gitlab.pl global options
+
+The defaults come from the environment, so a laptop that sets them once can type short commands: `GITLAB_URL`,
+`GITLAB_LOCAL`, `GITLAB_PROJECT`, `GITLAB_USER`.
+
+==== Project set-up and plan {#commands-gitlab-setup}
+
+```text
+gitlab.pl setup FILE
+gitlab.pl sprints START COUNT [--weeks 2] [--prefix "Sprint "]
+gitlab.pl user USERNAME [--name N] [--email E]
+```
+
+|| Command | What it does ||
+| `setup FILE` | apply a project file: settings, members, labels, sprints, protections, approvals, variables; creates the project if needed; safe to re-run |
+| `sprints START COUNT` | COUNT two-week milestones from START (a Monday), each due on the Friday of its last week |
+| `user USERNAME` | create a user (the emulator: anyone; a server: needs an administrator token) |
+Table: Set-up commands
+
+The project file's sections are `[project]`, `[members]`, `[branches]`, `[tags]`, `[labels]`, `[milestones]`,
+`[approvals]` and `[variables]`; `tools/gitlab/templates/project.conf` is the annotated example, shown in
+[[templates]].
+
+==== Issues {#commands-gitlab-issues}
+
+```text
+gitlab.pl issue new TITLE [--template NAME|FILE] [--description TEXT] [--label L]... [--milestone M]
+                          [--assign USER]... [--type issue|task|incident] [--weight N] [--due DATE]
+gitlab.pl issue list [--state opened|closed|all] [--label L]... [--milestone M] [--type T]
+gitlab.pl issue show IID | close IID | reopen IID
+gitlab.pl issue note IID TEXT | --file FILE
+gitlab.pl issue link IID TARGET [--type relates_to|blocks|is_blocked_by]
+gitlab.pl issue label IID [--add L]... [--remove L]...
+```
+
+`--template NAME` reads `.gitlab/issue_templates/NAME.md` from the current directory, so run it inside a clone of
+the model repository. A note's quick actions (`/label`, `/milestone`, `/assign`, `/estimate`, `/spend`, `/close` and
+the others in [[qrg-gitlab]]) run as they do on the server.
+
+==== Merge requests {#commands-gitlab-mr}
+
+```text
+gitlab.pl mr new --source BRANCH [--target BRANCH] --title TITLE [--template NAME|FILE] [--description TEXT]
+                 [--label L]... [--milestone M] [--reviewer USER]... [--keep-branch]
+gitlab.pl mr list [--state opened|merged|closed|all] | show IID | approve IID | merge IID
+gitlab.pl mr note IID TEXT [--resolvable] | resolve IID
+```
+
+The target defaults to the project's default branch (`develop`). `merge` refuses, with GitLab's own reason, until the
+pipeline has succeeded, the approvals (including code owners) are in and every resolvable discussion is resolved.
+`mr show` prints the pipeline's report summaries (tests, code quality, metrics), as the MR page's widgets do.
+
+==== Pipelines, tags, releases, packages, Pages, environments {#commands-gitlab-pipelines}
+
+```text
+gitlab.pl pipeline run REF [--source web|push|schedule] [--var K=V]...
+gitlab.pl pipeline list [--ref REF] [--status S] | show ID
+gitlab.pl tag NAME REF [--message M]
+gitlab.pl release TAG [--notes FILE] [--name N] [--milestone M]...
+gitlab.pl package put NAME VERSION FILE | get NAME VERSION FILE [DEST] | list
+gitlab.pl pages
+gitlab.pl env list | env deployments [NAME]
+gitlab.pl schedule new DESCRIPTION --cron "MIN HOUR DOM MON DOW" --ref BRANCH [--tz ZONE] [--var K=V]... [--inactive]
+gitlab.pl schedule list | run ID | delete ID | due --until ISO | next "CRON" [--tz ZONE] [--from ISO] [-n N]
+gitlab.pl wiki put TITLE FILE | wiki list | wiki show TITLE
+gitlab.pl export DIR [--since YYYY-MM-DD] [--until YYYY-MM-DD]
+gitlab.pl analytics [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--by sprint|week|month] [--csv DIR]
+```
+
+|| Command | What it does ||
+| `pipeline run REF` | start a pipeline on a branch or tag, as the Run pipeline button does |
+| `pipeline show ID` | the pipeline's jobs and results (on the emulator, each job's log path too) |
+| `tag NAME REF --message M` | an annotated tag; protected tags need the maintainer role |
+| `release TAG --notes FILE` | a release for an existing tag, with Markdown notes |
+| `package put NAME VERSION FILE` | upload a file to the Generic Package Registry; its sha256 is recorded |
+| `package get NAME VERSION FILE` | download it; the emulator checks the sha256 |
+| `pages` | where the project's GitLab Pages site is (a `pages` job on the default branch publishes it) |
+| `env list` | the environments jobs have deployed to, such as the model site |
+| `schedule new` | a cron pipeline schedule (`project.conf` `[schedules]` makes the same at set-up); it runs as its owner |
+| `schedule list`, `run ID` | the schedules with their next run; run one now without changing its next run |
+| `schedule next "CRON"` | the next run times of a cron line, with daylight saving; needs no server: a way to check a line before using it |
+| `analytics` | value stream, DORA for a model repository, pipelines, merge requests and issues, per sprint; from data every GitLab tier exposes ([[analytics]]) |
+| `wiki put TITLE FILE` | create or replace a wiki page from a Markdown file |
+| `export DIR` | `ci_jobs.csv`, `mrs.csv`, `issues.csv`, `defects.csv` and `tracker/sprint-N.csv`: the status metrics' inputs |
+Table: Pipeline, release and record commands
+
+==== Gitflow: gitlab.pl flow {#commands-gitlab-flow}
+
+Run inside a clone of the model repository. Branch names: `main`, `develop`, `feature/`, `release/`, `hotfix/` and
+`vendor/prime`.
+
+```text
+gitlab.pl flow init
+gitlab.pl flow start feature|release|hotfix NAME
+gitlab.pl flow publish
+gitlab.pl flow finish [--title T] [--template NAME|FILE] [--description TEXT] [--label L]... [--milestone M]
+                      [--reviewer U]...
+gitlab.pl flow released IID [--notes FILE] [--tag NAME]
+gitlab.pl flow vendor DROPDIR VERSION
+gitlab.pl flow take ours|theirs PATH...
+gitlab.pl flow sync
+```
+
+|| Step | What it does ||
+| `flow init` | create `develop` from `main` (the first commit on an empty repository) |
+| `flow start feature NAME` | branch `feature/NAME` from `develop`; `release` also from `develop`; `hotfix` from `main` |
+| `flow publish` | push the current branch; the emulator runs its pipelines |
+| `flow finish` | push and open the MR: feature to `develop`, release and hotfix to `main` |
+| `flow released IID` | after a release or hotfix MR merged: tag `main` (the sha256 of `docs/` in the message), create the release, open the back-merge MR to `develop` |
+| `flow vendor DROPDIR VERSION` | commit the converted prime drop on `vendor/prime`, then merge it into `feature/drop-VERSION`; conflicts are listed, not resolved |
+| `flow take ours\|theirs PATH...` | resolve conflicted files wholesale (only for files the government never edits) |
+| `flow sync` | fetch, and fast-forward local `main` and `develop` |
+Table: The gitflow steps
+
+==== Running the pipeline locally: gitlab.pl ci {#commands-gitlab-ci}
+
+```text
+gitlab.pl ci [--file .gitlab-ci.yml] [--event push|merge_request_event|tag|schedule|web|trigger] [--branch B]
+             [--target B] [--tag T] [--var K=V]... [--job NAME] [--manual] [--logs DIR] [--list]
+```
+
+Runs the current repository's pipeline on your own machine, choosing jobs the way GitLab would for the event you name.
+`--list` shows which jobs would run and why the others would not, without running anything, and which file each job
+comes from when the pipeline is split into included files. The two forms used every day, here in the clone of
+practice lesson 11:
+
+```sh run sandbox=practice-11 cwd=work expect="(?s)grammar\s+check\s+on_success.*pipeline: success" timeout=300
+perl "$KIT/bin/gitlab.pl" ci --list --event merge_request_event --target develop
+perl "$KIT/bin/gitlab.pl" ci --event merge_request_event --target develop
+```
+
+=== The kit's journal: daily.pl and scrum.pl {#commands-daily}
+
+Help: `perl bin/daily.pl help` (the list) and `perl bin/daily.pl help COMMAND`; `perl agile.pl help` for everything.
+Every command finds `scrum.conf` by searching upward from the current directory, so run them anywhere inside the
+journal project (`data/tidewater/journal` in the simulation).
+
+|| When | Commands ||
+| Each day | `new  compile  report  draft  brief  commit  all  status` |
+| Before the call | `drill  propose  cards  attend  invite  meetings` |
+| During the call | `lint` |
+| After the call | `answers  chat  joined  ai  post` |
+| Views | `sprint  velocity  backlog  members  epics  roadmap  blocked  quad  health` |
+| Reports | `review  rollup  csv` |
+| Set-up and checks | `init  check  roster  help` |
+Table: daily.pl commands by time of day
+
+The ones Tidewater uses every sprint:
+
+|| Command | What it does | Vim ||
+| `daily.pl init [DIR]` | make a journal project: `scrum.conf`, `scrum.txt`, `standups/`, `reports/`, git | |
+| `daily.pl roster add "Bob" bob@example.invalid Model "MBSE engineer" Gov` | add a person to `roster.txt` | |
+| `daily.pl new` | today's stand-up file, `standups/DATE.txt`, with each team's open stories as comments | `:SNew` |
+| `daily.pl lint [FILE] [--reply]` | check the pasted Y/T/B statuses while people are still on the call | `:SLint` |
+| `daily.pl answers` | parse the statuses, raise flags, suggest done/unblock/absent lines for you to confirm | `:SAnswers` |
+| `daily.pl chat` | tally `#est` (planning poker) and `#vote` rounds from the chat into `est` lines | `:STally` |
+| `daily.pl propose` | draft each person's status from yesterday's, for a `+1` in the chat | `:SPropose` |
+| `daily.pl --dry compile` | show what compile would append, write nothing | `:SDry` |
+| `daily.pl compile` | apply the pending stand-up files to the journal (all or nothing per file) | `:SCompile` |
+| `daily.pl sprint [N]` | capacity, committed, done, open, carryover, load | `:SSprint` |
+| `daily.pl quad [TEAM]` | the weekly one-page quad for management | `:SQuad` |
+| `daily.pl review [N]` | the end-of-sprint report | |
+| `daily.pl epics` / `roadmap` | roll-up by tome and epic; epics across sprints with a forecast | `:SRoadmap` |
+| `daily.pl health` | every metric against its threshold; exit 1 on a red | |
+| `daily.pl report` | every report into `reports/` | `:SReport` |
+| `daily.pl commit` | commit the journal project ("standup DATE") | `:SCommit` |
+Table: The daily.pl commands Tidewater uses
+
+`scrum.pl` is the lower-level view of the same journal, for ad hoc questions:
+
+```text
+perl bin/scrum.pl [-f JOURNAL] [--today D] COMMAND [N] [ARGS]
+    sprint [N] | velocity [--last N] | backlog [TEAM] | members [TEAM] | epics | roadmap [-o FILE]
+    items [STATE] [TEAM] | dashboard [-o FILE] | tree [-o FILE] | email [N] [--text] | csv [TABLE] | check
+```
+
+=== The converters: xmi2sysml.pl and reqif2sysml.pl {#commands-converters}
+
+Help: run either with `--help`. Both are in the kit's `bin/`.
+
+```text
+xmi2sysml.pl [--report] [--out DIR [--layout '{seg}/{pkg}.sysml' | --layout-map FILE] | --stdout]
+             [--req-style usage|def] [--name PKG] [--check] [--map MAP.csv] FILE.xmi
+xmi2sysml.pl --delta OLD.xmi NEW.xmi [--impact MODEL_DIR [--map OLD-MAP.csv] [--impact-csv FILE]]
+```
+
+|| Option | Meaning ||
+| `--report` | the mapping report: element counts by type, what was mapped, what became a TODO line, stereotypes not converted |
+| `--out DIR` | write one `.sysml` file per top-level package under DIR |
+| `--layout` | the file path pattern under DIR |
+| `--layout-map FILE` | which folder and file each top-level package goes to (`Package = folder/`), the same map for every drop so the vendor merges stay three-way; `examples/tidewater-v1/layout.map` puts Tidewater in layers |
+| `--map MAP.csv` | also write, for every v1 element, where it landed in the v2 text (file, line, or the TODO line it sits under) |
+| `--stdout` | print the converted text instead of writing files |
+| `--req-style` | `usage` (default: the one-line requirement form) or `def` (`requirement def` blocks) |
+| `--check` | also run the grammar check on the output |
+| `--delta OLD NEW` | compare two drops of the same model by `xmi:id`: added, removed, changed; each marked *carried* by the converter or *manual*; grouped by the prime's change requests when the drop has a `CHANGES.csv` |
+| `--impact MODEL_DIR` | with `--delta`: what each change touches in the government's model (requirements, verification cases, interfaces, allocations, references) and which hand edits must be redone |
+Table: xmi2sysml.pl options
+
+```text
+reqif2sysml.pl [--report] [--model DIR] [--out DIR [--layout '{seg}/{pkg}.sysml' | --layout-map FILE] | --stdout]
+               [--csv [--col id=NAME --col text=NAME --col heading=NAME --col level=NAME --col vm=NAME] [--sep C]]
+               [--req-style usage|def] [--id-attr NAME] [--vm-attr NAME] [--id-prefix P] [--attr NAME]... FILE
+```
+
+|| Option | Meaning ||
+| `--report` | objects, requirements, headings, links and verification methods in the export |
+| `--model DIR` | trace the export against an existing SysML v2 model: linked (C), orphans (F), unverified (G), completeness (I) and text drift |
+| `--out DIR` | write the requirements as SysML v2 text, one file per DOORS module |
+| `--csv` | read a DOORS CSV export instead of ReqIF; `--col` names the columns if they are not the usual ones |
+| `--id-attr`, `--vm-attr` | which DOORS attributes hold the identifier and the verification method |
+Table: reqif2sysml.pl options
+
+The runs every drop gets, here on drops 1 and 2 made with the kit's generator (the first two lines stand in for the
+prime's deliveries):
+
+```sh run sandbox=scratch expect="(?s)self-check: ok.*30 of 31.*xmi delta: .*\(v1\.0\) -> .*\(v1\.1\)" timeout=180
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drops/v1.0
+perl "$KIT/sim/tidewater-v1.pl" --drop 2 drops/v1.1
+perl "$KIT/bin/xmi2sysml.pl" --report --out v2 --check drops/v1.1/tidewater.xmi
+perl "$KIT/bin/reqif2sysml.pl" --report --model v2 drops/v1.1/tidewater.reqif
+perl "$KIT/bin/xmi2sysml.pl" --delta drops/v1.0/tidewater.xmi drops/v1.1/tidewater.xmi
+```
+
+On a project, the delta also runs with `--impact model` against the government's own model; [[prime-changes]]
+shows its report.
+
+=== The model tools: model.pl and sysml.pl {#commands-model}
+
+Help: `perl tools/sysml/model.pl help`. `model.pl` works on the project that holds a `model/` folder, found upward
+from the current directory (or `--root DIR`), configured by that project's `sysml.conf`.
+
+|| Command | What it does | Vim ||
+| `model.pl lint` | structural checks: grammar, unresolved types, imports, duplicates; ends with `elements=N errors=E warnings=W` | `\ml` |
+| `model.pl check` | the 2-to-9 outline rule and the `@L` level tags; exit 1 on a violation | `\mk` |
+| `model.pl stats` | size, nesting, tree depth, outline | |
+| `model.pl nouns` / `verbs` | the part tree / the function tree (`--plain` for words) | `\mn` / `\mb` |
+| `model.pl docs` | regenerate `docs/`: Nouns.md, Verbs.md, idef0/, Traceability.md | `\md` |
+| `model.pl idef0` | regenerate only `docs/idef0/`: the IDEF0 plates drawn from the verb tree (`idef0_models` in `sysml.conf`) | |
+| `model.pl trace` | requirement, satisfied by, verified by, to `docs/Traceability.md` (`--strict`: exit 1 on gaps) | `\mr` |
+| `model.pl tags` | a Vim tags file: Ctrl-] jumps to any definition or requirement id | `\mt` |
+| `model.pl rename OLD NEW` | rename a definition everywhere (dry run unless `--write`) | |
+| `model.pl draw tree\|trace\|ibd\|pkg` | an SVG view of the model | `\mw \mq \mi \mp` |
+| `model.pl diff --git OLD..NEW` | changes between two versions as coloured views and a change list | |
+| `model.pl gate` | the validate gate in one line: text, trace, markings, zones, threats; PASS or FAIL | `\mg` |
+| `model.pl precommit` / `install-hooks` | what the git pre-commit hook runs / install that hook | |
+Table: model.pl commands
+
+```text
+perl tools/sysml/sysml.pl check FILE... | corpus [DIR...] | tokens FILE | grammar | crosscheck [N] [SEED]
+```
+
+`sysml.pl check` checks each file against the official SysML v2 grammar and prints `FILE:LINE:COL: error: ...` for
+each problem, a form Vim's quickfix list reads directly (`\mx` checks the current file).
+
+=== The pipeline's helpers {#commands-ci-helpers}
+
+Every job in the model repository's `.gitlab-ci.yml` runs one shell-neutral line, `perl ci/job.pl NAME`, where NAME is
+the job (`grammar`, `lint`, `outline`, `todo`, `trace`, `vcrm`, `recipe`, `complexity`, `docs`, `delta`, `baseline`,
+...; `perl ci/job.pl` alone lists them all). The script calls the tools below
+and the kit's model tools through `KIT`, so the pipeline runs unchanged under PowerShell, Git Bash or a container.
+To run one job's work by hand in a clone: `perl ci/job.pl lint`.
+
+```text
+tools/gitlab/ci-reports.pl grammar|lint|outline|todo|trace [--junit F] [--codequality F] [--metrics F] LOG|DIR [FILE...]
+tools/gitlab/pages-index.pl [--title T] [--commit SHA] [--date D] DIR
+```
+
+`ci-reports.pl` turns a check's output into the report files GitLab shows on a merge request: JUnit XML for the test
+widget, Code Quality JSON for the code quality widget (one finding per error, warning or TODO line) and metrics text.
+It only reports; the job still passes or fails on the check's own exit status. `pages-index.pl` writes the front page
+of the model site that the `pages` job publishes.
+
+=== Week zero, words, memos and requirement text {#commands-helpers}
+
+```text
+perl tools/gitlab/kickoff.pl doctor [--quick] [--fix] [--local DIR | --url URL [--token-env VAR]]
+perl tools/gitlab/kickoff.pl scaffold DIR [--project GROUP/NAME] [--title T] [--noun-root N] [--verb-root V] [--levels L1A,L2B,...] [--force]
+perl tools/gitlab/kickoff.pl start [--yes] [--from N] ...
+perl tools/gitlab/talk.pl [--local DIR | --url URL] [--project GROUP/NAME] standup --as USER [--date D] [--journal DIR] [--why]
+perl tools/gitlab/talk.pl ... review --sprint N [--md] | weekly [--date D] [--md] | translate FILE|- [--glossary FILE]
+perl tools/memo/memo-build.pl [--check] [--out DIR] [--pdf-only|--text-only] FILE.md... [-- md2memo options]
+perl tools/sysml/req-recipe.pl [--format text|csv|junit|codequality] [--require classification] [--strict] [-o FILE] INPUT...
+```
+
+|| Command | What it does ||
+| `kickoff.pl doctor` | checks a laptop and prints PASS, WARN or FAIL with the fix for each problem; changes nothing unless `--fix` (git settings only) |
+| `kickoff.pl scaffold DIR` | makes a new model repository from the kit's templates and commits it |
+| `kickoff.pl start` | week zero, step by step: each step is printed with its reason and runs only with `--yes` |
+| `talk.pl standup`, `review`, `weekly` | drafts a stand-up line, a sprint review script or a weekly note from GitLab; it never posts anything ([[talking]]) |
+| `talk.pl translate` | lists the jargon in a draft with plain alternatives and flags sentences with no number or outcome |
+| `memo-build.pl FILE.md` | a memo written from a template, as PDF and text ([[memos]]) |
+| `req-recipe.pl INPUT` | grades requirement text (SysML v2, DOORS ReqIF or CSV, plain text) against the requirement recipe ([[recipe]]) |
+Table: Week zero, drafting and checking words
+
+=== Status metrics {#commands-status-metrics}
+
+```text
+perl bin/status-metrics.pl init    --config metrics.json --xmi legacy.xmi --reqif export.reqif
+perl bin/status-metrics.pl collect --config metrics.json --as-of YYYY-MM-DD [--history history.jsonl]
+perl bin/status-metrics.pl report  --config metrics.json --history history.jsonl --out DIR
+```
+
+`init` freezes the totals (v1 elements, DOORS requirements); `collect` takes one day's snapshot from the model
+repository and the exports `gitlab.pl export` writes; `report` writes the weekly table, the daily CSV and the
+dashboard data.
+
+=== The kit itself {#commands-kit}
+
+```sh
+perl tests/run.pl                  # every test suite, in parallel; one line each
+perl agile.pl help                 # the whole offline help; agile.pl help TOPIC, help search WORDS
+perl agile.pl help error "MSG"     # what an error message means and how to fix it
+perl sim/tidewater-v1.pl --drop N DIR      # generate the prime's drop N of Tidewater into DIR
+perl sim/primer.pl --check         # check this book's source
+```
+
+Before upgrading Git for Windows on the team, run `perl tests/run.pl` from Git Bash on one laptop with the new
+version; every line should end "all N passed".
+
+=== Vim {#commands-vim}
+
+The Vim commands and keys are in [[qrg-vim]]. The ones that run the tools above:
+
+|| Keys | Command | Runs ||
+| `\ml` | `:SysLint` | `model.pl lint`, errors to the quickfix list |
+| `\mk` | `:SysCheck` | `model.pl check` |
+| `\mx` | `:SysSyntax` | `sysml.pl check` on the current file |
+| `\md` | `:SysDocs` | `model.pl docs` |
+| `\mr` | `:SysTrace` | `model.pl trace`, in a split |
+| `\sn` | `:SNew` | `daily.pl new` |
+| `\sl` | `:SLint` | `daily.pl lint` |
+| `\st` | `:STally` | `daily.pl chat` |
+| `\sc` | `:SCompile` | `daily.pl compile` |
+Table: Vim keys that run the tools

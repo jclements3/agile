@@ -1,0 +1,182 @@
+== Glossary {#glossary}
+
+Three vocabularies meet in this book: systems engineering and configuration management, which the reader already
+speaks; GitLab and DevSecOps, which Jim, Bob and Tom learned in twelve weeks; and SysML v2, which replaces the SysML
+v1 they knew from Cameo. The first table translates between the first two, the second defines the DevSecOps and
+GitLab words, the third maps SysML v1 terms to v2, and the last two cover the agile words and the terms this book and
+its kit coined. The project wiki's Glossary page (`tools/gitlab/templates/wiki/Glossary.md`) uses the same
+translations.
+
+::: warning CI means two things
+In configuration management a **CI** is a *configuration item*. In GitLab, **CI** means *continuous integration*,
+the automatic checks. This book writes "configuration item" in full and uses CI only for the checks.
+:::
+
+=== What you already do, and what GitLab calls it {#glossary-se}
+
+|| Systems engineering or CM term | GitLab or DevSecOps term | Same | Different ||
+| Configuration item | a folder or file under `model/` | under change control, with an owner | many small items; changes recorded line by line |
+| Controlled master copy | the `develop` branch | the copy everyone works from | nobody edits it directly; changes arrive by merge request |
+| Released baseline | a protected tag `baseline-N` on `main`, with a release | frozen, citable | the server forbids moving it; the pipeline proves it rebuilds |
+| Engineering change proposal, change request | merge request (MR) | proposes, shows, is reviewed and approved | days instead of months; the exact lines are shown |
+| CCB approval | approval by the code owners of the changed parts | the right authority approves before incorporation | per change, online; no waiting for the board |
+| Redlines, markups | review comments and suggestions on MR lines | comments pinned to the text | a suggestion is applied with one click |
+| Configuration audit (FCA, PCA) | the pipeline | checks the configuration against its rules | minutes, on every change |
+| Configuration status accounting | git history, the merge log, `gitlab.pl export` | who changed what, when, under which change | complete and exact, typed by nobody |
+| Revision (Rev A, Rev B) | commit | one recorded change with an author and a date | many and small; the commit id is the revision number |
+| Revision history block | `git log`, `CHANGELOG.md` | the list of changes | generated from the work |
+| Working draft | feature branch | your copy while you work | lives days; git brings the changes back |
+| Incorporating an approved change | merge | the change joins the master copy | line by line; stops only at a conflict |
+| CDRL delivery from the contractor | a prime drop, committed on `vendor/prime` | the deliverable, received and checked | converted and merged, keeping the government's edits |
+| Discrepancy or deficiency report | issue labelled `type::discrepancy` | a written finding against a deliverable | tracked on a board until the fixing drop closes it |
+| Action item | issue (task or story) | owner, due date, status | visible, linked to the change that closes it |
+| Action item tracker | issue board | one row per action, a status column | status is a label; the board updates itself |
+| WBS element | tome and epic (labels on Free, epics on Premium) | groups work in a hierarchy | sized by time: epic within a semester, tome within a year |
+| IMS milestone | release, baseline | a dated program event | |
+| A two-week work period | GitLab milestone `Sprint N` | a time box with a list of work | GitLab calls any dated time box a milestone |
+| Data item description, document template | issue and MR templates | say what goes in each section | filled in online; offered when the item is created |
+| SEMP, process documents | the wiki | how we work | short, versioned pages |
+| Requirements traceability matrix | the trace job, `docs/Traceability.md` | which requirement is satisfied and verified by what | rebuilt on every change from the model |
+| Verification cross-reference matrix | `verify` relationships in `model/verification/` | which test verifies which requirement | gaps checked automatically |
+| Peer review, desk check | MR review | a second engineer reads the change | small changes; minutes |
+| Signature, sign-off date | approval, merged-at time | who approved, when | recorded by the server; cannot be backdated |
+| Distribution list | mentions and notifications | who is told | about what concerns them, when it happens |
+| Weekly status chart | status metrics, the weekly quad | progress and problems | computed from the work |
+Table: Systems engineering terms and their GitLab counterparts
+
+=== DevSecOps and GitLab words {#glossary-devsecops}
+
+|| Word | Meaning in this book ||
+| Allow failure | a job setting: its failure shows yellow and does not block the merge |
+| Approval | a reviewer's recorded "yes" on an MR |
+| Artifact | a file a job keeps after it runs (a report, a log, a count) |
+| Back-merge | merging `main` into `develop` after a release or hotfix, so nothing is lost |
+| Board | issues shown as cards in columns, one column per workflow label |
+| Branch | a line of work; `develop` is the master copy, feature branches are drafts |
+| Cache | files kept between jobs to save time; may be empty; never evidence |
+| CI/CD | continuous integration and continuous delivery: every change checked and its products produced automatically |
+| Clone | your full copy of the repository, with its history |
+| Code owner | the person who must approve changes to a path, named in `CODEOWNERS` |
+| Commit | one recorded change: what, who, when and why |
+| Conflict | git cannot merge because both sides changed the same lines; a person chooses |
+| Default branch | the branch GitLab shows first and closes issues on (`develop` here) |
+| Deploy token | a read-only credential for cloning or downloading from outside |
+| DevSecOps | development, security and operations done together, in small changes with automated checks |
+| Environment | a named place a job publishes to (the model site); each successful publish is a deployment |
+| Fast-forward | moving a branch to a newer commit without a merge commit |
+| Force push | overwriting a branch's history on the server; forbidden on protected branches |
+| Gitflow | the branching scheme used here: `main`, `develop`, feature, release, hotfix, plus `vendor/prime` |
+| GitLab flow | a simpler alternative scheme: feature branches into `main`, promotion by environment or release branches |
+| Issue | a work item: story, task, defect, discrepancy report, drop intake |
+| Job | one step of a pipeline, such as `lint` |
+| Job token (`CI_JOB_TOKEN`) | a credential that exists only while a job runs |
+| Label, scoped label | a tag on an issue or MR; a scoped label `key::value` allows one value per key (Premium) |
+| Lint | an automatic structural check of the model |
+| Masked variable | a CI/CD variable hidden as `[MASKED]` in job logs |
+| Merge request (MR) | a request to merge a branch, with its changes, checks, discussion and approvals |
+| Merged-results pipeline | an MR pipeline run on the result of merging the branch into its target |
+| Milestone | a dated time box; here, one sprint |
+| Package registry | storage for files with versions and checksums (the prime drops, baseline bundles) |
+| Pages | a static website published from a job's `public/` folder (the model site) |
+| Personal access token | a credential for one person's scripts |
+| Pipeline | the set of jobs GitLab runs for a change: the automatic configuration audit |
+| Project access token | a credential belonging to a bot user of one project, for automation |
+| Protected branch, protected tag | a branch or tag only certain roles may change, and none may force-push or delete |
+| Protected variable | a CI/CD variable given only to pipelines on protected branches and tags |
+| Push, pull, fetch | send commits to the server; bring them and merge; bring them without merging |
+| Quick action | a `/command` line in a comment that changes the issue or MR |
+| Rebase | rewriting a branch's commits on top of another; never on shared branches |
+| Release | a tag with release notes on GitLab's Releases page |
+| Repository | the files under version control with their whole history |
+| Rules | the conditions that decide whether a job runs in a pipeline |
+| Runner | the machine that executes pipeline jobs |
+| Schedule | a pipeline started by the clock (the nightly status) |
+| Secret detection | a job that looks for passwords, keys and tokens in committed files |
+| Shift left | finding a problem earlier: at merge rather than at integration |
+| Squash | combining a branch's commits into one at merge; never used here |
+| Stage | a column of jobs; stages run in order |
+| Tag, annotated tag | a permanent name for one state of the repository; annotated tags carry a message |
+| Vendor branch | `vendor/prime`: exactly what the converters make of each drop, never edited |
+| Wiki | the project's versioned pages of procedures and decisions |
+| YAML | the indented text format of `.gitlab-ci.yml` |
+Table: DevSecOps and GitLab words
+
+=== SysML v1 and SysML v2 {#glossary-sysml}
+
+|| SysML v1 (Cameo) | SysML v2 text | Note ||
+| Model (the project file) | a set of `.sysml` text files | readable, comparable, mergeable |
+| Package | `package` | one top-level package per file here |
+| Block | `part def` | a *definition*: the kind of thing |
+| Part property | `part x : T;` | a *usage*: one occurrence of a definition |
+| Reference property | `ref part` | |
+| Value property, value type | `attribute`, `attribute def` | units by specializing ISQ quantities |
+| Interface block, flow property | `port def` with directed features | |
+| Port (proxy, full, flow) | `port p : P;`, conjugated `~P` | |
+| Connector, binding connector | `connect a to b;`, `bind a = b;` | |
+| Interface (connector typed by an association block) | `interface def`, `interface ... connect` | |
+| Activity, action, control flow | `action def`, `action`, `first a then b` | |
+| Object flow, pin | `flow a.x to b.y`, action parameters | not converted; written by hand |
+| Fork, join, decision, merge | `fork`, `join`, `decide`, `merge` nodes | not converted; written by hand |
+| State machine | `state def`, `state`, `transition` | not converted; written by hand |
+| Sequence diagram (interaction) | `message ... from a to b`, occurrences | not converted; written by hand |
+| Use case, include | `use case def`, `include use case` | include written by hand |
+| Constraint block | `constraint def` with an expression | expression written by hand |
+| Requirement (Id, Text) | `requirement` with `doc` and `doorsId` | named from the DOORS id |
+| Satisfy, verify, deriveReqt | `satisfy R by X`, `verify R`, derivation connection | |
+| Test case | `verification def` | |
+| Allocate | `allocate A to B` | |
+| Stereotype from a profile | `metadata def` and `@Name` annotations | project profiles become metadata in `model/library/conventions/` |
+| Comment | `doc /* ... */` | |
+| Diagram | a *view*, drawn from the text by a tool | not stored; regenerated |
+| `xmi:id` | kept in TODO lines and the delta | the key that links a v2 line to its v1 element |
+| Definition and usage | the central v2 idea: `part def Battery` is the kind; `part battery : Battery` is one | |
+Table: SysML v1 and v2 terms
+
+=== Agile words {#glossary-agile}
+
+|| Word | Meaning in this book ||
+| Project | the whole effort, years long: here, eighteen months of port and maintenance |
+| Tome | a collection of epics finished within a year (two semesters) |
+| Epic | a collection of stories finished within a semester (13 sprints) |
+| Story | several tasks delivering something useful within one sprint; a journal item |
+| Task | work of less than a week, 5 points or fewer; a GitLab issue, usually one MR |
+| Point | the size unit: one ideal person-day |
+| Sprint | two weeks with a goal, from kickoff to review |
+| Capacity | the points a person or team can work in a sprint, after holidays and leave |
+| Velocity | points done per sprint, averaged |
+| Carryover | committed work not done by the sprint's end, moved to the next |
+| Kickoff, planning | day 1: goal, capacity, commitment |
+| Stand-up | 15 minutes daily: yesterday, today, blockers |
+| Refinement | mid-sprint session preparing the next stories |
+| Planning poker | estimating by simultaneous votes (`#est` rounds in the chat), discussing outliers |
+| Review, demo | the last day: show the work to stakeholders |
+| Retrospective | the last day: the team improves its own process |
+| Definition of Ready | the checklist a story must meet before a sprint takes it |
+| Definition of Done | the checklist work must meet to count as done |
+| Pulse survey | five questions, 1 to 5, at each retrospective (scorecard measure 12) |
+Table: Agile words
+
+=== Terms of this book and its kit {#glossary-kit}
+
+|| Term | Meaning ||
+| Tidewater | the fictional coastal weather-observation network of the running example |
+| The prime | the fictional prime contractor, Northwind Marine Systems, which maintains the v1 model |
+| Prime drop | one delivery of the v1 model: XMI, ReqIF, CSV and `MANIFEST.txt`, under CDRL A003 |
+| DR | discrepancy report: a finding against a drop, sent to the prime |
+| TODO line | a `// TODO` comment the converter writes for what it cannot carry; conversion debt |
+| Conversion debt | the count of TODO lines left (scorecard measure 1) |
+| Delta | the v1-to-v1 comparison of two drops (`xmi2sysml.pl --delta`), marking each change carried or manual |
+| Manual (in a delta) | a v1 change the converter does not carry; invisible in the converted text |
+| Drift | a requirement whose model text differs from DOORS |
+| Orphan | a requirement nothing satisfies (measure F) |
+| Unverified | a requirement no verification case verifies (measure G) |
+| Trace completeness | percent of requirements both satisfied and verified (measure I) |
+| Spider web | the tangled v1 model: duplicates, stale diagrams, package cycles, trace spaghetti |
+| Scorecard | the twelve measures agreed before sprint 1 |
+| The kit | the plain-text toolkit this book uses: converters, model tools, journal, `gitlab.pl` |
+| Journal | the kit's plain-text ledger of stories, sprints and stand-ups (`scrum.txt`) |
+| Y/T/B | a terse stand-up status: Yesterday, Today, Blockers |
+| Quad | the kit's one-page weekly report: priorities, watch items, milestones, accomplishments |
+| Emulator | `gitlab.pl --local`: an offline stand-in for a GitLab server |
+| `KIT` | the CI/CD variable naming where the kit is on the runner |
+Table: Terms of this book

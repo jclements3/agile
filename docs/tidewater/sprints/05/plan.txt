@@ -1,0 +1,28 @@
+Sprint 5 kickoff, 2026-11-30 09:00 (90 minutes)
+
+Goal: Procured parts and DataCenter closed; Legacy Import untangled; trace becomes a gate
+Capacity: 21.0 points (Jim 5, Bob 8, Tom 8 per full sprint, less holidays and leave)
+Committed: 18.5 points in 8 stories (88% of capacity): engineering 12.5, platform 5.0 (27%), learning 1.0 (5%)
+
+TW-67    E6    2.0 pts  engineering  Close the Stations level tags
+           #76   3.0 pt  bob  2026-11-16 .. 2026-11-20  Level tags in Stations
+           #96   2.0 pt  bob  2026-11-30 .. 2026-12-02  Walk the Stations tree with the prime's modeler; record what they confirmed
+TW-89    E3    1.0 pts  learning     Learn: the requirement recipe; writing memos from the model
+           #97   0.5 pt  jim  2026-11-30 .. 2026-11-30  The recipe chapter; a memo from pipeline numbers
+           #98   0.5 pt  bob  2026-12-02 .. 2026-12-03  The recipe chapter
+TW-90    E6    3.5 pts  engineering  Procured parts as metadata; DataCenter level tags
+           #99   2.0 pt  bob  2026-12-03 .. 2026-12-07  Procured parts as metadata
+           #100  1.5 pt  bob  2026-12-07 .. 2026-12-09  Level tags in DataCenter
+TW-91    E7    2.0 pts  engineering  Prune ObservingStation's trace spaghetti
+           #101  2.0 pt  bob  2026-12-09 .. 2026-12-11  Remove the duplicate trace links
+TW-92    E6    3.0 pts  engineering  Untangle the Legacy Import package
+           #102  2.0 pt  tom  2026-11-30 .. 2026-12-02  Remove the Legacy Import package from the v2 model
+           #103  1.0 pt  jim  2026-12-01 .. 2026-12-02  DR-5: ask the prime to delete Legacy Import
+TW-93    E2    2.0 pts  platform     The trace job becomes a gate
+           #104  2.0 pt  tom  2026-12-02 .. 2026-12-04  Trace ratchet: fail only on new gaps
+TW-94    E7    2.0 pts  engineering  Grade our requirements with the recipe
+           #105  1.0 pt  jim  2026-12-03 .. 2026-12-04  Read the recipe findings for the DOORS modules
+           #106  1.0 pt  jim  2026-12-07 .. 2026-12-08  DR-6: weak verbs and missing parts in the DOORS text
+TW-95    E1    3.0 pts  platform     Release rehearsal and a spillage tabletop
+           #107  2.0 pt  tom  2026-12-07 .. 2026-12-09  Rehearse release and hotfix in tidewater/sandbox
+           #108  1.0 pt  tom  2026-12-09 .. 2026-12-10  Spillage tabletop: a marked file pushed by mistake

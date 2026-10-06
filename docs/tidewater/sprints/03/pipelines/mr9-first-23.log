@@ -1,0 +1,57 @@
+pipeline #23 (merge_request_event, refs/merge-requests/9/merge) failed, 5 jobs, 62.1 s
+
+==== grammar          check    failed    40.6 s
+$ perl ci/job.pl grammar
+$ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
+model/physical/network/Network.sysml:39:41: error: unexpected 'queryArchive'; expected ',', '.', ':', '::', '::>', ':=', ':>', ':>>', ...
+sysml: 14 file(s), 1 error(s)
+$ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
+ci-reports grammar: 14 check(s), 1 failed, 1 finding(s); grammar_files=14 grammar_errors=1
+
+==== lint             check    failed    47.1 s
+$ perl ci/job.pl lint
+$ perl $KIT/tools/sysml/model.pl lint
+model/physical/network/Network.sysml:39:41: error: syntax: unexpected 'queryArchive'; expected ',', '.', ':', '::', '::>', ':=', ...
+lint: 14 file(s), 1 error(s), 0 warning(s)
+elements=148 errors=1 warnings=0
+$ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
+ci-reports lint: 2 check(s), 2 failed, 1 finding(s); model_elements=148 lint_errors=1 lint_warnings=0
+lint is not 0/0 (elements=148 errors=1 warnings=0)
+
+==== outline          check    success   13.1 s
+$ perl ci/job.pl outline
+$ perl $KIT/tools/sysml/model.pl check
+
+== Level tags ==
+@L tag mismatches         0
+
+== Outline (2..9 children per parent) ==
+violations                17
+    1  directory entries  (model/analysis/)
+    1  package Analysis: members  (model/analysis/Analysis.sysml)
+    1  directory entries  (model/legacy/)
+    1  part def Battery_old: parts  (model/legacy/Legacy_Import.sysml)
+    1  directory entries  (model/logical/)
+    1  directory entries  (model/physical/allocation/)
+    1  directory entries  (model/physical/datacenter/)
+    1  directory entries  (model/physical/network/)
+    1  directory entries  (model/physical/operations/)
+    1  part def ServiceVessel: parts  (model/physical/operations/Operations.sysml)
+    1  directory entries  (model/physical/stations/)
+   25  package Stations: members  (model/physical/stations/Stations.sysml)
+    1  part def Battery: parts  (model/physical/stations/Stations.sysml)
+    1  directory entries  (model/requirements/)
+    1  directory entries  (model/requirements/model/)
+   32  package Requirements: members  (model/requirements/model/Requirements.sysml)
+    1  directory entries  (model/verification/)
+$ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality outline-cq.json --metrics outline.metrics outline.txt
+ci-reports outline: 2 check(s), 1 failed, 17 finding(s); level_tag_mismatches=0 outline_violations=17
+outline violations: 17 (allowed: 17)
+
+==== todo             check    success    7.9 s
+$ perl ci/job.pl todo
+TODO lines remaining: 50
+$ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model
+ci-reports todo: 1 check(s), 0 failed, 50 finding(s); todo_lines=50 todo_lines_analysis=2 todo_lines_library=4 todo_lines_logical=4 todo_lines_physical=40
+
+==== docs             docs     skipped      - s

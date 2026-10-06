@@ -1,0 +1,1534 @@
+== SysML v2 by example: a workbook {#workbook}
+
+::: note What you have, what you need
+**What you have:** you can read SysML v2 text now ([[sysmlv2]]). You know what a part def, a port and a satisfy
+relationship are, because you drew them for years in SysML v1.
+
+**What you need from this chapter:** to *write* them. Every construct the Tidewater team writes, one at a time: what
+it is, what it was in SysML v1, a short Tidewater example you type in and check, what to notice, and an exercise.
+By the end you will build a small model that passes the same checks the pipeline runs.
+:::
+
+This is a core chapter, and it is a workbook, not a reference. Do it with a terminal open. Budget two sessions: the
+first half (packages to verification cases) in week 2, the second half (states to views) in week 3. The plan in
+[[operating-model]] gives you that time as learning stories; take it.
+
+=== How to use this workbook {#workbook-how}
+
+Every section has the same shape:
+
+1. A sentence on what the construct is for, and what it was called in SysML v1.
+2. A snippet to type. Each one is complete: a package you can check on its own. Type it rather than pasting it;
+   typing is how the keywords get into your fingers.
+3. The check. Every snippet goes through the same grammar checker the pipeline's `grammar` job runs.
+4. What to notice: the two or three things that trip v1 modelers.
+5. An exercise that changes the snippet.
+
+Work in an empty folder. The snippets are written with `cat > file <<'EOF'`, which writes everything up to the `EOF`
+line into the file; you can equally open the file in Vim and type the lines between. `$KIT` is where the kit lives
+on your laptop (the survival kit, [[survival]], set it up).
+
+==== The check loop
+
+Before the first construct, learn what a mistake looks like, because you will make many. Here is a v1 habit written
+as v2 text, a "block":
+
+```sh run sandbox=scratch exit=1 expect="unexpected 'Hull'"
+cat > typo.sysml <<'EOF'
+package Stations {
+    block Hull { part ballast : Ballast; }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check typo.sysml
+```
+
+```text
+typo.sysml:2:11: error: unexpected 'Hull'; expected ':', '::>', ':=', ':>', ':>>', ';', '=', '=>', ...
+sysml: 1 file(s), 1 error(s)
+```
+
+Read it the way you would read a review comment. The file and position come first: line 2, column 11, which is the
+word `Hull`. The checker read `block` as a name it did not know and expected a punctuation mark after it; it found
+another name instead. The fix is the v2 keyword: `part def Hull`. The last line is the summary, and the exit status
+is 1, which is how a pipeline job knows it failed.
+
+The same check runs from Vim. In a `.sysml` buffer `:make` runs the checker (or the project's lint, inside a model
+repository) and fills the quickfix list, so `:cnext` takes you from error to error ([[vim]]). Here it is headless,
+the way the book's tests run it, writing the quickfix list to a file so you can see it:
+
+```vim run
+edit typo.sysml
+silent make
+call writefile(map(getqflist(), {_, e -> bufname(e.bufnr) . ':' . e.lnum . ': ' . e.text}), 'qf.txt')
+```
+
+```sh run expect="typo.sysml:2: unexpected 'Hull'"
+cat qf.txt
+```
+
+Two rules for reading errors, which save hours:
+
+- **Fix the first error first.** One missing brace can produce ten errors below it. Fix the first, check again.
+- **Look one line up.** A missing `;` is reported where the next statement starts, which is usually the line after
+  the real mistake.
+
+==== Your own model, for comparison
+
+Every section below ends by finding the same construct in Tidewater's real converted model, so you can see the
+textbook form next to what the converter wrote from the prime's Cameo model. Make the drop and convert it once now:
+
+```sh run expect="206 of 206 in scope ported" timeout=120
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drop1 > /dev/null
+perl "$KIT/bin/xmi2sysml.pl" --out tw drop1/tidewater.xmi
+ls tw
+```
+
+The converter writes one folder per top-level package of the Cameo model: `tw/stations/Stations.sysml`,
+`tw/interfaces/Interfaces.sysml` and so on. Keep this folder; the sections below read it.
+
+::: exercise {#ex-wb-loop} Break it three ways
+In `typo.sysml`, fix `block` to `part def` and check that it passes. Then make three mistakes one at a time and read
+each error: delete the `;` after `Ballast`, delete the closing `}` of the package, and misspell `part` as `prat`.
+Which error message points at the line that is actually wrong?
+:::
+
+=== Packages, imports and visibility {#workbook-packages}
+
+A **package** is a namespace: a folder for names. In SysML v1 it was the Package in the containment tree. In v2 text
+it is the outermost thing in almost every file, and Tidewater has one top-level package per file.
+
+```sh run expect="0 error\(s\)"
+cat > 01-packages.sysml <<'EOF'
+package Stations {
+    doc /* Everything that goes out to a site. */
+    private import Types::*;
+    public import Interfaces::ObservationPort;
+    private part def Ballast;
+    part def Hull { part ballast : Ballast; }
+}
+package Types { attribute def StationMode; }
+package Interfaces { port def ObservationPort; }
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 01-packages.sysml
+```
+
+What to notice:
+
+- **`import Types::*;`** brings every name in `Types` into scope, so you can write `StationMode` instead of
+  `Types::StationMode`. `Interfaces::ObservationPort` imports one name. Prefer the narrow import in files you write:
+  it makes dependencies visible in a merge request diff ([[no-spider-web]]).
+- **`private` and `public`** say whether a name is visible to whoever imports *this* package. `private import`
+  keeps `Types` out of what `Stations` offers to others; `public import` passes `ObservationPort` on. Default to
+  private. A chain of public imports is how a model quietly becomes a spider web.
+- **`private part def Ballast`** is a part def nobody outside `Stations` can see. Use it for details that are
+  nobody else's business.
+- **`doc /* ... */`** is documentation that belongs to the element, not a comment. It shows in generated documents.
+  `//` comments do not.
+
+==== In the Tidewater drop {#wb-drop-1}
+
+```sh run expect="private import Interfaces::\*"
+grep -n "import" tw/stations/Stations.sysml
+```
+
+Every converted package starts with a list of `private import ...::*` lines: wildcards, one per package it uses,
+including quoted names such as `Requirements::'System Requirements'::Functions::*` for packages whose v1 names had
+spaces. The converter imports widely because it cannot know which names each file really needs. The government
+team leaves these as delivered (hand-editing them would conflict with every future drop) and writes narrow imports
+only in the files it owns ([[no-spider-web]]).
+
+==== A common mistake {#wb-mistake-1}
+
+The missing semicolon after an import is the most common first error. Notice where it is reported:
+
+```sh run exit=1 expect="imp.sysml:3:5: error: unexpected 'part'"
+printf 'package S {\n    private import Types::*\n    part def Hull;\n}\n' > imp.sysml
+perl "$KIT/tools/sysml/sysml.pl" check imp.sysml
+```
+
+The mistake is on line 2; the error is on line 3, where the checker found `part` while still waiting for the `;`.
+Look one line up.
+
+::: exercise {#ex-wb-packages} Narrow the imports
+Add a part def `Mooring` to `Stations` that uses `StationMode` as an attribute type. Change the wildcard import of
+`Types` to a narrow one. Check. What happens if you make the import `public` and import `Stations::*` from a fourth
+package: which names can that package see?
+:::
+
+=== Names, documentation and comments {#workbook-names}
+
+Three kinds of text can sit in a model file, and they are not the same. In SysML v1 the difference was hidden in
+the tool: the documentation field of a block, a comment shape on a diagram, a note nobody exported. In text it is
+visible, and it matters, because generated documents and reviews treat the three differently.
+
+```sh run expect="0 error\(s\)"
+cat > 03-names.sysml <<'EOF'
+package 'Data Center' {
+    doc /* The services that turn observations into an archive and a bulletin. */
+    // A line comment: for the next reader of the file, not part of the model.
+    comment about IngestService /* Duplicates are dropped here, not in quality control. */
+    part def IngestService {
+        doc /* Receives and de-duplicates observations. */
+        port 'in';
+        attribute 'records per hour' : ScalarValues::Integer;
+    }
+    part def QualityControl;
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 03-names.sysml
+```
+
+What to notice:
+
+- **`doc /* ... */`** is the element's documentation. It is model content: generated documents print it, the recipe
+  checker reads requirement text from it, and a merge request that changes it is a model change.
+- **`// ...`** is a note to whoever edits the file next. It is not model content. The converter's TODO lines are
+  `//` comments on purpose: they are instructions for a person, and they disappear when the person does the work.
+- **`comment about X /* ... */`** is a model comment attached to an element: v1's comment shape with an anchor line.
+  Use it for review notes that should travel with the model; prefer `doc` for what the element *is*.
+- **Quoted names** (`'Data Center'`, `'in'`, `'records per hour'`) let a name contain spaces or be a keyword. The
+  converter uses them to keep v1 names unchanged. In files you write, prefer plain names: `DataCenter`,
+  `recordsPerHour`. The conventions most SysML v2 projects use, and Tidewater's `docs/conventions/naming.md`, are
+  UpperCamelCase for definitions and lowerCamelCase for usages.
+
+::: exercise {#ex-wb-names} Document a decision
+Add a `comment about QualityControl` recording why quality control flags observations instead of deleting them, and
+a `doc` that says what quality control is. Check. Then ask: which of the two would you want in the generated
+document a forecaster reads, and which only in the review?
+:::
+
+=== Parts: definitions, usages, multiplicity {#workbook-parts}
+
+A **part def** is a kind of thing; a **part** is a use of it inside something else. In SysML v1 these were the
+Block and the part property typed by it. The v2 vocabulary says what v1 left implicit: definitions are reusable,
+usages are where they are used ([[sysmlv2-ideas]]).
+
+```sh run expect="0 error\(s\)"
+cat > 02-parts.sysml <<'EOF'
+package Parts {
+    part def SensorSuite;
+    part def Battery;
+    part def Cell;
+    part def ObservingStation {
+        part sensors : SensorSuite;
+        part battery : Battery { part cells : Cell[4]; }
+    }
+    part def MooredBuoy :> ObservingStation {
+        part spareCells : Cell[0..2];
+    }
+    part def StationSegment {
+        part buoys : MooredBuoy[1..*];
+    }
+    part network : StationSegment;
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 02-parts.sysml
+```
+
+What to notice:
+
+- **`:` means "is typed by".** `part sensors : SensorSuite;` reads "sensors, a SensorSuite".
+- **`:>` means "specializes".** `MooredBuoy :> ObservingStation` is v1's generalization arrow: a moored buoy is an
+  observing station and has everything one has, plus its own parts.
+- **Multiplicity in brackets.** `[4]` exactly four, `[0..2]` up to two, `[1..*]` one or more.
+- **A usage can have a body.** `part battery : Battery { part cells : Cell[4]; }` says this station's battery has
+  four cells, without changing the `Battery` definition. In v1 that needed a new block or a redefinition in a
+  property panel.
+- **A usage at package level** (`part network : StationSegment;`) is a specific thing, not a kind. Tidewater uses
+  these for the system context.
+
+==== In the Tidewater drop {#wb-drop-2}
+
+```sh run expect="MooredBuoy :> ObservingStation"
+grep -n -A4 "part def MooredBuoy" tw/stations/Stations.sysml
+```
+
+The converter turned v1's generalization into `:>` and every part property into a part usage. The second line is a
+converter TODO: the v1 level stereotype on the block, which the team replaces with `@L3Station;` ([[workbook-metadata]],
+and practice lesson 10).
+
+==== A common mistake {#wb-mistake-2}
+
+Leaving out the colon, which reads naturally in English ("part sensors SensorSuite"):
+
+```sh run exit=1 expect="unexpected 'SensorSuite'"
+printf 'package P {\n    part def SensorSuite;\n    part def Station { part sensors SensorSuite; }\n}\n' > colon.sysml
+perl "$KIT/tools/sysml/sysml.pl" check colon.sysml
+```
+
+::: exercise {#ex-wb-parts} A shore station
+Add `part def ShoreStation :> ObservingStation` with a part `mast` of a new part def `Mast`, and give
+`StationSegment` a part `shoreStations` with multiplicity one or more. Check. Then draw the part tree in your head:
+how many levels deep is a cell in a buoy in the segment?
+:::
+
+=== Redefinition and subsetting {#workbook-redefinition}
+
+When one definition specializes another (`:>`), it can narrow what it inherited. **Subsetting** (`:>` on a usage)
+says a feature is one of the inherited feature's values; **redefinition** (`:>>`) replaces an inherited feature, for
+example with a new default. In SysML v1 this was the redefinition and subsetting fields in a property's
+specification dialog, which few modelers ever opened. In v2 it is two characters, and you will see `:>>` in every
+Tidewater requirement that gives a limit a value.
+
+```sh run expect="0 error\(s\)"
+cat > 02b-redefinition.sysml <<'EOF'
+package Redefinition {
+    private import ISQ::*;
+    private import SI::*;
+    part def Sensor { attribute samplePeriod : DurationValue; }
+    part def SensorSuite {
+        part sensors : Sensor[1..*];
+        attribute samplePeriod : DurationValue = 10 [min];
+    }
+    part def Anemometer :> Sensor;
+    part def BuoySensorSuite :> SensorSuite {
+        part anemometer : Anemometer :> sensors;
+        attribute :>> samplePeriod = 1 [min];
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 02b-redefinition.sysml
+```
+
+What to notice:
+
+- **`part anemometer : Anemometer :> sensors;`** says the buoy's anemometer is *one of* its sensors. The suite still
+  has its general `sensors` collection; the anemometer is a named member of it.
+- **`attribute :>> samplePeriod = 1 [min];`** replaces the inherited ten-minute default with one minute for buoys.
+  Without `:>>` you would have declared a second, unrelated attribute with the same name, which lint reports as a
+  duplicate.
+- **Read the three symbols aloud** until they are automatic: `:` "is a", `:>` "is a kind of / is one of", `:>>`
+  "replaces".
+
+::: exercise {#ex-wb-redefinition} A shore-station suite
+Write `ShoreSensorSuite :> SensorSuite` with a `barometer : Barometer :> sensors` and a sample period of five
+minutes. Check. Then try leaving out the `:>>` and run the file through lint in a copy of the `lintdemo` project
+from [[workbook-values]]. What does lint say?
+:::
+
+=== Ports and interfaces {#workbook-ports}
+
+A **port def** says what can cross a boundary; an **interface def** says how two ports connect. In SysML v1 these
+were proxy ports typed by interface blocks with flow properties, and connectors on an IBD. v2 keeps the idea and
+drops the ceremony.
+
+```sh run expect="0 error\(s\)"
+cat > 03-ports.sysml <<'EOF'
+package Ports {
+    item def ObservationRecord;
+    port def ObservationPort { out item observation : ObservationRecord; }
+    interface def ObservationLink {
+        end transmitter : ObservationPort;
+        end receiver : ~ObservationPort;
+    }
+    part def TelemetryUnit { port obsOut : ObservationPort; }
+    part def IngestService { port obsIn : ~ObservationPort; }
+    part def Network {
+        part telemetry : TelemetryUnit;
+        part ingest : IngestService;
+        interface link : ObservationLink connect transmitter ::> telemetry.obsOut to receiver ::> ingest.obsIn;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 03-ports.sysml
+```
+
+What to notice:
+
+- **Direction lives in the port def.** `out item observation` says observations leave through this port.
+- **`~` conjugates.** `~ObservationPort` is the same port seen from the other side: the `out` becomes `in`. One port
+  def serves both ends; in v1 you either made two interface blocks or ticked "conjugated" in a dialog.
+- **The interface usage names its ends.** `connect transmitter ::> telemetry.obsOut to receiver ::> ingest.obsIn`
+  binds each end of the interface def to a real port. `::>` reads "is bound to" (strictly, references).
+- **The dot is a path.** `telemetry.obsOut` is the `obsOut` port of the `telemetry` part.
+
+==== In the Tidewater drop {#wb-drop-3}
+
+```sh run expect="out item observation : ObservationRecord"
+grep -n -A3 "port def ObservationIF" tw/interfaces/Interfaces.sysml
+```
+
+The v1 interface block `ObservationIF`, with its flow property, became a port def with an `out item`. The v1 name
+kept its "IF" suffix: the converter preserves names so the prime's v1 ids and names still line up with the v2 text.
+
+==== A common mistake {#wb-mistake-3}
+
+Drawing the connector the v1 way, with an arrow:
+
+```sh run exit=1 expect="arrow.sysml:3:\d+: error: unexpected '\.'"
+printf 'package P {\n    part def A { port p; }\n    part def N { part a : A; part b : A; connection a.p -> b.p; }\n}\n' > arrow.sysml
+perl "$KIT/tools/sysml/sysml.pl" check arrow.sysml
+```
+
+A connection needs the word `connect` and the word `to`: `connection connect a.p to b.p;`. The checker stops at the
+first dot because, without `connect`, it reads `a` as the connection's name.
+
+::: exercise {#ex-wb-ports} A health interface
+Add a `HealthReport` item, a `HealthPort` port def with `out item health : HealthReport`, a `healthOut` port on the
+telemetry unit, a conjugated `healthIn` on the ingest service, and a second interface usage connecting them. Check.
+:::
+
+=== Connections and flows {#workbook-flows}
+
+A **connection** joins two parts or ports; a **flow** says something moves along it. In v1 these were connectors and
+item flows on an IBD. In Tidewater the converter wrote connections for every v1 connector.
+
+```sh run expect="0 error\(s\)"
+cat > 04-flows.sysml <<'EOF'
+package Flows {
+    item def ObservationRecord;
+    part def DataLogger { out item record : ObservationRecord; }
+    part def TelemetryUnit { in item record : ObservationRecord; }
+    part def Station {
+        part logger : DataLogger;
+        part telemetry : TelemetryUnit;
+        connection toTelemetry connect logger to telemetry;
+        flow of ObservationRecord from logger.record to telemetry.record;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 04-flows.sysml
+```
+
+What to notice:
+
+- **An `item def` is a thing that moves** (a record, a message, a fuel load). It replaces v1's signals and the
+  types of flow properties.
+- **`connection NAME connect A to B;`** joins two features. The name is optional but worth giving; a named
+  connection can be traced, allocated and found in a diff.
+- **`flow of T from A to B;`** is the item flow, with its type and both ends. Flows also connect actions (see
+  [[workbook-actions]]); the same keyword covers what v1 split between item flows and object flows.
+
+==== In the Tidewater drop {#wb-drop-4}
+
+```sh run expect="connection toQc connect"
+grep -n "connection" tw/datacenter/DataCenter.sysml
+```
+
+Every v1 connector became a `connection ... connect ... to ...`, named when the v1 connector had a name (`toQc`,
+`toArchive`). Some names are quoted, `ingest.'out'`, because `out` and `in` are SysML v2 keywords: a quoted name is
+how v2 uses a keyword as a name.
+
+::: exercise {#ex-wb-flows} Two flows
+Add a `HealthReport` item that also flows from the logger to the telemetry unit. Do you need a second connection, or
+can two flows share the parts? Check your answer with the grammar checker, then argue it with a teammate: which is
+clearer to a reviewer?
+:::
+
+=== Attributes, values and units {#workbook-values}
+
+An **attribute** is a value a part has: a mass, a power rating, a mode. In v1 these were value properties typed by
+value types with units. In v2 the units come from the standard library's International System of Quantities (ISQ)
+and SI packages, so a power is a `PowerValue` and "40 W" is `40 [W]`.
+
+```sh run expect="0 error\(s\)"
+cat > 05-values.sysml <<'EOF'
+package Values {
+    private import ISQ::*;
+    private import SI::*;
+    attribute def Power :> PowerValue;
+    attribute def Energy :> EnergyValue;
+    enum def StationMode { enum observing; enum degraded; enum maintenance; enum recovered; }
+    part def SolarPanel { attribute ratedPower : Power = 40 [W]; }
+    part def Battery {
+        attribute capacity : Energy;
+        attribute mass : MassValue = 12 [kg];
+    }
+    part def Station { attribute mode : StationMode = StationMode::observing; }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 05-values.sysml
+```
+
+What to notice:
+
+- **`attribute def Power :> PowerValue;`** makes a project value type that *is* an ISQ power. This is what replaced
+  Tidewater's converter TODO for the v1 unit instance specifications ([[sysmlv2-todo]]).
+- **`= 40 [W]`** gives a default value with a unit. The brackets hold the unit; `W`, `kg`, `s` and `h` come from `SI`.
+- **`enum def`** is v1's enumeration, and `StationMode::observing` names one literal.
+
+==== What the grammar check does not see
+
+The grammar checker reads the *shape* of the text. It does not know whether `PowerValue` exists. Misspell it, and
+the grammar check still passes:
+
+```sh run expect="0 error\(s\)"
+sed 's/PowerValue;/SolarPowerValue;/' 05-values.sysml > 05-misspelled.sysml
+perl "$KIT/tools/sysml/sysml.pl" check 05-misspelled.sysml
+```
+
+Inside a model repository, the project's lint resolves names, and it catches what the grammar missed. Make a
+one-file project and lint it:
+
+```sh run exit=1 expect="unresolved supertype 'SolarPowerValue'"
+mkdir -p lintdemo/model
+cp 05-misspelled.sysml lintdemo/model/Values.sysml
+printf 'title = Lint demo\n' > lintdemo/sysml.conf
+perl "$KIT/tools/sysml/model.pl" --root lintdemo lint
+```
+
+```text
+lintdemo/model/Values.sysml:4:28: error: unresolved supertype 'SolarPowerValue'
+lint: 1 file(s), 1 error(s), 0 warning(s)
+elements=3 errors=1 warnings=0
+```
+
+This is why the pipeline runs both jobs: `grammar` for shape, `lint` for names. It is also why an AI assistant's
+output must go through both ([[local-ai]]): an invented library name is perfectly good grammar.
+
+==== In the Tidewater drop {#wb-drop-5}
+
+```sh run expect="specialize an ISQ quantity value by hand"
+grep -n -A2 "attribute def Power" tw/types/Types.sysml
+```
+
+The converter could not know which ISQ quantity a v1 value type meant, so it made `Power` a plain `Real` and left a
+comment telling a person to finish the job. That person writes `attribute def Power :> ISQ::PowerValue;`, exactly
+the form you typed above, and the unit TODO lines below it go away.
+
+==== A common mistake {#wb-mistake-4}
+
+Writing the unit without brackets:
+
+```sh run exit=1 expect="unexpected 'W'"
+printf 'package V {\n    private import SI::*;\n    part def SolarPanel { attribute ratedPower = 40 W; }\n}\n' > unit.sysml
+perl "$KIT/tools/sysml/sysml.pl" check unit.sysml
+```
+
+The unit is an expression in square brackets: `40 [W]`.
+
+::: exercise {#ex-wb-values} A power budget's inputs
+Give `Battery` a `stateOfCharge` attribute as a percentage (hint: the library has a `Real` you can constrain, or
+look for a ratio type, see [[workbook-library]]), and give `Station` an `averageLoad : Power`. Check with both the
+grammar checker and, in a copy of `lintdemo`, the lint.
+:::
+
+=== Expressions: the small language inside constraints {#workbook-expressions}
+
+Constraints, calculations, default values and requirement limits are all **expressions**: arithmetic, comparisons,
+Boolean logic and navigation through the model. In SysML v1 they were opaque strings in OCL or plain English that no
+tool read, which is why Tidewater's converter could only quote them in a TODO line. In v2 they are part of the
+language, and the grammar checks them.
+
+```sh run expect="0 error\(s\)"
+cat > 05b-expressions.sysml <<'EOF'
+package Expressions {
+    private import ISQ::*;
+    private import SI::*;
+    private import ScalarValues::*;
+    part def Battery {
+        attribute capacity : EnergyValue = 400 [W*h];
+        attribute stateOfCharge : Real = 0.8;
+        attribute usable : EnergyValue = capacity * stateOfCharge;
+        attribute low : Boolean = stateOfCharge < 0.2;
+        attribute mode : String = if low ? "degraded" else "observing";
+    }
+    part def Station {
+        part batteries : Battery[2];
+        attribute total : EnergyValue = sum(batteries.usable);
+        constraint enough { total >= 500 [W*h] and batteries.stateOfCharge->forAll { in s; s > 0.1 } }
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 05b-expressions.sysml
+```
+
+What to notice:
+
+- **Units compose.** `[W*h]` is watt-hours; the multiplication is inside the brackets.
+- **Arithmetic and comparison** read as you would write them: `capacity * stateOfCharge`, `stateOfCharge < 0.2`.
+  Boolean operators are words: `and`, `or`, `not`, `implies`.
+- **`if c ? a else b`** is the conditional expression.
+- **Navigation with dots reaches through multiplicity.** `batteries.usable` is the usable energy of *each* battery,
+  and `sum(...)` adds them up. `->forAll { in s; s > 0.1 }` applies a condition to every value.
+- **The grammar checks the shape, not the arithmetic.** It will not tell you that a power was compared with an energy;
+  an execution engine, or a reviewer, will.
+
+::: exercise {#ex-wb-expressions} A reserve
+Add an attribute `reserve` to `Station`: the total usable energy minus one day of a 15 W load (`15 [W] * 24 [h]`), and
+a constraint that the reserve is positive. Check. Then write the same rule as one English sentence a reviewer could
+check by hand, and compare the two.
+:::
+
+=== Requirements: definitions, usages, subjects and constraints {#workbook-requirements}
+
+A **requirement def** is a kind of requirement; a **requirement** usage is a specific one. In SysML v1 a requirement
+was a stereotyped class with an id and a text. In v2 it can also say *what it constrains* (its subject) and *how*
+(its constraints), so the model can check it. The recipe chapter shows how the recipe's parts map onto this
+([[recipe-sysml]]).
+
+```sh run expect="0 error\(s\)"
+cat > 06-requirements.sysml <<'EOF'
+package Reqs {
+    private import ISQ::*;
+    private import SI::*;
+    part def TelemetryUnit { attribute latency : DurationValue; }
+    requirement def ObservationLatency {
+        doc /* The telemetry unit sends each record within its latency limit. */
+        subject telemetry : TelemetryUnit;
+        attribute maxLatency : DurationValue;
+        assume constraint { true }
+        require constraint { telemetry.latency <= maxLatency }
+    }
+    requirement tw_sys_002 : ObservationLatency {
+        attribute doorsId = "TW-SYS-002";
+        attribute :>> maxLatency = 60 [s];
+    }
+    requirement tw_stk_002 {
+        attribute doorsId = "TW-STK-002";
+        doc /* Forecasters shall receive observations in time to use them in the next bulletin. */
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 06-requirements.sysml
+```
+
+What to notice:
+
+- **`subject`** is what the requirement is about: the recipe's specification target.
+- **`require constraint { ... }`** is the measurable part, a Boolean expression over the subject's values.
+  **`assume constraint`** is the condition under which it applies (the recipe's state and pre-conditions); `true`
+  here means always.
+- **`attribute :>> maxLatency = 60 [s];`** redefines (`:>>`) the def's attribute with a value. One def, many usages,
+  each with its own limit.
+- **Tidewater's converted requirements look like `tw_stk_002`:** a doorsId and the text, no subject or constraint,
+  because that is what DOORS carries. Both forms are legal; the first is the direction of travel.
+
+==== In the Tidewater drop {#wb-drop-6}
+
+```sh run expect="attribute doorsId = \"TW-SYS-002\""
+grep -n "requirement TW_SYS_002" tw/requirements/Requirements.sysml
+```
+
+The converted requirement is one line: the name made from the DOORS id (dashes become underscores), the text as
+`doc`, and the DOORS attributes. No subject and no constraint, because the v1 model had none. This is the form your
+trace and recipe checks read today.
+
+==== A common mistake {#wb-mistake-5}
+
+Writing the requirement sentence directly in the body, as you would in a document:
+
+```sh run exit=1 expect="unexpected 'telemetry'"
+printf 'package R {\n    requirement r { The telemetry unit shall send the record. }\n}\n' > req.sysml
+perl "$KIT/tools/sysml/sysml.pl" check req.sysml
+```
+
+Text goes inside `doc /* ... */`. Everything else in a body is model, and the checker reads it as model.
+
+::: exercise {#ex-wb-requirements} The battery requirement
+Write a requirement def `StateOfChargeReporting` with the power system as subject and a `reportingPeriod :
+DurationValue`, and a usage `tw_seg_003` with doorsId `TW-SEG-003` and a period of 10 minutes (`10 [min]`). Check.
+:::
+
+=== Satisfy, verify and derive {#workbook-trace}
+
+These are the trace relationships: which design element **satisfies** a requirement, which verification case
+**verifies** it, and which requirement is **derived** from which. In v1 they were stereotyped dependencies drawn on
+requirement diagrams and maintained in matrices. In v2 they are statements in the text.
+
+```sh run expect="0 error\(s\)"
+cat > 07-trace.sysml <<'EOF'
+package Trace {
+    private import RequirementDerivation::*;
+    requirement tw_stk_002 { doc /* Timely observations. */ }
+    requirement tw_sys_002 { doc /* Scheduled transmission. */ }
+    part def TelemetryUnit;
+    part def Station { part telemetry : TelemetryUnit; }
+    satisfy tw_sys_002 by Station::telemetry;
+    #derivation connection {
+        end #original ::> tw_stk_002;
+        end #derive ::> tw_sys_002;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 07-trace.sysml
+```
+
+What to notice:
+
+- **`satisfy R by X;`** names the requirement and the element that satisfies it. Satisfy at the level that actually
+  carries the responsibility, not lower; a hundred fine-grained satisfies nobody reviews is how the spider web grows
+  back ([[no-spider-web]]).
+- **Derivation** is a connection from the standard library's `RequirementDerivation` package, with metadata
+  (`#derivation`, `#original`, `#derive`) marking which end is which. This is exactly what the converter writes for
+  v1's deriveReqt, so you will read it in every Tidewater drop.
+- **`verify`** lives inside a verification case's objective; the next section shows it.
+- **Write each relationship once,** in the element that owns the responsibility. The matrices, the trace report and
+  the VCRM are generated from these statements; never maintain the reverse direction by hand.
+
+==== In the Tidewater drop {#wb-drop-7}
+
+```sh run expect="#derivation connection"
+grep -n "satisfy TW_SYS_00[12]" tw/requirements/Requirements.sysml
+grep -n -A3 "#derivation connection" tw/requirements/Requirements.sysml | head -4
+```
+
+The prime drew satisfies and derives in Cameo; the converter wrote each one as a statement, all in the
+`Requirements` package. Count them: that list *is* the v1 trace matrix, now reviewable line by line.
+
+==== A common mistake {#wb-mistake-6}
+
+Forgetting the `by`:
+
+```sh run exit=1 expect="unexpected 'Station'"
+printf 'package T {\n    requirement r;\n    part def Station;\n    satisfy r Station;\n}\n' > sat.sysml
+perl "$KIT/tools/sysml/sysml.pl" check sat.sysml
+```
+
+::: exercise {#ex-wb-trace} Trace a new requirement
+Add `tw_sys_013` ("store and forward") derived from `tw_stk_002` and satisfied by a new `DataLogger` part of
+`Station`. Check. Then predict what the pipeline's trace job would report for `tw_sys_013` (hint: is anything
+verifying it?).
+:::
+
+=== Verification cases {#workbook-verification}
+
+A **verification def** describes how requirements are verified: the subject under test, the objective naming the
+requirements, and the verdict. In v1 a test case was an activity stereotyped TestCase with verify dependencies to
+requirements.
+
+```sh run expect="0 error\(s\)"
+cat > 08-verification.sysml <<'EOF'
+package Verification {
+    private import VerificationCases::*;
+    requirement tw_sys_002 { doc /* Scheduled transmission. */ }
+    part def Station;
+    verification def TestStationObservations {
+        doc /* Sensors and transmission on a buoy and a shore station. */
+        subject station : Station;
+        objective { verify tw_sys_002; }
+        return verdict : VerdictKind;
+    }
+    verification testShoreStation : TestStationObservations;
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 08-verification.sysml
+```
+
+What to notice:
+
+- **`objective { verify R; }`** is where the verify relationship lives. One case can verify several requirements;
+  list them all in its objective.
+- **`return verdict : VerdictKind;`** uses the library's verdict (pass, fail, inconclusive, error). The VCRM job
+  reads verdicts from the results file, not from the model ([[workbook-library]] shows where VerdictKind lives).
+- **The verification method** (test, analysis, inspection, demonstration) is metadata or an attribute in Tidewater
+  (`verificationMethod` from DOORS). The recipe's parts and the method together are what a test engineer needs.
+
+==== In the Tidewater drop {#wb-drop-8}
+
+```sh run expect="verify TW_SYS_002"
+grep -n -A8 "verification def TestStationObservations" tw/verification/Verification.sysml
+```
+
+One converted verification case verifies four requirements; the v1 test case had four verify dependencies, and the
+converter gathered them into the objective. There is no `subject` yet: v1 test cases did not say what they tested,
+so that is part of the team's verification work ([[verification]]).
+
+==== A common mistake {#wb-mistake-7}
+
+Putting `verify` straight into the body:
+
+```sh run exit=1 expect="unexpected 'verify'"
+printf 'package V {\n    requirement r;\n    verification def T { verify r; }\n}\n' > verify.sysml
+perl "$KIT/tools/sysml/sysml.pl" check verify.sysml
+```
+
+`verify` belongs inside `objective { ... }`.
+
+::: exercise {#ex-wb-verification} Inspect the vessel access
+TW-SYS-012 is verified by inspection. Write `InspectVesselAccess` with the service vessel as subject and an
+objective verifying `tw_sys_012`. Where would you record that it is an inspection, so the VCRM can show the method?
+:::
+
+=== States {#workbook-states}
+
+A **state def** describes modes and the transitions between them. In v1 this was a state machine owned by a block.
+It is the construct Tidewater's converter could not carry ([[sysmlv2-hand]]), so the team writes it by hand.
+
+```sh run expect="0 error\(s\)"
+cat > 09-states.sysml <<'EOF'
+package Modes {
+    attribute def LowBattery;
+    attribute def CrewOnSite;
+    state def BuoyModes {
+        entry; then observing;
+        state observing;
+        state degraded;
+        state maintenance;
+        transition first observing accept LowBattery then degraded;
+        transition first degraded accept CrewOnSite then maintenance;
+        transition first maintenance then observing;
+    }
+    part def MooredBuoy { exhibit state modes : BuoyModes; }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 09-states.sysml
+```
+
+What to notice:
+
+- **`entry; then observing;`** is the initial state: where the machine starts.
+- **`transition first A accept E then B;`** reads "from A, on receiving E, go to B". A transition without `accept`
+  happens when the source state's behavior completes.
+- **The triggers are types.** `LowBattery` is an attribute def here; in a fuller model it would be an item or signal
+  the power system sends.
+- **`exhibit state`** is how a part has a state machine. v1 owned the state machine inside the block; v2 says the
+  part *exhibits* it.
+
+==== In the Tidewater drop {#wb-drop-9}
+
+```sh run expect="TODO uml:StateMachine 'BuoyModes'"
+grep -n "StateMachine" tw/stations/Stations.sysml
+```
+
+This is the converter's limit: a whole v1 state machine becomes one TODO line inside `MooredBuoy`. The snippet you
+typed is the start of its replacement; the full version, with the Storm mode drop 3 adds, is Bob's sprint 6 story
+([[sysmlv2-hand]]).
+
+==== A common mistake {#wb-mistake-8}
+
+The v1 arrow again:
+
+```sh run exit=1 expect="unexpected '->'"
+printf 'package M {\n    state def BuoyModes {\n        state observing; state degraded;\n        transition observing -> degraded;\n    }\n}\n' > state.sysml
+perl "$KIT/tools/sysml/sysml.pl" check state.sysml
+```
+
+A transition reads as a sentence: `transition first observing then degraded;`, with `accept SIGNAL` between the two
+when an event triggers it.
+
+::: exercise {#ex-wb-states} The Storm mode
+Drop 3 adds a Storm mode: from observing on a storm warning, and back to observing when the warning ends. Add it,
+with two attribute defs for the triggers. Check. Then look at drop 3's delta report in [[prime-changes]] and compare
+your model with what the prime drew.
+:::
+
+=== Actions, successions, forks and flows {#workbook-actions}
+
+An **action def** is a function: inputs, outputs and the steps inside it. In v1 this was an activity with actions,
+pins, control flows and object flows. v2 keeps the semantics in a much smaller notation.
+
+```sh run expect="0 error\(s\)"
+cat > 10-actions.sysml <<'EOF'
+package Cycle {
+    item def ObservationRecord;
+    item def Bulletin;
+    action def SampleSensors { out record : ObservationRecord; }
+    action def CheckQuality { in record : ObservationRecord; out checked : ObservationRecord; }
+    action def ArchiveObservations { in record : ObservationRecord; }
+    action def PublishBulletin { in record : ObservationRecord; out bulletin : Bulletin; }
+    action def ObserveCoast {
+        out bulletin : Bulletin;
+        action sample : SampleSensors;
+        action check : CheckQuality;
+        action store : ArchiveObservations;
+        action publish : PublishBulletin;
+        flow sample.record to check.record;
+        first start then sample;
+        first sample then check;
+        first check then afterCheck;
+        fork afterCheck;
+        first afterCheck then store;
+        first afterCheck then publish;
+        flow check.checked to store.record;
+        flow check.checked to publish.record;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 10-actions.sysml
+```
+
+What to notice:
+
+- **Parameters are directed features.** `in record`, `out checked`: v1's pins and parameter nodes.
+- **`first A then B;`** is a succession, v1's control flow. `start` is the built-in beginning of the action.
+- **`fork afterCheck;`** is a fork node: after it, `store` and `publish` both run. A `join` node collects them back.
+- **`flow A.x to B.y;`** is v1's object flow, between the output of one step and the input of another.
+- This is the shape of Tidewater's ObserveCoast, and the IDEF0 plates are drawn from it ([[diagrams]]).
+
+==== In the Tidewater drop {#wb-drop-10}
+
+```sh run expect="first start then sample"
+grep -n "first\|TODO" tw/behavior/Behavior.sysml | head -12
+```
+
+The converter carried the control flows as `first ... then ...` successions and the call actions as action usages,
+and left TODO lines for the fork, the pin and the object flow: exactly the three things your snippet wrote by hand.
+
+==== A common mistake {#wb-mistake-9}
+
+```sh run exit=1 expect="unexpected '->'"
+printf 'package C {\n    action def A { action s; action c; first s -> c; }\n}\n' > succ.sysml
+perl "$KIT/tools/sysml/sysml.pl" check succ.sysml
+```
+
+Successions use `then`, never an arrow.
+
+::: exercise {#ex-wb-actions} Join and finish
+Add a `join` after `store` and `publish`, and a final step `logBulletin` that runs after the join. Route the
+bulletin out of `ObserveCoast` with a flow from `publish.bulletin`. Check.
+:::
+
+=== Calculations, constraints and analysis cases {#workbook-analysis}
+
+A **calc def** computes a value; a **constraint def** is a condition that must hold; an **analysis def** is a
+question asked of a subject, answered by calculation. In v1 these were constraint blocks, parametric diagrams and
+binding connectors, usually the least-maintained part of a Cameo model because the diagrams were so laborious. In v2
+they are short.
+
+```sh run expect="0 error\(s\)"
+cat > 11-analysis.sysml <<'EOF'
+package Analysis {
+    private import ISQ::*;
+    private import SI::*;
+    calc def DailyEnergy {
+        in power : PowerValue;
+        in hours : Real;
+        return energy : EnergyValue = power * hours * (1 [h]);
+    }
+    constraint def EnergyBalance {
+        in generation : PowerValue;
+        in sunHours : Real;
+        in load : PowerValue;
+        generation * sunHours >= load * 24
+    }
+    part def PowerSystem {
+        attribute generation : PowerValue;
+        attribute load : PowerValue;
+        constraint balance : EnergyBalance {
+            in generation = PowerSystem::generation;
+            in sunHours = 6.0;
+            in load = PowerSystem::load;
+        }
+    }
+    analysis def EnergyMargin {
+        subject power : PowerSystem;
+        objective { doc /* How much daily energy is left after the load. */ }
+        return margin : EnergyValue;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 11-analysis.sysml
+```
+
+What to notice:
+
+- **`return`** names a calc's result; the expression after `=` computes it.
+- **A constraint def's body is a Boolean expression**, here Tidewater's energy balance, the expression the converter
+  could only carry as a TODO line.
+- **`constraint balance : EnergyBalance { in generation = ...; }`** is v1's binding connectors, written as
+  assignments of the constraint's parameters to the part's attributes.
+- **An analysis def** frames the question; the kit does not evaluate it. Evaluating calcs and constraints needs an
+  execution engine (the OMG pilot implementation, or a commercial tool), which Tidewater leaves for later ([[tools]]).
+
+==== In the Tidewater drop {#wb-drop-11}
+
+```sh run expect="generation \* sunHours >= load \* 24"
+grep -n "TODO" tw/analysis/Analysis.sysml
+```
+
+The v1 constraint block's parameters came across; its expression did not, because v1 stored it as opaque English
+text. The TODO line quotes it, so the person writing the v2 constraint has it in front of them. Drop 5 changes that
+expression, and the TODO line changes with it: the drop-5 conflict in [[prime-changes]].
+
+::: exercise {#ex-wb-analysis} Use the calc
+Write a calc usage inside `PowerSystem` that computes the daily load energy with `DailyEnergy`, and rewrite the
+constraint to compare against it. Check. Which form would a reviewer find easier to verify by hand?
+:::
+
+=== Allocations {#workbook-allocations}
+
+An **allocation** says a function is performed by a part. In v1 it was the allocate dependency, often drawn in
+swimlanes. In Tidewater the converter carried every v1 allocation, at the definition level.
+
+```sh run expect="0 error\(s\)"
+cat > 12-allocations.sysml <<'EOF'
+package Allocations {
+    action def SampleSensors;
+    part def SensorSuite;
+    allocate SampleSensors to SensorSuite;
+    part def Station {
+        part sensors : SensorSuite;
+        action sample : SampleSensors;
+        allocate sample to sensors;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 12-allocations.sysml
+```
+
+What to notice:
+
+- **Definition-level** (`allocate SampleSensors to SensorSuite;`) says every sensor suite performs sampling.
+  **Usage-level** (`allocate sample to sensors;` inside `Station`) says this station's sensors perform this
+  station's sample step. Pick one level per project and say which in your conventions; mixing them is a classic
+  source of the web.
+- The IDEF0 plates read allocations as **mechanisms**: the part that performs a function ([[diagrams]]).
+
+==== In the Tidewater drop {#wb-drop-12}
+
+```sh run expect="allocate SampleSensors to SensorSuite"
+grep -n "allocate" tw/allocations/Allocations.sysml
+```
+
+All six v1 allocations, at the definition level, in their own package. This is what the IDEF0 plates read as
+mechanisms.
+
+==== A common mistake {#wb-mistake-10}
+
+```sh run exit=1 expect="unexpected '->'"
+printf 'package A {\n    action def S; part def P;\n    allocate S -> P;\n}\n' > alloc.sysml
+perl "$KIT/tools/sysml/sysml.pl" check alloc.sysml
+```
+
+`allocate S to P;`
+
+::: exercise {#ex-wb-allocations} Allocate the cycle
+Allocate `CheckQuality` to a `QualityControl` part def and `ArchiveObservations` to an `Archive` part def, at the
+definition level. Check. Then decide: should `PublishBulletin` be allocated to the data center or to the publisher
+inside it? Write down why.
+:::
+
+=== Metadata {#workbook-metadata}
+
+**Metadata** labels elements with project-specific information: level tags, markings, procurement data, the
+recipe's tags. In v1 these were stereotypes from a profile, the source of most of Tidewater's converter TODOs
+([[sysmlv2-ideas]]). In v2 a project defines a small set of metadata defs in one package and the pipeline checks
+their use.
+
+```sh run expect="0 error\(s\)"
+cat > 13-metadata.sysml <<'EOF'
+package Conventions {
+    private import ScalarValues::*;
+    metadata def L3Station { doc /* A deliverable station within a segment. */ }
+    metadata def Procured {
+        attribute supplier : String;
+        attribute partNumber : String;
+    }
+}
+package Stations {
+    private import Conventions::*;
+    part def DataLogger {
+        @Procured { supplier = "Notional Logger Co."; partNumber = "LG-100"; }
+    }
+    part def ShoreStation { @L3Station; }
+    #L3Station part def MooredBuoy;
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 13-metadata.sysml
+```
+
+What to notice:
+
+- **`@Name;`** inside a body applies metadata; `@Name { attr = value; }` applies it with values.
+- **`#Name`** in front of a declaration is the short prefix form of the same thing.
+- **Level tags are checked.** In a model repository, `model.pl check` verifies every part def carries the right
+  `@L` tag for its depth in the part tree ([[vim]], and practice lesson 10).
+- **Keep the set small.** A metadata def per real need, defined once in `Conventions`, is the v2 answer to v1's
+  stereotype sprawl.
+
+==== In the Tidewater drop {#wb-drop-13}
+
+```sh run expect="tw/stations/Stations.sysml:\d+"
+grep -c "TODO stereotype" -r tw | grep -v ':0$'
+```
+
+Every v1 stereotype application became a TODO line, most of them level stereotypes in `Stations`. Replacing them with
+`@L` metadata is the bulk of the structure port in sprints 2 to 5, and the reason the pipeline's TODO count falls the
+way it does.
+
+==== A common mistake {#wb-mistake-11}
+
+The v1 guillemets:
+
+```sh run exit=1 expect="unexpected '<'"
+printf 'package S {\n    <<L3Station>> part def ShoreStation;\n}\n' > stereo.sysml
+perl "$KIT/tools/sysml/sysml.pl" check stereo.sysml
+```
+
+`#L3Station part def ShoreStation;` or `@L3Station;` inside the body.
+
+::: exercise {#ex-wb-metadata} A marking
+Add a metadata def `Marking` with a `level : String` attribute and mark the `Stations` package
+`@Marking { level = "U"; }` (metadata can apply to a package too). Check. In a real program, who decides the value?
+:::
+
+=== Use cases {#workbook-usecases}
+
+A **use case def** describes what an actor achieves with the system. In v1, use case diagrams with actors and
+include/extend relationships. Tidewater's converter carried the use cases as skeletons and left the include as a TODO.
+
+```sh run expect="0 error\(s\)"
+cat > 14-usecases.sysml <<'EOF'
+package UseCases {
+    part def ObservationNetwork;
+    use case def QueryArchive { doc /* Look up observations by station and time. */ }
+    use case def ReviewObservations {
+        subject network : ObservationNetwork;
+        actor forecaster;
+        include use case queryArchive : QueryArchive;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 14-usecases.sysml
+```
+
+What to notice:
+
+- **`subject`** is the system the use case is about; **`actor`** declares who takes part.
+- **`include use case`** is v1's include relationship, written inside the including use case. This is exactly the
+  hand fix for Tidewater's include TODO.
+
+==== In the Tidewater drop {#wb-drop-14}
+
+```sh run expect="TODO uml:Include"
+grep -n "use case def\|TODO uml:Include" tw/network/Network.sysml
+```
+
+The use cases came across as skeletons, with the include as a TODO line inside `ReviewObservations`. One line of the
+snippet above closes it.
+
+::: exercise {#ex-wb-usecases} Read a bulletin
+Add `ReadBulletin` with a mariner actor and the network as subject. Should it include `QueryArchive`? Decide, then
+check.
+:::
+
+=== Variants {#workbook-variants}
+
+A **variation** declares alternatives; a **variant** is one of them. In v1, variants were usually separate copies of
+blocks or whole branches of the model, a major source of v1 complexity. Tidewater's telemetry unit can use a cellular
+or a satellite modem.
+
+```sh run expect="0 error\(s\)"
+cat > 15-variants.sysml <<'EOF'
+package Variants {
+    part def Modem;
+    part def CellularModem :> Modem;
+    part def SatelliteModem :> Modem;
+    part def TelemetryUnit {
+        variation part modem : Modem {
+            variant part cellular : CellularModem;
+            variant part satellite : SatelliteModem;
+        }
+    }
+    part shoreTelemetry : TelemetryUnit { part :>> modem = modem::cellular; }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 15-variants.sysml
+```
+
+What to notice:
+
+- **`variation part modem : Modem { variant ... }`** says the modem is one of the listed variants.
+- **A configuration chooses** by redefining the variation: the shore telemetry unit uses the cellular modem.
+- The grammar check accepts the choice; whether `modem::cellular` names a real variant is a semantic question for
+  a full validator. This is advanced: Tidewater uses it in the later telemetry trade study ([[se-work]]), not in the
+  first twelve weeks.
+
+::: exercise {#ex-wb-variants} A hybrid
+Add a `HybridModem` variant and a `buoyTelemetry` usage that picks the satellite modem. Check. What would the trade
+study need from each variant to compare them?
+:::
+
+=== Views and viewpoints {#workbook-views}
+
+A **viewpoint** states a stakeholder's concern; a **view** exposes the part of the model that answers it. In v1 the
+diagrams *were* the views, drawn by hand and maintained by hand. In v2 a view is defined in the text, and drawings
+are generated from it ([[diagrams]]).
+
+```sh run expect="0 error\(s\)"
+cat > 16-views.sysml <<'EOF'
+package Views {
+    part def Network { part stations; part dataCenter; }
+    part network : Network;
+    viewpoint def ManagementViewpoint {
+        doc /* What the program office needs to see: the segments and their status. */
+    }
+    view def PartTreeView {
+        satisfy requirement vp : ManagementViewpoint;
+    }
+    view networkTree : PartTreeView {
+        expose network::**;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check 16-views.sysml
+```
+
+What to notice:
+
+- **A viewpoint is a requirement on a view**: the view def `satisfy`s it.
+- **The expose statement,** `expose network::**;`, puts the network and everything inside it into the view.
+- Tidewater's drawings (part tree, trace, interconnection, packages, IDEF0) are generated by the kit's drawers, not
+  yet from view usages. Defining views in the text is how a program records *which* views each stakeholder gets,
+  which keeps view sprawl in check ([[no-spider-web]]).
+
+::: exercise {#ex-wb-views} A test view
+Write a `TestViewpoint` for the test organization ("which requirements each verification case covers") and a view
+def and usage that satisfy it. What would you expose?
+:::
+
+=== Reading the official library {#workbook-library}
+
+Every snippet above imported something from the standard library: `ISQ`, `SI`, `VerificationCases`,
+`RequirementDerivation`, `ScalarValues`. The library is plain SysML v2 text, and the kit carries the official release
+under `tools/sysml/vendor`. When you want to know whether a type exists, or what it is called, read the library
+rather than guessing:
+
+```sh run expect="ISQMechanics.sysml"
+LIB="$KIT/tools/sysml/vendor/sysml-v2-release/sysml.library"
+ls "$LIB"
+ls "$LIB/Domain Libraries/Quantities and Units"
+```
+
+Find where a value type is defined:
+
+```sh run expect="attribute def PowerValue"
+LIB="$KIT/tools/sysml/vendor/sysml-v2-release/sysml.library"
+grep -rn "attribute def PowerValue\|attribute def DurationValue" "$LIB/Domain Libraries/Quantities and Units"
+```
+
+And the verdict a verification case returns:
+
+```sh run expect="enum def VerdictKind"
+LIB="$KIT/tools/sysml/vendor/sysml-v2-release/sysml.library"
+grep -n "enum def VerdictKind" -A 8 "$LIB/Systems Library/VerificationCases.sysml"
+```
+
+What to notice:
+
+- **Three folders.** `Kernel Libraries` (the foundations: scalar values, base types), `Systems Library` (parts,
+  ports, requirements, verification cases, states, views), `Domain Libraries` (quantities and units, analysis,
+  metadata, requirement derivation).
+- **`ISQ` re-exports the quantity packages.** `ISQ.sysml` publicly imports `ISQBase`, `ISQMechanics`,
+  `ISQThermodynamics` and the rest, which is why `private import ISQ::*;` was enough for `PowerValue` (mechanics) and
+  `EnergyValue` (thermodynamics).
+- **The library is the spec's own example.** Reading how `VerificationCases` is written teaches more about verification
+  cases than any summary. From Vim, `:SysTags` builds a tags file that includes the library, so `Ctrl-]` on a library
+  name jumps to its definition ([[vim]]).
+
+::: exercise {#ex-wb-library} Find three types
+Find, in the library, the value types for a temperature, a length and an electric current, and the unit symbols for
+degrees Celsius and metres. Use them in a `Thermometer` part def with an attribute `range` and a default value.
+Check with the grammar checker and with lint.
+:::
+
+=== Reading a converted file, top to bottom {#workbook-reading}
+
+You have written each construct once. Now read a whole file the converter wrote, the way Bob did on day one and the
+way every reviewer of a drop merge request has to. The stations file is the biggest in drop 1. Start with its head:
+
+```sh run expect="package Stations \{"
+sed -n '1,20p' tw/stations/Stations.sysml
+```
+
+```text
+// generated by xmi2sysml.pl from tidewater.xmi -- review before committing; TODO lines need a person
+package Stations {
+    private import Analysis::*;
+    private import DataCenter::*;
+    private import Interfaces::*;
+    private import Requirements::'System Requirements'::Functions::*;
+    ...
+    private import Types::*;
+    doc /* Everything that goes out to a site: moored buoys and shore stations. */
+    part def StationSegment {
+        // TODO stereotype Tidewater_Profile:L2Segment on this element (xmi:id _22_1_7f3a0c1_a16b5d7b3d55) not converted
+        doc /* All the observing stations of the network. */
+        part buoys : MooredBuoy[1..*];
+        part shoreStations : ShoreStation[1..*];
+        port obsOut : ObservationIF;
+        port healthOut : HealthIF;
+        connection connect obsOut to buoys.obsOut;
+        connection connect obsOut to shoreStations.obsOut;
+    }
+```
+
+Read it in five passes, each looking for one thing. This is the habit that makes a 190-line file reviewable in ten
+minutes.
+
+1. **The header line.** "generated by xmi2sysml.pl ... TODO lines need a person". A file with this line came from the
+   converter; on the vendor branch it is never edited by hand, and on `develop` the government's edits to it are
+   the TODO closures and nothing else ([[sysmlv2-todo]]).
+2. **The imports.** `Stations` imports `DataCenter`, and (you will find) `DataCenter` imports `Stations`. That pair
+   is one of the two package dependency cycles in the v1 spider web ([[cameo]]); the cycle-break story in sprint 4
+   removes it.
+3. **The definitions and their bodies.** Each `part def` reads as a parts list, its ports, then its connections:
+   the block's BDD and IBD in one place ([[workbook-parts]], [[workbook-ports]]).
+4. **The TODO lines.** One per v1 construct the converter could not carry, each naming the v1 type and its xmi:id,
+   so a person can find it in Cameo. In this file almost all of them are level stereotypes.
+5. **The documentation.** Every `doc` should say what the element *is*. Some say more than they should.
+
+Look at the power system to see the last point:
+
+```sh run expect="Per SSDD section 4.3"
+grep -n -A7 "part def PowerSystem" tw/stations/Stations.sysml
+```
+
+```text
+49:    part def PowerSystem {
+50-        // TODO stereotype Tidewater_Profile:L4Subsystem on this element (xmi:id ...) not converted
+51-        doc /* Solar generation, storage and regulation for a buoy. */
+52-        doc
+53-            /*
+54-             * Per SSDD section 4.3 the power budget is TBD pending the 2024 trade study. Do not change without CCB approval.
+55-             */
+```
+
+Two documentation blocks. The first describes the element. The second is document prose pasted into Cameo during the
+port from documents: a reference to a section of a design document, a TBD from a trade study two years ago, and a
+process instruction. It is exactly the kind of clutter that made the v1 model a spider web, and it is now visible in
+a text diff instead of hidden in a property panel. It is also the prime's text: the government does not delete it
+from the converted file; it raises a discrepancy report, and the prime removes it in a later drop. If it were your
+own model, the decision would be yours: move the reference to a dependency, the TBD to an issue, and the process
+rule to `docs/conventions/`, and keep `doc` for what the element is.
+
+::: exercise {#ex-wb-reading} Review a file in five passes
+Pick `tw/datacenter/DataCenter.sysml` and do the five passes. Write down: the packages it imports and which of them
+import it back, the number of TODO lines and their kinds, and any `doc` that says something other than what the
+element is. Which of your findings would go to the prime as a discrepancy report, and which are the government's to
+fix?
+:::
+
+=== Putting it together: a model the pipeline accepts {#workbook-together}
+
+The snippets above are each a package on its own. A real model is several packages in several files, under a
+`model/` folder, with a `sysml.conf` that tells the kit's model tool where the trees start. Here is a small Tidewater
+in seven files that passes every check the pipeline's `check` stage runs.
+
+Make the project and its conventions:
+
+```sh run
+mkdir -p mini/model
+cat > mini/sysml.conf <<'EOF'
+title      = Mini Tidewater
+noun_root  = ObservationNetwork
+verb_root  = ObserveCoast
+level_tags = L1Network, L2Segment, L3Station
+EOF
+cat > mini/model/Conventions.sysml <<'EOF'
+package Conventions {
+    metadata def L1Network { doc /* The whole network. */ }
+    metadata def L2Segment { doc /* A segment. */ }
+    metadata def L3Station { doc /* A station or service. */ }
+}
+EOF
+cat > mini/model/Interfaces.sysml <<'EOF'
+package Interfaces {
+    item def ObservationRecord { doc /* One timed set of measurements. */ }
+    port def ObservationPort { out item observation : ObservationRecord; }
+}
+EOF
+```
+
+The structure, with level tags and one connection:
+
+```sh run
+cat > mini/model/Network.sysml <<'EOF'
+package Network {
+    private import Conventions::*;
+    private import Interfaces::*;
+    part def ObservationNetwork {
+        @L1Network;
+        part stations : StationSegment;
+        part dataCenter : DataSegment;
+        connection link connect stations.obsOut to dataCenter.obsIn;
+    }
+    part def StationSegment {
+        @L2Segment;
+        part buoy : MooredBuoy;
+        part shore : ShoreStation;
+        port obsOut : ObservationPort;
+    }
+    part def DataSegment {
+        @L2Segment;
+        part ingest : IngestService;
+        part archive : Archive;
+        port obsIn : ~ObservationPort;
+    }
+    part def MooredBuoy { @L3Station; }
+    part def ShoreStation { @L3Station; }
+    part def IngestService { @L3Station; }
+    part def Archive { @L3Station; }
+}
+EOF
+```
+
+The behavior, the requirements with their satisfies, and the verification cases:
+
+```sh run
+cat > mini/model/Behavior.sysml <<'EOF'
+package Behavior {
+    private import Interfaces::*;
+    action def Sample { out record : ObservationRecord; }
+    action def Ingest { in record : ObservationRecord; }
+    action def ObserveCoast {
+        action sample : Sample;
+        action ingest : Ingest;
+        flow sample.record to ingest.record;
+        first sample then ingest;
+    }
+}
+EOF
+cat > mini/model/Requirements.sysml <<'EOF'
+package Requirements {
+    private import Network::*;
+    requirement tw_sys_002 {
+        attribute doorsId = "TW-SYS-002";
+        doc /* Each station shall transmit its observations to the data center on a fixed schedule. */
+    }
+    requirement tw_sys_003 {
+        attribute doorsId = "TW-SYS-003";
+        doc /* The data center shall ingest every observation it receives. */
+    }
+    satisfy tw_sys_002 by StationSegment;
+    satisfy tw_sys_003 by DataSegment;
+}
+EOF
+cat > mini/model/Verification.sysml <<'EOF'
+package Verification {
+    private import Network::*;
+    private import Requirements::*;
+    verification def TestStationObservations {
+        subject segment : StationSegment;
+        objective { verify tw_sys_002; }
+    }
+    verification def TestDataFlow {
+        subject segment : DataSegment;
+        objective { verify tw_sys_003; }
+    }
+}
+EOF
+```
+
+Now run the four checks the pipeline runs on every merge request: grammar, lint, the outline and level-tag check,
+and the trace. The first command moves into the project folder; stay there for the rest of the section:
+
+```sh run expect="elements=\d+ errors=0 warnings=0"
+cd mini
+perl "$KIT/tools/sysml/sysml.pl" check model/*.sysml
+perl "$KIT/tools/sysml/model.pl" lint
+```
+
+```sh run cwd=mini expect="violations\s+0"
+perl "$KIT/tools/sysml/model.pl" check
+```
+
+```sh run expect="0 not satisfied, 0 not verified"
+perl "$KIT/tools/sysml/model.pl" trace
+```
+
+And see the part tree you wrote, drawn as text and as a picture:
+
+```sh run expect="IngestService"
+perl "$KIT/tools/sysml/model.pl" nouns
+perl "$KIT/tools/sysml/model.pl" draw tree -o tree.svg
+```
+
+```text
+ObservationNetwork
+├── StationSegment
+│   ├── MooredBuoy
+│   └── ShoreStation
+└── DataSegment
+    ├── IngestService
+    └── Archive
+```
+
+::: tip The outline rule bit Bob too
+The first time Bob built this model, `model.pl check` reported one violation: the `Verification` package had a
+single member. The kit's outline rule wants two to nine children under every parent, the same rule of thumb a
+document outline follows (a section with one subsection is a sign the outline is wrong). Bob added the second
+verification case, which the model needed anyway. When the rule fires, ask what the outline is telling you before
+you reach for a waiver.
+:::
+
+::: exercise {#ex-wb-together} Grow the mini model
+Add the moored buoy's state machine from [[workbook-states]] to `Network.sysml` (with `exhibit state` on
+`MooredBuoy`), add a third requirement satisfied by `Archive` and a verification case for it, and rerun all four
+checks. Then break the trace on purpose: remove the new verification case and run `model.pl trace` again. What does
+it report, and what would the pipeline's trace job do on a merge request?
+:::
+
+=== Your port worklist {#workbook-worklist}
+
+The workbook's constructs are not an abstract syllabus. Every converter TODO line in Tidewater's drop 1 is one of
+them, waiting to be written. Go back up to the folder where you converted the drop, and count the TODO lines by
+kind:
+
+```sh run expect="13 stereotype Tidewater_Profile:L5Assembly"
+cd ..
+grep -rhoE "// TODO (uml:[A-Za-z]+|stereotype [A-Za-z_]+:[A-Za-z0-9]+|constraint expression)" tw \
+  | sed 's|// TODO ||' | sort | uniq -c | sort -rn
+```
+
+```text
+     13 stereotype Tidewater_Profile:L5Assembly
+     10 stereotype Tidewater_Profile:L3Station
+      8 stereotype Tidewater_Profile:L4Subsystem
+      3 uml:InstanceSpecification
+      3 stereotype Tidewater_Profile:Procured
+      3 stereotype Tidewater_Profile:L2Segment
+      1 uml:StateMachine
+      ...
+```
+
+And total them:
+
+```sh run cwd=. expect="^52$"
+grep -rh "// TODO" tw --include=*.sysml | wc -l | tr -d ' '
+```
+
+That number is the port's starting burn-down: the pipeline's `todo` job counts the same lines on every change
+([[pipeline]]). Here is where each kind is taught:
+
+|| TODO kind in the drop | How many | Workbook section | Sprint the team did it ||
+| stereotype L1Network ... L6Component (level tags) | 36 | [[workbook-metadata]] | 2 to 5 |
+| stereotype Procured | 3 | [[workbook-metadata]] | 4 |
+| uml:InstanceSpecification (units) | 3 | [[workbook-values]] | 3 |
+| uml:Include | 1 | [[workbook-usecases]] | 3 |
+| uml:StateMachine | 1 | [[workbook-states]] | 6 |
+| uml:ForkNode, uml:InputPin, uml:ObjectFlow, uml:ControlFlow | 4 | [[workbook-actions]] | 6 |
+| uml:Constraint, constraint expression | 2 | [[workbook-analysis]] | later |
+| uml:Interaction | 1 | (messages and occurrences, not in this workbook) | later |
+| uml:Profile | 1 | replaced by the Conventions package, [[workbook-metadata]] | 2 |
+Table: Tidewater's drop-1 TODO lines and where the workbook teaches each fix
+
+Read the table the way Jim read it at the sprint 1 estimate: two thirds of the port is one mechanical construct (level
+tags), which goes fast once one person has done it twice; the rest is a handful of real modeling problems, each a
+story of its own. That shape is typical of a v1 conversion, and it is why the burn-down falls steeply and then
+flattens.
+
+::: exercise {#ex-wb-worklist} Your first TODO
+Open `tw/network/Network.sysml` in Vim, find the level-tag TODO on `ObservationNetwork` with `/\/\/ TODO`, and write
+down the one line that replaces it and the import the package needs. (Practice lesson 10 has you do exactly this and
+checks it.)
+:::
+
+=== What the workbook leaves out {#workbook-limits}
+
+The checks you ran are real, and they are what the pipeline runs, but be clear about what they prove:
+
+- **The grammar checker** proves the text is well formed SysML v2, against the official grammar.
+- **`model.pl lint`** resolves names and imports, finds duplicates and checks a set of structural rules.
+- **`model.pl check`** applies the outline rule and the level tags.
+- **None of them** evaluates constraints, checks that a redefinition is type-compatible in every case, or proves the
+  model *means* what you intended. Full semantic validation needs the OMG pilot implementation (`model.pl validate`,
+  with Java) or a commercial tool; meaning needs a reviewer ([[reviewing]]).
+
+The workbook also left out constructs Tidewater does not use yet: individuals and snapshots, occurrences and
+messages in detail, trade studies with full analysis cases, and the textual notation for diagrams. The library and
+the specification's examples, under `tools/sysml/vendor/sysml-v2-release/examples`, show all of them.
+
+=== Applying this to your project {#workbook-apply}
+
+- **Give everyone the workbook time.** Two sessions per person, as learning stories with points, in the first three
+  weeks. A team that never typed a part def will not review one well.
+- **Keep the snippets.** The folder you worked in is a personal phrasebook. Copy from it; it is faster than the
+  specification.
+- **Check everything twice.** Grammar for shape, lint for names, in Vim with `:make` before you commit and in the
+  pipeline after.
+- **Start from your converted model.** The best exercises are your own converter TODO lines: each one is a construct
+  from this workbook waiting to be written ([[sysmlv2-todo]]).
+- **Write your conventions down.** Which level of allocation, which metadata, which import style: one page in
+  `docs/conventions/`, agreed once, checked by the pipeline where it can be.

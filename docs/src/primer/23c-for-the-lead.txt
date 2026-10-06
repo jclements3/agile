@@ -1,0 +1,395 @@
+== For the lead: leading a reluctant team {#lead}
+
+::: survival
+What you have: a directive you did not ask for, a deadline, two or more good engineers who did not ask for it either,
+and the same lack of experience they have.
+
+What you need: a way to lead the change without pretending to know more than you do: a team that feels safe to be
+slow and wrong for a few weeks, protected time to learn, early wins that are real, a workload that does not quietly
+become nights and weekends, and a management chain that hears dated plans instead of excuses. This chapter is Jim's
+view of the twelve weeks, written for whoever is in Jim's chair on the next project.
+:::
+
+=== What Jim was handed {#lead-handed}
+
+The directive arrived on a Thursday ([[directive-memo]]). By the following Tuesday Jim had read it four times, sat
+through the program manager's explanation, and come out with three facts. The program would adopt DevSecOps practices
+for its systems engineering artifacts. The team would show measurable progress in twelve weeks. And nobody on the team,
+including Jim, had ever done any of it.
+
+The team's reaction was not subtle.
+
+> We did documents for twenty years and the system flew. Then they made us do Cameo, and we did it, and now the model
+> is a hairball nobody can review. Now this. What happens in three years when the next thing comes along?
+> -- Bob, the first team meeting about the directive
+
+Jim's private reaction was close to Bob's. What made the difference over the next twelve weeks was not that Jim became
+an expert first. It was a handful of decisions about how to lead three beginners, one of them Jim, through a change
+none of them had chosen. Each is a section of this chapter.
+
+=== Make it safe to be slow and wrong {#lead-safety}
+
+For the first month, everyone on the team would be worse at their job than they had been for years. Bob, who could
+find any block in the Cameo model blindfolded, would spend twenty minutes on a merge conflict. Tom, who had run the
+program's CM database for a decade, would push to the wrong branch. Jim would forget the command to create a branch in
+front of the program manager. That is not a risk to manage; it is a certainty to plan for.
+
+Psychological safety, for a team of three systems engineers, comes down to a few concrete habits:
+
+- **A red pipeline is information, not an accusation.** The pipeline will fail on everyone's changes, often, and
+  most of all in the first weeks. The team agreed, in the first retro, that nobody says "who broke it" in the stand-up;
+  they say "what did it catch". The pipeline's job is to be wrong-detector; a failure means it worked.
+- **The lead goes first.** At the sprint 1 kickoff Jim did practice lesson 11 live, on the shared screen, with the whole
+  team watching, including the lesson's planted mistake: the merge request goes red on a missing semicolon. Jim read
+  the log out loud, found the line with the quickfix list in Vim ([[vim-check]]), fixed it and pushed again. It took
+  six minutes. Nobody remembers the semicolon; everybody remembers that the lead's change went red first and that it
+  was fine.
+- **"I don't know yet" is an acceptable answer** with a date attached ([[talking-bad-news]]). The lead says it out
+  loud in front of management, early, so the team learns that it is safe.
+- **No question is a nuisance during pairing.** The rule the team wrote on the wiki: "If you have been stuck for
+  fifteen minutes, ask. If someone asks you, stop and help." Fifteen minutes is short enough that nobody suffers in
+  silence and long enough that people try first.
+- **Complaints are heard, then turned into changes.** The retrospective is where "this is pointless" gets said, and
+  Jim's rule was to answer a complaint with one of three things: a change for next sprint, an explanation of why not,
+  or "I'll ask management", with a date.
+- **Measure how people feel, not only what they ship.** The pulse survey at every retro ([[ceremonies-retro]]) is five
+  questions, one to five, anonymous. It costs two minutes and it is the only early warning the lead gets.
+
+::: sidebar The semicolon
+Jim nearly did not share the screen for that lesson. The plan had been to rehearse it the night before, so the
+demonstration would go smoothly. Jim decided against it: the team needed to see a failure handled, not a
+performance. In the sprint 1 retrospective, Tom wrote on the "continue" list: "Jim breaking things first."
+:::
+
+=== Protect the time to learn {#lead-learning}
+
+The most important decision Jim made was to put learning into the plan as work, with points, where everyone could see
+it.
+
+The temptation is the opposite. Management wants measurable progress in twelve weeks; every hour spent on a practice
+lesson is an hour not spent closing TODO lines. So the learning happens "on the side": at lunch, after hours, at
+weekends. It always does happen, because the work cannot be done without it. But then the plan is a lie (the team's
+capacity looks bigger than it is), the people doing the learning resent it, and the first time the schedule slips, the
+learning is what gets cut.
+
+Tidewater's plan carries learning as stories, labelled `work::learning`, with a reserve that falls as the team gets
+better: {{value: docs/tidewater/work-split.json sprints.1.learning}}% of the task points done in sprint 1 (practice lessons 10 and 11, the survival kit, git from zero, Vim for
+models), less in sprint 2 (lessons 12 and {{n: 13}}, the diagrams chapter, the first half of the SysML v2 workbook), and a
+small remainder by sprint 6. Part III gives the real numbers for each sprint.
+
+Making learning visible takes one label. In GitLab, a learning story looks like any other (here in the `work`
+folder of practice lesson 11's sandbox):
+
+```sh run sandbox=practice-11 cwd=work timeout=300 expect="Learning: practice lessons 10 and 11 \(tom\)"
+. ../env.sh > /dev/null
+for who in jim bob tom; do
+  gl --now 2026-10-05T09:30 --as jim issue new "Learning: practice lessons 10 and 11 ($who)" --label type::story --label work::learning --milestone "Sprint 1" --assign $who --weight 2 > /dev/null
+done
+gl issue list --label work::learning
+```
+
+```text
+#2    opened  ~type::story ~work::learning             Learning: practice lessons 10 and 11 (jim)
+#3    opened  ~type::story ~work::learning             Learning: practice lessons 10 and 11 (bob)
+#4    opened  ~type::story ~work::learning             Learning: practice lessons 10 and 11 (tom)
+```
+
+Three things follow from making it visible:
+
+1. **The plan is honest.** Velocity in sprint 1 is low, and everybody knows why. When the program manager asked in
+   the first review why only part of the conversion was done, Jim pointed at the learning stories: "That is the
+   training you approved, in the plan where you can see it."
+2. **The learning is protected.** A story on the board is harder to cut than an evening nobody sees. Jim asked for it
+   formally in the request-for-enablers memo ([[memos-tidewater]]): four protected hours a week per person, with what
+   happens if not ("the conversion burn-down slows by about a third").
+3. **The shrinking reserve is itself a result.** The scorecard shows learning time falling as competence rises.
+   Management reads that as the investment paying off, which it is.
+
+::: tip The lead learns first
+Jim did practice lessons 10 and 11 in week zero, before the team, alone, and got stuck twice. That made the first
+pairing sessions easier: Jim could say "I got stuck there too; here is what helped." A lead who has not done the
+lessons can only say "it's in the book".
+:::
+
+=== Pair at the terminal {#lead-pairing}
+
+Pairing is two people at one keyboard: a **driver** who types and a **navigator** who reads, thinks ahead and catches
+mistakes. They swap every twenty minutes or so. For a team learning a new toolset together it is the fastest way to
+spread skill, because the person who knows a thing teaches it while doing real work.
+
+Tidewater's pairing in the twelve weeks:
+
+|| When | Pair | On ||
+| Sprint 1 | Tom drives, Bob navigates | the first git commands in the practice repository: branch, commit, push |
+| Sprint 1 | Bob drives, Jim navigates | the first conversion report and the TODO inventory |
+| Sprint 2 | Tom drives, Jim navigates | the first pipeline, and the PowerShell failure on the real runner |
+| Sprint 2 | Tom drives, Bob navigates | the first vendor-branch import; Bob then reviews and merges its merge request |
+| Sprint 3 | Jim drives, Bob navigates | the DOORS import and the first trace report |
+| Sprint 4 onward | as needed | conflicts, new job types, the first release |
+Table: Who paired with whom
+
+Two lessons from that table. First, the person who knows *less* drives. When Tom drove the first git commands with Bob
+navigating, Tom learned git and Bob learned how to explain it, which is the step where Bob's own understanding became
+solid. Second, the lead pairs too, as navigator and as driver. Jim at the keyboard with Bob navigating was the moment
+Bob stopped treating the new tools as Jim's project and started treating them as the team's.
+
+Pairing feels slow. Two people on one task looks like half the throughput. In the first weeks it is the opposite: two
+beginners together get unstuck in minutes, where one alone loses an afternoon. The team stopped pairing by default in
+sprint 4, when it was no longer needed for routine work, and kept it for anything new.
+
+=== Pick the first wins on purpose {#lead-wins}
+
+A discouraged team needs evidence, early, that the new way does something the old way could not. The lead's job is to
+make sure the first wins are real, are noticed and are the team's.
+
+Jim chose the first win before sprint 1 started: run the trace report on drop 1 and look for places where the prime's
+DOORS text and the model disagreed. In the document era that comparison was done once before a major review, by hand,
+over a week, if at all. Bob ran it on the fourth day of sprint 1, from the command line, and found the TW-SYS-006
+drift in about two minutes.
+
+> I found the drift in two minutes. It used to take a week, and we only looked before a review.
+> -- Bob, sprint 1, day 4 (from the team chat)
+
+That sentence did more for the transition than anything Jim said in twelve weeks, because Bob said it, about Bob's
+own work.
+
+The pattern for choosing first wins:
+
+- **It answers a question the old way could not answer cheaply.** Drift between DOORS and the model; requirements with
+  no verification; which packages depend on each other in a cycle.
+- **The skeptic does it.** A win the lead announces is a claim. A win the skeptic discovers is evidence.
+- **It takes days, not weeks.** The first win had to land in sprint 1. The model site for management (sprint 4) was a
+  bigger win, but it would have been too late to be the first one.
+- **It is shown, not told.** Jim asked Bob to show the drift in the sprint 1 demo, live, on the command line.
+
+And then the lead makes sure the win is noticed: in the stand-up ("Bob found the drift in two minutes"), in the demo
+(Bob shows it), in the weekly note to management, and in the retro ("what worked this sprint?").
+
+=== Watch the workload {#lead-workload}
+
+A team learning a new way of working while delivering under a deadline is a team at risk of quiet overwork. Nobody
+announces it. The signs are small: statuses posted at 6 a.m., merge requests opened at 9 p.m., a stand-up line that
+says "Y caught up on the vendor merge" on a Monday after a weekend.
+
+Jim's routine for watching it took ten minutes a day:
+
+1. **Read the stand-up statuses for time stamps**, not just content. Work after hours shows in the chat times and in
+   the merge request times.
+2. **Check blocked items daily**, because a blocked person often works around the block alone, late. A blocked item
+   that is three days old is the lead's problem, not the engineer's ([[ceremonies-standup]]).
+3. **Commit below capacity.** The team committed about nine-tenths of capacity in each sprint, never all of it; the
+   remainder absorbs the surprises (a prime question, an ISSM review that moves) that always come.
+4. **Look at the pulse survey's workload question** at every retro. A drop of one point is a conversation, not a
+   statistic.
+
+The blocked-items check is one command. Here a blocked task is added to the practice project, then listed:
+
+```sh run expect="Register the second runner"
+. ../env.sh > /dev/null
+gl --now 2026-10-05T09:40 --as jim issue new "Register the second runner" --type task --label type::task --label workflow::blocked --milestone "Sprint 1" --assign tom > /dev/null
+gl issue list --label workflow::blocked
+```
+
+```text
+#5    opened  ~type::task ~workflow::blocked           Register the second runner
+```
+
+When Jim saw the signs, in sprint 3, the response was not "work smarter". It was to drop scope: one story moved to the
+next sprint, explicitly, with a note in the weekly report to management saying why.
+
+=== Manage up with dated plans {#lead-managing-up}
+
+The lead stands between the team and the management chain that issued the directive. Done badly, the lead passes
+pressure down and excuses up. Done well, the lead passes *plans* up and *protection* down.
+
+What worked for Jim:
+
+- **Agree the measures before the work starts.** In week zero, Jim and the program manager agreed the twelve-week
+  scorecard ([[directive-scorecard]]): which numbers would show progress, where they started, what the targets were.
+  Every report after that was against an agreed yardstick, so nobody could move the goalposts and nobody could claim
+  success by picking flattering numbers.
+- **Report the same numbers every week**, in the same order ([[talking-demo]]), in a one-page note that pairs with the
+  kit's weekly quad. Management learns to read the trend and stops asking for special reports.
+- **Ask for enablers formally, with dates and consequences.** The request-for-enablers memo of sprint 2 ([[memos]])
+  turned "we need more time" into five specific asks, each with what it buys, by when, and what happens if not. What management
+  approved, and when, is told in [[sprint-2]] and [[sprint-3]]; an ask that is not approved becomes a known risk, on
+  the record, rather than a surprise.
+- **Bring management to the demo, not the demo to management.** The program manager attended sprint reviews from
+  sprint 2 onward. Seeing the merge request go green, live, did more than any slide.
+- **Never surprise them.** Bad news went into the next weekly note or the next stand-up summary, the week it was
+  known, with a date for the fix ([[talking-bad-news]]).
+
+::: objection "Management just wants the slide with green on it."
+Some managers do. But a directive that says "show measurable progress" is a manager asking to be given something they
+can defend upward. The weekly note with four numbers, a trend and a dated plan is that thing.
+
+Answer: Give them the numbers in the form they forward. The Tidewater program manager attached Jim's weekly notes
+to the program's own monthly report unchanged by sprint 4. That is when the slide requests stopped.
+:::
+
+=== Say no with a date {#lead-saying-no}
+
+The lead's most frequent hard conversation is not with the team. It is with a manager or stakeholder who wants
+something now that is not in the sprint: a special report, a slide, "just a quick change to the model" before a meeting.
+
+Saying yes to every request breaks the sprint and teaches everyone that the plan does not matter. Saying a flat no
+sounds like obstruction. The middle is **no, with a date**:
+
+|| Request | Say ||
+| "Can you add the thermal interfaces to the model before Thursday's review?" | "Not this sprint: it's not in the plan and it would push the Stations work. It goes to refinement on Wednesday; the earliest it lands is sprint 5. For Thursday I can show you where it will go." |
+| "I need a one-off report of every requirement the prime changed." | "The delta report does that on every drop. The next one is in January; I'll send you its summary the day after it lands." |
+| "Just update the briefing slide with the new numbers." | "The model site is updated every night with the numbers; here's the link. If you need a slide, the weekly note has them in the order you used last time." |
+| "Can Bob help the other program for a week?" | "Not without moving the conversion: Bob owns the Stations package this sprint. If it's urgent, I'll put it to you as a trade: Bob for a week, Stations moves to sprint 5. Your call." |
+Table: No, with a date
+
+Each answer has the same parts: what you will not do now, why (in the requester's terms), when it could happen, and
+often what you *can* offer today. The last row is the most useful form of all: turn the request into a trade and give
+the decision back to the person who has the authority to make it.
+
+The deputy program manager, who chairs the change board, made exactly this kind of request in sprint 4 (a change to a
+requirement before the board had seen it). Jim's answer was to open a merge request for it, so the board could approve
+it in the normal flow the same week. That became the team's standard answer to "just a quick change": a merge request
+is quick, and it is on the record.
+
+=== Know when to slow down {#lead-slow-down}
+
+There will be a sprint where it goes wrong. For Tidewater it was sprint 3: Bob's hand edit broke the grammar check on a
+merge request, the ISSM was unreachable for three days and the toolchain review stalled, and the pulse survey dropped
+for the first time. Bob wrote "this is the Cameo year again" in the retro.
+
+The signs that the team needs to slow down, not push harder:
+
+- The pulse survey drops, especially on "I could explain our progress" or "my workload is sustainable".
+- Stand-up statuses get shorter and vaguer ("Y stuff T stuff B none"), or stop naming outcomes.
+- A red pipeline stays red for a day and nobody mentions it in the stand-up.
+- Merge requests get bigger, because people stopped believing in small ones.
+- Someone asks, for the first time, whether they could "just do it the old way this once".
+
+What Jim did in sprint 3, and what the book recommends:
+
+1. **Name it, out loud, in the retro.** "This sprint was hard. The numbers show it, and so do you." Pretending it was
+   fine would have cost the trust earned in sprints 1 and 2.
+2. **Cut scope, not learning.** One engineering story moved to sprint 4. The learning reserve stayed.
+3. **Remove the cause, not the symptom.** The ISSM block was the real problem; Jim booked the ISSM's next two review
+   slots two weeks ahead, so it could not happen again. The grammar failure was fine: the pipeline caught it before it
+   reached anyone else, which is its job, and Jim said so.
+4. **Pause new tools.** No new pipeline job or GitLab feature was introduced in sprint 4 beyond what was already
+   planned. A team that is struggling does not need one more thing to learn.
+5. **Tell management the same week**, as a dated plan: "Sprint 3 delivered less than planned for two reasons; here is
+   what changes in sprint 4; the twelve-week targets still hold."
+
+Sprint 4's pulse recovered. Slowing down is not losing; it is how the twelve weeks stay twelve weeks and do
+not become a year of burnout.
+
+=== Hand over ownership, on purpose {#lead-ownership}
+
+In week zero, the transition was Jim's project: Jim got the directive, Jim set up the meetings, Jim talked to
+management. By the end of the twelve weeks it had to be the team's way of working, or it would stop the day Jim went
+on leave. That does not happen by itself; the lead has to give things away, one at a time, and let them be done
+differently.
+
+What Jim handed over, and when:
+
+|| When | What | To | How Jim let go ||
+| Sprint 1 | the pipeline | Tom | Tom chose the jobs and their order; Jim reviewed but did not redesign |
+| Sprint 2 | the vendor-branch import of each prime drop | Tom, with Bob reviewing | the drop runbook became Tom's wiki page |
+| Sprint 3 | security owner, with the ISSM | Tom | Tom ran the ISSM meetings; Jim attended the first only |
+| Sprint 4 | the Stations package and its code-owner section | Bob | Bob approves Stations changes, including Jim's |
+| Sprint 4 | narrating the demo | rotating | Jim closes with the ask, and only that |
+| Sprint 5 | preparing the change board's agenda from the open prime changes | Bob | Bob briefs the deputy program manager; Jim chairs |
+| Sprint 6 | the weekly note to management | rotating, drafted with `talk.pl weekly` | Jim reads it before it goes, and changes only facts |
+Table: What the lead gave away
+
+Two things made the hand-overs stick. First, each one was recorded where the system enforces it: `CODEOWNERS` names
+Bob as an owner of the Stations folder, so Jim's own Stations changes wait for Bob's approval. A hand-over that is only
+spoken is reclaimed the first time the lead is in a hurry. Second, Jim accepted that the new owner would do it
+differently. Tom's pipeline ran jobs in an order Jim would not have chosen; it worked, and changing it would have taken
+the pipeline back.
+
+> The first time my approval was the one holding up Jim's merge request, I thought I'd done something wrong. Then I
+> realized that was the point.
+> -- Bob, sprint 4 retrospective
+
+=== The lead is a beginner too {#lead-beginner}
+
+Jim had twenty-six years of systems engineering and zero weeks of git. The temptation for an experienced lead is to
+hide the second fact behind the first: to stay in the management role, delegate the tools and never be seen not
+knowing.
+
+Jim did the opposite, deliberately:
+
+- **Did the practice lessons first**, and told the team where they got stuck.
+- **Took real tasks**, with points, every sprint: the DOORS import in sprint 3 was Jim's, from the command line, with Bob
+  navigating.
+- **Asked questions in the stand-up**, in front of everyone: "How do I see which pipeline job failed?" Tom answered in
+  one sentence, and two other people learned it.
+- **Used the tools the team used.** Jim's weekly note was drafted with `talk.pl`, edited in Vim and built with the same
+  memo tool everyone else used. A lead who keeps a private Word template is telling the team the new tools are for
+  them, not for leads.
+
+The effect was that the team never had to pretend in front of Jim, because Jim was visibly learning alongside them. It
+also meant Jim's judgment about what was hard was accurate: a lead who has not done the work under-estimates it, and
+that is how teams end up with plans they cannot meet.
+
+=== The lead's fortnight {#lead-fortnight}
+
+Most of the lead's work in the new way is a rhythm, not heroics. Jim's two weeks, once it settled down in sprint 4:
+
+|| When | The lead | Time ||
+| Every day | reads the stand-up chat (times as well as content); checks blocked items; answers one question in the chat or pairs | about {{n: 20}} minutes |
+| Day 1 | runs the kickoff: the goal, capacity including the learning reserve, the commitment | {{n: 90}} minutes |
+| Days 2 to 8 | takes one or two real tasks; reviews merge requests in their code-owner areas | about half the time |
+| Day 9 | refinement and planning poker; the demo dry run; the ask for Friday written down | {{n: 2}} hours |
+| Day 10 | closes the demo with the ask; runs the retrospective and its pulse survey | {{n: 90}} minutes |
+| Every Friday | reads the weekly note before it goes; sends it with the quad | {{n: 15}} minutes |
+| Every second week | thirty minutes with the program manager: the four numbers, the trend, the open asks | {{n: 30}} minutes |
+Table: Jim's two weeks
+
+What is *not* on the list is as important: status meetings, slide preparation and chasing people for updates. The
+records the meetings produce replaced them ([[ceremonies-why]]). That is the time the lead gets back, and Jim spent it
+on two things: real modeling work, and the conversations with management that protect the team.
+
+=== Exercises {#lead-exercises}
+
+::: exercise {#ex-lead-learning} Budget the learning
+Plan the first three sprints of your team's transition with an explicit learning reserve: what each person learns,
+which practice lessons and chapters, how many points per sprint. Write it as stories with a learning label. What
+engineering scope did you have to move to make it fit?
+:::
+
+::: exercise {#ex-lead-first-win} Choose the first win
+List three questions about your current model that the old way could only answer slowly. For each, name the tool that
+answers it in minutes, and the skeptic on your team who should be the one to run it. Which one can land in sprint 1?
+:::
+
+::: exercise {#ex-lead-no} Say no with a date
+Write your answer to three requests you expect from management in the first month (a special report, an urgent model
+change, borrowing a person). Each answer: what not now, why, when, and what you can offer today, or the trade.
+:::
+
+::: exercise {#ex-lead-signs} Read the signs
+Look back at your team's last two weeks of statuses, merge requests and chat. Which of the slow-down signs do you see?
+What would you change in the next sprint, and what would you tell management?
+:::
+
+=== Applying this to your project {#lead-apply}
+
+- **Copy**: the lead goes first (shares their own failing change); a visible learning reserve as labelled stories;
+  pairing with the less experienced person driving; first wins chosen on purpose and shown by the skeptic; the daily
+  ten-minute workload check; the measures agreed with management before the work starts; no with a date.
+- **Adapt**: the size of the learning reserve to your team's starting point (a team that already uses git needs less);
+  the pulse survey questions to what your team worries about; the format of your weekly note to what your management
+  already reads.
+- **Decide locally**: who in management gets the weekly note and attends the demo; how much scope the lead may move
+  without asking; what the team does when the lead is away (someone has to say "I don't know yet" first).
+
+::: note You can now...
+- make it safe for a team to be slow and wrong while it learns, starting with yourself;
+- put learning in the plan as visible, protected, shrinking work;
+- pair to spread skill quickly, and stop pairing when it is no longer needed;
+- choose first wins that convince skeptics because the skeptics find them;
+- watch for quiet overwork and respond by cutting scope;
+- manage up with agreed measures, dated plans and formal requests for enablers;
+- say no with a date, and turn requests into trades;
+- recognize a sprint that has gone wrong and slow down on purpose.
+:::

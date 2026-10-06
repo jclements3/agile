@@ -1,0 +1,4 @@
+Bob's To-Do list, 2026-12-17 14:05
+
+  !24 Document what crosses each interface (review requested by @tom)
+  (the failed nightly, #132, was picked up at the stand-up and closed by Tom at 10:30)

@@ -1,0 +1,6 @@
+jim draft:  Y TW-92 Untangle the Legacy Import package: done (2 tasks). Reviewed !16. T TW-94 read the recipe findings for the DOORS modules, by Dec 11. B none
+jim posted: Y TW-92 Untangle the Legacy Import package: done (2 tasks). Reviewed !16. T TW-94 read the recipe findings for the DOORS modules, by Dec 11; pairing with Bob after lunch. B none
+bob draft:  Y TW-67 Close the Stations level tags: done (3 tasks). T TW-89 the recipe chapter, by Dec 11. B none
+bob posted: Y TW-67 Close the Stations level tags: done (3 tasks). T TW-89 (first thing: read the review comments) the recipe chapter, by Dec 11. B none
+tom draft:  Y TW-92 Untangle the Legacy Import package: done (2 tasks). T TW-93 trace ratchet: fail only on new gaps, by Dec 11. B none
+tom posted: Y TW-92 Untangle the Legacy Import package: done (2 tasks). T TW-93 trace ratchet: fail only on new gaps, by Dec 11. B none

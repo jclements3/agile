@@ -1,0 +1,494 @@
+== Sprint 4: the model site, a cycle broken, and the demo that landed {#sprint-4}
+
+::: survival
+What you have: the DOORS requirements in the model, a trace report on every change that lists the prime's gaps
+([[sprint-3]]), a team that has seen the pipeline say no and survived it, and a pulse survey that says morale is low.
+
+What you need: the structure of the model's biggest package tagged and checked, one of the inherited dependency
+cycles gone, every gap the trace found sent back to the prime through the contract, and something management can
+open without a briefing. You also need a demo that tells management what they got for two weeks, because the last
+one did not.
+:::
+
+Sprint 4 ran from Monday 16 November to Friday 27 November 2026. Thanksgiving fell on Thursday 26 November, so the sprint
+had fewer working days than a full one; the capacity line in the kickoff record accounts for the holiday and the
+leave around it.
+
+It is the sprint in which the work started to pay the team back. The pulse went from
+{{value: docs/tidewater/sprints/03/scorecard.json 12_morale}} to
+{{value: docs/tidewater/sprints/04/scorecard.json 12_morale}}. The TODO count fell from
+{{value: docs/tidewater/sprints/03/scorecard.json 1_todo_lines}} to
+{{value: docs/tidewater/sprints/04/scorecard.json 1_todo_lines}}. And at the review, the program manager opened the
+model on a phone.
+
+=== The question this sprint answered {#sprint-4-question}
+
+Sprint 3 asked whether the requirements match. Sprint 4 asked three questions about structure and one about
+communication:
+
+> Is every part in the Stations package at the right level of the part tree? Which of the dependency cycles the prime
+> handed us can we break? What exactly do we ask the prime to fix? And can management see the model without us?
+
+The first three are systems engineering questions the team had always asked, in reviews, with screenshots. The fourth
+is new: in the Cameo years nobody outside the team ever looked at the model directly. They looked at slides made from
+it.
+
+=== Kickoff: Monday 16 November {#sprint-4-kickoff}
+
+{{include: docs/tidewater/sprints/04/kickoff.txt}}
+
+The commitment is higher than sprint 3's: {{value: docs/tidewater/sprints/04/scorecard.json 11_delivery.committed}}
+points, against {{value: docs/tidewater/sprints/03/scorecard.json 11_delivery.committed}}. Jim committed more because
+sprint 3 had finished everything and because the kinds of work in sprint 4 were familiar: level tags (Bob had done
+Network), a dependency edit (small), a pipeline job (Tom's third), and discrepancy reports (writing, which the team
+had done all its career). The one story with real uncertainty is TW-67, "Close the Stations level tags", which the
+team had argued up to a higher estimate at the previous refinement ([[sprint-3-poker]]).
+
+Look at the work mix. Engineering is {{value: docs/tidewater/work-split.json sprints.4.engineering}}% of the task points
+done ([[om-done]]); platform has fallen to {{value: docs/tidewater/work-split.json sprints.4.platform}}% and learning to
+{{value: docs/tidewater/work-split.json sprints.4.learning}}%. Three sprints earlier, platform and learning together
+were most of the board. This is the moment the team stops building the shop and starts working in it.
+
+The learning story is small and practical: how to review a model change ([[reviewing]]), and a rehearsal of the
+sprint review. The rehearsal is there because of what happened at the sprint 2 review, and it deserves its own
+section.
+
+==== Why the demo gets rehearsed {#sprint-4-why-rehearse}
+
+At the end of sprint 2 Tom demonstrated the new pipeline: the terminal, then the YAML, then a green pipeline,
+in that order, with the vocabulary Tom had spent two weeks learning. The deputy program manager's feedback, recorded in
+the review notes:
+
+{{include: docs/tidewater/sprints/02/review.txt | lines 16-16}}
+
+Nothing Tom said was wrong. It was the wrong order and the wrong words for the audience. The team's sprint 2
+retrospective decided two things: the demo is rehearsed on the Wednesday of week 2, after refinement, and the person
+who drives the screen rotates. Chapter [[talking]] explains the six moves of a demo that lands; this sprint is the
+first time the team used them.
+
+=== Week 1 {#sprint-4-week-1}
+
+==== Monday 16 November: learning to review
+
+All three closed their learning tasks on the first morning: Jim worked through the review checklist the team keeps in
+`docs/conventions/review-checklist.md`, Bob practiced line comments and suggestions on a scratch merge request, and Tom
+wrote the first draft of the demo plan for 27 November. Reviewing is a skill the team had in the document era, where
+it meant red pen on a printed specification. It transfers better than they expected. What is new is that the change
+under review is small, the reviewer sees exactly the lines that changed, and the pipeline has already checked the
+mechanical things, so the reviewer's attention goes to whether the change is *right*.
+
+==== Thursday 19 November: breaking a cycle in two lines {#sprint-4-cycle}
+
+The prime's model came with two package dependency cycles, measured in [[cameo]]: Stations depends on DataCenter
+and DataCenter on Stations, and Network depends on Operations and Operations on Network. A cycle means neither package
+can be understood, reviewed or changed without the other. In a diagram-based tool they are hard to see; in text they
+are a line each.
+
+Tom took the Network and Operations cycle. The Operations package depended on Network for one reason only: a
+`dependency` from ServiceVessel to Technician, a left-over trace from the document port that said nothing a systems
+engineer would miss. The fix removed it, and the import of Network that existed only to serve it:
+
+```sh run sandbox=tidewater cwd=work/bob expect="dependency from ServiceVessel to Technician"
+git show --format='%h %an %ad %s' --date=short 3a743cb | grep '^[0-9a-f]\|^[-+] '
+```
+
+Two removed lines. Jim approved !12 the same day, and Tom merged it. The cycle count the scorecard tracks went from
+{{value: docs/tidewater/sprints/03/scorecard.json 7_spider_web.cycles}} to
+{{value: docs/tidewater/sprints/04/scorecard.json 7_spider_web.cycles}}.
+
+> The cycle was two lines. In Cameo it was a week of looking at a diagram.
+> -- Tom, sprint 4
+
+::: note The thought process: is it ours to break?
+Operations.sysml is a file the converter writes from the prime's drop. Editing it means the next drop will try to put
+the dependency back, unless the prime removes it too. Tom asked that question before writing the change, and the
+answer has two parts. First, the government's v2 model is the government's: if a dependency is meaningless, the v2
+model should not carry it, and the vendor-branch merge will show the conflict when the prime's next drop arrives
+([[prime-changes]] works through how such edits survive). Second, the prime should know, so the team keeps a list of
+the clutter it removes for the discrepancy reports. The other cycle, Stations and DataCenter, is harder: it involves
+the observation record that both packages use, and deciding who owns it is a design decision, not a cleanup. It went
+to [[sprint-5]].
+:::
+
+==== Friday 20 November: the Stations tags, a red X, and a question for the prime {#sprint-4-stations}
+
+Bob opened merge request !13, "Level tags in Stations", at ten in the morning. It replaced the package's
+level-stereotype TODO lines with `@L` metadata, the same mechanical change Bob had made in Network, on a much larger
+package. The grammar and lint jobs passed.
+
+The pipeline failed anyway. Not grammar, not lint: the **outline** job. Here is the part of its log that matters:
+
+{{include: docs/tidewater/sprints/04/pipelines/mr13-first-36.log | lines 18-25}}
+
+and at the end of the same job:
+
+{{include: docs/tidewater/sprints/04/pipelines/mr13-first-36.log | lines 48-50}}
+
+Two findings. The outline violation count went up by one, which the ratchet does not allow. And the level-tag check
+found a part that is tagged at the wrong level: WaveSensor is tagged L5, an assembly, but the first place it appears in
+the part tree is directly inside MooredBuoy, an L3 station, which makes it an L4 subsystem. The extra outline violation
+comes from the same root.
+
+You can reproduce the finding from Bob's commit:
+
+```sh run expect="WaveSensor: tagged L5, first reached at L4"
+git worktree add -q --detach ../../s4-stations 1c11bb3
+cd ../../s4-stations && perl "$KIT/tools/sysml/model.pl" check | grep -A1 "tag mismatches"
+```
+
+Bob's tag was not a typo. Bob had copied the level from the prime's Cameo stereotype, exactly as the TODO line said.
+The prime's model is inconsistent with itself: the stereotype says L5, the structure says L4. In the document era this
+kind of inconsistency was found, if it was found at all, by someone reading two documents side by side.
+
+This is the decision point the sprint is remembered for. Bob and Jim had three options:
+
+1. Tag WaveSensor L5 as the prime says, and raise the outline allowance so the pipeline passes. The pipeline's own
+   message forbids this: "fix them, do not raise .ci/outline-max".
+2. Wait for the prime to fix its stereotype, leaving the Stations tags unmerged until a later drop.
+3. Tag it L4 in the government's copy, where the structure says it belongs, and send the inconsistency to the prime
+   as a discrepancy report so their model and the government's converge.
+
+They chose the third, and the commit says so in the model itself:
+
+```sh run cwd=work/bob expect="DR-7"
+git show --format='%h %s' 8686239 | grep '^[0-9a-f]\|^[-+] '
+```
+
+Jim opened DR-7 the same day. The second pipeline was green, Jim approved, and Bob merged !13 that afternoon.
+
+==== Reviewing !13: what Jim actually checked {#sprint-4-review-13}
+
+Jim's approval came after the second pipeline, not the first. That is the first line of the team's review checklist,
+learned on the Monday of this sprint:
+
+{{include: tools/gitlab/templates/docs/conventions/review-checklist.md | lines 13-17}}
+
+A red pipeline means the change is not finished; reviewing it wastes the reviewer's time and invites the author to
+argue with the machine through the reviewer. Once the pipeline was green, Jim's review was about the engineering. The
+size was fine: the change touched one file, mostly one kind of line, about fifty lines in all. The levels matched the
+part tree, which the outline job had now confirmed mechanically, so Jim did not need to count levels by eye. And one
+rule of the checklist applied directly to this change:
+
+{{include: tools/gitlab/templates/docs/conventions/review-checklist.md | lines 39-40}}
+
+The WaveSensor line changed something the prime wrote, beyond closing a TODO. The rule allows such a change only with a
+discrepancy report behind it, and the line names one in its comment. Jim's review took minutes, and most of those minutes went to the
+one line that mattered. That is what a review checklist is for: it moves the reviewer's attention from the mechanical
+to the consequential.
+
+::: objection We should not change the prime's model
+The objection, in Bob's words: "If we change their levels, we own a model that disagrees with the contract deliverable."
+
+Answer: the government's v2 model already disagrees with the prime's v1 model in every place the team has closed a
+TODO; that is the point of the port. What must not happen is a *silent* disagreement. The change carries the DR
+number in a comment on the line itself, the DR goes to the prime through the contract, and when the prime's drop
+fixes the stereotype the vendor-branch merge brings the two back together. A disagreement that is written down,
+reported and tracked is configuration management. One that is not is the spider web again.
+:::
+
+==== Friday 20 November, continued: discrepancy reports to the prime {#sprint-4-drs}
+
+While Bob dealt with WaveSensor, Jim did the sprint's most important piece of systems engineering, and it involved no
+model edits at all. Jim turned each gap the trace report had found the sprint before into a discrepancy report: an issue in
+GitLab, from the team's Discrepancy Report template, labeled for the prime, and transmitted through the contracting
+channel.
+
+```sh run cwd=. expect="DR-7: WaveSensor"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model issue list --state all --label type::discrepancy | sed 's/~[^ ]* //g'
+```
+
+(The list is the team's GitLab today, at the end of sprint 6; the reports about the Legacy Import clutter and the DOORS wording were opened in [[sprint-5]].) Here is the
+first of them, as Jim wrote it:
+
+{{include-md: docs/tidewater/sprints/04/samples/discrepancy-report-DR-1.md}}
+
+|| Part of the report | What goes in it | Why ||
+| DR number | the team's own sequence, assigned when the issue is opened | so every later reference, in a model comment or a drop's MANIFEST, can cite it |
+| Prime tracking | left blank until the prime assigns its own number | the two organizations will each track it; both numbers end up on the issue |
+| Found in drop | the drop version and its delivery date | the prime fixes what it delivered, not what it has now |
+| DOORS id | the requirement, if there is one | the trace job reports by DOORS id, so closure can be checked mechanically |
+| Severity | the team's scale, from the template | so the prime and the program office can order their work |
+| What we found | one or two sentences, in engineering words, and how it was found | the prime must be able to reproduce it without the government's tools |
+| What we ask | exactly what the government wants changed, not how | the model is the prime's to change |
+| Closure | checkboxes: sent, by whom, when; fixed in which drop | stays open until a drop actually fixes it |
+Table: Anatomy of a discrepancy report
+
+The report says what was found, where, how it was found, and exactly what the government asks the prime to do. It does
+not say how to fix it inside Cameo; that is the prime's business. And it has a closure section that stays open until a
+drop actually fixes the problem, which is how the team will know, months later, whether the prime did what it was
+asked.
+
+::: note The thought process: why not just fix their model?
+Every gap on that list would take Bob a minute to "fix" in the government's v2 model: add a satisfy for TW-SYS-012,
+copy TW-SYS-016 in from DOORS, write the missing verification case for TW-SYS-011. Jim said no to all of them, and the
+retrospective agreed (see below). The requirements and their satisfaction are the prime's contractual responsibility.
+If the government quietly patches its copy, the prime's model stays wrong, the next drop reintroduces every gap, and
+the government has taken on design responsibility nobody funded. The discrepancy report puts the fix where it
+belongs. The trace job will show, drop by drop, which reports the prime has closed.
+:::
+
+The scorecard shows {{value: docs/tidewater/sprints/04/scorecard.json 6_drs.opened}} discrepancy reports opened in
+the sprint and none closed yet; the first closure comes with drop 2 in January.
+
+==== The weekly status, 20 November
+
+{{include: docs/tidewater/sprints/04/quad-2026-11-20.txt | lines 1-14}}
+
+The week-1 sprint progress in that quad looks alarming next to sprint 3's finish, and it is not. Points count
+when a *story* is done, and the large Stations story was still open on Friday even though its main merge request had
+merged. Read the quad's "improving" and "degrading" arrows across weeks, not one week's percentage.
+
+=== Week 2 {#sprint-4-week-2}
+
+==== Monday 23 November: the Stations package in numbers
+
+Bob's stand-up on Monday:
+
+{{include: docs/tidewater/sprints/04/standups/2026-11-23-chat.txt | lines 6-7}}
+
+One merge request closed a large share of the remaining TODO lines. That is the shape of a port: long stretches of
+small, careful changes, and a few large mechanical ones once the pattern is proven on a small package. Network in
+sprint 3 was the proof; Stations in sprint 4 was the payoff.
+
+The story was not finished, though. Its second task was to walk the Stations part tree with the prime's modeler and
+record what they confirmed: which parts are procured, which supplier and part-number tags the prime's stereotypes
+carry, and whether the tree matches what the prime is actually building. That needed a meeting with someone outside
+the team, and Bob's stand-up already names it as today's work.
+
+==== Tuesday 24 November: the model site {#sprint-4-site}
+
+Tom's !14 added the `pages` job to the pipeline. On every merge to `develop`, and every night on a schedule, the job
+builds a small web site from the model and publishes it with GitLab Pages: the generated documentation (the part tree,
+the function tree, the IDEF0 plates, the trace report), the diagrams the kit draws, and the TODO burn-down. Nothing on
+the site is written by hand. If the model changes, the site changes with it, the same day.
+
+```sh run cwd=. expect="https://tidewater.pages"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model pages | head -1
+```
+
+The site is small on purpose. Each page answers a question someone outside the team used to ask the team, usually
+the week before a review:
+
+|| Page | The question it answers | Who asks it ||
+| The part tree (`docs/`, the generated Nouns page and the tree view) | What is the system made of, and at what level? | the program manager, new engineers, the prime |
+| The function tree and the IDEF0 plates | What does the system do, and what does each function take and produce? | the test organization, the operations community |
+| The trace report | Which requirements have a design and a verification, and which do not? | the program office, the independent reviewers |
+| The diagram views | What connects to what? | everyone, in a review |
+| The TODO burn-down | How much of the port is left? | the program manager, every Friday |
+Table: The model site in sprint 4, page by page
+
+None of the pages is a new kind of information. Every one of them used to be a slide, a table in a document, or an
+answer to an e-mail, prepared by hand from the model. What is new is that they are never out of date and nobody has to
+prepare them.
+
+The nightly rebuild is a pipeline schedule, the first the team created:
+
+```sh run expect="Nightly full check"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model schedule list | head -1
+```
+
+It runs at 02:00 Eastern on weekdays, against `develop`, with every check switched on. If anything broke during the
+day, it is red before the stand-up. Chapter [[tools]] explains why the site was the single most valuable tool the
+team adopted, for an audience the team had never served directly: everyone else.
+
+The same Tuesday, Jim prepared the sprint review with the program office (task #82), and on Wednesday Jim met the
+prime's modeler about how future drops should be delivered (task #83). That conversation, about stable element ids,
+change notes, and eventually letting the prime's Jenkins deliver straight into GitLab, is the subject of
+[[prime-changes]].
+
+==== Wednesday 25 November: refinement, and an outlier again
+
+Refinement for sprint 5, with planning poker. One round split:
+
+{{include: docs/tidewater/sprints/04/poker-2026-11-25.txt | lines 88-98}}
+
+Tom voted 5 for "Procured parts as metadata; DataCenter level tags"; Jim and Bob voted 3. This time the high vote
+knew what the team had just learned the hard way: procured parts carry supplier and part-number tags that must become
+metadata with values, not just a level tag, and the Stations walk-through had not even happened yet. The second round
+settled at 3.5, which is the sprint 4 lesson written as an estimate.
+
+The demo script for the review was drafted with `talk.pl review` ([[talking]]) and rehearsed out loud before the
+meeting; the rehearsal was Tom's learning task on the sprint's first day, and the script itself is in the evidence
+(`docs/tidewater/sprints/04/review-script.md`).
+
+==== Thursday 26 November: Thanksgiving
+
+==== Friday 27 November: units, a carryover, and the review {#sprint-4-review}
+
+Bob merged !15 in the morning: the value types Power and Energy now specialize the ISQ quantity kinds from the SysML v2
+standard library, so a power is a power and not just a number:
+
+```sh run cwd=work/bob expect="ISQ::PowerValue"
+git show 6265f68 | grep '^+.*attribute def'
+```
+
+The three TODO lines for the Cameo unit instances went with it.
+
+Then the carryover. The Stations walk-through needed the prime's modeler, and it could not start until the last day
+of the sprint, so it did not fit. Bob closed the task and continued it in sprint 5, with its estimate, and
+the journal moved the story's remaining points into the next sprint:
+
+```sh run cwd=. expect="carried to #96 in sprint 5"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model issue show 77 | tail -1
+```
+
+Delivery for the sprint: {{value: docs/tidewater/sprints/04/scorecard.json 11_delivery.done}} of
+{{value: docs/tidewater/sprints/04/scorecard.json 11_delivery.committed}} story points, or
+{{value: docs/tidewater/sprints/04/scorecard.json 11_delivery.pct}}%. That is the first sprint the team did not finish
+everything it committed, and it is handled the way the operating model says: the story carries, visibly, with its
+remaining points, and the quad shows it as a watch item ([[operating-model]]).
+
+At 10:00, the review:
+
+{{include: docs/tidewater/sprints/04/review.txt}}
+
+The review notes record how the rehearsed demo ran: it led with the question, showed the model site, gave one
+before-and-after, made one live change, and closed with the ask. Those are the six moves of [[talking]], and here is
+what each one looks like for a sprint like this one:
+
+1. **The question first.** What did this sprint settle about the model, in the audience's words: is the structure
+   right, and can they see it without the team? Not "here is what we built".
+2. **The output, not the tool.** The model site, not the terminal. The part tree, the trace report and the burn-down,
+   as pages anyone can read.
+3. **One before-and-after.** The notes name the one used: the cycle, two lines removed, against a week of reading a
+   diagram in the Cameo years.
+4. **One safe live change.** The script's suggestion: on a scratch branch, delete one satisfy line and open a draft
+   merge request; a couple of minutes later the trace report names the requirement that lost its design. Then close
+   the merge request.
+5. **What it means for the next milestone.** How far the structure TODOs have to go, and when the interim baseline
+   for the program review is due.
+6. **The ask.** One decision or one kind of help, with a date.
+
+The program manager's reaction is in the review notes, and it is the moment the team remembers:
+
+> I can open this on my phone? I have never seen the model without a briefing.
+> -- Program manager, sprint 4 review
+
+The same four headline numbers as every review: {{value: docs/tidewater/sprints/04/scorecard.json 1_todo_lines}} TODO
+lines left; verify coverage unchanged at the level the trace found in sprint 3; {{value: docs/tidewater/sprints/04/scorecard.json 6_drs.opened}}
+discrepancy reports open with the prime; nothing blocked.
+
+::: warning Verify coverage did not move, and that is correct
+If management asks why the share of requirements with a verification stayed flat while everything else improved,
+the answer is the discrepancy reports. Every remaining verification gap is in the prime's model: TW-SYS-011, the
+stakeholder needs, and the requirement that is not in the model at all. The government team will not paper over them
+with its own verification cases. Coverage moves when the prime's drops close the DRs, and the trace job will show
+exactly when. A flat line here is a measure working honestly, not a team failing.
+:::
+
+==== The retrospective and the pulse {#sprint-4-retro}
+
+{{include: docs/tidewater/sprints/04/retro.txt}}
+
+|| Question | Jim | Bob | Tom ||
+| I understand why we are working this way. | {{value: docs/tidewater/sprints/04/morale.json answers.jim.0}} | {{value: docs/tidewater/sprints/04/morale.json answers.bob.0}} | {{value: docs/tidewater/sprints/04/morale.json answers.tom.0}} |
+| I can do my work in the new tools without help. | {{value: docs/tidewater/sprints/04/morale.json answers.jim.1}} | {{value: docs/tidewater/sprints/04/morale.json answers.bob.1}} | {{value: docs/tidewater/sprints/04/morale.json answers.tom.1}} |
+| The checks catch problems I would have missed. | {{value: docs/tidewater/sprints/04/morale.json answers.jim.2}} | {{value: docs/tidewater/sprints/04/morale.json answers.bob.2}} | {{value: docs/tidewater/sprints/04/morale.json answers.tom.2}} |
+| I can see our progress. | {{value: docs/tidewater/sprints/04/morale.json answers.jim.3}} | {{value: docs/tidewater/sprints/04/morale.json answers.bob.3}} | {{value: docs/tidewater/sprints/04/morale.json answers.tom.3}} |
+| I would choose to keep working this way. | {{value: docs/tidewater/sprints/04/morale.json answers.jim.4}} | {{value: docs/tidewater/sprints/04/morale.json answers.bob.4}} | {{value: docs/tidewater/sprints/04/morale.json answers.tom.4}} |
+Table: Sprint 4 pulse survey (mean {{value: docs/tidewater/sprints/04/morale.json mean}})
+
+Compare Bob's column with [[sprint-3-review]]'s. "The checks catch problems I would have missed" moved after the
+WaveSensor finding, which was not Bob's mistake and which Bob would not have found by reading. "I can see our progress"
+moved after the model site went up. The last question, whether Bob would choose to keep working this way, did not move
+yet. The team did not push. That answer changes later ([[minds]]).
+
+==== The weekly status, 27 November
+
+{{include: docs/tidewater/sprints/04/quad-2026-11-27.txt | lines 1-23}}
+
+The carried story is the only watch item. The schedule milestone line says the structure epic is most of the way done, with a projected end in mid-December;
+[[sprint-5]] shows how close that came.
+
+=== What the numbers say {#sprint-4-numbers}
+
+```sh run cwd=. expect="87.5%"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model analytics --since 2026-11-16 --until 2026-11-27 | sed -n '/2. DORA/,/job failures/p'
+```
+
+Two numbers in that output are new this sprint. **Deployment frequency** is no longer zero: every publish of the model
+site counts as a deployment, so management now receives a fresh model several times a week without anyone preparing
+it. And the only job that failed all sprint was **outline**: the WaveSensor finding, on the branch and on the merge
+request. Grammar and lint never failed. The team had stopped making mechanical mistakes; the checks were now finding
+the prime's.
+
+|| Measure | End of sprint 3 | End of sprint 4 ||
+| TODO lines left | {{value: docs/tidewater/sprints/03/scorecard.json 1_todo_lines}} | {{value: docs/tidewater/sprints/04/scorecard.json 1_todo_lines}} |
+| Package dependency cycles | {{value: docs/tidewater/sprints/03/scorecard.json 7_spider_web.cycles}} | {{value: docs/tidewater/sprints/04/scorecard.json 7_spider_web.cycles}} |
+| Discrepancy reports opened (sprint) | {{value: docs/tidewater/sprints/03/scorecard.json 6_drs.opened}} | {{value: docs/tidewater/sprints/04/scorecard.json 6_drs.opened}} |
+| Median hours, opening a change to first review | {{value: docs/tidewater/sprints/03/scorecard.json 10_review_turnaround_hours}} | {{value: docs/tidewater/sprints/04/scorecard.json 10_review_turnaround_hours}} |
+| Median hours, first edit to accepted change | {{value: docs/tidewater/sprints/03/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/04/scorecard.json 2_lead_time_hours}} |
+| Changes gated by the pipeline | {{value: docs/tidewater/sprints/03/scorecard.json 3_gated_changes}} | {{value: docs/tidewater/sprints/04/scorecard.json 3_gated_changes}} |
+| Stand-up lines with an outcome and a number | {{value: docs/tidewater/sprints/03/scorecard.json standup_outcome_share}} | {{value: docs/tidewater/sprints/04/scorecard.json standup_outcome_share}} |
+| Pulse (1 to 5) | {{value: docs/tidewater/sprints/03/scorecard.json 12_morale}} | {{value: docs/tidewater/sprints/04/scorecard.json 12_morale}} |
+Table: Sprint 4 against sprint 3
+
+The document-era comparison the team kept beside these numbers: a requirement change through the configuration
+control board took {{value: docs/tidewater/sprints/04/scorecard.json document_era_baseline_notional.ccb_change_working_days}}
+working days, and a model review was screenshots in a briefing that took
+{{value: docs/tidewater/sprints/04/scorecard.json document_era_baseline_notional.model_review_weeks}} weeks to prepare
+(both notional, from the program's last document-era review cycle). Chapter [[scorecard]] puts the whole twelve weeks
+side by side.
+
+=== Tools adopted this sprint, and the pain each one removed {#sprint-4-tools}
+
+|| Tool | The pain it removed | Where to read more ||
+| The model site (GitLab Pages), rebuilt on every merge | Nobody outside the team could see the model without a briefing built by hand | [[tools]] |
+| The nightly pipeline schedule | A problem merged late in the day was found the next week, by whoever tripped over it | [[cicd]] |
+| Discrepancy reports as GitLab issues from a template | Gaps in the prime's model were found in reviews and forgotten, with no record of what was asked or answered | [[prime-changes]] |
+| The review checklist | Reviews looked for typos the pipeline already catches and missed whether the change was right | [[reviewing]] |
+| The rehearsed demo | The sprint 2 demo lost the room | [[talking]] |
+Table: Tools adopted in sprint 4
+
+=== What Jim told management {#sprint-4-management}
+
+::: note Sprint 4, the Friday note
+The model's biggest package, Stations, is now tagged and checked against the part-tree rules; the check found one
+part the prime's model puts at the wrong level, and we have asked the prime to correct it (DR-7). We removed one of the
+two dependency cycles the prime's model came with. We sent the prime
+{{value: docs/tidewater/sprints/04/scorecard.json 6_drs.opened}} discrepancy reports for the gaps the trace found.
+{{value: docs/tidewater/sprints/04/scorecard.json 1_todo_lines}} TODO lines remain. The model is now published as a web
+site, rebuilt every night: [the link]. One story carried into sprint 5 (the walk-through with the prime's modeler).
+We need the program office's decision on the delivery interface with the prime by the end of sprint 5.
+:::
+
+=== You can now {#sprint-4-you-can-now}
+
+- Break a package dependency cycle by finding the one dependency that creates it, and decide whether it is yours to
+  break.
+- Read an outline and level-tag finding, reproduce it on your own checkout, and decide between fixing your copy,
+  waiting for the prime, and doing both.
+- Write a discrepancy report that says what was found, how, and what you ask the prime to do, and keep it open until a
+  drop closes it.
+- Explain why verify coverage can stay flat while the model improves.
+- Set up a model site and a nightly schedule, and say what each one is for.
+- Run a demo with the six moves, and carry a story honestly when it does not fit.
+
+::: exercise {#ex-sprint-4-cycle} Find a cycle
+In the Tidewater sandbox, draw the package view with `perl "$KIT/tools/sysml/model.pl" draw pkg -o pkg.svg` in Bob's
+clone and find the cycle that remains. Name the dependency you would remove to break it, and say why that is a design
+decision, not a cleanup ([[sprint-5]] shows what the team decided).
+:::
+
+::: exercise {#ex-sprint-4-dr} Write a discrepancy report
+Pick a gap from the trace report in [[sprint-3]] that does not already have a discrepancy report (hint: look at the
+unverified stakeholder needs). Write the discrepancy report from the team's template, in Vim, and open it as an issue
+on a practice sandbox with `gitlab.pl issue new --template "Discrepancy Report"`.
+:::
+
+::: exercise {#ex-sprint-4-demo} Rehearse a demo
+Take the sprint 4 review script in `docs/tidewater/sprints/04/review-script.md`. Rewrite it so it opens with the
+question, shows the model site first, has one before-and-after with a number, one safe live change, and one ask with a
+date. Read it aloud against a five-minute timer.
+:::
+
+=== Applying this to your project {#sprint-4-applying}
+
+- **Publish the model where management can open it,** generated from the model on every merge, as early as you can.
+  It changes the conversation more than any metric.
+- **Run a nightly full check** so problems are red before the stand-up, not found next week.
+- **Send the prime's gaps back as discrepancy reports,** one per gap, with a closure section. Do not patch the prime's
+  model quietly in your copy; when you must diverge, write the DR number on the line.
+- **Rehearse the demo,** with the question first and the ask last. Rotate the driver.
+- **Expect your first carryover** when a task depends on someone outside the team. Carry it visibly with its remaining
+  points; the quad and the journal are built for it.

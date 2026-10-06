@@ -1,0 +1,702 @@
+== The survival kit {#survival}
+
+::: survival
+What you have: a government Windows 11 laptop with Git for Windows and Vim on it (both on the approved software
+list); a network account; a login to the enterprise GitLab server that the administrators created last week; and
+the agile kit, which Tom copied from the enterprise GitLab.
+
+What you need: to open a terminal and not be afraid of it; about fifteen commands you can type without looking them
+up; git configured with your name; a key or token so GitLab knows who you are; Vim set up with the kit; and a list of
+what to do when something goes wrong. Budget half a day. The team spent most of Monday morning of sprint 1 on this,
+together, and it was the best half day of the sprint.
+:::
+
+=== Monday, 08:00 {#survival-monday}
+
+Tom arrived early on the first day of sprint 1 with a printed page. It was a checklist, of course; Tom had run the
+program's configuration management database for ten years and trusted checklists the way other people trust
+coffee. At the top it said *Survival kit: every box ticked before stand-up*. There were nineteen boxes.
+
+Bob read it over Tom's shoulder. "What's a terminal?"
+
+"The black window," Tom said. "Git Bash. It came with Git for Windows. You've had it on your laptop for two years."
+
+"I've never opened it."
+
+"Neither had I, until Saturday."
+
+That exchange is the starting point of this chapter. If you have opened a terminal and typed commands into it, you
+can skim the next three sections. If you have not, read them slowly and type everything. The terminal is the one
+new tool in this book you cannot avoid. Everything else (git, GitLab, the converters, the checks) is driven from it,
+and once it stops being strange, everything else gets much easier.
+
+=== What is on the laptop {#survival-laptop}
+
+Every tool the team used in the twelve weeks was either already on the government laptop or arrived as plain files
+inside the kit. Nothing needed an administrator to install. That mattered: an installation request would have taken
+two weeks and an ISSM review, and the team had neither.
+
+|| Tool | What it is | How to check it | What the team uses it for ||
+| Git for Windows | a bundle: git, the Git Bash terminal, Perl, Vim, SSH, curl, Tcl/Tk and the usual Unix commands | `git --version` | everything below comes with it |
+| Git Bash | the terminal window | it is the window you type into | running every command in this book |
+| git | the version control program | `git --version` | branches, commits, merges, pushing to GitLab |
+| Perl | a scripting language; the kit's tools are written in it | `perl -v` | running the kit, the converters and the checks |
+| Vim | the editor | `vim --version` | editing SysML v2, Markdown, the journal |
+| ssh, ssh-keygen | secure connections and keys | `ssh -V` | proving your identity to GitLab |
+| curl | a program that talks to web servers | `curl --version` | the kit's GitLab client uses it |
+| wish | Tcl/Tk, a small toolkit for windows | `which wish` | the live model viewer beside Vim |
+| the agile kit | a folder of Perl scripts, Vim files and documentation | `perl agile.pl help` | converters, checks, journal, GitLab tools |
+| a web browser | Edge or Firefox | | GitLab's web pages: issues, merge requests, pipelines |
+Table: The survival kit: what is on the laptop
+
+On Tom's laptop in October 2026 the versions were:
+
+```text run sandbox=scratch expect="(?s)git version .*This is perl 5.*VIM - Vi IMproved"
+$ git --version
+git version 2.55.0.windows.1
+$ perl -v | sed -n 2p
+This is perl 5, version 42, subversion 2 (v5.42.2) built for x86_64-cygwin-thread-multi
+$ vim --version | head -1
+VIM - Vi IMproved 9.2 (2026 Feb 14, compiled Jun 26 2026 07:32:44)
+```
+
+Your versions will differ. Anything from the last few years works; the kit is written to run on old and new
+versions alike.
+
+::: note Why Perl?
+The kit's tools are Perl scripts because Perl ships inside Git for Windows, which is already approved almost
+everywhere. That one fact removed an entire category of approval from the team's critical path. You will not write
+Perl in this book. You will run Perl scripts, the way you run any program: `perl` followed by the script's name and
+its arguments.
+:::
+
+=== The terminal {#survival-terminal}
+
+A **terminal** is a window where you type instructions to the computer, one line at a time, and it types back. The
+program that reads your line and carries it out is called the **shell**; in Git Bash the shell is called *bash*.
+The words "terminal," "shell," "command line" and "Git Bash" are used almost interchangeably, including in this book.
+
+A systems engineering analogy: a terminal is a procedure executed step by step, where each step is one line, you can
+see exactly what happened after every step, and the whole record stays on the screen. A graphical tool hides the
+steps behind clicks. The terminal shows them. That is why everything in DevSecOps is driven from it: a sequence of
+typed commands can be written down, reviewed, repeated exactly and, eventually, run by a machine.
+
+To open Git Bash: Start menu, type "Git Bash", press Enter. You see something like this:
+
+```text
+bob@TWLAPTOP03 MINGW64 ~
+$
+```
+
+That is the **prompt**. It tells you who you are (`bob`), which computer you are on (`TWLAPTOP03`), and which
+folder you are in (`~`, which means your home folder). The `$` means "ready for a command." In this book, the `$`
+at the start of a line means "type what follows"; do not type the `$` itself.
+
+Type `pwd` and press Enter:
+
+```text run expect="^/"
+$ pwd
+/c/Users/bob
+```
+
+`pwd` means *print working directory*: which folder you are in. Every command runs "in" a folder, and many
+commands act on files relative to it.
+
+A command line has three kinds of parts:
+
+```sh
+ls -l drop1
+```
+
+- `ls` is the **command**: the program to run.
+- `-l` is an **option**: it changes how the command behaves. Options start with `-` (one letter) or `--` (a word):
+  `-l` and `--report` are both options.
+- `drop1` is an **argument**: what the command acts on, here a folder.
+
+Five keys make the terminal pleasant:
+
+|| Key | What it does ||
+| Up arrow | brings back the previous command, to run it again or edit it |
+| Tab | completes a file or folder name: type `dr` then Tab and it becomes `drop1/` |
+| Ctrl-C | stops the running command (it does not copy, in a terminal) |
+| Shift-Insert, or right-click then Paste | pastes |
+| `q` | leaves a screen that is showing a long file or help page (the "pager") |
+Table: Five keys that make the terminal pleasant
+
+::: warning Ctrl-C does not copy
+In Windows, Ctrl-C copies. In a terminal, Ctrl-C interrupts whatever is running. To copy text from Git Bash, select
+it with the mouse (it is copied as soon as you release the button); to paste, use Shift-Insert or right-click. This
+catches everyone once. When it caught Jim, it stopped a long-running conversion halfway, which was harmless; the
+command was simply run again.
+:::
+
+=== Files, folders and paths {#survival-paths}
+
+A **path** is the address of a file or folder. Git Bash writes paths with forward slashes, the way Unix computers
+do, and shows the Windows drive `C:` as `/c`:
+
+|| Windows writes | Git Bash writes ||
+| `C:\Users\bob\projects\agile` | `/c/Users/bob/projects/agile` |
+| `C:\Users\bob` (your home folder) | `~` or `/c/Users/bob` |
+Table: The same folder in Windows and in Git Bash
+
+A path that starts with `/` or `~` is **absolute**: it means the same place wherever you are. A path that does not
+is **relative**: it is relative to the folder you are in. `drop1/MANIFEST.txt` means "the file `MANIFEST.txt` in the
+folder `drop1` inside the folder I am in now." Two special names help: `.` is the current folder and `..` is the
+folder above it.
+
+Three habits save trouble:
+
+- **Avoid spaces in names you create.** `drop1` and `prime-drop-v1.0` are easy to type; `Prime Drop v1.0` must be
+  quoted every time (`"Prime Drop v1.0"`), and forgetting the quotes produces confusing errors. The kit and GitLab
+  handle spaces correctly; your fingers will not.
+- **Names starting with a dot are hidden.** `.git`, `.vimrc` and `.gitlab-ci.yml` are ordinary files and folders
+  that `ls` does not show unless you ask with `ls -a`. Many of the most important files in this book start with a dot.
+- **Line endings differ.** Windows ends each line of a text file with two invisible characters (carriage return and
+  line feed, written CRLF); Unix and the kit use one (LF). Most tools cope with both, but not all. The prime's
+  manifest files arrive with Windows line endings; the command `file` tells you which you have:
+
+```text
+$ file drop1/MANIFEST.txt
+drop1/MANIFEST.txt: ASCII text, with CRLF line terminators
+```
+
+[[survival-git-config]] shows the one git setting that stops line endings from changing silently.
+
+=== The commands you need {#survival-commands}
+
+Here are the commands the team used every week, each with a real example on the first prime drop. To follow along,
+create the drop the way the book does throughout, by asking the kit's generator for it (the real prime would
+deliver a zip file; the result is the same four files):
+
+The kit lives in the folder `~/projects/agile` ([[survival-kit]] shows how to get it). Commands in this book call
+that folder `$KIT`, the same name the pipeline uses for it, so tell the shell once where it is, and make a folder to
+practise in:
+
+```sh
+export KIT=~/projects/agile
+mkdir -p ~/w2s
+cd ~/w2s
+```
+
+(`export` sets a **variable**, a name the shell replaces with its value wherever you write `$KIT`. It lasts until
+the window closes; [[survival-alias]] puts it in `~/.bashrc` so every new window knows it.) Then ask for the drop and
+convert it:
+
+```sh run expect="206 of 206 in scope ported" timeout=120
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drop1
+perl "$KIT/bin/xmi2sysml.pl" --out drop1-v2 drop1/tidewater.xmi
+```
+
+The first line writes the four files the prime would deliver; the second runs the converter, which turns the v1
+model into SysML v2 text in a folder of its own. Part I showed what it produces ([[sysmlv2]]). Now the commands.
+
+==== Where am I, and what is here: pwd, ls, cd
+
+```text run expect="(?s)drop1-v2.*MANIFEST\.txt.*\b122711\b.*tidewater\.xmi"
+$ pwd
+/c/Users/bob/w2s
+$ ls
+drop1
+drop1-v2
+$ ls drop1
+MANIFEST.txt
+tidewater.csv
+tidewater.reqif
+tidewater.xmi
+$ ls -l drop1
+total 200
+-rw-r--r-- 1 bob 197121    795 Oct  6 08:03 MANIFEST.txt
+-rw-r--r-- 1 bob 197121   4624 Oct  6 08:03 tidewater.csv
+-rw-r--r-- 1 bob 197121  66759 Oct  6 08:03 tidewater.reqif
+-rw-r--r-- 1 bob 197121 122711 Oct  6 08:03 tidewater.xmi
+```
+
+`ls -l` shows the long form: permissions, owner, size in bytes, date and name. The XMI file is 122,711 bytes, about
+120 KB. `cd FOLDER` moves into a folder; `cd ..` moves up one; `cd` alone goes home; `cd -` goes back to where you
+were.
+
+==== Make, copy, move and remove: mkdir, cp, mv, rm
+
+```text run expect="(?s)MANIFEST\.txt.*drop1-manifest\.txt"
+$ mkdir -p work/notes
+$ cp drop1/MANIFEST.txt work/notes/
+$ ls work/notes
+MANIFEST.txt
+$ mv work/notes/MANIFEST.txt work/notes/drop1-manifest.txt
+$ ls work/notes
+drop1-manifest.txt
+$ rm work/notes/drop1-manifest.txt
+```
+
+`mkdir -p` makes a folder, including any missing folders above it. `cp` copies; `cp -r` copies a folder and
+everything in it. `mv` moves or renames. `rm` removes a file; `rm -r` removes a folder and everything in it.
+
+::: warning rm has no recycle bin
+A file removed with `rm` is gone. There is no undo and no recycle bin. Before you type `rm -r`, type `ls` with the
+same path and read what it would remove. Inside a git repository you are much safer, because anything that was
+committed can be brought back ([[git]]); that is one of the first comforts of version control.
+:::
+
+==== Read a file: cat, less, head, tail
+
+```text run expect="(?s)Delivered: 2026-10-02.*Built by: Jenkins.*TW-STK-002"
+$ cat drop1/MANIFEST.txt
+Tidewater system model -- prime drop v1.0 (drop 1)
+CDRL: A003 System Model
+Contractor: Northwind Marine Systems (fictional)
+Delivered: 2026-10-02
+Built by: Jenkins https://jenkins.nwm.example.invalid/job/tidewater-model-delivery/137/ (build 137)
+Prime repository commit: 2c38530dd8cbd15849071d9e3c4a476cd1235229
+Tools: Cameo Systems Modeler 2022x Refresh2; DOORS 9.7 ReqIF export; Teamwork Cloud 2024x
+Delivery: CDRL file transfer to government approved storage
+Changes: Initial delivery: the model at contract start.
+Files (sha256):
+  af17989626f37e8ec57e2891d9cfbb34bf190d46d9b07345a5bed3887cc8d9ad  tidewater.xmi
+  d22edcbffe71f554f2b380ec2f97ca1d1165dd9c0892f11073bb3ec8f84bc577  tidewater.reqif
+  4a70d12ea15f7f618295cf7967a5e7e094f4aa57474ffe845ee090e062862c58  tidewater.csv
+$ head -3 drop1/tidewater.csv
+"Object Identifier","Absolute Number","Object Level","Object Heading","Object Text","Verification Method","Owner","Name"
+"TW-STK-001","1","2","","The network shall provide marine weather observations for the coastal region it covers.","","Network Office","Coastal coverage"
+"TW-STK-002","2","2","","Forecasters shall receive observations in time to use them in the next bulletin.","","Network Office","Timely observations"
+```
+
+The manifest says who built the drop (the prime's Jenkins server, build 137), from which commit of the prime's own
+repository, with which tools, and how it was delivered: the provenance a receiver checks before trusting the files
+([[jenkins]] explains the prime's side). `cat` prints a whole file; use it for short files. `less FILE` shows a long file one screen at a time: Space for the
+next page, `b` for back, `/word` to search, `q` to quit. `head -N` and `tail -N` show the first or last N lines.
+
+==== Search: grep
+
+`grep` finds lines that contain a piece of text. It is the command the team used more than any other, because a
+model in text can be searched like any other text:
+
+```text run expect="(?s)14:\"TW-SYS-006\".*\n30\n.*Stations\.sysml:42: .*TODO uml:StateMachine 'BuoyModes'"
+$ grep -n TW-SYS-006 drop1/tidewater.csv
+14:"TW-SYS-006","12","3","","The data center shall publish a marine bulletin twice a day, on a fixed schedule.","Demonstration","Data Services","Bulletin"
+$ grep -c TW- drop1/tidewater.csv
+30
+$ grep -rn "TODO uml:StateMachine" drop1-v2
+drop1-v2/stations/Stations.sysml:42:        // TODO uml:StateMachine 'BuoyModes' (xmi:id _22_1_7f3a0c1_7a13eb20b93a): no SysML v2 mapping in this converter
+```
+
+`-n` prints line numbers, `-c` counts matching lines instead of printing them, `-r` searches every file in a folder
+and the folders below it, and `-i` ignores upper and lower case. The quotes around `"TODO uml:StateMachine"` keep
+the two words together as one piece of text; without them, grep would look for `TODO` in a file called
+`uml:StateMachine`, fail, and print a confusing error. When in doubt, quote.
+
+Compare the first line with what Bob used to do in the document era to find one requirement's text in the
+delivered CSV: open Excel, wait, use Find, wait. It is not that grep is faster (although it is); it is that the grep
+line can be written down, sent to someone else, and run again next quarter on the next drop, unchanged.
+
+==== Find files and count lines: find, wc
+
+```text run expect="(?s)^\s*13\s*\n\s*52\s*\n\s*1195 drop1/tidewater\.xmi"
+$ find drop1-v2 -name '*.sysml' | wc -l
+13
+$ grep -r '// TODO' drop1-v2 | wc -l
+52
+$ wc -l drop1/tidewater.xmi
+1195 drop1/tidewater.xmi
+```
+
+`find FOLDER -name 'PATTERN'` lists files whose names match; `*` in a pattern means "anything," and the quotes stop
+the shell from expanding it early. `wc -l` counts lines.
+
+The second line is worth stopping on. It counts every line in the converted model that contains `// TODO`, which is
+the converter's mark for "I could not carry this; a person must." That number, 52, is the team's **conversion
+debt** for drop 1, the primary progress measure on the scorecard ([[directive-scorecard]]). It was computed with one
+line of shell, and from sprint 2 on the pipeline computes it the same way on every change.
+
+==== Pipes and redirection: | and >
+
+Two symbols let commands work together. The **pipe**, `|`, sends one command's output into the next command as its
+input: `find ... | wc -l` means "list the files, then count the lines of that list." **Redirection**, `>`, sends a
+command's output into a file instead of the screen:
+
+```text run expect="52 work/todo\.txt"
+$ grep -r '// TODO' drop1-v2 > work/todo.txt
+$ wc -l work/todo.txt
+52 work/todo.txt
+```
+
+`>` replaces the file if it exists; `>>` adds to the end of it. A line of commands joined by pipes is called a
+**pipeline** in the shell. It is the same idea, on a small scale, as the GitLab pipeline in [[pipeline]]: small
+steps, each doing one thing, connected so that the output of one is the input of the next.
+
+==== Check a delivery: sha256sum
+
+A **checksum** is a short fingerprint computed from a file's exact contents. Change one byte of the file and the
+fingerprint changes completely. The prime's manifest lists a SHA-256 checksum (the kind used throughout the
+government) for each delivered file, so the receiver can prove that what arrived is exactly what was sent:
+
+```text
+$ sha256sum drop1/tidewater.xmi
+af17989626f37e8ec57e2891d9cfbb34bf190d46d9b07345a5bed3887cc8d9ad *drop1/tidewater.xmi
+$ cd drop1; grep 'tidewater\.' MANIFEST.txt | sha256sum -c; cd ..
+tidewater.xmi: OK
+tidewater.reqif: OK
+tidewater.csv: OK
+```
+
+The first command computes the fingerprint of one file; compare it by eye with the manifest's first line. The second
+does the comparison for you: `grep` picks the three checksum lines out of the manifest, and `sha256sum -c` checks
+each file against its listed checksum. In the document era, receipt inspection of a CDRL delivery was a signature on
+a transmittal form. This is receipt inspection that actually inspects. It is the first task of the first story Jim
+did in sprint 1 ([[sprint-1]]).
+
+::: note On Linux, strip the carriage returns
+Git for Windows' `sha256sum` reads the manifest's Windows line endings without complaint. On a Linux machine (or in
+WSL) the same command fails with `No such file or directory` for each file, because the invisible carriage return
+becomes part of the file name. Remove the carriage returns and the leading spaces first:
+
+```sh run expect="(?s)tidewater\.xmi: OK.*tidewater\.reqif: OK.*tidewater\.csv: OK"
+cd drop1
+grep 'tidewater\.' MANIFEST.txt | tr -d '\r' | sed 's/^ *//' | sha256sum -c
+```
+
+Use this form in anything that may run on Linux, such as a pipeline job ([[pipeline]]); it works everywhere.
+:::
+
+==== Ask for help: --help, man and the kit's help
+
+Almost every command explains itself:
+
+```sh
+grep --help | less
+git help commit
+perl agile.pl help xmi2sysml
+```
+
+The last one is the kit's own help, which is also available inside Vim as `:help agile` ([[survival-vim]]):
+
+```text run sandbox=kit expect="(?s)^xmi2sysml\.pl\n.*--report FILE\.xmi"
+$ perl agile.pl help xmi2sysml
+xmi2sysml.pl
+    perl bin/xmi2sysml.pl --report FILE.xmi
+    perl bin/xmi2sysml.pl --out DIR [--layout '{seg}/{pkg}.sysml'] [--check] FILE.xmi
+    perl bin/xmi2sysml.pl --stdout FILE.xmi
+
+A SysML v1 XMI export (Cameo / MagicDraw) to SysML v2 text, one file per
+top-level package (DIR/SEGMENT/PACKAGE.sysml). --report: elements in by
+xmi:type, ported vs remaining (metric A), stereotypes, the unmapped list.
+```
+
+|| Command | Does | Example ||
+| `pwd` | prints the current folder | `pwd` |
+| `ls`, `ls -l`, `ls -a` | lists files (long form; including hidden) | `ls -l drop1` |
+| `cd` | changes folder | `cd drop1`, `cd ..`, `cd` |
+| `mkdir -p` | makes a folder (and its parents) | `mkdir -p work/notes` |
+| `cp`, `cp -r` | copies a file (a folder) | `cp drop1/MANIFEST.txt work/` |
+| `mv` | moves or renames | `mv a.txt b.txt` |
+| `rm`, `rm -r` | removes a file (a folder); no undo | `rm work/todo.txt` |
+| `cat` | prints a short file | `cat drop1/MANIFEST.txt` |
+| `less` | pages through a long file (`q` quits) | `less drop1/tidewater.xmi` |
+| `head -N`, `tail -N` | first or last N lines | `head -3 drop1/tidewater.csv` |
+| `grep -n`, `-c`, `-r`, `-i` | finds lines containing text | `grep -rn "TODO" drop1-v2` |
+| `find ... -name` | finds files by name | `find drop1-v2 -name '*.sysml'` |
+| `wc -l` | counts lines | `wc -l work/todo.txt` |
+| `sha256sum`, `sha256sum -c` | computes or checks checksums | `sha256sum drop1/tidewater.xmi` |
+| `file` | says what kind of file it is (and its line endings) | `file drop1/MANIFEST.txt` |
+| `\|`, `>`, `>>` | pipe; write to a file; add to a file | `grep -r TODO model \| wc -l` |
+Table: The commands you need, on one page
+
+=== Getting the kit {#survival-kit}
+
+The agile kit is the folder of tools this book uses. On Tidewater, Tom cloned it from the enterprise GitLab, where
+the program keeps an approved copy:
+
+```sh
+mkdir -p ~/projects
+cd ~/projects
+git clone https://gitlab.example.com/tools/agile.git
+cd agile
+```
+
+(`git clone` copies a repository from GitLab to your laptop; [[git]] explains it. If your organization gives you
+the kit as a zip file instead, unzip it to `~/projects/agile`.)
+
+Check that it works on your machine by running one of its test suites and one of its tools:
+
+```text run sandbox=kit expect="(?s)tests/xmi2sysml\.t\s+# all \d+ passed.*sysml: 1 file\(s\), 0 error\(s\)" timeout=300
+$ perl tests/run.pl tests/xmi2sysml.t
+tests/xmi2sysml.t  # all 192 passed                   24.1s
+
+1 suites, 0 failed, 25s with 8 at a time
+$ perl tools/sysml/sysml.pl check examples/halberd/model/program/Enterprise.sysml
+sysml: 1 file(s), 0 error(s)
+```
+
+The first runs the converter's own tests: 192 checks that the converter does what it claims, on this laptop, with
+this Perl. "All 192 passed" is a better answer to "does the tool work here?" than any installation guide. The second
+runs the SysML v2 grammar checker on one file of the kit's other example model. Zero errors means the checker works.
+
+::: tip Run the whole test set once
+On the first day, run every test suite once: `perl tests/run.pl`. It takes a few minutes and prints one line per
+suite. If any suite fails, stop and find out why before going further; [[survival-trouble]] lists the usual causes.
+The team found one laptop with an old Git for Windows this way, on day one rather than in the middle of a sprint.
+:::
+
+The kit also checks the whole laptop in one command, once the rest of this chapter is done. It changes nothing;
+every line is PASS, WARN or FAIL, and every problem comes with the exact command that fixes it:
+
+```sh
+perl ~/projects/agile/tools/gitlab/kickoff.pl doctor
+```
+
+It checks Perl and the modules the kit uses, git and the settings below, Vim and the kit's Vim setup, curl, a short
+self-test of the converters, your SSH key, and whether GitLab answers. Run it on every laptop in week zero, and again
+whenever something odd happens.
+
+=== Setting up git {#survival-git-config}
+
+Git records who made every change. Before your first change, tell it who you are, and set four other options the
+team agreed on. These settings are **global**: they apply to every repository on your laptop, and you set them once.
+
+```text run sandbox=scratch expect="(?s)(?=.*user\.name=Bob)(?=.*init\.defaultbranch=main)(?=.*core\.editor=vim)(?=.*core\.autocrlf=false)"
+$ git config --global user.name "Bob"
+$ git config --global user.email bob@example.invalid
+$ git config --global init.defaultBranch main
+$ git config --global core.editor vim
+$ git config --global core.autocrlf false
+$ git config --global --list
+user.name=Bob
+user.email=bob@example.invalid
+init.defaultbranch=main
+core.editor=vim
+core.autocrlf=false
+```
+
+|| Setting | Why ||
+| `user.name`, `user.email` | Every commit records them. Use your real name and your work email, the same one as your GitLab account, so GitLab links your commits to you. |
+| `init.defaultBranch main` | New repositories start with a branch called `main`, matching GitLab's default. Older git versions call it `master`, which causes confusion when the two meet. |
+| `core.editor vim` | When git needs you to write a message (a commit message, a merge message), it opens Vim. |
+| `core.autocrlf false` | Git does not change line endings when files go in or out. The kit's files use LF; letting git rewrite them changes checksums and can make a baseline impossible to reproduce. |
+Table: The five git settings, and why
+
+::: warning core.autocrlf is not optional on Tidewater
+Git for Windows' installer offers to convert line endings automatically, and many laptops have it turned on. With it
+on, a file's bytes on the laptop differ from its bytes in the repository. Most of the time nobody notices. Then a
+baseline's checksum does not match on rebuild, and it takes a day to find out why. Tom found this on one of the
+three laptops in week zero. Set it to `false`, and leave line endings to the repository's own `.gitattributes`
+file, which the kit's templates provide.
+:::
+
+=== Proving who you are to GitLab: SSH keys and tokens {#survival-ssh}
+
+When your laptop sends changes to GitLab (a **push**) or fetches them (a **pull** or **clone**), GitLab has to know
+who you are. There are two ways, and your enterprise administrators decide which you may use.
+
+==== An SSH key
+
+An **SSH key** is a pair of files: a private key, which stays on your laptop and is never shown to anyone, and a
+public key, which you give to GitLab. Anything signed by the private key can be checked with the public one. The
+analogy is a signature card on file at a bank: the bank holds a sample of your signature, and you hold the pen.
+
+Make a key pair with one command (the `-C` text is just a label so you can recognize the key later):
+
+```text
+$ ssh-keygen -t ed25519 -C "bob@example.invalid"
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/c/Users/bob/.ssh/id_ed25519):
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /c/Users/bob/.ssh/id_ed25519
+Your public key has been saved in /c/Users/bob/.ssh/id_ed25519.pub
+The key fingerprint is:
+SHA256:K0dPmCKtUHGgAxhkNkqSrSfQOVbaJH5p7OqoeoCdXxg bob@example.invalid
+```
+
+Press Enter to accept the file name. When asked for a passphrase, type one: it protects the private key if the
+laptop is lost. Then print the public key and copy it:
+
+```sh
+cat ~/.ssh/id_ed25519.pub
+```
+
+It is one line starting `ssh-ed25519 AAAA...`. In GitLab's web page, open your avatar (top left), then
+*Preferences*, then *SSH Keys*, paste the line into the *Key* box, set an expiry date, and choose *Add key*. Test it:
+
+```sh
+ssh -T git@gitlab.example.com
+```
+
+GitLab answers `Welcome to GitLab, @bob!` and the connection closes. That is all it should do. (This is the one step
+in the chapter that needs your real GitLab server: the practice lessons and every other example here work offline.)
+
+==== A personal access token
+
+Some organizations block SSH and allow only HTTPS (the protocol web pages use). Then you prove your identity with a
+**personal access token**, a long random password created in GitLab for one purpose, with an expiry date. In GitLab:
+avatar, *Preferences*, *Access tokens*, *Add new token*. Give it a name ("Bob's laptop"), an expiry date (the
+enterprise maximum, often 90 days), and only the **scopes** (permissions) it needs: `read_repository` and
+`write_repository` for git. The kit's GitLab client (`gitlab.pl`, [[gitlab-setup]]) also needs `api`.
+
+The first time git asks for a password over HTTPS, give your GitLab user name and paste the token as the password.
+Git for Windows includes a credential manager that stores it in Windows' own protected store, so you are not asked
+again until it expires.
+
+::: warning Never put a token or a private key in a file you might commit
+A token is a password. A private key is a password. Never paste either into a text file, a script, a Vim buffer you
+might save, a chat or an email. If one leaks, revoke it in GitLab at once (the same page that created it) and make a
+new one. The pipeline's secret detection job ([[tools]]) looks for exactly this mistake in every change, and the kit's
+token handling reads tokens from an environment variable, never from a file. The team's rule, from the ISSM's first
+review: *a secret that has been typed into anything other than its one proper place is a secret that has leaked*.
+:::
+
+=== Setting up Vim {#survival-vim}
+
+You already use Vim. The kit adds file types, syntax colors, commands and help for the files this book uses:
+SysML v2 models, stand-up notes, the journal, chat pastes. Turn it on by adding one line to your Vim settings file.
+
+Open your Vim settings file (in Git Bash it is `~/.vimrc`; create it if it does not exist):
+
+```sh
+vim ~/.vimrc
+```
+
+and add these lines (adjust the path if you put the kit somewhere else):
+
+```vim
+syntax on
+filetype plugin indent on
+source ~/projects/agile/vim/scrum.vim
+```
+
+Save and quit (`:wq`), then start Vim again. Check that it worked, in Vim:
+
+```vim
+:help agile
+```
+
+The kit's help opens: the same text as `perl agile.pl help`, in Vim's own help format, with links you follow with
+Ctrl-] and come back from with Ctrl-T. Close it with `:q`. Now open a converted model file and check its type:
+
+```sh
+vim ~/w2s/drop1-v2/stations/Stations.sysml
+```
+
+```vim run expect="filetype=sysml"
+:edit drop1-v2/stations/Stations.sysml
+:set filetype?
+```
+
+Vim answers `filetype=sysml`. The kit's SysML settings are active: four-space indentation, `//` comments, folding
+by braces, and the `:Sys` commands and `\m` keys that [[vim]] teaches. Type `:Sys` and press Tab to see the commands
+cycle through: `:SysLint`, `:SysCheck`, `:SysSyntax`, `:SysTrace` and the others.
+
+=== Shell shortcuts {#survival-alias}
+
+Typing `perl ~/projects/agile/bin/daily.pl` every morning gets old. An **alias** is a short name for a longer command.
+Add these lines to `~/.bashrc` (Git Bash reads it every time it starts):
+
+```sh
+export KIT=~/projects/agile     # the kit, by the name the book and the pipeline use
+alias daily='perl ~/projects/agile/bin/daily.pl'
+alias agile='perl ~/projects/agile/agile.pl'
+alias model='perl ~/projects/agile/tools/sysml/model.pl'
+alias gitlab='perl ~/projects/agile/bin/gitlab.pl'
+```
+
+Close Git Bash and open it again: `echo $KIT` prints the kit's folder, and `daily status` now means the long form. The book always shows the long form,
+so you can see what is being run; use the short form in your own work.
+
+=== GitLab in the browser {#survival-web}
+
+Most of the team's day happens in the terminal and in Vim, but GitLab's web pages are where the shared work is seen:
+issues, merge requests, pipelines, the board, the wiki. Log in to your organization's GitLab (for Tidewater,
+`https://gitlab.example.com`) with your network account.
+
+On a project's page, the left sidebar holds everything this book uses. GitLab moves its menus around between
+versions, so look for the words rather than a position:
+
+|| Look for | What is there | First used in ||
+| *Issues*, *Issue boards* | stories, tasks, discrepancy reports; the board | [[gitlab-setup]] |
+| *Merge requests* | proposed changes, reviews, approvals | [[git]] |
+| *Pipelines*, *Jobs* (under *Build*) | the automated checks on every change | [[cicd]] |
+| *Repository*, *Branches*, *Tags*, *Commits* (under *Code*) | the files and their history | [[git]] |
+| *Wiki* | Definition of Ready and Done, glossary, runbooks | [[operating-model]] |
+| *Milestones* (under *Plan*) | the sprints | [[gitlab-setup]] |
+| *Pages*, *Environments*, *Releases*, *Package registry* (under *Deploy*) | the model site, baselines, prime drops | [[tools]] |
+| *Settings* | the project's rules (maintainers only) | [[gitlab-setup]] |
+Table: Where things are in GitLab's web pages
+
+One setting to change on day one: your notification level. By default GitLab emails you about everything in every
+project you belong to. Avatar, *Preferences*, *Notifications*: set the global level to *Participate* (you get email
+only for things you are involved in or mentioned in). Bob's inbox received 140 GitLab emails in the first two days
+before Tom showed Bob this.
+
+=== When something goes wrong {#survival-trouble}
+
+Everything below happened to someone on the team in the first two weeks.
+
+|| You see | It means | Do this ||
+| `bash: notacommand: command not found` | the shell does not know that command: a typo, or the program is not installed | check the spelling; `which NAME` shows where a program is, if anywhere |
+| `cat: drop1/nosuchfile.txt: No such file or directory` | the path is wrong for the folder you are in | `pwd` and `ls` to see where you are and what is there; use Tab to complete names |
+| `fatal: not a git repository (or any of the parent directories): .git` | you ran a git command outside a repository | `cd` into the repository's folder |
+| `Permission denied (publickey).` | GitLab did not accept your SSH key | check the public key is in your GitLab profile; `ssh -T git@gitlab.example.com` to test |
+| `remote: HTTP Basic: Access denied` | your token is wrong or expired | make a new token; git will ask for it again |
+| a screen of text and nothing responds to typing | you are in the pager (`less`) | press `q` |
+| Vim and you cannot get out | you are in Vim | press Esc, then type `:q!` and Enter (quits without saving) |
+| a command seems frozen | it is still running, or waiting for input | wait, or press Ctrl-C to stop it |
+| `perl: warning: Setting locale failed` | a harmless language setting warning | ignore it, or add `export LC_ALL=C.UTF-8` to `~/.bashrc` |
+| a checksum fails on a file you did not change | line endings were converted | `git config --global core.autocrlf false`, then check out the file again |
+Table: When something goes wrong
+
+=== The day-one checklist {#survival-checklist}
+
+This is Tom's page, as it ended up after the team had used it. Every box was ticked by 10:30 on Monday 5 October.
+
+::: checklist Survival kit: every box ticked before you start
+[ ] Git Bash opens; `pwd` prints your home folder
+[ ] `git --version`, `perl -v`, `vim --version` all print a version
+[ ] the kit is in `~/projects/agile`; `perl tests/run.pl` prints no failed suites
+[ ] `echo $KIT` prints the kit's folder in a new Git Bash window (`~/.bashrc` exports it)
+[ ] `perl $KIT/tools/gitlab/kickoff.pl doctor` prints no FAIL lines
+[ ] `git config --global --list` shows your name, email, `init.defaultbranch=main`, `core.editor=vim`, `core.autocrlf=false`
+[ ] an SSH key exists and `ssh -T git@gitlab.example.com` says Welcome (or a token works over HTTPS)
+[ ] the key or token has an expiry date, and the date is in your calendar
+[ ] `~/.vimrc` sources the kit's `vim/scrum.vim`; `:help agile` opens in Vim
+[ ] a `.sysml` file opens in Vim with `filetype=sysml`
+[ ] aliases for `daily`, `agile`, `model` and `gitlab` work in a new Git Bash window
+[ ] you can log in to GitLab in the browser and see the `tidewater/model` project
+[ ] GitLab notifications are set to *Participate*
+[ ] you can make drop 1 and convert it, and count its TODO lines (52)
+:::
+
+=== Applying this to your project {#survival-apply}
+
+Copy: the checklist, the five git settings, the rule about secrets, and the habit of proving a tool works by
+running its own tests on your machine.
+
+Adapt: the tool list to what your organization has approved. The essential capabilities are a terminal, git, a
+scripting runtime for the converters and checks, an editor you are fluent in, and a browser. If your laptops have
+Python approved and not Perl, the ideas in this book carry over; the commands do not.
+
+Decide locally, before sprint 1: SSH or HTTPS tokens (ask your GitLab administrators and your ISSM together, once);
+where the approved copy of your tools lives and who updates it; and who on the team is the person others ask when
+the terminal does something strange. On Tidewater it was Tom, by default; name yours on purpose.
+
+=== Exercises {#survival-exercises}
+
+::: exercise {#ex-survival-find} Find a requirement
+Using only `grep` on drop 1's `tidewater.csv`, find every requirement whose verification method is Inspection. How
+many are there? Then find which converted `.sysml` file mentions `TW-SYS-012`.
+:::
+
+::: exercise {#ex-survival-count} Count the debt by package
+Using `grep -c` (which counts per file when given several files), print the number of `// TODO` lines in each
+converted file of drop 1. Which package holds most of the conversion debt? Why might that be? (Hint: look at what
+kind of TODO most of them are.)
+:::
+
+::: exercise {#ex-survival-checksum} Break a checksum
+Copy drop 1 to a new folder, change one character in the copy of `tidewater.csv` with Vim, and run the manifest check
+again. What does `sha256sum -c` print? What would you do if this happened to a real delivery?
+:::
+
+::: exercise {#ex-survival-trouble} Make each mistake on purpose
+Make three of the mistakes in [[survival-trouble]] deliberately (a misspelled command, a wrong path, a git command
+outside a repository) and read each error message aloud. The goal is to make the messages familiar while nothing is
+at stake.
+:::

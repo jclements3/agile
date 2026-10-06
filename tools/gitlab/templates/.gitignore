@@ -1,0 +1,47 @@
+# .gitignore for the model repository (tools/gitlab/templates/.gitignore).
+# What the pipeline jobs write in the project directory (ci/job.pl): logs and reports, the Pages site, exports.
+# They are artifacts of a pipeline, kept by GitLab with the pipeline that made them, never committed.
+/grammar.txt
+/grammar.xml
+/grammar-cq.json
+/lint.txt
+/lint.xml
+/lint-cq.json
+/lint.metrics
+/outline.txt
+/outline.xml
+/outline-cq.json
+/outline.metrics
+/todo.txt
+/todo-cq.json
+/todo.metrics
+/trace.txt
+/trace.xml
+/trace.metrics
+/trace-base.txt
+/delta.txt
+/recipe.txt
+/recipe-cq.json
+/recipe.metrics
+/complexity.txt
+/complexity-cq.json
+/complexity.metrics
+/intake.txt
+/intake/
+/vcrm.html
+/vcrm.csv
+/vcrm.xml
+/vcrm.metrics
+/sil.txt
+/hil.txt
+/results-sil.csv
+/results-hil.csv
+/toolchain.txt
+/release-notes.md
+/release.env
+/package-upload/
+/public/
+/exports/
+# editors
+*.swp
+*~

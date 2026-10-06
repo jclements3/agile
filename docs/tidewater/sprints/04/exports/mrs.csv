@@ -1,0 +1,16 @@
+iid,title,author,source,target,created_at,merged_at,lead_hours,labels,state
+1,"CODEOWNERS, issue and MR templates, .gitignore",tom,feature/16-codeowners-and-templates,develop,2026-10-14T15:00:00Z,2026-10-14T17:10:00Z,2.2,workflow::review,merged
+2,"The first pipeline: grammar, lint, outline",tom,feature/37-first-pipeline,develop,2026-10-23T15:00:00Z,2026-10-23T20:10:00Z,5.2,workflow::review,merged
+3,Add the government conventions package,bob,feature/43-add-the-government-conventions-package,develop,2026-10-23T16:30:00Z,2026-10-23T20:00:00Z,3.5,workflow::review,merged
+4,Name the level tags in sysml.conf,bob,feature/44-name-the-level-tags-in-sysml-conf,develop,2026-10-26T15:00:00Z,2026-10-26T18:40:00Z,3.7,workflow::review,merged
+5,Decision records: ADRs 0001-0014,jim,feature/46-decision-records-adrs-0001-0014,develop,2026-10-26T15:45:00Z,2026-10-26T19:15:00Z,3.5,workflow::review,merged
+6,Prime drop v1.0,tom,feature/drop-v1.0,develop,2026-10-27T15:00:00Z,2026-10-29T15:00:00Z,48.0,workflow::review;type::drop;prime-change,merged
+7,"Pipeline: Adds the todo (port burn-down) and docs (generated docs current) jobs, and commits docs/",tom,feature/42-pipeline-adds-the-todo-port-burn-down-an,develop,2026-10-29T15:45:00Z,2026-10-29T19:15:00Z,3.5,workflow::review,merged
+8,Level tags in Network,bob,feature/59-level-tags-in-network,develop,2026-11-04T15:00:00Z,2026-11-04T18:30:00Z,3.5,workflow::review,merged
+9,Replace the Include TODO with an include use case,bob,feature/60-replace-the-include-todo-with-an-include,develop,2026-11-06T15:00:00Z,2026-11-06T20:00:00Z,5.0,workflow::review,merged
+10,Prime drop v1.0 with the DOORS modules,jim,feature/drop-v1.0-doors,develop,2026-11-06T15:45:00Z,2026-11-10T15:00:00Z,95.2,workflow::review;type::drop;prime-change,merged
+11,Pipeline: Adds the trace report (report only for now) and the secrets job,tom,feature/63-pipeline-adds-the-trace-report-report-on,develop,2026-11-06T16:30:00Z,2026-11-06T20:00:00Z,3.5,workflow::review,merged
+12,Break the Network <-> Operations cycle,tom,feature/79-break-the-network-operations-cycle,develop,2026-11-19T15:00:00Z,2026-11-19T18:30:00Z,3.5,workflow::review,merged
+13,Level tags in Stations,bob,feature/76-level-tags-in-stations,develop,2026-11-20T15:00:00Z,2026-11-20T20:00:00Z,5.0,workflow::review,merged
+14,"Pipeline: Adds the pages job: the model site for management, rebuilt on every merge and nightly",tom,feature/81-pipeline-adds-the-pages-job-the-model-si,develop,2026-11-24T15:00:00Z,2026-11-24T18:30:00Z,3.5,workflow::review,merged
+15,Units for Power and Energy,bob,feature/78-units-for-power-and-energy,develop,2026-11-27T15:00:00Z,2026-11-27T18:30:00Z,3.5,workflow::review,merged

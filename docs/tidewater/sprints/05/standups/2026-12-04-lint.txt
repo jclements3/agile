@@ -1,0 +1,4 @@
+standups/2026-12-04-Model-chat.txt:5: ok    Jim: Y/T/B parsed
+standups/2026-12-04-Model-chat.txt:7: ok    Bob: Y/T/B parsed
+standups/2026-12-04-Model-chat.txt:9: ok    Tom: Y/T/B parsed
+# 3 answered, 0 errors, 0 warnings

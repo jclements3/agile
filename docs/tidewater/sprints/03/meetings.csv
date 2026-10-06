@@ -1,0 +1,13 @@
+date,meeting,start,end,attendees
+2026-11-02,kickoff (includes the stand-up),09:00,10:30,Jim; Bob; Tom
+2026-11-03,stand-up,09:00,09:15,Jim; Bob; Tom
+2026-11-04,stand-up,09:00,09:15,Jim; Bob; Tom
+2026-11-05,stand-up,09:00,09:15,Jim; Bob; Tom
+2026-11-06,stand-up,09:00,09:15,Jim; Bob; Tom
+2026-11-09,stand-up,09:00,09:15,Jim; Bob; Tom
+2026-11-10,stand-up,09:00,09:15,Jim; Bob; Tom
+2026-11-12,stand-up,09:00,09:15,Jim; Bob; Tom
+2026-11-12,refinement and planning poker,10:00,11:00,Jim; Bob; Tom
+2026-11-13,stand-up,09:00,09:15,Jim; Bob; Tom
+2026-11-13,sprint review (demo),10:00,11:00,Jim; Bob; Tom; Deputy PM
+2026-11-13,retrospective,11:00,12:00,Jim; Bob; Tom

@@ -1,0 +1,231 @@
+== Preface {#preface}
+
+This book is a parachute drop.
+
+Picture three systems engineers standing at the door of an aircraft. They have spent their careers writing
+specifications, reconciling spreadsheets and briefing chiefs. A few years ago someone handed them a modeling tool
+and told them to put everything they knew into it. They did, by hand, one box and one line at a time. Now the
+jump light is on again. Below them is a place called "MBSE DevSecOps," and they have been told to land there,
+set up camp, and show progress within twelve weeks. They have no map of that place. They have no software
+background. They have never written a pipeline, opened a merge request or resolved a merge conflict. They have
+the clothes on their backs, and one tool they trust: the Vim editor, which all three of them have used for years
+to write notes, edit requirement lists and clean up exported text files.
+
+This book is written for people in that position. It follows Jim, Bob and Tom, the three government engineers
+responsible for the Tidewater system model, through their first twelve weeks. It shows what they did each day,
+what they typed, what broke, what they argued about and what they measured. It also explains, as plainly as we
+can, why each step is worth taking. By the end of the twelve weeks the team has a SysML v2 model under
+configuration control in GitLab, an automated pipeline that checks every change, a trace report that used to take
+two days and now takes seconds, and a management briefing built from measurements instead of opinions. They also,
+somewhat to their own surprise, like working this way. The book tries to show how that change of mind happened,
+without pretending it was easy.
+
+::: note What you have, what you need
+**What you have:** a Windows laptop, the Vim editor, years of systems engineering experience, and a model in a tool
+you were never comfortable with.
+
+**What you need from this preface:** a picture of the people, the system and the calendar, so the rest of the
+book has somewhere to hang. Nothing to install yet; that starts in [[survival]].
+:::
+
+=== Who this book is for {#preface-audience}
+
+You will get the most from this book if you are a systems engineer who:
+
+- knows what a requirement, an interface, a verification method and a baseline are;
+- has worked with documents (a SEMP, an SRS, ICDs), spreadsheets (requirement matrices, trace tables, action item
+  lists) and briefings (design reviews, CCB packages);
+- has seen or used a SysML v1 tool such as Cameo Systems Modeler, even if you did not enjoy it;
+- has been told that the program is "moving to DevSecOps" and is not yet sure what that means for you.
+
+You do not need to know how to program. You will type commands into a terminal, edit text files and read the
+output of automated checks, and the book explains every one of those things the first time it appears. If you
+already know git, GitLab or SysML v2, you can skim the chapters that teach them and spend your time on the case
+study chapters in Part III and the chapters about making the case to management in Part IV.
+
+The book is also for the people around such a team: the program manager who issued the directive and wants to
+know what to expect, the information system security manager (ISSM) who has to approve the new tools, and the
+contractor who delivers the models. Each of them appears in the story, and each chapter notes what they need to
+do and when.
+
+=== How to read this book {#preface-how}
+
+The book has five parts.
+
+- **Part I, Where they start**, tells the team's history: decades of documents, then the Cameo years, then the
+  directive that started this story. It explains DevSecOps in systems engineering words and introduces SysML v2 to
+  people who know SysML v1. Read it first even if you are impatient. The objections raised in Part I are the
+  objections you will hear (or raise) yourself, and the rest of the book answers them one at a time.
+- **Part II, Week zero**, sets everything up: the survival kit on the laptop, git from zero, Vim for models, the
+  operating model, GitLab, the DevSecOps tools worth turning on, the pipeline and the daily rhythm. Part II is the
+  part you type along with.
+- **Part III, Twelve weeks**, is the case study proper: six two-week sprints, one chapter each, with the real
+  issues, merge requests, pipeline logs, stand-up notes and metrics from the run.
+- **Part IV, Making the case**, assembles the twelve-week scorecard, walks through the management briefing slide
+  by slide, and revisits each objection from Part I against the evidence.
+- **Part V, Living with it**, covers what comes after the first twelve weeks: administration, maintenance through
+  the life cycle (every prime contractor delivery, every baseline, the remaining months of the project), and the
+  mistakes to avoid.
+
+The appendices hold a command reference, every template, checklists, a glossary that translates between systems
+engineering, DevSecOps and SysML v2, and answers to the exercises.
+
+=== Type along {#preface-type}
+
+This book is meant to be read with a terminal open. Every command shown in a code block is real and has been run
+against the material that ships with the agile kit this book comes from. When you see
+
+```sh run expect="drop 1 \(v1\.0, 2026-10-02\)" timeout=120
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drop1
+```
+
+type it, press Enter, and compare what you see with what the book shows. (The commands in this book are not only
+shown; they are run: a test in the kit runs every command a reader is told to type, chapter by chapter, against the
+same material, before the book is printed.) If they differ, that is useful
+information: either your setup differs (and [[survival]] will help you find out how), or the material has changed
+since this book was generated. Either way you will learn more from the difference than from reading.
+
+Commands are written for the Git Bash terminal that comes with Git for Windows, because that is what Jim, Bob and
+Tom have on their government laptops. They also work in a Linux terminal. Paths use forward slashes. When a
+command is long it is broken across lines with a trailing backslash, which the shell joins back together.
+
+Vim commands are written the way Vim's own help writes them: `:w` means type a colon, then `w`, then press Enter;
+`\mf` means press the backslash key, then `m`, then `f` in normal mode. The kit's Vim help is always one command
+away: `:help agile`.
+
+::: tip The exercises
+Most chapters end with exercises. Some ask you to type and observe; some ask you to decide something and defend the
+decision. Answers are in [[answers]]. The decision exercises have more than one defensible answer; the answers
+appendix gives the one the team chose and why.
+:::
+
+=== Conventions used in this book {#preface-conventions}
+
+- `Fixed-width text` is something you type or something a program prints: a command, a file name, a line of SysML.
+- A code block that starts with a command is meant to be typed. In a block whose lines start with `$ `, type what
+  follows each `$ ` (not the `$` itself); the other lines are what the command prints.
+- `$KIT` stands for the folder the agile kit is in (`~/projects/agile` on Tidewater's laptops); [[survival]] shows
+  how to set it once, the way the pipeline sets it. File paths without `$KIT` are relative to the folder you are in
+  unless they start with `/` or `~`. `~/w2s` is the practice folder the book uses; use any folder you like.
+- **Bold** marks a term the first time it is defined. The glossary in [[glossary]] has all of them.
+- Boxes are labeled by kind. *Note* and *tip* boxes add detail; *warning* boxes mark a mistake the team made or nearly
+  made; *sidebar* boxes step back from the story; *objection* boxes record a skeptic's argument in the speaker's words,
+  followed by the answer and where the evidence is; *exercise* boxes are for you.
+- Quotations from Jim, Bob and Tom come from the team's notes, retrospectives and stand-up answers, lightly edited.
+- Numbers from the document era are reconstructions and are labeled *notional*. Numbers from the twelve weeks come
+  from the records the tools kept, and each table says where it came from.
+
+=== The system: Tidewater {#preface-tidewater}
+
+Tidewater is a fictional coastal weather-observation network, invented for this book. Nothing in it describes a
+real system, a real program or a real organization, and every number in it is notional.
+
+Tidewater has three segments:
+
+- **Stations.** Moored buoys offshore and shore stations on masts. Each station measures wind, air pressure and
+  air temperature; buoys also measure waves. A buoy runs on its own solar panel and battery and sends its
+  observations over a radio link; when the link is down it keeps them and sends them later.
+- **The data center.** It ingests every observation, checks its quality, archives it with a quality flag, and
+  publishes a marine bulletin on a fixed schedule for forecasters and mariners.
+- **Operations.** A maintenance depot, a service vessel with a deck crane, and a pool of spare parts that keep the
+  stations running.
+
+The system is small on purpose. A real program's model has thousands of elements; Tidewater's v1 model has a few
+hundred. Small enough to read in an afternoon, large enough to have every problem a real model has: requirements
+that nothing satisfies, requirements that nothing verifies, text in the requirements database that no longer
+matches the text in the model, diagrams nobody updates, and packages so tangled that a change in one place
+surprises someone in another.
+
+=== The cast {#preface-cast}
+
+**Jim** is the MBSE lead and the person responsible for the Tidewater system model on the government side. Jim
+owns the big picture: what the model must contain, which work comes first, what "done" means, and what gets
+reported upward. In this story Jim is also the one who received the directive to adopt DevSecOps, which makes Jim
+the person who has to explain it to the other two without fully understanding it yet. Jim has twenty-six years in
+systems engineering, most of them writing and reviewing specifications.
+
+**Bob** is the MBSE engineer. Bob built most of the Cameo model during the document port and knows where every
+block came from, including the ones that should not be there. Bob is the most skeptical member of the team about
+the new direction, and the one whose skepticism is most useful, because Bob asks precise questions: "Who approves a
+change?", "Where is the baseline?", "What happens when the contractor's model changes?"
+
+**Tom** is the configuration management engineer, and in this story becomes the team's DevSecOps engineer. Tom
+volunteered to build the pipeline, mostly because somebody had to and Tom has run the program's CM database for a
+decade. Tom has never written a pipeline, never administered a GitLab project, and never written a line of code
+beyond spreadsheet formulas and Vim macros. Tom likes procedures, checklists and things that can be audited.
+
+Around the team:
+
+- **The program manager** issued the directive and will judge the results at the end of the twelve weeks. The
+  program manager is not hostile, but needs to show the program's leadership that the money spent on tools and
+  training produces something measurable.
+- **The deputy program manager** chairs the configuration control board (CCB) and cares about one question above
+  all: can a change be traced from request to approval to implementation?
+- **The ISSM** (information system security manager) must approve any new tool or data flow on the program's
+  network. The ISSM is careful, busy and, for three days in week six, unreachable.
+- **The prime contractor**, Northwind Marine Systems (fictional), builds Tidewater and maintains the authoritative
+  SysML v1 model in Cameo under a contract data requirement (CDRL A003, "System Model"). The prime delivers the
+  model to the government as "drops": an XMI export of the model, a ReqIF export of the DOORS requirements, a CSV
+  copy of the requirements and a manifest with checksums.
+- **The prime's modeler** is the contractor engineer the team talks to about the content of each drop.
+- **The enterprise GitLab administrators** run the organization's GitLab server. They create groups and projects
+  on request, register runners and enforce the organization's settings. They are helpful and slow.
+
+::: note A note on pronouns
+The book refers to every person by name or by role, and uses "they" when a pronoun is needed.
+:::
+
+=== The calendar {#preface-calendar}
+
+The project in this book lasts eighteen months: thirty-nine two-week sprints from Monday 5 October 2026 to
+Friday 31 March 2028. The first twelve weeks, sprints 1 to 6, are the subject of Part III. The rest of the project
+is summarized in [[maintenance]].
+
+|| Sprint | Dates | What happens ||
+| 1 | 5 to 16 Oct 2026 | GitLab project created; the first pipeline; drop 1 received and assessed |
+| 2 | 19 to 30 Oct 2026 | drop 1 imported through the vendor branch; every change gated |
+| 3 | 2 to 13 Nov 2026 | Network and Types cleaned up; DOORS requirements imported; the hardest week for morale |
+| 4 | 16 to 27 Nov 2026 | Stations cleaned up; gaps reported to the prime; the model site shown to management |
+| 5 | 30 Nov to 11 Dec 2026 | Data center and operations cleaned up; release procedure rehearsed |
+| 6 | 14 to 25 Dec 2026 | behavior work starts; interim baseline; the management briefing |
+| 7 to 20 | Dec 2026 to Jul 2027 | the port completed; drops 2 and 3 absorbed; baseline 1 accepted |
+| 17 to 39 | May 2027 to Mar 2028 | maintenance against drops 4 to 7; baselines 2 and 3 |
+Table: The eighteen months at a glance (the twelve weeks are sprints 1 to 6)
+
+The prime delivers seven drops over the eighteen months:
+
+|| Drop | Version | Delivered | What changed upstream ||
+| 1 | v1.0 | Fri 2 Oct 2026 | the model at contract start |
+| 2 | v1.1 | Fri 8 Jan 2027 | a humidity sensor and its requirement; one requirement text corrected |
+| 3 | v1.2 | Fri 2 Apr 2027 | a storm mode in the buoy's state machine; a fuse; clutter removed |
+| 4 | v1.3 | Fri 2 Jul 2027 | drifting buoys; salinity in the observation record; a missing requirement added |
+| 5 | v1.4 | Fri 1 Oct 2027 | a changed energy constraint; an activity renamed |
+| 6 | v1.5 | Fri 7 Jan 2028 | data sharing with partner agencies; the legacy import package removed |
+| 7 | v1.6 | Fri 3 Mar 2028 | missing verifications added; editorial fixes |
+Table: The prime contractor's drops
+
+Federal holidays fall inside the twelve weeks on 12 October, 11 November, 26 November and 25 December, and each
+team member takes some leave. The plans in Part III account for both, because a plan that ignores the calendar is
+the first thing a skeptic will pick apart.
+
+=== What "done" looks like after twelve weeks {#preface-done}
+
+So that you know where the story is going, here is the state of things at the end of sprint 6, in the terms the
+program manager asked for:
+
+- every change to the model goes through a merge request, is checked automatically by a pipeline, and is approved
+  by a code owner other than its author; nothing reaches the integration branch any other way;
+- the model's conversion debt, the number of places where the converter could not carry a SysML v1 construct into
+  SysML v2, is measured on every change and has fallen sprint by sprint;
+- the trace between the DOORS requirements and the model is computed on every change, including the text drift
+  between them that nobody had ever checked systematically;
+- every problem in the contractor's model is tracked as a discrepancy report with an owner, a due drop and a
+  closing condition;
+- an interim baseline is tagged, reproducible and published with release notes;
+- the team can show all of the above in a browser, live, in a management review, instead of in screenshots pasted
+  into slides.
+
+None of these things require the team to become software developers. They require the team to do what systems
+engineers already know how to do (control configuration, trace requirements, review changes, verify) with tools
+that make those things cheap instead of expensive. That is the argument of this book, and the twelve weeks are the
+evidence.

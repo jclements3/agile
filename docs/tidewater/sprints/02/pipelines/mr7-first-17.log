@@ -1,0 +1,81 @@
+pipeline #17 (merge_request_event, refs/merge-requests/7/merge) success, 5 jobs, 96.9 s
+
+==== grammar          check    success   45.1 s
+$ perl ci/job.pl grammar
+$ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
+sysml: 14 file(s), 0 error(s)
+$ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
+ci-reports grammar: 14 check(s), 0 failed, 0 finding(s); grammar_files=14 grammar_errors=0
+
+==== lint             check    success   39.1 s
+$ perl ci/job.pl lint
+$ perl $KIT/tools/sysml/model.pl lint
+lint: 14 file(s), 0 error(s), 0 warning(s)
+elements=148 errors=0 warnings=0
+$ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
+ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=148 lint_errors=0 lint_warnings=0
+
+==== outline          check    success   14.2 s
+$ perl ci/job.pl outline
+$ perl $KIT/tools/sysml/model.pl check
+
+== Level tags ==
+@L tag mismatches         0
+
+== Outline (2..9 children per parent) ==
+violations                17
+    1  directory entries  (model/analysis/)
+    1  package Analysis: members  (model/analysis/Analysis.sysml)
+    1  directory entries  (model/legacy/)
+    1  part def Battery_old: parts  (model/legacy/Legacy_Import.sysml)
+    1  directory entries  (model/logical/)
+    1  directory entries  (model/physical/allocation/)
+    1  directory entries  (model/physical/datacenter/)
+    1  directory entries  (model/physical/network/)
+    1  directory entries  (model/physical/operations/)
+    1  part def ServiceVessel: parts  (model/physical/operations/Operations.sysml)
+    1  directory entries  (model/physical/stations/)
+   25  package Stations: members  (model/physical/stations/Stations.sysml)
+    1  part def Battery: parts  (model/physical/stations/Stations.sysml)
+    1  directory entries  (model/requirements/)
+    1  directory entries  (model/requirements/model/)
+   32  package Requirements: members  (model/requirements/model/Requirements.sysml)
+    1  directory entries  (model/verification/)
+$ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality outline-cq.json --metrics outline.metrics outline.txt
+ci-reports outline: 2 check(s), 1 failed, 17 finding(s); level_tag_mismatches=0 outline_violations=17
+outline violations: 17 (allowed: 17)
+
+==== todo             check    success    7.2 s
+$ perl ci/job.pl todo
+TODO lines remaining: 52
+$ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model
+ci-reports todo: 1 check(s), 0 failed, 52 finding(s); todo_lines=52 todo_lines_analysis=2 todo_lines_library=4 todo_lines_logical=4 todo_lines_physical=42
+
+==== docs             docs     success   31.8 s
+$ perl ci/job.pl docs
+$ perl $KIT/tools/sysml/model.pl docs
+wrote docs/Nouns.md (38 lines)
+wrote docs/Verbs.md (7 lines)
+wrote docs/idef0/ObserveCoast.md
+1 file(s): 0 error(s), 0 warning(s), 1 model(s), 6 activities, 0 link(s)
+wrote docs/idef0/plates.html
+wrote docs/idef0/INTERFACES
+wrote docs/idef0/svg/plate-O-0.svg
+wrote docs/idef0/svg/plate-O0.svg
+trace: 30 requirements (30 leaf), 6 not satisfied, 9 not verified -> docs/Traceability.md
+  TW-STK-001: not verified
+  TW-STK-002: not verified
+  TW-STK-003: not verified
+  TW-STK-004: not verified
+  TW-STK-005: not verified
+  TW-STK-006: not verified
+  TW-SYS-008: not satisfied
+  TW-SYS-009: not satisfied
+  TW-SYS-010: not satisfied
+  TW-SYS-011: not verified
+  TW-SYS-012: not satisfied
+  TW-SYS-014: not satisfied
+  TW-SEG-002: not verified
+  TW-SEG-003: not satisfied
+  TW-SEG-009: not verified
+docs/ is current

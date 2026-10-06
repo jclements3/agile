@@ -1,0 +1,6 @@
+jim draft:  Y TW-72 First sprint review with the program...: 1 of 2 tasks done. Reviewed !14. T TW-72 agree the delivery interface with the prime..., by Fri. B none
+jim posted: Y TW-72 First sprint review with the program: 1 of 2 tasks done. Reviewed !14. T TW-72 agree the delivery interface with the prime, by Fri. B none
+bob draft:  Y none T TW-68 value types specialize ISQ quantities, by Fri. B none
+bob posted: Y none T TW-68 value types specialize ISQ quantities, by Fri. B none
+tom draft:  Y TW-71 The model site on GitLab Pages,...: done (1 task). T TW-66 the Day-9 demo rehearsal, by Fri. B none
+tom posted: Y TW-71 The model site on GitLab Pages,: done (1 task). T TW-66 the Day-9 demo rehearsal, by Fri; pairing with Jim after lunch. B none

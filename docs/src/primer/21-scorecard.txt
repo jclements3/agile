@@ -1,0 +1,231 @@
+== The twelve-week scorecard {#scorecard}
+
+::: survival Before you start
+What you have: the twelve measures the program manager signed on 1 October ([[directive-scorecard]]), and a
+scorecard file the pipeline and the journal filled in at the end of every sprint.
+
+What you need: to read the scorecard the way a skeptical manager will: measure by measure, before against after,
+including the measures that did not move.
+:::
+
+The scorecard was the team's insurance. Bob had said it in the first week: "If we don't write down now what counts
+as progress, in December they'll judge us on whatever they happen to look at." So the measures were agreed before
+sprint 1, each with a definition, a source and a target, and each sprint's numbers were written by the system into
+`docs/tidewater/sprints/NN/scorecard.json`. Nobody typed them. This chapter reads the last of those files against
+the first, measure by measure.
+
+=== The whole scorecard on one page {#scorecard-table}
+
+|| # | Measure | Target | Before (document era, notional) | Sprint 1 | Sprint 6 | Met? ||
+| 1 | Conversion debt: TODO lines left | structure closed, behavior started | not applicable | {{value: docs/tidewater/sprints/01/scorecard.json 1_todo_lines}} (nothing imported yet) | {{value: docs/tidewater/sprints/06/scorecard.json 1_todo_lines}} | yes |
+| 2 | Change lead time, median hours | under 3 working days | {{value: docs/tidewater/sprints/06/scorecard.json document_era_baseline_notional.ccb_change_working_days}} working days | {{value: docs/tidewater/sprints/01/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/06/scorecard.json 2_lead_time_hours}} | yes |
+| 3 | Gated changes | 100% | not measured | {{value: docs/tidewater/sprints/01/scorecard.json 3_gated_changes}} | {{value: docs/tidewater/sprints/06/scorecard.json 3_gated_changes}} | yes, from sprint 2 |
+| 4 | Trace answer time, seconds | under one minute | {{value: docs/tidewater/sprints/06/scorecard.json document_era_baseline_notional.unverified_question_days}} working days | not yet | {{value: docs/tidewater/sprints/06/scorecard.json 4_trace_answer_seconds}} | yes |
+| 5 | Trace measures | computed on every change, every gap owned | computed at reviews only | not yet | linked {{value: docs/tidewater/sprints/06/scorecard.json 5_trace.C}}, completeness {{value: docs/tidewater/sprints/06/scorecard.json 5_trace.I}} | yes (computed); the gaps are the prime's |
+| 6 | Discrepancy reports to the prime | every gap reported | ad hoc emails | {{value: docs/tidewater/sprints/01/scorecard.json 6_drs.opened}} | {{value: docs/tidewater/sprints/06/scorecard.json 6_drs.opened}} opened, {{value: docs/tidewater/sprints/06/scorecard.json 6_drs.closed}} closed | yes |
+| 7 | Spider web: package cycles | none | see [[cameo]] | not yet | {{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.cycles}} | no |
+| 8 | Pipeline health: passing on develop | above 90%, restore within a day | not applicable | not yet | {{value: docs/tidewater/sprints/06/scorecard.json 8_pipeline_health.passing}} of {{value: docs/tidewater/sprints/06/scorecard.json 8_pipeline_health.develop_pipelines}}, worst restore {{value: docs/tidewater/sprints/06/scorecard.json 8_pipeline_health.worst_restore_hours}} h | yes |
+| 9 | Reproducible baselines | interim baseline tagged and reproducible | revision letters | {{value: docs/tidewater/sprints/01/scorecard.json 9_baselines.tagged}} | {{value: docs/tidewater/sprints/06/scorecard.json 9_baselines.reproducible}} of {{value: docs/tidewater/sprints/06/scorecard.json 9_baselines.tagged}} | yes |
+| 10 | Review turnaround, median hours | under 1 working day | {{value: docs/tidewater/sprints/06/scorecard.json document_era_baseline_notional.model_review_weeks}} weeks per review package | {{value: docs/tidewater/sprints/01/scorecard.json 10_review_turnaround_hours}} | {{value: docs/tidewater/sprints/06/scorecard.json 10_review_turnaround_hours}} | yes |
+| 11 | Delivery against plan | 80% or better | not measured | {{value: docs/tidewater/sprints/01/scorecard.json 11_delivery.pct}}% | {{value: docs/tidewater/sprints/06/scorecard.json 11_delivery.pct}}% | partly: two sprints below |
+| 12 | Team morale (pulse, 1 to 5) | 3.5 or better, rising | not measured | {{value: docs/tidewater/sprints/01/scorecard.json 12_morale}} | {{value: docs/tidewater/sprints/06/scorecard.json 12_morale}} | yes, from sprint 5 |
+Table: The twelve-week scorecard, sprint 1 against sprint 6. "Before" values are notional, from the program's last document-era review cycle.
+
+Ten measures met their target, one partly, one not. The rest of this chapter takes them in turn, starting with the
+ones a skeptic will ask about first.
+
+To see the source for yourself, open the last scorecard file in the Tidewater sandbox:
+
+```sh run sandbox=tidewater expect="1_todo_lines"
+cat sprints/06/scorecard.json
+```
+
+=== Conversion debt: the TODO burn-down {#scorecard-todo}
+
+The converter leaves a `// TODO` line for every v1 construct it cannot carry. Counting those lines on every change
+was the team's port burn-down ([[pipeline]]). Nothing was imported in sprint 1, so the first count arrived with
+drop 1 in sprint 2:
+
+|| After sprint | TODO lines left ||
+| 2 | {{value: docs/tidewater/sprints/02/scorecard.json 1_todo_lines}} |
+| 3 | {{value: docs/tidewater/sprints/03/scorecard.json 1_todo_lines}} |
+| 4 | {{value: docs/tidewater/sprints/04/scorecard.json 1_todo_lines}} |
+| 5 | {{value: docs/tidewater/sprints/05/scorecard.json 1_todo_lines}} |
+| 6 | {{value: docs/tidewater/sprints/06/scorecard.json 1_todo_lines}} |
+Table: TODO lines left on develop, from the pipeline's todo job.
+
+The steep fall in sprint 4 is the Stations package: most of its level tags closed in one story. The lines left at
+the end are behavior and analysis, the constructs the converter never carries: the BuoyModes state machine (carried
+into sprint 7), the energy-balance expression, and the profile note. You can count them yourself on the integration
+branch:
+
+```sh run expect="5"
+git clone -q -b develop gitlab/repos/tidewater/model.git port
+grep -rh "// TODO" port/model --include=*.sysml | grep -vc "generated by"
+```
+
+=== Flow: lead time, review and gating {#scorecard-flow}
+
+These three are the measures that changed the program manager's mind, because the document-era numbers beside them
+are measured in working days and weeks. A requirement change used to take
+{{value: docs/tidewater/sprints/06/scorecard.json document_era_baseline_notional.ccb_change_working_days}} working
+days through the CCB; a model change now goes from the first commit to merged in a median of
+{{value: docs/tidewater/sprints/06/scorecard.json 2_lead_time_hours}} hours, and every one of them was checked by
+the pipeline and approved by a code owner who did not write it. [[analytics]] shows the sprint-by-sprint trend.
+
+Two cautions keep this honest. First, the comparison is not like for like: a CCB change carried a requirement
+through several organizations, while a merge request carries one model change through one team. The fair claim is
+that the team's own part of the work is now measured in hours. Second, the baseline numbers are notional, taken from
+the program's last document-era cycle as the team remembered it; they were never measured the way the new numbers
+are. The scorecard says so in its own file, under `document_era_baseline_notional`.
+
+=== Trace: computed every time, and flat {#scorecard-trace}
+
+The trace job compares the prime's DOORS export with the model on every change. Its measures did not move in twelve
+weeks, and they were not supposed to.
+
+|| Measure | Value at sprint 6 ||
+| C: requirements linked | {{value: docs/tidewater/sprints/06/scorecard.json 5_trace.C}} |
+| F: orphans (nothing satisfies them) | {{value: docs/tidewater/sprints/06/scorecard.json 5_trace.F}} |
+| G: unverified (no verification case) | {{value: docs/tidewater/sprints/06/scorecard.json 5_trace.G}} |
+| I: completeness | {{value: docs/tidewater/sprints/06/scorecard.json 5_trace.I}} |
+| Text drift between DOORS and the model | {{value: docs/tidewater/sprints/06/scorecard.json 5_trace.drift}} |
+Table: Trace measures at the end of sprint 6, identical to sprint 2.
+
+The gaps were planted in the prime's model before the government touched it: two requirements nothing satisfies, a
+set without verification cases, one requirement whose DOORS wording differs from the model. They are the prime's to
+fix, through discrepancy reports, and the drops that close them arrive from January. A government team that edited
+the v2 model to close them would have made its model disagree with the contractual baseline. So the right twelve-week
+result is not "coverage went up"; it is "every gap is found by a program on every change, and every gap has a
+discrepancy report with an owner and a due drop." That is what measure 5 asked for.
+
+::: warning Two different "verify coverage" numbers
+The scorecard counts requirements that have a *verification case* (G above: the rest are covered, which is the
+seventy percent the reviews quote). The verification matrix, new in the last sprint, also counts requirements with a
+*passing recorded result*, and on that definition almost none qualify yet (the "Verification" line of the baseline-0
+release notes gives the count): the prime's test results only start arriving with drop 4. The `talk.pl review` draft for sprint 6 quoted the
+matrix number as if it were the scorecard's and announced a collapse. Name the definition every time you say
+"coverage."
+:::
+
+=== Discrepancy reports {#scorecard-drs}
+
+By the end of sprint 6 the team had opened
+{{value: docs/tidewater/sprints/06/scorecard.json 6_drs.opened}} discrepancy reports to the prime and closed
+{{value: docs/tidewater/sprints/06/scorecard.json 6_drs.closed}}. Closed zero sounds bad and is correct: a
+discrepancy report closes when a prime drop fixes the problem, and the first drop after the port started arrives in
+January ([[prime-changes]]). What management should see is that every gap the trace found became a written,
+numbered, dated request to the prime within a sprint, where in the document era such gaps went into an email, if
+anywhere.
+
+=== The spider web: better, not gone {#scorecard-spider}
+
+Measure 7 is the one the team did not meet, and the briefing said so.
+
+|| After sprint | Package cycles | Duplicates | Max fan-out | Max relationships per part ||
+| 2 | {{value: docs/tidewater/sprints/02/scorecard.json 7_spider_web.cycles}} | {{value: docs/tidewater/sprints/02/scorecard.json 7_spider_web.duplicates}} | {{value: docs/tidewater/sprints/02/scorecard.json 7_spider_web.max_fan_out}} | {{value: docs/tidewater/sprints/02/scorecard.json 7_spider_web.max_relationships_per_part}} |
+| 3 | {{value: docs/tidewater/sprints/03/scorecard.json 7_spider_web.cycles}} | {{value: docs/tidewater/sprints/03/scorecard.json 7_spider_web.duplicates}} | {{value: docs/tidewater/sprints/03/scorecard.json 7_spider_web.max_fan_out}} | {{value: docs/tidewater/sprints/03/scorecard.json 7_spider_web.max_relationships_per_part}} |
+| 4 | {{value: docs/tidewater/sprints/04/scorecard.json 7_spider_web.cycles}} | {{value: docs/tidewater/sprints/04/scorecard.json 7_spider_web.duplicates}} | {{value: docs/tidewater/sprints/04/scorecard.json 7_spider_web.max_fan_out}} | {{value: docs/tidewater/sprints/04/scorecard.json 7_spider_web.max_relationships_per_part}} |
+| 5 | {{value: docs/tidewater/sprints/05/scorecard.json 7_spider_web.cycles}} | {{value: docs/tidewater/sprints/05/scorecard.json 7_spider_web.duplicates}} | {{value: docs/tidewater/sprints/05/scorecard.json 7_spider_web.max_fan_out}} | {{value: docs/tidewater/sprints/05/scorecard.json 7_spider_web.max_relationships_per_part}} |
+| 6 | {{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.cycles}} | {{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.duplicates}} | {{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.max_fan_out}} | {{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.max_relationships_per_part}} |
+Table: Spider-web measures of the v2 model, from the pipeline's complexity job.
+
+Three things happened. The worst block, ObservingStation, lost its trace spaghetti in sprint 5: the maximum
+relationships per part fell to less than half. Sprint 4 attacked both package cycles from [[cameo]]. The Network and
+Operations cycle is gone. The DataCenter and Stations cycle is not: the story removed the dependency it was written
+against (QualityControl on SensorSuite), and the complexity job still reports `cycles: DataCenter <-> Stations`,
+so another reference between the two packages remains. The team reported that at the review rather than declaring
+the story's goal met, and finding the remaining edge went into the sprint 7 backlog. And the "duplicates" column
+jumped in sprint 3, when the DOORS modules were
+imported: the model now holds each requirement twice, once as the Cameo copy and once as the DOORS module's
+conversion. That doubling is deliberate (DOORS is authoritative, and the trace compares the two), but the measure
+cannot tell a deliberate copy from clutter. The team reported the number as it was and explained it, rather than
+redefining the measure to make the column look better. [[no-spider-web]] covers what it would take to finish.
+
+=== Pipeline health and baselines {#scorecard-pipeline}
+
+In sprint 6, {{value: docs/tidewater/sprints/06/scorecard.json 8_pipeline_health.passing}} of
+{{value: docs/tidewater/sprints/06/scorecard.json 8_pipeline_health.develop_pipelines}} pipelines on `develop`
+passed. The one failure was the night the runner's disk filled up; the worst time from red to green was
+{{value: docs/tidewater/sprints/06/scorecard.json 8_pipeline_health.worst_restore_hours}} hours, inside the one
+working day the scorecard allowed. The interim baseline-0 was tagged on 24 December, and the pipeline's baseline job
+rebuilt it and matched the checksum recorded in the tag. In the document era a baseline was a revision letter on a
+cover page, and nobody could rebuild one.
+
+=== Delivery and morale {#scorecard-people}
+
+Delivery against plan was the measure that kept the team honest about its own estimates:
+
+|| Sprint | Committed points | Done points | Done % | Pulse (1 to 5) ||
+| 1 | {{value: docs/tidewater/sprints/01/scorecard.json 11_delivery.committed}} | {{value: docs/tidewater/sprints/01/scorecard.json 11_delivery.done}} | {{value: docs/tidewater/sprints/01/scorecard.json 11_delivery.pct}} | {{value: docs/tidewater/sprints/01/scorecard.json 12_morale}} |
+| 2 | {{value: docs/tidewater/sprints/02/scorecard.json 11_delivery.committed}} | {{value: docs/tidewater/sprints/02/scorecard.json 11_delivery.done}} | {{value: docs/tidewater/sprints/02/scorecard.json 11_delivery.pct}} | {{value: docs/tidewater/sprints/02/scorecard.json 12_morale}} |
+| 3 | {{value: docs/tidewater/sprints/03/scorecard.json 11_delivery.committed}} | {{value: docs/tidewater/sprints/03/scorecard.json 11_delivery.done}} | {{value: docs/tidewater/sprints/03/scorecard.json 11_delivery.pct}} | {{value: docs/tidewater/sprints/03/scorecard.json 12_morale}} |
+| 4 | {{value: docs/tidewater/sprints/04/scorecard.json 11_delivery.committed}} | {{value: docs/tidewater/sprints/04/scorecard.json 11_delivery.done}} | {{value: docs/tidewater/sprints/04/scorecard.json 11_delivery.pct}} | {{value: docs/tidewater/sprints/04/scorecard.json 12_morale}} |
+| 5 | {{value: docs/tidewater/sprints/05/scorecard.json 11_delivery.committed}} | {{value: docs/tidewater/sprints/05/scorecard.json 11_delivery.done}} | {{value: docs/tidewater/sprints/05/scorecard.json 11_delivery.pct}} | {{value: docs/tidewater/sprints/05/scorecard.json 12_morale}} |
+| 6 | {{value: docs/tidewater/sprints/06/scorecard.json 11_delivery.committed}} | {{value: docs/tidewater/sprints/06/scorecard.json 11_delivery.done}} | {{value: docs/tidewater/sprints/06/scorecard.json 11_delivery.pct}} | {{value: docs/tidewater/sprints/06/scorecard.json 12_morale}} |
+Table: Delivery and morale by sprint, from the journal and the retrospectives.
+
+Two sprints fell below the eighty percent target, and both for the same reason: a story carried over. In sprint 4
+the Stations walk-through moved to sprint 5; in sprint 6 the hand-written BuoyModes state machine moved to sprint 7.
+Both were the hardest engineering of their sprint, and in both cases the team chose to finish the work properly
+rather than to call it done. The journal records the carry; the quad marks the story as late.
+
+The pulse survey asked the same five questions at every retrospective. It started at
+{{value: docs/tidewater/sprints/01/scorecard.json 12_morale}}, dipped to
+{{value: docs/tidewater/sprints/03/scorecard.json 12_morale}} in sprint 3 (a grammar error on a hand edit and a
+three-day wait for the ISSM, the same week), and ended at
+{{value: docs/tidewater/sprints/06/scorecard.json 12_morale}}. [[minds]] tells that story; the scorecard only says
+it was measured every sprint, by the same questions, and reported even when it was low.
+
+=== Measures beyond the twelve {#scorecard-beyond}
+
+The sprint files carry three more numbers that the team found useful, though they were not on the signed scorecard:
+
+- **Work mix.** The share of done points that was engineering, platform or learning, by sprint. It opens this book
+  ([[bluf]]): engineering grew from a quarter of sprint 1 to most of sprint 6.
+- **Stand-up outcome share.** The share of stand-up lines that stated an outcome and a number. It went from
+  {{value: docs/tidewater/sprints/01/scorecard.json standup_outcome_share}} in sprint 1 to
+  {{value: docs/tidewater/sprints/06/scorecard.json standup_outcome_share}} from sprint 4 on ([[talking]]). Sprint 2
+  scored lower than sprint 1 because sprint 1's statuses happened to quote counts while sprint 2's described
+  mechanism.
+- **First-pipeline pass rate.** How many merge requests passed their checks on the first try:
+  {{value: docs/tidewater/sprints/06/scorecard.json first_pipeline_pass.passed}} of
+  {{value: docs/tidewater/sprints/06/scorecard.json first_pipeline_pass.mrs}} in sprint 6. A failure on the first
+  pipeline is the system working; the measure shows how much the checks are doing.
+
+=== What the scorecard does not say {#scorecard-not}
+
+A scorecard is a set of chosen numbers. This one does not measure the quality of the engineering decisions (whether
+the cycle break put ObservationRecord in the right package), it does not compare cost with the document era, and its
+"before" column is memory, not measurement. The team said so in the briefing. A scorecard that admits its limits is
+easier to believe than one that does not.
+
+::: exercise Read it like a skeptic
+Pick the three measures you would challenge first if you were the program manager. For each, write the question you
+would ask and find the evidence file that answers it.
+:::
+
+::: exercise The measure that missed
+Measure 7 was not met. Draft the two sentences Jim should say about it in the briefing: what happened, and what
+the plan is. Compare with [[briefing]].
+:::
+
+::: exercise Your own baseline
+For your program, write down the document-era equivalent of measures 2, 4 and 10, with where the number comes from.
+Mark each one "measured" or "remembered."
+:::
+
+=== You can now {#scorecard-can-now}
+
+- read a sprint's scorecard file and trace each value to the job or record that produced it;
+- explain why trace coverage stays flat during a port, and why that is the right result;
+- separate a measure that missed for a good reason from one that missed for a bad one, and say which is which;
+- present a scorecard that includes its misses and its limits.
+
+=== Applying this to your project {#scorecard-applying}
+
+Write your scorecard before sprint 1, with a definition, a source and a target for each measure, and have the
+program manager sign it. Make the pipeline and the journal write it at every sprint end, so no number is typed.
+Include at least one measure you might miss, and one that measures the team rather than the model. Keep the
+"before" column honest: label remembered numbers as notional, and replace them with measured ones the first time you
+can.

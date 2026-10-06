@@ -1,0 +1,26 @@
+2026-10-06
+  10:00 jim  closed #8 Practice lessons 10-11; the operating model chapter
+  10:45 bob  closed #9 Practice lessons 10-11; the survival kit, git and Vim chapters
+  11:30 tom  closed #10 Practice lessons 10-11; the survival kit, git and Vim chapters
+2026-10-08
+  10:00 jim  closed #11 Set up Jim's laptop; kickoff.pl doctor
+  10:45 bob  closed #12 Set up Bob's laptop; kickoff.pl doctor
+  11:30 tom  closed #13 Set up Tom's laptop; kickoff.pl doctor
+2026-10-09
+  10:00 bob  closed #21 Run both converters with --report on drop 1
+  10:45 tom  closed #14 Apply project.conf with gitlab.pl setup; request the runner
+2026-10-13
+  10:00 tom  closed #15 Prove a direct push to develop is refused
+  10:45 jim  closed #19 Log the CDRL delivery and check the sha256 of every file
+  11:30 bob  closed #22 Write the TODO inventory by package
+2026-10-14
+  10:00 tom  opened !1 CODEOWNERS, issue and MR templates, .gitignore (pipeline none)
+  10:45 jim  closed #20 Open the Prime Drop issue with its checklist
+  11:30 bob  closed #23 Estimate the port backlog with the team
+  12:10 tom  closed #16 Commit CODEOWNERS, the templates and .gitignore
+  12:10 tom  merged !1
+2026-10-15
+  10:00 tom  closed #17 Draft .gitlab-ci.yml: grammar, lint, outline
+  10:45 jim  closed #24 Write the Definition of Ready and Done in the wiki
+2026-10-16
+  10:00 tom  closed #18 Run the draft locally on drop 1 with gitlab.pl ci

@@ -1,0 +1,6 @@
+jim draft:  Y TW-111 Learn: memos and briefings from the...: done (1 task). T TW-116 enter and sign the inspection verdicts, by Dec 24. B none
+jim posted: Y TW-111 Learn: memos and briefings from the: done (1 task). T TW-116 enter and sign the inspection verdicts, by Dec 24. B none
+bob draft:  Y none T TW-112 write the BuoyModes state def; exhibit it on..., by Dec 24. B none
+bob posted: Y none T TW-112 (first thing: read the review comments) write the BuoyModes state def; exhibit it on, by Dec 24. B none
+tom draft:  Y none T TW-114 level tags in Operations, by Dec 24. B none
+tom posted: Y none T TW-114 (first thing: read the review comments) level tags in Operations, by Dec 24. B none

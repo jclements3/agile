@@ -144,6 +144,40 @@ my $proj = tempdir(CLEANUP => 1);
     chdir $cwd;
 }
 
+# ---- daily.pl chat: lines with no task team of their own go under default_team (or the team in the file name)
+for my $case (['default_team', 'Alpha', '2026-09-24-chat.txt', 'Alpha'], ['file name', '', '2026-09-24-Beta-chat.txt', 'Beta'], ['none', '', '2026-09-24-chat.txt', undef]) {
+    my ($label, $dt, $file, $want) = @$case;
+    my $p = tempdir(CLEANUP => 1);
+    my $cwd = getcwd;
+    chdir $p or die;
+    qx("$^X" "$root/bin/daily.pl" init .);
+    copy("$root/examples/scrum.txt", 'scrum.txt') or die $!;
+    if ($dt) { open my $c, '<', 'scrum.conf' or die; my $conf = do { local $/; <$c> }; close $c; $conf =~ s/^default_team\s*=.*$/default_team = $dt/m; open $c, '>', 'scrum.conf' or die; print $c $conf; close $c }
+    open my $w, '>', "standups/$file" or die; print $w "[9:00 AM] JC\n#est NEW-1 a story not in the journal yet\n[9:01 AM] Ann\n5\n[9:01 AM] Bob\n5\n"; close $w;
+    ($rc, $o) = dcli('--today', '2026-09-24', 'chat', "standups/$file");
+    my $su = do { open my $r, '<', 'standups/2026-09-24.txt' or die; local $/; <$r> };
+    if (defined $want) {
+        has "daily chat team header ($label)", $su, qr/\n; ---- chat 2026-09-24\n== \Q$want\E\n; est NEW-1 5   ; consensus/;
+        S "daily chat no team warning ($label)", 0, ($o =~ /no team for est lines/ ? 1 : 0);
+    } else {
+        has "daily chat bare header only without a team ($label)", $su, qr/\n; ---- chat 2026-09-24\n==\n; est NEW-1 5/;
+        has "daily chat says how to name the team ($label)", $o, qr/chat: no team for est lines of tasks not in the journal yet: set default_team in scrum\.conf or name the chat file DATE-Team-chat\.txt/;
+    }
+    chdir $cwd;
+}
+
+# ---- a comment in a round is discussion, not a vote (the documented answer forms only)
+S 'norm_est discussion is not a vote', '[undef,undef,undef,undef,8,5,8,3]',
+  [ map { norm_est($_) } 'that is not 3 days', 'not 3 days, it is bigger', 'RPT-9 is big', 'maybe 3 if the runner works', '8, maybe', 'make it 5', "I'd say 8", '3 pts.' ];
+{
+    my @rr = rounds(parse_chat("[10:05 AM] Jim\n#est TW-7 docs job\n[10:06 AM] Tom\n3\n[10:06 AM] Bob\n8\n[10:06 AM] Jim\n3\n[10:09 AM] Bob\nthe docs job warned on our model. that is not 3 days\n[10:10 AM] Cy\nfive or eight, no idea\n"));
+    my $tt = tally($rr[0]);
+    S 'comment keeps the vote', '{"Bob":8,"Jim":3,"Tom":3}', $tt->{answers};
+    S 'comment is discussion', '["Bob","Cy"]', [ map { $_->{who} } @{ $rr[0]{discussion} } ];
+    S 'no readable answer is reported', '[["Cy","five or eight, no idea"]]', $tt->{unparsed};
+    has 'tally text names it', tally_text($tt), qr/could not read: Cy 'five or eight, no idea'/;
+}
+
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";
 exit($bad ? 1 : 0);

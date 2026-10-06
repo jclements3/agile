@@ -1,0 +1,391 @@
+== Your project in twelve weeks: a playbook {#playbook}
+
+::: survival Your turn
+What you have: this book's account of what three engineers did with Tidewater, the kit, and a program of your own
+with a model in Cameo (or in documents), a supplier who keeps changing it, and a manager who wants to see progress.
+
+What you need: a plan for your own first twelve weeks that keeps what worked on Tidewater, drops what was specific
+to it, and starts on Monday. This chapter is that plan, with the decisions you have to make locally and the
+commands that set it up.
+:::
+
+Tidewater is a worked example, not a template to copy word for word. Your program has a different system, a
+different supplier, a different network, different people. What carries over is the shape: a week of setup, two
+sprints of building the shop while learning to use it, four sprints in which the engineering takes over, and a
+briefing at the end built from measurements. This chapter gives that shape in generic terms, marks every decision
+that is yours to make, and shows the kit's path through week zero on a project that is not Tidewater.
+
+=== The shape of the twelve weeks {#playbook-shape}
+
+|| When | Goal | Typical stories | Done when ||
+| Week zero | Agreements and access | Scorecard agreed with management; supplier exchange agreement; ISSM contact; software requests in; laptops checked | Every person has run `kickoff.pl doctor`; the scorecard page is signed |
+| Sprint 1 (weeks 1-2) | A project the team can work in; the first drop received and assessed | GitLab project from the project file; first pipeline drafted and run locally; receive and check the first drop; TODO inventory; working agreements; practice lessons 10-11 | Direct pushes to the integration branch are refused; the drop's checksums verified; the backlog estimated |
+| Sprint 2 (weeks 3-4) | The drop on the integration branch through the vendor branch; every change gated | Runner online; pipeline gates every merge request; vendor import of drop 1; conventions; decision records; laptops and Vim; request for enablers | Every merge is green and approved by someone else; the TODO count is the baseline |
+| Sprint 3 (weeks 5-6) | First packages closed; requirements in the model; the trace on every change | Close the first package's TODOs; units and value types; DOORS into the model; trace and secrets jobs | The trace report runs on every merge request |
+| Sprint 4 (weeks 7-8) | The largest package closed; gaps reported to the supplier; something to show management | The biggest structure package; dependency cycles broken; discrepancy reports; model site on Pages; nightly pipeline | Management has seen the model site |
+| Sprint 5 (weeks 9-10) | The remaining structure closed; clutter removed; trace becomes a gate | Remaining packages; duplicate and legacy clutter; the trace ratchet; requirements graded with the recipe; release rehearsal | No merge can add a trace gap |
+| Sprint 6 (weeks 11-12) | Behavior started; an interim baseline; the briefing | Hand-written state machines and activity flows; a data exchange table; the verification matrix; baseline-0; the briefing and memo | The baseline tag rebuilds; the briefing is given from measured numbers |
+Table: A generic twelve-week plan, from week zero to the first baseline
+
+Two features of this plan are not negotiable, in the sense that every team that skipped them regretted it:
+
+- **Something visible for management by sprint 4.** The team that shows nothing until week twelve spends weeks
+  nine to twelve answering "is this working?" instead of working. On Tidewater the model site on GitLab Pages, shown
+  at the sprint 4 review, did more for the program's confidence than any status slide.
+- **Engineering takes over the board from sprint 3.** If platform work is still most of the points in sprint 4,
+  something is wrong with the plan, not with the team: the pipeline is gold-plated, or the setup is blocked, or
+  the learning budget was not taken. Look at the split ([[playbook-measure]]) every sprint.
+
+=== Week zero, with the kit {#playbook-week0}
+
+Week zero is the week before sprint 1. It is mostly conversations: the scorecard with management (see
+[[directive-scorecard]]), the exchange agreement with the supplier ([[prime-changes-agreement]]), the first meeting
+with the information system security manager ([[security]]), the software requests for every laptop. The kit's
+part is short. On each laptop, the doctor checks that everything the team needs is in place and says exactly what
+to fix:
+
+```sh run sandbox=scratch expect="doctor:" timeout=180
+perl "$KIT/tools/gitlab/kickoff.pl" doctor --quick || echo "exit status $?"
+```
+
+Expect warnings the first time (a missing Vim setup line, an SSH key not yet made). `kickoff.pl doctor --fix` sets
+the recommended git settings and prints each one; everything else is a line in the output with its fix.
+
+Then one person, usually the configuration manager, runs the week-zero sequence. Read the plan before running it:
+
+```sh run expect="step 12" timeout=120
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 first-drop > /dev/null
+perl "$KIT/tools/gitlab/kickoff.pl" start --local gitlab --project harbor/model --title Harbor \
+    --drop first-drop --version v1.0 | grep -E "^== step"
+```
+
+Twelve steps: check the laptop, make the model repository from the kit's templates, create the GitLab project from
+the project file, push, start gitflow, add the schedules, create the sprints, import the first drop onto the vendor
+branch, start the journal, write the wiki pages, and open the first stories. Without `--yes` it only prints the
+plan. With `--yes` it does it, against the offline GitLab here or against your real server with `--url`:
+
+```sh run expect="week zero is set up" timeout=300
+perl "$KIT/tools/gitlab/kickoff.pl" start --yes --local gitlab --project harbor/model --title Harbor \
+    --drop first-drop --version v1.0 > start.log 2>&1 || echo "exit status $?"
+grep -E "week zero is set up|^next:" start.log
+ls
+```
+
+Against a real GitLab, the same command runs with `--url https://your.gitlab --token-env GITLAB_TOKEN`. If a step
+fails (a permission your account does not have yet, a runner not registered), the output says which step and how
+to continue from it with `--from N`. On Tidewater the runner request took until the start of sprint 2; plan for
+that.
+
+::: warning Two things the kickoff cannot do for you
+It cannot get your runner approved, and it cannot get your supplier to keep element IDs stable. Both take weeks
+of other people's time. Ask for them in week zero, in writing, with a date.
+:::
+
+=== Sprint by sprint: what to watch {#playbook-watch}
+
+The table above says what each sprint is for. This section says what usually goes wrong in it, how you will see it
+coming, and what Tidewater did about it. None of it is specific to SysML or to GitLab; it is what happens when a
+team that knows its system well meets tools it does not know.
+
+==== Sprint 1: the urge to plan everything {#playbook-watch-1}
+
+The first sprint's risk is a plan that is too big. A lead who has finally been given permission to change things
+tends to put the whole port on the board. Jim's first draft of sprint 1 held more points than the team had capacity
+for, before any learning time; the team cut it at the kickoff, after the planning poker made the gap obvious
+([[ceremonies-poker]]).
+
+Watch for: stories with no acceptance criterion a program can check; a sprint committed above about nine tenths of
+capacity; nobody on the board with a learning story. Fix it at the kickoff, not at the review.
+
+The other risk in sprint 1 is silence. People who are unsure of the new tools say "working on it" at stand-up for
+three days in a row. The kit's stand-up lint flags a status with no story ID or no change since yesterday, and
+the "same plan three days" flag in [[ceremonies-standup]] exists for exactly this. Treat it as a request for help
+that nobody dared make.
+
+==== Sprint 2: the runner, and the first red pipeline {#playbook-watch-2}
+
+The runner is almost always late, and the first pipeline on a real runner almost always fails on something the
+laptop run did not show (on Tidewater, the Windows runner's default shell was PowerShell, and every script line
+written for Git Bash failed: [[runners]] tells the story). Neither is a reason to slip the sprint. Plan the runner
+as a blocked item with an owner and a date from the first day of the sprint, and keep the team working with the
+local pipeline (`gitlab.pl ci`) until it arrives.
+
+Sprint 2 is also when the first real merge conflict happens, usually in the drop import. Treat the first one as a
+team event: resolve it together, at one screen, with the conflict markers explained ([[vim]], and practice lesson
+12). The second conflict is then just work.
+
+==== Sprints 3 and 4: the dip {#playbook-watch-3}
+
+Most teams have a dip around sprint 3. The novelty is gone, the setup work is still not quite finished, and the
+engineering has not yet sped up. On Tidewater the pulse survey fell in sprint 3, when an approval blocked the
+security work for three days and Bob's first hand-written edit failed the grammar check in front of everyone.
+
+Watch for: the pulse survey's second question ("I can do my work in the new tools without help") falling; merge
+requests sitting unreviewed for days; the same person doing all the reviews. Fix: pair the struggling person with
+the most fluent one for a day; rotate reviews; make the sprint 4 review the moment something visible goes in front
+of management, so the team sees the work land.
+
+==== Sprints 5 and 6: gold-plating, and the briefing {#playbook-watch-5}
+
+By sprint 5 the team is fluent, and the risk turns around: the pipeline grows jobs nobody asked for, and platform
+work creeps back up. Every new job should answer a problem the team actually had, named in the story ("we merged a
+trace gap twice; the ratchet stops it"). If you cannot name the problem, the job waits.
+
+Sprint 6 ends with the briefing. Start it in sprint 5: decide the four or five numbers it will show, check they are
+computed by programs, and rehearse it at the sprint 5 review. [[talking]] and the memo templates in [[memos]] are the
+tools; the numbers come from the measures agreed in week zero, and nothing new should appear in the briefing that
+management has not seen in a weekly note first.
+
+=== Selling the plan in week zero {#playbook-selling}
+
+The plan has two audiences before it has a single story done: the team, who may not want it, and management, who
+asked for it but may expect too much. Each needs a different conversation.
+
+**For management,** the plan has three points, in this order. First, the measures: what "measurable progress" will
+mean in twelve weeks, computed by programs, agreed now so nobody argues about them in December. Second, the cost:
+the split of the first two sprints is mostly platform and learning, on purpose, and it falls by sprint 4; the
+enablers (learning time, a runner, approvals, a tier decision) are asks with dates. Third, the checkpoint: something
+visible at the sprint 4 review, so management does not wait twelve weeks to know whether it is working.
+
+**For the team,** the conversation is about what does not change. They still own the engineering. Their judgment
+still decides what the system is. What changes is where the work is recorded, how it is checked, and how often it
+is integrated. A line that says it plainly: "We are not becoming software developers. We are keeping our model the
+way software teams keep their code, because it is checked on every change." The objections are real; let each one
+be said, as Jim did in [[directive]], and point at the chapter that answers it.
+
+=== The decisions that are yours {#playbook-decisions}
+
+Every decision below was made one way on Tidewater. The column on the right says what should drive yours.
+
+|| Decision | Tidewater's choice | What should drive yours ||
+| Branching model | gitflow: develop for integration, main for baselines, a vendor branch for the supplier's drops | Baselines delivered under contract favor gitflow; a model nobody "releases" can use GitLab flow ([[git]]) |
+| Merge method | merge commits, never squash | Keep merge commits if you will measure from history; squash only if nobody will |
+| Boundary with the supplier | full mirror of the supplier's model | Full mirror if the model is your deliverable; interface surface if you consume theirs ([[prime-changes-strategies]]) |
+| Repository layout | layered folders through a layout map | The layers suit any system; the folder names should match your subsystems ([[repo-layout]]) |
+| Requirements source | DOORS authoritative, converted on every drop, never hand-edited | Whatever your contract says governs; never two editable copies |
+| Runner | a Windows shell runner on a dedicated VM with Git for Windows' Perl | What your enterprise can approve; a Docker runner works with the optional image ([[runners]]) |
+| GitLab tier | started on Free, Premium decided in sprint 2 | Approval rules and code-owner enforcement are the Premium features worth paying for first ([[tools]]) |
+| Generated documents | committed, with a "docs are current" gate | Commit them if reviewers read diffs of documents; regenerate in CI only if nobody does |
+| Primary progress measure | TODO lines left by the converter | Any count the strongest skeptic would accept, computed by a program |
+| Story size | tasks at most five ideal days, stories within a sprint | Keep the limits; the numbers are what make a sprint plannable |
+| Ceremony times | stand-up 09:00, refinement Wednesday week 2, review and retro Friday week 2 | Whatever the team will actually attend; protect them from other meetings |
+Table: Decisions to make locally, and what should drive them
+
+Record each one as a decision record in `docs/adr/` in the model repository, with the context and the reason. The
+scaffold starts the folder with ADR 0001; [[operating-model]] shows Tidewater's list. A new team member reading those
+files learns in an hour why the repository is the way it is.
+
+=== The learning budget {#playbook-learning}
+
+No one on Jim's team had used git, written a pipeline or read SysML v2 text before sprint 1. The plan budgeted for
+that, in points, on the board, as stories labeled `work::learning`: practice lessons, chapters of this book, pairing
+at the terminal. On Tidewater the learning share started at about a quarter of sprint 1 and fell to a few percent by
+sprint 6 (the exact figures are in [[bluf]], cited from `docs/tidewater/work-split.json`).
+
+Copy the budget, not the numbers. Two rules:
+
+- **Budget the learning, or it happens on nights and weekends.** A team that is expected to learn git on top of a
+  full sprint learns it badly, resents it, and tells management the new way does not work. Learning time on the
+  board is visible, defensible, and shrinks by itself as competence grows.
+- **Learning is on the plan, not in the margins.** Each person's learning stories have tasks and acceptance
+  criteria like any others: "practice lesson 11 checks as done," "can open a merge request without help."
+
+A reasonable starting reserve for a team new to all of it is a fifth of sprint 1, a sixth of sprint 2, a tenth of
+sprints 3 and 4, and a few percent after. Adjust at each retrospective from the pulse survey's second question ("I
+can do my work in the new tools without help").
+
+=== Your backlog {#playbook-backlog}
+
+The kit ships a generic backlog for a v1-to-v2 port: tomes, epics, stories and tasks with points, an owner role, a
+sprint hint and an acceptance criterion written as something a person or the pipeline can check. It is written in
+neutral terms (the supplier, the integration branch), so it fits a program that is not Tidewater:
+
+{{include: tools/gitlab/templates/backlog.csv | lines 1-12}}
+
+Sum it by sprint before you change anything, to see the shape:
+
+```sh run sandbox=kit expect="sprint 1: "
+perl -MText::ParseWords -ne 'next if $. == 1; s/\r//; my @c = parse_line(",", 0, $_); $p{$c[6]} += $c[4];
+  END { printf "sprint %-10s %5.1f points\n", "$_:", $p{$_} for sort { ($a =~ /^\d+$/ ? $a : 99) <=> ($b =~ /^\d+$/ ? $b : 99) or $a cmp $b } keys %p }' \
+  "$KIT/tools/gitlab/templates/backlog.csv"
+```
+
+Then change it: replace the system's names, cut the stories your program does not need (no supplier drops, no
+DOORS), add the engineering stories your program does need ([[se-work]] has a catalog), and re-estimate with your
+own team in planning poker ([[ceremonies-poker]]). Do not keep a story because Tidewater had it.
+
+The kit has no command that loads the CSV into GitLab in one go; a short loop does it. Here the sprint 1 rows become
+task issues in the project the kickoff made:
+
+```sh run sandbox=scratch expect="Sprint 1" timeout=120
+perl -MText::ParseWords -ne 'next if $. == 1; chomp; s/\r//; my @c = parse_line(",", 0, $_); next unless $c[6] eq "1";
+  system($^X, "$ENV{KIT}/bin/gitlab.pl", "--local", "gitlab", "--project", "harbor/model", "--as", "jim",
+         "issue", "new", $c[3], "--type", "task", "--label", "type::task", "--milestone", "Sprint 1",
+         "--description", "Story: $c[2]. Done when: $c[7]. Points: $c[4].") == 0 or die "issue new failed\n"' \
+  "$KIT/tools/gitlab/templates/backlog.csv" > /dev/null
+perl "$KIT/bin/gitlab.pl" --local gitlab --project harbor/model issue list --milestone "Sprint 1" | head -5
+echo "(milestone Sprint 1)"
+```
+
+In practice, load one sprint at a time, at each kickoff, after the team has refined it. A backlog loaded eighteen
+months ahead is a backlog nobody reads.
+
+=== What to measure {#playbook-measure}
+
+Measure from day one, with programs, and agree the measures with management before sprint 1. Three layers of
+measures served Tidewater, and each answers a different audience.
+
+==== The split: where the time goes {#playbook-split}
+
+Every story carries `work::engineering`, `work::platform` or `work::learning`, and the split of points by label,
+sprint by sprint, goes on the first page of every status ([[bluf]]). Tidewater's is computed from its plan by one
+script; it shows how:
+
+```sh run sandbox=kit expect="wrote .*engineering"
+perl "$KIT/sim/tidewater-split.pl" --out "$HOME/split.json"
+```
+
+The shape to look for: platform and learning high in sprints 1 and 2, engineering the larger share from sprint 3,
+mostly engineering by sprint 6. A flat line means the setup never finished.
+
+==== The four headline numbers {#playbook-four}
+
+At every review, the same four numbers, so management learns to read the trend ([[talking]]):
+
+1. **Conversion debt** (TODO lines left by the converter), from the pipeline's `todo` job.
+2. **Verify coverage** (requirements with a verification case), from the verification matrix or the trace.
+3. **Open discrepancy reports and supplier changes** awaiting disposition, from GitLab labels.
+4. **Blocked items**, from the board.
+
+The first one is there from the moment the first drop is converted. In the repository the kickoff made, on the
+drop's branch:
+
+```sh run sandbox=scratch cwd=model expect="TODO lines remaining: [0-9]+" timeout=120
+git checkout -q feature/drop-v1.0
+perl "$KIT/bin/gitlab.pl" ci --event merge_request_event --branch feature/drop-v1.0 --target develop \
+    --job todo --logs ../headline > /dev/null
+grep "TODO lines remaining" ../headline/todo.log
+```
+
+==== The scorecard {#playbook-scorecard}
+
+The twelve measures Jim agreed with management before sprint 1 ([[directive-scorecard]]) are the case at week
+twelve. Copy the rule more than the list: *every measure is computed by a program from the repository or GitLab,
+and every measure is one a skeptic in the room would accept.* Then pick the measures your management cares about.
+The ones that carried the most weight on Tidewater:
+
+- change lead time and review turnaround, against the document era's numbers (labeled notional if they are
+  reconstructions);
+- the share of changes gated (it must be 100%, and GitLab's protected branches make it a setting);
+- the time to answer "which requirements are unverified?" (two days of spreadsheet work before, a pipeline job's
+  seconds after);
+- reproducible baselines;
+- the team's own pulse survey, which the program manager insisted on and was right to.
+
+GitLab's analytics give the flow measures on any tier through the kit ([[analytics]]):
+
+```sh run sandbox=scratch cwd=. expect="Value stream"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project harbor/model analytics | head -6
+```
+
+On a project a day old the tables are empty. By the sprint 2 review they have a story to tell.
+
+=== What to copy from Tidewater, and what not {#playbook-copy}
+
+|| Copy | Adapt | Leave behind ||
+| The scorecard rule: measured by programs, accepted by skeptics | The measures themselves | Tidewater's targets |
+| Learning stories on the board | The size of the reserve | Tidewater's lesson order, if your team already knows git |
+| Something visible for management by sprint 4 | What it is (a model site, a data exchange table, a VCRM) | The Pages site, if your network forbids it |
+| The vendor branch for a supplier's drops | How drops arrive (file, registry and trigger) | Seven drops; your supplier's cadence is in your contract |
+| The change board for every drop, in GitLab | Who sits on it | Jim and the deputy PM |
+| Merge requests, code owners, protected branches | The approval rules, by your organization's roles | Tidewater's CODEOWNERS sections |
+| A small pipeline that grows one job at a time | Which jobs, in which order | Tidewater's exact job list |
+| Terse stand-ups, poker, refinement, demo, retro | Times and lengths | Tidewater's 09:00 stand-up |
+| The four headline numbers at every review | The fourth number, if blocked items are not your issue | — |
+| Decision records in the repository | The decisions | Tidewater's D-1 to D-10 |
+Table: Copy the shape, adapt the details
+
+Three things from Tidewater are easy to copy and wrong to copy:
+
+- **The spider-web cleanup stories.** Tidewater's v1 model had specific clutter (a Legacy Import package, two
+  dependency cycles). Yours has its own. Measure it first ([[diagrams-pkg]] shows the package view), then plan.
+- **The planted problems.** The simulation planted gaps, drift and failures so the book would have something to
+  show. Your real model will have different ones, and probably more.
+- **The cast.** Your team is not three people with these roles. A one-person team can run the same loop with
+  approvals from a colleague in another group; a ten-person team needs more code-owner sections and a second
+  runner. Keep the separation of author and approver, whatever the size.
+
+=== When things go differently {#playbook-variations}
+
+==== No supplier drops {#playbook-no-drops}
+
+If your v1 model is your own and nobody else will change it, drop the vendor branch, the change board for drops and
+the impact analysis. Convert once, onto a branch, review it, merge it, and from then on the v2 text is the model.
+Tidewater's tome 3 (maintenance against drops) disappears, and the months it took go to engineering.
+
+==== Documents, not Cameo {#playbook-documents}
+
+If the starting point is documents and spreadsheets rather than a v1 model, the port is writing, not converting.
+The plan's shape still holds, but sprint 1's "convert and assess" becomes "inventory and decide the package
+structure," and the TODO count is replaced by a count of requirements and interfaces captured. The requirements
+recipe ([[recipe]]) and the workbook ([[workbook]]) become the core of sprints 2 to 4.
+
+==== A bigger team {#playbook-bigger}
+
+Above about six people, split into teams along the model's layers or segments, give each team a CODEOWNERS
+section, and consider one repository per segment with the system repository consuming tagged releases of each
+([[repo-layout]] describes the federation). The twelve-week shape holds per team.
+
+==== A slower organization {#playbook-slower}
+
+If the runner, the GitLab tier and the tool approvals take a quarter instead of a sprint, start anyway: the kit's
+offline GitLab and local pipeline (`gitlab.pl ci`) let the team learn and work on laptops while the approvals move.
+Tidewater's practice lessons are exactly that. Keep the request-for-enablers memo ([[memos]]) current and show it
+at every review: the blocked items are the fourth headline number for a reason.
+
+=== The first Monday {#playbook-monday}
+
+::: checklist Before the first sprint 1 stand-up
+[ ] The scorecard page agreed with management, with the document-era baselines labeled
+[ ] The supplier's exchange agreement drafted, with stable IDs and change notes asked for
+[ ] The ISSM met; the marking decision recorded as a decision record
+[ ] Every laptop: `kickoff.pl doctor` shows no FAIL, or the software request is in with a date
+[ ] The runner request submitted, with a date asked for
+[ ] `kickoff.pl start` run against the real GitLab (or the offline one while access is pending)
+[ ] Sprint 1 refined and estimated in planning poker, learning stories included
+[ ] The ceremony times in everyone's calendar, the stand-up format agreed ([[ceremonies-standup]])
+[ ] The first drop received, its checksums verified
+[ ] The request-for-enablers memo drafted, to go out in sprint 2
+:::
+
+=== Applying this to your project {#playbook-apply}
+
+This whole chapter is the application. If you keep three things from it:
+
+- **Agree the measures before you start, and compute them with programs.** Everything else in the case follows
+  from numbers nobody can argue with.
+- **Put the learning on the board.** A team that is given time to learn will tell management the new way works,
+  because for them it does.
+- **Show something by sprint 4.** Confidence is built in the middle of the twelve weeks, not at the end.
+
+::: exercise {#ex-playbook-plan} Your twelve-week table
+Copy the twelve-week table into your program's terms: your system's packages, your supplier (or none), your
+reviews. For each sprint, write the goal as an outcome management would recognize, and the "done when" as something
+a program can check.
+:::
+
+::: exercise {#ex-playbook-decisions} Your decision records
+Write ADRs 0002 to 0005 for your program from the decisions table: branching model, supplier boundary, merge method
+and primary progress measure. One page each: context, decision, consequences.
+:::
+
+::: exercise {#ex-playbook-backlog} Your sprint 1
+Take the first two sprints of `backlog.csv`, rewrite them for your program, sum the points, and check them against
+your team's capacity with a learning reserve. What do you cut first?
+:::
+
+::: exercise {#ex-playbook-week0} Run week zero offline
+Run `kickoff.pl start --yes --local DIR` for an invented project of your own with drop 1 of Tidewater, then open
+`DIR` with `gitlab.pl --local DIR issue list` and read the stories it made. Which ones would you rewrite for your
+program?
+:::

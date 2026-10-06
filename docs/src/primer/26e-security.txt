@@ -1,0 +1,404 @@
+== Security: protect the environment, engineer it into the system {#security}
+
+::: survival Two kinds of security
+What you have: a GitLab project, a runner, a model, and an ISSM who has started asking questions. You also have a
+system to design, which will one day face people who want to misuse it.
+
+What you need: to see that "security" means two different jobs. One is protecting the place where the engineering
+happens: the repository, the pipeline, the laptops, the data. The other is engineering security into the system itself:
+requirements, trust boundaries, threats, verification. Small teams usually do the first, because the ISSM insists, and
+forget the second, because nobody asks until the review where everyone asks.
+:::
+
+=== Why the second half gets forgotten {#security-two-halves}
+
+On Tidewater, "security" arrived in sprint 2 as a meeting with the ISSM about the runner. For the next six weeks it
+meant hardening checklists, service accounts, secret scanning and a tabletop exercise. All of that was necessary. None
+of it said anything about whether a spoofed buoy could feed false observations into the marine bulletin, which is the
+security question a mariner would ask.
+
+That is the normal pattern. The environment half has an owner from day one (the ISSM, who must authorize the
+toolchain) and a deadline (no authorization, no GitLab). The system half has neither: it lives in the requirements,
+the architecture and the verification plan, which the program assumes "the engineers" will get to. In the document era
+it got done, if at all, in a security annex written near the end. In a model it can be done the way everything else is:
+as model content, checked by the pipeline on every change.
+
+This chapter walks through twenty-six points, from a note Jim kept from a program security briefing, and marks each
+one for Tidewater as **applied** (done in the first year), **adapted** (done in a reduced or different form, with the
+reason), or **LATER** (planned, with the sprint or epic). Tidewater is a civilian, notional program and nothing in it is
+sensitive, so some points are taught here as general practice for programs that are. The table at the end
+([[security-glance]]) lists all twenty-six.
+
+=== Half one: protecting the engineering environment {#security-environment}
+
+==== Data classification and handling {#security-data}
+
+**1. Know what the model contains, before the first commit.** Requirements, interface details and performance
+parameters can be controlled information, export-controlled, or classified. Decide the handling level with the
+security office *before* anything is committed, because a repository cannot be made "less sensitive" afterwards: its
+history keeps every version. *Tidewater: applied.* The decision is a decision record, "Data handling and markings", written
+by Jim with the ISSM in week zero and committed before the first drop was imported. It says the content is notional and
+unmarked, and it names the conditions that would change that (any real performance parameter, any real site).
+
+**2. Watch for aggregation.** A model's purpose is to pull scattered facts into one connected, queryable whole.
+Individually harmless facts can become sensitive together: the list of every station, its location, its power budget
+and its link schedule says more than any one document did. *Tidewater: adapted.* There is no real content to
+aggregate, but the habit is practised: the ISSM reviews the model as a whole before each baseline is tagged, not one merge
+request at a time. Add that review to your release checklist; it is not in the kit's templates by default.
+
+**3. Mark at the package level, and let the pipeline enforce it.** Use a metadata definition for markings, put one on
+every package, and let the pipeline fail a model with an unmarked package; generated documents then carry the right
+banner because the generator reads the marking. The kit ships this: the `SecMeta` vocabulary and `model.pl gate`,
+shown working in [[security-example]]. *Tidewater: LATER*, in the maintenance tome: the story "Markings on every
+package; model.pl gate in the pipeline". Until then every package is notional and unmarked by decision (the data-handling record),
+which is itself a marking decision on record.
+
+**4. Separate by sensitivity.** When parts of a system sit at different handling levels, split them into separate
+repositories on networks accredited for each level. Access controls inside one repository are not a separation
+mechanism. *Tidewater: adapted.* One repository is enough because everything is at one level. The option is recorded
+in the data-handling decision: if the prime's drops ever carry markings the team's repository is not approved for, the
+drops move to a separate, restricted project and are referenced by tag. Write the same clause into your model exchange
+agreement with the prime.
+
+==== Platform and access {#security-platform}
+
+**5. Self-host on an accredited network.** GitLab and its runners run inside the program's enclave; shared cloud
+runners and software-as-a-service tools are out for controlled data unless specifically authorized. *Tidewater:
+applied.* The project lives on the enterprise GitLab, and the runner is a project runner on a government Windows VM
+([[runners]]).
+
+**6. Least privilege.** Roles scoped to need: Jim and Tom are maintainers, Bob is a developer. `main` and `develop`
+are protected, merges need a code owner's approval, and nobody pushes to them directly. Membership is reviewed when
+someone joins or leaves. *Tidewater: applied* ([[gitlab-setup]], [[admin]]).
+
+**7. Strong authentication.** Enterprise single sign-on with multi-factor or PKI for the web interface; SSH keys or
+short-lived tokens for git; no long-lived personal access tokens in scripts. *Tidewater: applied.* Project access
+tokens carry an expiry date and a single scope, and their rotation is a recurring task in [[admin]].
+
+**8. Sign commits and tags.** A signed baseline tag proves who approved which configuration. That is configuration
+management evidence first and security second. Git can sign with an SSH key, which every laptop already has from
+[[survival]], so there is nothing extra to install. *Tidewater: LATER*, the story "Signed baseline tags" in the
+maintenance tome. The mechanics take one minute and are shown in [[security-signing]].
+
+==== Pipeline and supply chain {#security-pipeline}
+
+**9. Treat runners as privileged.** A runner sees every file of every job it runs and every variable those jobs use.
+Harden it, run it as a service account with no other rights, and keep jobs that hold secrets (release, package
+upload, Pages) on a protected runner that only protected branches and tags can use. *Tidewater: applied* (runner
+hardening with the ISSM in sprint 3; the protected runner in [[admin]]).
+
+**10. Pin and vet the tools.** Use specific versions, from internal mirrors where the network requires it, never
+"latest" pulled from the internet, and keep an inventory of the tools that produced each baseline. *Tidewater:
+adapted.* The kit is pinned by version in the model repository (`.kit-version`, checked by every job), each baseline's
+evidence includes `toolchain.txt` (kit version, Perl, git, operating system, runner), and the optional Docker image is
+pinned by digest ([[runners]]). There is no internal package mirror because the kit needs no packages.
+
+**11. Manage secrets properly.** Masked, protected CI/CD variables; a secret-detection job on every change; and when
+something leaks, rotate it at once, because deleting the commit is not enough. *Tidewater: applied.* The `secrets`
+job runs from sprint 3, GitLab's managed Secret Detection runs where a Docker runner exists, and the recipe is in
+[[rescue-secret]].
+
+**12. Scan your own code.** The team's tooling gets the same treatment as any software. *Tidewater: adapted.* The
+team writes almost no code of its own: `ci/job.pl` and the kit's tools are tested in the kit's own pipeline, on both
+Perls, before a kit version is pinned. Static analysis and dependency scanning are not used, because there are no
+dependencies to scan ([[tools]] lists the features deliberately left off).
+
+**13. Retain artifacts deliberately.** Keep formal evidence for the life of the program; let everything else expire,
+because a throwaway artifact can still contain something sensitive. *Tidewater: applied.* Baseline audits, the
+verification matrix at each baseline, and each prime drop as received are kept with `expire_in: never`; every other
+artifact uses the project's default expiry ([[pipeline]]).
+
+==== AI tools {#security-ai}
+
+**14. Keep model content out of external AI services.** Only models approved for the data's handling level, which in
+practice means a local model on the laptop or an approved server inside the enclave, and only after the model's origin
+has been checked against policy. *Tidewater: applied* (no cloud AI; the local assistant goes through approval first,
+[[local-ai]]).
+
+**15. Treat AI output as untrusted input.** Generated text goes through the same gates and the same review as
+anything a person writes, and the merge request says so with the `ai::assisted` label. *Tidewater: applied.*
+
+=== Half two: engineering security into the system {#security-system}
+
+The second half is systems engineering, not administration. Every point below is model content: something you write
+in `.sysml` text, review in a merge request, and check in the pipeline. That makes it the same kind of work as a power
+budget or an interface, which is the argument for doing it in the model instead of an annex.
+
+**16. Security requirements are requirements.** Confidentiality, integrity, availability and authentication
+requirements, derived from the threat analysis and the program's control baseline, with the same trace and verification
+coverage as any other requirement. *Tidewater: LATER.* The requirements belong to the prime's DOORS modules, so the
+government raises them as discrepancy reports, and they arrive as `TW-SEC-*` requirements in a later drop (the story
+"Security requirements TW-SEC through DRs to the prime").
+
+**17. Model threats and trust boundaries.** Mark each part with the trust zone it sits in. Every interface that
+crosses from one zone to another is a boundary crossing, and each crossing must trace to a security requirement that
+covers it. Each threat in the register names the asset it attacks and the requirement that mitigates it. The kit's
+`model.pl gate` checks both rules ([[security-example]]). *Tidewater: LATER* (stories "Trust zones on the part tree"
+and "A notional threat register"), and demonstrated now on a small model.
+
+**18. Model data flows with their sensitivity.** Tag item definitions (the things that flow) with their handling level,
+and check that sensitive data never flows through an interface not rated for it. *Tidewater: LATER, not planned.* All
+Tidewater data is public weather data; the pattern is the package-marking pattern applied to item definitions.
+
+**19. Behavior under attack.** Model what the system does when it detects an attack: detect, contain, degrade
+gracefully, beside the fault-recovery behavior. *Tidewater: LATER*, for the observation ingest path: what the data
+center does with records from a station that fails authentication.
+
+**20. Plan security verification.** Verification cases for authentication, signing and access-control tests, with
+their results in the same verification matrix as everything else. *Tidewater: LATER* (the story "Security
+verification cases in the VCRM").
+
+**21. Generate certification evidence.** An authorization package needs traceability from controls to design to test
+evidence. If the model already traces them, the pipeline produces most of that package: the gate's report, the trace
+report and the verification matrix at a baseline tag are evidence nobody assembles by hand. *Tidewater: adapted.* The
+baseline evidence includes the trace and the verification matrix; there is no authorization package for Tidewater's
+system because it is notional.
+
+**22. Model the supply chain.** Record where components come from, so a counterfeit or provenance concern can be traced
+to the parts it affects. *Tidewater: applied.* The prime's model already carried a `Procured` stereotype with supplier
+and part number; the port turned it into `@Procured` metadata in sprint 5, so a question about a supplier is one
+search.
+
+=== Process {#security-process}
+
+**23. Name a security owner.** On a small team one person owns the security requirements, the threat model and the
+pipeline's security posture, part-time, so that "someone" means someone. *Tidewater: applied.* Tom, named in week zero,
+with the ISSM as the authority.
+
+**24. Bring the ISSM in before standing up the toolchain.** Retrofitting an authorization onto a running pipeline is
+painful. *Tidewater: applied.* The ISSM was contacted in week zero, the toolchain review started in sprint 2, and the
+runner hardening in sprint 3 was done with the ISSM, which is also why sprint 3 had a three-day block waiting for the
+ISSM's calendar. That block was the cheap version of the lesson.
+
+**25. Use frameworks as checklists.** The NIST SP 800-53 control baseline under the Risk Management Framework, NIST SP
+800-171 and CMMC for controlled unclassified information, NIST SP 800-218 (the Secure Software Development Framework),
+and the DoD Enterprise DevSecOps reference design. Nobody implements all of them on day one; read them as checklists
+that stop you missing a whole category. *Tidewater: adapted.* They are used as checklists in the quarterly access and
+toolchain reviews ([[admin]]); this book does not restate their contents, and your ISSM will tell you which ones apply.
+
+**26. Rehearse incidents.** The most likely serious incident for a modeling team is marked information pushed to the
+wrong place (spillage), and the response is time-critical. *Tidewater: applied.* A one-point tabletop exercise in
+sprint 5, Jim and Tom with the ISSM; the script is below ([[security-tabletop]]).
+
+=== A worked example: the security gate {#security-example}
+
+This example builds a small Tidewater model in a scratch folder: a buoy in the untrusted zone, the data center in the
+trusted zone, a public site in between, one security requirement, two threats. It is notional and tiny, so that every
+line can be read. The security vocabulary comes from the kit (a copy ships with the Halberd example model); its
+comments are stripped on the way in.
+
+```sh run sandbox=scratch expect="5 package"
+mkdir -p model/library model/physical model/requirements model/verification
+grep -v '^//' "$KIT/examples/halberd/model/engineering/SecMeta.sysml" > model/library/SecMeta.sysml
+printf 'title = TidewaterSecurity\nnoun_root = ObservationNetwork\n' > sysml.conf
+cat > model/physical/Network.sysml <<'EOF'
+package Network {
+    doc /* The observation network, with its trust zones. */
+    private import SecMeta::*;
+    private import SecurityRequirements::*;
+    @Marking { level = Level::U; }
+
+    port def ObservationPort { doc /* Observation records out of a station. */ }
+
+    part def ObservationNetwork {
+        doc /* Stations in the field, the data center, and the public site. */
+        part buoy : MooredBuoy;
+        part dataCenter : DataCenter;
+        part publicSite : PublicSite;
+        interface ifcObservations { end ::> buoy.obsOut; end ::> dataCenter.obsIn; attribute fromZone = "untrusted"; attribute toZone = "trusted"; attribute secReq = "secR01"; }
+        interface ifcPublication { end ::> dataCenter.publicOut; end ::> publicSite.feed; attribute fromZone = "trusted"; attribute toZone = "dmz"; attribute secReq = ""; }
+        satisfy secR01 by dataCenter;
+    }
+    part def MooredBuoy { @TrustZone { zone = Zone::untrusted; } doc /* A buoy at sea: anyone in radio range can reach it. */ port obsOut : ObservationPort; }
+    part def DataCenter { @TrustZone { zone = Zone::trusted; } doc /* Ingest, quality control, archive. */ port obsIn : ~ObservationPort; port publicOut : ObservationPort; }
+    part def PublicSite { @TrustZone { zone = Zone::dmz; } doc /* The public bulletin site. */ port feed : ~ObservationPort; }
+}
+EOF
+cat > model/requirements/SecurityRequirements.sysml <<'EOF'
+package SecurityRequirements {
+    doc /* Notional security requirements for Tidewater. */
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
+    requirement secR01 { attribute doorsId = "TW-SEC-001"; @SecurityRequirement; @Mitigates { threat = "spoofedObservation"; } doc /* The data center shall accept observation records only from authenticated stations. */ }
+}
+EOF
+cat > model/requirements/Threats.sysml <<'EOF'
+package Threats {
+    doc /* The notional threat register. */
+    private import SecMeta::*;
+    @Marking { level = Level::U; }
+    metadata spoofedObservation : Threat { asset = "observation link"; mitigation = "secR01"; stride = "Spoofing"; capec = "CAPEC-148"; }
+    metadata tamperedBulletin : Threat { asset = "public bulletin"; mitigation = ""; stride = "Tampering"; capec = "CAPEC-272"; }
+}
+EOF
+cat > model/verification/SecurityVerification.sysml <<'EOF'
+package SecurityVerification {
+    doc /* How the security requirements are verified. */
+    private import SecMeta::*;
+    private import SecurityRequirements::*;
+    private import Network::*;
+    @Marking { level = Level::U; }
+    verification def TestStationAuthentication {
+        doc /* Send a record from an unregistered station and confirm the data center rejects it. */
+        subject network : ObservationNetwork;
+        objective { verify secR01; }
+    }
+}
+EOF
+perl "$KIT/tools/sysml/model.pl" lint | tail -1
+perl "$KIT/tools/sysml/views/sysml-pkg-svg.pl" model -o packages.svg 2>&1 | tail -1
+```
+
+Three things in that text are security engineering, not decoration:
+
+- `@TrustZone { zone = Zone::untrusted; }` on `MooredBuoy` says where the part sits. A buoy at sea is untrusted:
+  anyone with a radio in range can talk to it.
+- The two `interface` lines are the **boundary crossings**. Each names the zone at both ends and the security
+  requirement that covers it (`secReq`). The publication link to the public site has none yet.
+- The threat register has two entries, each with its STRIDE category and CAPEC identifier; one is mitigated by
+  `secR01`, the other by nothing yet.
+
+Now the gate. It runs five checks: the text, the trace, the markings, the zones and the threats, and it fails if any of
+them finds an error.
+
+```sh run expect="crosses trusted->dmz with no satisfied security requirement(?s:.*)threat 'tamperedBulletin' is not mitigated(?s:.*)FAIL(?s:.*)exit status 1"
+perl "$KIT/tools/sysml/model.pl" gate || echo "exit status $?"
+```
+
+Two findings, both real security work, neither a typing mistake:
+
+- the publication link crosses from the trusted data center into the semi-trusted public zone with no requirement
+  covering it;
+- the bulletin-tampering threat has no mitigation.
+
+The fix is engineering: a requirement that the data center signs every bulletin it publishes, which covers the
+crossing and mitigates the threat at once, satisfied by the data center and verified by an inspection.
+
+```sh run expect="0 error.s., 0 warning.s. -> PASS"
+sed -i 's/attribute secReq = ""; }/attribute secReq = "secR02"; }/' model/physical/Network.sysml
+sed -i 's/satisfy secR01 by dataCenter;/satisfy secR01 by dataCenter;\n        satisfy secR02 by dataCenter;/' model/physical/Network.sysml
+sed -i 's/mitigation = ""; stride = "Tampering"/mitigation = "secR02"; stride = "Tampering"/' model/requirements/Threats.sysml
+sed -i 's#^}$#    requirement secR02 { attribute doorsId = "TW-SEC-002"; @SecurityRequirement; @Mitigates { threat = "tamperedBulletin"; } doc /* The data center shall sign every bulletin it publishes. */ }\n}#' model/requirements/SecurityRequirements.sysml
+sed -i 's#objective { verify secR01; }#objective { verify secR01; }\n    }\n    verification def InspectBulletinSignature {\n        doc /* Inspect a published bulletin and check its signature. */\n        subject network : ObservationNetwork;\n        objective { verify secR02; }#' model/verification/SecurityVerification.sysml
+perl "$KIT/tools/sysml/model.pl" gate | tail -1
+```
+
+(In real work you would make these edits in Vim, not with `sed`; the commands are here so the book can be tested.)
+
+Finally, the marking rule. Remove the marking from one package and the gate stops it, which is point 3 working:
+
+```sh run expect="root package 'Threats' has no @Marking(?s:.*)exit status 1"
+sed -i '/@Marking/d' model/requirements/Threats.sysml
+perl "$KIT/tools/sysml/model.pl" gate || echo "exit status $?"
+```
+
+`model.pl gate` also draws what it checked, if you ask: `--svg DIR` writes the package view with each package's
+marking and the interconnection view with the zones shaded, which is the picture the ISSM wants at a review
+([[diagrams]]). The kit's Halberd example model (`examples/halberd`) carries the same vocabulary at full size, with
+planted gaps, if you want a larger model to read.
+
+=== Signing a baseline tag {#security-signing}
+
+A signed tag records, cryptographically, who created it. Git can sign with an SSH key, so the key you already use for
+GitLab can sign baselines. This example uses a fresh key in a scratch repository; on the project, the signing key and
+the list of allowed signers are set up once by the security owner.
+
+```sh run sandbox=scratch expect="Good .git. signature for tom@example.invalid"
+git init -q -b main signing-demo
+cd signing-demo
+echo "baseline content" > model.txt
+git add model.txt
+git commit -q -m "The configuration to baseline"
+ssh-keygen -q -t ed25519 -N '' -C tom@example.invalid -f ../tom-signing
+git config gpg.format ssh
+git config user.signingkey ../tom-signing.pub
+git tag -s baseline-0 -m "baseline-0: interim baseline for the program review"
+echo "tom@example.invalid $(cat ../tom-signing.pub)" > ../allowed_signers
+git config gpg.ssh.allowedSignersFile ../allowed_signers
+git tag -v baseline-0
+```
+
+GitLab shows a **Verified** badge on a signed tag or commit when the signing key is registered on the signer's
+profile. The allowed-signers file is what lets anyone check a signature offline, years later, without GitLab.
+
+=== The spillage tabletop {#security-tabletop}
+
+A tabletop exercise is a meeting in which you walk through an incident that has not happened, out loud, with the
+people who would handle it. Tidewater's took one point of Jim's and Tom's time in sprint 5, with the ISSM. The scenario:
+
+> Thursday, 14:10. Bob notices that a file pushed to Bob's feature branch an hour ago contains a paragraph pasted from
+> a marked document. The merge request is open; the pipeline ran; GitLab sent notification e-mails to Jim and Tom.
+
+The questions the ISSM asked, and the answers the team wrote down:
+
+1. **What does Bob do first?** Stops. Does not delete the branch, does not force-push, does not edit the file "to make it
+   go away": all of those spread or destroy evidence. Calls Tom (security owner) and the ISSM, in that order, by phone.
+2. **Who else has a copy?** Everyone who fetched since 13:10, the runner's build directory, the pipeline's artifacts and
+   logs, the notification e-mails if they quoted the text. Tom lists them from GitLab's audit events and the job list.
+3. **How is it contained?** The ISSM directs it. A maintainer can make the project private to the team and pause the
+   runner; nobody rewrites history until the ISSM says how, because the program's procedure may require the systems to be
+   handled as spilled equipment.
+4. **What does the team learn?** The source of the paste, and whether a check could have caught it. On Tidewater the
+   answer was the markings rule (point 3), moved earlier in the plan as a result.
+
+The written answers became a page in the wiki, linked from the onboarding page, and the first step of the rescue
+recipe for a leaked secret became "call the security owner" ([[rescue-secret]]).
+
+=== The twenty-six points at a glance {#security-glance}
+
+|| # | Point | Tidewater | Where ||
+| 1 | Know what the model contains before the first commit | applied | data-handling decision record, week zero |
+| 2 | Watch for aggregation | adapted | ISSM review at each baseline |
+| 3 | Mark packages; the pipeline enforces | LATER | maintenance tome, `model.pl gate` in the pipeline |
+| 4 | Separate repositories by sensitivity | adapted | one level; restricted drops project as the option |
+| 5 | Self-host on an accredited network | applied | enterprise GitLab, government runner |
+| 6 | Least privilege | applied | roles, protected branches, code owners |
+| 7 | Strong authentication | applied | single sign-on, SSH keys, expiring tokens |
+| 8 | Sign commits and tags | LATER | "Signed baseline tags" story |
+| 9 | Treat runners as privileged | applied | hardening in sprint 3; protected runner |
+| 10 | Pin and vet tools | adapted | `.kit-version`, `toolchain.txt`, image by digest |
+| 11 | Manage secrets | applied | `secrets` job, masked variables, rotate first |
+| 12 | Scan your own code | adapted | the kit's own tests; nothing else to scan |
+| 13 | Retain artifacts deliberately | applied | `expire_in: never` for formal evidence only |
+| 14 | No model content in external AI | applied | local model, after approval |
+| 15 | AI output is untrusted input | applied | same gates, `ai::assisted` label |
+| 16 | Security requirements are requirements | LATER | TW-SEC via discrepancy reports |
+| 17 | Threats and trust boundaries | LATER | zones and threat register stories; shown above |
+| 18 | Data flows with sensitivity | LATER | not planned: public data |
+| 19 | Behavior under attack | LATER | the ingest path |
+| 20 | Security verification | LATER | security cases in the VCRM |
+| 21 | Certification evidence from the trace | adapted | baseline evidence, no package for a notional system |
+| 22 | Supply chain of components | applied | `@Procured` metadata, sprint 5 |
+| 23 | A named security owner | applied | Tom |
+| 24 | ISSM before the toolchain | applied | week zero, sprints 2 and 3 |
+| 25 | Frameworks as checklists | adapted | quarterly reviews |
+| 26 | Rehearse incidents | applied | spillage tabletop, sprint 5 |
+Table: The twenty-six security points for Tidewater
+
+Most of the "applied" marks are in the first half and most of the "LATER" marks in the second: that is the pattern
+this chapter opened with, and Tidewater did not escape it either. The difference is that the second half is in the
+backlog with stories and sprints, not in a sentence that says "security will be addressed".
+
+=== Applying this to your project {#security-applying}
+
+- **Copy:** the data-handling decision record before the first commit; the security owner by name; the ISSM in week zero; the `secrets` job
+  and the rotate-first rule; the spillage tabletop; the twenty-six-point table, filled in for your program and reviewed
+  each quarter.
+- **Adapt:** the marking levels in `SecMeta` (Tidewater's are notional labels), the trust zones (three is a starting
+  point, not a rule), and which framework your ISSM uses as the checklist.
+- **Decide locally, early:** whether your data needs separate repositories (point 4) and whether the program's
+  GitLab tier gives you approval rules and push rules, or whether those controls are procedural ([[tools]]).
+- **Put the second half in the backlog** with real stories, owned by a systems engineer, measured by the gate. If the
+  system half has no stories, it is not planned; it is hoped for.
+
+::: exercise {#ex-security-gate} Close a boundary crossing
+In the worked example's folder, add a fourth part, `MaintenanceLaptop`, in the untrusted zone, with an interface to the
+data center that has an empty `secReq`. Run `model.pl gate` and read the finding. Then write the security requirement
+that covers it, satisfy it, verify it, and run the gate until it says PASS. What did you have to decide that was
+engineering, not typing?
+:::
+
+::: exercise {#ex-security-table} Your twenty-six
+Copy the table above into your project's wiki and mark each point for your program. For every LATER, name the story
+or epic; for every adapted, write the reason in one sentence. Which three points would your ISSM ask about first?
+:::

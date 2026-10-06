@@ -353,7 +353,13 @@ sub cmd_chat {                                # standups/DATE-chat.txt (pasted T
         elsif ($l =~ /^est (\S+)/) { push @global, "; $l   ; in the master backlog: move under a team section to apply" }
         else  { push @global, $l }
     }
-    $lines = join('', map { "== $_\n" . join('', map { "$_\n" } @{ $per_team{$_} }) } sorted(keys %per_team)) . (@global ? "==\n" . join('', map { "$_\n" } @global) : '');
+    my ($ft) = $chat =~ m{(?:^|/)\d{4}-\d{2}-\d{2}-(.+?)-chat\.txt$};                                  # standups/DATE-Team-chat.txt names its team
+    my $home = $ft // ($conf->{default_team} || undef);                                               # the team for lines with no task team of their own
+    if (!defined $home && grep { /^;?\s*est / } @global) {                                         # an accepted est line there would have no team: say so now
+        print STDERR "chat: no team for est lines of tasks not in the journal yet: set default_team in scrum.conf or name the chat file DATE-Team-chat.txt\n";
+    }
+    my $gh = defined $home ? "== $home\n" : "==\n";                                                   # "==" alone ends a team section: note lines are valid there
+    $lines = join('', map { "== $_\n" . join('', map { "$_\n" } @{ $per_team{$_} }) } sorted(keys %per_team)) . (@global ? $gh . join('', map { "$_\n" } @global) : '');
     return 0 if index($body, $lines) >= 0;
     open my $w, '>>:encoding(UTF-8)', $path or die $!;
     print $w "\n; ---- chat $today\n$lines";

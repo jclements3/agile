@@ -1,0 +1,24 @@
+Sprint 6 kickoff, 2026-12-14 09:00 (90 minutes)
+
+Goal: Behavior started; Operations closed; the data exchange table; interim baseline-0 for the program review
+Capacity: 15.7 points (Jim 5, Bob 8, Tom 8 per full sprint, less holidays and leave)
+Committed: 14.0 points in 8 stories (89% of capacity): engineering 11.5, platform 2.0 (14%), learning 0.5 (3%)
+
+TW-111   E3    0.5 pts  learning     Learn: memos and briefings from the model
+           #119  0.5 pt  jim  2026-12-14 .. 2026-12-14  The memo and briefing chapters
+TW-112   E8    3.0 pts  engineering  BuoyModes state machine by hand
+           #120  3.0 pt  bob  2026-12-18 .. 2026-12-29  Write the BuoyModes state def; exhibit it on MooredBuoy
+TW-113   E8    1.0 pts  engineering  Fork, pin and object flow in ObserveCoast
+           #121  1.0 pt  bob  2026-12-17 .. 2026-12-17  Fork, pin, object and control flow by hand
+TW-114   E6    1.5 pts  engineering  Level tags in Operations
+           #122  1.5 pt  tom  2026-12-14 .. 2026-12-15  Level tags in Operations
+TW-115   E8    2.0 pts  engineering  Data exchange table for the program review
+           #123  1.0 pt  tom  2026-12-16 .. 2026-12-17  Document the flow properties in Interfaces
+           #124  1.0 pt  tom  2026-12-17 .. 2026-12-18  Generate the data exchange table
+TW-116   E7    2.0 pts  engineering  VCRM: which requirements are verified, and how
+           #125  1.0 pt  tom  2026-12-18 .. 2026-12-21  Add the vcrm job
+           #126  1.0 pt  jim  2026-12-15 .. 2026-12-16  Enter and sign the inspection verdicts
+TW-117   E1    2.0 pts  platform     Interim baseline-0 for the program review
+           #127  2.0 pt  tom  2026-12-21 .. 2026-12-24  Release branch, CCB concurrence, tag baseline-0, back-merge
+TW-118   E3    2.0 pts  engineering  Retrospective, the management briefing and the plan for next semester
+           #128  2.0 pt  jim  2026-12-17 .. 2026-12-22  The twelve-week briefing and memo

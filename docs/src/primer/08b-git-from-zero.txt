@@ -1,0 +1,1181 @@
+== Git from zero, for systems engineers {#git}
+
+::: survival
+What you have: a terminal you can use ([[survival]]), git configured with your name, and decades of configuration
+management experience: baselines, change requests, redlines, revision letters, the CM library.
+
+What you need: the git commands the team used every day, each one tied to the CM idea it replaces, practiced in a
+throwaway repository until they are boring. Then the commands for working with GitLab (clone, push, pull), and an
+understanding of branching strategies good enough to defend Tidewater's choice, or to make a different one for your
+own project.
+:::
+
+=== Tuesday afternoon, a throwaway folder {#git-tuesday}
+
+On the Tuesday of sprint 1, after stand-up, Bob blocked out the afternoon in the team calendar with the title
+"Breaking git on purpose." Tom had given Bob a one-page list of commands on Monday. Bob had read it and understood
+none of it in any way that would survive contact with a real model.
+
+So Bob made a folder called `practice`, put a copy of one small SysML file in it, and spent three hours doing
+everything on Tom's list, then doing it wrong on purpose to see what happened. Bob made two branches change the same
+line and watched git refuse to merge them. Bob deleted a file, panicked, and got it back. Bob made a commit with a
+typo in the message and fixed it. At 16:30 Bob wrote in the team chat:
+
+> It's a CM library where every change record contains the actual change, and you can't lose anything unless you
+> really try. Why didn't anyone tell us that?
+> -- Bob, team chat, 6 October 2026
+
+This chapter is Bob's afternoon, written down. Every command was run on a Git for Windows laptop; the output is
+what git printed, with only the commit identifiers (which will differ on your machine) left as they came out. Make
+your own `practice` folder and type along. Nothing you do in it can affect anything else.
+
+=== Version control in configuration management words {#git-what}
+
+**Git** is a version control system: a program that keeps every version of every file in a folder, with a record of
+who changed what, when and why. The folder, together with that history, is a **repository** (often "repo").
+
+You already know version control. The program's CM library was version control, done by hand: controlled items,
+revision letters, change records, a librarian who checked documents in and out. Git does the same job with three
+differences that change everything:
+
+1. **Every change record contains the change itself**, line by line, not a description of it. You never have to
+   compare revision B and revision C by eye; git shows exactly which lines differ.
+2. **Every person has the whole library**, history included, on their own laptop. You can work without a network,
+   and you can look at any past version instantly.
+3. **Combining parallel work is automatic** wherever the changes do not touch the same lines. Two people can change
+   the same file at the same time, and git merges their changes. Only when both changed the same lines does a person
+   have to decide.
+
+|| Configuration management | Git | Notes ||
+| CM library | repository | the folder plus its complete history |
+| controlled item | a file in the repository | every file is controlled; there is no "uncontrolled draft" inside |
+| change record (who, when, why, what) | commit | a snapshot of the changed files with author, date and message |
+| revision identifier | commit hash (`3bcc7d4`) | a fingerprint of the content, unique to that commit |
+| the change package being assembled | the staging area | the changes you have chosen to include in the next commit |
+| a working copy checked out for editing | the working folder | the files you edit |
+| an alternative line of development | branch | a named line of commits; cheap to make, cheap to delete |
+| incorporating a change | merge | combining one branch's commits into another |
+| baseline | tag | a permanent name on one commit (`baseline-0`) |
+| the central library server | remote (GitLab) | the shared copy everyone pushes to and pulls from |
+| check out a copy to your desk | clone | copy the whole repository, history included |
+| check in to the library | push | send your commits to the remote |
+| get the latest from the library | pull | fetch others' commits and merge them into yours |
+| redline | diff | the exact lines removed and added |
+Table: Configuration management to git
+
+=== Three places a change lives {#git-three}
+
+The single idea that makes git make sense is that a change passes through three places:
+
+```text
+  working folder  --git add-->  staging area  --git commit-->  repository history
+  (you edit here)               (the package                   (permanent, with
+                                 for the next commit)           author, date, message)
+```
+
+You edit files in the **working folder** with Vim, as you always have. When a set of edits belongs together, you
+**stage** them with `git add`, which puts them into the package for the next commit. When the package is right, you
+**commit** it with a message saying why, and it becomes a permanent part of the history.
+
+Why the middle step? Because a person's edits in an afternoon often belong to more than one change. Bob might fix a
+TODO line in `Stations.sysml` and, while there, notice a typo in `Network.sysml`. Those are two changes with two
+reasons; the staging area lets Bob commit them separately, each with its own message, so the history says exactly
+what was done and why. Tom's analogy, which stuck: the staging area is the change package on the CM librarian's desk
+before it is signed.
+
+=== A practice repository {#git-practice}
+
+Start from your home folder and make a new repository:
+
+```text run expect="No commits yet"
+$ cd ~
+$ git init practice
+Initialized empty Git repository in C:/Users/bob/practice/.git/
+$ cd practice
+$ git status
+On branch main
+
+No commits yet
+
+nothing to commit (create/copy files and use "git add" to track)
+```
+
+`git init` made a folder `practice` with a hidden folder `.git` inside it. The `.git` folder *is* the repository:
+the whole history lives there. Never edit anything inside it by hand. Everything else in `practice` is your working
+folder.
+
+`git status` is the command you will type more than any other. It tells you which branch you are on and what state
+your files are in. Type it whenever you are unsure, before and after every other command, until you no longer need
+to.
+
+=== The first commit {#git-first}
+
+Make a folder and a small SysML file. Use Vim (`vim model/stations/Battery.sysml` after `mkdir -p model/stations`)
+and type:
+
+```sysml
+package Battery {
+    part def Battery {
+        doc /* Stores power for night and cloud. */
+        attribute capacity;
+    }
+}
+```
+
+If you would rather paste than type, this makes the same folder and file:
+
+```sh run cwd=~/practice
+mkdir -p model/stations
+cat > model/stations/Battery.sysml <<'END'
+package Battery {
+    part def Battery {
+        doc /* Stores power for night and cloud. */
+        attribute capacity;
+    }
+}
+END
+```
+
+Now ask git what it sees:
+
+```text run cwd=~/practice expect="(?s)Untracked files:.*model/"
+$ git status
+On branch main
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	model/
+
+nothing added to commit but untracked files present (use "git add" to track)
+```
+
+**Untracked** means git sees a file it has never been told to control. Stage it, and look again:
+
+```text run expect="new file:\s+model/stations/Battery\.sysml"
+$ git add model/stations/Battery.sysml
+$ git status
+On branch main
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+	new file:   model/stations/Battery.sysml
+
+```
+
+The file is staged: it is in the package for the next commit. Commit it, with a message:
+
+```text run expect="(?s)\(root-commit\) [0-9a-f]+\] Add the Battery package.*Author: "
+$ git commit -m "Add the Battery package"
+[main (root-commit) 07f494b] Add the Battery package
+ 1 file changed, 6 insertions(+)
+ create mode 100644 model/stations/Battery.sysml
+$ git log
+commit 07f494b7da90a0b4d1d6af9c85bff0f9ab7e1413
+Author: Bob <bob@example.invalid>
+Date:   Tue Oct 6 07:56:20 2026 -0500
+
+    Add the Battery package
+```
+
+That is a change record. It says who (from your git settings), when, why (the message), and, though `git log` does
+not show it here, exactly what. The long string after `commit` is the **commit hash**, a fingerprint computed from
+the commit's content, author, date and parent. Any change to any of them would produce a different hash, which is
+what makes git's history tamper-evident. People usually quote only the first seven characters (`07f494b`); git
+understands the short form.
+
+=== Changing a file: the diff {#git-diff}
+
+Edit the file: change "Stores power" to "Stores solar power." Type it in Vim, or give the change on Vim's command
+line, which is how this book's own test of the chapter makes it:
+
+```vim run
+:edit model/stations/Battery.sysml
+:%s/Stores power/Stores solar power/
+:write
+```
+
+Then:
+
+```text run expect="(?s)^ M model/stations/Battery\.sysml.*\+\s+doc /\* Stores solar power for night and cloud\. \*/"
+$ git status --short
+ M model/stations/Battery.sysml
+$ git diff
+diff --git a/model/stations/Battery.sysml b/model/stations/Battery.sysml
+index 5d33039..a163ee7 100644
+--- a/model/stations/Battery.sysml
++++ b/model/stations/Battery.sysml
+@@ -1,6 +1,6 @@
+ package Battery {
+     part def Battery {
+-        doc /* Stores power for night and cloud. */
++        doc /* Stores solar power for night and cloud. */
+         attribute capacity;
+     }
+ }
+```
+
+`git status --short` is the compact form: `M` means modified (the column it is in says whether the change is staged;
+here it is not yet). `git diff` shows the **diff**, the redline: lines starting with `-` were removed, lines starting
+with `+` were added, and the lines around them are context. The `@@ -1,6 +1,6 @@` line says which lines of the old
+and new file are shown.
+
+This is the moment the document-era habit of "compare revision B and C by eye" dies. Every change, in every review,
+from now on, is shown this way: exactly the lines that changed, nothing else. When Bob showed the deputy program
+manager a diff in sprint 2, the deputy's first words were "That's a redline." It is.
+
+Commit it:
+
+```text run expect="(?s)\] Battery: say where the power comes from.*Add the Battery package"
+$ git add -A
+$ git commit -m "Battery: say where the power comes from"
+[main 9f0add1] Battery: say where the power comes from
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+$ git log --oneline
+9f0add1 Battery: say where the power comes from
+07f494b Add the Battery package
+```
+
+`git add -A` stages every change in the working folder at once; use it when you know everything you changed belongs
+in this commit. `git log --oneline` shows one line per commit, newest first.
+
+=== Commit messages a CCB would accept {#git-messages}
+
+The commit message is the "reason for change" field of the change record. In six months someone will run `git log`
+on a file to find out why a line is the way it is, and the message is all they will have. The team's convention:
+
+- **A subject line of at most 72 characters**, saying what the commit does, starting with the area: `Stations: close
+  the level-tag TODOs`. No full stop at the end.
+- **A blank line, then a body** when the reason is not obvious from the subject: why the change was made, what was
+  considered and rejected, what the reviewer should look at.
+- **A reference to the task**: `Part of #23` or `Closes #23`, where 23 is the GitLab issue number. GitLab turns these
+  into links, and `Closes` closes the issue when the change is merged ([[gitlab-setup]]).
+
+|| Poor | Better ||
+| `fix` | `Stations: type Battery.capacity as an energy value` |
+| `changes per Bob` | `Network: replace the include TODO with an include use case (Closes #31)` |
+| `WIP` | (do not commit work in progress to a shared branch; see [[git-stash]]) |
+| `updated model` | `Requirements: import DOORS module System Requirements (Part of #18)` |
+Table: Commit messages
+
+Because `core.editor` is set to Vim ([[survival-git-config]]), typing `git commit` without `-m` opens Vim with an
+empty message. Write the subject on the first line, leave the second blank, write the body below, then `:wq`. Git
+commits when Vim exits. If you quit without saving (`:q!`), git cancels the commit. For anything with a body, this
+is easier than `-m`.
+
+=== Undoing things {#git-undo}
+
+Fear of breaking something is the biggest obstacle for newcomers, so learn the undo commands early. Which one to
+use depends on how far the change has travelled.
+
+**A change you have not staged, that you want to throw away.** Make a throwaway edit, then throw it away:
+
+```vim run
+:edit model/stations/Battery.sysml
+:%s/and cloud/and fog/
+:write
+```
+
+```text run expect="\A M model/stations/Battery\.sysml\n\z"
+$ git status --short
+ M model/stations/Battery.sysml
+$ git restore model/stations/Battery.sysml
+$ git status --short
+```
+
+`git restore FILE` puts the file back the way it was at the last commit. This one cannot be undone: the edits are
+gone. (They were never committed, so git never had them.)
+
+**A change you have staged, that you want to take back out of the package.** Add an owner line under the first
+line, stage it, then take it back out of the package:
+
+```vim run
+:edit model/stations/Battery.sysml
+:1put ='    // owner: Bob'
+:write
+```
+
+```text run expect="\AM  model/stations/Battery\.sysml\n M model/stations/Battery\.sysml\n\z"
+$ git add model/stations/Battery.sysml
+$ git status --short
+M  model/stations/Battery.sysml
+$ git restore --staged model/stations/Battery.sysml
+$ git status --short
+ M model/stations/Battery.sysml
+```
+
+`git restore --staged FILE` un-stages it: the edit stays in the working folder, it is just no longer in the
+package. (Notice the `M` move from the first column to the second.) Older guides show `git rm --cached` or
+`git reset HEAD FILE` for this; `git restore --staged` is the modern form.
+
+**The last commit, before you have pushed it, has a typo in the message or is missing a file:**
+
+```text run expect="(?s)Batery: note the owner.*\] Battery: note the owner"
+$ git commit -am "Batery: note the owner"
+[main 7d3134b] Batery: note the owner
+ 1 file changed, 1 insertion(+)
+$ git commit --amend -m "Battery: note the owner"
+[main 1541dfd] Battery: note the owner
+ Date: Tue Oct 6 07:57:16 2026 -0500
+ 1 file changed, 1 insertion(+)
+```
+
+`--amend` replaces the last commit with a corrected one (note the new hash). Use it only before you push: once
+others have the commit, replacing it rewrites shared history, which the protected branches in GitLab refuse anyway.
+
+**A commit that has been pushed, that turned out to be wrong:**
+
+```text run expect="(?s)Revert \"Battery: note the owner\".*\n[0-9a-f]+ Add the Battery package\n\z"
+$ git revert --no-edit HEAD
+[main d93cd21] Revert "Battery: note the owner"
+ Date: Tue Oct 6 07:57:24 2026 -0500
+ 1 file changed, 1 deletion(-)
+$ git log --oneline
+d93cd21 Revert "Battery: note the owner"
+1541dfd Battery: note the owner
+9f0add1 Battery: say where the power comes from
+07f494b Add the Battery package
+```
+
+`git revert COMMIT` makes a *new* commit that undoes an old one. History is not rewritten; it grows. That is exactly
+how a CM system should behave: the wrong change and its correction are both on the record. `HEAD` means "the commit
+I am on now," and `HEAD~1` the one before it.
+
+::: tip Committed means safe
+Once something is committed, it is very hard to lose. Even a branch you delete keeps its commits for weeks in git's
+internal log (`git reflog` lists them). The things you can lose are the things you never committed. That is the
+practical argument for committing small and often.
+:::
+
+=== Branches {#git-branches}
+
+A **branch** is a named line of commits. Every repository starts with one (`main`). Making another is instant, and it
+lets you make changes without touching anyone else's work until you choose to combine them. On Tidewater, every
+task that changes the model is done on its own branch, named for its GitLab issue: `feature/23-network-levels`.
+
+```text run expect="Switched to a new branch 'feature/7-battery-units'"
+$ git switch -c feature/7-battery-units
+Switched to a new branch 'feature/7-battery-units'
+```
+
+`git switch -c NAME` creates a branch and moves onto it (`git checkout -b NAME` is the older form, and does the
+same). Edit the file so the capacity has a type (`attribute capacity : ISQ::EnergyValue;`) and commit:
+
+```vim run
+:edit model/stations/Battery.sysml
+:%s/attribute capacity;/attribute capacity : ISQ::EnergyValue;/
+:write
+```
+
+```text run expect="type the capacity as energy"
+$ git commit -am "Battery: type the capacity as energy"
+[feature/7-battery-units 38fecbe] Battery: type the capacity as energy
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+$ git log --oneline --all --graph
+* 38fecbe Battery: type the capacity as energy
+* d93cd21 Revert "Battery: note the owner"
+* 1541dfd Battery: note the owner
+* 9f0add1 Battery: say where the power comes from
+* 07f494b Add the Battery package
+```
+
+(`commit -a` stages every modified, already-tracked file and commits in one step. It does not pick up new files.)
+
+`git log --oneline --all --graph` draws every branch's history as a graph. Make it a habit; it is the map of the
+repository. Now switch back to `main` and look at the file:
+
+```text run expect="(?s)Switched to branch 'main'.*attribute capacity;"
+$ git switch main
+Switched to branch 'main'
+$ cat model/stations/Battery.sysml
+package Battery {
+    part def Battery {
+        doc /* Stores solar power for night and cloud. */
+        attribute capacity;
+    }
+}
+```
+
+The typed capacity is not there. It exists only on the branch. This is the point of branches: `main` is untouched
+until the change is reviewed and merged.
+
+=== Merging {#git-merge}
+
+To incorporate the branch's work, merge it into the branch you are on:
+
+```text run expect="(?s)Merge made by the 'ort' strategy.*Deleted branch feature/7-battery-units"
+$ git merge --no-ff feature/7-battery-units -m "Merge branch 'feature/7-battery-units' into 'main'"
+Merge made by the 'ort' strategy.
+ model/stations/Battery.sysml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+$ git log --oneline --all --graph
+*   84f88cb Merge branch 'feature/7-battery-units' into 'main'
+|\
+| * 38fecbe Battery: type the capacity as energy
+|/
+* d93cd21 Revert "Battery: note the owner"
+* 1541dfd Battery: note the owner
+* 9f0add1 Battery: say where the power comes from
+* 07f494b Add the Battery package
+$ git branch -d feature/7-battery-units
+Deleted branch feature/7-battery-units (was 38fecbe).
+```
+
+The graph shows the branch going off and coming back. The **merge commit** (`84f88cb`) records the incorporation
+itself: when the change was incorporated, by whom, and (in GitLab) through which merge request and with whose
+approval. Deleting the branch afterwards removes only the name; its commits stay in the history.
+
+`--no-ff` ("no fast-forward") forces git to make a merge commit even when it could simply move `main` forward to the
+branch's last commit. Without it, the graph would be a straight line and the fact that these commits arrived together,
+as one reviewed change, would be lost. Tidewater always merges this way; GitLab does it for you when the project's
+merge method is set to "merge commit" (decision D-3 in [[om-decisions]]).
+
+On Tidewater you will almost never type `git merge` into a shared branch yourself. Merges into `develop` and `main`
+happen in GitLab, through a merge request, after the pipeline passes and a code owner approves ([[gitlab-setup]]).
+You practice it here so that you know what GitLab is doing for you.
+
+=== Merge conflicts {#git-conflicts}
+
+A **merge conflict** happens when two branches changed the same lines differently, and git cannot know which to
+keep. It is two people redlining the same sentence: a person has to decide. Make one on purpose. On a branch, change
+the battery's documentation one way:
+
+```text run expect="Switched to a new branch 'feature/8-doc-bob'"
+$ git switch -c feature/8-doc-bob
+Switched to a new branch 'feature/8-doc-bob'
+```
+
+Edit the line to `Stores solar power for the night.` (from Vim's command line, as below, or by hand) and commit:
+
+```vim run
+:edit model/stations/Battery.sysml
+:%s/for night and cloud/for the night/
+:write
+```
+
+```text run expect="Battery doc: night only"
+$ git commit -am "Battery doc: night only"
+[feature/8-doc-bob b456f01] Battery doc: night only
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+```
+
+Then go back to `main` and change the same line another way (`Stores solar power for night, cloud and storms.`),
+commit, and merge the branch in:
+
+```text run expect="Switched to branch 'main'"
+$ git switch main
+Switched to branch 'main'
+```
+
+```vim run
+:edit model/stations/Battery.sysml
+:%s/for night and cloud/for night, cloud and storms/
+:write
+```
+
+```text run exit=1 expect="CONFLICT \(content\): Merge conflict in model/stations/Battery\.sysml"
+$ git commit -am "Battery doc: add storms"
+[main 8c8f29e] Battery doc: add storms
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+$ git merge feature/8-doc-bob
+Auto-merging model/stations/Battery.sysml
+CONFLICT (content): Merge conflict in model/stations/Battery.sysml
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+When `git merge` stops like this it reports an error: the merge is half done, and git waits for you. Ask for the
+state:
+
+```text run expect="both modified:\s+model/stations/Battery\.sysml"
+$ git status
+On branch main
+You have unmerged paths.
+  (fix conflicts and run "git commit")
+  (use "git merge --abort" to abort the merge)
+
+Unmerged paths:
+  (use "git add <file>..." to mark resolution)
+	both modified:   model/stations/Battery.sysml
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+Git stopped half way and wrote both versions into the file, between **conflict markers**:
+
+```text run expect="(?s)<<<<<<< HEAD\n\s+doc /\* Stores solar power for night, cloud and storms\. \*/\n=======\n\s+doc /\* Stores solar power for the night\. \*/\n>>>>>>> feature/8-doc-bob"
+$ cat model/stations/Battery.sysml
+package Battery {
+    part def Battery {
+<<<<<<< HEAD
+        doc /* Stores solar power for night, cloud and storms. */
+=======
+        doc /* Stores solar power for the night. */
+>>>>>>> feature/8-doc-bob
+        attribute capacity : ISQ::EnergyValue;
+    }
+}
+```
+
+Between `<<<<<<< HEAD` and `=======` is the version on the branch you are on (`main`); between `=======` and
+`>>>>>>> feature/8-doc-bob` is the incoming version. Everything outside the markers merged cleanly (notice that the
+typed capacity from the earlier merge is there). Resolve it by editing the file into what it should be, with the
+markers removed. Here the right answer combines both:
+
+```sysml
+        doc /* Stores solar power for the night, cloud and storms. */
+```
+
+In Vim, delete the five lines from `<<<<<<<` to `>>>>>>>` and type the combined line in their place; or let Vim's
+command line do it, which is also how this book's test of the chapter does it:
+
+```vim run
+:edit model/stations/Battery.sysml
+:/^<<<<<<</,/^>>>>>>>/delete
+:/part def Battery {/put ='        doc /* Stores solar power for the night, cloud and storms. */'
+:write
+```
+
+Then tell git the conflict is resolved and finish the merge:
+
+```text run expect="(?s)Merge branch 'feature/8-doc-bob'.*Add the Battery package"
+$ git add model/stations/Battery.sysml
+$ git commit --no-edit
+[main 5324b76] Merge branch 'feature/8-doc-bob'
+$ git log --oneline --all --graph
+*   5324b76 Merge branch 'feature/8-doc-bob'
+|\
+| * b456f01 Battery doc: night only
+* | 8c8f29e Battery doc: add storms
+|/
+*   84f88cb Merge branch 'feature/7-battery-units' into 'main'
+|\
+| * 38fecbe Battery: type the capacity as energy
+|/
+* d93cd21 Revert "Battery: note the owner"
+* 1541dfd Battery: note the owner
+* 9f0add1 Battery: say where the power comes from
+* 07f494b Add the Battery package
+```
+
+If you start a merge and want to back out of it, `git merge --abort` returns everything to how it was before.
+
+::: note Conflicts are information
+Bob's first conflict produced a moment of panic, then a realization. In the Cameo years, two people changing the
+same element produced no warning at all: the second save silently won, and the first person's work vanished until
+someone noticed, sometimes months later. A conflict is git refusing to lose anyone's work. It is the system working.
+[[vim]] shows how to resolve conflicts quickly in Vim; [[maintenance]] shows how the team handled the conflicts
+that each prime drop produced.
+:::
+
+=== Putting work aside: stash {#git-stash}
+
+Sometimes you are in the middle of an edit and need a clean working folder for a few minutes: to look at another
+branch, or to pull a colleague's change. You do not want to commit half-finished work. Make an edit (here, adding gales to the documentation), then
+**stash** it:
+
+```vim run
+:edit model/stations/Battery.sysml
+:%s/cloud and storms/cloud, storms and gales/
+:write
+```
+
+```text run expect="(?s)Saved working directory.*Dropped refs/stash@\{0\}"
+$ git status --short
+ M model/stations/Battery.sysml
+$ git stash
+Saved working directory and index state WIP on main: 5324b76 Merge branch 'feature/8-doc-bob'
+$ git status --short
+$ git stash list
+stash@{0}: WIP on main: 5324b76 Merge branch 'feature/8-doc-bob'
+$ git stash pop
+On branch main
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   model/stations/Battery.sysml
+
+no changes added to commit (use "git add" and/or "git commit -a")
+Dropped refs/stash@{0} (7b0c8a5ad89eed7f1a2ffc6ae4ef0277d8175e52)
+```
+
+`git stash` shelves your uncommitted changes and leaves a clean working folder. `git stash list` shows the shelf.
+`git stash pop` puts the most recent shelved changes back and removes them from the shelf; `git stash apply` puts them
+back and keeps them on the shelf. `git stash clear` empties the shelf (carefully: that is a real delete). Stash is
+for minutes, not days. If work will take longer, commit it on its own branch.
+
+=== Remotes: clone, push and pull {#git-remotes}
+
+So far everything has been on one laptop. A **remote** is another copy of the repository that you exchange commits
+with. On Tidewater the remote is the GitLab project; here, a second folder plays GitLab's part, so you can practice
+without a server. (A **bare** repository is one with no working folder, only history: what a server keeps.)
+
+```text run expect="\[new branch\]\s+main -> main"
+$ cd ~
+$ git init --bare gitlab-model.git
+Initialized empty Git repository in C:/Users/bob/gitlab-model.git/
+$ cd practice
+$ git remote add origin ~/gitlab-model.git
+$ git push -u origin main
+To C:/Users/bob/gitlab-model.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+```
+
+`git remote add origin URL` names the remote `origin` (the conventional name). `git push -u origin main` sends the
+`main` branch there; `-u` remembers the pairing, so later a plain `git push` or `git pull` knows where to go.
+
+Now be Tom. Clone the "server" into a second folder, as Tom would on another laptop, and make a change:
+
+```text run expect="(?s)Cloning into 'tom-clone'.*Merge branch 'feature/8-doc-bob'"
+$ cd ~
+$ git clone gitlab-model.git tom-clone
+Cloning into 'tom-clone'...
+done.
+$ cd tom-clone
+$ git log --oneline -3
+5324b76 Merge branch 'feature/8-doc-bob'
+8c8f29e Battery doc: add storms
+b456f01 Battery doc: night only
+```
+
+The clone has the whole history. In the clone, set Tom's name and email without `--global`, so these commits are
+Tom's; then add a README and push it:
+
+```text run cwd=~/tom-clone expect="main -> main"
+$ git config user.name Tom
+$ git config user.email tom@example.invalid
+$ echo "# Tidewater practice model" > README.md
+$ git add README.md
+$ git commit -m "Add a README"
+[main c4f173d] Add a README
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+$ git push
+To C:/Users/bob/gitlab-model.git
+   5324b76..c4f173d  main -> main
+```
+
+Back in Bob's folder, bring in Tom's work:
+
+```text run expect="(?s)Fast-forward.*README\.md \| 1 \+"
+$ cd ~/practice
+$ git pull
+From C:/Users/bob/gitlab-model
+   5324b76..c4f173d  main       -> origin/main
+Updating 5324b76..c4f173d
+Fast-forward
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+```
+
+`git pull` is two steps: `git fetch` (download the remote's new commits) and then a merge of them into your branch.
+Here Bob had no new commits of their own, so git simply moved Bob's `main` forward: a **fast-forward**.
+
+==== When the push is rejected
+
+What if both have committed? Tom adds a line to the README and pushes it:
+
+```text run expect="main -> main"
+$ cd ~/tom-clone
+$ echo "Practice only; the real model is in GitLab." >> README.md
+$ git commit -am "README: say what this repository is"
+[main 4b74c6c] README: say what this repository is
+ 1 file changed, 1 insertion(+)
+$ git push
+To C:/Users/bob/gitlab-model.git
+   c4f173d..4b74c6c  main -> main
+$ cd ~/practice
+```
+
+Bob, who has not pulled since, commits the gales edit still in the working folder from [[git-stash]], and pushes:
+
+```text run cwd=~/practice exit=1 expect="\[rejected\]\s+main -> main \(fetch first\)"
+$ git commit -am "Battery: gales too"
+[main eaa4350] Battery: gales too
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+$ git push
+To C:/Users/bob/gitlab-model.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'C:/Users/bob/gitlab-model.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+```
+
+Pull, which merges Tom's commit into Bob's, then push again:
+
+```text run expect="(?s)Merge made by the 'ort' strategy.*main -> main"
+$ git pull --no-rebase --no-edit
+From C:/Users/bob/gitlab-model
+   c4f173d..4b74c6c  main       -> origin/main
+Merge made by the 'ort' strategy.
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+$ git push
+To C:/Users/bob/gitlab-model.git
+   4b74c6c..0a2f2f6  main -> main
+```
+
+The server refused
+Bob's push because accepting it would have discarded Tom's commit. That refusal is a safety feature, not an error to
+be worked around. The fix is always: pull, resolve any conflicts, push again.
+
+On Tidewater this situation almost never arises, because nobody pushes to a shared branch. Each person pushes only
+their own feature branches, and shared branches change only through merge requests. Your local copy of `develop`
+only ever moves forward, by pulling. One more setting makes that safe:
+
+```sh run
+git config --global pull.ff only
+```
+
+With it, `git pull` refuses to make a merge commit on your behalf; it only fast-forwards. If it ever refuses, you
+committed on a branch you should not have, and you want to know.
+
+=== Tags: baselines {#git-tags}
+
+A **tag** is a permanent name on one commit. On Tidewater, tags are baselines: `baseline-0`, `baseline-1`. An
+**annotated** tag also records who made it, when, and a message:
+
+```text run expect="(?s)Tagger: .*\[new tag\]\s+baseline-0 -> baseline-0"
+$ git tag -a baseline-0 -m "Interim baseline for the practice repo"
+$ git show baseline-0 --stat
+tag baseline-0
+Tagger: Bob <bob@example.invalid>
+Date:   Tue Oct 6 08:00:52 2026 -0500
+
+Interim baseline for the practice repo
+
+commit 0a2f2f63a2cb7f06d238a5b7ed4214d42b2c46ec
+Merge: eaa4350 4b74c6c
+Author: Bob <bob@example.invalid>
+Date:   Tue Oct 6 08:00:40 2026 -0500
+
+    Merge branch 'main' of C:/Users/bob/gitlab-model
+
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+$ git push origin baseline-0
+To C:/Users/bob/gitlab-model.git
+ * [new tag]         baseline-0 -> baseline-0
+```
+
+Tags are not pushed with `git push` alone; push them by name. Anyone can then check out exactly that baseline
+(`git switch --detach baseline-0`), years later, and get the identical files. Compare the document era's
+"Revision C," which named a document but not the exact state of everything that document depended on.
+
+In GitLab, baseline tags are **protected** ([[gitlab-setup]]): only maintainers can create them, and nobody can move
+or delete them. That turns a convention into a control.
+
+=== Reading history: log, show and blame {#git-history}
+
+Three commands answer the questions a CM auditor asks.
+
+*What changed, and when?* `git log`, with options. `git log --oneline --all --graph` for the map;
+`git log --oneline -- FILE` for one file's history:
+
+```text run expect="(?s)Battery: gales too.*Add the Battery package"
+$ git log --oneline --follow -- model/stations/Battery.sysml
+eaa4350 Battery: gales too
+8c8f29e Battery doc: add storms
+b456f01 Battery doc: night only
+38fecbe Battery: type the capacity as energy
+d93cd21 Revert "Battery: note the owner"
+1541dfd Battery: note the owner
+9f0add1 Battery: say where the power comes from
+07f494b Add the Battery package
+```
+
+*What exactly was in that change?* `git show COMMIT` prints the change record and its diff; with `--stat`, only a
+summary:
+
+```text run expect="Battery: gales too"
+$ git show --stat HEAD~1
+commit eaa43503467763c98c60e8177cf03495f036d9d9
+Author: Bob <bob@example.invalid>
+Date:   Tue Oct 6 08:00:32 2026 -0500
+
+    Battery: gales too
+
+ model/stations/Battery.sysml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+```
+
+*Who last changed each line, and in which change?* `git blame FILE`:
+
+```text run expect="(?s)\^[0-9a-f]+ \(.*\) package Battery \{.*Stores solar power for the night, cloud, storms and gales"
+$ git blame model/stations/Battery.sysml
+^07f494b (Bob 2026-10-06 07:56:20 -0500 1) package Battery {
+^07f494b (Bob 2026-10-06 07:56:20 -0500 2)     part def Battery {
+eaa43503 (Bob 2026-10-06 08:00:32 -0500 3)         doc /* Stores solar power for the night, cloud, storms and gales. */
+38fecbee (Bob 2026-10-06 07:57:36 -0500 4)         attribute capacity : ISQ::EnergyValue;
+^07f494b (Bob 2026-10-06 07:56:20 -0500 5)     }
+^07f494b (Bob 2026-10-06 07:56:20 -0500 6) }
+```
+
+Each line shows the commit that last touched it. Line 3 came from the last change, the gales; line 4 from the typed
+capacity. Bob's reaction, the first time: "In Cameo, nobody could tell me who changed a block or why. This tells me
+for every line."
+
+=== Files git should ignore {#git-ignore}
+
+Some files belong in the working folder but not in the repository: editor swap files, generated drawings you can
+rebuild, scratch output. List them in a file called `.gitignore` at the top of the repository, one pattern per line:
+
+```text run expect="\A\?\? \.gitignore\n\z"
+$ mkdir -p docs
+$ echo '<svg/>' > docs/tree.svg
+$ echo "docs/*.svg" > .gitignore
+$ git status --short
+?? .gitignore
+```
+
+The `docs/tree.svg` made first stands for a generated drawing; git no longer reports it, because it matches the pattern. (`??` means
+untracked.) Commit the `.gitignore` itself. The team's model repository ignores Vim's swap files, the tags file, merge backups and the local pipeline
+runner's logs, and deliberately does *not* ignore the generated `docs/` folder, because the team decided to commit
+generated documentation so that reviewers see it change ([[pipeline]]).
+
+=== The rules the team adopted {#git-rules}
+
+By the end of sprint 1 the team had settled on eight rules. They are on the wiki's Gitflow page and on a card taped
+to each monitor.
+
+1. **Never commit on `main` or `develop`.** Every change starts on a feature branch. GitLab enforces this for pushes;
+   the rule exists so you do not make the local mess that a rejected push leaves behind.
+2. **One task, one branch, one merge request.** The branch is named for the task's issue: `feature/23-network-levels`.
+3. **Start from the latest `develop`.** `git switch develop`, `git pull`, then `git switch -c feature/...`.
+4. **Commit small and often**, each commit with a message that says why ([[git-messages]]).
+5. **Push at least at the end of every day.** Your branch on GitLab is your backup, and others can see your work.
+6. **Never rewrite history that has been pushed.** No force push; GitLab's protections refuse it on shared branches,
+   and the team agreed not to do it on feature branches either.
+7. **Never commit secrets or files you did not mean to.** Look at `git status` before every commit.
+8. **When unsure, stop and type `git status`**, then `git log --oneline --all --graph`. Most confusion ends there.
+
+The day-to-day sequence for one task, start to merge request, looks like this. [[gitlab-setup]] adds the GitLab
+side, and shows the kit's `gitlab.pl flow` commands, which do these steps for you and fill in the merge request:
+
+```sh
+git switch develop
+git pull
+git switch -c feature/23-network-levels
+vim model/physical/network/Network.sysml   # do the work
+git add model/physical/network/Network.sysml
+git commit                                # Vim opens; write the message; :wq
+git push -u origin feature/23-network-levels
+```
+
+When you push a new branch, GitLab's reply includes a link: `To create a merge request for
+feature/23-network-levels, visit: https://gitlab.example.com/tidewater/model/-/merge_requests/new?...`. Open it,
+and you are in [[gitlab-setup]].
+
+=== Branching strategies {#git-strategies}
+
+A **branching strategy** is a team's rule for which long-lived branches exist and how changes move between them. It
+is the part of git that most resembles a CM plan, and the one where your project may reasonably choose differently
+from Tidewater. There are three common strategies.
+
+**GitHub flow** is the simplest. There is one long-lived branch, `main`. Every change is a short-lived branch from
+`main`, reviewed in a merge request (GitHub calls it a pull request), checked by automated tests, and merged back
+into `main`. `main` is always the current state, and anything on it may be published at any time. It suits small
+teams that publish continuously and never need to maintain an older released version.
+
+**Git flow** (or gitflow) is the most structured. There are two long-lived branches: `develop`, where integrated work
+accumulates, and `main`, which holds only released versions, each tagged. Features branch from `develop` and merge
+back into it. When a release is due, a `release/` branch is cut from `develop`, stabilized (only fixes, release
+notes, version numbers), then merged into `main` and tagged, and merged back into `develop`. Urgent fixes to a
+released version are `hotfix/` branches from `main`, merged into both `main` and `develop`.
+
+**GitLab flow** sits between the two and comes in two variants. In the *environment* variant, `main` is the
+integration branch and further branches represent places the work is deployed (`pre-production`, `production`);
+changes are promoted from one to the next by merge requests, and the testing at each step widens. In the *release*
+variant, `main` is the integration branch and a `release/` branch is cut for each released version as late as
+possible, receiving only serious fixes. Both variants follow an **upstream-first** rule: a fix always lands on `main`
+first and is then carried to the release or environment branch, never the other way round, so no fix is ever lost.
+
+|| | GitHub flow | GitLab flow | Git flow ||
+| Long-lived branches | `main` | `main` plus environment or release branches | `main` (releases) and `develop` (integration) |
+| Where daily work merges | `main` | `main` | `develop` |
+| How a release is made | any commit on `main`; tag it | promote by MR to the next environment, or cut a release branch late | release branch from `develop`, stabilize, merge to `main`, tag, merge back |
+| Fixes to a released version | none (you release again) | upstream first: fix on `main`, carry to the release branch | hotfix branch from `main`, merged to `main` and `develop` |
+| Complexity | low | medium | high |
+| Suits | continuous publishing; one current version | staged deployment, or a few supported releases | formal, numbered releases that others depend on |
+Table: Three branching strategies compared
+
+==== Why Tidewater chose git flow
+
+Jim, Bob and Tom argued about this for most of an afternoon in week zero, and the decision (D-2 in
+[[om-decisions]]) rests on three facts about Tidewater:
+
+1. **Tidewater has formal baselines.** Analyses, contracts and the program's other teams cite a specific baseline
+   of the system model, and the CCB approves each one. Git flow's `main` is exactly the list of approved baselines:
+   every commit on `main` is a baseline merge, and every baseline is a protected tag on `main`. The deputy program
+   manager understood that in one sentence.
+2. **Daily work must never wait for a baseline.** Preparing `baseline-1` took a week of review and release notes.
+   With git flow, that happened on a release branch while Bob and Tom kept merging into `develop`. In GitHub flow,
+   the team would have had to freeze `main` for a week, or publish a baseline that included half-reviewed work.
+3. **A released baseline may need a correction.** In sprint 24 the program office found a wrong satisfy
+   relationship in `baseline-1`, which another program was using. A hotfix branch from `main` corrected it and the
+   fix reached `develop` too ([[maintenance]]).
+
+The team made two adjustments to textbook git flow. `develop` is GitLab's **default branch**, the one merge requests
+target unless told otherwise and the one where "Closes #N" closes issues, so that day-to-day work flows to the right
+place without anyone thinking about it. And a seventh kind of branch, `vendor/prime`, holds the prime's deliveries,
+which is the next section.
+
+==== When your project should choose differently
+
+Choose **GitLab flow (release variant)** if your model is published continuously (a model site everyone reads) and
+formal baselines are rare, or if you want one integration branch and find `develop` plus `main` confusing. Most of
+Tidewater's practices carry over unchanged: release branches become baselines, and the vendor branch works the same.
+
+Choose **GitHub flow** if your model has no formal releases at all: an internal model used only by its own team,
+or a short study. It is the easiest to teach and the hardest to get wrong.
+
+Choose **git flow** if, like Tidewater, people outside the team depend on specific approved versions, and those
+versions sometimes need corrections while new work continues.
+
+Whatever you choose, write it down with its reason ([[om-decisions]]), protect the long-lived branches in GitLab, and
+keep the rule that nothing reaches a long-lived branch except through a reviewed merge request.
+
+=== The vendor branch {#git-vendor}
+
+The prime contractor delivers a new v1 model every quarter. The team converts each delivery to SysML v2 and then
+edits the converted text: closing TODO lines, removing clutter, writing what the converter could not. The question
+that kept Bob awake in week zero was: *when drop 2 arrives, what happens to all our edits?*
+
+Converting drop 2 produces fresh text with every TODO back in place. Copying it over the team's edited files would
+erase three months of work. Hand-merging thirteen files every quarter would be the Cameo years again. The answer is a
+**vendor branch**: a branch that holds the deliveries exactly as converted, never edited by hand, and is merged
+into `develop` like any other branch. Git then does a **three-way merge**: it compares the prime's old and new
+version and applies the prime's changes to the team's edited version, leaving the team's edits alone wherever the
+prime did not touch the same lines.
+
+You can see it work in a practice repository of its own. Make a skeleton:
+
+```text run expect="Project skeleton"
+$ cd ~
+$ git init vendor-practice
+Initialized empty Git repository in C:/Users/bob/vendor-practice/.git/
+$ cd vendor-practice
+$ echo "# Practice: the vendor branch" > README.md
+$ git add README.md
+$ git commit -m "Project skeleton"
+[main (root-commit) 9243b02] Project skeleton
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+```
+
+Then a vendor branch holding the first delivery's converted file (pasted here; on Tidewater the converter writes it):
+
+```sh run cwd=~/vendor-practice expect="Switched to a new branch 'vendor/prime'"
+git switch -c vendor/prime
+mkdir -p model
+cat > model/Stations.sysml <<'END'
+package Stations {
+    part def Buoy {
+        // TODO stereotype Tidewater_Profile:L3Station on this element (xmi:id _22_1_7f3a0c1_0215) not converted
+        doc /* A moored buoy. */
+        part hull : Hull;
+    }
+    part def Hull;
+}
+END
+```
+
+```text run expect="(?s)Import prime drop v1\.0.*create mode 100644 model/Stations\.sysml"
+$ git add -A
+$ git commit -m "Import prime drop v1.0"
+[vendor/prime 38c8272] Import prime drop v1.0
+ 1 file changed, 8 insertions(+)
+ create mode 100644 model/Stations.sysml
+$ git switch main
+Switched to branch 'main'
+$ git switch -c develop
+Switched to a new branch 'develop'
+$ git merge --no-ff vendor/prime -m "Merge branch 'vendor/prime' into 'develop'"
+Merge made by the 'ort' strategy.
+ model/Stations.sysml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+ create mode 100644 model/Stations.sysml
+```
+
+The delivered file has a TODO line where the converter could not carry a level stereotype. On `develop`, the team
+closes it (replacing the TODO line with `@L3Station;`) and commits:
+
+```vim run
+:edit model/Stations.sysml
+:%s/^ *\/\/ TODO stereotype Tidewater_Profile:L3Station.*/        @L3Station;/
+:write
+```
+
+```text run expect="Buoy is a level-3 station"
+$ git commit -am "Stations: Buoy is a level-3 station"
+[develop c779858] Stations: Buoy is a level-3 station
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+```
+
+Now drop 2 arrives. The prime added a mooring. Its converted text still has the TODO line, because the converter
+cannot carry the stereotype now any more than before. It goes onto the vendor branch exactly as converted:
+
+```sh run
+git switch vendor/prime
+cat > model/Stations.sysml <<'END'
+package Stations {
+    part def Buoy {
+        // TODO stereotype Tidewater_Profile:L3Station on this element (xmi:id _22_1_7f3a0c1_0215) not converted
+        doc /* A moored buoy. */
+        part hull : Hull;
+        part mooring : Mooring;
+    }
+    part def Hull;
+    part def Mooring;
+}
+END
+```
+
+```text run expect="(?s)Import prime drop v1\.1.*@L3Station;.*part mooring : Mooring;"
+$ git commit -am "Import prime drop v1.1"
+[vendor/prime 7e52f56] Import prime drop v1.1
+ 1 file changed, 2 insertions(+)
+$ git switch develop
+Switched to branch 'develop'
+$ git merge --no-ff vendor/prime -m "Merge branch 'vendor/prime' into 'develop'"
+Auto-merging model/Stations.sysml
+Merge made by the 'ort' strategy.
+ model/Stations.sysml | 2 ++
+ 1 file changed, 2 insertions(+)
+$ cat model/Stations.sysml
+package Stations {
+    part def Buoy {
+        @L3Station;
+        doc /* A moored buoy. */
+        part hull : Hull;
+        part mooring : Mooring;
+    }
+    part def Hull;
+    part def Mooring;
+}
+$ git log --oneline --graph --all
+*   56f1116 Merge branch 'vendor/prime' into 'develop'
+|\
+| * 7e52f56 Import prime drop v1.1
+* | c779858 Stations: Buoy is a level-3 station
+* | 4223c6e Merge branch 'vendor/prime' into 'develop'
+|\|
+| * 38c8272 Import prime drop v1.0
+|/
+* 9243b02 Project skeleton
+```
+
+The merged file has both: the team's `@L3Station;` and the prime's new mooring. Git knew the TODO line had not
+changed between v1.0 and v1.1 on the prime's side, so the team's replacement of it stands. Bob stared at this for a
+long time.
+
+When the prime *does* change a line the team also changed, git stops and asks. In drop 1.2 of the practice
+repository the prime changed the stereotype on the very element the team had tagged:
+
+```sh run expect="Import prime drop v1\.2"
+git switch vendor/prime
+cat > model/Stations.sysml <<'END'
+package Stations {
+    part def Buoy {
+        // TODO stereotype Tidewater_Profile:L2Segment on this element (xmi:id _22_1_7f3a0c1_0215) not converted
+        doc /* A moored buoy. */
+        part hull : Hull;
+        part mooring : Mooring;
+    }
+    part def Hull;
+    part def Mooring;
+}
+END
+git commit -am "Import prime drop v1.2"
+git switch develop
+```
+
+```text run exit=1 expect="CONFLICT \(content\): Merge conflict in model/Stations\.sysml"
+$ git merge --no-ff vendor/prime -m "Merge branch 'vendor/prime' into 'develop'"
+Auto-merging model/Stations.sysml
+CONFLICT (content): Merge conflict in model/Stations.sysml
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+```text run expect="(?s)<<<<<<< HEAD\n\s+@L3Station;\n=======\n\s+// TODO stereotype Tidewater_Profile:L2Segment"
+$ cat model/Stations.sysml
+package Stations {
+    part def Buoy {
+<<<<<<< HEAD
+        @L3Station;
+=======
+        // TODO stereotype Tidewater_Profile:L2Segment on this element (xmi:id _22_1_7f3a0c1_0215) not converted
+>>>>>>> vendor/prime
+        doc /* A moored buoy. */
+        part hull : Hull;
+        part mooring : Mooring;
+    }
+    part def Hull;
+    part def Mooring;
+}
+```
+
+This conflict is exactly right. The prime reclassified the buoy, and the team's tag is now out of date. A person must
+look and decide (here: `@L2Segment;`). The conflict is not a failure of the method; it is the method telling the
+team precisely where the prime's change and the team's work collide. On Tidewater, each drop's merge produced a
+handful of these, and resolving them was a task in the drop's story ([[maintenance]]).
+
+Three things make the vendor branch work, and each became a rule:
+
+- **The converter's output must be stable.** The same v1 element must produce the same lines, in the same file, every
+  time. The prime agreed to keep element identifiers stable between drops (Part I, [[directive-prime]]), and the
+  converter is deterministic.
+- **Nobody edits the vendor branch by hand.** It holds only what the converter produced from what the prime
+  delivered. Only Tom can push to it, enforced in GitLab.
+- **The team's own additions go in files the converter never writes** (for Tidewater, `model/library/conventions/` and other government-owned files), or in place of
+  TODO lines, so that conflicts appear only where they mean something.
+
+=== Applying this to your project {#git-apply}
+
+Copy: the practice repository exercise, for everyone, in the first week. The eight rules. Merge commits, never
+squash, if your metrics or audits rely on history. Annotated, protected tags for baselines. The vendor branch, if a
+contractor keeps delivering a model you must keep editing.
+
+Adapt: the branching strategy. Use the comparison table and the three facts that decided Tidewater's choice; your
+facts may point elsewhere. Branch naming: any scheme works if it contains the issue number.
+
+Decide locally: SSH or HTTPS; whether feature branches may ever be force-pushed (Tidewater said no, to keep the rule
+simple); who may push to the vendor branch; and which files are generated and committed versus ignored.
+
+=== Exercises {#git-exercises}
+
+::: exercise {#ex-git-practice} The practice afternoon
+Make a `practice` repository and do every command in this chapter, in order, with your own small SysML file. Then
+do each of these on purpose and recover: restore a file you broke; un-stage a file you staged; amend a commit
+message; revert a commit; abort a merge.
+:::
+
+::: exercise {#ex-git-conflict} A conflict with three sides
+In your practice repository, make two branches from `main` that each change the same line differently, and a third
+change on `main` itself. Merge both branches into `main` one after the other. How many conflicts do you get? Resolve
+them so that the final line makes sense, and look at the result with `git log --oneline --all --graph`.
+:::
+
+::: exercise {#ex-git-blame} The auditor's questions
+In your practice repository, answer with one command each: who last changed line 3 of your SysML file, and in which
+commit? What did that commit change? What was the message of the commit three before the latest?
+:::
+
+::: exercise {#ex-git-vendor} A vendor branch of your own
+Reproduce the vendor-branch session in [[git-vendor]]. Then make a fourth "drop" in which the prime deletes the
+`Hull` part definition, after the team has added a `doc` comment to `Hull` on `develop`. What does git do with a
+change on one side and a deletion on the other? What should the team do?
+:::
+
+::: exercise {#ex-git-strategy} Choose a strategy
+For a project you know, list the facts that matter for a branching strategy: are there formal baselines? Do others
+depend on specific versions? Do released versions get corrected? How often is the model published? Which strategy
+do the facts point to, and what would you write as its decision record?
+:::

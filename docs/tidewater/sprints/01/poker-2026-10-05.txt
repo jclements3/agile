@@ -1,0 +1,199 @@
+Meeting started
+[10:00 AM] Jim
+Sprint 1 kickoff. Planning poker: one number per story, in points.
+[10:01 AM] Jim
+#est TW-1 Learn the tools: survival kit, git, Vim, the operating model
+[10:02 AM] Jim
+3
+[10:02 AM] Bob
+5
+[10:02 AM] Tom
+3
+[10:02 AM] Jim
+3 to 5. Talk it out: what does the high vote know?
+[10:03 AM] Jim
+#est TW-1 Learn the tools: survival kit, git, Vim, the operating model
+[10:04 AM] Jim
+4
+[10:04 AM] Bob
+4
+[10:04 AM] Tom
+4
+[10:05 AM] Jim
+#est TW-2 Laptops ready: Git for Windows, Vim, the kit
+[10:06 AM] Jim
+3
+[10:06 AM] Bob
+3
+[10:06 AM] Tom
+3
+[10:07 AM] Jim
+#est TW-3 Create the GitLab group and model project
+[10:08 AM] Jim
+2
+[10:08 AM] Bob
+5
+[10:08 AM] Tom
+3
+[10:08 AM] Jim
+2 to 5. Talk it out: what does the high vote know?
+[10:09 AM] Jim
+#est TW-3 Create the GitLab group and model project
+[10:10 AM] Jim
+3
+[10:10 AM] Bob
+3
+[10:10 AM] Tom
+3
+[10:11 AM] Jim
+#est TW-4 Draft the first pipeline and run it locally
+[10:12 AM] Jim
+1
+[10:12 AM] Bob
+2
+[10:12 AM] Tom
+2
+[10:12 AM] Jim
+1 to 2. Talk it out: what does the high vote know?
+[10:13 AM] Jim
+#est TW-4 Draft the first pipeline and run it locally
+[10:14 AM] Jim
+1.5
+[10:14 AM] Bob
+1.5
+[10:14 AM] Tom
+1.5
+[10:15 AM] Jim
+#est TW-5 Receive drop 1 and record it
+[10:16 AM] Jim
+1
+[10:16 AM] Bob
+2
+[10:16 AM] Tom
+2
+[10:16 AM] Jim
+1 to 2. Talk it out: what does the high vote know?
+[10:17 AM] Jim
+#est TW-5 Receive drop 1 and record it
+[10:18 AM] Jim
+1.5
+[10:18 AM] Bob
+1.5
+[10:18 AM] Tom
+1.5
+[10:19 AM] Jim
+#est TW-6 Convert drop 1 and assess it
+[10:20 AM] Jim
+3
+[10:20 AM] Bob
+8
+[10:20 AM] Tom
+5
+[10:20 AM] Jim
+3 to 8. Talk it out: what does the high vote know?
+[10:21 AM] Jim
+#est TW-6 Convert drop 1 and assess it
+[10:22 AM] Jim
+3
+[10:22 AM] Bob
+3
+[10:22 AM] Tom
+3
+[10:23 AM] Jim
+#est TW-7 Working agreements: Definition of Ready and Done
+[10:24 AM] Jim
+1
+[10:24 AM] Bob
+0.5
+[10:24 AM] Tom
+0.5
+[10:24 AM] Jim
+0.5 to 1. Talk it out: what does the high vote know?
+[10:25 AM] Jim
+#est TW-7 Working agreements: Definition of Ready and Done
+[10:26 AM] Jim
+0.5
+[10:26 AM] Bob
+0.5
+[10:26 AM] Tom
+0.5
+
+---- Chat.pm tallies
+ESTIMATE TW-1 Learn the tools: survival kit, git, Vim, the operating model  (3 answers at 10:01)
+  Bob            5
+  Jim            3
+  Tom            3
+  no consensus: median 3, mode 3, range 3-5
+
+ESTIMATE TW-1 Learn the tools: survival kit, git, Vim, the operating model  (3 answers at 10:03)
+  Bob            4
+  Jim            4
+  Tom            4
+  consensus: 4
+
+ESTIMATE TW-2 Laptops ready: Git for Windows, Vim, the kit  (3 answers at 10:05)
+  Bob            3
+  Jim            3
+  Tom            3
+  consensus: 3
+
+ESTIMATE TW-3 Create the GitLab group and model project  (3 answers at 10:07)
+  Bob            5
+  Jim            2
+  Tom            3
+  no consensus: median 3, mode 2, range 2-5
+
+ESTIMATE TW-3 Create the GitLab group and model project  (3 answers at 10:09)
+  Bob            3
+  Jim            3
+  Tom            3
+  consensus: 3
+
+ESTIMATE TW-4 Draft the first pipeline and run it locally  (3 answers at 10:11)
+  Bob            2
+  Jim            1
+  Tom            2
+  no consensus: median 2, mode 2, range 1-2
+
+ESTIMATE TW-4 Draft the first pipeline and run it locally  (3 answers at 10:13)
+  Bob            1.5
+  Jim            1.5
+  Tom            1.5
+  consensus: 1.5
+
+ESTIMATE TW-5 Receive drop 1 and record it  (3 answers at 10:15)
+  Bob            2
+  Jim            1
+  Tom            2
+  no consensus: median 2, mode 2, range 1-2
+
+ESTIMATE TW-5 Receive drop 1 and record it  (3 answers at 10:17)
+  Bob            1.5
+  Jim            1.5
+  Tom            1.5
+  consensus: 1.5
+
+ESTIMATE TW-6 Convert drop 1 and assess it  (3 answers at 10:19)
+  Bob            8
+  Jim            3
+  Tom            5
+  no consensus: median 5, mode 3, range 3-8
+
+ESTIMATE TW-6 Convert drop 1 and assess it  (3 answers at 10:21)
+  Bob            3
+  Jim            3
+  Tom            3
+  consensus: 3
+
+ESTIMATE TW-7 Working agreements: Definition of Ready and Done  (3 answers at 10:23)
+  Bob            0.5
+  Jim            1
+  Tom            0.5
+  no consensus: median 0.5, mode 0.5, range 0.5-1
+
+ESTIMATE TW-7 Working agreements: Definition of Ready and Done  (3 answers at 10:25)
+  Bob            0.5
+  Jim            0.5
+  Tom            0.5
+  consensus: 0.5
+

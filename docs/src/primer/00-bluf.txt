@@ -1,0 +1,66 @@
+== Bottom line up front {#bluf} @before-contents
+
+**{{value: docs/tidewater/work-split.json s1_6.engineering}}% of the work the team finished in the first twelve weeks
+is actual systems engineering, and the share rises sprint by sprint.** The rest is a one-time investment in tools and
+learning: {{value: docs/tidewater/work-split.json sprints.1.overhead}}% of sprint 1, down to
+{{value: docs/tidewater/work-split.json sprints.6.overhead}}% of sprint 6. The figure for the whole eighteen months
+follows in the next edition, when the later sprints have run.
+
+If you read nothing else in this book, read this page. It is written for the people who have to approve the
+change, and for the engineers who have to live with it.
+
+=== Where the team's work goes
+
+Every story on the team's board carries one of three labels. *Engineering* is work on the system itself:
+requirements, structure, behavior, interfaces, verification. *Platform* is the DevSecOps machinery that checks and
+publishes that work: the GitLab project, the pipeline, the runner. *Learning* is time the team spends learning
+the new tools, budgeted on purpose so it does not happen on nights and weekends.
+
+|| Sprint | Task points done | Systems engineering | DevSecOps platform | Learning ||
+| 1 | {{value: docs/tidewater/work-split.json sprints.1.points}} | {{value: docs/tidewater/work-split.json sprints.1.engineering}}% | {{value: docs/tidewater/work-split.json sprints.1.platform}}% | {{value: docs/tidewater/work-split.json sprints.1.learning}}% |
+| 2 | {{value: docs/tidewater/work-split.json sprints.2.points}} | {{value: docs/tidewater/work-split.json sprints.2.engineering}}% | {{value: docs/tidewater/work-split.json sprints.2.platform}}% | {{value: docs/tidewater/work-split.json sprints.2.learning}}% |
+| 3 | {{value: docs/tidewater/work-split.json sprints.3.points}} | {{value: docs/tidewater/work-split.json sprints.3.engineering}}% | {{value: docs/tidewater/work-split.json sprints.3.platform}}% | {{value: docs/tidewater/work-split.json sprints.3.learning}}% |
+| 4 | {{value: docs/tidewater/work-split.json sprints.4.points}} | {{value: docs/tidewater/work-split.json sprints.4.engineering}}% | {{value: docs/tidewater/work-split.json sprints.4.platform}}% | {{value: docs/tidewater/work-split.json sprints.4.learning}}% |
+| 5 | {{value: docs/tidewater/work-split.json sprints.5.points}} | {{value: docs/tidewater/work-split.json sprints.5.engineering}}% | {{value: docs/tidewater/work-split.json sprints.5.platform}}% | {{value: docs/tidewater/work-split.json sprints.5.learning}}% |
+| 6 | {{value: docs/tidewater/work-split.json sprints.6.points}} | {{value: docs/tidewater/work-split.json sprints.6.engineering}}% | {{value: docs/tidewater/work-split.json sprints.6.platform}}% | {{value: docs/tidewater/work-split.json sprints.6.learning}}% |
+| **Sprints 1-6** | {{value: docs/tidewater/work-split.json s1_6.points}} | **{{value: docs/tidewater/work-split.json s1_6.engineering}}%** | {{value: docs/tidewater/work-split.json s1_6.platform}}% | {{value: docs/tidewater/work-split.json s1_6.learning}}% |
+Table: Task points closed in each sprint, by kind of work. One point is one ideal person-day.
+
+These are *task* points: every finished task counts, including the finished tasks of a story that carried over, so
+a sprint's figure can be higher than its story points done ([[om-done]]).
+
+=== Where all the time goes, meetings included
+
+Points cover the work on the board. The agile meetings come on top: a fifteen-minute stand-up each day, a kickoff,
+a refinement session, and a review with a retrospective at the end of each sprint. Together they take about
+{{value: docs/tidewater/work-split.json ceremony_hours.total}} hours per person per sprint, or
+{{value: docs/tidewater/work-split.json ceremony_hours.share_of_sprint}}% of an eighty-hour sprint.
+
+|| Activity, sprints 1-6 | Share of all paid hours ||
+| Systems engineering | {{value: docs/tidewater/work-split.json time.engineering}}% |
+| DevSecOps platform | {{value: docs/tidewater/work-split.json time.platform}}% |
+| Learning | {{value: docs/tidewater/work-split.json time.learning}}% |
+| Agile meetings | {{value: docs/tidewater/work-split.json time.ceremonies}}% |
+| Not on the board: holidays and leave, the lead's management duties, interruptions | {{value: docs/tidewater/work-split.json time.other}}% |
+Table: All paid hours of the three-person team in the first twelve weeks.
+
+=== What this means
+
+- **The overhead is real, visible and temporary.** Platform and learning work dominate the first two sprints,
+  because the team is building the shop and learning to use it. By sprint 6 most of the board is engineering
+  again. A plan that hides this cost is a plan that fails in week three.
+- **The meetings cost less than a tenth of the team's time,** and they replace status meetings, review meetings and
+  the slide-building that used to come before every milestone.
+- **The engineering that remains is faster and checked.** Every change is checked automatically and reviewed
+  before it is accepted. Problems the team used to find at the next milestone review are found the same day. The
+  measured results -- requirements traced, model items ported, review turnaround, problems caught early -- are in
+  [[scorecard]], and the briefing the team gave management at the end of the twelve weeks is in [[briefing]].
+- **What management must provide** is the learning time in this table, a runner machine, the tool approvals and
+  a GitLab tier decision, asked for in writing in sprint 2 ([[memos]]).
+
+::: note Where these numbers come from
+The tables are computed from the team's plan (`sim/tidewater-plan.pl`) by `perl sim/tidewater-split.pl`, and the
+book cites the resulting file, `docs/tidewater/work-split.json`, rather than typing the numbers. When the
+simulation's results replace the plan in that file, these tables follow. The method is described in [[se-work]];
+you can apply it to your own project's backlog in [[playbook]].
+:::

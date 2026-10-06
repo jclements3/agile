@@ -1,0 +1,497 @@
+== The DevSecOps tools that earn their keep {#tools}
+
+::: survival
+What you have: a GitLab project with its protections, labels, sprints and templates ([[gitlab-setup]]).
+
+What you need: to know which of GitLab's many features to turn on, in what order, and why each one is worth the
+trouble for three systems engineers with no software background. This chapter is the list, with the value of each
+tool stated in the terms management and the ISSM will ask about, the tier it needs, how to set it up, and when the
+Tidewater team adopted it. It also lists the features the team deliberately left off.
+:::
+
+=== The problem with "DevSecOps platform" {#tools-problem}
+
+GitLab's menus list more than a hundred features: security scanners for code and containers, dependency
+inventories, package registries, environments, feature flags, error tracking, incident management, compliance
+frameworks, value stream dashboards. Most of them exist for software teams shipping software. A team of three
+systems engineers porting a model needs a fraction of them, and turning on the rest has a cost: alerts nobody reads,
+jobs that fail for reasons nobody understands, and a growing sense that the tool is in charge.
+
+The team's rule, which Tom wrote on the whiteboard in the first week and which survived the twelve weeks:
+
+> A tool goes on when a problem we already have costs more than the tool does. Not before.
+> -- Tom, sprint 1 planning
+
+That rule produced the adoption order in this chapter: one or two tools a sprint, each introduced as a story with a
+stated value, each measured afterwards. The order matters as much as the list. A tool turned on before the team
+feels the problem it solves is noise; the same tool turned on the week after the team felt the problem is a relief.
+
+=== The list at a glance {#tools-glance}
+
+|| Tool | Tier | What it gives the team | Adopted ||
+| Issues, labels, milestones, boards | Free | the action item list, the sprint backlog and the status wall in one place | sprint 1 |
+| Protected branches and tags | Free | nobody changes the integration branch or a baseline except through review | sprint 1 |
+| Merge requests | Free | every change proposed, discussed, checked and approved in one page | sprint 1 |
+| Code owners | Free (enforced: Premium) | the signature authority matrix, applied per file | sprint 1 |
+| CI/CD pipeline | Free | the configuration audit on every change, in minutes | sprint 1 |
+| Test report widget (JUnit) | Free | the merge request says which check failed, on which file | sprint 2 |
+| Code Quality widget | Free | the merge request lists the findings this change added or fixed | sprint 2 |
+| Metrics report widget | Premium | the merge request shows how the TODO count and lint numbers moved | sprint 2 |
+| Wiki | Free | working agreements, runbooks and the glossary, versioned | sprint 2 |
+| Secret Detection | Free | tokens and keys are caught before they reach the integration branch | sprint 3 |
+| GitLab Pages | Free | the model as a website for people who will never open a repository | sprint 4 |
+| Pipeline schedules | Free | the nightly check and the weekly status export run by themselves | sprint 4 |
+| Generic package registry | Free | each prime drop kept, checksummed, exactly as delivered | sprint 5 |
+| Releases | Free | each baseline published with its notes and evidence | sprint 5 |
+| Time tracking | Free | estimates and time spent on issues, for the comparison with the old way | sprint 5 |
+| Environments | Free | the model site's deployments listed with the commit each one came from | sprint 6 |
+| Value stream analytics | Free (limited) / Premium | how long work spends in each stage, from issue to merge | sprint 6 |
+| Approval rules | Premium | "one of Jim or Bob approves every change", enforced | when licensed |
+| Push rules | Premium | the server rejects commits without the right author e-mail or with large files | when licensed |
+| Merge request and iteration burndown | Premium | sprint burndown charts without a spreadsheet | when licensed |
+| DORA metrics | Ultimate | deployment frequency, lead time, change failure rate, time to restore | not used |
+Table: The GitLab tools the team uses, by tier and adoption sprint
+
+The rest of this chapter takes them in adoption order, then lists what the team left off.
+
+=== Sprint 1: the work and the gate {#tools-s1}
+
+==== Issues, labels, milestones and boards
+
+In the document era, the team's work lived in four places: an action item spreadsheet on a share drive, the
+integrated master schedule, e-mail, and Jim's notebook. The first tool replaced three of them. Every piece of work
+starts as an issue; the issue's labels say what kind of work it is and where it sits in the plan; its milestone says
+which sprint promised it; the board shows all of it as cards.
+
+**Value.** One list, one status, linked to the change that does the work. When a merge request says `Closes #12`,
+issue 12 closes when the change merges, with a link from the issue to the exact lines that did it. Nobody has to
+update a status column.
+
+**Set-up.** The labels and milestones come from `project.conf` ([[gitlab-setup]]). The board is two clicks: Plan >
+Issue boards, create a board scoped to the current milestone, add one list per `workflow::` label. Because the
+labels are scoped, dragging a card from "in progress" to "review" swaps the label.
+
+Here is the board legend the team kept in the wiki:
+
+{{include-md: tools/gitlab/samples/14-board-and-labels.md}}
+
+**Quick actions** are what make issues fast to drive from a keyboard. Any comment can carry lines that start with a
+slash; GitLab runs them and records each as a system note. Bob's first task in sprint 1, driven entirely from
+comments in the emulator. Type it along in the sandbox of practice lesson 11 (`perl $KIT/agile.pl practice 11`
+builds it; `gl` is the lesson's short name for `perl $KIT/bin/gitlab.pl` against its offline GitLab):
+
+```sh run sandbox=practice-11 expect="#2  closed  Run both converters with --report"
+. ./env.sh > /dev/null
+cd work
+gl --as jim issue new "Run both converters with --report" --type task --label type::task --milestone "Sprint 1" --assign bob
+gl --as bob issue note 2 '/estimate 1d
+/relate #1
+/label ~"workflow::in-progress"'
+gl --as bob issue note 2 'Both reports attached to the story. 52 TODO lines, 29 of them in Stations.
+/spend 5h
+/label ~"workflow::done"
+/close'
+gl issue show 2
+```
+
+An excerpt of what `issue show` printed:
+
+```text
+#2  closed  Run both converters with --report
+  type: task   labels: ~type::task ~workflow::done   milestone: Sprint 1   assignees: @bob
+  2026-10-05T09:40:00Z * @bob: changed time estimate to 1d
+  2026-10-05T09:40:00Z * @bob: marked this issue as related to #1
+  2026-10-05T09:40:00Z * @bob: added ~"workflow::in-progress" label
+  2026-10-06T15:00:00Z * @bob: added 5h of time spent
+  2026-10-06T15:00:00Z * @bob: removed ~"workflow::in-progress" label
+  2026-10-06T15:00:00Z * @bob: added ~"workflow::done" label
+  2026-10-06T15:00:00Z * @bob: closed
+  2026-10-06T15:00:00Z @bob: Both reports attached to the story. 52 TODO lines, 29 of them in Stations.
+```
+
+Every line with a `*` is a system note: GitLab's record of what changed, by whom, when. That record is what the
+document-era action item log never had. Nobody wrote it; it wrote itself.
+
+==== Protected branches, merge requests and code owners
+
+[[gitlab-setup]] set these up. Their value, in one sentence each, for the management briefing:
+
+- **Protected branches**: the model the program relies on cannot be changed by accident or in a hurry.
+- **Merge requests**: every change has a reason, a reviewer and an audit trail, in the same place as the change.
+- **Code owners**: the person accountable for a part of the model sees and approves every change to it.
+
+==== The pipeline
+
+The first pipeline had three jobs: the grammar check, the structure lint and the outline check. [[cicd]] explains
+what a pipeline is from zero; [[pipeline]] walks through every job. Its value is the single biggest change in the
+twelve weeks: every proposed change is checked the same way, in minutes, before anyone is asked to review it.
+
+=== Sprint 2: making the merge request say what is wrong {#tools-s2}
+
+By the middle of sprint 2, Bob had a complaint that turned out to be the most useful complaint of the quarter:
+
+> When the pipeline is red I have to open the job, scroll through the log, find the line, and then find the file.
+> The old comment matrix at least told me the page number.
+> -- Bob, sprint 2, day 4
+
+GitLab can show a check's findings directly on the merge request page, in **widgets**, if the job hands GitLab a
+report file in a format it understands. The kit's `tools/gitlab/ci-reports.pl` turns the model checkers' output
+into three such formats.
+
+==== Test reports (JUnit)
+
+**JUnit** is a file format invented for software tests, which GitLab reads to fill the merge request's test widget:
+how many checks ran, which failed, and why. For the model, each file the grammar checker reads is one "test", and
+the lint's zero-errors rule is another. When Bob broke a part type on purpose in a scratch branch (`Hull` typed as
+`Hul`), the lint job wrote this report. Do the same in the lesson's sandbox, on a scratch branch you then throw away:
+
+```sh run cwd=work expect="unresolved type .Hul."
+. ../env.sh > /dev/null
+git switch -q -c scratch/broken-type
+sed -i 's/part hull : Hull;/part hull : Hul;/' model/physical/stations/Stations.sysml
+perl ci/job.pl lint || echo "exit status $?"
+cat lint.xml
+```
+
+```text
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="sysml-lint" tests="2" failures="2">
+  <testsuite name="lint" tests="2" failures="2">
+    <testcase classname="lint" name="model/physical/stations/Stations.sysml" file="model/physical/stations/Stations.sysml">
+      <failure message="1 error(s), first at line 38: unresolved type 'Hul'" type="lint">model/physical/stations/Stations.sysml:38: error: unresolved type 'Hul'</failure>
+    </testcase>
+    <testcase classname="lint" name="lint 0/0">
+      <failure message="errors=1 warnings=0" type="lint">errors=1 warnings=0</failure>
+    </testcase>
+  </testsuite>
+</testsuites>
+```
+
+Nobody reads that file. GitLab does, and the merge request shows "2 failed: model/physical/stations/Stations.sysml, lint 0/0"
+with the message beside each. That is the page number Bob asked for.
+
+==== Code Quality
+
+The **Code Quality** widget lists findings by file and line and, more usefully, compares them with the target
+branch: it shows the findings this merge request *added* and the ones it *fixed*. The same broken type produced:
+
+```sh run expect="fingerprint"
+cat lint-cq.json
+git checkout -q -- . && git switch -q - && git branch -q -D scratch/broken-type    # throw the scratch branch away
+```
+
+```json
+[
+  {"description": "unresolved type 'Hul'", "check_name": "sysml-lint", "fingerprint": "abcf3b0d0373aa7fcf8d21a533cb4d02", "severity": "major", "location": {"path": "model/physical/stations/Stations.sysml", "lines": {"begin": 38}}}
+]
+```
+
+The **fingerprint** is how GitLab recognizes the same finding in two pipelines: it is computed from the file and the
+message, so a finding that is still there after a change is "unchanged", not "new".
+
+The team used Code Quality for something its designers did not intend: the port burn-down. The `todo` job reports
+every `// TODO` line the converter left as an informational finding. A merge request that closes TODO lines shows
+them in the widget as *fixed*; one that adds TODO lines (a careless re-import) shows them as *new*. Bob's
+satisfaction at seeing "29 fixed" on the Stations merge request in sprint 4 is recorded in [[sprint-4]].
+
+==== Metrics reports
+
+A **metrics report** is a list of `name value` lines; GitLab Premium shows how each value changed against the target
+branch. The `todo` job's metrics for the raw drop 1 conversion, one line per layer of the model ([[repo-layout]]):
+
+```sh run expect="todo_lines [0-9]+"
+perl ci/job.pl todo > /dev/null
+cat todo.metrics
+```
+
+```text
+todo_lines 52
+todo_lines_analysis 2
+todo_lines_library 4
+todo_lines_logical 4
+todo_lines_physical 42
+```
+
+The per-file count is one `grep` away when you want it: `grep -c "// TODO" model/physical/stations/Stations.sysml`
+prints 29.
+
+On the Free tier the file is still kept as an artifact, and the team's scripts read it for the scorecard
+([[scorecard]]).
+
+==== The wiki
+
+Sprint 2 also put the wiki to work: the Definition of Ready and Done, the gitflow rules and the glossary moved from a
+Word document on the share drive into wiki pages, seeded from `tools/gitlab/templates/wiki/`. The value is modest
+but real: the agreements live next to the work, with history, and a newcomer finds them from the project's sidebar.
+
+=== Sprint 3: the "Sec" {#tools-s3}
+
+==== Secret Detection
+
+A **secret** is anything that grants access: a GitLab token, a cloud key, a private key, a password. Secrets leak
+into repositories in mundane ways: a script tested with a real token, a configuration file copied from someone's
+laptop. Once committed, a secret is in the history forever, copied into every clone.
+
+GitLab's **Secret Detection** is a Free-tier scanner, added to a pipeline with an `include:` of GitLab's template. The
+scanner runs inside a Docker container, so it needs a runner with the Docker executor. The team's runner is a
+Windows *shell* runner, where that job would wait "pending" forever and, with "pipelines must succeed", block every
+merge request. So the include is conditional on a project variable, `DOCKER_RUNNER`, which `project.conf` sets to
+`false`:
+
+{{include: tools/gitlab/templates/gitlab-ci.yml | lines 57-66}}
+
+The always-on check is the pipeline's own `secrets` job, a few lines of `git grep` for the most common patterns,
+which runs on any runner and on a laptop ([[pipeline]]). When the enterprise offers a Docker runner, setting
+`DOCKER_RUNNER` to `true` adds GitLab's scanner on top.
+
+**Value**: the ISSM's first question about any repository is "how do you know nobody committed a credential?" The
+answer is now a job that runs on every change, with results the ISSM can read.
+
+==== Why the ISSM blocked the team for three days
+
+The team's security plan for the toolchain went to the ISSM in sprint 3. The ISSM's questions are worth listing,
+because yours will ask the same ones, and every answer is a GitLab setting or a fact about the pipeline:
+
+|| The ISSM asked | The answer, and where it lives ||
+| Who can change the model? | members and roles; protected branches ([[gitlab-setup]]) |
+| Who can approve a change? | CODEOWNERS and the approval rule, in the repository |
+| What runs on the runner, as which account? | the pipeline file; the runner's service account has no rights outside its work folder ([[admin]]) |
+| Can a pipeline reach the internet? | no: the runner reaches the GitLab server only; the kit is a local checkout |
+| Where are credentials kept? | masked, protected CI/CD variables; never in the repository; Secret Detection on every change |
+| How long are logs and artifacts kept? | the project's artifact expiry; the audit events log ([[admin]]) |
+| How is a baseline protected? | protected tags; the `baseline` job's rebuild check ([[pipeline]]) |
+| What happens if the server is lost? | the group backup, and every laptop holds a full clone of the history |
+Table: The ISSM's questions and where the answers live
+
+The block was not a disagreement. The ISSM was out for three days in week six, and the approval waited. [[sprint-3]]
+tells how the team kept working on everything that did not need the approval.
+
+=== Sprint 4: the model as a website {#tools-s4}
+
+==== GitLab Pages
+
+Bob's objection in [[directive]] was that nobody outside the team would read SysML v2 text. Bob was right, and the
+answer is not to make them read it. **GitLab Pages** publishes a folder of files from a pipeline job as a website.
+The team's `pages` job builds that folder from the model on every merge into `develop`: the generated documents
+(the part tree, the function tree, the traceability report), the four diagrams drawn by the kit's view tools (part
+tree, trace, interconnection, packages) and the IDEF0 plates ([[diagrams]]), the requirement trace against DOORS, the
+verification matrix, the TODO burn-down and the complexity trend. [[pipeline]] shows the job line by line.
+
+**Value**: the program office, the deputy program manager, the prime's modeler and the review boards read the
+model's current state in a browser, without a license, without a repository, without asking the team for
+screenshots. The site was first shown at the sprint 4 review, and the deputy program manager's first question ("Is
+this today's?") was answered by the commit hash and date on the page.
+
+Pages works on the Free tier. Access can be limited to project members, which is what the team did.
+
+==== Pipeline schedules
+
+A **schedule** runs a pipeline at set times, like a cron job or a Windows scheduled task. The team set two, under
+Build > Pipeline schedules:
+
+- **nightly**, 02:00 on weekdays (cron `0 2 * * 1-5`), on `develop`: the full set of checks, so a problem caused by a change outside the
+  repository (a new version of the kit on the runner, an expired certificate) shows up in the morning, not in the
+  middle of someone's merge request;
+- **weekly**, Fridays 06:00 (cron `0 6 * * 5`): the `status` job that exports issues, merge requests and pipeline results for the
+  status metrics ([[pipeline]], [[communicating]]).
+
+A schedule is written as a **cron expression**: five fields for minute, hour, day of the month, month and day of the
+week. `0 2 * * 1-5` reads "minute 0, hour 2, any day of the month, any month, Monday to Friday". The team keeps its
+schedules in `project.conf` under `[schedules]`, so `gitlab.pl setup` creates them and they are reviewed like any other
+setting; GitLab's web page (Build > Pipeline schedules) shows the same thing with a "next run" column.
+
+One property of schedules surprises everyone once: **a schedule runs as its owner**, with the owner's permissions. If
+the person who created it leaves the project, the schedule stops running, silently. The team made Tom the owner of
+both schedules and put "take ownership of the schedules" on the off-boarding checklist ([[admin]]).
+
+=== Gates, and what they cost {#tools-gates}
+
+A **gate** is a check that must pass before work moves on. Systems engineers know gates as milestone entry and exit
+criteria; the difference here is that the gate is enforced by software, on every change, not by a board twice a
+year. Tidewater's gates are of two kinds:
+
+- **pipeline gates**: jobs that must pass (grammar, lint zero over zero, the outline ratchet, current docs, secrets);
+- **merge gates**: project settings that must be satisfied before the merge button works (pipeline succeeded,
+  code owner approval, discussions resolved, protected branches and tags).
+
+What they cost is a question management asks early, and the answer has three parts:
+
+|| Item | Cost ||
+| The agile kit and every check it runs | nothing: it is a folder of Perl scripts |
+| Pipelines on your own runner (self-managed GitLab or your own runner on GitLab.com) | no per-minute charge; you pay for the machine |
+| Pipelines on GitLab.com's hosted runners | compute minutes: a free monthly quota, then paid |
+| Pipeline gates, protected branches and tags, discussions resolved | Free tier |
+| Approval rules, enforced code owner approval, push rules, merge trains | Premium |
+| Security policies, compliance frameworks and pipelines | Ultimate |
+Table: What the gates cost (check GitLab's current pricing page; tiers and quotas change)
+
+Tidewater runs on its own runner, so the pipelines themselves cost nothing beyond the runner machine. The gates that
+need Premium were practiced on the emulator and requested for the second year. Prices and tier boundaries change
+often: check GitLab's pricing page and your organization's license before promising a feature to anyone.
+
+=== Sprint 5: deliveries and releases {#tools-s5}
+
+==== The generic package registry: keeping the prime's drops
+
+Each prime drop is a contract deliverable. The government must be able to produce exactly what was delivered, on
+which date, years later. GitLab's **package registry** stores files under a name and a version; the "generic" kind
+takes any file. The `drop-package` job uploads each drop's XMI, ReqIF, CSV and manifest under `prime-drop/v1.0`,
+`prime-drop/v1.1` and so on, authenticated by the job's own short-lived token. The emulator has the same commands;
+in the lesson sandbox, file the drop the lesson ships with:
+
+```sh run cwd=work expect="prime-drop/v1.0  tidewater.xmi"
+. ../env.sh > /dev/null
+gl package put prime-drop v1.0 ../drops/v1.0/tidewater.xmi
+gl package list
+```
+
+```text
+prime-drop/v1.0/tidewater.xmi  122711 bytes  sha256 af179896...
+prime-drop/v1.0  tidewater.xmi
+```
+
+**Value**: the deliverable and the model it became are kept together, with checksums, retrievable by version. The
+receiving inspection the contracting officer's representative used to do by e-mail now has a record.
+
+==== Releases and baselines
+
+A **release** in GitLab is a page attached to a tag: notes, links, the evidence of what was checked. For the team,
+a release is the published face of a baseline. When a `baseline-*` tag passes its rebuild check, the
+`publish-package` job files the baseline itself in the package registry as `tidewater-model/<tag>` (the model and
+its generated docs as one archive, the verification matrix, the toolchain inventory and a checksum list), and the
+`publish-release` job creates the release: that baseline's section of the CHANGELOG as the notes, links to those
+package files as the release's assets, and the sprint milestones it closes. A downstream team that wants "the model
+as of baseline 1" downloads one versioned archive; nobody e-mails a zip. The team
+rehearsed the whole procedure on a scratch project in sprint 5 and used it for real for the interim baseline in
+sprint 6 ([[sprint-6]]).
+
+GitLab also collects **release evidence**: a snapshot, taken when the release is created, of the issues and
+milestones it names and the test reports of the tag's pipeline. For a baseline, that snapshot is the configuration
+status accounting record: what was in it, what was checked, when.
+
+==== Time tracking
+
+Issues and merge requests accept `/estimate` and `/spend` quick actions. The team used them for one reason: the
+twelve-week comparison with the document era needed effort numbers, and estimating after the fact is guessing. They
+did not use time tracking to judge individuals, and said so in the working agreements.
+
+=== Sprint 6: showing the flow {#tools-s6}
+
+==== Environments
+
+An **environment** is GitLab's name for a place a pipeline deploys to. For a software team that is a test server or
+production. For the model team there is one: the model site. Naming the `pages` job's environment `model-site`
+gives a page (Operate > Environments) listing every deployment of the site with the commit and merge request it
+came from. When the deputy program manager asked "what changed on the site since Tuesday?", the answer was a list.
+
+==== Value stream analytics
+
+**Value stream analytics** measures how long work spends in each stage: issue created, first commit, merge request
+opened, merged. The Free tier shows a limited project-level view; Premium adds custom stages. The team used it once,
+for the management briefing, as a cross-check on the numbers its own scripts computed from the exported merge
+request history ([[scorecard]]).
+
+The same numbers are available on any tier from the kit, because they are computed from data every tier's API
+exposes: `gitlab.pl analytics --by sprint` prints the value stream stages, the four DORA measures translated for a
+model repository, pipeline success rates and durations, merge request throughput and issue flow, and `--csv DIR`
+writes them for a spreadsheet. [[analytics]] explains each number and which ones belong in a briefing. On the
+lesson's sandbox, with only a few days of history, most of them are still empty:
+
+```sh run cwd=work expect="Value stream"
+. ../env.sh > /dev/null
+gl analytics --by sprint | head -12
+```
+
+=== Tokens: which one, where {#tools-tokens}
+
+Tokens confused the whole team, so the team made a table. A token is a password for a program rather than a person.
+GitLab has several kinds, and choosing the right one is most of security in practice:
+
+|| Token | Who or what holds it | Lifetime | The team used it for ||
+| Personal access token | one person | until its expiry date (set one) | `gitlab.pl setup` and ad hoc scripts on a laptop |
+| Project access token | a bot user tied to one project | until its expiry date | the weekly `status` export (`read_api` only), stored as a masked variable |
+| Deploy token | a machine outside the project, limited to named scopes | until its expiry date | LATER: the prime's Jenkins uploads drops with `write_package_registry` only (`gitlab.pl token deploy new`, [[prime-changes]]) |
+| CI job token (`CI_JOB_TOKEN`) | one running job | only while the job runs | uploading drops to the package registry |
+| Runner authentication token | the runner | until the runner is re-registered | registering the Windows runner (Tom and the admins) |
+| Trigger token | a system outside GitLab that starts a pipeline | until revoked | LATER: the prime's Jenkins starts the intake pipeline after an upload (`gitlab.pl trigger new`) |
+Table: GitLab tokens and what each is for
+
+The rules the team kept: prefer the job token (it expires by itself); give every other token an expiry date and the
+narrowest scope; store tokens in masked, protected CI/CD variables or in your shell's environment, never in a file
+in a repository; rotate them every 90 days ([[admin]]).
+
+==== Protected and masked variables
+
+CI/CD variables (Settings > CI/CD > Variables) are values the pipeline can read as environment variables. Two flags
+matter:
+
+- **Masked**: GitLab replaces the value with `[MASKED]` if a job prints it in a log.
+- **Protected**: the value is only given to pipelines running on protected branches and tags. A pipeline on
+  someone's feature branch never sees it.
+
+`STATUS_TOKEN`, the read-only token the weekly export uses, is both. `KIT`, the path of the kit on the runner, is
+neither: it is not a secret, and every job needs it.
+
+=== What the team deliberately left off {#tools-off}
+
+|| Feature | Why not, for now ||
+| SAST (static application security testing) | scans source code for vulnerabilities; the repository holds a model, not code. Revisit if the team writes tools |
+| Dependency scanning | lists vulnerable software libraries; the model has none, and the kit is a separate, reviewed checkout |
+| Container scanning | scans Docker images; the runner uses no containers |
+| GitLab Requirements Management (Ultimate) | would create a second requirements database; DOORS stays authoritative, and the trace job compares against it |
+| Merge trains (Premium) | queue merges to keep a busy branch green; three people merging a few times a day do not need a queue |
+| Auto DevOps | builds and deploys software by convention; it has nothing to build |
+| Feature flags, error tracking, incident management | for running software in production |
+| Compliance frameworks and pipelines (Ultimate) | enforce a pipeline across many projects; one project does not need it yet |
+Table: Features the team did not use, and why
+
+None of these is a bad feature. Each was left off because the problem it solves was not one the team had. Two of
+them (SAST, if the team ever writes its own scripts into the repository, and compliance pipelines, if the
+organization puts several model repositories on the same rules) are on the list to revisit at the end of each
+semester ([[admin]]).
+
+=== The cost side {#tools-cost}
+
+Every tool above has a cost, and the briefing in [[briefing]] states it honestly:
+
+- **Runner time**: the pipeline takes well under a minute of checks per merge request on the team's runner
+  ([[pipeline]] has the job timings); the nightly and weekly schedules add a few minutes a week.
+- **Attention**: each widget is one more thing on the merge request page. The team removed none, but the rule was
+  that a widget nobody looked at for a sprint would be switched off.
+- **Licenses**: everything adopted in the twelve weeks runs on the Free tier, except the metrics widget and enforced
+  code owner approvals, which the team practiced on the emulator and requested for the second year.
+
+=== Exercises {#tools-exercises}
+
+::: exercise {#ex-tools-rule} Apply the rule
+List three problems your team has today with its documents or its model. For each, name the GitLab tool from this
+chapter that addresses it, and the problem it would create if you turned it on before anyone felt the original
+problem.
+:::
+
+::: exercise {#ex-tools-widget} Read a widget
+Create a branch in your practice project, break one part type as Bob did, and run the pipeline locally
+(`gitlab.pl ci --event merge_request_event --target develop`). Open `lint.xml` and `lint-cq.json`. Which line of
+each would GitLab show on the merge request?
+:::
+
+::: exercise {#ex-tools-token} Choose the token
+For each job, choose a token from the token table and justify it: (a) a laptop script that lists open issues every
+morning; (b) the pipeline job that uploads a drop; (c) a scheduled export to a reporting server outside GitLab.
+:::
+
+::: exercise {#ex-tools-off} Argue for one left-off tool
+Pick one feature from the "left off" table and write the paragraph that would convince Tom to turn it on. What
+evidence would you need?
+:::
+
+=== Applying this to your project {#tools-apply}
+
+- **Copy**: the adoption rule (a tool goes on when a felt problem costs more than the tool); issues with scoped labels
+  and milestones; protected branches and merge requests; a three-job pipeline on day one; report widgets as soon as
+  people complain about reading logs; Secret Detection; Pages for everyone who will not open a repository; the package
+  registry for contract deliverables; releases for baselines.
+- **Adapt**: the order (if your ISSM asks for secret scanning on day one, do it on day one); the tiers (check what your
+  license has before promising a feature); the schedules (nightly may be weekly for a slow-moving model).
+- **Decide locally**: which tokens your organization allows; who may create project access tokens; how long artifacts
+  and logs are kept; whether the model site may be visible beyond the project's members.

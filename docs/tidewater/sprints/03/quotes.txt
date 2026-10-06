@@ -1,0 +1,2 @@
+2026-11-06  Bob: A red X on my own MR. One missing word, and the machine found it before Jim did.
+2026-11-10  Tom: Three days waiting on a signature. The pipeline was the fast part.

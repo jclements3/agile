@@ -1,0 +1,392 @@
+== Sprint 2: Drop 1 on develop, every change gated {#sprint-2}
+
+::: survival
+What you have: a GitLab project with its rules, three working laptops, drop 1 converted on a laptop and measured, a
+pipeline that runs only on Tom's machine, and a team still unconvinced.
+
+What you need from this sprint: a runner, so the pipeline runs on the server for every change; the drop on the
+integration branch through the vendor branch, in a folder layout that every future drop will land in; and the team's
+decisions written down where the next person will find them.
+:::
+
+=== The question, and the mood {#sprint-2-question}
+
+Sprint 2's systems engineering question was about configuration control: **can the prime's model live on our
+integration branch, with every change to it checked and reviewed, without anyone editing the prime's model?** If the
+answer was yes, the team had a baseline it controlled. If it was no, the whole port was a copy that would go stale
+with the next drop.
+
+The answer was yes, and the pulse survey moved for the first time, to a mean of
+{{value: docs/tidewater/sprints/02/morale.json mean}}:
+
+|| Question | Jim | Bob | Tom ||
+| I understand why we are working this way. | {{value: docs/tidewater/sprints/02/morale.json answers.jim.0}} | {{value: docs/tidewater/sprints/02/morale.json answers.bob.0}} | {{value: docs/tidewater/sprints/02/morale.json answers.tom.0}} |
+| I can do my work in the new tools without help. | {{value: docs/tidewater/sprints/02/morale.json answers.jim.1}} | {{value: docs/tidewater/sprints/02/morale.json answers.bob.1}} | {{value: docs/tidewater/sprints/02/morale.json answers.tom.1}} |
+| The checks catch problems I would have missed. | {{value: docs/tidewater/sprints/02/morale.json answers.jim.2}} | {{value: docs/tidewater/sprints/02/morale.json answers.bob.2}} | {{value: docs/tidewater/sprints/02/morale.json answers.tom.2}} |
+| I can see our progress. | {{value: docs/tidewater/sprints/02/morale.json answers.jim.3}} | {{value: docs/tidewater/sprints/02/morale.json answers.bob.3}} | {{value: docs/tidewater/sprints/02/morale.json answers.tom.3}} |
+| I would choose to keep working this way. | {{value: docs/tidewater/sprints/02/morale.json answers.jim.4}} | {{value: docs/tidewater/sprints/02/morale.json answers.bob.4}} | {{value: docs/tidewater/sprints/02/morale.json answers.tom.4}} |
+Table: The pulse survey at the sprint 2 retrospective
+
+Bob's answer to the third question moved first. The checks had caught something, and Bob had seen it. The sprint also
+had the twelve weeks' worst moment in front of management, which is why the last row is still low. Both stories are
+below.
+
+=== The kickoff: Monday 19 October {#sprint-2-kickoff}
+
+The stories had been estimated at the sprint 1 refinement ([[sprint-1]]), so the kickoff was about capacity, the
+commitment and who did what. A full ten-day sprint gave more capacity than sprint 1, and the team committed a larger
+share of it, because the first sprint had finished and they trusted their numbers a little more:
+
+{{include: docs/tidewater/sprints/02/kickoff.txt}}
+
+The learning story shrank from sprint 1's, as planned. The platform share was still more than half, because the runner
+and the real pipeline were the sprint's main platform work and could not wait.
+
+Two estimates had needed a second round at the refinement. The import of drop 1 through the vendor branch:
+
+{{include: docs/tidewater/sprints/01/poker-2026-10-15.txt | lines 104-115}}
+
+The high vote was Tom's. Tom had read the gitflow chapter ([[git]]) and knew the vendor branch meant two merges, one
+onto the vendor branch and one from it into the integration branch, plus a layout decision before either. The team
+settled between the two first votes. The other split was over Jim's own story, getting the team's enablers, decisions
+and conventions on record:
+
+{{include: docs/tidewater/sprints/01/poker-2026-10-15.txt | lines 134-145}}
+
+Jim gave the lowest vote on work Jim would do, which is the usual mistake: the person who will do the writing remembers the writing
+and forgets the reviews. The second round added the reviews back.
+
+=== Week one {#sprint-2-week-1}
+
+==== Monday 19: statuses with no outcome {#sprint-2-mon}
+
+The first stand-up of sprint 2 shows a habit that sprint 1 had not fixed:
+
+{{include: docs/tidewater/sprints/02/standups/2026-10-19-chat.txt | lines 3-15}}
+
+{{include: docs/tidewater/sprints/02/standups/2026-10-19-lint.txt}}
+
+The lint caught the missing story ids again. What the lint cannot catch is that not one of these lines says what is
+now true that was not true yesterday. That is what the scorecard's stand-up outcome share measures, and for sprint 2
+it was {{value: docs/tidewater/sprints/02/scorecard.json standup_outcome_share}}: every line was a list of activities.
+Nobody flagged it at the time. It surfaced at the review, in the worst possible way.
+
+==== Tuesday 20: the runner is online {#sprint-2-runner}
+
+The enterprise administrators registered the runner Tom had requested in sprint 1: a Windows virtual machine with Git
+for Windows, a shell executor, and the tags the pipeline asks for ([[runners]]). Tom's half-point task was to check
+the registration and the tags. It was the shortest task of the sprint and the one everything else waited on.
+
+==== Wednesday 21: asking for what the team needs, in writing {#sprint-2-enablers}
+
+Jim wrote the request for enablers that the operating model calls for ([[memos]]), using the memo template. The
+heart of it is a table of dated asks, each with what it buys and what happens if the answer is no:
+
+{{include: docs/tidewater/memos/2026-10-21-request-for-enablers.md | lines 20-26}}
+
+The memo did two things a spoken request in a meeting would not. It made each ask specific enough to say yes or no
+to, and it put a date on the cost of no. The training hours in the first row are the learning budget, which until then
+had been protected only by Jim's say-so.
+
+==== Thursday 22: the layout decision {#sprint-2-layout}
+
+Bob's task #39 was the most consequential half-day of the sprint: deciding where the converted model would live in
+the repository. The converter's default is one folder per v1 package, named after the package. The alternative is a
+layered layout, with libraries, requirements, logical behavior, physical structure, analysis and verification in their
+own folders and the packages placed in them by a *layout map* ([[repo-layout]]).
+
+The thought process went like this.
+
+- **Every future drop must land in the same folders.** The vendor branch works because git can compare the prime's
+  new drop with the old one file by file. If a package moves between drops, git sees a deletion and an addition, and
+  the merge with the government's edits becomes manual. So the layout chosen now is the layout for the life of the
+  program.
+- **The layers are how the team wanted to review.** A reviewer looking at a change to a requirement package wants to
+  know immediately that it is a requirement change, and the code owners for requirements are not the code owners for
+  physical structure ([[reviewing]]).
+- **The layout map costs one file.** A text file that says which package goes in which folder, applied by the
+  converter on every drop. Moving a package later means editing that file and re-importing on the vendor branch,
+  which is possible but not something to do casually.
+
+Bob chose the layered layout, and the team recorded the choice in the merge request that imported the drop.
+
+==== Friday 23: the pipeline dies on its first line {#sprint-2-powershell}
+
+Tom committed the pipeline that had run on Tom's laptop the Friday before, opened a first merge request with a real
+pipeline, and watched it fail on every job:
+
+{{include: docs/tidewater/sprints/02/pipelines/mr2-first-on-powershell-1.log}}
+
+Read the errors. `The term 'FILES=$(find' is not recognized as the name of a cmdlet` is PowerShell talking. The
+Windows runner's shell executor runs PowerShell by default, and the pipeline had been written in the Bash dialect that
+Git Bash uses on Tom's laptop. `$(...)`, `||` and `$KIT` mean nothing to PowerShell. Tom's reaction is in the record:
+
+> The first pipeline on the real runner died on line one. PowerShell. Nobody told me the runner speaks PowerShell.
+> -- Tom, sprint 2
+
+This is the lesson of the runners chapter ([[runners-pwsh]]), and the team took the fix described there: every job's
+script became one line, `perl ci/job.pl NAME`, with the logic in a Perl script in the repository. Perl reads the same
+under PowerShell, Git Bash, Linux and Docker. The second pipeline on the same merge request:
+
+{{include: docs/tidewater/sprints/02/pipelines/mr2-job-pl-2.log | lines 1-6}}
+
+Look at line five: `no .sysml files under model/ yet`. The pipeline is green because there is nothing in the
+repository for it to check. That is worth saying out loud, because a green pipeline on an empty model proves the
+plumbing, not the model. Jim approved the merge request on that understanding:
+
+{{include-md: docs/tidewater/sprints/02/samples/mr-2.md}}
+
+The simulation's GitLab still holds both pipelines. This is the failed one as GitLab lists it:
+
+```sh run sandbox=tidewater expect="grammar\s+failed"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model pipeline show 1
+```
+
+and the first lines of its grammar job's log:
+
+```sh run expect="is not recognized as the name of a cmdlet"
+head -4 gitlab/pipelines/tidewater-model/1/grammar.log
+```
+
+The same afternoon Tom switched on "pipelines must succeed" and the merge request report widgets ([[tools]]). From
+that moment no change could reach the integration branch without a green pipeline. Bob's conventions package, the
+government's own library of level tags ([[repo-layout]]), was the first model change to go through the full gate,
+and it passed on its first pipeline.
+
+=== Week two {#sprint-2-week-2}
+
+==== Monday 26: level tags and decision records {#sprint-2-adrs}
+
+Bob named the level tags in `sysml.conf`, and Jim merged the team's decision records: the ten decisions drafted in
+week zero, plus the scaffold's own, as numbered files under `docs/adr/` in the repository rather than slides in a
+briefing ([[operating-model]]). The list is worth reading as a summary of how the team decided to work:
+
+```sh run sandbox=tidewater expect="0004-data-handling-and-markings\.md"
+ls work/jim/docs/adr
+```
+
+Each file is a page: the context, the decision, and its consequences. The point of keeping them in the repository is
+that a decision is changed the same way a model element is, by a reviewed merge request, and the history shows when and
+why.
+
+==== Tuesday 27: the drop on the vendor branch {#sprint-2-vendor}
+
+Tom imported drop 1 onto the vendor branch with `gitlab.pl flow vendor` ([[prime-changes]]). The vendor branch holds
+nothing but the prime's deliveries, converted with the layout map, one commit per drop. Nobody edits it. The
+government's work happens on the integration branch, and each drop reaches it through a merge request from a short
+feature branch that merges the vendor branch in. That merge request was opened the same morning, and Jim said the
+sentence the team remembers from the sprint:
+
+> The model is on develop and nobody touched it with a mouse.
+> -- Jim, sprint 2
+
+It was not quite on develop yet. It was on its way through review, which is the point.
+
+==== Wednesday 28: refinement for sprint 3 {#sprint-2-refinement}
+
+{{include: docs/tidewater/sprints/02/refinement.txt}}
+
+The list turned toward engineering for the first time: closing the conversion debt in the Network package, bringing
+the DOORS modules into the model, and the first drift and gap analysis. The platform stories that remained were about
+making the checks report something useful: the trace report and secret detection.
+
+==== Thursday 29: the drop is merged {#sprint-2-merge}
+
+Bob reviewed the drop merge request. The review note is short, and it records the outline decision from sprint 1:
+
+{{include-md: docs/tidewater/sprints/02/samples/mr-6.md}}
+
+The pipeline on the drop merge request is the first one with the whole model in it. Its outline job shows the
+allowance at work:
+
+{{include: docs/tidewater/sprints/02/pipelines/mr6-drop1-14.log | lines 25-47}}
+
+The last two lines are the ratchet from sprint 1 in action: the drop arrives with its outline violations, they are
+*reported*, the allowance is set to that count, and from now on any change that adds a violation fails. The same
+merge request shows the code-quality widget in GitLab listing every one of those findings against the change that
+brought them in:
+
+```sh run sandbox=tidewater expect="Prime drop v1\.0"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model mr show 6
+```
+
+Bob and Jim both approved, because the drop touched folders owned by each of them, and the merge request was merged.
+The history of the integration branch now reads like a change log, one reviewed merge per line:
+
+```sh run expect="feature/drop-v1\.0"
+git -C work/bob log --oneline --first-parent --before=2026-10-31 origin/develop
+```
+
+The same day Tom added two more jobs to the pipeline: `todo`, which counts the conversion debt on every change, and
+`docs`, which regenerates the model's generated documents and fails if the committed copies are out of date. The todo
+job's first count on the integration branch was {{value: docs/tidewater/sprints/02/scorecard.json 1_todo_lines}},
+the number the port would burn down for the next four sprints.
+
+==== Friday 30: the demo that lost the room {#sprint-2-review}
+
+The review was the low point of the twelve weeks, and it is in the record:
+
+{{include: docs/tidewater/sprints/02/review.txt}}
+
+Tom drove the demo, opened a terminal, scrolled through the pipeline file, explained the PowerShell problem, and
+finished on a green pipeline, which on that day was the most impressive thing Tom had seen in a month. The deputy
+program manager saw a terminal, a file full of words like `rules` and `artifacts`, and a green dot. The question at
+the end was fair, and nobody had an answer ready:
+
+> I did not follow the demo. What did we get for the two weeks?
+> -- Deputy PM, sprint 2 review
+
+What they had got was considerable: the prime's model under the government's configuration control, every change
+checked and reviewed, the conversion debt counted, the decisions on record. The team knew that. They had not said it
+in words the deputy could repeat to anyone else. The four headline numbers were at the bottom of the review record and
+nobody read them out.
+
+::: sidebar Why the demo failed, in one sentence
+The team demonstrated the *machinery* to someone who had come to see the *result*. The fix ([[talking]]) is a
+structure, not a talent: open with the question the sprint answered, show the output rather than the tool, give one
+before-and-after number, make one safe change live, and close with what it means and what you need. The team used
+exactly that structure in sprint 4, and it worked ([[sprint-4]]).
+:::
+
+==== The retrospective {#sprint-2-retro}
+
+{{include: docs/tidewater/sprints/02/retro.txt}}
+
+The *start* items are the two lessons from the demo: rehearse it on Day 9, and rotate the driver so that nobody's
+first demo is in front of the deputy. The *stop* items are the two lessons from the week: no shell in the pipeline
+file, and no terminals in demos. The *continue* items are what was already working: running the pipeline locally
+before pushing, and small merge requests.
+
+One more thing turned up at the review, in the GitLab To-Do lists the team looked at before the meeting:
+
+{{include: docs/tidewater/sprints/02/todo-at-review.txt}}
+
+The first issue in Tom's list is the intake issue for drop 1, opened when the drop arrived and never closed, although
+the drop had been received, checked and merged. It is a small housekeeping slip, and a useful one: the To-Do list is
+where it shows, and nobody had looked at the To-Do list until the review.
+
+=== The numbers at the end of sprint 2 {#sprint-2-numbers}
+
+|| Measure | End of sprint 2 ||
+| Story points committed / done | {{value: docs/tidewater/sprints/02/scorecard.json 11_delivery.committed}} / {{value: docs/tidewater/sprints/02/scorecard.json 11_delivery.done}} ({{value: docs/tidewater/sprints/02/scorecard.json 11_delivery.pct}}%) |
+| Work mix: engineering / platform / learning points | {{value: docs/tidewater/sprints/02/scorecard.json work_mix.engineering}} / {{value: docs/tidewater/sprints/02/scorecard.json work_mix.platform}} / {{value: docs/tidewater/sprints/02/scorecard.json work_mix.learning}} |
+| Conversion debt (TODO lines on the integration branch) | {{value: docs/tidewater/sprints/02/scorecard.json 1_todo_lines}} |
+| Merges / gated changes | {{value: docs/tidewater/sprints/02/scorecard.json merges}} / {{value: docs/tidewater/sprints/02/scorecard.json 3_gated_changes}} |
+| Merge requests whose first pipeline passed | {{value: docs/tidewater/sprints/02/scorecard.json first_pipeline_pass.passed}} of {{value: docs/tidewater/sprints/02/scorecard.json first_pipeline_pass.mrs}} |
+| Integration-branch pipelines passing | {{value: docs/tidewater/sprints/02/scorecard.json 8_pipeline_health.passing}} of {{value: docs/tidewater/sprints/02/scorecard.json 8_pipeline_health.develop_pipelines}} |
+| Trace: requirements linked / unverified / drift | {{value: docs/tidewater/sprints/02/scorecard.json 5_trace.C}} / {{value: docs/tidewater/sprints/02/scorecard.json 5_trace.G}} / {{value: docs/tidewater/sprints/02/scorecard.json 5_trace.drift}} |
+| Spider web: package cycles / max fan-out / max relationships on one part | {{value: docs/tidewater/sprints/02/scorecard.json 7_spider_web.cycles}} / {{value: docs/tidewater/sprints/02/scorecard.json 7_spider_web.max_fan_out}} / {{value: docs/tidewater/sprints/02/scorecard.json 7_spider_web.max_relationships_per_part}} |
+| Change lead time / review turnaround, median hours | {{value: docs/tidewater/sprints/02/scorecard.json 2_lead_time_hours}} / {{value: docs/tidewater/sprints/02/scorecard.json 10_review_turnaround_hours}} |
+| Share of stand-up lines with an outcome and a number | {{value: docs/tidewater/sprints/02/scorecard.json standup_outcome_share}} |
+| Pulse survey mean | {{value: docs/tidewater/sprints/02/scorecard.json 12_morale}} |
+Table: The scorecard at the end of sprint 2
+
+Two lines are worth reading against the document era. Every change to the model was gated, by a pipeline and by a
+code owner other than the author. And the median change took hours, not the weeks a change took through the
+document-era board ([[directive]]). The comparison is not entirely fair yet: these were small, uncontroversial
+changes. It became fair in sprint 4, when the changes were engineering ones.
+
+GitLab's own view of the sprint agrees. The kit's analytics command reads it from the GitLab data, and its pipeline
+section for sprint 2 is:
+
+{{include: docs/tidewater/sprints/02/analytics.txt | lines 18-21}}
+
+The one failed pipeline is the PowerShell one. You can produce the full report from the simulation's GitLab
+([[analytics]]):
+
+```sh run sandbox=tidewater expect="success rate"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model analytics --since 2026-10-19 --until 2026-10-30 --by sprint
+```
+
+=== What Jim told management {#sprint-2-management}
+
+The weekly quad on Friday said, at the top:
+
+{{include: docs/tidewater/sprints/02/quad-2026-10-30.txt | lines 1-2}}
+
+and the covering note, written after the review and with the deputy's question in mind, was the first one Jim wrote
+in the outcome-first pattern ([[talking]]):
+
+> The prime's drop 1 is now under our configuration control: on our integration branch, every change checked
+> automatically and approved by a code owner before it is accepted, none made by hand to the prime's model. The
+> conversion left a counted debt of TODO lines, which is our port measure from now on and goes down every sprint. We
+> need decisions on the five enablers in the 21 October memo; two of them by 26 October.
+
+It does not mention PowerShell, YAML or runners. It says what is now true, gives one measure, and asks for something.
+
+=== Tools adopted this sprint, and the pain each removed {#sprint-2-tools}
+
+|| Tool | The pain it removed ||
+| The runner and the server pipeline | a pipeline that only ran on Tom's laptop, when Tom remembered |
+| `perl ci/job.pl NAME` | a pipeline that worked in Git Bash and died in PowerShell |
+| "Pipelines must succeed" | merges that relied on the reviewer noticing a red pipeline |
+| Merge request widgets (tests, code quality) | reading job logs to find out what a change broke |
+| The vendor branch and `flow vendor` | the prime's deliveries mixed into the government's edits |
+| The layout map | every future drop landing in different folders |
+| The outline allowance | a check turned off because the inherited model fails it |
+| The `todo` and `docs` jobs | progress by opinion; generated documents out of date |
+| Decision records under `docs/adr/` | decisions that lived in slides and memories |
+| The request-for-enablers memo | asks made in meetings and lost |
+Table: What sprint 2 brought in
+
+=== What went wrong, and what the team did about it {#sprint-2-wrong}
+
+- **The pipeline was written for the wrong shell.** Found on the first server run, fixed within the day, and the fix
+  made the pipeline more portable than it would otherwise have been.
+- **A green pipeline on an empty model.** Not wrong, but easy to misread. The team learned to ask what a green
+  pipeline actually checked.
+- **The demo.** The fix was a structure and a rehearsal, adopted at the retrospective and used from sprint 3.
+- **Stand-up lines with no outcome.** Not caught by the lint, caught by the deputy's question. The team started
+  writing outcome-first statuses in sprint 3, with drafts from `talk.pl` ([[talking]]).
+- **The intake issue for the first drop left open.** Caught in the To-Do list at the review. Closing the intake issue belongs on the drop
+  intake checklist ([[prime-changes]]).
+
+=== You can now... {#sprint-2-can-now}
+
+- read a pipeline log and tell a shell error from a model error;
+- explain why every job runs `perl ci/job.pl NAME`, and what goes wrong without it;
+- explain what a green pipeline proves and what it does not;
+- import a prime drop onto the vendor branch and merge it through a feature branch;
+- choose a repository layout with the next drop in mind, and record it in a layout map;
+- write a request for enablers as dated asks with the cost of no;
+- recognise a demo that shows machinery instead of results, and restructure it.
+
+=== Exercises {#sprint-2-exercises}
+
+::: exercise Translate the failure
+Take the first job in the failed pipeline log above. Write, in one sentence each, what a systems engineer who has
+never seen PowerShell needs to understand to fix it, and what Tom changed. (The runners chapter has the answer;
+[[runners-pwsh]].)
+:::
+
+::: exercise Re-run the demo
+Write the sprint 2 demo script that should have been given, using the structure in [[talking]]: the question, the
+output to show, one before-and-after with a number from the scorecard table above, one safe live change, and the ask.
+Keep it to five minutes.
+:::
+
+::: exercise Read the integration branch
+In the `tidewater` sandbox, list the integration branch's merges up to the end of sprint 2 with the `git log` command
+above. For each line, name the story it closed. Which merge brought the model in, and which merges changed only the
+machinery?
+:::
+
+::: exercise A layout for your model
+Sketch the layout map for a model you know: which packages go in the library, requirements, logical, physical,
+analysis and verification folders? Which package would you be least sure about, and what would it cost to move it
+after the third drop?
+:::
+
+=== Applying this to your project {#sprint-2-applying}
+
+- **Run the pipeline on the real runner as early as you can,** and expect the first run to fail for a reason that has
+  nothing to do with the model.
+- **Keep the pipeline's scripts shell-neutral** from the start: one command per job, logic in a script in the
+  repository.
+- **Decide the repository layout before the first drop is merged,** and write it down as a map the converter applies.
+- **Bring the inherited model in through a vendor branch** and never edit it there. Record the inherited debt as the
+  starting point of a ratchet.
+- **Write your asks down** with dates and the cost of no. A memo gets decided; a remark in a meeting gets remembered
+  differently by everyone who heard it.
+- **Rehearse the demo** and say the result before the mechanism. The first time you get it wrong in front of
+  management is the last time you will need to be told.

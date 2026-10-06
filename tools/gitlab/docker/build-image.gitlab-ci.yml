@@ -1,0 +1,15 @@
+# Optional: build and push the mbse-ci image from a pipeline, in the KIT's own GitLab project (not the model project).
+# Needs a Docker runner that allows Docker-in-Docker (privileged). Many government runners do not: then build on an
+# approved workstation instead (README.md) and push with `docker push`.
+build-image:
+  stage: build
+  image: docker:27
+  services: [docker:27-dind]
+  tags: [docker, privileged]
+  rules:
+    - if: $CI_COMMIT_TAG                 # one image per kit tag: mbse-ci:<tag>
+  script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - git archive --format=tar HEAD bin lib tools > kit.tar
+    - docker build --build-arg KIT_VERSION="$CI_COMMIT_TAG" -t "$CI_REGISTRY_IMAGE/mbse-ci:$CI_COMMIT_TAG" -f tools/gitlab/docker/Dockerfile - < kit.tar
+    - docker push "$CI_REGISTRY_IMAGE/mbse-ci:$CI_COMMIT_TAG"

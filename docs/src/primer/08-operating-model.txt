@@ -1,0 +1,542 @@
+== The operating model {#operating-model}
+
+::: survival
+What you have: a directive, a signed scorecard, a twelve-week outline, three people and a contractor who delivers a
+model every quarter.
+
+What you need: a way to cut the work into pieces of a known size, a calendar the team keeps, a clear answer to
+"who decides?", and a written list of the decisions that shape everything else. That is the operating model.
+:::
+
+=== Sunday evening, the whiteboard {#om-whiteboard}
+
+On the Sunday before sprint 1, Jim stood in front of the whiteboard in the team room with a marker and a question
+the program manager had asked on Thursday: "When you say twelve weeks, twelve weeks of *what*?"
+
+The honest answer, at that moment, was "twelve weeks of figuring it out." Jim knew that would not survive the first
+review. In the document era the answer would have been a work breakdown structure, an integrated master schedule
+and a systems engineering management plan: three documents, a month to write, approved by people who would never
+read them again. Jim did not have a month, and did not want three more documents. What Jim wanted was something
+the team could carry in their heads, check every morning, and change on a Wednesday without a CCB.
+
+By the time Bob and Tom arrived on Monday morning, the board held five boxes stacked like a parts tree, each with a
+size limit written next to it, a two-week calendar with the meetings marked, and three names with arrows to the
+things each would own. Bob looked at it for a while and said, "So it's a WBS and a schedule."
+
+"It's a WBS and a schedule," Jim agreed. "With size limits that we actually enforce, and a schedule that repeats
+every two weeks instead of running for three years."
+
+That whiteboard is this chapter.
+
+=== Why an operating model, and why so small {#om-why}
+
+An **operating model** is the answer to four questions: how is the work divided, when does the team meet and
+plan, who decides what, and which decisions have already been made. Every systems engineering organization has one,
+whether it writes it down or not. In the document era the written version was the SEMP, and the real version was
+the set of habits the team had built over twenty years: who you called before you changed an ICD, which
+spreadsheet held the truth this month, which review package was actually read.
+
+DevSecOps does not abolish any of that. It changes three things about it.
+
+First, **the pieces of work are small and of a known size**. In the document era a work package was sized to the
+contract: "System Specification, revision C" might be six months of effort with one milestone at the end. Nobody
+knew whether it was on track until the review. In the new way, no piece of work the team commits to is larger than
+two weeks, and most are a few days. Progress becomes visible because things finish.
+
+Second, **the calendar is a heartbeat, not a timeline**. Instead of an integrated master schedule that runs for
+years with a few dozen milestones, the team runs the same two-week cycle again and again: plan, work, show, reflect.
+The long-range plan still exists (Tidewater's runs for thirty-nine sprints), but it is built out of these
+repeating cycles, and it is re-planned at every one.
+
+Third, **the process is enforced by the platform, not by memory**. "Every change is reviewed" stops being a sentence
+in a SEMP and becomes a setting on a protected branch in GitLab ([[gitlab-setup]]). "Nobody changes a baseline"
+becomes a protected tag. The operating model says what the rule is; the tools make it true.
+
+::: sidebar The SEMP the team did not write
+Tom asked, in the first week, whether the team should update the SEMP to describe the new way of working. Jim's
+answer was to write a two-page "operating model" page in the GitLab wiki instead, and to put a one-paragraph pointer
+to it in the next SEMP revision. The wiki page is under version control like everything else, and it changed eleven
+times in the first twelve weeks. A SEMP revision takes a CCB. The team would have spent the twelve weeks either
+violating its own SEMP or waiting for approval to change it.
+:::
+
+=== The five levels {#om-levels}
+
+Tidewater's work is divided into five levels. Each has a size limit, and the limit is the point: a level is defined
+by how long its pieces are allowed to take, not by what kind of work they hold.
+
+|| Level | Size limit | Tidewater example | Where it lives | Who owns it ||
+| Project | years | "Tidewater SysML v2 port", 18 months (39 sprints) | the journal (one per project) | Jim, with the program manager |
+| Tome | under 1 year (2 semesters, 26 sprints) | T2 "Port Tidewater v1 to SysML v2", sprints 1 to 20 | the journal (`t:` tag); GitLab label `tome::port` | Jim |
+| Epic | under 1 semester (13 sprints) | E6 "Structure: close the structure TODOs", sprints 2 to 8 | the journal (`e:` tag); GitLab label `epic::structure` | Jim |
+| Story | under 1 sprint (2 weeks) | "Close the Network TODOs", sprint 3 | the journal (an item); a GitLab issue labeled `type::story` | the person assigned |
+| Task | under 1 week (5 points or fewer) | "Replace the level stereotype TODOs in Network.sysml with @L tags", 1 point | GitLab only: an issue labeled `type::task`, closed by a merge request | the person assigned |
+Table: The five levels of work, with their size limits
+
+A **project** is the whole effort, with a start, an end and a purpose a manager can state in a sentence. Tidewater's
+is "port the Tidewater system model from SysML v1 to SysML v2 in GitLab, then keep it current with the prime's
+deliveries." A project lasts years. It is the level the program manager funds and the level the program's
+leadership hears about.
+
+A **tome** is a major body of work inside the project, the size of a large contract line item or a major phase. The
+word is unusual on purpose (it is the agile kit's word, and it means "a big book"): it does not collide with any
+term the team already uses, so nobody confuses a tome with a contractual "phase" or "increment." A tome must finish
+within a year. Tidewater has three.
+
+An **epic** is a body of work inside a tome that delivers one recognizable capability or outcome, the size of a work
+package in an old WBS. An epic must finish within a semester, thirteen sprints. Tidewater has fourteen.
+
+A **story** is a slice of work that produces something the team can show at the end of a sprint: a package with its
+TODO lines closed, a pipeline job that blocks a bad change, a set of discrepancy reports sent to the prime. A story
+must finish within one sprint. Stories are what the team plans with, commits to, and demonstrates.
+
+A **task** is one step of a story that one person can finish in a week or less, usually a day or two: convert this
+file, write that job, review the other merge request. Tasks are what the team does each day. They are tracked in
+GitLab, where the work happens, and each model-changing task ends in exactly one merge request.
+
+==== What a point is {#om-points}
+
+Size is measured in **points**. On Tidewater one point is one **ideal person-day**: a day of focused work on the
+task by the person who will do it, with no meetings, no interruptions and no waiting. Nobody has ideal days, and
+that is fine. Points are not hours on a timecard. They are a unit for comparing pieces of work with each other and
+with what the team has finished before.
+
+Why ideal days rather than hours? Three reasons the team found persuasive:
+
+- An estimate in hours invites false precision. Nobody knows whether converting a package will take 6 or 9 hours.
+  Most people can tell whether it is a one-day job or a three-day job.
+- Hours get compared with timecards, and then the conversation becomes about the timecard, not the work.
+- Ideal days are easy to sanity-check against the calendar. A person has about eight points of capacity in a
+  ten-day sprint once meetings, email and interruptions are taken out (see [[om-capacity]]).
+
+The size limits translate directly: a task is at most 5 points (a person's working week), and a story is at most
+what fits in one sprint for the people working on it, which on Tidewater rarely exceeds 6 points.
+
+::: note Why the agile kit says "task" for what Tidewater calls a story
+The kit's own documentation calls a journal item a *task* and gives it the limit "under one sprint." That is the
+same thing Tidewater calls a *story*. Tidewater added a smaller level underneath, the one-week task, and keeps it
+only in GitLab. If you read the kit's help (`:help agile`) alongside this book, translate the kit's "task" as
+Tidewater's "story." The reason for the split is in [[om-where]].
+:::
+
+==== Why each limit is where it is {#om-limits}
+
+The limits are not arbitrary. Each one is the longest a piece of work can run before the team loses the ability to
+see whether it is going well.
+
+**A task under one week** keeps every merge request small enough to review in under an hour. A merge request that
+changes forty lines can be read line by line; one that changes four thousand gets a glance and an approval, which
+is the review-by-screenshot habit of the Cameo years ([[cameo-review]]) in a new form. It also means the pipeline
+gives feedback within days of the work starting, not at the end of a month.
+
+**A story under one sprint** means every story either finishes and is demonstrated at the sprint review, or visibly
+does not. There is no "eighty percent done" in a sprint review; there is done, and there is carried over. A story
+that is carried over is a signal, and the team looks at why (see [[om-splitting]]).
+
+**An epic under one semester** keeps the medium-range plan honest. A semester is about the horizon over which a
+team can predict its own work with any confidence. An epic that would run longer is really two outcomes, and
+splitting it gives the program manager two points at which to say "that one is done."
+
+**A tome under one year** matches the program's planning and funding cycle. The program plans and budgets by fiscal
+year; a tome that crosses two fiscal years becomes hard to fund and harder to report.
+
+**A project of years** is whatever the mission needs. The limits below it are what make a long project tractable:
+a project of thirty-nine sprints is thirty-nine short, visible, re-planned cycles, not one long one.
+
+::: objection "Real systems engineering work doesn't come in one-week pieces. An ICD takes months."
+Answer: An ICD took months because it was one deliverable reviewed at the end. The work inside it was always made
+of smaller pieces: agree the message list, define each message, reconcile the units, review with the other
+segment. Each of those is a task or a story. What changes is that each piece is finished, reviewed and merged on its
+own, so the ICD is always in a known state instead of being "in work" for months. In Tidewater the equivalent of the
+ICD is the `Interfaces` package; it was ported, cleaned up and reviewed in five stories over three sprints, and was
+never in an unknown state. See [[sprint-3]].
+:::
+
+==== Splitting work that is too big {#om-splitting}
+
+The skill the team practiced most in the first twelve weeks was not git or SysML. It was splitting. Every planning
+session found at least one story that was too big, and the team learned a handful of ways to cut it.
+
+|| Too big | Why it is too big | Split it by | Resulting stories ||
+| Port the Stations package | 25 members, 18 TODO lines, two reviewers | sub-area | Stations level tags; Stations procured parts; Power system and parametric |
+| Set up the pipeline | unknown amount of learning | first useful slice | Pipeline runs grammar and lint on every MR; then outline and TODO jobs; then trace |
+| Import the requirements | three DOORS modules, drift to investigate | output vs investigation | Import the DOORS modules; Report drift and gaps to the prime |
+| Write the security plan | the ISSM's review cycle is outside the team | what the team controls | Draft the toolchain description; ISSM review meeting; Answer the ISSM's comments |
+| Behavior TODOs | four different constructs | construct | State machine; fork, pin and object flow; constraint; interaction |
+Table: Splitting stories that would not fit in a sprint
+
+Three rules of thumb came out of those sessions:
+
+1. **Split by result, not by activity.** "Analyze the Stations package" and "Fix the Stations package" are not a
+   good split, because the first produces nothing anyone can see. "Stations level tags" and "Stations procured
+   parts" each end in a merged change.
+2. **Pull out the waiting.** Anything that depends on someone outside the team (the ISSM, the enterprise GitLab
+   administrators, the prime) becomes its own story or task, so the rest of the work does not wait with it.
+3. **When in doubt, do the smallest useful thing first.** The first pipeline story was two jobs. It was the most
+   valuable story in sprint 1, because it proved the whole chain (branch, merge request, pipeline, approval, merge)
+   worked end to end. Everything after it was adding jobs to a chain that already worked.
+
+=== The Tidewater tree {#om-tree}
+
+Here is the whole project as Jim laid it out in week zero. The sprint spans are the plan; Part III and
+[[maintenance]] show how reality compared.
+
+|| Tome | Epic | Sprints | What it delivers ||
+| T1 Stand up MBSE DevSecOps (S1 to S8) | E1 GitLab project and gitflow | 1 to 5 | the project, protections, branch rules, templates |
+| T1 | E2 Pipeline and quality gates | 1 to 6 | grammar, lint, outline, TODO, trace, docs and security jobs |
+| T1 | E3 Team practices and onboarding | 2 to 6 | laptops, working agreements, the rhythm, training |
+| T1 | E4 Toolchain security and authorization to use | 2 to 8 | the ISSM's approval of the runner, repository and data flows |
+| T2 Port Tidewater v1 to SysML v2 (S1 to S20) | E5 Drop 1 intake and first import | 1 to 2 | drop 1 checked, converted and on the integration branch |
+| T2 | E6 Structure: close the structure TODOs | 2 to 8 | every structural TODO closed, level tags, clutter removed |
+| T2 | E7 Requirements and trace | 3 to 10 | DOORS imported, trace on every change, discrepancy reports |
+| T2 | E8 Behavior and analysis | 6 to 13 | state machines, interactions, flows and constraints written by hand |
+| T2 | E9 Drops 2 and 3 during the port | 8 to 15 | two prime deliveries absorbed while the port continues |
+| T2 | E10 Baseline 1 and acceptance | 14 to 20 | the first accepted baseline |
+| T3 Maintain against prime drops (S17 to S39) | E11 Drop intake automation | 17 to 22 | the intake runbook automated |
+| T3 | E12 Drops 4 and 5 | 20 to 29 | two deliveries absorbed; a rename and a constraint change |
+| T3 | E13 Drops 6 and 7 | 33 to 39 | the last two deliveries; clutter removed upstream |
+| T3 | E14 Sustainment operations | 27 to 39 | monthly status, CCB, runner upgrades, backups, baselines 2 and 3 |
+Table: The Tidewater project tree: three tomes, fourteen epics
+
+Check the limits against the table: no tome runs more than 26 sprints (T3 runs 23), and no epic more than 13 (E14
+runs exactly 13). The tomes overlap. That is deliberate: maintenance begins before the port is finished, because the
+prime's third drop arrives in sprint 14 whether the port is done or not.
+
+Below the epics are stories. Here is sprint 1, the first plan the team ever made in this form, exactly as the
+kickoff recorded it (story ids are journal ids; the `#` numbers under each story are its GitLab task issues):
+
+{{include: docs/tidewater/sprints/01/plan.txt}}
+
+Seven stories and {{count: docs/tidewater/sprints/01/plan.txt ^\s+#\d}} tasks, {{value: docs/tidewater/sprints/01/scorecard.json 11_delivery.committed}} points. Two of the seven
+are not engineering at all: a learning story (practice lessons and the first chapters of this book, for all three)
+and a laptop story (Git for Windows, Vim and the kit on each machine, checked with `kickoff.pl doctor`). They are on
+the board because they take real time; a plan that hides them is a plan that slips. Every task is between half a
+point and a point and a half, well under the five-point limit. That is typical of a first sprint, when
+everything is new and the team does not yet trust its estimates; by sprint 4, three- and four-point tasks appear as
+people learn what a day of work in the new tools looks like.
+
+=== Where each level lives {#om-where}
+
+Each level lives in the place where the people who use it already look.
+
+**Stories, epics and tomes live in the team's journal**, the plain-text ledger the agile kit keeps for each project
+([[journal]]). Each story is one journal item, with an id like `TW-12` (the number is the story's GitLab issue
+number, so the two always match), a size in points, an epic (`e:`) and a tome (`t:`). The journal is where the
+sprint's commitment, capacity, done and carried-over work are recorded, and where velocity, burn-down and the weekly
+report come from. It is the part of the operating model Jim owns and reports from.
+
+**Tasks live only in GitLab.** Each task is a GitLab issue, labeled `type::task`, linked to its story's issue
+("Part of #12"), and, if it changes the model, closed automatically by the merge request that does the work. That
+is where Bob and Tom spend their day.
+
+Why not put tasks in the journal too? Because the kit follows a rule that turned out to suit the team well: the
+architect's record holds what the architect is accountable for, and the team's day-to-day breakdown stays in the
+team's own tool. Jim is accountable for stories finishing in the sprint they were committed to; Jim does not need,
+and should not manage, which of Bob's three tasks is done by Wednesday. GitLab already records that, in detail, for
+anyone who wants to look.
+
+The mapping to GitLab objects depends on which tier of GitLab the organization licenses. Tidewater's enterprise
+GitLab is the Free tier (GitLab's name for its unpaid edition, which in an enterprise installation is still
+supported by the administrators), so the team used labels and milestones for the upper levels:
+
+|| Level | GitLab Free (what Tidewater used) | GitLab Premium or Ultimate (if you have it) ||
+| Project | a group (`tidewater`) holding the model project | the same |
+| Tome | a scoped label `tome::port` | a parent epic (Ultimate supports multi-level epics) |
+| Epic | a scoped label `epic::structure` | a group epic, with child issues and a roadmap |
+| Sprint | a milestone "Sprint 3" with start and due dates | an iteration in an iteration cadence |
+| Story | an issue labeled `type::story` | the same, attached to its epic |
+| Task | an issue labeled `type::task`, related to its story | a child task (a GitLab "task" work item) or the same issue |
+Table: The levels in GitLab, by tier
+
+A **scoped label** is a GitLab label whose name contains `::`. An issue can carry only one label from each scope, so
+adding `workflow::review` to an issue automatically removes `workflow::in-progress`. That one feature is what makes
+labels usable as fields: an issue's type, epic, tome and workflow state are each exactly one value. [[gitlab-setup]]
+creates them from a file.
+
+=== The cadence {#om-cadence}
+
+Every sprint on Tidewater is ten working days, Monday of week one to Friday of week two, and every sprint has the
+same shape. The team's calendar invitations were created once, in week zero, and never changed.
+
+|| Day | When | Event | Length | Who | Produces ||
+| Day 1 (Monday) | 09:00 | Sprint kickoff and planning | 90 minutes | team; program manager invited for the first 15 | the sprint goal, capacity, committed stories, task breakdown, poker estimates |
+| Every day | 09:00 | Stand-up | 15 minutes | team | three terse lines per person (yesterday, today, blockers); blockers become actions |
+| Every Friday | 15:00 | Weekly note | 20 minutes (Jim alone) | Jim | the weekly quad page to the program manager |
+| Wednesday of week 2 | 10:00 | Backlog refinement | 60 minutes | team | next sprint's stories meet the Definition of Ready; poker estimates |
+| Day 10 (Friday) | 10:00 | Sprint review (demo) | 60 minutes | team, program manager, deputy program manager; prime's modeler when a drop is involved | live demonstration from GitLab; scorecard; feedback |
+| Day 10 (Friday) | 11:00 | Retrospective | 60 minutes | team only | start, stop, continue; the pulse survey; one improvement for next sprint |
+Table: The two-week cadence
+
+[[ceremonies]] describes each event in detail, with the real chat pastes, poker rounds and retrospective notes from
+the twelve weeks. Here the point is the shape: about {{value: docs/tidewater/work-split.json ceremony_hours.total}} hours of meetings per person per sprint (averaged over the
+first six sprints, from the meeting records), out of eighty
+hours. In the document era, Bob counted the team's recurring meetings in a typical fortnight (status meetings,
+working groups, review dry-runs, the CCB) and got eleven hours, not counting the review packages themselves.
+
+**Why two weeks?** The team considered one week and three. One week was too short to finish anything that involved
+the ISSM or the prime, and planning every week would have eaten a day a month. Three weeks was too long to wait for
+feedback in the first quarter, when everything was new. Two weeks gave six sprints in the twelve weeks the directive
+allowed, which meant six reviews at which the program manager could see progress, and six retrospectives at which
+the team could fix what was not working.
+
+**Holidays do not move the cadence.** When a holiday falls in a sprint (12 October in sprint 1, 11 November in sprint
+3, 26 November in sprint 4, 25 December in sprint 6), the sprint keeps its dates and loses capacity. The events on
+the holiday move to the nearest working day. A cadence that shifts with every holiday stops being a cadence.
+
+=== Capacity {#om-capacity}
+
+**Capacity** is how many points the team can expect to finish in a sprint, worked out before planning from the
+calendar, not from hope.
+
+Each person has a standing capacity per full sprint, agreed in week zero:
+
+- **Jim: 5 points.** Jim is the MBSE lead and spends roughly half of every sprint on things that are not stories:
+  the program manager, the prime, the CCB, reviews of Bob's and Tom's merge requests, the weekly note. Five points
+  is Jim's honest remainder.
+- **Bob: 8 points.** Ten working days, minus about two days for meetings, reviews of others' work, email and the
+  unexpected.
+- **Tom: 8 points.** The same.
+
+Then, before each planning session, the calendar is applied. A holiday removes a day for everyone; leave removes it
+for one person. Capacity is prorated by working days available out of ten. Sprint 1 had one holiday (Monday 12
+October), so everyone had nine days:
+
+|| Person | Standing capacity | Days available | Sprint 1 capacity ||
+| Jim | 5 | 9 of 10 | 4.5 |
+| Bob | 8 | 9 of 10 | 7.2 |
+| Tom | 8 | 9 of 10 | 7.2 |
+| Team | 21 | | the sum |
+Table: Sprint 1 capacity
+
+The kickoff record shows the result, and the commitment the team made against it:
+
+{{include: docs/tidewater/sprints/01/kickoff.txt | lines 4-5}}
+
+The team then commits to between 85 and 95 percent of capacity. The margin is not padding; it is room for the
+unplanned work that every sprint contains (a pipeline that breaks, a question from the prime, a review that takes
+longer than it should). Sprint 1's commitment, in the record above, is inside that band.
+
+Capacity is recorded in the journal with the stand-up verb `cap` on the first day of the sprint. The kit's metrics
+compare each sprint's load (committed divided by capacity) against two thresholds: above 110 percent is overload,
+below 70 percent is under-use. Both raise a signal in the weekly report ([[journal]]).
+
+::: warning The temptation in sprint 1
+On the Friday before sprint 1, Jim's first draft plan held 26 points: everything the team wanted done by the first
+review. Tom did the capacity arithmetic on the whiteboard and the draft went to {{value: docs/tidewater/sprints/01/scorecard.json 11_delivery.committed}}, with a learning story and a laptop story
+that the first draft had left out. Jim later said that cutting those points was the single most useful thing done in week zero, because it meant sprint 1 finished. A first
+sprint that finishes everything it committed to is worth far more to a skeptical team than one that attempts
+everything and finishes half.
+:::
+
+=== Two ways to count "done" {#om-done}
+
+The book uses two measures of finished work, and says which one every time:
+
+- **Story points done** is the journal's measure. A story counts only when all of its tasks are done; a story with
+  one open task counts zero, and its remaining points carry over. This is the number behind velocity,
+  predictability and the sprint report: sprint 4 finished
+  {{value: docs/tidewater/sprints/04/scorecard.json 11_delivery.done}} of
+  {{value: docs/tidewater/sprints/04/scorecard.json 11_delivery.committed}} story points, because the Stations story
+  carried over.
+- **Task points done** is GitLab's measure: every task closed in the sprint counts, including the finished tasks of
+  a story that carried over. It is the number behind the work mix (engineering, platform, learning) in the [[bluf]]
+  and the scorecard: sprint 4 closed {{value: docs/tidewater/work-split.json sprints.4.points}} task points.
+
+Neither is wrong. Story points done tells management what was *delivered*; task points done tells the team where the
+*effort* went. Mixing them in one sentence is the mistake.
+
+=== Roles and decisions {#om-roles}
+
+Three people do the work. Their roles were assigned in Jim's email ([[directive-email]]) and written into the
+project's settings, so that GitLab enforces them.
+
+**Jim, MBSE lead.** Owns the model's content and direction: what must be in it, which work comes first (the order
+of the backlog), what "done" means. Owns tomes and epics, plans each sprint with the team, approves merge requests
+as a code owner, creates baselines, reports to the program manager, and talks to the prime about the content of
+each drop. In GitLab, a maintainer.
+
+**Bob, MBSE engineer.** Does most of the model work: converts, cleans up, writes what the converter cannot,
+reviews Tom's changes to the model. Owns the model's structure in day-to-day terms. In GitLab, a developer: Bob can
+push feature branches and open merge requests but cannot push to protected branches or create baseline tags.
+
+**Tom, configuration management and DevSecOps engineer.** Owns the pipeline, the runner, the project settings, the
+vendor branch where prime drops land, and the mechanics of releases and baselines. Reviews Bob's changes to the
+pipeline and project files. In GitLab, a maintainer.
+
+Around them:
+
+|| Activity | Jim | Bob | Tom | Program manager | Deputy PM (CCB chair) | ISSM | Prime | GitLab admins ||
+| Set project priorities and the backlog order | A/R | C | C | C | I | | | |
+| Plan and commit a sprint | A | R | R | I | | | | |
+| Change the model (a feature branch and MR) | C | R | R | | | | | |
+| Approve a model change (code owner) | R | R | C | | | | | |
+| Change the pipeline or project settings | C | C | A/R | | | C | | C |
+| Create a baseline (tag and release) | A | C | R | I | C | | I | |
+| Accept a prime drop | A | R | R | I | I | | C | |
+| Raise a discrepancy report to the prime | A/R | R | C | I | | | I | |
+| Approve the toolchain for use | C | | R | I | | A | | C |
+| Provide accounts, runner registration | | | R | | | | | A |
+| Report progress | A/R | C | C | I | I | | | |
+Table: Who does what (R responsible, A accountable, C consulted, I informed)
+
+A **RACI** table like this one is familiar from the document era; what is new is that most of its cells are enforced.
+Bob cannot create a baseline because the protected-tag setting allows only maintainers. A change cannot reach the
+integration branch without a code owner's approval because the protected-branch setting requires it. The ISSM's
+"A" on toolchain approval is not enforced by GitLab, which is why it is a story with its own tasks ([[sprint-2]]).
+
+==== What happened to the CCB {#om-ccb}
+
+The deputy program manager's first question, when Jim briefed the operating model, was: "Where does my CCB fit?"
+
+The answer the team worked out, and the deputy accepted after the sprint 2 review, has three parts:
+
+1. **Day-to-day model changes do not go to the CCB.** They are made on feature branches, reviewed in merge
+   requests, checked by the pipeline and approved by a code owner. The approval, the reviewer's comments, the
+   pipeline results and the change itself are recorded together in GitLab, permanently. That record is more
+   complete than any CCB minutes the program ever kept.
+2. **Baselines go to the CCB.** A baseline (a protected tag such as `baseline-1`, built from a release branch merged
+   into `main`) is what analyses, contracts and other programs cite. Creating one requires Jim's approval in GitLab
+   and the deputy's concurrence, recorded as a comment on the release merge request. The CCB reviews the release
+   notes, which are generated from the merge requests since the last baseline, not written by hand.
+3. **Disagreements go to the CCB.** If a reviewer and an author cannot agree in a merge request, or a change would
+   affect another program's interfaces, the merge request is labeled for the CCB and waits. In twelve weeks this
+   happened once.
+
+The deputy's question ("can a change be traced from request to approval to implementation?") is answered by a chain
+of links that GitLab maintains automatically: the issue that asked for the change, the merge request that made it
+(which says "Closes #N"), the pipeline that checked it, the approval, and the merge commit on `develop`.
+[[devsecops-change]] follows one change along that chain.
+
+=== Definitions of Ready and Done {#om-dor-dod}
+
+Two short checklists govern the edges of every sprint. The **Definition of Ready** says when a story may be pulled
+into a sprint; the **Definition of Done** says when a story may be called finished. Both live in the project's
+wiki, under version control, and both changed several times in the twelve weeks as the team learned what mattered.
+
+The Definition of Ready exists because the most common reason a story was carried over in the document era was
+that nobody knew what it meant when work started. The Definition of Done exists because "done" meant something
+different to each of the three people until it was written down. Jim's first draft of each was a page long. The
+versions that worked are below; the cut-down versions are what the team actually checked at refinement and review.
+
+{{include-md: tools/gitlab/templates/wiki/Definition of Ready.md}}
+
+{{include-md: tools/gitlab/templates/wiki/Definition of Done.md}}
+
+::: tip Keep them short enough to check aloud
+If a definition cannot be read aloud at the review in under a minute, it will not be checked. The team's rule:
+every line must be something a person can answer yes or no by looking at GitLab, not by remembering.
+:::
+
+=== The decisions the team wrote down {#om-decisions}
+
+The last part of the operating model is a short list of decisions that shape everything else, each with its reason
+and the condition under which the team would revisit it. Jim kept them as a numbered list on the wiki's Home page
+and added to it whenever the team argued about something for more than ten minutes. These ten were made in week
+zero and sprint 1; each is explained fully in the chapter shown.
+
+|| # | Decision | Why | Revisit if ||
+| D-1 | The v2 model is SysML v2 textual notation in a git repository | text can be compared, merged, checked and reviewed line by line; see [[sysmlv2]] | the program mandates a SysML v2 tool with its own repository |
+| D-2 | Gitflow branching: `develop` is the default (integration) branch; `main` holds baselines only | baselines are released to other programs; day-to-day work must never wait on a release; see [[git-strategies]] | releases stop mattering (then switch to GitLab flow) |
+| D-3 | Every merge is a merge commit; no squash, no fast-forward | the history of who changed what feeds the metrics and the audit trail | never |
+| D-4 | DOORS stays authoritative for requirement text; the model holds a converted copy | the prime and the program manage requirements in DOORS; the trace job reports drift | the program moves requirements into the model |
+| D-5 | Prime drops land on a vendor branch, converted and never hand-edited, and are merged into `develop` | git can then merge the prime's changes with the team's own edits; see [[git]] and [[maintenance]] | the prime delivers SysML v2 directly |
+| D-6 | The team never edits the v1 model; problems in it go to the prime as discrepancy reports | the prime owns the v1 model under the contract | the contract changes ownership |
+| D-7 | Conversion debt (TODO lines left by the converter) is the primary port progress measure | it is computed, countable and indisputable; see [[directive-scorecard]] | the TODO count reaches zero |
+| D-8 | Tasks are at most 5 points; stories fit one sprint; tasks live in GitLab, stories in the journal | small merge requests are reviewed properly; see [[om-limits]] | the team grows past about eight people |
+| D-9 | The pipeline runs on a Windows shell runner with Git for Windows' Perl | the same tools as the laptops; nothing new to approve; see [[tools]] | the enterprise offers an approved Linux runner with Perl |
+| D-10 | Everything that can be a file is a file under version control: settings, templates, pipeline, wiki, decisions | it can be reviewed, rebuilt and audited | never |
+Table: The decisions behind the operating model
+
+A **decision record** need not be long. The team used this template in the wiki, one per decision, and the table
+above is their index:
+
+```md
+## D-5 Prime drops land on a vendor branch
+
+**Decided:** 2026-10-07, Jim (with Bob and Tom)
+**Context:** The prime keeps changing the v1 model and delivers it every quarter. We
+will edit the converted v2 text (close TODOs, remove clutter). We need each new
+drop's changes without losing ours.
+**Decision:** Convert each drop as delivered onto `vendor/prime` (never hand-edited)
+and merge that branch into `develop` through a merge request.
+**Consequences:** Git does a three-way merge; conflicts appear only where both
+sides changed the same lines. Converter output paths must stay stable.
+**Revisit if:** the prime delivers SysML v2 directly.
+```
+
+::: sidebar Writing it down is the point
+Bob, who argued hardest against several of these decisions, said at the sprint 3 retrospective that the decision
+list was the thing that made the arguments bearable. "When I lost an argument, it was written down with the reason
+and the condition for changing it. I didn't have to keep re-fighting it; I had to watch for the condition." Two of
+the ten were revisited in the eighteen months. Neither was reversed.
+:::
+
+=== What the operating model is not {#om-not}
+
+It is not Scrum, SAFe or any other branded method, although it borrows freely from them, and the team did not
+attend a certification course. Jim's view was that the program needed a way of working that three systems engineers
+could explain to a program manager in five minutes, not a method that needed a coach.
+
+It is not a replacement for the program's systems engineering processes. Requirements are still managed in DOORS.
+The CCB still meets. The SEMP still exists, with a pointer to the wiki. What changes is the unit of work (small),
+the rhythm (two weeks, repeated), and the enforcement (by the platform).
+
+It is not fixed. The operating model page changed eleven times in twelve weeks, every change through a merge
+request like any other file. The retrospective at the end of each sprint is where changes to it are proposed.
+
+=== Applying this to your project {#om-apply}
+
+Copy these as they are:
+
+- **The size limits.** Task under a week, story under a sprint, epic under a semester, tome under a year. They work
+  for any team of two to eight people doing model work.
+- **Points as ideal person-days**, with standing capacity per person and prorating for holidays and leave.
+- **The cadence**: one planning day, a daily fifteen-minute stand-up, a mid-sprint refinement, a review and a
+  retrospective at the end. Book it all in the calendar once.
+- **Writing decisions down** with reason and revisit condition.
+
+Adapt these to your situation:
+
+- **The number of tomes and epics.** Draw your own tree. Start from the outcomes your program manager will
+  recognize, then check each against the size limits and split what does not fit.
+- **The RACI around the team.** Your CCB, security approver and contractor relationships will differ. The question
+  to answer for each is: which of their decisions can be enforced by a GitLab setting, and which must be a story?
+- **The GitLab mapping.** If your organization licenses Premium or Ultimate, use epics and iterations; the
+  operating model does not change.
+
+Decide these locally, before sprint 1:
+
+- Each person's standing capacity. Be honest about how much of the lead's time goes to things that are not stories.
+- Who approves what, and who may create a baseline.
+- Your decision list. Ten decisions is a good start; do not try to decide everything in advance.
+
+=== Exercises {#om-exercises}
+
+::: exercise {#ex-om-size} Size the tasks
+Take a work package from your own program (a document section, an interface definition, a test procedure) and
+split it into stories that each fit in one sprint and tasks that each fit in one week. Give each task a size in
+ideal person-days. Which split did you find hardest, and which of the three rules of thumb in [[om-splitting]]
+helped?
+:::
+
+::: exercise {#ex-om-split} Split a story
+The story "Close the Behavior TODOs" covers a state machine, an interaction, a fork with pins and object flows, and a
+constraint expression. Bob estimated it at 11 points. Split it into stories of at most 6 points each, by the rule
+"split by result." Name each resulting story so that its end state is something that can be demonstrated.
+:::
+
+::: exercise {#ex-om-capacity} Compute a sprint's capacity
+Sprint 4 runs 16 to 27 November 2026. Thanksgiving (26 November) is a holiday, and Jim takes leave on Friday 27
+November. Using the standing capacities above, compute each person's capacity and the team's, and the range of
+points the team should commit to.
+:::
+
+::: exercise {#ex-om-decision} Write a decision record
+Write a decision record, in the template's format, for one decision your own team has argued about more than once
+(a naming convention, a review rule, a tool choice). Include the condition under which you would revisit it.
+:::
+
+::: exercise {#ex-om-raci} Enforce a RACI cell
+Pick three cells of your own team's RACI. For each, say whether a GitLab setting could enforce it (which one?), or
+whether it must be handled as a story with tasks. Use [[gitlab-setup]] once you have read it to check your answers.
+:::

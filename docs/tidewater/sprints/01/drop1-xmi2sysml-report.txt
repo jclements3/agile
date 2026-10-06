@@ -1,0 +1,107 @@
+xmi2sysml report: tidewater.xmi
+
+in (xmi:type)                    in  mapped  folded   todo
+uml:Abstraction                  96      96       0      0
+uml:Activity                     14      14       0      0
+uml:ActivityFinalNode             1       0       1      0
+uml:ActivityParameterNode         1       0       1      0
+uml:Actor                         3       3       0      0
+uml:Association                   3       0       3      0
+uml:CallBehaviorAction            6       6       0      0
+uml:Class                        76      76       0      0
+uml:Comment                      85      85       0      0
+uml:Connector                    17      17       0      0
+uml:ConnectorEnd                 34       0      34      0
+uml:Constraint                    1       0       0      1
+uml:ControlFlow                   8       7       0      1
+uml:DataType                      3       3       0      0
+uml:Dependency                    3       3       0      0
+uml:Enumeration                   1       1       0      0
+uml:EnumerationLiteral            4       4       0      0
+uml:ForkNode                      1       0       0      1
+uml:Generalization                5       0       5      0
+uml:Include                       1       0       0      1
+uml:InitialNode                   1       0       1      0
+uml:InputPin                      1       0       0      1
+uml:InstanceSpecification         3       0       0      3
+uml:Interaction                   1       0       0      1
+uml:Lifeline                      3       0       0      3
+uml:LiteralInteger                4       0       4      0
+uml:LiteralReal                   3       0       3      0
+uml:LiteralUnlimitedNatural       4       0       4      0
+uml:Message                       3       0       0      3
+uml:MessageOccurrenceSpecification      6       0       0      6
+uml:Model                         1       0       1      0
+uml:ObjectFlow                    1       0       0      1
+uml:OpaqueAction                  1       1       0      0
+uml:OpaqueExpression              1       0       0      1
+uml:Package                      20      20       0      0
+uml:PackageImport                 1       0       1      0
+uml:Parameter                     8       8       0      0
+uml:Port                         28      28       0      0
+uml:Profile                       1       0       0      1
+uml:ProfileApplication            1       0       1      0
+uml:Property                     71      65       6      0
+uml:Pseudostate                   1       0       0      1
+uml:Region                        1       0       0      1
+uml:Signal                        3       3       0      0
+uml:State                         4       0       0      4
+uml:StateMachine                  1       0       0      1
+uml:Stereotype                    7       0       0      7
+uml:Transition                    7       0       0      7
+uml:Trigger                       6       0       0      6
+uml:UseCase                       4       4       0      0
+total                           560     444      65     51
+
+ported vs remaining (metric A filter uml:Class|Port|Property|Connector|Activity): 206 of 206 ported, 0 remaining
+
+stereotype applications: Allocate 7, BindingConnector 3, Block 40, ConstraintBlock 1, ConstraintProperty 1, DeriveReqt 24, FlowPort 4, FlowProperty 5, FullPort 1, InterfaceBlock 4, L1Network 1, L2Segment 3, L3Station 10, L4Subsystem 8, L5Assembly 13, L6Component 1, Procured 3, ProxyPort 23, Refine 2, Requirement 6, Satisfy 29, TestCase 6, Trace 13, Unit 3, ValueType 3, Verify 21, designConstraint 2, functionalRequirement 16, interfaceRequirement 3, performanceRequirement 2, physicalRequirement 1
+stereotypes not converted: L1Network 1, L2Segment 3, L3Station 10, L4Subsystem 8, L5Assembly 13, L6Component 1, Procured 3
+xmi:Extension and xmi:Documentation blocks skipped (diagrams, layout, exporter): 2
+
+out (SysML v2)
+  action                      7
+  action def                  8
+  allocate                    7
+  attribute                  18
+  attribute def               3
+  bind                        3
+  connection                 14
+  constraint def              1
+  dependency                 18
+  derivation                 24
+  doc                        85
+  enum                        4
+  enum def                    1
+  item                        4
+  item def                    3
+  package                    21
+  parameter                   8
+  part                       40
+  part def                   44
+  port                       28
+  port def                    4
+  ref part                    3
+  requirement                30
+  satisfy                    29
+  succession                  7
+  use case def                4
+  verification def            6
+  verify                     21
+
+unmapped (TODO in the output): 12
+  uml:InstanceSpecification  _22_1_7f3a0c1_635c3454811f 'watt' no SysML v2 mapping in this converter
+  uml:InstanceSpecification  _22_1_7f3a0c1_6f4c2f1b2938 'watt hour' no SysML v2 mapping in this converter
+  uml:InstanceSpecification  _22_1_7f3a0c1_57eac3b61581 'percent' no SysML v2 mapping in this converter
+  uml:Interaction            _22_1_7f3a0c1_db6d13407a41 'DailyUpload' no SysML v2 mapping in this converter
+  uml:Include                _22_1_7f3a0c1_08793d6918c3 no SysML v2 mapping in this converter
+  uml:StateMachine           _22_1_7f3a0c1_7a13eb20b93a 'BuoyModes' no SysML v2 mapping in this converter
+  uml:Constraint             _22_1_7f3a0c1_f2cac788664a 'balance' constraint: English: generation * sunHours >= load * 24
+  uml:ForkNode               _22_1_7f3a0c1_56146662ad81 'after check' activity node not converted
+  uml:InputPin               _22_1_7f3a0c1_c91b3000bf85 'report' pin (object flow) not converted
+  uml:ObjectFlow             _22_1_7f3a0c1_49fcb94547f1 activity edge not converted (object flow, or an end that is a decision/fork/pin)
+  uml:ControlFlow            _22_1_7f3a0c1_b1c9f188a001 activity edge not converted (object flow, or an end that is a decision/fork/pin)
+  uml:Profile                _22_1_7f3a0c1_7d97481b1fe6 'Tidewater Profile' no SysML v2 mapping in this converter
+
+files: allocations/Allocations.sysml analysis/Analysis.sysml behavior/Behavior.sysml datacenter/DataCenter.sysml interfaces/Interfaces.sysml legacy-import/Legacy_Import.sysml network/Network.sysml operations/Operations.sysml requirements/Requirements.sysml stations/Stations.sysml tidewater/Tidewater.sysml types/Types.sysml verification/Verification.sysml
+self-check: ok

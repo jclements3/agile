@@ -1,0 +1,206 @@
+== Measuring with GitLab analytics {#analytics}
+
+::: survival Before you start
+What you have: twelve weeks of issues, merge requests and pipelines in one GitLab project, and the kit's journal of
+stories.
+
+What you need: to know which of GitLab's analytics views answer a question a systems engineer or a program manager
+actually asks, which of them your license includes, and how to get the same numbers when it does not.
+:::
+
+Jim's first instinct, when the program manager asked for "the metrics," was to open GitLab's Analytics menu and
+screenshot whatever was there. Tom talked Jim out of it. Half the menu was greyed out on their license tier, and the
+other half answered questions nobody on the program had asked. "Deployment frequency" sounds impressive until
+someone asks what Tidewater deploys. This chapter is the sorting Jim and Tom did in sprint 6: what each view
+measures, what it means for a team whose product is a model, and how to get the numbers without buying a tier you
+do not need.
+
+=== Two kinds of numbers {#analytics-two-kinds}
+
+The team keeps two records, and each one is good at different questions.
+
+- **The journal** (the kit's `scrum.txt`, [[journal]]) holds stories: what was committed, done, carried, blocked,
+  and how many points each was worth. It answers planning questions: are we delivering what we commit to, and how
+  fast does the backlog shrink?
+- **GitLab** holds tasks, merge requests, approvals, pipelines and tags. It answers flow and quality questions: how
+  long does a change take from proposal to acceptance, how often does a check catch something, how long are we red?
+
+Neither replaces the other. The scorecard in [[scorecard]] takes its delivery and morale measures from the journal
+and the retrospectives, and its flow and quality measures from GitLab. This chapter is about the second kind.
+
+=== The views GitLab offers {#analytics-views}
+
+GitLab's analytics are spread over several pages, and which ones you see depends on the license tier. Tiers and the
+features in them change from release to release, so treat the tier column below as a guide and check GitLab's
+current pricing page before you plan around a view.
+
+|| View | Tier (check current pricing) | What it measures | The question it answers for a model team ||
+| Value stream analytics | Free (basic), Premium (custom stages) | time an issue spends in each stage, from created to closed | where do our changes wait: before work starts, in review, or after merge? |
+| CI/CD analytics | Free | pipeline success rate and duration over time | do our checks run reliably, and how long does a change wait for them? |
+| Repository analytics | Free | commits, languages, contributors | who is touching the model, and how often? |
+| Merge request analytics | Premium | throughput, time to merge | how many changes did we accept, and how long did each take? |
+| Code review analytics | Premium | open merge requests and their review activity | which proposed changes are stuck waiting for a reviewer? |
+| Issue analytics | Premium | issues opened and closed per month | is the backlog of discrepancies and tasks growing or shrinking? |
+| Contribution analytics | Premium (group level) | events per member | is the work spread across the team or resting on one person? |
+| Milestone burndown and burnup | Premium | issues and weight closed against a milestone | are we on track for this sprint? |
+| DORA metrics | Ultimate | deployment frequency, lead time, change failure rate, time to restore | how fast and how safely do changes flow? |
+| Insights and analytics dashboards | Ultimate | charts you configure in YAML | anything above, on one page |
+Table: GitLab's analytics views, as a systems engineer reads them.
+
+The Tidewater project ran on the Free tier for the first twelve weeks; the tier decision was one of Jim's asks in the
+request for enablers ([[memos]]). That meant value stream, CI/CD and repository analytics in the web pages, and
+everything else from the API.
+
+=== The Free-tier route: gitlab.pl analytics {#analytics-free}
+
+Every number in the paid views is computed from data that every tier exposes through GitLab's REST API: merge
+requests with their commits, notes and approvals; issues with their labels and dates; pipelines and their jobs;
+deployments and releases. The kit's `gitlab.pl analytics` reads that data and prints the same five sections a
+manager would want from the paid pages. It works the same way against a real GitLab server and against the offline
+stand-in the book uses.
+
+Here it is on the Tidewater project at the end of sprint 6. The sandbox is a copy of the simulated project, with its
+GitLab state in `gitlab/`:
+
+```sh run sandbox=tidewater expect="DORA, for a model repository"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model analytics --since 2026-12-14 --until 2026-12-24
+```
+
+The same report, as the team filed it with the sprint 6 evidence:
+
+{{include: docs/tidewater/sprints/06/analytics.txt}}
+
+Against a real server, the only change is the first two options: `--url https://gitlab.example.gov --token-env
+GITLAB_TOKEN` instead of `--local gitlab`. The token needs only the `read_api` scope.
+
+=== Reading the five sections {#analytics-reading}
+
+**Value stream.** Each row is one stage of a change's life, with the median and the 85th percentile in hours. The
+stage that matters most for a model team is *MR opened -> first review*: that is the wait for a colleague's eyes,
+and it is where document-era reviews used to take weeks. In sprint 6 the median was
+{{value: docs/tidewater/sprints/06/scorecard.json 10_review_turnaround_hours}} hours. The long stage at the top,
+*issue created -> first commit*, is not a problem: stories are filed at refinement, a week before work starts, so
+that stage measures planning lead, not delay.
+
+**DORA, for a model repository.** The four DORA measures were defined for software teams that deploy services. A
+model team deploys too, just not to production servers. The table below is the translation the kit uses.
+
+|| DORA measure | Software meaning | Model meaning in `gitlab.pl analytics` ||
+| Deployment frequency | releases to production | publishes of the model site (the `pages` environment) and baseline releases |
+| Lead time for changes | commit to running in production | first commit on a branch to merged on `develop` |
+| Change failure rate | deployments that caused an incident | merges that needed a fix-forward or a revert merge request |
+| Time to restore | incident to recovery | `develop` pipeline red to the next green |
+Table: The four DORA measures, translated for a model repository.
+
+Two of these belong in front of management and two do not. Lead time
+({{value: docs/tidewater/sprints/06/scorecard.json 2_lead_time_hours}} hours median in sprint 6) is the direct
+answer to "how long does a change take now?", and time to restore (the worst case in sprint 6 was
+{{value: docs/tidewater/sprints/06/scorecard.json 8_pipeline_health.worst_restore_hours}} hours, the night the
+runner's disk filled up) shows the safety net works. Deployment frequency is mostly the nightly schedule rebuilding
+the site, so it measures a cron line, not the team. Change failure rate was zero in the first twelve weeks, which
+says more about the small number of merges than about the team's skill; quote it only with its denominator.
+
+**CI/CD.** Pipeline runs, failures and duration. The job failure line is the one to read: it says which checks
+caught something. In sprint 6 most failures were the `secrets` job, which is the planted test token in Bob's day in
+the life ([[day-in-life]]) doing exactly what it should.
+
+**Merge requests.** Throughput, time to merge and review turnaround per sprint, and merged-over-opened per author.
+The per-author line is useful to the team and dangerous in a briefing: it reads as a productivity ranking, and in
+sprint 6 it mostly shows that Tom prepared the baseline and the release.
+
+**Issues.** Opened and closed by type, and the oldest open items. The discrepancy reports to the prime sit at the
+top of the oldest list. That is correct: they are the prime's to close, with the next drop.
+
+=== The trend across the twelve weeks {#analytics-trend}
+
+One sprint is a snapshot. The case for management is the trend, so run the report over the whole period, by sprint,
+and write the tables as CSV files for a spreadsheet:
+
+```sh run expect="Sprint 1"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model analytics --since 2026-10-05 --until 2026-12-24 --by sprint --csv analytics-csv
+ls analytics-csv
+```
+
+The two flow measures the team agreed to report, taken from each sprint's scorecard:
+
+|| Sprint | Lead time, median hours | Review turnaround, median hours | Changes gated ||
+| 1 | {{value: docs/tidewater/sprints/01/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/01/scorecard.json 10_review_turnaround_hours}} | {{value: docs/tidewater/sprints/01/scorecard.json 3_gated_changes}} |
+| 2 | {{value: docs/tidewater/sprints/02/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/02/scorecard.json 10_review_turnaround_hours}} | {{value: docs/tidewater/sprints/02/scorecard.json 3_gated_changes}} |
+| 3 | {{value: docs/tidewater/sprints/03/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/03/scorecard.json 10_review_turnaround_hours}} | {{value: docs/tidewater/sprints/03/scorecard.json 3_gated_changes}} |
+| 4 | {{value: docs/tidewater/sprints/04/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/04/scorecard.json 10_review_turnaround_hours}} | {{value: docs/tidewater/sprints/04/scorecard.json 3_gated_changes}} |
+| 5 | {{value: docs/tidewater/sprints/05/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/05/scorecard.json 10_review_turnaround_hours}} | {{value: docs/tidewater/sprints/05/scorecard.json 3_gated_changes}} |
+| 6 | {{value: docs/tidewater/sprints/06/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/06/scorecard.json 10_review_turnaround_hours}} | {{value: docs/tidewater/sprints/06/scorecard.json 3_gated_changes}} |
+Table: Flow measures by sprint, from the scorecard files.
+
+Read it the way the program manager will. Lead time and review turnaround are measured in hours from the first
+sprint, against a document-era baseline measured in working days and weeks. They do not improve much after sprint 2,
+and that is the honest finding: the gain came from the way of working, not from the team getting faster at it. The
+one ungated change is merge request !1 in sprint 1, made before the pipeline file existed; its description says so.
+
+=== Small numbers and other traps {#analytics-traps}
+
+A three-person team produces a few merge requests a week. Statistics on numbers that small are fragile, and the
+team learned to say so before anyone else did.
+
+- **Quote the count with the median.** "Median {{value: docs/tidewater/sprints/06/scorecard.json 2_lead_time_hours}}
+  hours over {{value: docs/tidewater/sprints/06/scorecard.json merges}} merges" is honest; the median alone invites a
+  comparison with a team of fifty.
+- **Do not chase a measure.** If review turnaround becomes a target, reviewers approve faster and catch less. The
+  team watched it as a symptom, never as a goal.
+- **Watch the definitions.** The `talk.pl review` draft for sprint 6 reported "verify coverage" from the
+  verification matrix, which counts requirements with a *passing recorded result*. The scorecard reports
+  requirements with a *verification case*. The draft therefore showed coverage collapsing from seventy percent to
+  almost nothing, the week the matrix job arrived. Jim caught it in the Day-9 rehearsal; [[scorecard]] explains the
+  two measures.
+- **Separate the prime's numbers from the team's.** Open discrepancy reports and unverified requirements belong to
+  the prime until a drop closes them. A government team that reports them as its own backlog looks stuck.
+
+=== What goes in the briefing {#analytics-briefing}
+
+Jim put three numbers from GitLab into the December briefing, and left the rest in the appendix:
+
+1. **Lead time for a change**, with the document-era baseline beside it.
+2. **Changes gated**: every change since sprint 2 passed the checks and a code owner's review.
+3. **Pipeline health**: share of `develop` pipelines passing, and the worst time to restore.
+
+Value stream stages, DORA deployment frequency, per-author counts and issue ages stayed in the team's own review.
+The reasoning is in [[briefing]]: management can act on three numbers with a trend; it cannot act on twenty.
+
+=== How this relates to the kit's other measures {#analytics-kit}
+
+The kit already had measures before GitLab arrived. `daily.pl health` checks the journal against the thresholds of
+the operating model (blocked items, load, velocity, carryover). The weekly quad ([[communicating]]) reports sprint
+progress and on-time delivery. `bin/status-metrics.pl` computes the A to Z status metrics of a port from a model
+repository's git history. GitLab analytics adds the flow view on top: the same project seen through its merge
+requests and pipelines. When two sources disagree, believe the one that is closest to the work, and find out why.
+
+::: exercise Run the report yourself
+In the Tidewater sandbox, run `gitlab.pl analytics` for sprint 3 alone (2 to 13 November). Which stage of the value
+stream is longest, and why is that not a problem? Then run it for sprint 6 with `--by week`.
+:::
+
+::: exercise Translate a DORA measure
+Write one sentence a program manager would understand for each of the four DORA measures, using the model meanings
+in the table above. Which two would you leave out of a briefing, and why?
+:::
+
+::: exercise Find the trap
+Open `docs/tidewater/sprints/06/review-script.md` and `docs/tidewater/sprints/06/review.txt`. The draft and the
+final version disagree about verify coverage. Which one is right, and what would have happened if the draft had been
+read out?
+:::
+
+=== You can now {#analytics-can-now}
+
+- name the GitLab analytics views, what each measures and roughly which tier it needs;
+- get the same numbers on the Free tier with `gitlab.pl analytics`, by sprint, with CSV output;
+- translate the DORA measures into model terms, and say which belong in front of management;
+- spot the traps of small numbers and mismatched definitions before management does.
+
+=== Applying this to your project {#analytics-applying}
+
+Decide the three flow numbers you will report before the first sprint, write them into your scorecard, and run
+`gitlab.pl analytics --by sprint` at every sprint end into the sprint's evidence folder, as Tidewater did. Do not
+buy a tier for its dashboards until you have used the Free-tier report for a few sprints and know which questions
+you keep asking. If your license includes the paid views, use them for the team's own retrospectives and keep the
+briefing to the few numbers you defined in advance.

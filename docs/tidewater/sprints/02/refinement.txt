@@ -1,0 +1,8 @@
+Refinement, 2026-10-28 10:00: the Definition of Ready applied to sprint 3's stories
+
+TW-50  2.5 pts  Learn: the workbook second half; talking about progress
+TW-51  3 pts  Close the Network TODO lines
+TW-52  3 pts  DOORS modules into the model
+TW-53  2.5 pts  Trace report and secret detection in the pipeline
+TW-54  2 pts  Runner hardening with the ISSM
+TW-55  2 pts  First drift and gap analysis from the trace

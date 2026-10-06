@@ -1,0 +1,67 @@
+== Further reading {#reading}
+
+Titles only, deliberately: web addresses move, and an address printed in a book is wrong within a year. Every item
+below is easy to find by its title, and most are free. Check with your security office before downloading anything to
+a work laptop; several are available in the program's library.
+
+=== SysML v2 and the language underneath {#reading-sysml}
+
+- **OMG Systems Modeling Language (SysML), Version 2.0**, the specification. Read Part 1 (the language) for the
+  textual notation; dip into the rest as needed. The kit's grammar check is built from the official grammar that comes
+  with it.
+- **OMG Kernel Modeling Language (KerML), Version 1.0**, the foundation SysML v2 is defined on. Useful when a SysML
+  construct behaves unexpectedly and you need the underlying rule.
+- **OMG Systems Modeling Application Programming Interface (API) and Services**, the standard API for model
+  repositories, if your program plans to publish models to an API server.
+- **The SysML v2 Pilot Implementation**, the open-source reference implementation and its training material,
+  including the textual notation examples. The kit's `model.pl validate` can call it for full semantic checking.
+- **The SysML v2 release repository's training and examples folders**, the most direct way to see idiomatic v2 text.
+
+=== Systems engineering {#reading-se}
+
+- **INCOSE Systems Engineering Handbook**, the shared vocabulary for the processes this book renames (configuration
+  management, verification, technical reviews).
+- **NASA Systems Engineering Handbook**, free, and a good second view of the same processes from a program that writes
+  everything down.
+- **The DoD Digital Engineering Strategy**, for the policy background behind the directive in [[directive]].
+
+=== Git, GitLab and DevSecOps {#reading-devsecops}
+
+- **Pro Git**, by Scott Chacon and Ben Straub, free online. Chapters 1 to 3 cover everything in [[git]] and more;
+  chapter 7 is the rescue kit ([[rescue]]) in depth.
+- **The GitLab documentation**, especially the user guides for merge requests, protected branches, CODEOWNERS, CI/CD
+  YAML syntax, runners, and the Generic Package Registry. GitLab's documentation is versioned: read the version that
+  matches your instance.
+- **The GitLab Runner documentation** on the shell and Docker executors, for [[runners]].
+- **The DoD Enterprise DevSecOps Reference Design** and its playbooks, the program-level picture of what this book
+  does at team scale.
+- **NIST SP 800-218, the Secure Software Development Framework**, as a checklist for the pipeline's security posture
+  ([[security]]).
+
+=== Security frameworks named in this book {#reading-security}
+
+- **NIST SP 800-53**, security and privacy controls, used under the Risk Management Framework (**NIST SP 800-37**).
+- **NIST SP 800-171**, protecting controlled unclassified information, and the **CMMC** program built on it.
+- Your program's security classification guide and marking instructions, which outrank everything else on this list.
+
+=== Agile, for systems engineers {#reading-agile}
+
+- **The Scrum Guide**, by Ken Schwaber and Jeff Sutherland, short and free. Tidewater's rhythm is a light version of it
+  ([[operating-model]]).
+- **The Agile Manifesto and its twelve principles**, one page, worth reading for what it does *not* say.
+
+=== Vim {#reading-vim}
+
+- **Vim's own help**, which is better than any book: `:help user-manual` for the guided tour, `:help quickref` for the
+  one-page summary, and `:help agile` for the kit's commands ([[vim]]).
+- **vimtutor**, the thirty-minute interactive lesson that ships with Vim: run `vimtutor` in Git Bash.
+
+=== The kit's own documents {#reading-kit}
+
+These ship with the kit, in `docs/`, and need no download:
+
+- `docs/GITLAB.html`, the GitLab guide written for this team's process.
+- `docs/SYSML-PORT.html` and `docs/SYSML-PORT-QRG.pdf`, the port guide and its one-sheet card.
+- `docs/VIM-CHEATSHEET.html`, one page for every Vim mode.
+- `docs/OLLAMA.md`, installing a local model, approvals first ([[local-ai]]).
+- `docs/HELP.html`, the kit's help, the same text as `:help agile` and `perl agile.pl help`.

@@ -1,0 +1,7 @@
+= Appendices
+
+The appendices are for use at the keyboard. [[commands]] lists every command the book uses, with its options, checked
+against the tools' own help. The three quick reference guides, [[qrg-vim]], [[qrg-gitlab]] and [[qrg-port]], are meant
+to be printed and kept beside the monitor. [[templates]] shows every GitLab template and filled-in sample, with the
+Markdown features each one uses. [[checklists]] gathers every checklist in the book in one place, [[glossary]]
+translates between systems engineering, DevSecOps and SysML v2, and [[answers]] answers the exercises.

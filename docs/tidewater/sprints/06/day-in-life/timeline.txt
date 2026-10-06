@@ -1,0 +1,21 @@
+Thursday 2026-12-17, as GitLab recorded it (Eastern time)
+
+  09:15 bob  opened #132 for the failed nightly pipeline #83
+  10:00 bob  opened !23 Draft: Fork, pin and flows in ObserveCoast (pipeline #86 failed)
+  10:30 tom  cleared the runner's disk; re-ran the full check: #84 success; closed #132
+  10:45 tom  opened !24 Document what crosses each interface (pipeline #90 success)
+  12:00 bob  marked !23 ready
+  14:05 bob  line comment on !24: request changes (the 'late' assumption)
+  14:20 tom  merge refused: discussions not resolved (1 open) (405 Method Not Allowed)
+  14:50 bob  resolved the thread on !24
+  15:10 tom  closed #123 Document the flow properties in Interfaces
+  15:10 tom  merged !24
+  15:30 bob  closed #121 Fork, pin, object and control flow by hand
+  15:30 bob  merged !23
+
+Friday 2026-12-18
+
+  10:00 tom  opened !25 Generate the data exchange table (pipeline #95 failed)
+  11:30 tom  secrets job failed on !25: token revoked, rotated to masked READ_TOKEN, branch rewritten
+  15:00 tom  closed #124 Generate the data exchange table
+  15:00 tom  merged !25

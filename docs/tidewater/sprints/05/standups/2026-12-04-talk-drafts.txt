@@ -1,0 +1,6 @@
+jim draft:  Y TW-89 Learn: the requirement recipe;...: done (2 tasks). T TW-94 read the recipe findings for the DOORS modules, by Dec 11. B none
+jim posted: Y TW-89 Learn: the requirement recipe;: done (2 tasks). T TW-94 read the recipe findings for the DOORS modules, by Dec 11; pairing with Bob after lunch. B none
+bob draft:  Y TW-89 Learn: the requirement recipe;...: done (2 tasks). T TW-90 procured parts as metadata, by Dec 11. B none
+bob posted: Y TW-89 Learn: the requirement recipe;: done (2 tasks). T TW-90 procured parts as metadata, by Dec 11. B none
+tom draft:  Y none T TW-93 trace ratchet: fail only on new gaps, by Dec 11. B none
+tom posted: Y none T TW-93 (first thing: read the review comments) trace ratchet: fail only on new gaps, by Dec 11. B none

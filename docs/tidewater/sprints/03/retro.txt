@@ -1,0 +1,12 @@
+Sprint 3 retrospective, 2026-11-13 11:00
+
+Start:
+  - Splitting MRs before they reach 300 lines
+  - Drafting the stand-up with talk.pl, then editing it
+Stop:
+  - Waiting for the ISSM without a date
+Continue:
+  - Fixing a red pipeline on the branch, not around it
+  - The Day-9 rehearsal
+
+Pulse survey (1-5, anonymous): mean 2.2

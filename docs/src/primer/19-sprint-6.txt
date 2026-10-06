@@ -1,0 +1,476 @@
+== Sprint 6: Behavior by hand, a table for the program, and baseline-0 {#sprint-6}
+
+::: survival
+What you have: a model whose structure is almost closed, a trace that defends itself ([[sprint-5]]), a recipe-graded
+set of requirements, and a team that has rehearsed a release in a sandbox.
+
+What you need from this chapter: how a three-person team finished its first twelve weeks with something management
+could hold -- a tagged, reproducible baseline, a generated table of what crosses each interface, a verification
+matrix -- and how it handled the sprint's real events: a failed nightly pipeline, a token committed by mistake, a
+review comment that blocked a merge, a story that could not finish, and a number that almost told management the
+wrong thing.
+:::
+
+=== The question this sprint answered {#sprint-6-question}
+
+Sprint 6 ended with the twelve-week briefing to program management. The question behind every story in it was
+the one a program manager asks at any milestone: *can you hand me something I can rely on?* In the document era the
+answer was a set of documents with signatures. For this team it had to be three things:
+
+1. **A baseline**: a tagged, reproducible version of the model, approved by the CCB, that can be rebuilt byte for
+   byte and named in a contract letter.
+2. **An answer to "what crosses each interface?"** -- the question every interface control working group asks --
+   generated from the model, not typed into a spreadsheet.
+3. **An honest answer to "which requirements are verified, and how?"**, in the form a test organization uses: a
+   verification cross-reference matrix (VCRM).
+
+The pulse at the sprint 5 retrospective was {{value: docs/tidewater/sprints/05/morale.json mean}}. Nobody on the team
+would have predicted that number in week one. The risk now was the opposite of discouragement: a team pleased with
+itself, with a short sprint, holidays, and an audience waiting.
+
+=== Kickoff: a short sprint with a big ending {#sprint-6-kickoff}
+
+{{include: docs/tidewater/sprints/06/kickoff.txt}}
+
+Capacity is the lowest of the twelve weeks: the sprint ends on Christmas Eve, and Bob is on leave for its whole
+second week. Read the plan with that in mind and one line stands out. TW-112, *BuoyModes state machine by hand*, is
+a three-point task scheduled to start on Friday 18 December -- the day before Bob's leave -- and to finish on
+29 December, in the next sprint. Nobody planned to fail it. But a task that starts the day before a week of leave
+and is due after the sprint ends is not a commitment; it is a hope. The team committed it because BuoyModes had to
+start before the January drop, and it carried, exactly as the dates said it would ([[sprint-6-carry]]).
+
+The work mix shows how far the team had come. Platform work is
+{{value: docs/tidewater/work-split.json sprints.6.platform}}% of the task points done ([[om-done]]) and learning
+{{value: docs/tidewater/work-split.json sprints.6.learning}}%; engineering is
+{{value: docs/tidewater/work-split.json sprints.6.engineering}}%. In sprint 1 the engineering share was
+{{value: docs/tidewater/work-split.json sprints.1.engineering}}% ([[bluf]]).
+
+=== Week 1: the quiet days and the busy one {#sprint-6-week-1}
+
+==== Monday to Wednesday: Operations closed, verdicts signed {#sprint-6-mon}
+
+Jim spent Monday morning on the last learning task of the twelve weeks: the memo and briefing chapters of this book
+([[memos]], [[briefing]]), because the briefing was Jim's to give in ten days.
+
+Tom's !21 closed the level-tag TODO lines in the Operations package. Its first pipeline was green. By sprint 6 a green
+first pipeline on a structure change is unremarkable, which is the point: the team had stopped noticing the checks
+on routine work, the way an engineer stops noticing a calculator.
+
+On Wednesday Jim opened !22, *Inspection verdicts, signed*. Some Tidewater requirements are verified by inspection --
+someone looks at the thing and signs that it complies -- and the results schema the team adopted in week zero
+(ADR 0003) puts those verdicts in a file in the repository, with the name of the person who signed. A signed
+verdict is a configuration item like any other: it goes through a merge request, it has an author and an approver,
+and it is in the baseline. Jim's merge request entered the verdicts Jim could sign from the drop-1 evidence; the
+VCRM job, later in the sprint, reads them. Here is the file, in Tom's clone of `develop`:
+
+```sh run sandbox=tidewater cwd=work/tom expect="TW-SYS-010,DemonstratePublication,passed"
+git checkout -q develop
+cat verification/results-gov.csv
+```
+
+Each row is one verdict: the requirement, the verification case, the verdict, the commit of the model it was judged
+against, how it was judged, when, and who signed. Read the `commit` column twice. It is what turns a signature into
+evidence: years from now, anyone can check out exactly the model Jim inspected. In the document era an inspection
+record named a document revision, and the revision named nothing that could be rebuilt.
+
+The file is named `results-gov.csv` because it holds the government's own verdicts. When the prime's test results
+arrive with later drops ([[verification]]), they land in a sibling file in the same schema, and the VCRM reads both.
+One schema for every source of verdicts is ADR 0003's whole point.
+
+==== Thursday 17 December: Bob's day {#sprint-6-thursday}
+
+Thursday was the busiest day of the twelve weeks, and it is told in full, hour by hour, in [[day-in-life]]. The
+short version, from GitLab's own record:
+
+{{include: docs/tidewater/sprints/06/day-in-life/timeline.txt | lines 1-15}}
+
+Four things happened before lunch, and each one is a pattern worth knowing.
+
+**A failed nightly pipeline, triaged at the stand-up.** The scheduled 02:00 full check failed in every job before
+running any check. Bob saw it first, opened an issue at 09:15 and linked the failing pipeline; Tom took it at the
+stand-up and closed it by 10:30:
+
+{{include-md: docs/tidewater/sprints/06/day-in-life/incident.md}}
+
+The cause had nothing to do with the model: the runner's disk was full. The fix had two parts, and the second is the
+one that matters -- clearing the disk fixes today; making the runner clean up after each job fixes the next month
+([[runners]]). The scorecard records how long `develop` was red: the worst time to restore in the sprint was
+{{value: docs/tidewater/sprints/06/scorecard.json 8_pipeline_health.worst_restore_hours}} hours, from the failed
+02:00 run to the green rerun.
+
+**A draft merge request that failed on purpose.** Bob opened !23, the fork, pin and object flow in `ObserveCoast`,
+as a *draft* at 10:00 -- a draft says "not ready for review, but run the checks". Its first pipeline failed the
+trace job:
+
+```sh run sandbox=tidewater cwd=. expect="drift 1 -> 2 \(new: TW-SYS-007\)"
+grep -h "this change adds\|no new trace" gitlab/pipelines/tidewater-model/86/trace.log gitlab/pipelines/tidewater-model/87/trace.log
+```
+
+While editing the behavior, Bob had also touched the text of TW-SYS-007 in the model's copy of the requirements. The
+model's text no longer matched DOORS: a new *drift*. The ratchet named it, Bob restored the DOORS wording, and the
+second pipeline passed. Bob marked the merge request ready at noon. Notice the order: the check ran *before* anyone
+was asked to review. Reviewers never saw the mistake.
+
+**A review comment that blocked a merge.** Tom's !24 documented the flow properties in `Interfaces` -- what each
+interface carries -- so the data exchange table could be generated from them. Bob reviewed it at 14:05 and asked
+for a change, with a suggestion block:
+
+{{include-md: docs/tidewater/sprints/06/samples/mr-24.md}}
+
+"Late" assumes a schedule nobody had written down. At 14:20 Tom tried to merge anyway and GitLab refused:
+*discussions not resolved (1 open)*. That refusal is the project setting the team chose in week zero
+([[gitlab-setup]]): a merge request cannot merge while a reviewer's thread is open. Tom applied the suggestion, Bob
+resolved the thread, Jim and Bob approved, and it merged at 15:10. You can see the approvals in the sandbox:
+
+```sh run sandbox=tidewater cwd=. expect="approved by: @jim @bob"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model mr show 24 | head -3
+```
+
+Two approvals, because `Interfaces.sysml` sits in a CODEOWNERS section that needs both the package owner and Jim
+as systems lead ([[reviewing]]).
+
+**An assumption made visible.** Tom's reply on !24 says the assumption "goes in the next prime-tbd list". This is
+the team's practice for work that cannot wait for the prime ([[prime-changes]]): proceed on a written assumption,
+label it `prime-tbd`, and close it when a drop confirms or corrects it. The suggestion put the assumption into the
+model's own doc text, so it shows up in everything generated from the model -- including, the next day, the data
+exchange table.
+
+> Six things happened before lunch and I knew about every one of them from GitLab, not from email.
+> -- Bob, 17 December
+
+Bob's GitLab To-Do list at 14:05 held exactly one item -- Tom's review request:
+
+{{include: docs/tidewater/sprints/06/day-in-life/todo-list.txt}}
+
+==== Friday 18 December: the table, and a token {#sprint-6-friday}
+
+Tom's !25 generated the data exchange table: for each interface, the flows, their direction, their type, their
+fields, and the notes from the model's doc text. Its first pipeline failed -- not on the model, on the `secrets`
+job:
+
+```sh run sandbox=tidewater cwd=. expect="possible secret committed"
+tail -3 gitlab/pipelines/tidewater-model/95/secrets.log
+```
+
+Tom had pasted a personal access token into a helper script to test it, and committed the script. The pipeline
+stopped it before it reached `develop`. What Tom did next is the whole procedure for a leaked credential, and its
+order matters:
+
+{{include-md: docs/tidewater/sprints/06/samples/mr-25.md}}
+
+Revoke first, because the token may already have been copied from the branch. Replace it with a narrower one
+stored as a masked, protected CI/CD variable ([[tools]]). Then rewrite the branch so the token is in no commit.
+Deleting the line in a new commit is not enough: the old commit still holds it ([[rescue]]).
+
+The table itself is a generated document in `docs/`, committed with the model and rebuilt by the pipeline. Here it
+is in the sandbox, as of the end of the sprint:
+
+```sh run sandbox=tidewater cwd=work/tom expect="HealthIF \| health"
+git checkout -q develop
+head -12 docs/data-exchange.md
+```
+
+Look at the `HealthIF` row: the assumption from Thursday's review is in the table, labeled as an assumption to
+confirm with the prime. In the document era, that assumption would have lived in someone's head or in a comment on
+a PDF. Here it is part of the deliverable, and it will stay visible until the prime answers.
+
+The week's quad went to management on Friday:
+
+{{include: docs/tidewater/sprints/06/quad-2026-12-18.txt | lines 1-12}}
+
+=== Week 2: two of three, and the ending {#sprint-6-week-2}
+
+Bob was on leave. The attendance record shows it -- stand-ups with two people from Monday 21 December on -- and the
+plan had accounted for it in the capacity. Jim and Tom finished the sprint.
+
+==== Monday 21 December: the VCRM job {#sprint-6-vcrm}
+
+Tom's !26 added the `vcrm` job and the baseline jobs to the pipeline. The VCRM reads every requirement, its
+verification method, the verification cases that claim to verify it, and the verdicts in the results files, and
+writes `vcrm.html` and `vcrm.csv`. In the sandbox:
+
+```sh run sandbox=tidewater cwd=work/tom expect="VCRM: 30 requirements, 2 verified"
+perl ci/job.pl vcrm | tail -1
+```
+
+Read that line carefully, because the team almost did not. Hardly any requirement is *verified*, most are *not
+run*, and some have no case at all. That sounds like a disaster. It is not: it says something different from the
+trace.
+
+==== The number that almost misled management {#sprint-6-number}
+
+The trace measure the team had reported for twelve weeks -- *verify coverage* -- asks: **does every requirement have
+a verification case that claims to verify it?** For Tidewater that was
+{{value: docs/tidewater/sprints/06/scorecard.json 5_trace.C}} linked requirements with
+{{value: docs/tidewater/sprints/06/scorecard.json 5_trace.G}} unverified, the same as at the drop-1 import, because
+the gaps are the prime's.
+
+The VCRM asks a different question: **has the verification actually been done, with a recorded verdict?** In a
+program that has not reached test, almost nothing has been. The verified ones are the inspection verdicts Jim signed in
+!22.
+
+When Jim drafted the review script with `talk.pl review`, the tool did what tools do: it found a newer
+verification measure and used it.
+
+{{include: docs/tidewater/sprints/06/review-script.md | lines 1-12}}
+
+*Verify coverage: 6.7% verified (VCRM) (down 63.3 from 70).* Read naively, that line tells the program manager
+that verification collapsed in the last sprint. It did not collapse; a second, stricter measure appeared. The
+draft was corrected before the meeting -- the review record uses the measure the program had been seeing all along:
+
+{{include: docs/tidewater/sprints/06/review.txt}}
+
+This is the most important lesson about drafting tools in this book ([[talking]]): **read every number before you
+say it, and never compare two measures as if they were one.** The fix is not a better tool; it is a person who
+knows what each number means.
+
+The kit's `talk.pl` was changed after this sprint, because of exactly this near miss: it now keeps the two measures
+apart and labels the second one as a different measure. Run it on the same sprint in the sandbox and compare its
+lines with the draft above:
+
+```sh run sandbox=tidewater cwd=. expect="Requirements with a verification case"
+perl "$KIT/tools/gitlab/talk.pl" --local gitlab --project tidewater/model review --sprint 6 | sed -n 7,11p
+```
+
+That is how a tool should improve: a person caught a misleading number, and the tool was changed so the next person
+does not have to.
+
+==== Tuesday and Wednesday: the briefing, and refinement for January {#sprint-6-tue}
+
+Jim wrote the twelve-week briefing and its memo on Tuesday (#128). The briefing's content is in [[briefing]]; here
+is its outline as the evidence keeps it:
+
+{{include: docs/tidewater/sprints/06/briefing.txt}}
+
+Every number in it came from the pipeline's records: the TODO lines, the lead time, the gated changes, the pulse.
+None was typed into a slide from memory. The written twin of the briefing is the progress memo ([[memos]]).
+
+Wednesday's refinement prepared sprint 7: breaking the last package cycle, the `DailyUpload` interaction by hand,
+the `EnergyBalance` constraint expression, retiring the profile TODO, and pinning the kit version.
+
+{{include: docs/tidewater/sprints/06/refinement.txt}}
+
+::: sidebar The decision: an interim baseline, now
+The plan called for the first real baseline -- baseline-1, the port's acceptance -- in sprint 20. Jim proposed an
+interim *baseline-0* for the twelve-week review, and the reasoning is worth copying.
+
+**Against:** the model was not finished. BuoyModes was still a TODO line, the trace still had the prime's gaps, the
+package view still showed a cycle. A baseline of an unfinished model, the argument went, would look like a claim
+that it was finished.
+
+**For:** a baseline is not a claim of completeness; it is a claim of *identity*. Baseline-0 says: *this* is the
+model on 24 December, these are its known gaps (the release notes and the VCRM list them), and anyone can rebuild it
+exactly. That is precisely what a program needs before a review -- a fixed point to discuss -- and it is what the
+document era could never provide: the "baseline" was a set of PDFs whose source nobody could reproduce. The other
+reason was practice. The release path has steps that only run on a tag: the baseline audit, the toolchain inventory,
+the release. Running them first in December, with nothing riding on them, was cheaper than running them first for
+baseline-1.
+
+The CCB agreed on the second argument. The deputy program manager's concurrence comment on !27 says what the board
+reviewed: the change list and the pipeline.
+:::
+
+=== Thursday 24 December: baseline-0 {#sprint-6-baseline}
+
+The interim baseline is the first time the team's work went out under the CCB's name. Tom had rehearsed the path in
+sprint 5 in a sandbox project. The real path, on the real project:
+
+1. A `release/baseline-0` branch from `develop`, with the CHANGELOG section and regenerated docs.
+2. A merge request into `main`, !27, with the release template's checklist and one line the CCB writes itself.
+3. The deputy program manager's concurrence, recorded as a comment on the merge request -- the CCB's approval, in
+   the same place as the engineering approvals:
+
+{{include-md: docs/tidewater/sprints/06/samples/mr-27.md}}
+
+4. The merge into `main`, the annotated tag `baseline-0` whose message carries the sha256 of the generated docs, and
+   the back-merge into `develop`.
+5. The tag pipeline: it regenerates the docs from the tagged model, checks the hash against the tag message, writes
+   the toolchain inventory, rebuilds the VCRM and publishes the release.
+
+The tag in the sandbox:
+
+```sh run sandbox=tidewater cwd=work/tom expect="sha256=[0-9a-f]+ \(docs/ at [0-9a-f]+\)"
+git tag -n4 -l 'baseline-*'
+```
+
+And the end of the tag pipeline's `baseline` job:
+
+{{include: docs/tidewater/sprints/06/pipelines/tag-baseline-0-108.log | lines 489-498}}
+
+*baseline-0 rebuilds identically.* That one line is a physical configuration audit, done by a machine in a minute,
+on every baseline, forever. The toolchain lines below it say which kit, Perl and git produced the baseline, so
+the audit can be repeated years from now with the same tools.
+
+The scorecard counts it: {{value: docs/tidewater/sprints/06/scorecard.json 9_baselines.tagged}} baseline tagged,
+{{value: docs/tidewater/sprints/06/scorecard.json 9_baselines.reproducible}} reproducible.
+
+=== The carryover {#sprint-6-carry}
+
+At 16:30 on Christmas Eve the journal recorded the sprint's one carryover: Bob's BuoyModes task, #120, continued as
+#138 in sprint 7 with its remaining points.
+
+```sh run sandbox=tidewater cwd=. expect="Carried over from #120"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model issue show 138 | sed -n 1,6p
+```
+
+Delivery for the sprint was {{value: docs/tidewater/sprints/06/scorecard.json 11_delivery.done}} of
+{{value: docs/tidewater/sprints/06/scorecard.json 11_delivery.committed}} story points
+({{value: docs/tidewater/sprints/06/scorecard.json 11_delivery.pct}}%). The carryover was predictable from the
+kickoff -- the task's dates ran past the sprint -- and that is the lesson: when the plan already says a task cannot
+finish, either split it so the first part can, or leave it out and say why. Committing it anyway made the sprint
+look worse than the team's work was. The converter's TODO line for the state machine is still in the model, and the
+TODO burn-down counts it.
+
+=== Reading the sprint's own numbers {#sprint-6-analytics}
+
+The sprint-end analytics ([[analytics]]) tell the story of the busy Thursday in four lines:
+
+{{include: docs/tidewater/sprints/06/analytics.txt | lines 12-22}}
+
+**Time to restore** is no longer empty, as it was in sprint 5: `develop` was red once, from the 02:00 nightly failure
+to the green rerun. That is the disk-full incident, and the number is honest about it -- the nightly failed at 02:00
+and nobody looked until the stand-up. A team that wants that number smaller has two choices: a runner that cannot
+fill its disk (the fix Tom made), or a notification that wakes someone up. For a model repository, the first is the
+right answer; nobody's model needs to be green at 03:00.
+
+**Pipeline success rate** dropped from sprint 5. Look at the job failures line before worrying: the `secrets`
+failures are Tom's token (the merge request pipeline, a rerun, and the push to the branch), and the other single
+failures are the nightly run, where every job failed for the same disk-full reason. Not one failure was a model
+error that reached `develop`. A falling success rate with that explanation is a sign the checks are working; the same
+number without the explanation would worry a manager for nothing. Always bring the explanation.
+
+**Change failure rate** is still zero. Seven merges to `develop`, none reverted or fixed forward.
+
+=== What went wrong, and what the team did about it {#sprint-6-wrong}
+
+- **The runner's disk filled up.** Fixed the same morning; the runner now cleans up after each job. The lesson for
+  administration is in [[admin]]: a runner is a server, and servers need the same care as anything else.
+- **A personal access token was committed.** Caught by the pipeline before it reached `develop`; revoked, replaced
+  with a masked project token, history rewritten. The retrospective made it a rule: no tokens in scripts, even
+  test ones ([[security]]).
+- **A story was committed that could not finish.** BuoyModes, planned across Bob's leave ([[sprint-6-carry]]).
+- **A drafting tool nearly misreported a measure to management.** Corrected before the review
+  ([[sprint-6-number]]).
+- **A requirement's text was changed by accident.** Bob's edit to TW-SYS-007 in !23, caught by the trace ratchet
+  in a draft merge request, before any reviewer saw it.
+
+None of these reached the model on `develop`. In the document era, the same five mistakes -- a lost day of work, a
+leaked credential, an over-committed plan, a misleading slide, an altered requirement -- would have surfaced, if at
+all, at the next milestone review.
+
+=== The review and the retrospective {#sprint-6-review}
+
+The review on 24 December had the largest audience of the twelve weeks: the deputy program manager and the program
+manager joined Jim and Tom. The demo used the model site as its home page and ended on the baseline. The program
+manager's feedback was short:
+
+> Keep doing this. Show me the same numbers in March.
+> -- Program manager, 24 December
+
+The retrospective:
+
+{{include: docs/tidewater/sprints/06/retro.txt}}
+
+*Stop pasting tokens into scripts, even test ones* is Tom's lesson from Friday. *Start writing acceptance criteria as
+pipeline checks* is the sprint's most important process change: a story is done when a named check says so, not when
+someone feels finished ([[stories]]). *Continue reviews with line comments instead of red-pen PDFs* is the team
+recognizing what Thursday's review of !24 was: the same scrutiny as a document review, two hours after the change
+instead of three weeks.
+
+The pulse: {{value: docs/tidewater/sprints/06/morale.json mean}}, the highest of the twelve weeks, from
+{{value: docs/tidewater/sprints/01/morale.json mean}} at the end of sprint 1. Jim's answers were the highest on the
+first and last questions -- *I understand why we are working this way* and *I would choose to keep working this
+way*. For the person who carried the directive into the room in week zero, those are the two that count.
+
+::: objection "The morale numbers are the team grading its own homework."
+They are, and the book does not pretend otherwise. Three people answering five questions is not a survey; it is a
+conversation starter. What makes the numbers worth reporting is that they were defined in week zero, asked the same
+way every sprint, and published even when they went down -- sprint 3's dip is in every briefing. A measure you only
+report when it is good is advertising. The other eleven measures on the scorecard do not depend on anyone's mood.
+:::
+
+=== Twelve weeks, in the measures agreed on day one {#sprint-6-twelve}
+
+The scorecard was defined in [[directive]] before the first sprint. These are its values at the end of each sprint,
+from the pipeline's own records:
+
+|| Sprint | TODO lines left | Change lead time (h) | Gated merges | Pulse ||
+| 1 | {{value: docs/tidewater/sprints/01/scorecard.json 1_todo_lines}} | {{value: docs/tidewater/sprints/01/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/01/scorecard.json 3_gated_changes}} | {{value: docs/tidewater/sprints/01/morale.json mean}} |
+| 2 | {{value: docs/tidewater/sprints/02/scorecard.json 1_todo_lines}} | {{value: docs/tidewater/sprints/02/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/02/scorecard.json 3_gated_changes}} | {{value: docs/tidewater/sprints/02/morale.json mean}} |
+| 3 | {{value: docs/tidewater/sprints/03/scorecard.json 1_todo_lines}} | {{value: docs/tidewater/sprints/03/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/03/scorecard.json 3_gated_changes}} | {{value: docs/tidewater/sprints/03/morale.json mean}} |
+| 4 | {{value: docs/tidewater/sprints/04/scorecard.json 1_todo_lines}} | {{value: docs/tidewater/sprints/04/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/04/scorecard.json 3_gated_changes}} | {{value: docs/tidewater/sprints/04/morale.json mean}} |
+| 5 | {{value: docs/tidewater/sprints/05/scorecard.json 1_todo_lines}} | {{value: docs/tidewater/sprints/05/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/05/scorecard.json 3_gated_changes}} | {{value: docs/tidewater/sprints/05/morale.json mean}} |
+| 6 | {{value: docs/tidewater/sprints/06/scorecard.json 1_todo_lines}} | {{value: docs/tidewater/sprints/06/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/06/scorecard.json 3_gated_changes}} | {{value: docs/tidewater/sprints/06/morale.json mean}} |
+Table: The scorecard at the end of each sprint (sprint 1's TODO count is before the drop-1 import)
+
+The first sprint shows no TODO lines because the drop had not been imported yet; the burn-down starts with the import in
+sprint 2. The one ungated merge in sprint 1 is the scaffold commit, made before the pipeline file existed. Everything
+after it was checked. The full scorecard, with the document-era baselines beside it, is [[scorecard]].
+
+=== What Jim told management {#sprint-6-management}
+
+The briefing on 24 December ([[briefing]]) and the progress memo ([[memos]]) carried the twelve-week story. A
+covering note for the last quad of the year needs one sentence: *Baseline-0 is tagged, reproducible and
+CCB-approved; the model, the trace, the verification matrix and the data exchange table are on the model site, and
+they will stay current without anyone rebuilding them.*
+
+=== Tools adopted this sprint, and the pain each removed {#sprint-6-tools}
+
+|| Tool | The pain it removed | Where it is explained ||
+| The VCRM job | "which requirements are verified, and how?" answered by hand, once, before a review | [[verification]] |
+| The data exchange table | the interface spreadsheet, typed from diagrams, out of date the day it was sent | [[diagrams]] |
+| Release branch, CCB comment, tag, baseline job | baselines as copies of documents nobody could rebuild | [[pipeline]] |
+| The nightly schedule and its restore | breakage found days late, by whoever ran the full check next | [[cicd]] |
+| Secret detection, for real | a credential in a script, found by an audit months later | [[security]] |
+Table: Sprint 6's tools
+
+=== You can now... {#sprint-6-can}
+
+::: note You can now...
+- Cut a baseline through a release branch, record the CCB's concurrence on the merge request, tag it, and read the
+  pipeline's proof that it rebuilds identically.
+- Tell verify coverage (a case exists) from verification status (a verdict exists), and keep them apart in a
+  briefing.
+- Respond to a committed credential in the right order: revoke, replace, rewrite.
+- Generate a document -- the data exchange table -- from the model, with its assumptions visible.
+- Read a sprint plan and spot the task that cannot finish before the sprint starts.
+:::
+
+=== Exercises {#sprint-6-exercises}
+
+::: exercise {#ex-s6-baseline} Audit baseline-0
+In the Tidewater sandbox, check out the `baseline-0` tag in Tom's clone, run `perl ci/job.pl baseline` with
+`CI_COMMIT_TAG=baseline-0` in the environment, and confirm the rebuild line. Then rename one part definition in a
+model file (for example `Thermometer` in `model/physical/stations/Stations.sysml`), run it again, and read what the
+job says. Why would changing a file under `docs/` instead not trip the audit? (Restore the tree afterwards with
+`git checkout -- .`.)
+:::
+
+::: exercise {#ex-s6-vcrm} Two measures, one slide
+Write the two-line statement Jim could have put on a slide about verification at the end of sprint 6: one line for
+verify coverage, one for the VCRM, each saying what it measures, with its number. Have someone outside the team read
+it and tell you what they think it means.
+:::
+
+::: exercise {#ex-s6-plan} Fix the plan, not the sprint
+Rewrite TW-112 from the sprint 6 kickoff so that its first task can finish inside the sprint despite the leave.
+What would "done" mean for that first task, as a pipeline check?
+:::
+
+::: exercise {#ex-s6-table} An assumption to the prime
+Using the Discrepancy Report or Prime Drop template ([[templates]]), write the request that asks the prime to confirm
+or correct the "late = two missed transmissions" assumption in the data exchange table. Say what changes in the model
+if the prime disagrees.
+:::
+
+=== Applying this to your project {#sprint-6-apply}
+
+- **End your first twelve weeks with a baseline.** A tagged, reproducible, CCB-approved version is the thing
+  management can hold; everything else is a promise.
+- **Put the CCB's approval where the engineering approvals are.** A comment on the release merge request is a
+  record nobody can lose and everybody can find.
+- **Introduce a new measure next to the old one, never in its place.** Name both; explain the difference once.
+- **Make assumptions part of the generated documents.** An assumption in the model's doc text shows up in every
+  table the pipeline builds, until somebody confirms it.
+- **Plan around leave and holidays before the sprint, not at the review.** A carryover you could see on day one is a
+  planning error, not bad luck.

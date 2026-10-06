@@ -1,0 +1,40 @@
+Weekly status Model -- as of 2026-12-18 (sprint 6)
+Sprint progress 36% (5/14 SP) new   On-time delivery: 4/4 this week, 4/4 this sprint
+
+TECHNICAL PRIORITIES
+  OPEN  TW-112       3  "BuoyModes state machine by ha Bob
+  DONE  TW-111     0.5  "Learn: memos and briefings fr Jim
+  DONE  TW-113       1  "Fork, pin and object flow in  Bob
+  DONE  TW-114     1.5  "Level tags in Operations"     Tom
+  DONE  TW-115       2  "Data exchange table for the p Tom
+  OPEN  TW-116       2  "VCRM: which requirements are  Jim
+  OPEN  TW-117       2  "Interim baseline-0 for the pr Tom
+  OPEN  TW-118       2  "Retrospective, the management Jim
+
+WATCH ITEMS / PM HELP NEEDED
+  none
+
+SCHEDULE MILESTONES
+  30 days out
+    1. T2 Port Tidewater v1 to SysML v2 > E8 Behavior and analysis +  50%  ETA 2027-01-10
+    2. T1 Stand up MBSE DevSecOps > E1 GitLab project and gitflow ->  84%  ETA 2027-01-10
+    3. T1 Stand up MBSE DevSecOps > E3 Team practices and onboarding ->  85%  ETA 2027-01-10
+    (+1 more)
+  60 days out
+    -
+  90 days out
+    -
+
+ACCOMPLISHMENTS (since 2026-12-11)
+  v TW-111     0.5  "Learn: memos and briefings fr Jim
+  v TW-113       1  "Fork, pin and object flow in  Bob
+  v TW-114     1.5  "Level tags in Operations"     Tom
+  v TW-115       2  "Data exchange table for the p Tom
+
+PUNT RATE (tasks punted back to TODO / tasks committed, last 4 sprints)
+  sprint 3    Model          0 / 6     0%
+  sprint 4    Model          0 / 7     0%
+  sprint 5    Model          0 / 8     0%
+  sprint 6    Model          0 / 8     0%
+
+Legend: v on time  x late (carried over, or rework after the demo)  ! slipped   -> pushed right  <- pulled left  = no change  + new

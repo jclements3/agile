@@ -1,0 +1,11 @@
+@title: MBSE-DEVSECOPS Primer
+@coverline: A Case Study
+@subtitle: A case study: Jim, Bob and Tom take Tidewater from SysML v1 to SysML v2 in GitLab in twelve weeks
+@author: The agile kit
+@edition: First edition, October 2026
+@copyright: Tidewater, its people, its prime contractor and every number in this book are fictional and notional. Any resemblance to a real program, organization or person is coincidental. Nothing here describes a real system.
+@copyright: The commands, scripts, templates and pipeline in this book are real: they ship with the agile kit (core Perl, Git for Windows, Vim) and every artifact quoted was produced by running them. Rebuild the evidence with perl sim/tidewater-sim.pl and this book with perl sim/primer.pl.
+@copyright: Typeset with XeLaTeX in TeX Gyre Pagella, TeX Gyre Heros and DejaVu Sans Mono.
+@dedication: For every engineer who was told to go digital
+@dedication: and was not told why.
+

@@ -1,0 +1,33 @@
+iid,type,title,labels,milestone,assignee,state,created_at,closed_at
+1,story,"Learn the tools: survival kit, git, Vim, the operating model",type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::learning;area::pipeline;phase::port;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-06T16:30:00Z
+2,story,"Laptops ready: Git for Windows, Vim, the kit",type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-08T16:30:00Z
+3,story,Create the GitLab group and model project,type::story;priority::1;epic::E1-gitlab;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-14T17:10:00Z
+4,story,Draft the first pipeline and run it locally,type::story;priority::2;epic::E2-pipeline;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-16T15:00:00Z
+5,story,Receive drop 1 and record it,type::story;priority::1;epic::E5-drop-1;tome::T2-port;work::engineering;area::requirements;phase::port;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-14T15:45:00Z
+6,story,Convert drop 1 and assess it,type::story;priority::1;epic::E5-drop-1;tome::T2-port;work::engineering;area::requirements;phase::port;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-14T16:30:00Z
+7,story,Working agreements: Definition of Ready and Done,type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-15T15:45:00Z
+8,task,Practice lessons 10-11; the operating model chapter,type::task;area::pipeline;work::learning;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-06T15:00:00Z
+9,task,"Practice lessons 10-11; the survival kit, git and Vim chapters",type::task;area::pipeline;work::learning;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-06T15:45:00Z
+10,task,"Practice lessons 10-11; the survival kit, git and Vim chapters",type::task;area::pipeline;work::learning;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-06T16:30:00Z
+11,task,Set up Jim's laptop; kickoff.pl doctor,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-08T15:00:00Z
+12,task,Set up Bob's laptop; kickoff.pl doctor,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-08T15:45:00Z
+13,task,Set up Tom's laptop; kickoff.pl doctor,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-08T16:30:00Z
+14,task,Apply project.conf with gitlab.pl setup; request the runner,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-09T15:45:00Z
+15,task,Prove a direct push to develop is refused,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-13T15:00:00Z
+16,task,"Commit CODEOWNERS, the templates and .gitignore",type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-14T17:10:00Z
+17,task,"Draft .gitlab-ci.yml: grammar, lint, outline",type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-15T15:00:00Z
+18,task,Run the draft locally on drop 1 with gitlab.pl ci,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-16T15:00:00Z
+19,task,Log the CDRL delivery and check the sha256 of every file,type::task;area::requirements;work::engineering;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-13T15:45:00Z
+20,task,Open the Prime Drop issue with its checklist,type::task;area::requirements;work::engineering;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-14T15:45:00Z
+21,task,Run both converters with --report on drop 1,type::task;area::requirements;work::engineering;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-09T15:00:00Z
+22,task,Write the TODO inventory by package,type::task;area::requirements;work::engineering;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-13T16:30:00Z
+23,task,Estimate the port backlog with the team,type::task;area::requirements;work::engineering;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-14T16:30:00Z
+24,task,Write the Definition of Ready and Done in the wiki,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-15T15:45:00Z
+25,drop,Intake prime drop v1.0 (2026-10-02),type::drop;owner::gov;priority::1,Sprint 1,tom,opened,2026-10-14T15:45:00Z,
+26,story,"Learn: practice lessons 12-13, Vim for models, the SysML v2 workbook (first half)",type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::learning;area::pipeline;phase::port;workflow::ready,Sprint 2,bob,opened,2026-10-15T15:00:00Z,
+27,story,Runner online; the first pipeline gates every MR,type::story;priority::1;epic::E2-pipeline;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::ready,Sprint 2,tom,opened,2026-10-15T15:00:00Z,
+28,story,"Import drop 1 through the vendor branch, in layers",type::story;priority::1;epic::E5-drop-1;tome::T2-port;work::engineering;area::requirements;phase::port;workflow::ready,Sprint 2,bob,opened,2026-10-15T15:00:00Z,
+29,story,TODO burn-down and generated docs in the pipeline,type::story;priority::2;epic::E2-pipeline;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::ready,Sprint 2,tom,opened,2026-10-15T15:00:00Z,
+30,story,Level conventions for the part tree,type::story;priority::2;epic::E6-structure;tome::T2-port;work::engineering;area::gov;phase::port;workflow::ready,Sprint 2,bob,opened,2026-10-15T15:00:00Z,
+31,story,"Enablers, decisions and conventions on record",type::story;priority::2;epic::E1-gitlab;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::ready,Sprint 2,jim,opened,2026-10-15T15:00:00Z,
+32,story,Sprint 2 demo: the pipeline and the drop on develop,type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::ready,Sprint 2,tom,opened,2026-10-15T15:00:00Z,

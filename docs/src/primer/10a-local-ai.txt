@@ -1,0 +1,748 @@
+== A local AI assistant on the laptop {#local-ai}
+
+::: survival
+What you have: a model repository, a pipeline that checks every change ([[pipeline]]), Vim ([[vim]]), and a
+laptop with no discrete graphics card and somewhere between 16 and 32 GB of memory.
+
+What you need: to know whether a language model running on that laptop (or on a shared server down the hall) can
+take some of the typing off the team -- and how to use one without letting it put a single unchecked line into the
+model. This chapter is the approval path, the two ways to host a model, a one-day bake-off to pick one, the
+SysML v2 caveat every reader must understand, the rules, and worked Tidewater uses in the order they pay off.
+:::
+
+Every chapter so far has been about tools that are *deterministic*: the grammar check gives the same answer for the
+same file every time, and so does lint, and so does the pipeline. This chapter is about a tool that is not. A
+language model writes plausible text. Sometimes the text is right. Sometimes it is wrong in a way that looks exactly
+like right. The whole value of the chapter is in how the team keeps the first kind and catches the second, and the
+answer is the same one the rest of the book gives: the gates decide, not the author -- and the model is just
+another author.
+
+Nothing in the Tidewater process needs an AI assistant. The kit runs without one, the pipeline runs without one, the
+twelve weeks in Part III were planned without one. Treat everything here as optional, and adopt it the way the team
+adopted every other tool ([[tools]]): when a problem you already have costs more than the tool does, and not
+before.
+
+=== What a local model is, in plain words {#local-ai-what}
+
+A *language model* is a large file of numbers -- a few gigabytes -- that was built by feeding a program an enormous
+amount of text and adjusting the numbers until the program got good at one thing: given the beginning of a piece of
+text, guess the next word. Do that guess thousands of times in a row and you get a paragraph, an answer, a block of
+code. That is all it does. It has no model of Tidewater, no copy of the SysML v2 specification, no idea whether the
+text it produced will parse. It has a very good statistical sense of what text of that kind usually looks like.
+
+A *local* model is one that runs on a machine you control: the laptop, or a server on the program's network. The
+program that runs it is called a *runtime*; the one this chapter uses is **Ollama**, a free runtime that downloads
+models, keeps them on disk, and answers questions about them on the laptop's own network port (11434). You type a
+question, the runtime feeds it to the model, the model's answer comes back as text. Nothing leaves the machine.
+
+The systems-engineering analogy that works best: a local model is a **junior analyst with a photographic memory of
+other people's documents and no access to yours**. Fast, tireless, eager, frequently right about general things,
+confidently wrong about specific ones, and never the signature on anything. You would not let a new hire's first
+draft go to the CCB without review. The same rule applies here, and the pipeline enforces it.
+
+::: definition
+model: the file of numbers that writes text (a few GB); one model, many questions
+runtime: the program that loads the model and answers questions (Ollama)
+prompt: the text you give the model -- your question plus whatever context you paste in
+context window: how much text the model can consider at once (prompt plus answer); tens of thousands of words for current models
+parameters: the count of numbers in the model ("4B" = 4 billion); more usually means better and slower
+mixture of experts: a model built so only part of it works on each word; big-model quality at a lower running cost
+grounding: pasting the facts the model must use (spec excerpts, your names, good examples) into the prompt
+hallucination: fluent, confident text that is false -- an invented library name, a keyword that does not exist
+:::
+
+=== Why local, and not a cloud chatbot {#local-ai-why}
+
+Everyone on the team has seen a cloud chatbot. The question Jim got first, from Bob, was why not just use that.
+
+|| Question | Cloud chatbot | Local model ||
+| Where does the prompt go? | to a company's servers, over the internet | nowhere: it stays on the machine |
+| Can it see Tidewater files? | only what you paste -- and pasting is the problem | only what you paste, and the paste stays local |
+| Works offline / on a closed network? | no | yes, once the model file is on the machine |
+| Approval path | a cloud service authorization for the data's marking | a software intake request, like any other install |
+| Quality | usually higher (very large models) | lower, especially on a laptop CPU |
+| Speed | fast | a few words a second on a CPU; faster on a GPU server |
+| Cost | per seat or per use | the hardware you already have, or one server |
+Table: Cloud chatbot versus local model
+
+The deciding row is the first one. Model text, interface details and requirement wording are program information. On
+most programs, pasting them into a public chatbot is simply not allowed, whatever the chatbot's terms say, and the
+kit's own AI hook (`lib/Ai.pm`) repeats the same rule in its header: *only use a service your organisation allows
+for the data's marking*. A local model changes the question from "may this data leave the building?" (usually no)
+to "may this software run on this machine?" (a question the software intake process already knows how to answer).
+
+That is the whole case for local. It is not that local models are better -- they are not. It is that they are the
+version of the tool the team can actually get approved.
+
+=== Approval comes first {#local-ai-approval}
+
+Before anyone types `ollama pull`, two things need approval, separately: the **runtime** (Ollama is an executable,
+installed like any other program) and each **model** (a multi-gigabyte data file with its own origin, license and
+training data). Approving one does not approve the other, and approving one model does not approve the next.
+
+==== Model provenance is a policy question, not a technical one
+
+The SysML-tuned model the kit documents in `docs/OLLAMA.md`, `Babitdor/Qwen3-4B-SysMLv2`, is a community
+fine-tune published by a single individual, with no stated license and no stated training data -- and it is built
+on **Qwen3**, a base model of Chinese origin. Many organizations' policies restrict the *origin* of AI models
+regardless of whether they run offline: the concern is the provenance of the numbers themselves, not where the
+prompts go. Read your organization's AI policy before pulling **any** model, and expect origin to be one of the
+first questions the approver asks.
+
+If origin is restricted, the families to look at come from US and allied developers. Each publishes several sizes,
+and the Ollama library lists them; this book does not quote sizes, tags or benchmark scores, because they change
+faster than books do and none of them could be verified on the machine this chapter was written on:
+
+|| Family | Developer | Notes for the request ||
+| gpt-oss | OpenAI | open-weight models; check the license and sizes on the Ollama library page |
+| Gemma | Google | several sizes; check the license terms on the model page |
+| Llama | Meta | widely used; check the license's use restrictions |
+| Granite | IBM | positioned for enterprise use; check the license |
+| Phi | Microsoft | small models aimed at modest hardware |
+| Mistral, Devstral | Mistral AI (France) | Devstral is aimed at code and tooling work |
+Table: Model families from US and allied developers (check the Ollama library for current tags and memory needs)
+
+None of these was trained to write SysML v2 text, and neither, in any depth, was the Qwen3 fine-tune ([[local-ai-caveat]]).
+That matters less than it sounds, because the best uses for the team are not writing `.sysml` at all
+([[local-ai-uses]]).
+
+==== What to put in the request
+
+::: checklist
+[ ] What: the runtime (Ollama, version, download source) and each model (name, tag, digest from `ollama list`, publisher, base model and its origin, license, size on disk)
+[ ] Where: which machines (named laptops, or one shared server) and who has access
+[ ] Data: what goes into prompts (model text, requirement text, pipeline logs) and its marking; a statement that prompts and answers stay on the machine
+[ ] Network: whether the machine needs internet (only to download), and the offline route if it does not have it
+[ ] Use: drafting and explaining only; every output passes the same review and pipeline gates as hand-written work; a human commits it
+[ ] Measure: the bake-off results ([[local-ai-bakeoff]]) and what will be measured afterwards
+[ ] Removal: how to uninstall and delete the model files (`ollama rm`, and the models folder)
+:::
+
+Send it through the same channel as any software request, and copy the ISSM. The ISSM's questions will be about
+the runtime's network behavior (it listens on `localhost:11434`; confirm it is not exposed beyond the machine), the
+model file's integrity (the digest), and the data rule. Have the answers in the request and the review is short.
+
+=== Two ways to host it: every laptop, or one shared server {#local-ai-hosting}
+
+The typical government laptop has **no discrete GPU** and **16 to 32 GB of memory**. That rules out large models
+on the laptop and makes small ones slow: on a CPU, a small model produces a few words a second. Two hosting options
+follow from that, and the trade-off is worth deciding deliberately:
+
+|| | Ollama on each laptop | One approved GPU server on the program network ||
+| Accreditation | one approval, but installed on every laptop; each install is a change to a managed machine | one system to accredit, once; laptops need nothing but a browser or `curl` |
+| Model size | small models only, or mixture-of-experts models that run acceptably on a CPU | larger models; much faster answers |
+| Works when | the laptop is on, even disconnected | the laptop is on the program network |
+| Data path | prompt never leaves the laptop | prompt crosses the program network to the server (still on the program network) |
+| Administration | every user updates their own runtime and models | one administrator; one approved model list |
+| Cost | none beyond the laptops | a server with a GPU, and someone to run it |
+Table: Laptop installs versus a shared GPU server
+
+For a three-person team, the laptop route is quicker to start and the server route is easier to live with. A
+shared server is often *easier to accredit* than installs on every laptop, because it is one system with one
+boundary and one owner, and it allows bigger models that are noticeably better at the hard tasks. If the program
+already runs a GPU server for analysis or simulation, ask there first.
+
+Pointing the tools at a server instead of the laptop is one setting. Ollama serves the same API in both places, so
+the kit's hook (`ai_url` in `scrum.conf`, [[local-ai-standup]]) just names the server's address instead of
+`localhost`.
+
+=== Installing on a laptop, without admin rights and offline {#local-ai-install}
+
+The steps are the ones in `docs/OLLAMA.md`; this section repeats them so the book stands alone. Requirements, from
+Ollama's Windows documentation: Windows 10 22H2 or newer, about 4 GB of disk for Ollama itself plus the model's size.
+A GPU is optional; without one Ollama runs on the CPU, more slowly.
+
+1. Download `OllamaSetup.exe` from `https://ollama.com/download`.
+2. Run it. It does **not** need Administrator: it installs into your home folder and adds a tray icon.
+3. Check it from Git Bash:
+
+```sh
+ollama --version
+curl -s http://localhost:11434/api/version     # the local service answers on port 11434
+```
+
+No installer allowed? Ollama also ships a standalone `ollama-windows-amd64.zip` (command line only): unzip it into
+a folder in your home directory, run `ollama serve` in one Git Bash window and use `ollama` from another.
+
+Models go to `C:\Users\<you>\.ollama\models`. To keep them elsewhere (another drive, outside OneDrive), set the user
+environment variable `OLLAMA_MODELS` and restart Ollama.
+
+Getting a model -- once the model is approved:
+
+```sh
+ollama pull Babitdor/Qwen3-4B-SysMLv2      # 2.5 GB, once (only if your policy allows this model's origin)
+ollama list                                # NAME ... ID b8a8d69fdeec ... SIZE 2.5 GB
+ollama show Babitdor/Qwen3-4B-SysMLv2      # parameters, context length, template
+```
+
+Check that the ID in `ollama list` matches the digest in the approval. If it does not, the model on the registry
+has changed since it was approved: stop, and re-approve before using it. The same rule applies to whichever model
+you are approved for.
+
+When the work laptop has no internet, bring the model in by the approved offline route:
+
+1. On an approved machine with internet, install Ollama and pull the model.
+2. Copy the whole `models` folder (with its `manifests` and `blobs` subfolders) to approved removable media, and
+   record a checksum of the archive:
+
+```sh
+cd ~/.ollama && tar -cf qwen3-4b-sysmlv2.tar models && sha256sum qwen3-4b-sysmlv2.tar
+```
+
+3. On the work laptop, check the checksum, unpack it into `%USERPROFILE%\.ollama\` (or wherever `OLLAMA_MODELS`
+   points), restart Ollama, and run `ollama list` to confirm the ID.
+
+To remove it: `ollama rm` the model, then uninstall Ollama from Settings, "Add or remove programs", and delete the
+models folder yourself if you moved it.
+
+=== A one-day bake-off before you standardize {#local-ai-bakeoff}
+
+Do not pick a model by reading about it. Pick it by giving two or three approved candidates the team's *own* tasks
+for one day and scoring the results the same way the team scores its own work: did it pass the gates, and how long
+did a person spend turning the draft into something mergeable?
+
+Five Tidewater tasks make a good bake-off, because they cover the range from the model's best fit to its worst:
+
+1. **Explain a TODO.** Paste a converter TODO line and its v1 XMI fragment; ask what the v1 construct is and what
+   the v2 equivalent would be. Score: correct explanation (Bob judges), minutes to read.
+2. **Draft a state def.** Ask for the v2 text of the BuoyModes state machine. Score: passes `sysml.pl check`
+   (yes/no, how many tries), passes lint inside the model, minutes of hand fixing.
+3. **Write a `ci/job.pl` helper.** Ask for a small Perl function the pipeline needs (for example, count the TODO
+   lines per package). Score: `perl -c` passes, it runs on the drop-1 conversion, the output is right, minutes.
+4. **Draft a Discrepancy Report.** Give the drift between DOORS and the model for TW-SYS-006; ask for a DR to the
+   prime in the template's fields. Score: facts correct, tone usable, minutes of editing.
+5. **Explain a pipeline log.** Paste a failing lint job log; ask what failed and what to change. Score: correct
+   cause, correct fix, minutes.
+
+Each person runs each task once per candidate, with the same prompt (write the prompts down first; they are part of
+the result). Score into one sheet:
+
+|| Task | Model | Passes gate | Tries | Minutes to mergeable | Correct? | Notes ||
+| 1 Explain a TODO | candidate A | n/a | 1 | | | |
+| 2 Draft a state def | candidate A | grammar / lint | | | | |
+| 3 ci/job.pl helper | candidate A | perl -c / runs | | | | |
+| 4 Draft a DR | candidate A | n/a | | | | |
+| 5 Explain a log | candidate A | n/a | | | | |
+| 1 Explain a TODO | candidate B | n/a | | | | |
+Table: Bake-off scoresheet (one row per task, per model, per person)
+
+Add a baseline row for each task: the same person doing it *without* the model. If the model's "minutes to
+mergeable" does not beat the baseline on at least two of the five tasks, the honest result is "not yet", and that
+is a perfectly good result to report. Keep the sheet; it goes in the approval request, and it is the first data point
+of the measurement the rules below require.
+
+=== The SysML v2 caveat {#local-ai-caveat}
+
+Here is the most important paragraph in the chapter. **Every general-purpose model is weak at SysML v2 textual
+syntax**, because there was very little SysML v2 text on the internet when these models were trained. The language
+is new, the textual notation newer, and most published SysML is v1 diagrams. So the model has seen a great deal of
+UML, a great deal of SysML v1 described in prose, and a great deal of code in languages that look a little like
+SysML v2 -- and it blends them. The result is text that is **plausible but invalid**: v1 vocabulary in v2 clothing
+(`state machine`, `region`, `block`), keywords borrowed from programming languages, and library names that sound
+exactly right and do not exist. A SysML-tuned model reduces this; it does not remove it.
+
+Two mitigations, and both are needed:
+
+- **Grounding.** Paste the facts into the prompt: the relevant excerpt of the specification (the textual notation
+  for the construct you want), the model library names it may use (the kit ships the full list in
+  `tools/sysml/sysml-library-names.txt`), and one or two *good* examples from your own repository. A crude but
+  effective retrieval step is `grep`: find the existing text closest to what you want and paste it. The model is
+  much better at "do it like this" than at "do it from memory".
+- **The validate stage.** Everything the model writes goes through `sysml.pl check` and `model.pl lint`, exactly
+  like hand-written text, before a human even reviews it. The worked examples below show both gates catching real
+  mistakes.
+
+The consequence for how the team uses the assistant is the ordering of the next section: the best uses are the
+ones *around* the model -- small Perl helpers, pipeline YAML, report scripts, requirement and DR wording,
+explanations -- where the model's training is strong and the result is easy to test. Writing `.sysml` is the
+weaker fit, and comes last.
+
+=== The rules {#local-ai-rules}
+
+::: warning The rules for AI-assisted work
+**Never trusted.** A model's output is a draft from an author with no accountability. It is read, checked and
+owned by a person before it goes anywhere.
+
+**Same gates.** AI-drafted text goes through the same branch, merge request, pipeline and code-owner approval as
+everything else. No gate is relaxed for it, and no gate is added that hand-written work skips.
+
+**A human owns the commit.** The person who commits it is the author of record. "The model wrote it" is never an
+answer in review.
+
+**Label it.** A merge request that contains AI-drafted text carries the scoped label `ai::assisted` (add it under
+`[labels]` in `project.conf`; it is not in the template's set). The label is how the team measures.
+
+**Measure before claiming value.** Use the bake-off sheet's columns -- gate passes, tries, minutes to mergeable --
+on labeled merge requests. Report what the numbers say, including "it did not help with X".
+
+**Data rule.** Prompts carry only what the machine is approved for. A local model does not change the marking of
+the text you paste into it.
+:::
+
+Two practical limits belong next to the rules. A **4-billion-parameter model on a laptop CPU** is slow (a few words
+a second; a state def takes a minute or two) and has a short attention span: long prompts with many instructions get
+partly ignored. And every answer can differ from the last one for the same prompt -- run it twice and you may get
+two drafts. Neither is a reason not to use it; both are reasons to keep prompts short and specific.
+
+Prompt patterns that work, in the team's experience writing this chapter's examples:
+
+- **One construct at a time.** "The state def for BuoyModes", not "fix the Stations package".
+- **Give it the three things it needs:** the v1 XMI fragment, the converter's TODO line, and the surrounding v2
+  text the answer must fit (the package's imports and the owning part def).
+- **Ask for text only.** "SysML v2 text only, no explanation" -- then ask for the explanation separately if you
+  want one.
+- **Name the names.** "Use the attribute defs Power and Energy from package Types" beats letting it guess.
+- **Paste the error back.** When the gate fails, paste the real error message and the draft and ask for a fix.
+  Two rounds of that is the limit; after that, write it by hand.
+
+=== Using it from Git Bash and from Vim {#local-ai-vim}
+
+The commands in this section need Ollama and an approved model on your laptop, so the book's own test does not run
+them; the checks of the drafts they produce, later in the chapter, were run for real. From Git Bash, a one-shot
+question:
+
+```sh
+ollama run Babitdor/Qwen3-4B-SysMLv2 "SysML v2 text only: a port def TrackPort with an out attribute track : String"
+```
+
+Or an interactive session (`ollama run MODEL` with no prompt; type `/bye` to leave). Qwen3-based models can print a
+`<think>...</think>` section before the answer; ignore it, or turn it off with `/set nothink` inside a session.
+
+To keep a prompt you will reuse, write it in a file -- prompts are worth versioning like anything else -- and feed
+it in:
+
+```sh
+ollama run Babitdor/Qwen3-4B-SysMLv2 < prompts/state-def.txt > draft.sysml
+perl "$KIT/tools/sysml/sysml.pl" check draft.sysml
+```
+
+From Vim, three forms cover nearly everything. All three were checked in Vim with a stand-in `ollama` command; the
+model name is whichever one you were approved for:
+
+```vim
+" 1. Send the visual selection to the model; the answer is shown below the command line
+:'<,'>w !ollama run Babitdor/Qwen3-4B-SysMLv2
+
+" 2. Send the selection, and put the answer in a scratch buffer you can edit and check
+:'<,'>w! ~/prompt.txt
+:new | setlocal buftype=nofile | r !ollama run Babitdor/Qwen3-4B-SysMLv2 < ~/prompt.txt
+
+" 3. Insert an answer under the cursor (a one-line question)
+:r !ollama run Babitdor/Qwen3-4B-SysMLv2 "SysML v2 text only: a port def TrackPort with an out attribute track : String"
+```
+
+Form 2 is the one to use for model text: the draft lands in a throwaway buffer, not in the model file. Save the
+buffer as a `.sysml` file in a scratch folder, press `\mx` (grammar-check this file, [[vim]]), fix, and only then
+copy the passing text into the real file -- where `\ml` (lint the model) checks it in context.
+
+=== Worked uses, best fit first {#local-ai-uses}
+
+Every assistant answer below is **illustrative**: the machine this book was written on could not run the model
+(its Ollama was too old for Qwen3-based models, and no model was pulled), so the answers are written to show the
+kind of text such a model produces, including its typical mistakes. Every *check* below is **real**: each draft was
+saved to a file and run through the kit's actual gates, and the output shown is the gates' actual output.
+
+==== 1. A helper script for the pipeline (best fit)
+
+Small Perl helpers are where a model is strongest: Perl is all over its training data, the task is self-contained,
+and the result is easy to test. Bob wanted the TODO count *per package*, to decide which package to port next.
+
+The prompt:
+
+```text
+Write a short core-Perl script todo-by-package.pl MODEL_DIR that counts lines starting with
+"// TODO" (after leading spaces) in every .sysml file under MODEL_DIR, grouped by the first folder
+under MODEL_DIR, and prints one line per folder, most TODOs first, then a total line. Core Perl only,
+use strict and warnings, File::Find is fine. No explanation.
+```
+
+The draft (illustrative):
+
+```perl
+#!/usr/bin/perl
+# todo-by-package.pl MODEL_DIR -- count the converter's // TODO lines per package folder, worst first
+use strict;
+use warnings;
+use File::Find;
+
+my $dir = shift or die "usage: todo-by-package.pl MODEL_DIR\n";
+my %n;
+find(sub {
+    return unless /\.sysml\z/;
+    (my $rel = $File::Find::name) =~ s{^\Q$dir\E/?}{};
+    my ($pkg) = $rel =~ m{^([^/]+)/} or return;
+    open my $fh, '<', $_ or die "cannot read $File::Find::name: $!\n";
+    while (<$fh>) { $n{$pkg}++ if m{^\s*// TODO} }
+}, $dir);
+my $total = 0;
+for my $p (sort { $n{$b} <=> $n{$a} || $a cmp $b } keys %n) {
+    printf "%-16s %3d\n", $p, $n{$p};
+    $total += $n{$p};
+}
+printf "%-16s %3d\n", 'total', $total;
+```
+
+The real checks: `perl -c` and a run on the real drop-1 conversion.
+
+```text
+$ perl -c todo-by-package.pl
+todo-by-package.pl syntax OK
+$ perl todo-by-package.pl model
+stations          29
+datacenter         5
+operations         5
+behavior           4
+network            3
+types              3
+analysis           2
+tidewater          1
+total             52
+```
+
+Fifty-two TODO lines, the same total the converter's report and Part I give for drop 1, so the script agrees with an
+independent count -- that comparison is the test. It took one prompt and two minutes of reading. This is the kind
+of task the bake-off's third row measures, and it is the kind that usually wins.
+
+==== 2. Explaining a failing pipeline log
+
+The second-best fit: a log is text, the model has seen a great many of them, and the explanation is checked by
+whether the fix works. Here is a real lint failure (the draft that caused it appears in [[local-ai-energy]]):
+
+```text
+model/analysis/Analysis.sysml:8:25: error: unresolved type 'ISQ::SolarPowerValue'
+model/analysis/Analysis.sysml:9:22: error: unresolved type 'ISQ::BatteryEnergyValue'
+lint: 14 file(s), 2 error(s), 0 warning(s)
+elements=148 errors=2 warnings=0
+```
+
+An explanation of the kind a model gives (illustrative):
+
+```text
+The lint job failed because two attribute types in Analysis.sysml, lines 8 and 9, refer to
+ISQ::SolarPowerValue and ISQ::BatteryEnergyValue, which are not defined in the model or in the
+standard library. Use types that exist: either the model's own attribute defs (Power and Energy
+in package Types) or library types such as ISQ::PowerValue and ISQ::EnergyValue.
+```
+
+That one is right, and it is checkable: `grep` the library list (`tools/sysml/sysml-library-names.txt` has
+`PowerValue` and `EnergyValue`, and no `SolarPowerValue`). The habit to build: when the explanation names a fix,
+confirm the fix exists before you make it.
+
+==== 3. Text for people: an MR description, a DR, a retro summary
+
+Prose is a strong fit, and the review is the same as for any draft: facts first, then tone. Give the model the
+facts in the prompt -- it must not supply them.
+
+A Discrepancy Report draft (illustrative), from the prompt "Draft a discrepancy report to the prime contractor in
+these fields: Title, Model element, DOORS object, What we found, Evidence, Requested action. Facts: TW-SYS-006 text
+differs: DOORS says the bulletin is published twice a day on a fixed schedule; the Cameo model's requirement text
+says only on a fixed schedule. Found by the trace job's drift check.":
+
+```md
+**Title:** Requirement text drift, TW-SYS-006 (Bulletin)
+
+**Model element:** requirement TW-SYS-006 "Bulletin", package System Requirements / Functions
+**DOORS object:** TW-SYS-006, module System Requirements
+
+**What we found:** The requirement text in the Cameo model does not match DOORS. DOORS states the
+data center shall publish a marine bulletin *twice a day*, on a fixed schedule; the model's text
+omits "twice a day".
+
+**Evidence:** trace report from pipeline job `trace` (drift: TW-SYS-006), drop v1.0.
+
+**Requested action:** Update the model's requirement text to match DOORS (DOORS is authoritative)
+in the next drop, or confirm that DOORS should change.
+```
+
+Every fact in it came from the prompt; the model supplied the structure and the sentences. Jim's edit was one word.
+Notice what the reviewer checks: that it did not *add* a fact (a date, a paragraph number, a severity) that was not
+given. Models add plausible details; in a DR to a contractor, an invented detail is worse than a missing one.
+
+The same pattern works for a merge request description ("here is the diff summary and the issue number; fill the
+Default template") and for a retrospective summary ("here are the sticky notes, verbatim; group them into start,
+stop, continue without changing any wording"). In both, paste the facts, ask for structure, check that nothing was
+added.
+
+==== 4. Explaining a converter TODO and its v1 construct
+
+Useful for learning, especially in the first weeks when the team is still matching v1 vocabulary to v2. The prompt
+gives the TODO line and the XMI fragment it came from -- both real, from drop 1:
+
+```text
+// TODO uml:StateMachine 'BuoyModes' (xmi:id _22_1_7f3a0c1_7a13eb20b93a): no SysML v2 mapping in this converter
+```
+
+{{include: examples/tidewater-v1/tidewater.xmi | lines 251-278}}
+
+An explanation of the kind a model gives (illustrative): *"This is a UML state machine owned by the MooredBuoy
+block. It has one region with an initial pseudostate and four states -- Observing, Degraded, Maintenance,
+Recovered -- and transitions triggered by named events such as lowBattery and charged. In SysML v2 the equivalent
+is a state def with states and transitions, exhibited by the part def; the triggers become accepted items or
+attributes, and the initial pseudostate becomes an entry action followed by the first state."*
+
+That is correct and is exactly the mental bridge a v1 modeler needs. Compare it with [[sysmlv2]], where the same
+mapping is shown by hand. The explanation is cheap to check -- every claim is visible in the fragment above.
+
+==== 5. SysML v2 text, the weaker fit: the BuoyModes state def {#local-ai-sysml}
+
+Now the hard part: three drafts of model text, each through the real gates. The first draft (illustrative) is what an under-grounded model typically writes -- the
+v1 vocabulary leaks straight through:
+
+```sysml
+package BuoyModesDraft {
+    state machine BuoyModes {
+        region main {
+            initial -> Observing;
+            state Observing;
+            state Degraded;
+            state Maintenance;
+            state Recovered;
+            Observing -> Degraded : lowBattery;
+            Degraded -> Observing : charged;
+        }
+    }
+}
+```
+
+The real grammar check:
+
+```text
+$ perl "$KIT/tools/sysml/sysml.pl" check buoymodes-draft1.sysml
+buoymodes-draft1.sysml:2:19: error: unexpected 'BuoyModes'; expected ':', '::>', ':=', ':>', ':>>', ';', '=', '=>', ...
+sysml: 1 file(s), 1 error(s)
+```
+
+Exit status 1: in the pipeline this is a red `grammar` job. Read the error the way [[vim]] taught: line 2, column 19.
+The parser read `state machine` as "a state usage named *machine*" and then choked on the next word. There is no
+`state machine` in SysML v2, and no `region`, no `initial ->`, no `source -> target : trigger` -- all four are UML.
+Pasting the error back may get a better second draft; on a 4B model it often gets a different wrong one. Bob wrote
+it by hand, from [[sysmlv2]]'s pattern:
+
+```sysml
+package BuoyModesDraft {
+    attribute def LowBattery;
+    attribute def Charged;
+    attribute def CrewOnSite;
+    attribute def CrewDeparts;
+    attribute def LiftedAboard;
+
+    state def BuoyModes {
+        doc /* The buoy's operating modes, from the v1 state machine BuoyModes. */
+        entry; then Observing;
+        state Observing;
+        state Degraded;
+        state Maintenance;
+        state Recovered;
+        transition lowBattery first Observing accept LowBattery then Degraded;
+        transition charged first Degraded accept Charged then Observing;
+        transition crewArrives first Observing accept CrewOnSite then Maintenance;
+        transition crewArrivesDegraded first Degraded accept CrewOnSite then Maintenance;
+        transition crewLeaves first Maintenance accept CrewDeparts then Observing;
+        transition recovered first Maintenance accept LiftedAboard then Recovered;
+    }
+}
+```
+
+```text
+$ perl "$KIT/tools/sysml/sysml.pl" check buoymodes-fixed.sysml
+sysml: 1 file(s), 0 error(s)
+```
+
+Then in context: the TODO line in `model/physical/stations/Stations.sysml` replaced by `exhibit state modes : BuoyModes;`
+inside MooredBuoy, and the state def and its five trigger attribute defs added to the package. The real checks on
+the whole drop-1 model afterwards:
+
+```text
+$ perl "$KIT/tools/sysml/model.pl" lint
+lint: 14 file(s), 0 error(s), 0 warning(s)
+elements=148 errors=0 warnings=0
+$ perl "$KIT/tools/sysml/sysml.pl" check model/physical/stations/Stations.sysml
+sysml: 1 file(s), 0 error(s)
+```
+
+The lesson is not "the model failed". The draft still saved time: the five state names and the six transitions were
+right, and copying them was faster than reading the XMI. The *syntax* was wrong, the gate said so in one line, and a
+person who knew the v2 pattern fixed it. That is the realistic shape of AI help on `.sysml` today.
+
+==== 6. SysML v2 text: the EnergyBalance constraint {#local-ai-energy}
+
+The converter left two TODO lines in `Analysis.sysml`, one of
+them carrying the v1 expression in English: `generation * sunHours >= load * 24`. A grounded prompt ("here is the
+constraint def, here is the expression, write the v2 constraint body; parameters are inputs") gets close. This draft
+(illustrative) shows the *other* classic mistake -- invented library names that sound exactly right:
+
+```sysml
+package EnergyDraft {
+    constraint def EnergyBalance {
+        in generation : ISQ::SolarPowerValue;
+        in storage : ISQ::BatteryEnergyValue;
+        in load : ISQ::PowerValue;
+        in sunHours : ScalarValues::Real;
+        generation * sunHours >= load * 24
+    }
+}
+```
+
+The grammar check passes it -- the syntax is perfectly good:
+
+```text
+$ perl "$KIT/tools/sysml/sysml.pl" check energy-invented.sysml
+sysml: 1 file(s), 0 error(s)
+```
+
+This is why the pipeline has two gates and not one. Spliced into the model, lint catches what grammar cannot: the
+names resolve to nothing.
+
+```text
+$ perl "$KIT/tools/sysml/model.pl" lint
+model/analysis/Analysis.sysml:8:25: error: unresolved type 'ISQ::SolarPowerValue'
+model/analysis/Analysis.sysml:9:22: error: unresolved type 'ISQ::BatteryEnergyValue'
+lint: 14 file(s), 2 error(s), 0 warning(s)
+elements=148 errors=2 warnings=0
+```
+
+There is a quieter lesson in the fix. `ISQ::PowerValue` and `ISQ::EnergyValue` exist, and swapping them in makes lint
+pass -- but the rest of Tidewater uses the model's own attribute defs `Power` and `Energy` (package Types), and the
+PowerSystem's bind lines connect this constraint to parts typed with them. The right fix is the model's own types,
+which is a judgment no gate makes for you:
+
+```sysml
+    constraint def EnergyBalance {
+        doc /* Daily energy in must cover daily energy out, with the battery as the buffer. */
+        in generation : Power;
+        in storage : Energy;
+        in load : Power;
+        in sunHours : ScalarValues::Real;
+        generation * sunHours >= load * 24
+    }
+```
+
+Real result, in the model: `lint: 14 file(s), 0 error(s), 0 warning(s)` and the grammar check clean. Note too that
+the v1 expression mentions `sunHours`, which the v1 constraint block never declared as a parameter; the draft added
+it, correctly, and the reviewer has to notice that the model *added a parameter* -- a design decision worth a line in
+the merge request, and a question for the prime's modeler.
+
+==== 7. SysML v2 text: fork and flow in ObserveCoast {#local-ai-fork}
+
+The behavior package has four TODO lines in ObserveCoast: a fork node after the
+quality check, an input pin, an object flow and a control flow. A draft for the fork and the flow (illustrative),
+grounded with the action def's real text:
+
+```sysml
+        fork afterCheck;
+        first check then afterCheck;
+        first afterCheck then store;
+        first afterCheck then 'log health';
+        flow publish.bulletin to bulletin;
+```
+
+Replacing the fork TODO, the `first check then store;` line, and the two edge TODOs with those lines, the real
+checks on the model:
+
+```text
+$ perl "$KIT/tools/sysml/sysml.pl" check model/logical/Behavior.sysml
+sysml: 1 file(s), 0 error(s)
+$ perl "$KIT/tools/sysml/model.pl" lint
+lint: 14 file(s), 0 error(s), 0 warning(s)
+elements=148 errors=0 warnings=0
+```
+
+That draft passed first time -- the construct is close to what the model has seen in other languages. The input pin
+TODO stays for a later task, and the helper from example 1 shows the effect of the three fixes together on a scratch
+copy of the model:
+
+```text
+$ perl todo-by-package.pl model        # after BuoyModes, EnergyBalance, fork and flow
+stations          28
+datacenter         5
+operations         5
+network            3
+types              3
+behavior           1
+tidewater          1
+total             46
+```
+
+From 52 to 46. Passing the gates is necessary, not sufficient: the reviewer still asks whether the fork is where the
+v1 activity put it, whether `'log health'` should run in parallel with archiving, and whether the flow goes to the
+right parameter. Those are engineering questions, and they are why a person owns the commit.
+
+==== 8. The stand-up summary through the kit's AI hook {#local-ai-standup}
+
+The kit can hand the day's stand-up data to an AI and put the answer in the status mail. `lib/Ai.pm` has three
+backends: `paste` (the default: it writes the prompt to a file, you paste it wherever you are allowed to), `mock`
+(tests), and `curl` (an OpenAI-style chat endpoint -- which is what Ollama serves). In the journal project's
+`scrum.conf`:
+
+```text
+ai_backend = curl
+ai_url     = http://localhost:11434/v1/chat/completions
+ai_model   = Babitdor/Qwen3-4B-SysMLv2
+```
+
+Then `perl bin/daily.pl ai` (Vim: `:SAi`) sends the day's digest -- answers, flags, the sprint's numbers -- and parses
+the reply into five fixed sections: HIGHLIGHTS, RISKS, STUCK, QUESTIONS FOR LEADS, PROGRESS. On a shared server,
+`ai_url` names the server instead of `localhost`.
+
+Two cautions. A SysML-tuned model was tuned for SysML, not for status writing; a general model from the approved list
+will usually write better summaries, and `ai_model` picks which. And the numbers never come from the AI: the kit
+computes every metric from the journal, and the AI only words the summary around them. If its wording contradicts a
+number, the number wins and the wording is edited.
+
+=== What the team took from it {#local-ai-lessons}
+
+::: sidebar Bob's first try
+Bob's first prompt was "convert the Stations package to SysML v2". The answer was four screens of confident text
+that did not parse, used `block` throughout, and invented a package import. Bob's verdict, after the grammar check
+listed the errors, was the one most engineers reach: *"It's a fast typist that doesn't know the language."* The
+second prompt -- one state def, with the XMI fragment and the surrounding text pasted in -- produced the draft in
+example 5: wrong syntax, right content, fixed in five minutes. The third prompt asked for the helper script in
+example 1 and was right the first time. The team's ranking of uses came out of that afternoon, and it matched what
+this chapter recommends.
+:::
+
+The ranking, for the record: helper scripts and pipeline glue first, explanations second, prose drafts third,
+`.sysml` drafts last -- and every one of them through the same gates. A team that starts at the bottom of that list
+concludes AI is useless; a team that starts at the top concludes it is a useful junior analyst. Both are looking at
+the same tool.
+
+::: exercise {#ex-ai-request} Write the approval request
+Fill in the request checklist in [[local-ai-approval]] for your own organization: one runtime, one model you would
+choose from the families table, the laptops or server, the data rule. Find out which office approves model origin.
+:::
+
+::: exercise {#ex-ai-bakeoff} Run a three-task bake-off
+Pick three of the five bake-off tasks. Write the prompts down first. Run each with one approved model and without
+one. Fill the scoresheet: gate passes, tries, minutes to mergeable. Does the model beat the baseline on any task?
+:::
+
+::: exercise {#ex-ai-gate} Make the gates catch a hallucination
+Take the invented-name EnergyBalance draft from [[local-ai-energy]], splice it into a scratch copy of the drop-1
+conversion, and run `sysml.pl check` and `model.pl lint`. Which gate catches it, and why can the other one not?
+Fix it with the model's own types and run both again.
+:::
+
+::: exercise {#ex-ai-vim} The scratch-buffer loop in Vim
+Using form 2 from [[local-ai-vim]], send a TODO line and its XMI fragment to a model (or, without one, to
+`cat` in place of `ollama run ...` to practice the keystrokes), save the scratch buffer as a `.sysml` file, and
+press `\mx`. Time the whole loop.
+:::
+
+::: exercise {#ex-ai-dr} Check a draft for added facts
+Ask a model (or a colleague playing one) to draft the TW-SYS-006 DR from the facts in example 3. Underline every
+fact in the draft that was not in the prompt. How many were there, and which would have embarrassed you in front of
+the prime?
+:::
+
+=== Applying this to your project {#local-ai-apply}
+
+- **Copy:** the rules box, word for word; the `ai::assisted` label; the bake-off scoresheet; the scratch-buffer
+  loop; the order of uses (tooling, explanations, prose, then model text).
+- **Adapt:** the model list to your organization's approved list and its origin policy; the hosting choice to what
+  your program already runs (a shared GPU server, if one exists, is usually the better start); the bake-off tasks to
+  five real tasks from your own backlog.
+- **Decide locally:** whether AI-assisted work is allowed at all on your network and for your data's marking; who
+  approves models; whether the team needs it yet -- the honest answer after a bake-off may be "not yet", and that is
+  a result.
+- **Never adapt:** the gates. AI-drafted text gets exactly the checks hand-written text gets. If a team ever proposes
+  relaxing a gate "because the AI usually gets that right", the bake-off sheet is the answer.

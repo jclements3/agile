@@ -1,0 +1,84 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 2959 >>
+stream
+2 J
+BT /F1 12.00 Tf 1 0 0 1 166.84 711.00 Tm (TIDEWATER COASTAL OBSERVATION PROGRAM) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 683.40 Tm (TW-PM) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 655.80 Tm (24 SEPTEMBER 2026) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 628.20 Tm (MEMORANDUM FOR TIDEWATER SYSTEMS ENGINEERING) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 600.60 Tm (FROM: TIDEWATER PROGRAM MANAGER) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 573.00 Tm (SUBJECT: ADOPTION OF DEVSECOPS PRACTICES FOR SYSTEMS ENGINEERING) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 559.20 Tm (ARTIFACTS) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 531.60 Tm (1.  Effective FY27, program systems engineering artifacts, including the system model, will be) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 517.80 Tm (developed and maintained using DevSecOps practices on the enterprise DevSecOps platform) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 504.00 Tm (\(GitLab\).) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 476.40 Tm (2.  The Tidewater system model will be transitioned from SysML v1 to SysML v2 textual) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 462.60 Tm (notation and placed under configuration control in the enterprise GitLab instance. The prime) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 448.80 Tm (contractor's SysML v1 deliveries under CDRL A003 remain the contractual baseline until further) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 435.00 Tm (notice; the government will maintain a derived SysML v2 model and keep it current with each) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 421.20 Tm (delivery.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 393.60 Tm (3.  Systems engineering leads will demonstrate:) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 366.00 Tm (a.  automated quality checks on every model change;) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 338.40 Tm (b.  traceability from DOORS requirements to the model, computed rather than) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 324.60 Tm (hand-maintained;) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 297.00 Tm (c.  peer review and approval of every change, with a complete audit record;) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 269.40 Tm (d.  reproducible baselines;) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 241.80 Tm (e.  measurable progress reported at regular intervals.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 214.20 Tm (4.  The Tidewater MBSE lead will brief initial results at the December program management) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 200.40 Tm (review.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 172.80 Tm (5.  Tools and data flows require ISSM approval before use with program data.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 145.20 Tm (6.  Training resources are the enterprise platform's documentation and a recorded webinar. The) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 131.40 Tm (point of contact in the enterprise DevSecOps office is listed on the platform's home page. Teams) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 117.60 Tm (are encouraged to start small and iterate.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 90.00 Tm (PROGRAM MANAGER) Tj ET
+
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 131 >>
+stream
+2 J
+BT /F1 12.00 Tf 1 0 0 1 72.00 711.00 Tm (TIDEWATER PROGRAM OFFICE) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 296.00 36.00 Tm (- 2 -) Tj ET
+
+endstream
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000220 00000 n 
+0000000318 00000 n 
+0000000413 00000 n 
+0000000559 00000 n 
+0000003570 00000 n 
+0000003716 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+3898
+%%EOF

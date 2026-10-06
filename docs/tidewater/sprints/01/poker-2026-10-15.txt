@@ -1,0 +1,151 @@
+Meeting started
+[10:00 AM] Jim
+Refinement for sprint 2. Planning poker: one number per story, in points.
+[10:01 AM] Jim
+#est TW-26 Learn: practice lessons 12-13, Vim for models, the SysML v2 workbook (first half)
+[10:02 AM] Jim
+3
+[10:02 AM] Bob
+3
+[10:02 AM] Tom
+3
+[10:03 AM] Jim
+#est TW-27 Runner online; the first pipeline gates every MR
+[10:04 AM] Jim
+3
+[10:04 AM] Bob
+3
+[10:04 AM] Tom
+3
+[10:05 AM] Jim
+#est TW-28 Import drop 1 through the vendor branch, in layers
+[10:06 AM] Jim
+3
+[10:06 AM] Bob
+5
+[10:06 AM] Tom
+3
+[10:06 AM] Jim
+3 to 5. Talk it out: what does the high vote know?
+[10:07 AM] Jim
+#est TW-28 Import drop 1 through the vendor branch, in layers
+[10:08 AM] Jim
+4
+[10:08 AM] Bob
+4
+[10:08 AM] Tom
+4
+[10:09 AM] Jim
+#est TW-29 TODO burn-down and generated docs in the pipeline
+[10:10 AM] Jim
+2
+[10:10 AM] Bob
+2
+[10:10 AM] Tom
+3
+[10:10 AM] Jim
+2 to 3. Talk it out: what does the high vote know?
+[10:11 AM] Jim
+#est TW-29 TODO burn-down and generated docs in the pipeline
+[10:12 AM] Jim
+2
+[10:12 AM] Bob
+2
+[10:12 AM] Tom
+2
+[10:13 AM] Jim
+#est TW-30 Level conventions for the part tree
+[10:14 AM] Jim
+2
+[10:14 AM] Bob
+2
+[10:14 AM] Tom
+2
+[10:15 AM] Jim
+#est TW-31 Enablers, decisions and conventions on record
+[10:16 AM] Jim
+3
+[10:16 AM] Bob
+3
+[10:16 AM] Tom
+5
+[10:16 AM] Jim
+3 to 5. Talk it out: what does the high vote know?
+[10:17 AM] Jim
+#est TW-31 Enablers, decisions and conventions on record
+[10:18 AM] Jim
+4.5
+[10:18 AM] Bob
+4.5
+[10:18 AM] Tom
+4.5
+[10:19 AM] Jim
+#est TW-32 Sprint 2 demo: the pipeline and the drop on develop
+[10:20 AM] Jim
+0.5
+[10:20 AM] Bob
+0.5
+[10:20 AM] Tom
+0.5
+
+---- Chat.pm tallies
+ESTIMATE TW-26 Learn: practice lessons 12-13, Vim for models, the SysML v2 workbook (first half)  (3 answers at 10:01)
+  Bob            3
+  Jim            3
+  Tom            3
+  consensus: 3
+
+ESTIMATE TW-27 Runner online; the first pipeline gates every MR  (3 answers at 10:03)
+  Bob            3
+  Jim            3
+  Tom            3
+  consensus: 3
+
+ESTIMATE TW-28 Import drop 1 through the vendor branch, in layers  (3 answers at 10:05)
+  Bob            5
+  Jim            3
+  Tom            3
+  no consensus: median 3, mode 3, range 3-5
+
+ESTIMATE TW-28 Import drop 1 through the vendor branch, in layers  (3 answers at 10:07)
+  Bob            4
+  Jim            4
+  Tom            4
+  consensus: 4
+
+ESTIMATE TW-29 TODO burn-down and generated docs in the pipeline  (3 answers at 10:09)
+  Bob            2
+  Jim            2
+  Tom            3
+  no consensus: median 2, mode 2, range 2-3
+
+ESTIMATE TW-29 TODO burn-down and generated docs in the pipeline  (3 answers at 10:11)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-30 Level conventions for the part tree  (3 answers at 10:13)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-31 Enablers, decisions and conventions on record  (3 answers at 10:15)
+  Bob            3
+  Jim            3
+  Tom            5
+  no consensus: median 3, mode 3, range 3-5
+
+ESTIMATE TW-31 Enablers, decisions and conventions on record  (3 answers at 10:17)
+  Bob            4.5
+  Jim            4.5
+  Tom            4.5
+  consensus: 4.5
+
+ESTIMATE TW-32 Sprint 2 demo: the pipeline and the drop on develop  (3 answers at 10:19)
+  Bob            0.5
+  Jim            0.5
+  Tom            0.5
+  consensus: 0.5
+

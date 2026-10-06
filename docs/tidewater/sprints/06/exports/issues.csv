@@ -1,0 +1,138 @@
+iid,type,title,labels,milestone,assignee,state,created_at,closed_at
+1,story,"Learn the tools: survival kit, git, Vim, the operating model",type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::learning;area::pipeline;phase::port;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-06T16:30:00Z
+2,story,"Laptops ready: Git for Windows, Vim, the kit",type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-08T16:30:00Z
+3,story,Create the GitLab group and model project,type::story;priority::1;epic::E1-gitlab;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-14T17:10:00Z
+4,story,Draft the first pipeline and run it locally,type::story;priority::2;epic::E2-pipeline;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-16T15:00:00Z
+5,story,Receive drop 1 and record it,type::story;priority::1;epic::E5-drop-1;tome::T2-port;work::engineering;area::requirements;phase::port;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-14T15:45:00Z
+6,story,Convert drop 1 and assess it,type::story;priority::1;epic::E5-drop-1;tome::T2-port;work::engineering;area::requirements;phase::port;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-14T16:30:00Z
+7,story,Working agreements: Definition of Ready and Done,type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-15T15:45:00Z
+8,task,Practice lessons 10-11; the operating model chapter,type::task;area::pipeline;work::learning;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-06T15:00:00Z
+9,task,"Practice lessons 10-11; the survival kit, git and Vim chapters",type::task;area::pipeline;work::learning;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-06T15:45:00Z
+10,task,"Practice lessons 10-11; the survival kit, git and Vim chapters",type::task;area::pipeline;work::learning;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-06T16:30:00Z
+11,task,Set up Jim's laptop; kickoff.pl doctor,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-08T15:00:00Z
+12,task,Set up Bob's laptop; kickoff.pl doctor,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-08T15:45:00Z
+13,task,Set up Tom's laptop; kickoff.pl doctor,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-08T16:30:00Z
+14,task,Apply project.conf with gitlab.pl setup; request the runner,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-09T15:45:00Z
+15,task,Prove a direct push to develop is refused,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-13T15:00:00Z
+16,task,"Commit CODEOWNERS, the templates and .gitignore",type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-14T17:10:00Z
+17,task,"Draft .gitlab-ci.yml: grammar, lint, outline",type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-15T15:00:00Z
+18,task,Run the draft locally on drop 1 with gitlab.pl ci,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,tom,closed,2026-10-05T14:30:00Z,2026-10-16T15:00:00Z
+19,task,Log the CDRL delivery and check the sha256 of every file,type::task;area::requirements;work::engineering;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-13T15:45:00Z
+20,task,Open the Prime Drop issue with its checklist,type::task;area::requirements;work::engineering;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-14T15:45:00Z
+21,task,Run both converters with --report on drop 1,type::task;area::requirements;work::engineering;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-09T15:00:00Z
+22,task,Write the TODO inventory by package,type::task;area::requirements;work::engineering;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-13T16:30:00Z
+23,task,Estimate the port backlog with the team,type::task;area::requirements;work::engineering;workflow::done,Sprint 1,bob,closed,2026-10-05T14:30:00Z,2026-10-14T16:30:00Z
+24,task,Write the Definition of Ready and Done in the wiki,type::task;area::pipeline;work::platform;workflow::done,Sprint 1,jim,closed,2026-10-05T14:30:00Z,2026-10-15T15:45:00Z
+25,drop,Intake prime drop v1.0 (2026-10-02),type::drop;owner::gov;priority::1,Sprint 1,tom,closed,2026-10-14T15:45:00Z,2026-10-29T15:00:00Z
+26,story,"Learn: practice lessons 12-13, Vim for models, the SysML v2 workbook (first half)",type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::learning;area::pipeline;phase::port;workflow::done,Sprint 2,bob,closed,2026-10-15T15:00:00Z,2026-10-20T15:45:00Z
+27,story,Runner online; the first pipeline gates every MR,type::story;priority::1;epic::E2-pipeline;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 2,tom,closed,2026-10-15T15:00:00Z,2026-10-23T15:45:00Z
+28,story,"Import drop 1 through the vendor branch, in layers",type::story;priority::1;epic::E5-drop-1;tome::T2-port;work::engineering;area::requirements;phase::port;workflow::done,Sprint 2,bob,closed,2026-10-15T15:00:00Z,2026-10-29T15:00:00Z
+29,story,TODO burn-down and generated docs in the pipeline,type::story;priority::2;epic::E2-pipeline;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 2,tom,closed,2026-10-15T15:00:00Z,2026-10-29T19:15:00Z
+30,story,Level conventions for the part tree,type::story;priority::2;epic::E6-structure;tome::T2-port;work::engineering;area::gov;phase::port;workflow::done,Sprint 2,bob,closed,2026-10-15T15:00:00Z,2026-10-26T18:40:00Z
+31,story,"Enablers, decisions and conventions on record",type::story;priority::2;epic::E1-gitlab;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 2,jim,closed,2026-10-15T15:00:00Z,2026-10-30T15:00:00Z
+32,story,Sprint 2 demo: the pipeline and the drop on develop,type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 2,tom,closed,2026-10-15T15:00:00Z,2026-10-30T15:45:00Z
+33,task,Practice lessons 12-13; the diagrams chapter,type::task;area::pipeline;work::learning;workflow::done,Sprint 2,jim,closed,2026-10-19T14:30:00Z,2026-10-19T15:00:00Z
+34,task,Lessons 12-13; Vim for models; workbook first half,type::task;area::pipeline;work::learning;workflow::done,Sprint 2,bob,closed,2026-10-19T14:30:00Z,2026-10-20T15:00:00Z
+35,task,Lessons 12-13; Vim for models; workbook first half,type::task;area::pipeline;work::learning;workflow::done,Sprint 2,tom,closed,2026-10-19T14:30:00Z,2026-10-20T15:45:00Z
+36,task,Check the runner registration and tags,type::task;area::pipeline;work::platform;workflow::done,Sprint 2,tom,closed,2026-10-19T14:30:00Z,2026-10-20T16:30:00Z
+37,task,Commit the pipeline; fix it for the PowerShell runner with ci/job.pl,type::task;area::pipeline;work::platform;workflow::done,Sprint 2,tom,closed,2026-10-19T14:30:00Z,2026-10-23T20:10:00Z
+38,task,"Turn on ""pipelines must succeed"" and the MR report widgets",type::task;area::pipeline;work::platform;workflow::done,Sprint 2,tom,closed,2026-10-19T14:30:00Z,2026-10-23T15:45:00Z
+39,task,Decide the layered layout; the layout map,type::task;area::requirements;work::engineering;workflow::done,Sprint 2,bob,closed,2026-10-19T14:30:00Z,2026-10-22T15:00:00Z
+40,task,Import drop 1 onto vendor/prime,type::task;area::requirements;work::engineering;workflow::done,Sprint 2,tom,closed,2026-10-19T14:30:00Z,2026-10-27T15:00:00Z
+41,task,Review and merge the drop-1 MR; record the outline count,type::task;area::requirements;work::engineering;workflow::done,Sprint 2,bob,closed,2026-10-19T14:30:00Z,2026-10-29T15:00:00Z
+42,task,Add the todo and docs jobs; commit docs/,type::task;area::pipeline;work::platform;workflow::done,Sprint 2,tom,closed,2026-10-19T14:30:00Z,2026-10-29T19:15:00Z
+43,task,Write the conventions package,type::task;area::gov;work::engineering;workflow::done,Sprint 2,bob,closed,2026-10-19T14:30:00Z,2026-10-23T20:00:00Z
+44,task,Name the level tags in sysml.conf,type::task;area::gov;work::engineering;workflow::done,Sprint 2,bob,closed,2026-10-19T14:30:00Z,2026-10-26T18:40:00Z
+45,task,Memo: request for enablers,type::task;area::pipeline;work::platform;workflow::done,Sprint 2,jim,closed,2026-10-19T14:30:00Z,2026-10-21T15:00:00Z
+46,task,Write docs/adr/0001..0010,type::task;area::pipeline;work::platform;workflow::done,Sprint 2,jim,closed,2026-10-19T14:30:00Z,2026-10-26T19:15:00Z
+47,task,Conventions and onboarding docs into docs/,type::task;area::pipeline;work::platform;workflow::done,Sprint 2,jim,closed,2026-10-19T14:30:00Z,2026-10-28T15:00:00Z
+48,task,Toolchain security kickoff with the ISSM,type::task;area::pipeline;work::platform;workflow::done,Sprint 2,jim,closed,2026-10-19T14:30:00Z,2026-10-30T15:00:00Z
+49,task,Prepare and give the sprint 2 demo,type::task;area::pipeline;work::platform;workflow::done,Sprint 2,tom,closed,2026-10-19T14:30:00Z,2026-10-30T15:45:00Z
+50,story,Learn: the workbook second half; talking about progress,type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::learning;area::pipeline;phase::port;workflow::done,Sprint 3,tom,closed,2026-10-28T15:00:00Z,2026-11-12T15:00:00Z
+51,story,Close the Network TODO lines,type::story;priority::1;epic::E6-structure;tome::T2-port;work::engineering;area::network;phase::port;workflow::done,Sprint 3,bob,closed,2026-10-28T15:00:00Z,2026-11-06T20:00:00Z
+52,story,DOORS modules into the model,type::story;priority::1;epic::E7-requirements;tome::T2-port;work::engineering;area::requirements;phase::port;workflow::done,Sprint 3,jim,closed,2026-10-28T15:00:00Z,2026-11-10T15:00:00Z
+53,story,Trace report and secret detection in the pipeline,type::story;priority::2;epic::E2-pipeline;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 3,tom,closed,2026-10-28T15:00:00Z,2026-11-06T20:00:00Z
+54,story,Runner hardening with the ISSM,type::story;priority::2;epic::E4-toolchain-security;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 3,tom,closed,2026-10-28T15:00:00Z,2026-11-12T15:45:00Z
+55,story,First drift and gap analysis from the trace,type::story;priority::2;epic::E7-requirements;tome::T2-port;work::engineering;area::requirements;phase::port;workflow::done,Sprint 3,jim,closed,2026-10-28T15:00:00Z,2026-11-13T15:00:00Z
+56,task,"talk.pl: draft, then edit, the stand-up",type::task;area::pipeline;work::learning;workflow::done,Sprint 3,jim,closed,2026-11-02T14:30:00Z,2026-11-02T15:00:00Z
+57,task,Workbook second half; talk.pl,type::task;area::pipeline;work::learning;workflow::done,Sprint 3,bob,closed,2026-11-02T14:30:00Z,2026-11-03T15:00:00Z
+58,task,talk.pl; the Day-9 demo rehearsal,type::task;area::pipeline;work::learning;workflow::done,Sprint 3,tom,closed,2026-11-02T14:30:00Z,2026-11-12T15:00:00Z
+59,task,Level tags in Network,type::task;area::network;work::engineering;workflow::done,Sprint 3,bob,closed,2026-11-02T14:30:00Z,2026-11-04T18:30:00Z
+60,task,The include use case in ReviewObservations,type::task;area::network;work::engineering;workflow::done,Sprint 3,bob,closed,2026-11-02T14:30:00Z,2026-11-06T20:00:00Z
+61,task,Re-import drop 1 with the DOORS modules on vendor/prime,type::task;area::requirements;work::engineering;workflow::done,Sprint 3,jim,closed,2026-11-02T14:30:00Z,2026-11-06T15:45:00Z
+62,task,Merge the DOORS modules to develop,type::task;area::requirements;work::engineering;workflow::done,Sprint 3,bob,closed,2026-11-02T14:30:00Z,2026-11-10T15:00:00Z
+63,task,Add the trace job (report only) and the secrets job,type::task;area::pipeline;work::platform;workflow::done,Sprint 3,tom,closed,2026-11-02T14:30:00Z,2026-11-06T20:00:00Z
+64,task,Runner service account and hardening checklist,type::task;area::pipeline;work::platform;workflow::done,Sprint 3,tom,closed,2026-11-02T14:30:00Z,2026-11-12T15:45:00Z
+65,task,Write up the drift and the trace gaps,type::task;area::requirements;work::engineering;workflow::done,Sprint 3,jim,closed,2026-11-02T14:30:00Z,2026-11-13T15:00:00Z
+66,story,Learn: reviewing a model change; the rehearsed demo,type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::learning;area::pipeline;phase::port;workflow::done,Sprint 4,bob,closed,2026-11-12T15:00:00Z,2026-11-25T15:00:00Z
+67,story,Close the Stations level tags,type::story;priority::1;epic::E6-structure;tome::T2-port;work::engineering;area::stations;phase::port;workflow::done,Sprint 5,bob,closed,2026-11-12T15:00:00Z,2026-12-02T15:00:00Z
+68,story,Units and value types,type::story;priority::2;epic::E6-structure;tome::T2-port;work::engineering;area::types;phase::port;workflow::done,Sprint 4,bob,closed,2026-11-12T15:00:00Z,2026-11-27T18:30:00Z
+69,story,Break the Network <-> Operations cycle,type::story;priority::2;epic::E6-structure;tome::T2-port;work::engineering;area::network;phase::port;workflow::done,Sprint 4,tom,closed,2026-11-12T15:00:00Z,2026-11-19T18:30:00Z
+70,story,Discrepancy reports DR-1 to DR-4 to the prime,type::story;priority::1;epic::E7-requirements;tome::T2-port;work::engineering;area::requirements;phase::port;workflow::done,Sprint 4,jim,closed,2026-11-12T15:00:00Z,2026-11-20T15:45:00Z
+71,story,"The model site on GitLab Pages, rebuilt nightly",type::story;priority::2;epic::E2-pipeline;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 4,tom,closed,2026-11-12T15:00:00Z,2026-11-24T18:30:00Z
+72,story,First sprint review with the program office; the delivery interface with the prime,type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::engineering;area::pipeline;phase::port;workflow::done,Sprint 4,jim,closed,2026-11-12T15:00:00Z,2026-11-25T15:45:00Z
+73,task,Reviewing a model change: the checklist,type::task;area::pipeline;work::learning;workflow::done,Sprint 4,jim,closed,2026-11-16T14:30:00Z,2026-11-16T15:00:00Z
+74,task,Reviewing a model change: line comments,type::task;area::pipeline;work::learning;workflow::done,Sprint 4,bob,closed,2026-11-16T14:30:00Z,2026-11-16T15:45:00Z
+75,task,The Day-9 demo rehearsal,type::task;area::pipeline;work::learning;workflow::done,Sprint 4,tom,closed,2026-11-16T14:30:00Z,2026-11-25T15:00:00Z
+76,task,Level tags in Stations,type::task;area::stations;work::engineering;workflow::done,Sprint 4,bob,closed,2026-11-16T14:30:00Z,2026-11-20T20:00:00Z
+77,task,Walk the Stations tree with the prime's modeler; record what they confirmed,type::task;area::stations;work::engineering;workflow::in-progress,Sprint 4,bob,closed,2026-11-16T14:30:00Z,2026-11-27T21:30:00Z
+78,task,Value types specialize ISQ quantities,type::task;area::types;work::engineering;workflow::done,Sprint 4,bob,closed,2026-11-16T14:30:00Z,2026-11-27T18:30:00Z
+79,task,Remove the ServiceVessel -> Technician dependency,type::task;area::network;work::engineering;workflow::done,Sprint 4,tom,closed,2026-11-16T14:30:00Z,2026-11-19T18:30:00Z
+80,task,Open DR-1 to DR-4,type::task;area::requirements;work::engineering;workflow::done,Sprint 4,jim,closed,2026-11-16T14:30:00Z,2026-11-20T15:45:00Z
+81,task,Add the pages job and the nightly schedule,type::task;area::pipeline;work::platform;workflow::done,Sprint 4,tom,closed,2026-11-16T14:30:00Z,2026-11-24T18:30:00Z
+82,task,Sprint review with the program office,type::task;area::pipeline;work::engineering;workflow::done,Sprint 4,jim,closed,2026-11-16T14:30:00Z,2026-11-24T15:45:00Z
+83,task,Agree the delivery interface with the prime (meeting),type::task;area::pipeline;work::engineering;workflow::done,Sprint 4,jim,closed,2026-11-16T14:30:00Z,2026-11-25T15:45:00Z
+84,discrepancy,DR-1: TW-SYS-006 text differs between DOORS and the model,type::discrepancy;owner::prime;severity::2;area::requirements;phase::port,Sprint 4,jim,opened,2026-11-20T15:45:00Z,
+85,discrepancy,DR-2: TW-SYS-012 has no satisfy,type::discrepancy;owner::prime;severity::2;area::requirements;phase::port,Sprint 4,jim,opened,2026-11-20T15:45:00Z,
+86,discrepancy,DR-3: TW-SYS-016 is in DOORS but not in the model,type::discrepancy;owner::prime;severity::2;area::requirements;phase::port,Sprint 4,jim,opened,2026-11-20T15:45:00Z,
+87,discrepancy,DR-4: TW-SYS-011 has no verification case,type::discrepancy;owner::prime;severity::2;area::requirements;phase::port,Sprint 4,jim,opened,2026-11-20T15:45:00Z,
+88,discrepancy,DR-7: WaveSensor is tagged L5 but is a direct part of MooredBuoy (L4),type::discrepancy;owner::prime;severity::2;area::requirements;phase::port,Sprint 4,jim,opened,2026-11-20T15:45:00Z,
+89,story,Learn: the requirement recipe; writing memos from the model,type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::learning;area::requirements;phase::port;workflow::done,Sprint 5,jim,closed,2026-11-25T15:00:00Z,2026-12-03T15:00:00Z
+90,story,Procured parts as metadata; DataCenter level tags,type::story;priority::1;epic::E6-structure;tome::T2-port;work::engineering;area::stations;phase::port;workflow::done,Sprint 5,bob,closed,2026-11-25T15:00:00Z,2026-12-09T18:30:00Z
+91,story,Prune ObservingStation's trace spaghetti,type::story;priority::2;epic::E7-requirements;tome::T2-port;work::engineering;area::stations;phase::port;workflow::done,Sprint 5,bob,closed,2026-11-25T15:00:00Z,2026-12-11T20:00:00Z
+92,story,Untangle the Legacy Import package,type::story;priority::2;epic::E6-structure;tome::T2-port;work::engineering;area::legacy;phase::port;workflow::done,Sprint 5,tom,closed,2026-11-25T15:00:00Z,2026-12-02T16:30:00Z
+93,story,The trace job becomes a gate,type::story;priority::2;epic::E2-pipeline;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 5,tom,closed,2026-11-25T15:00:00Z,2026-12-04T18:30:00Z
+94,story,Grade our requirements with the recipe,type::story;priority::2;epic::E7-requirements;tome::T2-port;work::engineering;area::requirements;phase::port;workflow::done,Sprint 5,jim,closed,2026-11-25T15:00:00Z,2026-12-08T15:00:00Z
+95,story,Release rehearsal and a spillage tabletop,type::story;priority::2;epic::E1-gitlab;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 5,tom,closed,2026-11-25T15:00:00Z,2026-12-10T15:00:00Z
+96,task,Walk the Stations tree with the prime's modeler; record what they confirmed (continued),type::task;area::stations;work::engineering;workflow::done,Sprint 5,bob,closed,2026-11-27T21:30:00Z,2026-12-02T15:00:00Z
+97,task,The recipe chapter; a memo from pipeline numbers,type::task;area::requirements;work::learning;workflow::done,Sprint 5,jim,closed,2026-11-30T14:30:00Z,2026-11-30T15:00:00Z
+98,task,The recipe chapter,type::task;area::requirements;work::learning;workflow::done,Sprint 5,bob,closed,2026-11-30T14:30:00Z,2026-12-03T15:00:00Z
+99,task,Procured parts as metadata,type::task;area::stations;work::engineering;workflow::done,Sprint 5,bob,closed,2026-11-30T14:30:00Z,2026-12-07T18:30:00Z
+100,task,Level tags in DataCenter,type::task;area::stations;work::engineering;workflow::done,Sprint 5,bob,closed,2026-11-30T14:30:00Z,2026-12-09T18:30:00Z
+101,task,Remove the duplicate trace links,type::task;area::stations;work::engineering;workflow::done,Sprint 5,bob,closed,2026-11-30T14:30:00Z,2026-12-11T20:00:00Z
+102,task,Remove the Legacy Import package from the v2 model,type::task;area::legacy;work::engineering;workflow::done,Sprint 5,tom,closed,2026-11-30T14:30:00Z,2026-12-02T19:15:00Z
+103,task,DR-5: ask the prime to delete Legacy Import,type::task;area::legacy;work::engineering;workflow::done,Sprint 5,jim,closed,2026-11-30T14:30:00Z,2026-12-02T16:30:00Z
+104,task,Trace ratchet: fail only on new gaps,type::task;area::pipeline;work::platform;workflow::done,Sprint 5,tom,closed,2026-11-30T14:30:00Z,2026-12-04T18:30:00Z
+105,task,Read the recipe findings for the DOORS modules,type::task;area::requirements;work::engineering;workflow::done,Sprint 5,jim,closed,2026-11-30T14:30:00Z,2026-12-04T15:45:00Z
+106,task,DR-6: weak verbs and missing parts in the DOORS text,type::task;area::requirements;work::engineering;workflow::done,Sprint 5,jim,closed,2026-11-30T14:30:00Z,2026-12-08T15:00:00Z
+107,task,Rehearse release and hotfix in tidewater/sandbox,type::task;area::pipeline;work::platform;workflow::done,Sprint 5,tom,closed,2026-11-30T14:30:00Z,2026-12-09T15:45:00Z
+108,task,Spillage tabletop: a marked file pushed by mistake,type::task;area::pipeline;work::platform;workflow::done,Sprint 5,tom,closed,2026-11-30T14:30:00Z,2026-12-10T15:00:00Z
+109,discrepancy,DR-5: The Legacy Import package is clutter from the document port,type::discrepancy;owner::prime;severity::2;area::requirements;phase::port,Sprint 5,jim,opened,2026-12-02T16:30:00Z,
+110,discrepancy,DR-6: Weak verbs and missing parts in the DOORS requirement text,type::discrepancy;owner::prime;severity::2;area::requirements;phase::port,Sprint 5,jim,opened,2026-12-08T15:00:00Z,
+111,story,Learn: memos and briefings from the model,type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::learning;area::pipeline;phase::port;workflow::done,Sprint 6,jim,closed,2026-12-09T15:00:00Z,2026-12-14T15:00:00Z
+112,story,BuoyModes state machine by hand,type::story;priority::1;epic::E8-behavior;tome::T2-port;work::engineering;area::behavior;phase::port;workflow::in-progress,Sprint 6,bob,opened,2026-12-09T15:00:00Z,
+113,story,"Fork, pin and object flow in ObserveCoast",type::story;priority::2;epic::E8-behavior;tome::T2-port;work::engineering;area::behavior;phase::port;workflow::done,Sprint 6,bob,closed,2026-12-09T15:00:00Z,2026-12-17T20:30:00Z
+114,story,Level tags in Operations,type::story;priority::2;epic::E6-structure;tome::T2-port;work::engineering;area::operations;phase::port;workflow::done,Sprint 6,tom,closed,2026-12-09T15:00:00Z,2026-12-15T18:30:00Z
+115,story,Data exchange table for the program review,type::story;priority::2;epic::E8-behavior;tome::T2-port;work::engineering;area::interfaces;phase::port;workflow::done,Sprint 6,tom,closed,2026-12-09T15:00:00Z,2026-12-18T20:00:00Z
+116,story,"VCRM: which requirements are verified, and how",type::story;priority::2;epic::E7-requirements;tome::T2-port;work::engineering;area::verification;phase::port;workflow::done,Sprint 6,jim,closed,2026-12-09T15:00:00Z,2026-12-21T18:30:00Z
+117,story,Interim baseline-0 for the program review,type::story;priority::2;epic::E1-gitlab;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::done,Sprint 6,tom,closed,2026-12-09T15:00:00Z,2026-12-24T16:30:00Z
+118,story,"Retrospective, the management briefing and the plan for next semester",type::story;priority::2;epic::E3-practices;tome::T1-stand-up;work::engineering;area::pipeline;phase::port;workflow::done,Sprint 6,jim,closed,2026-12-09T15:00:00Z,2026-12-22T15:00:00Z
+119,task,The memo and briefing chapters,type::task;area::pipeline;work::learning;workflow::done,Sprint 6,jim,closed,2026-12-14T14:30:00Z,2026-12-14T15:00:00Z
+120,task,Write the BuoyModes state def; exhibit it on MooredBuoy,type::task;area::behavior;work::engineering;workflow::in-progress,Sprint 6,bob,opened,2026-12-14T14:30:00Z,
+121,task,"Fork, pin, object and control flow by hand",type::task;area::behavior;work::engineering;workflow::done,Sprint 6,bob,closed,2026-12-14T14:30:00Z,2026-12-17T20:30:00Z
+122,task,Level tags in Operations,type::task;area::operations;work::engineering;workflow::done,Sprint 6,tom,closed,2026-12-14T14:30:00Z,2026-12-15T18:30:00Z
+123,task,Document the flow properties in Interfaces,type::task;area::interfaces;work::engineering;workflow::done,Sprint 6,tom,closed,2026-12-14T14:30:00Z,2026-12-17T20:10:00Z
+124,task,Generate the data exchange table,type::task;area::interfaces;work::engineering;workflow::done,Sprint 6,tom,closed,2026-12-14T14:30:00Z,2026-12-18T20:00:00Z
+125,task,Add the vcrm job,type::task;area::verification;work::engineering;workflow::done,Sprint 6,tom,closed,2026-12-14T14:30:00Z,2026-12-21T18:30:00Z
+126,task,Enter and sign the inspection verdicts,type::task;area::verification;work::engineering;workflow::done,Sprint 6,jim,closed,2026-12-14T14:30:00Z,2026-12-16T18:30:00Z
+127,task,"Release branch, CCB concurrence, tag baseline-0, back-merge",type::task;area::pipeline;work::platform;workflow::done,Sprint 6,tom,closed,2026-12-14T14:30:00Z,2026-12-24T16:30:00Z
+128,task,The twelve-week briefing and memo,type::task;area::pipeline;work::engineering;workflow::done,Sprint 6,jim,closed,2026-12-14T14:30:00Z,2026-12-22T15:00:00Z
+129,issue,Doc: Twelve-week progress memo to program management,work::engineering;area::pipeline;doc::green,Sprint 6,jim,closed,2026-12-14T21:00:00Z,2026-12-24T21:00:00Z
+130,issue,Doc: Data exchange table for the program review,work::engineering;area::pipeline;doc::green,Sprint 6,jim,closed,2026-12-14T21:00:00Z,2026-12-24T21:00:00Z
+131,issue,TBD: the hygrometer reaches the data center on the observation interface (assumed for drop 2),prime-tbd;owner::prime;area::interfaces;work::engineering,Sprint 6,jim,opened,2026-12-14T21:00:00Z,
+132,defect,Nightly full check failed: no space left on the runner,type::defect;area::pipeline;priority::1;severity::2;work::platform;workflow::done,Sprint 6,tom,closed,2026-12-17T14:15:00Z,2026-12-17T15:30:00Z
+133,story,Break the Stations <-> DataCenter cycle,type::story;priority::2;epic::E6-structure;tome::T2-port;work::engineering;area::stations;phase::port;workflow::ready,Sprint 7,bob,opened,2026-12-23T15:00:00Z,
+134,story,The DailyUpload interaction by hand,type::story;priority::2;epic::E8-behavior;tome::T2-port;work::engineering;area::behavior;phase::port;workflow::ready,Sprint 7,bob,opened,2026-12-23T15:00:00Z,
+135,story,The EnergyBalance constraint expression,type::story;priority::2;epic::E8-behavior;tome::T2-port;work::engineering;area::analysis;phase::port;workflow::ready,Sprint 7,jim,opened,2026-12-23T15:00:00Z,
+136,story,Retire the Tidewater Profile TODO,type::story;priority::2;epic::E8-behavior;tome::T2-port;work::engineering;area::legacy;phase::port;workflow::ready,Sprint 7,tom,opened,2026-12-23T15:00:00Z,
+137,story,Pin the kit version,type::story;priority::2;epic::E2-pipeline;tome::T1-stand-up;work::platform;area::pipeline;phase::port;workflow::ready,Sprint 7,tom,opened,2026-12-23T15:00:00Z,

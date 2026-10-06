@@ -1,0 +1,330 @@
+== Runners: where the pipeline runs {#runners}
+
+::: survival
+What you have: a pipeline file ([[pipeline]]) and a GitLab project ([[gitlab-setup]]).
+
+What you need: a computer that actually runs the jobs. This chapter explains what a runner is, the kinds GitLab
+offers, why the Tidewater team chose a project runner with the Windows shell executor on a dedicated virtual machine,
+how it was registered and secured, what goes wrong ("pending", "stuck", offline), and how the team kept the same
+pipeline file working on Windows, on Linux, in Docker and on a laptop.
+:::
+
+=== GitLab runs nothing {#runners-nothing}
+
+The most common misunderstanding about GitLab, and the one that cost Tom the most time in the first weeks, is that the
+GitLab server runs the pipeline. It does not. The server keeps the repository, decides which jobs a pipeline needs,
+and waits. A separate program, the **GitLab Runner**, installed on some other computer, asks the server every few
+seconds "is there a job for me?", takes one, runs it, sends the log and the artifacts back, and asks again.
+
+In systems engineering terms, the server is the configuration management office that schedules the audit, and the
+runner is the auditor who shows up and does it. No auditor, no audit: a pipeline with no runner to take its jobs sits
+in the state GitLab calls **pending**, indefinitely. With "pipelines must succeed" switched on, that means no merge
+request can merge. An offline runner stops the whole team.
+
+That is why the request to the enterprise administrators in [[gitlab-setup]] asked for a runner on day one, and why
+Tom's stand-up said "blocked" until it existed.
+
+=== Who a runner serves: scopes {#runners-scopes}
+
+|| Kind | Who registers it | Who it serves | Typical use ||
+| Instance (shared) runner | the GitLab administrators | every project on the server | general-purpose jobs, usually Linux with Docker |
+| Group runner | a group owner | every project in the group | a team's projects with shared needs |
+| Project runner | a project maintainer | one project (or a few it is enabled for) | special tools, special security rules |
+| GitLab.com hosted runner | GitLab | GitLab.com projects | no machine to maintain; billed in compute minutes |
+Table: Runner scopes
+
+The Tidewater team used a **project runner**, registered to `tidewater/model`. Three reasons:
+
+- **The tools.** The jobs need Perl and the agile kit. The organization's shared runners were Linux machines running
+  Docker containers built for software teams, with no kit and no way for the team to add one in the first quarter.
+- **The security conversation.** The ISSM wanted one machine, one service account, one purpose, a list of exactly
+  what runs on it, and no other project's jobs on it. A project runner is that list.
+- **The cost.** On the organization's self-managed GitLab, a runner on the team's own virtual machine costs nothing
+  per minute; on GitLab.com, the hosted runners bill compute minutes after a free quota ([[tools-gates]]).
+
+=== Hosted or your own: the decision {#runners-decision}
+
+Many readers will not have a choice: the organization will have decided where pipelines may run. If you do have one,
+these are the questions that decided it for Tidewater.
+
+|| Question | Hosted runners (GitLab.com) | Your own runner ||
+| May the model's data leave the organization's network? | only if the data is cleared for the vendor's cloud | stays where the runner is |
+| Who patches the machine? | GitLab | your administrators |
+| What does a minute cost? | compute minutes after a free quota | nothing per minute; the machine's cost |
+| Can you install the kit and its tools? | in a container image you build and maintain | on the machine, once |
+| What does the ISSM have to approve? | the vendor's service and the data flow to it | one machine, one account, one network rule |
+| What happens if it is down? | GitLab's problem, GitLab's status page | your problem; plan a second runner |
+Table: Hosted runners against your own
+
+For a model that is controlled, contractually sensitive or simply not cleared for a public cloud, the answer is almost
+always your own runner on the organization's network. For an open, unclassified training project like this book's
+exercises, hosted runners with the kit's Docker image are the quickest start.
+
+=== What to put in the request {#runners-request}
+
+The enterprise administrators will need the same facts every time. Tom's request, which got the runner in about two
+weeks, listed:
+
+- **Purpose**: run the automated checks of the Tidewater model project's pipeline; no other project.
+- **Scope**: project runner for `tidewater/model`, tags `windows`, `shell`, `mbse`; runs untagged jobs; not protected
+  in the first year.
+- **Machine**: a Windows Server virtual machine, 2 processors, 8 GB of memory, a 100 GB data disk for builds; patched
+  on the organization's monthly schedule.
+- **Software**: GitLab Runner (the version matching the server), Git for Windows for all users; nothing else. The agile
+  kit is a folder copied from the team's approved release.
+- **Account**: a dedicated service account with no interactive logon, rights only to the kit folder (read) and the
+  builds folder (write).
+- **Network**: outbound HTTPS to the GitLab server only.
+- **Owner**: Tom, with Jim as backup; the administrators keep the machine.
+- **Security documentation**: the runner section of the toolchain security plan ([[tools]]).
+
+A request that answers every question the administrators will ask is a request that is not sent back. Ask for it on
+day one.
+
+=== How a runner runs a job: executors {#runners-executors}
+
+The **executor** is how the runner runs each job's script.
+
+|| Executor | What it does | Good for | Watch out for ||
+| shell | runs the script directly on the runner's machine, as the runner's account | simple jobs with tools installed on the machine | jobs share the machine; nothing is isolated |
+| docker | starts a fresh container from an image for each job | clean, repeatable environments | needs Docker on the runner; images must be built and maintained |
+| docker-windows | the same with Windows containers | Windows tools in containers | large images, slow starts |
+| kubernetes | runs each job as a pod in a cluster | large organizations | needs a cluster and its administrators |
+| custom | your own scripts start and stop the environment | special cases | you maintain it |
+Table: Runner executors
+
+The team chose the **shell executor on Windows**: the runner machine is a Windows virtual machine with Git for
+Windows installed (which brings Perl, Git and a POSIX shell), and the agile kit checked out at a fixed path. Every job
+runs as the runner's service account, in a work folder the runner creates per project.
+
+Why not Docker, which is cleaner? Because in the first quarter the organization had no Docker runners for the team's
+network, and the ISSM's approval for one would have taken longer than the twelve weeks. The kit does include an
+optional Docker image for later ([[runners-docker]]), and the pipeline was written so that switching costs one line.
+
+=== The lesson of the first week: PowerShell {#runners-pwsh}
+
+When the runner came online at the start of sprint 2, Tom's first pipeline on the real server failed in a way it never
+had on the laptop:
+
+```text
+$ test -n "$KIT" || { echo "KIT is not set: add it under Settings > CI/CD > Variables"; exit 1; }
+```
+
+followed by a PowerShell error about an unexpected token. The **Windows shell executor runs PowerShell** by default,
+not the Bash-style shell Git for Windows provides. In PowerShell, a variable is `$env:KIT`, not `$KIT`; `test`, `[ ...
+]`, `$(find ...)`, `| xargs` and `||` either do not exist or mean something else. A pipeline written for one shell is a
+program in that shell's language.
+
+There were three ways out:
+
+1. Configure the runner to use Bash (possible, but fragile on Windows, and different from every other runner the team
+   might use later).
+2. Write the pipeline in PowerShell (and then it would not run on Linux, in Docker, or with the kit's local runner).
+3. Make every script line **shell-neutral**: one command that means the same thing in every shell.
+
+The team chose the third. Every job's script became one line, `perl ci/job.pl NAME`, and the commands moved into
+`ci/job.pl`, a Perl script in the repository. Perl is the same program under PowerShell, cmd, Git Bash, a Linux
+runner, the Docker image and a laptop. The header of the script says why:
+
+{{include: tools/gitlab/templates/ci/job.pl | lines 1-17}}
+
+You can see both halves of the idea in the sandbox of practice lesson 11. The same line runs the job on a laptop that
+the runner runs on the server, and a missing `KIT` stops the job with a sentence instead of a cryptic error:
+
+```sh run sandbox=practice-11 cwd=work expect="KIT is not set: add it under Settings"
+. ../env.sh > /dev/null
+perl ci/job.pl lint | tail -2
+env -u KIT perl ci/job.pl lint || echo "exit status $?"
+```
+
+```text
+ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=148 lint_errors=0 lint_warnings=0
+KIT is not set: add it under Settings > CI/CD > Variables (the kit's path on the runner)
+exit status 2
+```
+
+Exit status 2, not 1, means "the job could not run", as opposed to "the check failed": a runner problem, not a
+model problem.
+
+::: tip The rule that came out of it
+Keep the YAML for what GitLab needs to know (when a job runs, which runner, what it keeps); put what the job does in a
+script in the repository. You can then run any job by hand, on any machine, with the same line the runner uses.
+:::
+
+=== Registering the runner {#runners-register}
+
+Registration connects a runner program to a GitLab project. Since GitLab 16 it goes in two steps: you create the
+runner in GitLab's web page, which gives you a **runner authentication token**, and you give that token to the runner
+program on the machine.
+
+**Step 1, in GitLab** (Tom, as maintainer): Settings > CI/CD > Runners > New project runner. Fill in:
+
+- **Tags**: `windows`, `shell`, `mbse`. Tags are how jobs choose runners: a job with `tags: [mbse]` runs only on a
+  runner that has the `mbse` tag.
+- **Run untagged jobs**: off. Every job in the team's pipeline asks for the tags `windows` and `mbse` (the pipeline's
+  `default:` section sets them, [[pipeline]]), so an untagged job from a careless edit waits visibly instead of running
+  somewhere unexpected.
+- **Protected**: off for this runner (it must take merge request pipelines from feature branches). See
+  [[runners-protected]] for when to turn it on.
+- **Description**: `tidewater-win-01`.
+
+GitLab shows the token once, starting `glrt-`. Treat it as a password.
+
+**Step 2, on the runner machine** (the enterprise administrator with Tom, in an elevated PowerShell window). These are
+the commands they typed on the Windows virtual machine; the book's material has no server, so they are shown, not
+run:
+
+```text
+PS> cd C:\GitLab-Runner
+PS> .\gitlab-runner.exe register --non-interactive `
+      --url https://gitlab.example.gov `
+      --token glrt-xxxxxxxxxxxxxxxxxxxx `
+      --executor shell --shell pwsh `
+      --description tidewater-win-01
+PS> .\gitlab-runner.exe install --user ".\svc-tw-runner" --password "********"
+PS> .\gitlab-runner.exe start
+```
+
+The runner then appears in the project's runner list with a green dot. The registration writes `config.toml` next to
+the program; the parts that matter:
+
+```text
+concurrent = 2
+
+[[runners]]
+  name = "tidewater-win-01"
+  url = "https://gitlab.example.gov"
+  token = "glrt-xxxxxxxxxxxxxxxxxxxx"
+  executor = "shell"
+  shell = "pwsh"
+  builds_dir = "D:/gitlab-runner/builds"
+  cache_dir = "D:/gitlab-runner/cache"
+```
+
+- `concurrent` is how many jobs the runner runs at once. Two let a merge request pipeline and a `develop` pipeline run
+  side by side; more did not help on a small virtual machine.
+- `builds_dir` is where each job's fresh copy of the repository goes. Put it on a data disk with room to spare.
+- `shell = "pwsh"` is the PowerShell default that taught the team the lesson above.
+
+**Step 3, the machine itself**:
+
+- Install Git for Windows for all users, so `perl` and `git` are on the service account's path
+  (`C:\Program Files\Git\usr\bin` and `C:\Program Files\Git\cmd`).
+- Check out the agile kit at a fixed path (`D:\agile-kit`) and set the project's `KIT` CI/CD variable to it.
+- `git config --system core.longpaths true`, because Windows' 260-character path limit bites deep model folders under a
+  deep builds folder.
+- Ask for antivirus exclusions for `builds_dir`: scanning every file of every fresh checkout made jobs several times slower
+  in the first week.
+
+=== The service account: least privilege {#runners-account}
+
+The runner runs as a dedicated Windows account, `svc-tw-runner`, with:
+
+- no interactive logon and no administrator rights;
+- read access to the kit's folder, write access to `builds_dir` and `cache_dir`, nothing else;
+- network access to the GitLab server and nothing else (the kit needs no network);
+- no credentials of its own: jobs receive the short-lived job token from GitLab, and the weekly export's token comes
+  from a masked, protected variable.
+
+These five lines were most of the ISSM's review of the runner ([[tools]] has the full list of questions). The shell
+executor's weakness is that jobs are not isolated from each other on the machine; the answers are that only one
+project's jobs run there and that every job starts from a fresh checkout.
+
+=== Tags, pending and stuck {#runners-pending}
+
+When a job will not start, GitLab shows one of two states:
+
+- **pending**: the job is waiting for a runner. Either every suitable runner is busy (it will start soon), or no online
+  runner matches the job's tags and protection (it will wait forever). The job page says "This job is stuck because
+  you don't have any active runners online or available with any of these tags assigned to them", with the tags.
+- **stuck** is GitLab's word for the second case.
+
+The checklist Tom kept on the wiki:
+
+1. Is the runner online? Settings > CI/CD > Runners: a green dot and "last contact" a few seconds ago. If not, the
+   service is stopped or the machine cannot reach the server.
+2. Do the job's `tags:` match the runner's tags? A job tagged `docker` will never run on `tidewater-win-01`.
+3. Is the job on a protected branch while the runner is protected, or the reverse?
+4. Is the runner paused?
+
+The team's one "stuck" episode was self-inflicted, on a scratch project: Tom added GitLab's Secret Detection
+template unconditionally. Its job needs a Docker runner, so it waited forever, and with "pipelines must succeed" it
+blocked every merge request on that project until the include was removed. That is why the
+include is now conditional on `DOCKER_RUNNER` ([[pipeline]]).
+
+=== Protected runners {#runners-protected}
+
+A runner marked **protected** takes jobs only from pipelines on protected branches and tags. Organizations use this to
+keep jobs that hold secrets or publish things (releases, the model site, package uploads) on a machine that untrusted
+branches can never reach. A merge request from a feature branch cannot run there, so it cannot be tricked into
+printing a protected variable.
+
+The team ran one unprotected runner in the twelve weeks and wrote down the plan for a second, protected one for the
+`release`, `publish` and `drop-package` jobs, to be added when the second year's license and machine arrived
+([[admin]]). With only one runner, the protection comes from the variables instead: `STATUS_TOKEN` is protected, so
+only pipelines on protected branches receive it.
+
+=== Keeping the runner healthy {#runners-health}
+
+|| What | How often | Who ||
+| Runner online, last contact recent | glance daily (the stand-up board shows it) | Tom |
+| Disk space on `builds_dir` | weekly; alarm at 80% | Tom and the admins |
+| Runner version matches GitLab's major.minor | after each GitLab upgrade | admins |
+| Windows patches and reboot | monthly window, announced in the stand-up | admins |
+| Kit version on the runner | at each kit release, by merge request to the `KIT` path | Tom |
+| Runner token rotation | yearly, or when someone with access leaves | Tom |
+Table: Runner care
+
+The sprint 6 incident in [[sprint-6]] is the disk row: `builds_dir` filled up, every job failed with a disk error, and
+`develop` was red for most of a day. Two changes came out of it: old builds are cleaned nightly, and a second runner
+went onto the plan, because one runner is a single point of failure for the whole team's ability to merge.
+
+The runner's own log (the Windows event log, source `gitlab-runner`) is where to look when a job never reaches the
+runner at all; the job log in GitLab is where to look once it has.
+
+=== The Docker alternative {#runners-docker}
+
+If your organization offers Docker runners, the kit includes an image with Perl, Git and the kit, and a three-key file
+to switch the pipeline to it:
+
+{{include: tools/gitlab/docker/gitlab-ci.docker.yml}}
+
+Because every script line is `perl ci/job.pl NAME`, nothing else in the pipeline changes. The image is built from a
+committed kit version and tagged with it, so the toolchain is baselined along with the model;
+`tools/gitlab/docker/README.md` has the build, test and care instructions. With a Docker runner, GitLab's managed
+scanners (Secret Detection and others) can run too.
+
+=== The laptop is a runner too {#runners-laptop}
+
+`gitlab.pl ci` ([[cicd]]) is a runner that takes no orders from a server: it reads `.gitlab-ci.yml`, picks the jobs
+GitLab would pick for the event you name, and runs them in your working copy with Perl. It is not a substitute for the
+real runner (your laptop is not a fresh environment), but it answers "will my change pass?" in seconds before you push,
+and it is how every pipeline output in this book was produced.
+
+=== Exercises {#runners-exercises}
+
+::: exercise {#ex-runners-pending} Make a job pend
+In a test project on your organization's GitLab (or with the emulator's `gitlab.pl ci`, by reading the `--list`
+output), add `tags: [does-not-exist]` to one job and push. What does GitLab say about the job? Fix it two ways: remove
+the tag, and register a runner with that tag.
+:::
+
+::: exercise {#ex-runners-pwsh} Translate a line
+Take the line `test -n "$KIT" || { echo "KIT is not set"; exit 1; }` and write what it would have to be in PowerShell.
+Then explain in two sentences why the team chose `perl ci/job.pl NAME` instead of maintaining both.
+:::
+
+::: exercise {#ex-runners-isso} Write the runner's security description
+In one page, describe a runner for your project the way the ISSM needs it: machine, account, rights, network,
+credentials, what runs on it, who maintains it. Use [[runners-account]] as a model.
+:::
+
+=== Applying this to your project {#runners-apply}
+
+- **Copy**: ask for the runner on day one; one purpose per runner; a least-privilege service account; shell-neutral job
+  scripts (`perl ci/job.pl NAME` or the equivalent in your tool's language); a written "pending" checklist; disk
+  monitoring; a plan for a second runner.
+- **Adapt**: the executor (Docker if your organization has it, shell if not); the scope (group runner if several model
+  projects share tools); protected runners for publishing jobs.
+- **Decide locally**: who owns the runner machine and its patches; which network it may reach; whether hosted runners
+  and their compute minutes are allowed for your data at all.

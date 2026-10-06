@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-72 First sprint review with the program: 1 of 2 tasks done. Reviewed !14. T TW-72 agree the delivery interface with the prime, by Fri. B none
+[9:02 AM] Bob
+Y none T TW-68 value types specialize ISQ quantities, by Fri. B none
+[9:03 AM] Tom
+Y TW-71 The model site on GitLab Pages,: done (1 task). T TW-66 the Day-9 demo rehearsal, by Fri; pairing with Jim after lunch. B none

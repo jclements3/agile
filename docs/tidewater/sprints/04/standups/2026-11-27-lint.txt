@@ -1,0 +1,3 @@
+standups/2026-11-27-Model-chat.txt:5: ok    Bob: Y/T/B parsed
+standups/2026-11-27-Model-chat.txt:7: warn  Tom: no task id in T (e.g. TW-1)
+# 2 answered, 0 errors, 1 warning

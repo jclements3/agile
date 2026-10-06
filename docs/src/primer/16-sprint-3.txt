@@ -1,0 +1,556 @@
+== Sprint 3: the first red X, DOORS in the model, and a wait nobody named {#sprint-3}
+
+::: survival
+What you have: a pipeline that gates every change ([[sprint-2]]), drop 1 on `develop` through the vendor branch, the
+level conventions, and a team that has merged its first model changes but is still unsure it likes any of this.
+
+What you need: the DOORS requirements inside the model next to the prime's copy, a report on every change that says
+which requirements have no design and no test, and a way of working with the pipeline when it says no. You also need
+to learn that a wait you do not say out loud is a blocker nobody can help with.
+:::
+
+Sprint 3 ran from Monday 2 November to Friday 13 November 2026. It is the sprint the team remembers as the low point,
+and the survey agrees: the pulse fell from {{value: docs/tidewater/sprints/02/scorecard.json 12_morale}} at the end of
+sprint 2 to {{value: docs/tidewater/sprints/03/scorecard.json 12_morale}}. Nothing went badly wrong. The pipeline
+stopped one of Bob's changes, the security office took three days to sign a form, and the burn-down chart barely moved.
+Those three things, each small, landed on people who had not yet seen the new way of working pay them back.
+
+This chapter is worth reading slowly for that reason. Every team that makes this change has a sprint 3. The work gets
+done; the feeling lags behind it. What the team did about the feeling matters as much as what it did about the model.
+
+=== The question this sprint answered {#sprint-3-question}
+
+Sprint 2 put the prime's model into GitLab. Sprint 3 asked the first question a systems engineer actually cares about:
+
+> Do the requirements in our model match the requirements in DOORS, and which of them have nothing designed to meet
+> them or nothing planned to verify them?
+
+For thirty years the team answered that question with a spreadsheet, two days before a milestone review. Jim's
+scorecard records the document-era answer time as {{value: docs/tidewater/sprints/03/scorecard.json document_era_baseline_notional.unverified_question_days}}
+working days of spreadsheet work (a notional figure, from the program's last document-era review cycle). At the end of
+this sprint the pipeline answers it on every change, in about
+{{value: docs/tidewater/sprints/03/scorecard.json 4_trace_answer_seconds}} seconds of job time. That is the sprint's
+real result. The rest of this chapter is how they got there and what it felt like.
+
+=== Kickoff: Monday 2 November {#sprint-3-kickoff}
+
+The kickoff ran from 09:00 to 10:30, as every kickoff does, and stood in for that day's stand-up. Jim brought the
+plan the team had refined and estimated on the Wednesday of the previous sprint. The kit wrote the record:
+
+{{include: docs/tidewater/sprints/03/kickoff.txt}}
+
+Three things in that record are worth pausing on.
+
+**The commitment is lower than last sprint's.** The team committed
+{{value: docs/tidewater/sprints/03/scorecard.json 11_delivery.committed}} points against the capacity line above,
+where in sprint 2 it had committed {{value: docs/tidewater/sprints/02/scorecard.json 11_delivery.committed}}. Sprint 2
+went well: every committed point was done. The natural instinct after a good sprint is to commit more. Jim did the
+opposite, for two reasons Jim gave out loud at the kickoff. Wednesday 11 November is Veterans Day, a federal holiday, so
+the sprint has nine working days, not ten; the capacity line already accounts for that. And this sprint brings two
+things the team has never done: putting the DOORS export into the model, and a trace report that will show, for the
+first time, numbers about requirements that nobody has looked at systematically in years. Unknowns deserve slack.
+
+::: note The thought process: commit to what you can finish, not to what you hope
+A team that commits to everything it can imagine and finishes three quarters of it has told management nothing. A
+team that commits to less and finishes all of it has told management exactly what it can do. The second team gets
+trusted with more. Jim's rule, borrowed from the operating model ([[operating-model]]), is to commit no more than about
+nine tenths of capacity and less when the sprint has a new kind of work in it.
+:::
+
+**Learning is still on the board.** The story TW-50, "Learn: the workbook second half; talking about progress", carries
+{{value: docs/tidewater/sprints/03/scorecard.json work_mix.learning}} points: the second half of the SysML v2 workbook
+([[workbook]]) for Bob, and for everyone the stand-up drafting tool `talk.pl` ([[talking]]). In sprint 1 learning was a
+quarter of the board; here it is {{value: docs/tidewater/work-split.json sprints.3.learning}}% of the task points done ([[om-done]]),
+and it keeps falling. That is the curve the BLUF promised management ([[bluf]]), and it only happens if the learning is
+on the board where everyone can see it being spent.
+
+**Platform work has shrunk.** In sprint 2, building the shop took more than half the board. This sprint the platform
+share is {{value: docs/tidewater/work-split.json sprints.3.platform}}% and engineering is
+{{value: docs/tidewater/work-split.json sprints.3.engineering}}% for the first time. Tom has two platform stories, the
+trace and secrets jobs and the runner hardening, and both exist because a real need showed up, not because a list of
+DevSecOps features said so.
+
+Each story on that list was estimated with planning poker at the sprint 2 refinement and checked against the Definition
+of Ready. The kickoff did not re-estimate. It cut each story into tasks of at most a few days, assigned them, and
+committed. Ninety minutes, including the stand-up.
+
+=== Week 1 {#sprint-3-week-1}
+
+==== Monday 2 November: drafting the stand-up
+
+The sprint 2 retrospective had produced one change to how the team talks: statuses should lead with an outcome and
+carry one number. In sprint 2, not one stand-up line did; the scorecard's measure for it is
+{{value: docs/tidewater/sprints/02/scorecard.json standup_outcome_share}}. People reported motion ("worked on the
+pipeline") because that is what thirty years of status meetings had taught them to report.
+
+So from this sprint the team drafts its statuses with `talk.pl`, which reads yesterday's GitLab activity and writes a
+line in the kit's terse format, outcome first. Each person then edits the draft before posting it. The kit keeps both:
+
+{{include: docs/tidewater/sprints/03/standups/2026-11-05-talk-drafts.txt}}
+
+Look at what changed between draft and posted line: almost nothing. The drafts end with an ellipsis where a long task
+title was cut; the posted lines drop it. That is the honest finding from the evidence. Once the board is kept up to
+date, the draft is usually right, and editing it takes seconds. The value is not in the editing. It is that the draft
+starts from what actually happened, so nobody has to remember yesterday at 09:00 or invent a number.
+
+By the end of the sprint, {{value: docs/tidewater/sprints/03/scorecard.json standup_outcome_share}} of the stand-up
+lines that reported work carried an outcome and a number.
+Chapter [[talking]] explains why the draft helps engineers who would otherwise say nothing, and its limits.
+
+==== Tuesday 3 November: the DOORS modules go onto the vendor branch
+
+Jim's first task of the sprint was to put the DOORS export into the model. The prime's drop 1 included a ReqIF file
+alongside the Cameo XMI. In sprint 2 the team converted only the XMI. Now Jim re-ran the import with both converters,
+so the DOORS modules become SysML v2 packages under `model/requirements/` next to the Cameo copy of the requirements.
+
+Jim did it on the vendor branch, not on `develop`, and that choice deserves a sentence because it was argued. Bob's
+first instinct was to convert the ReqIF on a feature branch, since "it's just more files." Jim's answer was the rule
+the team wrote down in sprint 2 (ADR 0002, the prime boundary): anything that comes from the prime enters through
+`vendor/prime` and nowhere else. The DOORS export is the prime's. If it enters through a feature branch, the next drop
+cannot merge cleanly against it, because git has no record of the prime's version to merge from. Chapter
+[[prime-changes]] works through why the vendor branch is the only way the drops stay mergeable.
+
+==== Wednesday 4 November: a green first pipeline
+
+Bob opened merge request !8, "Level tags in Network", at 10:00: the TODO lines in the Network package that stood for
+the old Cameo level stereotypes, replaced by the `@L` metadata the team defined in sprint 2. The pipeline went green
+on the first try, Jim approved it, and Bob merged it the same afternoon. You can look at it in the team's GitLab:
+
+```sh run sandbox=tidewater expect="pipeline: #20 success"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model mr show 8 | head -4
+```
+
+The first line names the merge request and its branch, the second its author, labels, approver and pipeline. It is a
+small change and it is exactly what the team wanted every change to look like: one task, one branch, one merge request,
+green, reviewed, merged, closed.
+
+==== Thursday 5 November: what a good stand-up line looks like
+
+Here is Bob's line from Thursday's stand-up, as posted:
+
+{{include: docs/tidewater/sprints/03/standups/2026-11-05-chat.txt | lines 6-7}}
+
+It names the story (TW-51), says what is now true ("Close the Network TODO lines: 1 TODOs closed, 51 left"), says
+what Bob will do today, and says nothing blocks the work. A manager reading it learns that one TODO line was closed and how
+many remain, without a meeting. The kit's lint checked it:
+
+{{include: docs/tidewater/sprints/03/standups/2026-11-05-lint.txt}}
+
+==== Friday 6 November: the red X {#sprint-3-red-x}
+
+Bob opened merge request !9 at ten in the morning. The story was the last Network TODO line, a Cameo "include" between two use
+cases. The converter had left it as a comment, because it does not map UML includes:
+
+```text
+// TODO uml:Include (xmi:id _22_1_7f3a0c1_08793d6918c3): no SysML v2 mapping in this converter
+```
+
+Bob replaced the TODO with what Bob believed was the SysML v2 form. You can see the edit in Bob's clone:
+
+```sh run cwd=work/bob expect="include use case : QueryArchive queryArchive"
+git show --format='%h %an %s' 62a57b0 -- model/physical/network/Network.sysml | grep '^[-+ ]  *include\|^[0-9a-f]'
+```
+
+The pipeline for !9 failed. Two jobs went red, grammar and lint, and the merge request showed a red X. This is the
+first time the team saw the gate stop a change, and here is the part of the log that matters:
+
+{{include: docs/tidewater/sprints/03/pipelines/mr9-first-23.log | lines 1-9}}
+
+The grammar job ran the kit's checker against the official SysML v2 grammar and found the problem on line 39,
+column 41: after `include use case :` it expected a name, a `:>` or another of the listed tokens, and it found
+`QueryArchive queryArchive` instead. Bob had written the type before the name, the way Cameo shows a property in a
+diagram compartment and the way many programming languages declare a variable. SysML v2 text puts the name first and
+the type after a colon: `queryArchive : QueryArchive`.
+
+You can reproduce the error yourself from the commit, which is still in the repository:
+
+```sh run cwd=. expect="unexpected 'queryArchive'"
+git -C work/bob show 62a57b0:model/physical/network/Network.sysml > network-before.sysml
+perl "$KIT/tools/sysml/sysml.pl" check network-before.sysml || echo "exit status $?"
+```
+
+And the fixed file, from the commit Bob pushed to the same branch:
+
+```sh run expect="0 error"
+git -C work/bob show 472756e:model/physical/network/Network.sysml > network-after.sysml
+perl "$KIT/tools/sysml/sysml.pl" check network-after.sysml
+```
+
+==== Reading the log, line by line {#sprint-3-log}
+
+Nobody on the team had read a job log before October. It is worth taking one apart once, slowly, because every red
+X from now on is read the same way.
+
+|| Line in the log | What it tells you ||
+| `pipeline #23 (merge_request_event, refs/merge-requests/9/merge) failed, 5 jobs` | which pipeline, why it ran (a merge request), what it tested (the merge of !9 into develop, not just Bob's branch), and the result |
+| `==== grammar   check   failed` | one job: its name, its stage, its result, how long it took |
+| `$ perl ci/job.pl grammar` | the command the job ran, exactly as you can run it yourself |
+| `$ /usr/bin/perl $KIT/tools/sysml/sysml.pl check model/...` | what that command ran in turn: the grammar check on every model file |
+| `model/physical/network/Network.sysml:39:41: error: unexpected 'queryArchive'; expected ...` | the finding: file, line, column, what was found and what the grammar allowed there |
+| `sysml: 14 file(s), 1 error(s)` | the checker's summary |
+| `ci-reports grammar: 14 check(s), 1 failed, 1 finding(s)` | the same result turned into the test and code-quality reports GitLab shows on the merge request |
+Table: Reading a failing job log
+
+Three habits follow from that table. Read the first line, so you know whether you are looking at your branch alone or
+at the merge result. Scroll to the first line with `error:` in it, not the last line of the log, because later jobs often
+fail *because of* the first error (here the lint job failed on the same syntax error). And copy the `$` command: it
+runs the same way on your laptop, which is the fastest way to try a fix. In Vim, `:make` on the file puts the same error
+in the quickfix list and jumps to line 39, column 41 ([[vim]]).
+
+::: sidebar What "include use case" means
+In the Cameo model, the use case ReviewObservations had a UML *include* relationship to QueryArchive: reviewing
+observations always involves querying the archive. The converter has no mapping for UML includes, so it left a TODO
+line naming the include and its xmi:id.
+
+In SysML v2 text an include is a usage inside the including use case: `include use case queryArchive :
+QueryArchive;` says that every performance of ReviewObservations includes a performance of QueryArchive, and gives
+that included performance a name, `queryArchive`, that other parts of the model can refer to. The grammar check
+confirms the line is well formed; the lint step confirms that `QueryArchive` resolves to the use case defined a few
+lines below. Both are needed. The grammar check alone would accept a misspelled type name; [[workbook]] shows the
+difference with a worked example.
+:::
+
+The second pipeline, #24, was green, Jim approved, and Bob merged !9 at 15:00 the same day. The whole episode, from
+red X to merged, took one working morning.
+
+Bob's reaction, recorded in the sprint's quotes, is the honest one:
+
+> A red X on my own MR. One missing word, and the machine found it before Jim did.
+> -- Bob, sprint 3
+
+There are two ways to hear that sentence, and the team heard both. One is
+embarrassment: a machine graded my work and I failed in front of my colleagues. The other is relief: the mistake never
+reached the model, never reached Jim's review, and never reached the prime or the program office. In the Cameo years,
+an error like this sat in the model until somebody tried to use the element, sometimes months later.
+
+::: objection The machine is grading me
+The objection, as Bob put it to Jim: "I have been doing this for twenty-six years. I do not need a script telling me
+my syntax is wrong in front of everybody."
+
+Answer: the pipeline is not a judge, and nobody sees it but the team. A red X on a merge request is the cheapest
+possible place for a mistake to be found: before review, before merge, before anyone downstream relies on it. The
+retrospective turned the complaint into a
+practice the team kept: fix a red pipeline on the branch, not around it, and do not take it personally. The numbers
+back the habit: in this sprint {{value: docs/tidewater/sprints/03/scorecard.json first_pipeline_pass.passed}} of
+{{value: docs/tidewater/sprints/03/scorecard.json first_pipeline_pass.mrs}} merge requests passed on their first
+pipeline, and the one that did not was green by lunch.
+:::
+
+==== Friday 6 November, continued: DOORS and the trace report
+
+Two more merge requests opened on the same Friday.
+
+Jim's !10, "Prime drop v1.0 with the DOORS modules", merged the vendor branch, now carrying the DOORS packages, into
+`develop`. Its pipeline was green. Bob reviewed it the following Tuesday, and the review note is a good example of what
+reviewing a drop looks like: not reading every converted line, but reading the delta report and the conflict table.
+
+{{include-md: docs/tidewater/sprints/03/samples/mr-10.md}}
+
+Tom's !11 added the trace report to the pipeline, and a secrets check. The trace job runs the DOORS-to-model trace on
+every pipeline. Here is what it printed on the first run, from the log of pipeline #29:
+
+{{include: docs/tidewater/sprints/03/pipelines/mr11-first-29.log | lines 80-95}}
+
+Read it slowly; this is the most important output of the sprint.
+
+- **C, linked:** {{value: docs/tidewater/sprints/03/scorecard.json 5_trace.C}} DOORS requirements have a counterpart
+  in the model with the same DOORS id. One does not: TW-SYS-016 is in DOORS and not in the prime's model at all.
+- **F, orphans:** {{value: docs/tidewater/sprints/03/scorecard.json 5_trace.F}} requirements have nothing in the model
+  that satisfies them.
+- **G, unverified:** {{value: docs/tidewater/sprints/03/scorecard.json 5_trace.G}} requirements have no verification
+  case.
+- **I, completeness:** {{value: docs/tidewater/sprints/03/scorecard.json 5_trace.I}} of requirements are both
+  satisfied and verified.
+- **Drift:** TW-SYS-006 says something different in DOORS than in the model's copy.
+
+The drift line is the easiest to see with your own eyes. Both copies of TW-SYS-006 are in the model now, one from the
+prime's Cameo export and one from the DOORS export:
+
+```sh run cwd=work/bob expect="twice a day"
+git grep -h 'doorsId = "TW-SYS-006"' origin/develop -- model/requirements | sed 's/ attribute .*//'
+```
+
+The Cameo copy says the data center shall publish a marine bulletin on a fixed schedule. DOORS says twice a day, on
+a fixed schedule. Which wording is right is not the government team's call to make by editing a file: DOORS is the
+requirements baseline the prime is contracted to, and the model is supposed to match it. The gap goes back to the
+prime as a discrepancy report, DR-1, in [[sprint-4]].
+
+How does the trace job know which copy is which? Every file the DOORS converter writes starts with a line that says
+so:
+
+```sh run expect="generated by reqif2sysml"
+git show origin/develop:model/requirements/system/System_Requirements.sysml | head -2
+```
+
+The trace job compares DOORS, as exported, against the model *without* those generated packages; otherwise it would
+compare DOORS with its own copy and find nothing. Chapter [[pipeline]] shows the rule in the job.
+
+None of these gaps were made by the government team. They are in the prime's model and the prime's DOORS module, and
+they had been there, unseen, since drop 1 arrived. The trace job made them visible. That is why Tom added it as
+**report only**: the job prints the gaps and never fails a pipeline because of them. If it failed, every merge request
+on the team would go red for problems none of them could fix, and the team would learn to ignore red. Chapter
+[[pipeline]] shows the job; [[sprint-5]] shows the day it becomes a gate, and why only then.
+
+::: note The thought process: a check you cannot pass teaches people to ignore checks
+Tom's rule for adding a job: if the team cannot make it green by its own work, the job reports; it does not fail. The
+gaps here belong to the prime. The right response is a discrepancy report to the prime ([[sprint-4]]), not a red
+pipeline for Bob. A gate is for problems the person merging can fix.
+:::
+
+The secrets job is the "Sec" in DevSecOps, at its smallest useful size. It scans every tracked file for things that
+look like keys, tokens or passwords and fails if it finds one. On the first run it found none in the repository's
+tracked files. It took Tom less than an hour, it runs in seconds, and it closes the most likely security incident for a
+modeling team: someone pastes a credential into a file and pushes it. Chapter [[security]] puts it in context.
+
+=== Week 2 {#sprint-3-week-2}
+
+==== Monday 9 November to Tuesday 10: three days waiting on a signature {#sprint-3-wait}
+
+Tom's second story, TW-54, was runner hardening: the GitLab runner that executes every pipeline job is a Windows
+machine running jobs under an account, and the security office wanted that account to be a service account with the
+least privilege it needs, approved by the ISSM, with a hardening checklist in the wiki. Tom started the task on
+Friday 6 November; it closed on Tuesday 10 November.
+
+Most of those days were waiting: the checklist was quick, the ISSM's signature on the service account was not. Here
+are Tom's stand-up lines from the Monday and Tuesday of that wait, as posted:
+
+{{include: docs/tidewater/sprints/03/standups/2026-11-09-chat.txt | lines 8-9}}
+{{include: docs/tidewater/sprints/03/standups/2026-11-10-chat.txt | lines 8-9}}
+
+Read the last field. **B none.** Tom was waiting for three days on another office, and the stand-up said nothing
+blocked the work. The kit's lint could not catch it, because a status that says "none" is a valid status. The journal
+recorded no block. The weekly quad showed no watch items. Nobody asked Jim to call the ISSM.
+
+At the retrospective, Tom said what had happened:
+
+> Three days waiting on a signature. The pipeline was the fast part.
+> -- Tom, 10 November
+
+and the team wrote it down as the sprint's one thing to stop:
+
+{{include: docs/tidewater/sprints/03/retro.txt | lines 6-7}}
+
+This is the most useful failure in the twelve weeks, because it is the one every engineer recognizes. Engineers do
+not like to say they are blocked. It sounds like an excuse, or like asking for help, or like criticizing another
+office. So they say "none" and wait. The stand-up exists to catch exactly this, and it only works if waiting is said
+out loud, with a date and an ask:
+
+```text
+Y TW-54 checklist in the wiki. T TW-54 runner service account, by Tue. B TW-54 waiting on the ISSM's approval since Fri -- need: Jim to ask for a date today
+```
+
+That line would have put the wait in the journal as a block, on the quad as a watch item, and in Jim's hands the
+same morning. Chapter [[talking]] has the templates; the change the team made was simply to agree that a wait on
+anyone outside the team for more than one day is a blocker and gets said.
+
+==== Tuesday 10 November: the DOORS modules merge
+
+Bob merged !10 on Tuesday, after reading the delta. The review note mentions the outline allowance. That is the file
+`.ci/outline-max`, which records how many outline violations (packages with too few or too many members, folders with
+a single file) the model is allowed to have. The prime's drop brings its own: the converted Requirements package has
+more members than the 2-to-9 rule allows, because Cameo put every requirement in one package. The outline job does not
+fail the drop for that. It records the new count as the allowance, and from then on any change that *adds* a violation
+fails, while any change that removes one must lower the number. You can see the allowance move in the history:
+
+```sh run cwd=work/bob expect="allowance 19 after drop v1.0"
+git log --format='%ad %s' --date=short origin/develop -- .ci/outline-max | sed -n '2,3p'
+```
+
+That pattern, a measure that may only get better, is called a ratchet. The team uses it for every measure it cannot
+make perfect on day one: outline violations here, trace gaps from [[sprint-5]], package complexity later
+([[pipeline]]).
+
+From this point the DOORS requirements live in the model, under
+`model/requirements/stakeholder/`, `system/` and `segment/`, and the Cameo copy of the requirements lives beside them
+under `model/requirements/model/`. Two copies of the same requirements may look wasteful. It is the opposite: DOORS is
+the authoritative wording, the Cameo copy is what the prime's model actually links to, and keeping both is what lets
+the trace job see where they disagree.
+
+==== Wednesday 11 November: Veterans Day
+
+No stand-up, no work. The capacity line accounted for it. It is worth saying because new teams often forget holidays
+when they plan, then discover at the review that they were short a day.
+
+==== Thursday 12 November: refinement and planning poker {#sprint-3-poker}
+
+At 10:00 the team ran refinement for sprint 4: the stories Jim had drafted, checked against the Definition of Ready,
+and estimated with planning poker in the meeting chat. The kit tallied the votes. Most rounds went straight to
+consensus. One did not:
+
+{{include: docs/tidewater/sprints/03/poker-2026-11-12.txt | lines 78-88}}
+
+Jim voted 3 for "Close the Stations level tags"; Bob and Tom voted 5. The tally shows no consensus, so Jim asked the
+question the operating model says to ask: what does the high vote know? Bob knew something Jim did not. The Stations
+package is the largest in the model: it holds the buoys, the shore stations and everything inside them, and a good part
+of those parts are procured items from suppliers, which in the prime's model carry an extra stereotype with supplier and
+part-number tags. Bob expected those to take longer than the plain level tags. On the second round all three voted 5.
+
+That conversation is the reason planning poker exists. The numbers matter less than the moment the outlier explains
+themselves. In [[sprint-4]] you will see that even 5 was not enough, and why.
+
+Bob's stand-up on Thursday and Friday said "T none": all of Bob's committed work was finished and the next sprint's stories were
+not yet started. The operating model's answer to an empty "today" is to pull the top story of the next sprint forward
+rather than to look busy. An empty "today" is a planning signal, not a problem.
+
+Tom's lines on those two days show a different and smaller lesson:
+
+{{include: docs/tidewater/sprints/03/standups/2026-11-12-chat.txt | lines 8-9}}
+
+Tom's drafted status names the drop-intake issue for prime drop 1 (TW-25), due "by Oct 16". That issue was still open: the
+sprint 1 work it tracked was done, but the issue itself was never closed. `talk.pl` drafts from the board, so a
+forgotten open issue shows up as somebody's "today". The analytics for the sprint list it as the oldest open issue, and
+it was still showing up in Tom's drafts at the end of sprint 4. The fix takes ten seconds: close it. The lesson is the one every tool on the team teaches sooner or later: the tools are only as good as
+the board you keep.
+
+==== Friday 13 November: review and retrospective {#sprint-3-review}
+
+Jim closed the last story of the sprint at 10:00, the write-up of the drift and the trace gaps. Then the review:
+
+{{include: docs/tidewater/sprints/03/review.txt}}
+
+Every committed story was done: {{value: docs/tidewater/sprints/03/scorecard.json 11_delivery.done}} of
+{{value: docs/tidewater/sprints/03/scorecard.json 11_delivery.committed}} story points. The four headline numbers are the
+ones the team reports at every review ([[talking]]): TODO lines left, verify coverage, open discrepancy reports, and
+blocked items.
+
+The demo script, as `talk.pl review` drafted it, is in the evidence. Its fourth and sixth sections are
+worth reading as a lesson in reading your own numbers:
+
+{{include: docs/tidewater/sprints/03/review-script.md | lines 22-31}}
+
+The first half is useful: the median time from opening a merge request to its first review, and the time from first
+edit to accepted change, measured in hours, against a document-era change cycle that took weeks. The second half is a
+trap. The draft divides the TODO lines left by this sprint's rate of closing them and announces that the port will
+take about twenty-five more sprints. That is arithmetically correct and practically wrong: this sprint's engineering
+was DOORS and the trace report, not TODO lines, so this sprint's TODO pace says nothing about the next one's. Delete
+that line before anyone reads it aloud. Every forecast a tool drafts for you is a hypothesis; you are the one who knows
+whether the assumption behind it holds.
+
+The review showed the sprint's merge requests and their pipelines, including the trace report on a real merge
+request. Anyone watching asks the obvious question: who fixes the gaps? The plan for sprint 4 answers it: a
+discrepancy report to the prime for each gap, through the contract.
+
+The retrospective followed at 11:00:
+
+{{include: docs/tidewater/sprints/03/retro.txt}}
+
+And the pulse survey, five questions answered anonymously on a 1-to-5 scale:
+
+|| Question | Jim | Bob | Tom ||
+| I understand why we are working this way. | {{value: docs/tidewater/sprints/03/morale.json answers.jim.0}} | {{value: docs/tidewater/sprints/03/morale.json answers.bob.0}} | {{value: docs/tidewater/sprints/03/morale.json answers.tom.0}} |
+| I can do my work in the new tools without help. | {{value: docs/tidewater/sprints/03/morale.json answers.jim.1}} | {{value: docs/tidewater/sprints/03/morale.json answers.bob.1}} | {{value: docs/tidewater/sprints/03/morale.json answers.tom.1}} |
+| The checks catch problems I would have missed. | {{value: docs/tidewater/sprints/03/morale.json answers.jim.2}} | {{value: docs/tidewater/sprints/03/morale.json answers.bob.2}} | {{value: docs/tidewater/sprints/03/morale.json answers.tom.2}} |
+| I can see our progress. | {{value: docs/tidewater/sprints/03/morale.json answers.jim.3}} | {{value: docs/tidewater/sprints/03/morale.json answers.bob.3}} | {{value: docs/tidewater/sprints/03/morale.json answers.tom.3}} |
+| I would choose to keep working this way. | {{value: docs/tidewater/sprints/03/morale.json answers.jim.4}} | {{value: docs/tidewater/sprints/03/morale.json answers.bob.4}} | {{value: docs/tidewater/sprints/03/morale.json answers.tom.4}} |
+Table: Sprint 3 pulse survey (mean {{value: docs/tidewater/sprints/03/morale.json mean}})
+
+(The survey is anonymous to management. The team agreed to show its own answers in this book.)
+
+Read Bob's column. Even "the checks catch problems I would have missed" is low, in the sprint where a check caught
+Bob's mistake. That is not a contradiction. Being caught does not feel like being helped the first time. Jim did not
+argue with the numbers. Jim said, at the end of the retrospective, that the survey would be run every sprint and that
+Jim expected it to stay low until the work started paying people back personally. It did, in [[sprint-4]].
+
+==== The weekly status {#sprint-3-quad}
+
+Every Friday the kit writes the weekly quad from the journal and Jim sends it to management. Here is the one for
+13 November:
+
+{{include: docs/tidewater/sprints/03/quad-2026-11-13.txt | lines 1-12}}
+
+Sprint progress {{value: docs/tidewater/sprints/03/scorecard.json 11_delivery.pct}}%, every story on time, no watch
+items. Look again at the watch items: "none". The quad was as honest as its inputs. The three-day wait in week 2 never
+became a watch item because it never became a block in the journal. The tooling cannot report what nobody says.
+
+=== What the numbers say {#sprint-3-numbers}
+
+The GitLab analytics for the sprint, computed by `gitlab.pl analytics` from what GitLab recorded:
+
+```sh run cwd=. expect="84.6%"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model analytics --since 2026-11-02 --until 2026-11-13 | sed -n '/3. CI/,/job failures/p'
+```
+
+The sprint's failed pipelines were both Bob's change: the push pipeline on Bob's branch and the merge request
+pipeline on !9, each failing grammar and lint (the lint job reports a syntax error as a lint error too). Every other pipeline passed. The value-stream section of the
+same report, in the evidence ([[analytics]]), shows the time from opening a merge request to its first review at a
+median of {{value: docs/tidewater/sprints/03/scorecard.json 10_review_turnaround_hours}} hours.
+
+|| Measure | End of sprint 2 | End of sprint 3 ||
+| TODO lines left | {{value: docs/tidewater/sprints/02/scorecard.json 1_todo_lines}} | {{value: docs/tidewater/sprints/03/scorecard.json 1_todo_lines}} |
+| DOORS requirements linked in the model | {{value: docs/tidewater/sprints/02/scorecard.json 5_trace.C}} | {{value: docs/tidewater/sprints/03/scorecard.json 5_trace.C}} |
+| Changes gated by the pipeline | {{value: docs/tidewater/sprints/02/scorecard.json 3_gated_changes}} | {{value: docs/tidewater/sprints/03/scorecard.json 3_gated_changes}} |
+| Median hours, first edit to accepted change | {{value: docs/tidewater/sprints/02/scorecard.json 2_lead_time_hours}} | {{value: docs/tidewater/sprints/03/scorecard.json 2_lead_time_hours}} |
+| Package dependency cycles | {{value: docs/tidewater/sprints/02/scorecard.json 7_spider_web.cycles}} | {{value: docs/tidewater/sprints/03/scorecard.json 7_spider_web.cycles}} |
+| Stand-up lines with an outcome and a number | {{value: docs/tidewater/sprints/02/scorecard.json standup_outcome_share}} | {{value: docs/tidewater/sprints/03/scorecard.json standup_outcome_share}} |
+| Pulse (1 to 5) | {{value: docs/tidewater/sprints/02/scorecard.json 12_morale}} | {{value: docs/tidewater/sprints/03/scorecard.json 12_morale}} |
+Table: Sprint 3 against sprint 2
+
+The TODO count barely moved, because this sprint's engineering was DOORS and trace, not TODO lines. The trace and the
+stand-ups moved a lot. The pulse went down. All three are true at once, and the team learned to report all three.
+
+=== Tools adopted this sprint, and the pain each one removed {#sprint-3-tools}
+
+|| Tool | The pain it removed | Where to read more ||
+| The trace job, report only | "Which requirements are unverified?" took two days of spreadsheet work before every review | [[pipeline]] |
+| The secrets job | A credential pasted into a file and pushed is the most likely security incident for a modeling team | [[security]] |
+| `talk.pl standup` drafts | Nobody remembered yesterday at 09:00, and status lines reported motion instead of outcomes | [[talking]] |
+| The runner service account | The runner ran jobs under a person's account with more rights than it needed | [[runners]] |
+Table: Tools adopted in sprint 3
+
+=== What Jim told management {#sprint-3-management}
+
+Jim's Friday note to management is built from two things the kit already wrote: the review script's
+thirty-second version and the weekly quad. In words, it says this:
+
+::: note Sprint 3, the Friday note
+Every committed story is done ({{value: docs/tidewater/sprints/03/scorecard.json 11_delivery.done}} of
+{{value: docs/tidewater/sprints/03/scorecard.json 11_delivery.committed}} story points). The DOORS requirements are now in
+the model, and every change runs a trace report: {{value: docs/tidewater/sprints/03/scorecard.json 5_trace.C}} DOORS
+requirements are linked, {{value: docs/tidewater/sprints/03/scorecard.json 5_trace.F}} have nothing satisfying them,
+{{value: docs/tidewater/sprints/03/scorecard.json 5_trace.G}} have no verification, and
+{{value: docs/tidewater/sprints/03/scorecard.json 5_trace.drift}} says something different in DOORS than in the model.
+These gaps are in the prime's model and are not new: we can now see them. Next sprint we send each one to the prime as
+a discrepancy report. Nothing blocks us.
+:::
+
+The note leaves out the morale dip. Whether, how and to whom a lead reports the team's mood is a judgment call, and
+[[lead]] is about exactly that kind of judgment.
+
+=== You can now {#sprint-3-you-can-now}
+
+- Read a failing pipeline log, find the file, line and column, and reproduce the error locally with the grammar check.
+- Explain the SysML v2 naming order (`name : Type`) and spot the v1 habit that writes it backwards.
+- Read the trace report's C, F, G, I and drift lines and say which gaps are yours and which are the prime's.
+- Explain why a new check starts as report only and becomes a gate only when the team can pass it.
+- Say a wait out loud as a blocker, with a date and an ask.
+- Use planning poker's outlier question to surface what one person knows.
+
+::: exercise {#ex-sprint-3-red-x} Make the grammar check say no
+Do practice lesson 11 ([[sprint-2]] shows the setup). It plants exactly the kind of mistake Bob made: a model change
+with a syntax error. Watch the pipeline fail, read the job log, find the line, fix it on the branch, and push again.
+Then write the stand-up line you would post the next morning, outcome first, with one number.
+:::
+
+::: exercise {#ex-sprint-3-trace} Read the trace report
+In the Tidewater sandbox, show pipeline #29's trace job log with
+`perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model pipeline show 29`, open the trace log it names, and
+list the two orphans and the drifted requirement. For each, decide: is this ours to fix, or the prime's? Write one
+sentence per gap saying why.
+:::
+
+::: exercise {#ex-sprint-3-blocker} Rewrite Tom's stand-up
+Rewrite Tom's posted lines from 9 and 10 November so the three-day wait would have reached Jim on the first morning.
+Run your line through the kit's lint (`daily.pl lint`, [[ceremonies]]) to check it parses.
+:::
+
+=== Applying this to your project {#sprint-3-applying}
+
+- **Expect a sprint 3.** Somewhere around week five or six, the novelty is gone and the payoff has not arrived. Measure
+  it (a five-question pulse costs a minute) so you can see it, and do not argue with it.
+- **Put your requirements source into the model next to the model's copy,** and run a trace on every change. The first
+  report will show gaps that were always there. Decide in advance whose they are and how they will be reported.
+- **Add every new check as report-only first.** Make it a gate only when the people merging can make it green.
+- **Agree that waiting on anyone outside the team for more than a day is a blocker,** and that it is said at the
+  stand-up with a date and an ask.
+- **Close the issues you finish.** Every tool that reads the board, from the stand-up draft to the analytics, repeats
+  your board's mistakes back to you.

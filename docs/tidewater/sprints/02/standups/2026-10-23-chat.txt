@@ -1,0 +1,15 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y: TW-31 docs/adr/0001..0010
+T: TW-31 docs/adr/0001..0010
+B: none
+[9:02 AM] Bob
+Y: TW-28 decide the layered layout; the layout map; TW-30 conventions package
+T: TW-30 conventions package
+B: none
+[9:03 AM] Tom
+Y: TW-27 pipeline; fix it for the PowerShell runner
+T: TW-27 pipeline; fix it for the PowerShell runner; TW-27 "pipelines must succeed" and the MR report
+B: none

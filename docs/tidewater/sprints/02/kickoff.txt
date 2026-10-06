@@ -1,0 +1,30 @@
+Sprint 2 kickoff, 2026-10-19 09:00 (90 minutes)
+
+Goal: Drop 1 on develop through the vendor branch; every change gated
+Capacity: 21.0 points (Jim 5, Bob 8, Tom 8 per full sprint, less holidays and leave)
+Committed: 19.0 points in 7 stories (90% of capacity): engineering 6.0, platform 10.0 (52%), learning 3.0 (15%)
+
+TW-26    E3    3.0 pts  learning     Learn: practice lessons 12-13, Vim for models, the SysML v2 workbook (first half)
+           #33   0.5 pt  jim  2026-10-19 .. 2026-10-19  Practice lessons 12-13; the diagrams chapter
+           #34   1.5 pt  bob  2026-10-19 .. 2026-10-20  Lessons 12-13; Vim for models; workbook first half
+           #35   1.0 pt  tom  2026-10-19 .. 2026-10-20  Lessons 12-13; Vim for models; workbook first half
+TW-27    E2    3.0 pts  platform     Runner online; the first pipeline gates every MR
+           #36   0.5 pt  tom  2026-10-20 .. 2026-10-20  Check the runner registration and tags
+           #37   2.0 pt  tom  2026-10-20 .. 2026-10-23  Commit the pipeline; fix it for the PowerShell runner with ci/job.pl
+           #38   0.5 pt  tom  2026-10-23 .. 2026-10-23  Turn on "pipelines must succeed" and the MR report widgets
+TW-28    E5    4.0 pts  engineering  Import drop 1 through the vendor branch, in layers
+           #39   1.0 pt  bob  2026-10-20 .. 2026-10-22  Decide the layered layout; the layout map
+           #40   1.0 pt  tom  2026-10-26 .. 2026-10-27  Import drop 1 onto vendor/prime
+           #41   2.0 pt  bob  2026-10-27 .. 2026-10-29  Review and merge the drop-1 MR; record the outline count
+TW-29    E2    2.0 pts  platform     TODO burn-down and generated docs in the pipeline
+           #42   2.0 pt  tom  2026-10-27 .. 2026-10-29  Add the todo and docs jobs; commit docs/
+TW-30    E6    2.0 pts  engineering  Level conventions for the part tree
+           #43   1.5 pt  bob  2026-10-22 .. 2026-10-23  Write the conventions package
+           #44   0.5 pt  bob  2026-10-26 .. 2026-10-26  Name the level tags in sysml.conf
+TW-31    E1    4.5 pts  platform     Enablers, decisions and conventions on record
+           #45   1.0 pt  jim  2026-10-20 .. 2026-10-21  Memo: request for enablers
+           #46   1.5 pt  jim  2026-10-22 .. 2026-10-26  Write docs/adr/0001..0010
+           #47   1.0 pt  jim  2026-10-27 .. 2026-10-28  Conventions and onboarding docs into docs/
+           #48   1.0 pt  jim  2026-10-29 .. 2026-10-30  Toolchain security kickoff with the ISSM
+TW-32    E3    0.5 pts  platform     Sprint 2 demo: the pipeline and the drop on develop
+           #49   0.5 pt  tom  2026-10-29 .. 2026-10-30  Prepare and give the sprint 2 demo

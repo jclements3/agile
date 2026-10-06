@@ -1,0 +1,364 @@
+== Seeing the model: diagrams from text {#diagrams}
+
+::: survival
+What you have: three years of Cameo diagrams. You think in block definition diagrams and internal block diagrams;
+you know what a model looks like because you have drawn it, box by box, line by line, and moved the boxes so the
+lines would not cross.
+
+What you need: the same pictures, without drawing them. A part tree, a requirement trace, the connections inside
+each block, the package dependencies, and IDEF0 plates of what the system does -- each produced from the text in
+seconds, on your laptop, in Vim, and on the model site for management, always current.
+:::
+
+::: note Core path
+This chapter is CORE. You draw the views from week two; the model site that shows them to management arrives in
+sprint 4 ([[tools-s4]]).
+:::
+
+=== "Where are my diagrams?" {#diagrams-where}
+
+On the Tuesday of sprint 2, Bob opened the converted Stations package in Vim, scrolled through ninety lines of
+text, and said the thing all three of them had been thinking since the directive: "Where are my diagrams?"
+
+It is the right question, and the most important objection a Cameo modeler has. For three years the diagrams *were*
+the model. Reviews were diagrams in a briefing. A change was a box moved on a diagram. When the team talked about
+the power system they pointed at the IBD on the wall.
+
+The answer this chapter gives is that the diagrams are still there, and better: they are drawn for you, from the
+text, every time the text changes. Nobody spends an afternoon moving boxes so lines do not cross, and nobody ever
+looks at a diagram that is three months out of date. What you lose is the ability to put a box somewhere the model
+does not say it is. That turns out to be the point.
+
+::: objection "A generated diagram will never look as good as one I drew."
+Answer: True, and it does not need to. The drawn diagram was beautiful on the day it was finished and wrong a month
+later; the team counted eleven stale diagrams in drop 1 ([[cameo-spider]]). A generated view is never wrong about
+what the model says. When the layout matters for a briefing, the plates command puts views in a titled frame
+([[diagrams-plates]]), and you can still draw a slide by hand from a current view -- but you start from the truth.
+:::
+
+=== Views are outputs, not inputs {#diagrams-views}
+
+In SysML v1 under Cameo, a diagram is a stored object with its own position data, separate from the elements it
+shows. Two people can disagree about where a box goes and both be "right." In SysML v2 text, the model is the text
+alone. A diagram is a *view*: a function from the text to a picture. Same text, same picture, every time.
+
+The kit's view tools follow three rules:
+
+- **Every view comes from the text**, through one command, with no hand positioning.
+- **Every view is deterministic**: the same model gives the same bytes, so a view can be committed, compared and
+  reviewed like any other file.
+- **Every view also reports what it found**: the trace view counts requirements with gaps, the package view counts
+  dependency cycles, the connection view counts boundary crossings. A view is also a check.
+
+The five views you will use:
+
+|| View | Command | Shows | Cameo's nearest ||
+| Part tree | `model.pl draw tree` | the composition hierarchy from the root part, each part at its level | block definition diagram (composition) |
+| Trace | `model.pl draw trace` | requirements, what satisfies each, what verifies each, the gaps | requirement diagram, satisfy/verify matrix |
+| Interconnection | `model.pl draw ibd` | the parts inside each block and the connections between their ports | internal block diagram |
+| Packages | `model.pl draw pkg` | packages and their dependencies, with cycles marked | package diagram |
+| IDEF0 | `model.pl idef0` | the function tree as IDEF0 plates: inputs, controls, outputs, mechanisms | activity diagram (sort of) |
+Table: The five views
+
+=== Drawing them from the shell {#diagrams-shell}
+
+Practice lesson 10's sandbox holds Tidewater's drop 1 converted into a model folder with its `sysml.conf`. Draw the
+part tree first:
+
+```sh run sandbox=practice-10 expect="tree-svg: .*part def"
+perl "$KIT/tools/sysml/model.pl" draw tree -o tree.svg
+```
+
+The command prints one summary line -- how many files it read, how many part definitions it found, how many trees and
+nodes it drew -- and writes `tree.svg`. Open it in a web browser (Edge on the laptop opens SVG files directly:
+`start tree.svg` from Git Bash). The root is the `noun_root` named in `sysml.conf`, `ObservationNetwork`.
+
+Now the other three structural views. Each prints its own summary, and the summaries are worth reading:
+
+```sh run expect="[0-9]+ cycle\(s\)"
+perl "$KIT/tools/sysml/model.pl" draw trace -o trace.svg
+perl "$KIT/tools/sysml/model.pl" draw ibd -o ibd.svg
+perl "$KIT/tools/sysml/model.pl" draw pkg -o pkg.svg
+```
+
+The trace view reports how many leaf requirements it drew and how many have gaps -- the same planted gaps the trace
+job reports ([[sysmlv2-trace]]). The interconnection view reports diagrams and connections. The package view prints
+a line for each package dependency cycle, then a summary ending in the count of cycles. That count is the spider web
+of chapter 3, measured. (Your sandbox prints a smaller count than the drop-1 figure below: the sandbox already has
+the layered folders, the government's conventions package and the DOORS modules, which change which packages
+depend on which. The figure is drop 1 exactly as converted.)
+
+::: note The package view and markings
+The package view was built to check security markings too: every package marked, nothing more sensitive flowing
+into something less. A converted model has no markings yet, so `draw pkg` says so on its first line and draws
+packages, dependencies and cycles only. The security gate (`model.pl gate`) still insists on markings; that comes
+later, in the security epic ([[security]]).
+:::
+
+=== The five views, read {#diagrams-read}
+
+Here is each view of Tidewater's drop 1 as converted, before the government had changed a line. These are the
+committed renderings in `docs/tidewater/views/`, made by `sim/tidewater-views.pl` with exactly the commands above.
+
+==== The part tree {#diagrams-tree}
+
+{{figure: docs/tidewater/views/tidewater-tree.svg | The part tree of drop 1: ObservationNetwork and what it is made of}}
+
+Read it from the left. Each box is a part definition; each line is "is made of." The level tags (`@L2Segment`,
+`@L3Station` ...) are what the team adds in the structure epic; in drop 1 they are still TODO lines, so the tree has
+no level shading yet. What to look for: a part that appears in two places (the duplicates of the Legacy Import
+package), a branch that is much deeper than its neighbors, a part with nine or more children.
+
+==== The trace {#diagrams-trace}
+
+{{figure: docs/tidewater/views/tidewater-trace.svg | The requirement trace of drop 1: satisfy on one side, verify on the other, gaps marked}}
+
+Each row is a requirement, by DOORS id. To its left, what satisfies it; to its right, what verifies it. A
+requirement with nothing on one side is a gap and is marked. Drop 1's gaps are the ones the team reported to the
+prime as DR-2 to DR-4 ([[sprint-4]]). This view is the one Jim showed the program office in sprint 4, because it
+answers their first question -- what is not covered? -- without anyone reading text.
+
+==== Interconnection {#diagrams-ibd}
+
+{{figure: docs/tidewater/views/tidewater-ibd.svg | Interconnection views of drop 1: the parts inside each block and the connections between their ports}}
+
+One diagram per block that has internal connections. Ports sit on the edge of their part; connections join them.
+When the security epic adds trust zones, this view also marks every connection that crosses from one zone to
+another -- the attack surface.
+
+==== Packages {#diagrams-pkg}
+
+{{figure: docs/tidewater/views/tidewater-pkg.svg | Package dependencies of drop 1 in the converter's flat layout: the dashed arrows are the cycles}}
+
+Each box is a package; each arrow is "depends on" (an import, a type it uses, a relationship that reaches into it).
+Arrows that close a cycle are drawn dashed. Network depends on Stations, which depends on DataCenter, which depends
+back on Network; the drawing marks each arrow that closes such a loop.
+
+**Three ways to count the same tangle.** The drawer counts dashed arrows, and which arrow it dashes depends on the order
+it visits the packages, so the same model gives a different number in a different folder layout: six on drop 1 in the
+converter's flat layout (this figure), four in Tidewater's layered layout (your sandbox, and the model site). The
+pipeline's `complexity` job counts something steadier: groups of packages that are tangled together, however many
+arrows tie them. On drop 1 that is one group of five packages. Jim's count in [[cameo]] was a third measure: pairs of
+packages in the v1 model that each depend on the other, two. All three are the spider web; the team tracks the
+`complexity` job's number, because it does not move when someone renames a folder.
+
+The cleanup stories are judged by this picture: "Break the Network to Operations cycle" in sprint 4 removed one loop; the Stations and DataCenter loop was still there at the end of sprint 6 ([[no-spider-web]]).
+
+==== IDEF0 {#diagrams-idef0}
+
+{{figure: docs/tidewater/views/tidewater-idef0-O0.svg | IDEF0 plate O0: the observation cycle's six steps with their inputs, outputs and mechanisms}}
+
+The verbs of the model, not the nouns. The kit reads the function tree under the `verb_root` named in `sysml.conf`
+(`ObserveCoast`, one cycle of the network) and draws it as IDEF0 plates: a context plate (O-0) with the whole
+function as one box, and a decomposition plate (O0) with its steps -- Sample, Transmit, Ingest, Check, Archive,
+Publish -- each with its inputs on the left, controls on top, output on the right and mechanism underneath. The
+mechanisms come from the model's `allocate` statements: Sample is performed by the Sensor Suite, Transmit by the
+Telemetry Unit.
+
+Systems engineers who came up through structured analysis read an IDEF0 plate faster than any SysML diagram, and
+program offices often still ask for them. Here they cost nothing.
+
+=== IDEF0 plates from the shell {#diagrams-idef0-run}
+
+The IDEF0 plates need two more lines in `sysml.conf`: the name of the IDEF0 model and its letter. Without them the
+kit uses the defaults of its first example (a model named KillChain, letter K), which is not what you want on
+Tidewater's plates:
+
+```sh run expect="plate-O0\.svg"
+printf 'idef0_name   = ObserveCoast\nmodel_letter = O\nidef0_models = auto\n' >> sysml.conf
+perl "$KIT/tools/sysml/model.pl" idef0
+ls docs/idef0/svg
+```
+
+`idef0_models = auto` tells the kit how to cut the function tree into IDEF0 models. When the top-level steps are
+themselves decomposed, each becomes its own IDEF0 model; when they are all leaves, as in Tidewater, the whole tree is
+one model and the steps are the boxes of its A0 plate. The command writes `docs/idef0/plates.html` (all plates on one
+page), the plates as SVG under `docs/idef0/svg/`, and an `INTERFACES` file listing the hand-offs between steps.
+
+::: warning Converted behavior is thin
+A v1 activity converted to v2 carries its steps and their parameters, not its object flows. The IDEF0 bridge fills
+the gap by feeding each step's inputs from the nearest earlier step whose output has the right type, and says so in
+the generated notes. That is good enough to see the shape of the function; it is not a substitute for writing the
+flows by hand, which is the behavior epic's job ([[sprint-6]]).
+:::
+
+=== Drawing them from Vim {#diagrams-vim}
+
+In a SysML buffer the kit's Vim support has one key per view. Each saves the buffer, runs the same `model.pl draw`
+command for the project the file belongs to, shows the summary, and writes the SVG in Vim's current directory:
+
+|| Key | Command | View ||
+| `\mw` | `:SysDraw tree` | part tree |
+| `\mq` | `:SysDraw trace` | trace |
+| `\mi` | `:SysDraw ibd` | interconnection |
+| `\mp` | `:SysDraw pkg` | packages |
+| `\mn` | `:SysNouns` | the part tree as text, in a scratch window |
+| `\mb` | `:SysVerbs` | the function tree as text |
+| `\mW` | `:SysView` | the live viewer (next section) |
+Table: The view keys in a SysML buffer
+
+Try one headless, the way the test does it:
+
+```vim run
+edit model/physical/stations/Stations.sysml
+SysDraw tree
+```
+
+```sh run expect="tree\.svg"
+ls -l tree.svg
+```
+
+If you set `g:sysml_svg_viewer` in your `.vimrc` (for example `let g:sysml_svg_viewer = 'start ""'` on Windows), each
+draw also opens the picture. The text trees from `\mn` and `\mb` need no viewer at all: they open in a split, and
+they are the fastest way to answer "what is under the Power System?" while you are editing.
+
+=== The live viewer beside Vim {#diagrams-live}
+
+For editing sessions, the kit has a live viewer: `bin/sysml-view.tcl`, a small window drawn with the Tk toolkit that
+ships with Git for Windows. It shows one view of the project at a time and redraws whenever you save a `.sysml` file.
+Start it from Vim with `\mW`, or from Git Bash:
+
+```sh
+wish "$KIT/bin/sysml-view.tcl" .        # from the project's top folder
+```
+
+It talks to Vim in both directions:
+
+- **`\mf` in Vim** (focus) tells the viewer to center on the definition under the cursor.
+- **Clicking a box in the viewer** records where that element is defined; **`\mo` in Vim** (open) jumps there.
+
+Bob kept it open on a second monitor from sprint 3 on. "It's the part of Cameo I missed," Bob said at the retro,
+"without the part I hated." The viewer draws, it never edits.
+
+=== Comparing two versions {#diagrams-diff}
+
+A view of one version answers "what is it?" The question in a review is "what changed?" `model.pl diff` draws the
+views of two versions with the differences colored, and writes a plain change list beside them. Make a small change
+in the sandbox -- tag the station segment with its level, the first thing practice lesson 10 asks for -- commit it,
+and compare the commit with the one before:
+
+```sh run expect="1 change line"
+perl -0pi -e 's{// TODO stereotype Tidewater_Profile:L2Segment[^\n]*}{\@L2Segment;}; s{(package Stations \{\n)}{$1    private import Conventions::*;\n}' model/physical/stations/Stations.sysml
+git commit -qam "Tag StationSegment with its level"
+perl "$KIT/tools/sysml/model.pl" diff --git HEAD~1..HEAD -o diff
+cat diff-changes.txt
+```
+
+(The first line of that block is a scripted edit so the test can run; you would make the change in Vim.) The
+command writes `diff-tree.svg`, `diff-trace.svg`, `diff-packages.svg` and `diff-ibd.svg` with added, removed and
+changed elements colored, and `diff-changes.txt` with one line per change. Its summary also says whether the change
+opened any new trace gap -- the question a reviewer cares most about ([[reviewing]]).
+
+=== Plates for briefings {#diagrams-plates}
+
+A briefing wants a picture with a title block: what it is, which baseline, which date, which sheet. `model.pl plates`
+puts the model's views into ISO-style drawing plates with a title block filled from the model and `sysml.conf`:
+
+```sh
+perl "$KIT/tools/sysml/model.pl" plates --auto -o plates
+```
+
+The plates are what Jim printed for the sprint 6 briefing ([[briefing]]): the part tree and the package view, each on
+one sheet, titled and dated, with the baseline tag in the corner.
+
+=== The model site: views for management {#diagrams-site}
+
+From sprint 4, the pipeline's `pages` job ([[pipeline-pages]]) draws all four views and copies the IDEF0 plates into
+the model site on every merge to `develop`, and the nightly schedule redraws them. The site's front page shows each
+view with the date and commit it was drawn from. Management never asks for a diagram again; they open the site.
+
+Two choices the team made about the site, worth copying:
+
+- **The site shows the views, not the text.** Management does not need to read SysML v2. Every page leads with a
+  picture or a count, and links to the text for whoever wants it.
+- **A view that cannot be drawn says so.** If a draw fails, the job leaves a note on the site instead of silently
+  dropping the picture. A missing picture that nobody notices is worse than a red pipeline.
+
+=== The trees as text {#diagrams-text}
+
+Not every question needs a picture. "What is under the Moored Buoy?" is answered fastest by the part tree as text,
+which prints in the terminal (or, from Vim, in a split with `\mn`):
+
+```sh run expect="Sensor Suite"
+perl "$KIT/tools/sysml/model.pl" nouns --plain | head -14
+```
+
+`--plain` turns names like `MooredBuoy` into words ("Moored Buoy"), which is how Jim pasted the tree into the first
+status note. The function tree prints the same way with `verbs`:
+
+```sh run expect="ObserveCoast"
+perl "$KIT/tools/sysml/model.pl" verbs
+```
+
+The text trees are also the easiest thing to put in an issue or a merge request description: paste them inside a
+code block and GitLab keeps the tree drawing characters aligned.
+
+=== Views as measures {#diagrams-measures}
+
+Every view prints a summary line, and those lines are measures the team tracked from sprint to sprint. They are cheap
+-- each takes a second to compute -- and each one answers a question the program office asks:
+
+|| View | Summary measure | The question it answers | Which way is good ||
+| Part tree | part definitions, trees, nodes | how big is the structure, and is it one tree? | one tree; growth only when the prime adds parts |
+| Trace | leaf requirements, how many with gaps | what is not covered? | gaps going down |
+| Interconnection | diagrams, connections, boundary crossings | where do the parts talk to each other? | crossings that each trace to a security requirement |
+| Packages | packages, dependencies, cycles | is the spider web getting better? | cycles going to zero |
+| IDEF0 | models, activities, links | what does the system do, step by step? | every step with a mechanism |
+Table: The view summaries as measures
+
+The spider-web number on every sprint review slide from sprint 4 is the `complexity` job's count of tangled package
+groups, the scorecard's spider-web line: {{value: docs/tidewater/sprints/03/scorecard.json 7_spider_web.cycles}} after
+the DOORS import in sprint 3, {{value: docs/tidewater/sprints/04/scorecard.json 7_spider_web.cycles}} once sprint 4
+broke the Network and Operations loop, and still {{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.cycles}}
+at the end of sprint 6, because Stations and DataCenter still depend on each other. The package view is the picture
+behind that number, and the cleanup stories change it in front of management's eyes.
+
+=== What a view cannot show {#diagrams-limits}
+
+A view is honest about what the model says, which means it shows nothing the model does not say. Four limits the
+team ran into:
+
+- **Layout is automatic.** Boxes go where the layout puts them. A view of a large block can be wide; the answer is a
+  narrower view (one block, one package), not hand placement.
+- **Converted behavior is thin.** Until the behavior epic writes flows by hand, activities show steps without object
+  flows, and state machines are TODO lines that no view draws.
+- **The model tool's own trace has a known gap.** `model.pl trace` (and `\mr` in Vim) counts a requirement satisfied
+  by a *port* or an *attribute* as unsatisfied. On Tidewater that misreports five requirements. The pipeline's trace
+  job, which compares the model with DOORS, does not have this gap; use its numbers as the record.
+- **A view shows one version.** "What changed?" is the diff ([[diagrams-diff]]), not two views side by side by eye.
+
+=== When a view will not draw {#diagrams-trouble}
+
+|| Message or symptom | Cause | Fix ||
+| `no model/ directory here or above` | you are not inside the project | `cd` to the project's top folder, or pass `--root DIR` |
+| the tree is empty or starts at the wrong part | `noun_root` in `sysml.conf` names the wrong part definition | set `noun_root` to the top part definition's name |
+| IDEF0 plates named K and KillChain | `idef0_name` and `model_letter` are not set | add both to `sysml.conf` ([[diagrams-idef0-run]]) |
+| `draw pkg` reports errors about markings | some packages are marked and some are not | mark them all, or none until the security epic |
+| `wish: command not found` | the live viewer's Tk is not on the path | run it from Git Bash, where `wish` is installed with Git for Windows |
+| a draw in the pipeline is missing from the site | the job could not draw it; the site has a note in its place | read the `pages` job's log for that view |
+Table: When a view will not draw
+
+=== Applying this to your project {#diagrams-apply}
+
+- **Copy:** draw the views from the first week, put them on the model site, and treat the view summaries (gaps,
+  cycles, crossings) as measures.
+- **Adapt:** set `noun_root`, `verb_root`, `idef0_name` and `model_letter` in your `sysml.conf`; choose
+  `idef0_models` to match how deep your function tree is.
+- **Decide locally:** which views go in which briefing, and whether plates replace your program's drawing
+  templates. Expect the first briefing with generated views to look plainer than the old slides; by the second, the
+  program office will notice they are never out of date.
+
+::: exercise {#ex-diagrams-cycle} Find a cycle
+Draw the package view of the practice-10 sandbox. Pick one dependency cycle from the printed warnings, open the two
+files it names in Vim, and find the import or reference that closes the loop. Which package should own the shared
+element so the cycle disappears?
+:::
+
+::: exercise {#ex-diagrams-idef0} Read a plate
+Open `docs/idef0/plates.html` after running `model.pl idef0`. For the Check step, name its input, its output and its
+mechanism, and say which `allocate` statement in the model supplied the mechanism.
+:::
+
+You can now draw the part tree, trace, interconnection and package views from the shell and from Vim, generate
+IDEF0 plates, run the live viewer beside Vim, compare two versions as colored views, and find the spider web in a
+picture.

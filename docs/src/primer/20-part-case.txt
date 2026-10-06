@@ -1,0 +1,15 @@
+= Part IV: Making the case
+
+Part III followed the team through twelve weeks, one sprint at a time. Part IV steps back and asks the question
+management asked on 24 December: was it worth it? The answer has to be built from measurements the team agreed
+before the work started, computed by the system rather than typed into slides, and honest about what did not move.
+
+The chapters run in the order Jim prepared them. [[analytics]] shows the views GitLab offers for free and what
+each one says about a model team. [[scorecard]] puts the twelve measures from [[directive]] side by side, before
+and after. [[proving]] answers the question every port must answer: is the v2 model complete and correct?
+[[briefing]] is the briefing itself, slide by slide, with the demo script. [[communicating]] is the weekly rhythm
+of reports that made the briefing a summary rather than a surprise. The last chapters of the part turn to the
+people: how the team changed its mind, a day in the life at week twelve, and how documents still matter.
+
+Everything quoted here comes from `docs/tidewater/`, the evidence of the simulated run. Where this part says a
+number, it cites the file it came from.

@@ -1,0 +1,24 @@
+2026-11-02
+  10:00 jim  closed #56 talk.pl: draft, then edit, the stand-up
+2026-11-03
+  10:00 bob  closed #57 Workbook second half; talk.pl
+2026-11-04
+  10:00 bob  opened !8 Level tags in Network (pipeline #20 success)
+  13:30 bob  closed #59 Level tags in Network
+  13:30 bob  merged !8
+2026-11-06
+  10:00 bob  opened !9 Replace the Include TODO with an include use case (pipeline #23 failed)
+  10:45 jim  closed #61 Re-import drop 1 with the DOORS modules on vendor/prime
+  10:45 jim  opened !10 Prime drop v1.0 with the DOORS modules (pipeline #27 success)
+  11:30 tom  opened !11 Pipeline: Adds the trace report (report only for now) and the secrets job (pipeline #29 success)
+  15:00 bob  closed #60 The include use case in ReviewObservations
+  15:00 bob  merged !9
+  15:00 tom  closed #63 Add the trace job (report only) and the secrets job
+  15:00 tom  merged !11
+2026-11-10
+  10:00 bob  closed #62 Merge the DOORS modules to develop
+2026-11-12
+  10:00 tom  closed #58 talk.pl; the Day-9 demo rehearsal
+  10:45 tom  closed #64 Runner service account and hardening checklist
+2026-11-13
+  10:00 jim  closed #65 Write up the drift and the trace gaps

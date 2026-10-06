@@ -5,6 +5,12 @@ F orphan requirements (nothing satisfies)               4
 G unverified requirements (no verify)                   5
 I trace completeness (satisfied and verified)        16.7%
 doorsIds in the model but not in this export            1
+text differs from DOORS                                 2
 not in the model: CD-103 CD-211 CD-999
 orphans: CD-103 CD-210 CD-211 CD-999
 unverified: CD-102 CD-103 CD-210 CD-211 CD-999
+drift: CD-101 CD-102
+  CD-101 DOORS: The drone shall fly 30 min with a 2 kg parcel at 15 m/s & 20°C.
+  CD-101 model: The drone shall fly 30 min with a 2 kg parcel at 15 m/s.
+  CD-102 DOORS: The drone shall carry: - a 2 kg parcel, or - two 1 kg parcels.
+  CD-102 model: Carry a payload of 2 kg.

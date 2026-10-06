@@ -1,0 +1,148 @@
+== Keeping SysML v2 from becoming a spider web {#no-spider-web}
+
+::: survival Where this chapter fits
+What you have: a v2 model that started life as a converted v1 spider web ([[cameo]]), a pipeline, and a team that
+now changes the model every day.
+
+What you need: the practices that stop a text model from growing the same web, which of them Tidewater already
+follows, and a way to measure the web so you notice it growing.
+:::
+
+Bob's objection in [[directive]] -- "we already did this once, and it gave us a spider web" -- deserves a better
+answer than "SysML v2 is different". SysML v2 text does not prevent a spider web. A text model can be just as
+tangled as a diagram model; it is only easier to *see* the tangle and to stop it growing. This chapter is about the
+seeing and the stopping.
+
+=== How tangled was v1, and how tangled is v2? {#no-spider-web-measures}
+
+The v1 model the prime delivered measures itself when the drop is generated. Run it on drop 1:
+
+```sh run sandbox=scratch expect="package dependency cycles: 2"
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drop1 | grep -A3 "^spider web"
+```
+
+The v2 model at the end of sprint 6 is measured by the pipeline's `complexity` job. Run it on `develop` in Bob's
+clone of the simulation:
+
+```sh run sandbox=tidewater cwd=work/bob timeout=240 expect="max_relationships_per_part 8"
+git checkout -q develop
+perl ci/job.pl complexity | sed -n '/^cycles:/,$p'
+```
+
+|| Measure | v1, drop 1 (Cameo) | v2, end of sprint 6 ||
+| Package cycles | 2 pairs of packages that depend on each other (DataCenter and Stations; Network and Operations) | {{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.cycles}} tangled group (the `complexity` job's count: DataCenter and Stations) |
+| Most relationship ends on one part definition | 14 (ObservingStation) | {{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.max_relationships_per_part}} |
+| Largest package fan-out | not measured in v1 | {{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.max_fan_out}} |
+| Hand-drawn diagrams to keep current | 47, some stale | none: every view is generated |
+| Unused and duplicated blocks (the Legacy Import clutter) | 4 unused, 2 duplicated | removed from the v2 model in sprint 5 |
+Table: The spider web measured, v1 against v2. v1 numbers from the drop's own measures; v2 from the complexity job. The cycle row compares two different counts of the same tangle ([[diagrams]] explains the three ways to count it).
+
+Two things in that table need a word. First, one cycle is still there: Network and Operations was broken in
+sprint 4 (story TW-69); DataCenter and Stations was not planned for the first twelve weeks and is still on the
+backlog. Second, the complexity job
+reports a large number of *duplicates* -- {{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.duplicates}}
+-- which is not clutter. It counts requirement names defined twice: once in the Cameo copy of the requirements the
+XMI carries and once in the DOORS conversion. That is a known, deliberate duplication while DOORS stays the
+authoritative source; the job reports it so nobody mistakes one copy for the other.
+
+The package view draws the same web for people ([[diagrams]]):
+
+{{figure: docs/tidewater/views/tidewater-pkg.svg | Package dependencies of drop 1 in the converter's flat layout: the dashed arrows close the cycles}}
+
+The view counts dashed arrows: six in this flat-layout figure, four in the layered layout. The job counts tangled groups: one on drop 1. Use the job's number
+for the trend and the picture for the conversation.
+
+=== Twenty practices {#no-spider-web-practices}
+
+These are the practices that keep a model untangled, grouped as the user's reference grouped them. Each is marked
+*applied* (Tidewater does it), *adapted* (Tidewater does a version of it, for a stated reason) or *later* (not in
+the first twelve weeks, with when it would make sense).
+
+==== Structure
+
+|| Practice | Tidewater | How ||
+| 1. Layer the model; dependencies point one way only | Applied | Folders by layer (library, requirements, logical, physical, analysis, verification) from the layout map at drop 1 ([[repo-layout]]); the complexity job reports any upward dependency. |
+| 2. Modularize by ownership | Applied | One folder per subsystem under `physical/`; CODEOWNERS maps each folder to its owner. |
+| 3. Explicit, narrow imports | Adapted | Government-written files may not use wildcard imports (the job counts them). Files converted from the prime's drops keep the converter's wildcard imports: editing them would make every new drop conflict. |
+| 4. Federate into several projects when the model outgrows one team | Later | One three-person team, one project. Split along the layers when a second team or an outside consumer appears ([[repo-layout]]). |
+Table: Structure practices.
+
+==== Reuse and abstraction
+
+|| Practice | Tidewater | How ||
+| 5. Separate definitions from usages | Applied | The converter writes part, port and interface definitions and uses them as typed usages. |
+| 6. A versioned project library | Adapted | `model/library/` holds the conventions, value types and interfaces, versioned with the model's baselines; publishing it as its own package comes with federation. |
+| 7. Interfaces as contracts at subsystem boundaries | Applied | Port and interface definitions in the library; subsystems connect through them. |
+| 8. Model variability explicitly | Later | No variants in the first twelve weeks; the drifting buoy in drop 4 arrives as a specialization of the station, and variant modeling is the planned way to handle more. |
+Table: Reuse practices.
+
+==== Relationships and traceability
+
+|| Practice | Tidewater | How ||
+| 9. Trace at the right granularity | Adapted | ObservingStation's trace spaghetti was pruned in sprint 5; the remaining links are the prime's to rationalize, raised as a discrepancy report. |
+| 10. Declare each relationship once; generate reverse views | Applied | `satisfy` and `verify` are declared once; the trace report and the VCRM are generated ([[verification]]). |
+| 11. Allocate at agreed levels only | Applied | Functions are allocated to part definitions at one level, as the prime's model does. |
+Table: Traceability practices.
+
+==== Views, not diagrams
+
+|| Practice | Tidewater | How ||
+| 12. Diagrams and documents are generated views | Applied | `model.pl draw` and the model site; no diagram is drawn by hand ([[diagrams]]). |
+| 13. Standard viewpoints per stakeholder | Adapted | The model site for management, the VCRM for test, the data exchange table for interface owners; formal `view def` elements in the model come later. |
+Table: View practices.
+
+==== Semantics and metadata
+
+|| Practice | Tidewater | How ||
+| 14. Metadata instead of stereotype sprawl | Applied | The v1 profile's stereotypes became a handful of metadata definitions in the Conventions package. |
+| 15. Executable constraints over prose | Later | The energy-balance constraint is still a converter TODO at the end of sprint 6; writing it and evaluating it in the pipeline belong to the engineering epic after the port. |
+Table: Semantics practices.
+
+==== Process guardrails
+
+|| Practice | Tidewater | How ||
+| 16. Automate complexity metrics with thresholds | Adapted | The measures are on the scorecard every sprint; the complexity job as a merge-request gate (a ratchet: fail only when a measure gets worse) is planned after sprint 6, so the first twelve weeks stayed lean ([[pipeline]]). |
+| 17. Small, reviewable changes | Applied | One issue, one branch, one merge request; the sprint 3 retrospective added "split MRs before they reach 300 lines". |
+| 18. Refactor continuously | Applied | Cycle breaking, the Legacy Import clean-up and the trace pruning were planned stories with points, not spare-time work. |
+| 19. Tool-neutral text as the source of truth | Applied | The `.sysml` text in git is the model; everything else is generated from it. |
+| 20. Architecture decision records | Applied | Decisions D-1 to D-10 as ADRs in `docs/adr/` from sprint 2. |
+Table: Process practices.
+
+=== Why the web grows, and how the guardrails stop it {#no-spider-web-why}
+
+A spider web is never designed. It grows one link at a time, each link reasonable when it is made: a trace "just to
+be safe", an import of a whole package to reach one definition, a copy of a block "for now". In the Cameo years the
+links were made in diagrams, nobody saw the whole, and nothing measured it until the model was too tangled to
+change.
+
+The guardrails above work because they act at the moment a link is made. A wildcard import in a government file is
+counted on the merge request that adds it. An upward dependency is reported before it merges. A new cycle shows up
+in the complexity report the same day. None of these checks is clever; what matters is that they run on every
+change, so the web cannot grow unnoticed. The other half is the work: the cycle break and the clean-up stories were
+in the backlog with points ([[se-work]]), not left to good intentions.
+
+::: exercise {#ex-no-spider-web-measure} Measure a model you own
+Run the complexity job (or the package view) on a model you work on. Which package has the largest fan-out? Is
+there a cycle? For each one, write down whether it is a real engineering dependency or an accident of how the
+model was built.
+:::
+
+::: exercise {#ex-no-spider-web-practices} Mark the twenty practices for your project
+Copy the tables above and mark each practice applied, adapted or later for your own project, with one line on why.
+Which three would make the biggest difference in the next sprint?
+:::
+
+=== You can now {#no-spider-web-you-can}
+
+- Measure a model's tangle -- cycles, fan-out, relationships per part, duplicates -- and read what each number
+  means.
+- Explain why a text model can still become a spider web, and which guardrails stop it.
+- Decide which of the twenty practices to apply now and which to defer, with a reason for each.
+
+=== Applying this to your project {#no-spider-web-applying}
+
+Copy the layering, the ownership folders, the generated views and the decision records from the first sprint;
+they cost almost nothing and are hard to add later. Adapt the import rule to how your model arrives: if most of it
+is converted from someone else's tool, keep their files as delivered and hold your own files to the stricter rule.
+Decide locally when to turn the complexity measures into a merge-request gate -- after the inherited web is
+measured and the team has seen the numbers for a few sprints.

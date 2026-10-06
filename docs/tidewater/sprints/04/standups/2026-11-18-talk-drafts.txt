@@ -1,0 +1,6 @@
+jim draft:  Y none T TW-70 open DR-1 to DR-4, by Nov 27. B none
+jim posted: Y none T TW-70 open DR-1 to DR-4, by Nov 27; pairing with Bob after lunch. B none
+bob draft:  Y none T TW-67 level tags in Stations, by Nov 27. B none
+bob posted: Y none T TW-67 level tags in Stations, by Nov 27. B none
+tom draft:  Y none T TW-69 remove the ServiceVessel -> Technician dependency, by Nov 27. B none
+tom posted: Y none T TW-69 remove the ServiceVessel -> Technician dependency, by Nov 27; pairing with Jim after lunch. B none

@@ -1,0 +1,30 @@
+Sprint 1 kickoff, 2026-10-05 09:00 (90 minutes)
+
+Goal: A GitLab project the team can work in; drop 1 received and assessed
+Capacity: 18.9 points (Jim 5, Bob 8, Tom 8 per full sprint, less holidays and leave)
+Committed: 16.5 points in 7 stories (87% of capacity): engineering 4.5, platform 8.0 (48%), learning 4.0 (24%)
+
+TW-1     E3    4.0 pts  learning     Learn the tools: survival kit, git, Vim, the operating model
+           #8    1.0 pt  jim  2026-10-05 .. 2026-10-06  Practice lessons 10-11; the operating model chapter
+           #9    1.5 pt  bob  2026-10-05 .. 2026-10-06  Practice lessons 10-11; the survival kit, git and Vim chapters
+           #10   1.5 pt  tom  2026-10-05 .. 2026-10-06  Practice lessons 10-11; the survival kit, git and Vim chapters
+TW-2     E3    3.0 pts  platform     Laptops ready: Git for Windows, Vim, the kit
+           #11   1.0 pt  jim  2026-10-07 .. 2026-10-08  Set up Jim's laptop; kickoff.pl doctor
+           #12   1.0 pt  bob  2026-10-06 .. 2026-10-08  Set up Bob's laptop; kickoff.pl doctor
+           #13   1.0 pt  tom  2026-10-06 .. 2026-10-08  Set up Tom's laptop; kickoff.pl doctor
+TW-3     E1    3.0 pts  platform     Create the GitLab group and model project
+           #14   1.0 pt  tom  2026-10-08 .. 2026-10-09  Apply project.conf with gitlab.pl setup; request the runner
+           #15   1.0 pt  tom  2026-10-09 .. 2026-10-13  Prove a direct push to develop is refused
+           #16   1.0 pt  tom  2026-10-13 .. 2026-10-14  Commit CODEOWNERS, the templates and .gitignore
+TW-4     E2    1.5 pts  platform     Draft the first pipeline and run it locally
+           #17   0.5 pt  tom  2026-10-14 .. 2026-10-15  Draft .gitlab-ci.yml: grammar, lint, outline
+           #18   1.0 pt  tom  2026-10-15 .. 2026-10-16  Run the draft locally on drop 1 with gitlab.pl ci
+TW-5     E5    1.5 pts  engineering  Receive drop 1 and record it
+           #19   1.0 pt  jim  2026-10-09 .. 2026-10-13  Log the CDRL delivery and check the sha256 of every file
+           #20   0.5 pt  jim  2026-10-14 .. 2026-10-14  Open the Prime Drop issue with its checklist
+TW-6     E5    3.0 pts  engineering  Convert drop 1 and assess it
+           #21   1.0 pt  bob  2026-10-08 .. 2026-10-09  Run both converters with --report on drop 1
+           #22   1.0 pt  bob  2026-10-09 .. 2026-10-13  Write the TODO inventory by package
+           #23   1.0 pt  bob  2026-10-13 .. 2026-10-14  Estimate the port backlog with the team
+TW-7     E3    0.5 pts  platform     Working agreements: Definition of Ready and Done
+           #24   0.5 pt  jim  2026-10-15 .. 2026-10-15  Write the Definition of Ready and Done in the wiki

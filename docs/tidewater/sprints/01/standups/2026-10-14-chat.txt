@@ -1,0 +1,13 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+y: TW-5 drop issue t: TW-5 wiki b: none and t-shirt sizes later
+[9:02 AM] Bob
+Y: TW-6 TODO inventory by package; TW-6 estimate the port backlog with the team
+T: TW-6 estimate the port backlog with the team
+B: none
+[9:03 AM] Tom
+Y: TW-3 a direct push to develop is refused; TW-3 CODEOWNERS, the templates and .gitignore
+T: TW-3 CODEOWNERS, the templates and .gitignore; TW-4 .gitlab-ci.yml: grammar, lint, outline
+B: none

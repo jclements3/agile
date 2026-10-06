@@ -1,0 +1,13 @@
+GitLab To-Do lists at the review (2026-10-30 10:00)
+
+  Jim: 0 review(s) requested, 2 open issue(s) assigned
+    #52 DOORS modules into the model
+    #55 First drift and gap analysis from the trace
+
+  Bob: 0 review(s) requested, 1 open issue(s) assigned
+    #51 Close the Network TODO lines
+
+  Tom: 0 review(s) requested, 3 open issue(s) assigned
+    #50 Learn: the workbook second half; talking about progress
+    #53 Trace report and secret detection in the pipeline
+    #54 Runner hardening with the ISSM

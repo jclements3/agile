@@ -1,0 +1,6 @@
+$ git push origin HEAD:develop
+remote: GitLab: You are not allowed to push code to protected branches on this project.        
+To data/tidewater/gitlab/repos/tidewater/model.git
+ ! [remote rejected] HEAD -> develop (pre-receive hook declined)
+error: failed to push some refs to 'data/tidewater/gitlab/repos/tidewater/model.git'
+(exit 1)

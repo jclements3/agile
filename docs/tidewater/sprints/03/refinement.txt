@@ -1,0 +1,9 @@
+Refinement, 2026-11-12 10:00: the Definition of Ready applied to sprint 4's stories
+
+TW-66  1.5 pts  Learn: reviewing a model change; the rehearsed demo
+TW-67  5 pts  Close the Stations level tags
+TW-68  2 pts  Units and value types
+TW-69  2 pts  Break the Network <-> Operations cycle
+TW-70  2 pts  Discrepancy reports DR-1 to DR-4 to the prime
+TW-71  3 pts  The model site on GitLab Pages, rebuilt nightly
+TW-72  1.5 pts  First sprint review with the program office; the delivery interface with the prime

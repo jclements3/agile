@@ -1,0 +1,19 @@
+Sprint 2 review, 2026-10-30 10:00
+
+Goal: Drop 1 on develop through the vendor branch; every change gated
+
+Demonstrated:
+  TW-26 Learn: practice lessons 12-13, Vim for models, the SysML v2 workbook (first half)
+  TW-27 Runner online; the first pipeline gates every MR
+  TW-28 Import drop 1 through the vendor branch, in layers
+  TW-29 TODO burn-down and generated docs in the pipeline
+  TW-30 Level conventions for the part tree
+  TW-31 Enablers, decisions and conventions on record
+  TW-32 Sprint 2 demo: the pipeline and the drop on develop
+
+Artifacts shown: the merge requests and pipelines of the sprint.
+
+Feedback (Deputy PM): "I did not follow the demo. What did we get for the two weeks?" Tom showed the terminal, the YAML and a green pipeline, in that order; the room heard jargon and no number.
+Retro action: a Day-9 rehearsal from now on, and the driver rotates.
+
+The four headline numbers: TODO lines left 52; verify coverage 70%; open DRs 0; blocked items 0.

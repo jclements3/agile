@@ -1,0 +1,121 @@
+Meeting started
+[10:00 AM] Jim
+Refinement for sprint 3. Planning poker: one number per story, in points.
+[10:01 AM] Jim
+#est TW-50 Learn: the workbook second half; talking about progress
+[10:02 AM] Jim
+2
+[10:02 AM] Bob
+3
+[10:02 AM] Tom
+3
+[10:02 AM] Jim
+2 to 3. Talk it out: what does the high vote know?
+[10:03 AM] Jim
+#est TW-50 Learn: the workbook second half; talking about progress
+[10:04 AM] Jim
+2.5
+[10:04 AM] Bob
+2.5
+[10:04 AM] Tom
+2.5
+[10:05 AM] Jim
+#est TW-51 Close the Network TODO lines
+[10:06 AM] Jim
+2
+[10:06 AM] Bob
+3
+[10:06 AM] Tom
+5
+[10:06 AM] Jim
+2 to 5. Talk it out: what does the high vote know?
+[10:07 AM] Jim
+#est TW-51 Close the Network TODO lines
+[10:08 AM] Jim
+3
+[10:08 AM] Bob
+3
+[10:08 AM] Tom
+3
+[10:09 AM] Jim
+#est TW-52 DOORS modules into the model
+[10:10 AM] Jim
+3
+[10:10 AM] Bob
+3
+[10:10 AM] Tom
+3
+[10:11 AM] Jim
+#est TW-53 Trace report and secret detection in the pipeline
+[10:12 AM] Jim
+2.5
+[10:12 AM] Bob
+2.5
+[10:12 AM] Tom
+2.5
+[10:13 AM] Jim
+#est TW-54 Runner hardening with the ISSM
+[10:14 AM] Jim
+2
+[10:14 AM] Bob
+2
+[10:14 AM] Tom
+2
+[10:15 AM] Jim
+#est TW-55 First drift and gap analysis from the trace
+[10:16 AM] Jim
+2
+[10:16 AM] Bob
+2
+[10:16 AM] Tom
+2
+
+---- Chat.pm tallies
+ESTIMATE TW-50 Learn: the workbook second half; talking about progress  (3 answers at 10:01)
+  Bob            3
+  Jim            2
+  Tom            3
+  no consensus: median 3, mode 3, range 2-3
+
+ESTIMATE TW-50 Learn: the workbook second half; talking about progress  (3 answers at 10:03)
+  Bob            2.5
+  Jim            2.5
+  Tom            2.5
+  consensus: 2.5
+
+ESTIMATE TW-51 Close the Network TODO lines  (3 answers at 10:05)
+  Bob            3
+  Jim            2
+  Tom            5
+  no consensus: median 3, mode 2, range 2-5
+
+ESTIMATE TW-51 Close the Network TODO lines  (3 answers at 10:07)
+  Bob            3
+  Jim            3
+  Tom            3
+  consensus: 3
+
+ESTIMATE TW-52 DOORS modules into the model  (3 answers at 10:09)
+  Bob            3
+  Jim            3
+  Tom            3
+  consensus: 3
+
+ESTIMATE TW-53 Trace report and secret detection in the pipeline  (3 answers at 10:11)
+  Bob            2.5
+  Jim            2.5
+  Tom            2.5
+  consensus: 2.5
+
+ESTIMATE TW-54 Runner hardening with the ISSM  (3 answers at 10:13)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-55 First drift and gap analysis from the trace  (3 answers at 10:15)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+

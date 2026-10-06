@@ -1,0 +1,33 @@
+= Part III: Twelve weeks
+
+Part II set up the shop: the operating model, the laptops, git, Vim, GitLab, the pipeline, the journal and the
+meetings. Part III is the work itself. Each of the next six chapters is one two-week sprint of Jim, Bob and Tom's
+first twelve weeks, from Monday 5 October to Friday 18 December 2026, told from the record the sprint left behind.
+
+That record is real in the only sense that matters for a study book: every stand-up status, poker round, issue,
+merge request, pipeline log, quad and survey answer quoted in these chapters was produced by running the kit's own
+tools on the Tidewater scenario, and the numbers are cited from those files rather than typed. The files are in
+`docs/tidewater/` beside the book; its `README.md` lists every one with a line on what it shows. When a chapter says
+a pipeline failed, you can open the log. When it says the team committed so many points, the number on the page was
+read from the sprint's scorecard when the book was built.
+
+Each sprint chapter has the same shape, so you can read them in order or jump to the one that matches where your own
+team is:
+
+- **The question and the mood.** Every sprint answered one systems engineering question, and the pulse survey at the
+  retrospective measured how the team felt about the answer.
+- **The kickoff.** The goal, the capacity, the plan, the planning-poker rounds, and the learning budget.
+- **Week one and week two, day by day.** The stand-ups as they were posted, the GitLab work as it happened, and the
+  thought process behind each decision: what the team chose, what else it could have done, and what it would do
+  differently now.
+- **Refinement, review and retrospective.** What was estimated for the next sprint, what was shown to management and
+  how it landed, and what the team changed.
+- **The numbers.** The scorecard at the end of the sprint, and what Jim told management.
+- **You can now..., exercises, and applying this to your project.**
+
+Two warnings before you start. First, the team is not good at this yet. In sprint 1 their stand-up statuses fail the
+lint, their first merge request has no pipeline, and their first local pipeline is red. In sprint 2 their first real
+pipeline dies on its first line and their demo loses the room. That is the point: the book shows what a first attempt
+actually looks like, so yours does not have to be perfect to be on track. Second, the early sprints are mostly about
+the shop rather than the model. The bottom line up front ([[bluf]]) shows how quickly that changes; by sprint 4 most
+of the board is systems engineering.

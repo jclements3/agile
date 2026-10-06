@@ -1,0 +1,11 @@
+Sprint 6 retrospective, 2026-12-24 11:00
+
+Start:
+  - Writing acceptance criteria as pipeline checks
+Stop:
+  - Pasting tokens into scripts, even test ones
+Continue:
+  - The nightly pipeline
+  - Reviews with line comments instead of red-pen PDFs
+
+Pulse survey (1-5, anonymous): mean 4.1

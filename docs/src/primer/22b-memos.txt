@@ -1,0 +1,387 @@
+== Writing it down: DoD-style memos from Vim {#memos}
+
+::: survival
+What you have: Vim, a model repository, and a management chain that still runs on signed memoranda.
+
+What you need: a way to write a proper memorandum (office symbol, date, MEMORANDUM FOR, FROM, SUBJECT, numbered
+paragraphs, signature block, portion markings when required) without leaving Vim, without a word processor template
+that fights you, and with the memo under review in the repository like any other change. The kit has it:
+`md2memo.pl` turns Markdown into a memorandum PDF in pure Perl, and `memo-build.pl` wraps it for templates.
+:::
+
+=== Why memos still matter {#memos-why}
+
+Everything in the earlier chapters is live: the board, the pipeline, the model site, the stand-up. Management can look
+at any of it at any time. So why write a memorandum?
+
+Because some things have to be *on the record*, in the form the organization files and forwards:
+
+- **Requests that need a signature.** Training time, hardware, licenses and tool approvals are decided by someone who
+  will forward the request up a chain. A chat message does not travel; a memo does.
+- **Decisions that must outlive the people who made them.** A memorandum for record (MFR) of why the team chose
+  gitflow, or how the change board dispositioned a prime drop, is what an auditor or a successor reads in three years.
+- **Results reported upward.** The twelve-week progress memo is what the program manager attached to their own
+  report. The live site is the evidence; the memo is the claim, signed.
+- **Correspondence with the prime.** Discrepancy reports go to the contractor through the contracting officer, as
+  formal correspondence, not as a GitLab issue the contractor cannot see.
+
+The team's objection, in week two, was that this was the old way coming back in by the side door. Jim's answer was that
+the memo was now the *thin* layer: one page that points at evidence the system produces, instead of a forty-page
+document that *was* the evidence. Writing it took twenty minutes instead of two days, because every number in it came
+from the pipeline or `talk.pl` ([[talking]]).
+
+=== The format, and how Markdown maps to it {#memos-format}
+
+A DoD-style memorandum has a fixed shape. `md2memo.pl` maps plain Markdown onto it:
+
+|| Memo part | Markdown | Rendered ||
+| Organization (letterhead) | `# Tidewater Coastal Observation Program` | centered, upper case |
+| Office symbol | `## TW-SE` | flush left, upper case |
+| Date | `## 18 December 2026` | flush left |
+| MEMORANDUM FOR | `## Memorandum for Tidewater Program Manager` | upper case |
+| FROM, SUBJECT, REFERENCES | `## From: ...`, `## Subject: ...`, `## References: (a) ...; (b) ...` | upper case |
+| Numbered paragraphs | each top-level paragraph | 1., 2., 3. ... |
+| Subparagraphs | a list right after a paragraph | a., b., c. (then (1), (a) ...) |
+| Emphasis | `*word*` or `**word**` | underlined |
+| Tables | pipe tables | a ruled grid in the PDF, box characters in text |
+| Signature block | `## JIM` then `## Tidewater MBSE Lead` | upper case, after the last paragraph |
+| Portion marking | `{CUI}text{/}` (and U, C, S, TS with controls) | a portion mark in the margin; banners top and bottom |
+Table: Markdown to memorandum
+
+The output is US Letter with one-inch margins, Times 12 by default (`--font courier` for the typewriter look), as a PDF,
+PostScript or plain text. Nothing needs installing: it is the same core Perl as the rest of the kit.
+
+=== The five templates {#memos-templates}
+
+Writing a memo from a blank page is how memos get long. The kit ships five templates in
+`tools/gitlab/templates/memos/`, and `kickoff.pl scaffold` copies them into every new model repository as
+`docs/memos/templates/`. Each one carries its guidance in comments that never print, and marks every blank as
+`<<placeholder>>`.
+
+|| Template | Use it when | The rule it teaches ||
+| `memorandum-for-record.md` | a decision must be on the record: gitflow, a baseline, a waiver | state the decision, the options rejected, and who can change it |
+| `request-for-enablers.md` | the team needs time, hardware, licenses or approvals | every ask has what, why (in management's terms), by when, and what happens if not |
+| `progress-memo.md` | management needs measured progress: the twelve-week memo, a quarterly memo | the outcome in the subject line; the agreed measures in a table; before and after; the ask |
+| `drop-disposition.md` | the change board has dispositioned the changes in a prime drop | one row per prime change: accept, accept with impact, reject or clarify, no impact |
+| `discrepancy-report-transmittal.md` | discrepancy reports go to the prime through the contracting channel | cite the prime's own element ids so the contractor can find each one |
+Table: The memo templates
+
+Here is the start of the request-for-enablers template; the comment block is its instructions, and it does not print:
+
+{{include: tools/gitlab/templates/memos/request-for-enablers.md | lines 1-21}}
+
+The rule in that comment is the one that matters: "We're not ready" sounds like foot-dragging; "we need X by date Y,
+or the trace report slips two weeks" is an engineering position management can act on. It is the same outcome,
+evidence, ask pattern as the stand-up in [[talking-pattern]], in a more formal register.
+
+=== Writing one {#memos-writing}
+
+==== From the shell
+
+Start from the template, in the repository's `docs/memos/` folder, and ask the build script what is still blank:
+
+```sh run sandbox=scratch exit=1 expect="placeholder\(s\) to fill in"
+mkdir -p docs/memos
+cp $KIT/tools/gitlab/templates/memos/request-for-enablers.md docs/memos/2026-10-21-enablers.md
+perl $KIT/tools/memo/memo-build.pl --check docs/memos/2026-10-21-enablers.md
+```
+
+```text
+memo-build: docs/memos/2026-10-21-enablers.md: warning: 24 placeholder(s) to fill in: <<Organization name>>, <<Office symbol>>, <<DD Month YYYY>>, <<Program Manager, office>>, <<Title, e.g. Tidewater MBSE Lead>>, ...
+```
+
+`--check` exits with status 1 while anything is still blank, so it can also run in the pipeline: a memo with a
+placeholder never reaches `develop`. Fill in the blanks in Vim (next section), then build it. Here is Jim's finished
+memo from sprint 2, built from the same template:
+
+```sh run expect="wrote docs/memos/2026-10-21-request-for-enablers\.pdf"
+cp $KIT/docs/tidewater/memos/2026-10-21-request-for-enablers.md docs/memos/
+perl $KIT/tools/memo/memo-build.pl docs/memos/2026-10-21-request-for-enablers.md
+```
+
+```text
+wrote docs/memos/2026-10-21-request-for-enablers.pdf
+wrote docs/memos/2026-10-21-request-for-enablers.txt
+```
+
+The `.txt` beside the PDF is the same memo as plain text, which is what you paste into an e-mail when the PDF is an
+attachment, and what `git diff` can show in review:
+
+```sh run expect="MEMORANDUM FOR TIDEWATER PROGRAM MANAGER"
+sed -n 1,24p docs/memos/2026-10-21-request-for-enablers.txt
+```
+
+{{include: docs/tidewater/memos/2026-10-21-request-for-enablers.txt | lines 1-37}}
+
+Look at what Jim did. The subject line names the outcome ("brief measured results at the December program management
+review"), not "resources". Paragraph 1 says where the team stands with one number. The asks are a table, because
+management reads the table first, and each row says what happens if the answer is no. The full memo is in
+`docs/tidewater/memos/`, with the four others the team wrote in the twelve weeks and the first prime drop after them.
+
+==== From Vim
+
+The whole loop stays in Vim. Open the memo, write, and build with one Ex command; `%` is the current file:
+
+```vim run expect="wrote docs/memos/2026-10-21-request-for-enablers\.txt"
+edit docs/memos/2026-10-21-request-for-enablers.md
+w | !perl $KIT/tools/memo/memo-build.pl %
+```
+
+To read the result beside the source, open the text version in a split:
+
+```vim
+:w | !perl $KIT/tools/memo/memo-build.pl %
+:vsplit %:r.txt
+```
+
+and to find the blanks left in a template, search for the placeholder marker:
+
+```vim
+/<<
+```
+
+`n` jumps to the next one. When `memo-build.pl --check %` stops complaining, the memo is ready for review.
+
+If you want `md2memo.pl` itself (for options such as `--font courier` or a default marking), call it directly; but it
+prints the template's instruction comments, so use `memo-build.pl` for anything that started from a template. Options
+for `md2memo.pl` go after `--`:
+
+```sh run sandbox=scratch expect="wrote docs/memos/2026-10-21-request-for-enablers\.pdf"
+mkdir -p docs/memos
+cp $KIT/docs/tidewater/memos/2026-10-21-request-for-enablers.md docs/memos/
+perl $KIT/tools/memo/memo-build.pl docs/memos/2026-10-21-request-for-enablers.md -- --font courier
+```
+
+==== Portion marking
+
+Tidewater is notional and unmarked, so the team's memos carry no markings. Your program's memos may need them, and
+`md2memo.pl` handles them: tag a portion with `{CUI}...{/}` (or U, C, S, TS with dissemination controls), and every
+paragraph gets its portion mark and every page its banner, rolled up from the portions on it. Here is a discrepancy
+report transmittal with one paragraph tagged, as a demonstration (the CUI label is notional, like everything in
+Tidewater):
+
+```sh run expect="\(CUI\) 2\."
+cat > docs/memos/2026-11-20-dr-transmittal.md <<'EOF'
+# Tidewater Coastal Observation Program
+
+## TW-SE
+
+## 20 November 2026
+
+## Memorandum for Northwind Marine Systems, Tidewater Program Office (through the contracting officer)
+
+## From: Tidewater MBSE Lead
+
+## Subject: Discrepancy reports DR-1 to DR-4 against prime drop v1.0
+
+## References: (a) CDRL A003, System Model; (b) Model exchange agreement, 2 October 2026
+
+The government's review of drop v1.0 found four discrepancies between the delivered model and the DOORS requirements. Each cites the v1 element identifier so it can be found in the model.
+
+{CUI}The details of each discrepancy, with element identifiers, are in the attached report.{/}
+
+Request a disposition of each discrepancy with the next drop, or by 15 January 2027.
+
+## JIM
+
+## Tidewater MBSE Lead
+EOF
+perl $KIT/tools/memo/memo-build.pl docs/memos/2026-11-20-dr-transmittal.md
+cat docs/memos/2026-11-20-dr-transmittal.txt
+```
+
+```text
+                                  CUI
+
+(U)                 TIDEWATER COASTAL OBSERVATION PROGRAM
+
+(U)   TW-SE
+
+(U)   20 NOVEMBER 2026
+...
+(U)   1.  The government's review of drop v1.0 found four discrepancies
+      between the delivered model and the DOORS requirements. Each cites
+      the v1 element identifier so it can be found in the model.
+
+(CUI) 2.  The details of each discrepancy, with element identifiers,
+      are in the attached report.
+
+(U)   3.  Request a disposition of each discrepancy with the next drop,
+      or by 15 January 2027.
+...
+                                  CUI
+```
+
+::: warning The tool marks what you tag; it does not decide what is controlled
+`md2memo.pl` applies the markings you put in the text and rolls them up correctly. Deciding *what* is CUI, export
+controlled or classified is the security office's job, under your program's classification guide. Agree the rules
+before the first marked memo, and record them in `docs/conventions/markings.md`.
+:::
+
+=== Memos under review, like model changes {#memos-review}
+
+The team keeps its memos in the model repository, under `docs/memos/`, with the date first in the file name so the
+folder lists them in order. A memo is a change like any other:
+
+1. Open an issue ("Twelve-week progress memo for the December review"), with the `doc::grey` label from the document
+   review stages ([[documents-stages]]).
+2. Write the memo on a feature branch, from the template.
+3. Open a merge request. The reviewers are the people whose numbers are in it: Bob checks the model figures, Tom the
+   pipeline figures.
+4. The pipeline runs `memo-build.pl --check` on every changed memo, so a placeholder or a missing subject line fails
+   the merge request.
+5. The issue's `doc::` label moves through the stages as reviews finish; at `doc::white` Jim signs and sends the PDF.
+6. Merge. The memo, its PDF and its text are now in the history, next to the model they describe, at the same commit.
+
+That last point is the quiet benefit. A year later, "what did we tell management in December, and what did the model
+look like when we said it?" is one `git log` away: the memo and the model share a commit.
+
+=== Tidewater's memos {#memos-tidewater}
+
+The team wrote five memos in its first four months. All five are in `docs/tidewater/memos/` as Markdown, PDF and text.
+
+|| Date | Memo | From | Template ||
+| 24 Sep 2026 | the directive: adopt DevSecOps practices for systems engineering artifacts ([[directive-memo]]) | the program manager | none: it came first |
+| 21 Oct 2026 | request for enablers: training hours, the ISSM slot, a Cameo seat, a second runner, the GitLab tier decision | Jim, sprint 2 | `request-for-enablers.md` |
+| 23 Oct 2026 | memorandum for record of decisions D-1 to D-10 ([[om-decisions]]) | Jim, sprint 2 | `memorandum-for-record.md` |
+| 18 Dec 2026 | twelve-week results for the December review | Jim, sprint 6 | `progress-memo.md` |
+| 13 Jan 2027 | disposition of prime drop v1.1 | Jim, as chair of the model change board | `drop-disposition.md` |
+Table: The Tidewater memos
+
+==== The twelve-week progress memo
+
+The most important of the five is the one that told management the twelve weeks worked. Its subject line is a
+conclusion: *Twelve-week results: the Tidewater model is under configuration control and checked on every change*. Its
+second paragraph is the scorecard agreed in week zero ([[directive-scorecard]]), with the value at the start, the value
+now and the target, and the source of each number:
+
+{{include: docs/tidewater/memos/2026-12-18-twelve-week-progress.md | lines 18-34}}
+
+The "Now" column is filled from the simulation's sprint 6 evidence (the scorecard and the analytics report), the same
+numbers the briefing in [[briefing]] shows. The rest of the memo follows the progress template: one before-and-after
+paragraph, one honest paragraph about what did not go well and what the team did about it, what the results mean for
+the next milestone (the January drop), and the ask with a date. It is the written twin of the sprint 6 briefing, and it
+went to the program manager the day after.
+
+==== The disposition memo
+
+The drop-2 disposition memo shows the change board's work in the form a contracting officer files: one row per change
+the prime delivered, the board's disposition, and the issue that tracks each. It also closes DR-1, because drop 2 fixed
+the TW-SYS-006 wording. [[prime-changes]] explains the disposition process; the memo is its record.
+
+=== The progress memo, step by step {#memos-progress-steps}
+
+Jim wrote the twelve-week memo on the Monday of sprint 6's second week, in about forty minutes, and it went through one
+review round. The order Jim worked in is the order to copy, because each step uses something the system already
+produced.
+
+1. **Start from the measures, not the prose.** Copy `progress-memo.md` and fill the measures table first: the "At
+   start" column comes from week zero's scorecard ([[directive-scorecard]]), the "Now" column from the latest
+   pipeline metrics and `talk.pl review` ([[talking-tools]]), the "Source" column says where each number lives so a
+   reader can check it. If a number cannot be sourced, it does not go in the table.
+2. **Write the subject line as the conclusion the table supports.** Not "Twelve-week status", but what the numbers
+   say: "the model is under configuration control and checked on every change". If the table does not support a
+   conclusion you would sign, the memo is not ready, and the conversation with management should happen before the
+   memo, not in it.
+3. **Paragraph 1: the most important result, in one sentence with one number.** The same rule as the one-sentence
+   rung of the ladder ([[talking-ladder]]).
+4. **One before-and-after paragraph.** Pick the comparison management will repeat. For Tidewater it was finding the
+   difference between the prime's DOORS text and the model: never done systematically before, now done on every
+   change in under a minute.
+5. **One honest paragraph about what did not go well**, and what the team did about it. Sprint 3's dip went in, with
+   its two causes and the two fixes. A progress memo with no bad news reads as a sales document, and management
+   discounts it.
+6. **What it means for the next milestone.** The next thing management cares about (the January drop) and what the
+   team can now do for it.
+7. **The ask, with a date, and a reference to where it was first asked.** The twelve-week memo repeated two asks from
+   the October request-for-enablers memo that were still open, and cited it.
+8. **Attachments that are evidence, not decoration.** The briefing and a link to the model site. Not a printout of the
+   pipeline.
+
+Then `memo-build.pl --check`, a merge request with Bob and Tom as reviewers (Bob checks every model number against the
+site, Tom every pipeline number against the job logs), and a review in the document stages before Jim signs.
+
+=== Which record for what: memo, ADR, issue, wiki {#memos-which}
+
+The team found itself with four places to write things down and, for a sprint, wrote some things in all four. The rule
+they settled on:
+
+|| Record | For | Audience | Lives in | Changes by ||
+| Issue | work to be done, and the conversation about it | the team, the reviewers | GitLab | comments, labels, closing |
+| ADR (architecture decision record) | a decision about the model or the toolchain, with context and consequences | engineers now and later | `docs/adr/` in the repository | a new ADR that supersedes it |
+| Memorandum for record | a decision the organization must be able to cite, in its own format | auditors, successors, the program office | `docs/memos/` (and the official file) | a new memo |
+| Wiki page | how the team works: the definitions of ready and done, the runbooks, the glossary | the team, newcomers | the GitLab wiki | editing, with history |
+| Memo to someone | a request, a report, correspondence | a named person outside the team | `docs/memos/`, then sent | not changed once sent |
+Table: Where to write it down
+
+Some decisions belong in two places. The ten decisions of week zero were written as ADRs, because engineers need the
+reasoning next to the model, and summarized in one memorandum for record, because the program office needed a document
+it could cite. The memo points at the ADRs; it does not repeat them.
+
+::: tip One fact, one home
+If the same fact appears in an ADR, a memo and the wiki, it will drift. Give each fact one home and point at it from
+the others. The memo is the thinnest layer: it cites, it does not restate.
+:::
+
+=== What md2memo cannot express {#memos-limits}
+
+The tool covers what a working memorandum needs, and the team found its edges quickly. They are worth knowing so you
+do not fight them:
+
+- **Header lines are upper case.** The `##` lines become upper case, so a long reference list prints in capitals.
+- **The date cannot sit flush right on the office-symbol line.** Runs of spaces collapse; the office symbol and the
+  date go on separate lines.
+- **The signature block is flush left,** not started at the center of the page.
+- **Attachments are a small table.** A list after the signature would continue the paragraph numbering, so the
+  templates use a two-column table instead.
+- **References are one line,** not (a) and (b) subparagraphs under the header.
+- **Wide tables wrap mid-word in the text output.** The PDF measures widths and is fine; the 65-column text version
+  breaks long cell words.
+- **Instruction comments print** if you call `md2memo.pl` directly on a template; `memo-build.pl` strips them first.
+
+If your organization's correspondence manual requires any of the first four exactly, render the PDF and fix the last
+mile in the office's word processor; keep the Markdown as the reviewed source. Most program offices accepted the
+output as is.
+
+=== Exercises {#memos-exercises}
+
+::: exercise {#ex-memo-enablers} Ask for what you need
+Copy `request-for-enablers.md` and write the request your team would need to adopt this book's practices: training
+time, a runner machine, a tool approval, one more. For each ask write what, why in management's terms, by when, and
+what happens if not. Run `memo-build.pl --check` until it is silent, then build it.
+:::
+
+::: exercise {#ex-memo-mfr} Record a decision
+Pick one decision from [[om-decisions]] (or one your team made this month) and write a memorandum for record with the
+`memorandum-for-record.md` template: the decision, the options rejected and why, and who can change it. Compare it
+with the same decision as an ADR in `docs/adr/`: what does each one do that the other does not?
+:::
+
+::: exercise {#ex-memo-vim} Build from Vim
+Open a memo in Vim, change one paragraph, and rebuild it with `:w | !perl $KIT/tools/memo/memo-build.pl %`. Open the
+text version in a vertical split. Then commit the memo on a branch and look at `git diff` of the `.txt`: is the change
+easy to review?
+:::
+
+::: exercise {#ex-memo-progress} Draft the progress memo from evidence
+Using `talk.pl weekly` and `review` output for a sprint ([[talking-tools]]), fill in the measures table of
+`progress-memo.md` for that sprint. Which numbers came from the pipeline, which from GitLab, and which did you have to
+supply yourself?
+:::
+
+=== Applying this to your project {#memos-apply}
+
+- **Copy**: the five templates; memos in the repository under `docs/memos/`, dated file names, reviewed by merge
+  request; `memo-build.pl --check` in the pipeline; the rule that every number in a memo comes from the system.
+- **Adapt**: the letterhead, office symbols and signature blocks to your organization's correspondence manual; the
+  marking rules to your security classification guide (write them in `docs/conventions/markings.md` first).
+- **Decide locally**: which decisions need an MFR as well as an ADR; who signs which memo; whether the PDF from
+  `md2memo.pl` goes out as is or through the office's word processor for the last mile.
+
+::: note You can now...
+- write a DoD-style memorandum in Markdown, in Vim, from a template, and render it to PDF and text;
+- find what is still blank with `memo-build.pl --check`, and keep placeholders out of the repository;
+- tag portions for marking and get the banners rolled up correctly;
+- keep memos under review in the model repository, at the same commit as the model they describe;
+- know where the tool's format stops and the correspondence manual takes over.
+:::

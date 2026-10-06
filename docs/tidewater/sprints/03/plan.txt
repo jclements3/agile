@@ -1,0 +1,22 @@
+Sprint 3 kickoff, 2026-11-02 09:00 (90 minutes)
+
+Goal: Network closed; DOORS in the model; the trace report on every change
+Capacity: 18.9 points (Jim 5, Bob 8, Tom 8 per full sprint, less holidays and leave)
+Committed: 15.0 points in 6 stories (79% of capacity): engineering 8.0, platform 4.5 (30%), learning 2.5 (16%)
+
+TW-50    E3    2.5 pts  learning     Learn: the workbook second half; talking about progress
+           #56   0.5 pt  jim  2026-11-02 .. 2026-11-02  talk.pl: draft, then edit, the stand-up
+           #57   1.0 pt  bob  2026-11-02 .. 2026-11-03  Workbook second half; talk.pl
+           #58   1.0 pt  tom  2026-11-10 .. 2026-11-12  talk.pl; the Day-9 demo rehearsal
+TW-51    E6    3.0 pts  engineering  Close the Network TODO lines
+           #59   1.0 pt  bob  2026-11-03 .. 2026-11-04  Level tags in Network
+           #60   2.0 pt  bob  2026-11-04 .. 2026-11-06  The include use case in ReviewObservations
+TW-52    E7    3.0 pts  engineering  DOORS modules into the model
+           #61   2.0 pt  jim  2026-11-03 .. 2026-11-06  Re-import drop 1 with the DOORS modules on vendor/prime
+           #62   1.0 pt  bob  2026-11-09 .. 2026-11-10  Merge the DOORS modules to develop
+TW-53    E2    2.5 pts  platform     Trace report and secret detection in the pipeline
+           #63   2.5 pt  tom  2026-11-03 .. 2026-11-06  Add the trace job (report only) and the secrets job
+TW-54    E4    2.0 pts  platform     Runner hardening with the ISSM
+           #64   2.0 pt  tom  2026-11-06 .. 2026-11-12  Runner service account and hardening checklist
+TW-55    E7    2.0 pts  engineering  First drift and gap analysis from the trace
+           #65   2.0 pt  jim  2026-11-09 .. 2026-11-13  Write up the drift and the trace gaps

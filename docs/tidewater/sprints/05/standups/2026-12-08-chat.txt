@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-90 Reviewed !18. T TW-94 DR-6: weak verbs and missing parts in the DOORS, by Fri; pairing with Bob after lunch. B none
+[9:02 AM] Bob
+Y TW-90 Procured parts as metadata;: 3 TODOs closed, 19 left. T TW-90 level tags in DataCenter, by Fri; pairing with Tom after lunch. B none
+[9:03 AM] Tom
+Y none T TW-95 rehearse release and hotfix in tidewater/sandbox, by Fri. B none

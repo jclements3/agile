@@ -1,0 +1,17 @@
+= Part V: Living with it
+
+The first twelve weeks are a sprint in both senses: a burst of effort, watched closely, with a briefing at the end.
+What follows is longer and quieter. Tidewater's model has to stay correct for years after the briefing, through
+staff changes, server upgrades, expiring tokens, a contractor who keeps delivering Cameo drops, and the slow
+temptation to stop doing the dull parts because nothing has gone wrong lately.
+
+This part is about that long tail. [[admin]] covers the recurring administration that keeps the environment
+trustworthy: who has access, which tokens exist, whether the runner is patched, whether a backup can actually be
+restored. [[maintenance]] covers the engineering rhythm after the port: taking in each prime drop, cutting
+baselines, fixing a released baseline in a hurry, and retiring the tools that only the port needed. [[pitfalls]]
+collects the ways teams like Jim's go wrong when they move from documents and Cameo to a model in GitLab, each with
+the symptom you will notice first, why it happens, and what to do.
+
+None of it is glamorous. All of it is what separates a demonstration from a capability. The program manager put it
+to Jim after the sprint 6 briefing, in a sentence Jim wrote on the whiteboard and left there: "Now show me it still
+works in a year."

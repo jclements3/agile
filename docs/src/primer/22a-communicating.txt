@@ -1,0 +1,189 @@
+== Telling management {#communicating}
+
+::: survival Before you start
+What you have: a journal of stories, a GitLab project, and a program manager who will not open either.
+
+What you need: a rhythm of short reports, each built by the system from the same records, so that management sees
+progress every week and the December briefing is a summary rather than a surprise.
+:::
+
+The briefing in [[briefing]] worked because nothing in it was new to the program manager. Every number on its slides
+had appeared, a few at a time, in reports that arrived every Friday and every second Friday for twelve weeks. This
+chapter is about that rhythm: what each report is, what is in it, how it is produced, and how the team learned to
+write the parts a program cannot produce.
+
+=== Three rhythms {#communicating-rhythms}
+
+Jim agreed three kinds of report with the program manager in week zero ([[directive-management]]):
+
+|| Report | When | What is in it | Built from ||
+| Weekly note and quad | every Friday | one paragraph of headline, three numbers, risks, asks; the one-page quad behind it | the journal (`daily.pl quad`), GitLab (`talk.pl weekly`) |
+| Sprint review | every second Friday | what was finished, shown live; the four headline numbers; the ask | GitLab, the journal, the pipeline; the demo script |
+| Program review | end of sprint 6, then quarterly | the scorecard, before and after, a demonstration, the ask | everything above ([[briefing]]) |
+Table: The reporting rhythm agreed in week zero.
+
+The rule behind all three: the system produces the numbers, a person writes the sentences. Nobody types a count into
+a report.
+
+=== The weekly quad {#communicating-quad}
+
+The quad is a one-page weekly status the program already used before Tidewater, in a slide template the team's lab had
+used for years. The template, *Quad Explanation*, describes four quadrants under a "Weekly Status" title with the lab's
+name and an "As of" date. The kit's `daily.pl quad` produces the same page from the journal. Here is the template's
+meaning, element by element, and where each element comes from in the kit.
+
+==== The four quadrants
+
+|| Quadrant | What the template says it holds | What the kit puts there ||
+| Technical Priorities | the current sprint backlog: every task, tagged with its state | this sprint's stories from the journal, each with a four-letter word, points and owner |
+| Watch Items / PM Help Needed | tasks with a blocker or that could not be completed on time, marked for the program manager | blockers older than three days as (PM), fresh blockers, holds, carryovers and unassigned work as (WI) |
+| Schedule Milestones | the 30-60-90 day backlog: what is due 30, 60 and 90 days out, priority 1 to 3 | epics whose forecast finish falls in each window, with progress and the forecast date |
+| Accomplishments | items from the DONE list, marked on time or late | stories done this week, marked on time unless they were ever carried over or reworked |
+Table: The quad's quadrants, the template and the kit.
+
+==== The four-letter words
+
+The Technical Priorities quadrant tags every item with one word, so the program manager can read the state of the
+sprint at a glance:
+
+|| Word | Meaning in the template ||
+| TODO | a task that needs to be completed: on the backlog, not started |
+| OPEN | a task that has begun |
+| DONE | a completed task |
+| WAIT | a task that cannot proceed because of a blocker outside the team |
+| HOLD | an open task interrupted by a higher priority |
+| PASS [team] | handed to another team, to overcome a blocker or because they can do it better |
+| DROP | a task that should not be done after all |
+| REDO | done, but the demonstration showed it was wrong, so it is back in the sprint |
+| PUNT | too hard as written: back to the backlog to be re-cut |
+| SYNC | coordinated across teams, with a shared DONE |
+Table: The quad's four-letter words.
+
+The stand-up verbs map onto them: `hold` and `resume`, `punt`, `redo`, `pass`, `sync` in the stand-up file set the
+word the quad prints ([[journal]]).
+
+==== The two SWAT marks
+
+Watch items carry one of two marks, and the difference matters to a program manager:
+
+- **(PM) SWAT**: the program manager needs to *help remove* a blocker. This is an ask.
+- **(WI) SWAT**: the program manager needs to *be aware* of an item. This is information.
+
+The kit raises an item to (PM) when a blocker is older than three days or a team is loaded over a hundred and ten
+percent of its capacity; everything else on the watch list is (WI).
+
+==== The legend
+
+The template's legend has three groups. Schedule movement: *pushed right* (a milestone slipped later), *pulled left*
+(it moved earlier). Issue level: *minor or no issues*, *significant issues requiring PM awareness*, *show stopper
+issues*. Trend: *improving*, *degrading*, *no change*. The kit prints the first and third group as marks (`->`, `<-`,
+`=`, and the sprint progress trend in the header). It does not draw the three issue levels; the (PM) and (WI) marks
+carry most of that meaning, and a show stopper on a three-person team is a phone call, not a quad entry.
+
+==== The two metrics
+
+The template's second slide makes the quad do double duty as a metrics report: "Weekly Status satisfies both
+Metrics."
+
+- **Sprint Progress**: the share of the current sprint backlog (the Technical Priorities quadrant) that is done. The
+  kit prints it in the header, with its trend against the previous week.
+- **On-Time Delivery of Milestone Products**: the share of accomplishments delivered on time, marked with a tick or a
+  cross in the Accomplishments quadrant. The kit prints this week's and this sprint's counts beside it.
+
+==== Tidewater's quads
+
+The first quad of the project, Friday of sprint 1's first week:
+
+{{include: docs/tidewater/sprints/01/quad-2026-10-09.txt}}
+
+And the last of the twelve weeks:
+
+{{include: docs/tidewater/sprints/06/quad-2026-12-18.txt}}
+
+Read them the way the program manager did. The header gives the two metrics. Technical Priorities shows the sprint;
+in the first quad, two of its first stories are learning and laptops, which is the learning budget of [[bluf]]
+showing up where management can see it. The milestones quadrant shows the epics converging. The accomplishments are
+all ticked. The watch list is empty in both; across the twelve weeks only one item ever reached it, the Stations
+story carried out of sprint 4, as a (WI).
+
+That empty watch list is worth a second look. In sprint 3 the toolchain review waited three days for the ISSM, and
+the quad of that Friday does not show it, because the wait began and ended between two Fridays. A weekly snapshot can
+miss a short block; the daily stand-up record ([[journal]]) has it.
+
+You can produce a quad yourself from the Tidewater journal, as of any date:
+
+```sh run sandbox=tidewater expect="TECHNICAL PRIORITIES"
+perl "$KIT/bin/daily.pl" --conf journal/scrum.conf --today 2026-12-18 quad
+```
+
+The numbers will differ from the evidence copy above: the journal now holds the whole sprint, so "as of 18 December"
+is computed with the later stand-ups in it. The evidence copy is the page Jim actually sent that Friday afternoon.
+That is a lesson in itself: file the report you sent, not one you can regenerate.
+
+=== The weekly note {#communicating-note}
+
+The quad is the detail. The note is the headline: one paragraph a program manager reads on a phone between meetings.
+`talk.pl weekly` drafts it from GitLab, with a conclusion as its first line ("On track," "At risk" or "Needs help"),
+three numbers, the risks and the asks:
+
+```sh run expect="Weekly note"
+perl "$KIT/tools/gitlab/talk.pl" --local gitlab --project tidewater/model weekly --date 2026-12-18
+```
+
+Jim edited every draft before sending it. The risks section of this one lists the discrepancy reports to the prime
+by age, each on its own line; in the note Jim sent, Jim folded them into one sentence ("our discrepancy reports to the
+prime, the oldest four weeks old, all due with the January drop") because the program manager reads a list of
+identical lines as that many separate problems. The draft is a starting point; the sentence is the lead's job ([[talking]]).
+
+=== The sprint review report {#communicating-review}
+
+Every second Friday the review notes go to the program manager and the deputy: the sprint goal, what was
+demonstrated, what carried over, the artifacts shown, any feedback, and the four headline numbers. Sprint 6's review,
+as filed:
+
+{{include: docs/tidewater/sprints/06/review.txt}}
+
+The four headline numbers were the same at every review from sprint 2 on: TODO lines left, verify coverage, open
+discrepancy reports, blocked items. Keeping them identical was deliberate. By sprint 4 the deputy program manager
+stopped asking what they meant and started asking why one had changed.
+
+The reviews also recorded the feedback, including the feedback that hurt. Sprint 2's says the deputy did not follow
+the demo; sprint 4's records the program manager asking whether the model site works on a phone. Both are quoted in
+[[talking]], and the change between them is the reason the team rehearses.
+
+=== How the reports changed management's questions {#communicating-effect}
+
+In September the program manager's question about the model was "Is it done?" By November it was "Which of these
+watch items needs me?" By December it was "Show me the same numbers in March." The reports did not just inform
+management; they changed what management asked for, from a yes or no to a trend. That is the point of a rhythm of
+small, regular, system-built reports: the conversation moves from whether the team is working to what the work
+shows.
+
+::: exercise Read a quad
+Open `docs/tidewater/sprints/04/quad-2026-11-27.txt`. What is the one watch item, what does its mark mean, and what
+would you expect the program manager to do about it?
+:::
+
+::: exercise Write the note
+Run `talk.pl weekly` for 13 November in the sandbox. Rewrite the draft as the note you would send: one conclusion,
+three numbers, at most one risk, and an ask if there is one.
+:::
+
+::: exercise Map your own template
+If your program already has a weekly status template, map each of its elements to a source the system can fill, as
+the quadrant table in this chapter does. Which elements have no source, and who writes them?
+:::
+
+=== You can now {#communicating-can-now}
+
+- read and explain every element of the weekly quad: quadrants, four-letter words, SWAT marks, legend and metrics;
+- produce a quad from the journal and a weekly note from GitLab, and edit the draft into what you send;
+- keep a sprint review report with the same headline numbers every time;
+- explain why a weekly snapshot can miss a short block, and where to look instead.
+
+=== Applying this to your project {#communicating-applying}
+
+Use the status template your management already reads, and have the system fill it, rather than inventing a new
+format they must learn. Agree the rhythm in week zero, and keep the headline numbers identical from report to report.
+Let the tools draft and let a person write the sentences. File every report you send with the sprint's evidence, so
+the briefing at the end of the quarter is assembled, not written.

@@ -71,11 +71,12 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-kit">13. THE KIT ITSELF: TESTS, RELEASE, PIPELINE</a></li>
 <li><a href="#t-agile-sim">14. SIMULATIONS, TRAINING AND PRACTICE PROJECTS</a></li>
 <li><a href="#t-agile-mbse">15. MODEL-BASED TOOLS (SYSML, STATUS METRICS)</a><ul><li><a href="#t-agile-sysml-views">The SysML views toolkit</a></li><li><a href="#t-agile-model-draw">model.pl draw</a></li><li><a href="#t-agile-model-plates">model.pl plates</a></li><li><a href="#t-agile-model-diff">model.pl diff</a></li><li><a href="#t-agile-model-threats">model.pl threats</a></li><li><a href="#t-agile-model-gate">model.pl gate</a></li><li><a href="#t-agile-sysml-view">The live viewer: sysml-view.tcl</a></li><li><a href="#t-agile-v1v2">v1v2.pl, doors2v2.pl: the fallback converters</a></li><li><a href="#t-agile-vim-sysml">SysML in Vim</a></li></ul></li>
-<li><a href="#t-agile-practice">16. PRACTICE LESSONS</a><ul><li><a href="#t-agile-practice-1">Lesson 1: the first stand-up file and compile</a></li><li><a href="#t-agile-practice-2">Lesson 2: carry, block and unblock</a></li><li><a href="#t-agile-practice-3">Lesson 3: close the sprint and report</a></li><li><a href="#t-agile-practice-4">Lesson 4: the townhall chat lint</a></li><li><a href="#t-agile-practice-5">Lesson 5: the memory drill</a></li><li><a href="#t-agile-practice-6">Lesson 6: IDEF0 lint, fix, plates</a></li><li><a href="#t-agile-practice-7">Lesson 7: a status memo</a></li><li><a href="#t-agile-practice-8">Lesson 8: port a segment to SysML v2</a></li><li><a href="#t-agile-practice-9">Lesson 9: a coding drill, start to log</a></li></ul></li>
+<li><a href="#t-agile-practice">16. PRACTICE LESSONS</a><ul><li><a href="#t-agile-practice-1">Lesson 1: the first stand-up file and compile</a></li><li><a href="#t-agile-practice-2">Lesson 2: carry, block and unblock</a></li><li><a href="#t-agile-practice-3">Lesson 3: close the sprint and report</a></li><li><a href="#t-agile-practice-4">Lesson 4: the townhall chat lint</a></li><li><a href="#t-agile-practice-5">Lesson 5: the memory drill</a></li><li><a href="#t-agile-practice-6">Lesson 6: IDEF0 lint, fix, plates</a></li><li><a href="#t-agile-practice-7">Lesson 7: a status memo</a></li><li><a href="#t-agile-practice-8">Lesson 8: port a segment to SysML v2</a></li><li><a href="#t-agile-practice-9">Lesson 9: a coding drill, start to log</a></li><li><a href="#t-agile-practice-10">Lesson 10: your first model change</a></li><li><a href="#t-agile-practice-11">Lesson 11: your first merge request</a></li><li><a href="#t-agile-practice-12">Lesson 12: a prime drop</a></li><li><a href="#t-agile-practice-13">Lesson 13: your first baseline</a></li></ul></li>
 <li><a href="#t-agile-vim-basics">17. VIM BASICS</a></li>
 <li><a href="#t-agile-trouble">18. TROUBLESHOOTING</a></li>
 <li><a href="#t-agile-quickref">19. QUICK REFERENCE</a></li>
 <li><a href="#t-agile-drills">20. CODING DRILLS</a><ul><li><a href="#t-agile-drills-commands">The commands</a></li><li><a href="#t-agile-drills-files">The files</a></li><li><a href="#t-agile-drills-trainer">The Vim trainer</a></li></ul></li>
+<li><a href="#t-agile-gitlab">21. GITLAB, GITFLOW AND THE PIPELINE</a></li>
 </ul></div>
 <h2 id="start-trouble">Troubleshooting</h2>
 <p>Paste the message: <code>perl agile.pl help error "cannot write reports/x.html: Permission denied"</code>, or find it below.</p>
@@ -117,6 +118,7 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-err-lint-order">ERROR Name: out of order: expected Y ... T ... B ...</a></li>
 <li><a href="#t-agile-err-lint-no-id">warn Name: no task id in Y (e.g. B-11) / ID is not in the journal</a></li>
 <li><a href="#t-agile-err-no-chat-file">no chat file for DATE / no chat files for DATE / no Y/T/B answers found</a></li>
+<li><a href="#t-agile-err-chat-no-team">chat: no team for est lines of tasks not in the journal yet</a></li>
 <li><a href="#t-agile-err-roster-check">NAME owns tasks in the journal but is not in roster.txt (roster check)</a></li>
 <li><a href="#t-agile-errors-mail">5. MAIL, CALENDAR, AI</a></li>
 <li><a href="#t-agile-err-marking-refused">refusing: fix the marking errors above, or run again with --force</a></li>
@@ -130,6 +132,9 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-err-report-failed">daily.pl report failed / cannot listen on 127.0.0.1:PORT</a></li>
 <li><a href="#t-agile-err-memo">bad classification 'X'</a></li>
 <li><a href="#t-agile-err-practice">practice: no lesson N / lesson N is not set up</a></li>
+<li><a href="#t-agile-err-release-profile">release: no profile 'NAME' / a manifest line names a missing file</a></li>
+<li><a href="#t-agile-err-memo-build">memo-build: FILE: no &quot;## Subject: ...&quot; line / placeholders to fill in</a></li>
+<li><a href="#t-agile-err-pages-index">pages-index: DIR is not a directory / mkguide: guide.html.in must start with &lt;!DOCTYPE html&gt;</a></li>
 <li><a href="#t-agile-errors-idef0">7. IDEF0 MODELS</a></li>
 <li><a href="#t-agile-err-idef0-tabs">tabs in indentation; use 2 spaces per level</a></li>
 <li><a href="#t-agile-err-idef0-parse">cannot parse line / line has no name / no parent</a></li>
@@ -137,6 +142,8 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-err-idef0-broken-link">broken link: cannot resolve 'A|B|Flow'</a></li>
 <li><a href="#t-agile-err-idef0-numbering">bad suffix / duplicate model letter / more than 9 activities</a></li>
 <li><a href="#t-agile-err-idef0-other">unclosed ```idef0 fence / doc comment / no plate / fmt refusing</a></li>
+<li><a href="#t-agile-err-idef0-models">idef0: idef0_models in sysml.conf is auto, steps or root / ROOT has no steps</a></li>
+<li><a href="#t-agile-err-idef0-skipped">idef0: skipped: sysml.conf sets no verb_root</a></li>
 <li><a href="#t-agile-errors-sysml">8. THE MODEL PORT AND SYSML TOOLS</a></li>
 <li><a href="#t-agile-err-port-usage">usage: xmi2sysml.pl ... / nothing to do / --req-style is def or usage</a></li>
 <li><a href="#t-agile-err-port-no-checker">tools/sysml/sysml.pl not found; structural self-check only</a></li>
@@ -155,6 +162,9 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-err-views-threats">threat 'T' is not mitigated by any requirement / no CAPEC id</a></li>
 <li><a href="#t-agile-err-views-diff">sysml-diff: 'git ls-tree ...' failed / REV: no .sysml files under PATH</a></li>
 <li><a href="#t-agile-err-v1v2-doors2v2">v1v2: FILE: no XMI or ReqIF member found / doors2v2: FILE: empty file</a></li>
+<li><a href="#t-agile-err-layout-map">--layout-map FILE:LINE: expected PACKAGE = folder/ or PACKAGE = folder/File.sysml</a></li>
+<li><a href="#t-agile-err-xmi-map">FILE: not an xmi2sysml map / not a CHANGES.csv / --impact DIR: not a directory</a></li>
+<li><a href="#t-agile-err-req-recipe">req-recipe: --format is text, csv, junit or codequality / cannot read FILE</a></li>
 <li><a href="#t-agile-errors-drills">9. CODING DRILLS</a></li>
 <li><a href="#t-agile-err-drill-no-problem">drill: no problem matches 'X'</a></li>
 <li><a href="#t-agile-err-drill-no-file">drill: no file FILE (perl drills/drill.pl start ID first)</a></li>
@@ -162,7 +172,29 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-err-drill-usage">drill: usage: drill.pl COMMAND ...</a></li>
 <li><a href="#t-agile-err-drill-phased">drill: phased: no scenario 'X' / no phase N</a></li>
 <li><a href="#t-agile-err-drill-tests">your file does not load / timeout after 5s / exit(N) called</a></li>
-<li><a href="#t-agile-err-internal">10. INTERNAL INVARIANTS</a></li>
+<li><a href="#t-agile-errors-gitlab">10. GITLAB, GITFLOW AND THE PIPELINE</a></li>
+<li><a href="#t-agile-err-gitlab-usage">gitlab.pl: unknown command / --OPTION needs a value / mr new needs --source and --title</a></li>
+<li><a href="#t-agile-err-gitlab-connect">gitlab.pl: give --url URL or --local DIR / set VAR to a personal or project access token</a></li>
+<li><a href="#t-agile-err-gitlab-http">GitLab: METHOD PATH: STATUS MESSAGE / curl exit N</a></li>
+<li><a href="#t-agile-err-gitlab-sha">GitLab: FILE does not match the registry's sha256</a></li>
+<li><a href="#t-agile-err-gitlab-merge">GitLab: pipeline must succeed / approvals required / merge conflict</a></li>
+<li><a href="#t-agile-err-gitlab-approve">GitLab: USER wrote merge request !N and cannot approve it</a></li>
+<li><a href="#t-agile-err-gitlab-protected">You are not allowed to push code to protected branches on this project.</a></li>
+<li><a href="#t-agile-err-gitlab-notfound">GitLab: no project 'PATH' / no branch or tag 'REF' / no milestone 'NAME'</a></li>
+<li><a href="#t-agile-err-gitlab-exists">GitLab: tag 'NAME' already exists / another open merge request already exists</a></li>
+<li><a href="#t-agile-err-gitlab-values">GitLab: bad time 'X' / unknown access level / an issue needs a title</a></li>
+<li><a href="#t-agile-err-gitlab-cron">GitLab: bad cron 'LINE': want 5 fields / cron 'LINE' never runs</a></li>
+<li><a href="#t-agile-err-gitlab-projectfile">FILE:LINE: label value is '#RRGGBB | description' (the project file)</a></li>
+<li><a href="#t-agile-err-gitflow">GitFlow: origin has no 'develop' branch (run init first) / not a feature branch</a></li>
+<li><a href="#t-agile-err-gitflow-vendor">GitFlow: drop DIR changes nothing on vendor/prime / merging failed</a></li>
+<li><a href="#t-agile-err-gitlab-ci-yaml">FILE:LINE: job 'NAME': stage 'X' is not in stages / include: local file does not exist</a></li>
+<li><a href="#t-agile-err-gitlab-ci-cli">gitlab.pl ci: not inside a git work tree / --event tag needs --tag T</a></li>
+<li><a href="#t-agile-err-ci-job">KIT is not set / the kit on this runner is X, but .kit-version pins Y</a></li>
+<li><a href="#t-agile-err-kickoff">kickoff: DIR is not empty / --levels is a comma list of names</a></li>
+<li><a href="#t-agile-err-talk">talk: standup needs --as USER / no milestone 'Sprint N'</a></li>
+<li><a href="#t-agile-err-ci-reports">ci-reports: no 'elements=N errors=E warnings=W' line in LOG</a></li>
+<li><a href="#t-agile-err-gitlab-internal">GitLab: no user given / cannot save STDOUT (a script or the kit itself)</a></li>
+<li><a href="#t-agile-err-internal">11. INTERNAL INVARIANTS</a></li>
 </ul></div>
 <hr>
 <h2 id="t-agile-howto">1. HOW DO I...? <span class=tag>agile-howto</span></h2>
@@ -816,6 +848,7 @@ ai_mock_response                                 *agile-conf-ai_mock_response*</
 <p>After daily.pl propose, a person accepts their proposed line by typing +1, y, ok or a thumbs-up. answers and lint read standups/DATE-proposals.txt.</p>
 <h4 id="t-agile-est-vote">#est and #vote rounds <span class=tag>agile-est-vote</span></h4>
 <p>In the meeting type &quot;#est B-104&quot;; people answer with numbers. &quot;#vote Ship Friday? y/n&quot; or &quot;#vote Name: A B C&quot; for a vote. After the meeting paste the chat (:SChat) and run :STally (daily.pl chat): each round is tallied (consensus, or median with outliers; plurality, majority or tie) and written into today's stand-up file as est lines (ready when there was consensus, commented otherwise) and note vote lines. Without markers: chat.pl --est ID --since 09:07 FILE (<a href="#t-agile-chat-pl">agile-chat-pl</a>).</p>
+<p>An answer is a number with an optional unit (&quot;5&quot;, &quot;8 pts&quot;, &quot;2 days&quot;), optionally after &quot;actually&quot;, &quot;make it&quot;, &quot;I'd say&quot; and the like, or before &quot;maybe&quot;; &quot;?&quot; or &quot;idk&quot; for unknown. Anything else is discussion: it never replaces a vote, so &quot;that is not 3 days&quot; is not a vote of 3. Someone who wrote in a round but gave no answer is listed as &quot;could not read&quot;. Lines for tasks not yet in the journal (and vote notes) go under default_team in scrum.conf, or under the team named in the file (standups/DATE-Team-chat.txt).</p>
 <hr>
 <h2 id="t-agile-pl">8. AGILE.PL: THE COCKPIT, HELP AND PRACTICE <span class=tag>agile-pl</span></h2>
 <h4 id="t-agile-cockpit">agile.pl [--no-open] [--today D] [PROJECT] <span class=tag>agile-cockpit</span></h4>
@@ -1091,6 +1124,9 @@ perl tests/help.t                                one suite, every check</pre>
 <h4 id="t-agile-release">release.pl <span class=tag>agile-release</span></h4>
 <pre>perl bin/release.pl [--tag v1.0]</pre>
 <p>A zip of the committed tree (no data/, no reports) in release/agile-TAG.zip with a SHA-256 beside it, for another machine. Refuses on uncommitted changes. On the target: sha256sum -c the .sha256, unzip, then daily.pl init in a project directory.</p>
+<pre>perl bin/release.pl --profile mbse [--tag v1.0]
+perl bin/release.pl --profile mbse --list [--worktree]</pre>
+<p>A slimmer zip, release/agile-NAME-TAG.zip, holding only the files the profile's manifest tools/gitlab/NAME-release.txt lists (one path or glob per line; a line starting with ? is optional). The mbse profile is what an MBSE DevSecOps team needs: the tools, the Vim setup, the GitLab templates and samples, the Tidewater drops, the guides and the primer. --list prints the files instead of packing them (--worktree: from the working tree, not the last commit).</p>
 <h4 id="t-agile-devsecops">devsecops.pl <span class=tag>agile-devsecops</span></h4>
 <pre>perl bin/devsecops.pl [--quick] [--open]</pre>
 <p>Runs the kit's own pipeline gates here (the tests under every Perl found, syntax checks, a secrets scan, the marking gate, repository hygiene) and writes ./devsecops.html, a status dashboard. --quick skips the test suites. Exit 1 on a gap.</p>
@@ -1127,10 +1163,14 @@ perl bin/status-metrics.pl COMMAND --help</pre>
 perl bin/xmi2sysml.pl --out DIR [--layout '{seg}/{pkg}.sysml'] [--check] FILE.xmi
 perl bin/xmi2sysml.pl --stdout FILE.xmi</pre>
 <p>A SysML v1 XMI export (Cameo / MagicDraw) to SysML v2 text, one file per top-level package (DIR/SEGMENT/PACKAGE.sysml). --report: elements in by xmi:type, ported vs remaining (metric A), stereotypes, the unmapped list. Nothing is dropped: what has no mapping becomes a // TODO line with its xmi:id. Options: --req-style usage|def (usage, the default: one-line requirement usages, the form status-metrics counts; def: requirement def blocks), --name PKG (the package for elements outside any package), --check (also run tools/sysml/sysml.pl check over the output). Exit 0 ok, 1 when the self-check or --check finds a problem, 2 on bad usage or unreadable input. The output is deterministic, and a re-run overwrites hand edits: convert into a scratch directory once a segment is hand-fixed. Runbook: <a href="#t-agile-howto-port-segment">agile-howto-port-segment</a>.</p>
+<pre>perl bin/xmi2sysml.pl --out DIR --layout-map layout.map [--map MAP.csv] FILE.xmi
+perl bin/xmi2sysml.pl --delta OLD.xmi NEW.xmi
+perl bin/xmi2sysml.pl --delta OLD.xmi NEW.xmi --impact MODEL_DIR [--map OLD-MAP.csv] [--impact-csv F]</pre>
+<p>--layout-map FILE puts each top-level package at a fixed path (lines &quot;Stations = physical/stations/&quot; or &quot;Types = library/Types.sysml&quot;, # comments, &quot;* = unsorted/&quot; for the rest); use one map for every drop, so the paths stay the same and vendor-branch merges stay three-way. --map FILE writes a CSV from every v1 element (xmi:id) to its v2 name, file and line. --delta compares two drops of the same model by xmi:id: added, removed and changed elements, each marked carried (re-convert and merge) or manual (the converter leaves it as a TODO: rework by hand), ending with a manual-rework checklist. --impact MODEL_DIR adds, per change, what it touches in the government's v2 model: requirements satisfied, verification cases, connections, allocations, references to a renamed element, and hand edits to redo. With the prime's CHANGES.csv beside NEW.xmi, the report is grouped by change request.</p>
 <h4 id="t-agile-reqif2sysml">reqif2sysml.pl <span class=tag>agile-reqif2sysml</span></h4>
 <pre>perl bin/reqif2sysml.pl --report [--model DIR] FILE.reqif
 perl bin/reqif2sysml.pl --out DIR [--layout '{seg}/{pkg}.sysml'] [--check] FILE.reqif|.reqifz|.csv</pre>
-<p>DOORS requirements (ReqIF, zipped ReqIF, or a CSV export) to SysML v2 requirements with their doorsId, one file per DOORS module. --report counts requirements, verification methods, headings, orphans and links; with --model DIR it adds the trace against existing SysML v2 text (C linked, F orphans, G unverified, I completeness). Options: --req-style usage|def (usage is the default), --id-prefix SYS- (put the module prefix back on absolute numbers), --id-attr / --vm-attr / --text-attr / --heading-attr NAME (ReqIF attribute names), --attr NAME (copy an attribute, repeatable), --name PKG, --csv with --col id=NAME --col text=NAME --col heading=NAME --col level=NAME --col vm=NAME, --sep C, --stdout, --check. A heading without text becomes a nested package; text becomes a requirement; neither becomes a TODO. Runbook: <a href="#t-agile-howto-doors">agile-howto-doors</a>.</p>
+<p>DOORS requirements (ReqIF, zipped ReqIF, or a CSV export) to SysML v2 requirements with their doorsId, one file per DOORS module. --report counts requirements, verification methods, headings, orphans and links; with --model DIR it adds the trace against existing SysML v2 text (C linked, F orphans, G unverified, I completeness). Options: --req-style usage|def (usage is the default), --id-prefix SYS- (put the module prefix back on absolute numbers), --id-attr / --vm-attr / --text-attr / --heading-attr NAME (ReqIF attribute names), --attr NAME (copy an attribute, repeatable), --name PKG, --csv with --col id=NAME --col text=NAME --col heading=NAME --col level=NAME --col vm=NAME, --sep C, --stdout, --check. A heading without text becomes a nested package; text becomes a requirement; neither becomes a TODO. --layout-map FILE maps DOORS module names to paths, as for xmi2sysml. The --model trace also reports drift: a requirement whose doc text in the model differs from the DOORS text (markup and whitespace ignored), listed with both versions. Runbook: <a href="#t-agile-howto-doors">agile-howto-doors</a>.</p>
 <h4 id="t-agile-sysml">sysml.pl <span class=tag>agile-sysml</span></h4>
 <pre>perl tools/sysml/sysml.pl check FILE...     file:line:col: error: ...; exit 1
 perl tools/sysml/sysml.pl corpus [DIR...]   every .sysml/.kerml under DIRs
@@ -1164,6 +1204,23 @@ diff OLD_DIR | diff --git REV   a change, as pictures (<a href="#t-agile-model-d
 threats [--today D]   the threat table and its checks (<a href="#t-agile-model-threats">agile-model-threats</a>)
 gate [--today D]      the validate gate, PASS or FAIL (<a href="#t-agile-model-gate">agile-model-gate</a>)</pre>
 <p>The worked example is examples/halberd (its README shows every command): perl tools/sysml/model.pl --root examples/halberd lint. In Vim: <a href="#t-agile-vim-sysml">agile-vim-sysml</a>.</p>
+<h4 id="t-agile-sysml-conf">sysml.conf keys <span class=tag>agile-sysml-conf</span></h4>
+<p>key = value lines, # comments, in the project's top directory:</p>
+<pre>title          used in generated document titles
+noun_root      the part def at the top of the part tree
+verb_root      the action (or calc) def at the top of the function tree
+level_tags     the @L metadata names, level 1 first (L1Network, L2Segment, ...)
+idef0_name     docs/idef0/NAME.md; model_letter: the IDEF0 letter of the root
+idef0_models   auto | steps | root: one IDEF0 model per step (steps), one
+               model whose boxes are the steps (root, for steps without
+               sub-steps), or root when every step is a leaf (auto, default)
+steps          name:LETTER:Label, ... (only with idef0_models = steps)
+control_types  item types drawn as IDEF0 controls; alloc_prefix: the feature
+               path that stands for the verb root in allocate statements
+layers         package layers, lowest first; the pipeline's complexity job
+               fails an import from a higher layer
+acronyms, need_prefix   word splitting; the id prefix of stakeholder needs</pre>
+<p>model.pl draw pkg draws packages, dependencies and cycles without markings when no package carries @Marking (sysml-pkg-svg.pl --no-markings); model.pl gate still requires them.</p>
 <h3 id="t-agile-sysml-views">The SysML views toolkit <span class=tag>agile-sysml-views</span></h3>
 <p>tools/sysml/views/ holds standalone core-Perl tools that read any SysML v2 text model (a directory or files) and draw or check it. Each one runs on its own (perl tools/sysml/views/TOOL.pl ...); model.pl draw, plates, diff, threats and gate run them on the current project's model/ and pass every other option through (a --root after the command is the tool's, not the project's). Diagnostics are GNU format, FILE:LINE: error|warning|note: ...; exit 0 clean, 1 findings, 2 usage or input error. Outputs are deterministic: pin dates with --today / --date. The security checks read the SecMeta library (tools/sysml/views/library/ SecMeta.sysml; copy it into model/): @Marking { level = Level::U; } on every root package, @TrustZone { zone = Zone::dmz; } on parts at a boundary, @SecurityRequirement and @Mitigates { threat = &quot;t&quot;; } on requirements, and threats as metadata t : Threat { stride; capec; asset; mitigation; } lines (or @Threat on an element). DrawingMeta.sysml beside it adds @Drawing for plates. The binder scripts sysml-gate.pl and sysml-trace.pl (text checks, satisfied + verified leaves) are in views/binder/. Golden harness: bash tools/sysml/views/tests/run.sh (tests/sysml-views.t runs it). Usage of every tool: tools/sysml/views/README.txt. A live view beside Vim: <a href="#t-agile-sysml-view">agile-sysml-view</a>.</p>
 <h3 id="t-agile-model-draw"><span id="t-agile-sysml-tree-svg"></span><span id="t-agile-sysml-trace-svg"></span><span id="t-agile-sysml-ibd-svg"></span><span id="t-agile-sysml-pkg-svg"></span>model.pl draw <span class=tag>agile-model-draw agile-sysml-tree-svg agile-sysml-trace-svg agile-sysml-ibd-svg agile-sysml-pkg-svg</span></h3>
@@ -1353,6 +1410,114 @@ perl KIT/tools/idef0/idef0.pl text model/*.txt &gt; plates.txt</pre>
 <p>3. Write the solution in SANDBOX/p12-dedup.pl (vim; a hash of seen tokens).</p>
 <p>4. perl KIT/drills/drill.pl test p12-dedup --dir SANDBOX until it passes.</p>
 <p>5. perl KIT/drills/drill.pl log p12-dedup --dir SANDBOX &quot;what was slow&quot; Check: p12-dedup was started, the file is no longer the stub, a passing test is recorded, and the drill log has p12-dedup as passed.</p>
+<h3 id="t-agile-practice-10">Lesson 10: your first model change <span class=tag>agile-practice-10</span></h3>
+<p>Lessons 10-13 follow Tidewater, a fictional coastal weather network: the prime contractor keeps its SysML v1 model in Cameo and delivers it as drops; the government team (Jim, Bob, Tom) keeps a SysML v2 text copy. Sandbox: the model repository a team gets in week zero, made by tools/gitlab/kickoff.pl scaffold, with drop v1.0 converted into it by the layout map .ci/layout.map (each package at a fixed path, in every drop). model/library/conventions/Conventions.sysml holds the government's level tags; .ci/outline-max records the outline findings drop v1.0 brought with it. You are Bob, the MBSE engineer. About 30 minutes. Task:</p>
+<p>1. Look around (a configuration item's folders and its history):</p>
+<pre class=ex>ls model model/physical
+git log --oneline</pre>
+<p>2. Count the TODO lines the converter left: the port's open action items.</p>
+<pre class=ex>grep -rc &quot;// TODO&quot; model</pre>
+<p>3. vim model/physical/stations/Stations.sysml, then /StationSegment and n until the cursor is on &quot;part def StationSegment {&quot;. The next line is a TODO: in v1 a profile stereotype said StationSegment is level 2.</p>
+<p>4. Replace that whole line (cc deletes it and starts typing, Esc ends):</p>
+<pre class=ex>@L2Segment;</pre>
+<p>The tag is the v2 form of the stereotype: metadata defined once in model/library/conventions/Conventions.sysml, one line in place of a profile.</p>
+<p>5. Under the line &quot;package Stations {&quot; open a line (o) and type the import that makes the tags visible here, then :w</p>
+<pre class=ex>private import Conventions::*;</pre>
+<p>6. Check it as a reviewer would, without leaving Vim: \mx the grammar of this file, \ml lint for the whole model (0 errors, 0 warnings), \mk the outline and level tags (&quot;@L tag mismatches 0&quot;; the 20 outline findings are the ones drop v1.0 brought). :copen lists findings; Enter on one jumps to its line. Lint does not catch a misspelled tag (@L2Segmnt;); practice check 10 does.</p>
+<p>7. Record the change with its reason (a configuration change, signed):</p>
+<pre class=ex>git add model
+git commit -m &quot;Tag StationSegment with its level (L2Segment)&quot;</pre>
+<p>Check: StationSegment carries @L2Segment; and no TODO, package Stations imports Conventions, the grammar check and lint pass, every level tag sits at its level, and the change is committed.</p>
+<h3 id="t-agile-practice-11">Lesson 11: your first merge request <span class=tag>agile-practice-11</span></h3>
+<p>Sandbox: an offline GitLab (SANDBOX/gitlab) holding the Tidewater model project: kickoff.pl scaffold on main, develop from it, the scaffold's .gitlab/project.conf applied, and drop v1.0 merged into develop through vendor/prime (merge request !1). Issue #1 asks Bob for lesson 10's change. Your clone is SANDBOX/work; env.sh makes gl mean perl KIT/bin/gitlab.pl. You are Bob. About 40 minutes. Task:</p>
+<p>1. Once in each Git Bash window:</p>
+<pre class=ex>cd SANDBOX/work
+source ../env.sh
+gl issue list
+gl issue show 1</pre>
+<p>The issue is the action item: no change without one.</p>
+<p>2. A branch for this change, from develop (a working copy of the baseline for one change request):</p>
+<pre class=ex>gl flow start feature 1-tag-stationsegment</pre>
+<p>3. Make lesson 10's change in model/physical/stations/Stations.sysml, but type the tag WITHOUT its semicolon, on purpose: @L2Segment Add the import line as in lesson 10. Then:</p>
+<pre class=ex>git add model
+git commit -m &quot;Tag StationSegment with its level (L2Segment)&quot;</pre>
+<p>4. Push and open the merge request: the change request goes to review.</p>
+<pre class=ex>gl flow finish --title &quot;Tag StationSegment with its level&quot; --description &quot;Closes #1&quot;</pre>
+<p>The pipeline runs at once and fails: the automatic part of the review.</p>
+<p>5. Read why:</p>
+<pre class=ex>gl mr show 2
+gl pipeline show N</pre>
+<p>(N is the pipeline number mr show prints.) Open the grammar job's log at the path it prints: &quot;Stations.sysml:14:9: error: unexpected 'doc'&quot;. Try gl mr merge 2: GitLab refuses, &quot;pipeline must succeed&quot;.</p>
+<p>6. Fix it on the same branch: add the &quot;;&quot; in Vim, then</p>
+<pre class=ex>git commit -am &quot;Add the missing semicolon&quot;
+gl flow publish
+gl mr show 2</pre>
+<p>The new pipeline passes. A push updates the same merge request. The test count still shows failures: the outline findings drop v1.0 brought, within what .ci/outline-max allows, so the job passes.</p>
+<p>7. Approval, the CCB signature: gl mr merge 2 is refused again, &quot;approvals required&quot;. Jim approves; then you merge:</p>
+<pre class=ex>gl --as jim mr approve 2
+gl mr merge 2
+gl issue show 1</pre>
+<p>Issue #1 closed itself: the merge request said &quot;Closes #1&quot;.</p>
+<p>8. Back to the shared baseline:</p>
+<pre class=ex>git checkout develop
+gl flow sync</pre>
+<p>Check: a merge request from your feature branch to develop that says Closes #1, one red pipeline seen and a green one last, approved by someone else, merged; issue #1 closed; develop's Stations.sysml has the tag and the import.</p>
+<h3 id="t-agile-practice-12">Lesson 12: a prime drop <span class=tag>agile-practice-12</span></h3>
+<p>Sandbox: lesson 11's project, later: Bob's tag is merged; DR-5 asked the prime for a humidity sensor, and Bob modeled an interim HumiditySensor on develop meanwhile; issue #3 asks Tom to take in drop v1.1, just delivered to SANDBOX/drops/v1.1. You are Tom, who keeps the vendor branch. About 45 minutes. Task:</p>
+<p>1. cd SANDBOX/work, source ../env.sh, then gl issue show 3: the intake checklist, a receiving inspection for a contract delivery.</p>
+<p>2. What changed, in the prime's own v1 terms, element by element:</p>
+<pre class=ex>perl $KIT/bin/xmi2sysml.pl --delta ../drops/v1.0/tidewater.xmi ../drops/v1.1/tidewater.xmi</pre>
+<p>7 added, 1 changed, 0 manual: the converter carries all of it.</p>
+<p>3. Bring the drop in. vendor/prime holds only the prime's model, converted with the repository's .ci/layout.map; git merges it into yours like two redlines of one drawing against the drawing both started from:</p>
+<pre class=ex>gl flow vendor ../drops/v1.1 v1.1</pre>
+<p>It stops on a conflict in model/physical/stations/Stations.sysml: both sides added a humidity sensor at the same place.</p>
+<p>4. vim model/physical/stations/Stations.sysml and /&lt;&lt;&lt;&lt;&lt;&lt;&lt; : each conflict shows yours (HEAD: the interim), the common base (empty) and the prime's (vendor/prime). Upstream first: the prime's model wins. Keep the prime's lines; delete yours and the four marker lines. There are two.</p>
+<p>5. Re-apply the government's edit to the prime's new part: in part def Hygrometer replace the TODO line with @L5Assembly; then :w and</p>
+<pre class=ex>perl $KIT/tools/sysml/model.pl lint</pre>
+<p>6. Finish the merge and open the merge request; it closes the intake and DR-5, because the prime delivered what DR-5 asked for:</p>
+<pre class=ex>git add model
+git commit --no-edit
+gl flow finish --title &quot;Prime drop v1.1&quot; --description &quot;Closes #3 and #2&quot;</pre>
+<p>7. The pipeline fails on docs: &quot;docs/ is stale&quot;. docs/ is generated from the model and kept in the repository, so a reviewer sees what a change does to the documents. Regenerate it, commit, push:</p>
+<pre class=ex>perl $KIT/tools/sysml/model.pl docs
+git add docs
+git commit -m &quot;Regenerate docs for drop v1.1&quot;
+gl flow publish</pre>
+<p>8. Approval and merge (gl mr merge 4 names who is still needed):</p>
+<pre class=ex>gl --as jim mr approve 4
+gl mr merge 4</pre>
+<p>Check: drop v1.1 on vendor/prime; a merge request from feature/drop-v1.1 that closes #3 and #2, green, approved by someone else, merged; on develop no conflict markers, no HumiditySensor, the prime's hygrometer in the sensor suite, Hygrometer tagged @L5Assembly, Bob's StationSegment tag kept.</p>
+<h3 id="t-agile-practice-13">Lesson 13: your first baseline <span class=tag>agile-practice-13</span></h3>
+<p>Sandbox: lesson 12's project with drop v1.1 merged. You are Tom again: the configuration manager prepares baseline-1, the first government baseline; Jim, the MBSE lead and systems lead, approves it. (An author cannot approve their own merge request, and model/library/Interfaces.sysml needs the systems lead's approval: so the one who signs is not the one who prepares.) About 30 minutes. Task:</p>
+<p>1. cd SANDBOX/work, source ../env.sh.</p>
+<p>2. A release branch holds the baseline candidate while it is checked:</p>
+<pre class=ex>gl flow start release baseline-1</pre>
+<p>3. vim CHANGELOG.md: under the [Unreleased] section and above the line &quot;[Unreleased]: ...&quot;, add the baseline's section: what it holds.</p>
+<pre class=ex>## [baseline-1] -- 2027-01-15
+
+### Added
+- Level tags on StationSegment and Hygrometer (!2, !4)
+
+### Prime drops merged
+- v1.0, 2026-10-02
+- v1.1, 2027-01-08 (#3); closes DR-5 (#2)</pre>
+<p>Then:</p>
+<pre class=ex>git commit -am &quot;CHANGELOG: baseline-1&quot;
+gl flow finish --title &quot;Baseline 1&quot;</pre>
+<p>4. The approvals a baseline needs: run gl mr merge 5 after each line; GitLab names who is still missing (the review rule, then the code owners of what changed since main):</p>
+<pre class=ex>gl --as jim mr approve 5
+gl --as bob mr approve 5
+gl mr merge 5</pre>
+<p>5. Tag it, publish the release, open the back-merge to develop:</p>
+<pre class=ex>gl flow released 5 --notes CHANGELOG.md</pre>
+<p>The tag's message carries a sha256 of docs/; the tag's own pipeline (gl pipeline list) re-checks it: the baseline is reproducible.</p>
+<p>6. Merge the back-merge, so develop holds the baseline too:</p>
+<pre class=ex>gl --as jim mr approve 6
+gl --as bob mr approve 6
+gl mr merge 6
+gl pages</pre>
+<p>gl pages prints where the model site is; it was rebuilt from develop.</p>
+<p>Check: a release merge request to main, green, approved, merged; CHANGELOG.md on main has &quot;## [baseline-1]&quot;; tag baseline-1 on the release merge commit, with its checksum; release baseline-1; the back-merge merged and develop holding main; the model site rebuilt from develop.</p>
 <hr>
 <h2 id="t-agile-vim-basics">17. VIM BASICS <span class=tag>agile-vim-basics</span></h2>
 <p>The Vim that ships with Git for Windows is all you need. docs/VIM-CHEATSHEET.html is the one-page sheet (modes, moving, editing, search, windows, clipboard, folds, quickfix) next to the kit's own keys; vimtutor in Git Bash is a 30-minute lesson; :help is Vim's own manual. The few that matter most:</p>
@@ -1478,6 +1643,83 @@ WORKSPACE/trainer.txt             the Vim trainer's highest unlocked level</pre>
 <h4 id="t-_3ADrillTestAll"><span id="t-_5Cda"></span>:DrillTestAll [SECTION | tN] <span class=tag>:DrillTestAll \da</span></h4>
 <pre>\da                                                                      *\da*</pre>
 <p>drill.pl check: every file you have in the workspace, in a split.</p>
+<hr>
+<h2 id="t-agile-gitlab">21. GITLAB, GITFLOW AND THE PIPELINE <span class=tag>agile-gitlab</span></h2>
+<p>The model team's GitLab work from the command line, offline or against a server. gitlab.pl talks to a GitLab server (--url, with a token) or to the offline emulator in a folder (--local DIR), which behaves like GitLab: it enforces protected branches and tags, code-owner approvals and &quot;pipelines must succeed&quot;, runs the project's .gitlab-ci.yml, and merges with real merge commits. Everything here is core Perl and needs only Git for Windows. Guide: docs/GITLAB.html. Messages: <a href="#t-agile-errors-gitlab">agile-errors-gitlab</a>.</p>
+<h4 id="t-agile-gitlab-pl">gitlab.pl <span class=tag>agile-gitlab-pl</span></h4>
+<pre>    perl bin/gitlab.pl [--url URL [--token-env VAR] | --local DIR]
+                       [--project GROUP/NAME] [--as USER] [--now ISO] [--dry-run] COMMAND
+setup FILE              apply a project file (tools/gitlab/templates/project.conf):
+                        settings, members, labels, sprints, protected branches
+                        and tags, approval rules, variables, schedules; safe to
+                        run again
+setup --diff FILE       compare the project file with the live project, read
+                        only; prints each difference; exit 1 on drift
+sprints START COUNT     &quot;Sprint N&quot; milestones, two weeks each (--weeks, --prefix)
+issue new|list|show|close|reopen|note|link|label    issues; new takes
+                        --template NAME (from .gitlab/issue_templates); notes
+                        may carry quick actions (/label, /milestone, /estimate)
+mr new|list|show|approve|merge|note|resolve         merge requests; show prints
+                        the pipeline, approvals and the report widgets
+pipeline run|list|show  pipelines and their jobs
+tag, release            annotated tags (protected baseline-* need a maintainer)
+                        and releases with Markdown notes
+wiki put|list|show      wiki pages from Markdown files
+export DIR              CSVs for status metrics: ci_jobs, mrs, issues, defects,
+                        tracker/sprint-N
+package put|get|list    the Generic Package Registry (prime drops, baselines),
+                        checked by sha256
+pages, env              where the GitLab Pages model site is; environments and
+                        deployments
+schedule new|list|run|delete|due|next   cron pipeline schedules; next previews a
+                        cron line: schedule next &quot;0 2 * * 1-5&quot; --tz America/New_York
+analytics               value stream, DORA in model terms, CI/CD, merge request
+                        and issue analytics, from data any tier exposes
+                        (--by sprint|week|month, --csv DIR)
+trigger new|list|run    pipeline trigger tokens (the prime's Jenkins starts the
+                        intake pipeline with DROP_VERSION)
+token deploy new|list   deploy tokens limited to scopes, with an expiry date
+user USERNAME           create a user (emulator, or an admin token)
+ci                      run the pipeline locally: <a href="#t-agile-gitlab-ci">agile-gitlab-ci</a>
+flow                    gitflow in a clone: <a href="#t-agile-gitlab-flow">agile-gitlab-flow</a>
+help [COMMAND]          the full option list of one command</pre>
+<p>--dry-run prints each request that would change something and changes nothing; reads still answer (both backends; flow refuses it). Environment: GITLAB_URL, GITLAB_LOCAL, GITLAB_PROJECT, GITLAB_USER, GITLAB_TOKEN.</p>
+<h4 id="t-agile-gitlab-flow">gitlab.pl flow <span class=tag>agile-gitlab-flow</span></h4>
+<p>Gitflow for the model repository: main holds released baselines, develop is the integration branch (GitLab's default branch), work happens on feature/ branches, baselines on release/ branches, fixes to a baseline on hotfix/ branches, and every prime drop lands on vendor/prime, never edited by hand.</p>
+<pre>flow init                     develop from main
+flow start feature|release|hotfix NAME   a branch from develop (hotfix: main)
+flow publish                  push the current branch
+flow finish [--title T] [--template NAME] [--label L]...   push and open the
+                              merge request (feature -&gt; develop; release and
+                              hotfix -&gt; main)
+flow released IID             after a release merge request merged: tag main
+                              (the docs' sha256 in the message), release,
+                              back-merge merge request to develop
+flow vendor DROPDIR VERSION [--layout-map FILE]   commit the converted prime
+                              drop on vendor/prime and merge it into
+                              feature/drop-VERSION; conflicts are listed</pre>
+<p>flow take ours|theirs PATH... resolve conflicted files wholesale</p>
+<pre>flow sync                     fetch; fast-forward local main and develop</pre>
+<h4 id="t-agile-gitlab-ci">gitlab.pl ci <span class=tag>agile-gitlab-ci</span></h4>
+<pre>perl bin/gitlab.pl ci [--file .gitlab-ci.yml] [--event push|merge_request_event|tag|schedule|web|trigger]
+                      [--branch B] [--target B] [--tag T] [--var K=V]... [--job NAME]... [--manual] [--list]</pre>
+<p>Runs the project's pipeline here, offline, choosing jobs as GitLab would for that event (rules, only/except, workflow, extends, local includes); --list shows the jobs and why the others are skipped, without running anything. Includes of GitLab's own templates and of other projects are listed as &quot;runs on GitLab only&quot;.</p>
+<h4 id="t-agile-ci-job">ci/job.pl <span class=tag>agile-ci-job</span></h4>
+<pre>perl ci/job.pl NAME</pre>
+<p>Every job of the model pipeline is one line, perl ci/job.pl NAME, so the same .gitlab-ci.yml runs under PowerShell, Git Bash and Docker. Jobs: grammar, lint, outline, todo, secrets, trace, vcrm, recipe, complexity, docs, delta, drop-package, intake, baseline, publish-package, publish-release, pages, status, sil-regression, hil-test. It finds the kit through the CI/CD variable KIT and checks it against .kit-version. The trace, outline and complexity jobs are ratchets: a merge request fails only when it makes things worse.</p>
+<h4 id="t-agile-kickoff">kickoff.pl <span class=tag>agile-kickoff</span></h4>
+<pre>perl tools/gitlab/kickoff.pl doctor [--quick] [--fix]
+perl tools/gitlab/kickoff.pl scaffold DIR [--project G/N] [--title T] [--levels L1A,L2B,...]
+perl tools/gitlab/kickoff.pl start [--yes] [--local DIR | --url URL] [--drop DIR --version V] [--from N]</pre>
+<p>Week zero for a model team. doctor checks the laptop (Perl, git and its settings, Vim, curl, a quick self-test, GitLab, an SSH key) and prints the fix for each problem; --fix sets only the recommended git settings. scaffold makes the model repository from tools/gitlab/templates in an empty folder. start runs the week-zero steps in order, each only with --yes.</p>
+<h4 id="t-agile-talk">talk.pl <span class=tag>agile-talk</span></h4>
+<pre>perl tools/gitlab/talk.pl standup --as USER | review --sprint N | weekly | translate FILE</pre>
+<p>Drafts words from GitLab and the journal, never posts: a terse Y/T/B line (outcome first, one number), a sprint-review demo script with the four headline numbers, a weekly note for management, or a jargon list with &quot;so what?&quot; flags for a draft you wrote.</p>
+<h4 id="t-agile-team-tools">ci-reports.pl, req-recipe.pl, memo-build.pl <span class=tag>agile-team-tools</span></h4>
+<pre>perl tools/gitlab/ci-reports.pl grammar|lint|outline|todo|trace [--junit F] [--codequality F] [--metrics F] LOG
+perl tools/sysml/req-recipe.pl [--format text|csv|junit|codequality] [--strict] INPUT...
+perl tools/memo/memo-build.pl [--check] FILE.md...</pre>
+<p>ci-reports turns a checker's output into GitLab's merge-request reports. req-recipe grades requirement statements against the requirement recipe (the 18-part single sentence) in .sysml, DOORS or text. memo-build renders a memo written from the templates in tools/gitlab/templates/memos/ (through md2memo.pl, <a href="#t-agile-memo">agile-memo</a>) and reports blanks still to fill.</p>
 <p>vim:tw=78:ts=8:ft=help:norl:</p>
 <hr>
 <h2 id="t-agile-errors">1. PROJECT AND FILES <span class=tag>agile-errors</span></h2>
@@ -1757,6 +1999,17 @@ Means:   Today's input file is not there yet, or it holds no statuses or
          standups/DATE[-TEAM]-attendance.csv for the attendance download.
 Fix:     :SChat, paste the Teams chat (CTRL-A CTRL-C there), :w. For ai,
          run answers first. --today D if you are catching up a past day.</pre>
+<h3 id="t-agile-err-chat-no-team">chat: no team for est lines of tasks not in the journal yet <span class=tag>agile-err-chat-no-team</span></h3>
+<p>Pattern: chat: no team for est lines of tasks not in the journal yet: *</p>
+<pre>From:    daily.pl chat
+Means:   A round estimated a task the journal does not have yet. Its est
+         line (commented) went under a bare &quot;==&quot;, which ends every team
+         section, so uncommenting it would fail the compile with &quot;'est'
+         needs a team section&quot;. There was no team to put it under: no
+         default_team in scrum.conf and no team in the file name.
+Fix:     Set default_team = TEAM in scrum.conf, or name the chat file
+         standups/DATE-TEAM-chat.txt, and run the tally again; or move the
+         lines under &quot;== TEAM&quot; by hand before you uncomment them.</pre>
 <h3 id="t-agile-err-roster-check">NAME owns tasks in the journal but is not in roster.txt (roster check) <span class=tag>agile-err-roster-check</span></h3>
 <p>Pattern: owns tasks in the journal but is not in roster.txt Pattern: roster team '*' differs from the journal's '*' Pattern: is in roster.txt but owns no task in the journal Pattern: no e-mail (1:1 links and the invite will skip them) Pattern: *: no team Pattern: * appears twice (lines * Pattern: no e-mails in roster.txt</p>
 <pre>From:    daily.pl roster, invite
@@ -1852,6 +2105,43 @@ Means:   The lesson number is not in the list, its sandbox has not been
          that is not in this copy of the kit.
 Fix:     perl agile.pl practice lists the lessons; practice N sets one up;
          practice reset N starts it over.</pre>
+<h3 id="t-agile-err-release-profile">release: no profile 'NAME' / a manifest line names a missing file <span class=tag>agile-err-release-profile</span></h3>
+<p>Pattern: release: --list needs --profile NAME Pattern: release: a profile name is letters, digits, _ and - ('*') Pattern: release: no profile '*' (*: *) Pattern: release: * names files that are not in the tree: *</p>
+<pre>From:    release.pl --profile NAME, --list
+Means:   A profile release packs only the files
+         tools/gitlab/NAME-release.txt lists (one path or glob per line; a
+         line starting with ? is optional). --list was given without a
+         profile, the profile name has other characters, there is no
+         manifest for that name, or a required line matches no committed
+         file.
+Fix:     perl bin/release.pl --profile mbse --list shows what the mbse
+         profile packs. Commit the missing file, remove its line, or mark it
+         optional with ? at the start of the line. Profile names are
+         letters, digits, _ and -.</pre>
+<h3 id="t-agile-err-memo-build">memo-build: FILE: no &quot;## Subject: ...&quot; line / placeholders to fill in <span class=tag>agile-err-memo-build</span></h3>
+<p>Pattern: usage: memo-build.pl * Pattern: memo-build: unknown option * Pattern: no &quot;## Memorandum for ...&quot; line Pattern: no &quot;## From: ...&quot; line Pattern: no &quot;## Subject: ...&quot; line Pattern: * placeholder(s) to fill in: * Pattern: * TODO-SIM marker(s): numbers still to come from the simulation's evidence Pattern: memo-build: *: warning: * Pattern: memo-build: *: *</p>
+<pre>From:    tools/memo/memo-build.pl (the memo templates in
+         tools/gitlab/templates/memos/)
+Means:   memo-build strips the template's comments, checks the header lines
+         md2memo needs (## Memorandum for, ## From:, ## Subject:) and warns
+         about blanks still written as &lt;&lt;...&gt;&gt; or TODO-SIM; with --check it
+         renders nothing and exits 1 when a blank is left. The last form is
+         md2memo's own failure, or a file it cannot read or write.
+Fix:     Start from a template (docs/memos/templates/ in a repo made by
+         kickoff.pl scaffold), keep its ## header lines, fill every &lt;&lt;...&gt;&gt;,
+         then perl $KIT/tools/memo/memo-build.pl --check FILE.md. md2memo
+         options go after --. A read or write error names the path: check
+         it.</pre>
+<h3 id="t-agile-err-pages-index">pages-index: DIR is not a directory / mkguide: guide.html.in must start with &lt;!DOCTYPE html&gt; <span class=tag>agile-err-pages-index</span></h3>
+<p>Pattern: usage: pages-index.pl * Pattern: pages-index: * is not a directory Pattern: mkguide: guide.html.in must start with &lt;!DOCTYPE html&gt;</p>
+<pre>From:    tools/gitlab/pages-index.pl (the pipeline's pages job),
+         tools/gitlab/mkguide.pl (rebuilds docs/GITLAB.html)
+Means:   pages-index writes the front page of the model site into an
+         existing folder (public/), so the folder must exist first. mkguide
+         found a damaged guide source.
+Fix:     In the pages job, the views and documents are copied into public/
+         before pages-index runs: run perl ci/job.pl pages, not pages-index
+         alone. For mkguide: git checkout -- tools/gitlab/guide.html.in.</pre>
 <hr>
 <h2 id="t-agile-errors-idef0">7. IDEF0 MODELS <span class=tag>agile-errors-idef0</span></h2>
 <p>idef0.pl lint prints FILE:LINE: error: ... or warning: ...; in Vim the list is the quickfix list (\il, then :cn).</p>
@@ -1907,6 +2197,29 @@ Means:   A Markdown model's ```idef0 block is not closed; a ## doc
          not exist (idef0.pl dump lists them); fmt will not touch a file
          that does not lint.
 Fix:     Close the fence with ```; fix the lint errors first, then fmt.</pre>
+<h3 id="t-agile-err-idef0-models">idef0: idef0_models in sysml.conf is auto, steps or root / ROOT has no steps <span class=tag>agile-err-idef0-models</span></h3>
+<p>Pattern: idef0: idef0_models in sysml.conf is auto, steps or root, not '*' Pattern: idef0: * has no steps (action or calc usages) to draw; give it some, or set verb_root in sysml.conf</p>
+<pre>From:    model.pl idef0, model.pl docs
+Means:   IDEF0 plates are drawn from the verb tree: the action (or calc) def
+         named by verb_root and its steps. idef0_models chooses how: steps
+         (one IDEF0 model per step, as Halberd), root (one model whose boxes
+         are the steps, for steps without sub-steps, as Tidewater), or auto
+         (root when every step is a leaf). The key has another value, or the
+         verb root has no step usages.
+Fix:     In sysml.conf write idef0_models = auto (or steps or root). Point
+         verb_root at the action def at the top of the function tree
+         (model.pl verbs shows it); it needs at least one step (action name
+         : Def;) to draw.</pre>
+<h3 id="t-agile-err-idef0-skipped">idef0: skipped: sysml.conf sets no verb_root <span class=tag>agile-err-idef0-skipped</span></h3>
+<p>Pattern: idef0: skipped: sysml.conf sets no verb_root (set it to the top action def to get docs/idef0/)</p>
+<pre>From:    model.pl docs
+Means:   Not an error: docs wrote the other documents and exited 0. A new
+         model has no function tree yet, so sysml.conf sets no verb_root
+         and the IDEF0 plates (docs/idef0/) are left out. A fresh
+         kickoff.pl scaffold starts this way, so its pipeline is green.
+Fix:     Once the model has an action def at the top of its function tree,
+         set verb_root = ThatDef in sysml.conf (model.pl verbs shows the
+         candidates), run model.pl docs and commit docs/.</pre>
 <hr>
 <h2 id="t-agile-errors-sysml">8. THE MODEL PORT AND SYSML TOOLS <span class=tag>agile-errors-sysml</span></h2>
 <h3 id="t-agile-err-port-usage">usage: xmi2sysml.pl ... / nothing to do / --req-style is def or usage <span class=tag>agile-err-port-usage</span></h3>
@@ -2097,6 +2410,44 @@ Fix:     perl tools/sysml/v1v2.pl with no arguments prints its usage.
          and pass the member; re-export a broken XML or CSV file from
          Cameo or DOORS. The main path for exports it can read is
          xmi2sysml.pl / reqif2sysml.pl (<a href="#t-agile-err-port-usage">agile-err-port-usage</a>).</pre>
+<h3 id="t-agile-err-layout-map">--layout-map FILE:LINE: expected PACKAGE = folder/ or PACKAGE = folder/File.sysml <span class=tag>agile-err-layout-map</span></h3>
+<p>Pattern: *:*: expected PACKAGE = folder/ or PACKAGE = folder/File.sysml Pattern: *:*: no package name before '=' Pattern: *:*: no path after '=' for * Pattern: *:*: *: give a path relative to the output folder, without '..' Pattern: *:*: *: a file must end in .sysml (or end the folder with /) Pattern: *:*: '*' must be a folder (end it with /) Pattern: *:*: * is mapped twice</p>
+<pre>From:    xmi2sysml.pl --layout-map FILE, reqif2sysml.pl --layout-map FILE
+Means:   The layout map puts each top-level package (or DOORS module) at a
+         fixed path, so every drop lands in the same files and vendor merges
+         stay three-way. A line in it is malformed: no =, no name or path, a
+         path outside the output folder, a file not ending in .sysml, a *
+         default that is not a folder, or a package listed twice.
+Fix:     One line per package: Stations = physical/stations/ (a folder,
+         ending in /) or Types = library/Types.sysml (a file). # starts a
+         comment; * = unsorted/ sets the default. Keep one map for the
+         project (examples/tidewater-v1/layout.map is a worked one) and use
+         it for every drop.</pre>
+<h3 id="t-agile-err-xmi-map">FILE: not an xmi2sysml map / not a CHANGES.csv / --impact DIR: not a directory <span class=tag>agile-err-xmi-map</span></h3>
+<p>Pattern: *: not an xmi2sysml map (expected the header xmi_id,v1_type,v1_qualified_name,v2_qualified_name,v2_kind,file,line) Pattern: *: not a CHANGES.csv (expected the header cr_id,title,rationale,kind,xmi_ids,requirements) Pattern: *: not a directory</p>
+<pre>From:    xmi2sysml.pl --delta OLD NEW --impact DIR [--map FILE]
+Means:   The impact report reads the government's v2 model folder
+         (--impact), optionally the old drop's v1-to-v2 map (--map, written
+         by an earlier conversion), and the prime's change-request list
+         (CHANGES.csv beside NEW.xmi). The folder is not a folder, the map
+         was not written by xmi2sysml, or the CHANGES.csv beside the new
+         drop is some other file.
+Fix:     --impact takes the model folder, usually model/. Regenerate the map
+         with xmi2sysml.pl --out DIR --map FILE OLD.xmi, or leave --map off
+         (the old drop is converted on the fly). Fix or remove a stray
+         CHANGES.csv; the prime's has the header
+         cr_id,title,rationale,kind,xmi_ids,requirements.</pre>
+<h3 id="t-agile-err-req-recipe">req-recipe: --format is text, csv, junit or codequality / cannot read FILE <span class=tag>agile-err-req-recipe</span></h3>
+<p>Pattern: usage: req-recipe.pl * Pattern: req-recipe: --format is text, csv, junit or codequality, not '*' Pattern: req-recipe: --require takes 'classification', not '*' Pattern: req-recipe: *</p>
+<pre>From:    tools/sysml/req-recipe.pl (the pipeline's recipe job)
+Means:   The requirement recipe checker grades requirement text from .sysml
+         files, DOORS ReqIF or CSV, or plain text. An option has a value it
+         does not know, or an input or output path is wrong (the message
+         names it).
+Fix:     --format text|csv|junit|codequality; --require classification is
+         the only part that can be made required. Check the input path and
+         that a DOORS file is an export (<a href="#t-agile-howto-doors">agile-howto-doors</a>). Findings are
+         not errors: --strict makes them fail.</pre>
 <hr>
 <h2 id="t-agile-errors-drills">9. CODING DRILLS <span class=tag>agile-errors-drills</span></h2>
 <p>Messages from drills/drill.pl and the test runner (<a href="#t-agile-drills">agile-drills</a>). drill.pl prints the usage line for a missing argument; perl drills/drill.pl help COMMAND has the details.</p>
@@ -2157,7 +2508,267 @@ Fix:     perl -c ~/drills-work/ID.pl shows the syntax error. Return the
          moves toward its end (lo/hi, a queue that empties). A broken
          tests.pl: get a fresh copy of the kit.</pre>
 <hr>
-<h2 id="t-agile-err-internal">10. INTERNAL INVARIANTS <span class=tag>agile-err-internal</span></h2>
+<h2 id="t-agile-errors-gitlab">10. GITLAB, GITFLOW AND THE PIPELINE <span class=tag>agile-errors-gitlab</span></h2>
+<p>gitlab.pl, the GitLab and GitFlow libraries behind it, the pipeline's ci/job.pl and the team tools kickoff.pl, talk.pl and ci-reports.pl. Messages that start &quot;GitLab:&quot; come from the server (or the offline emulator) and end with the HTTP status GitLab itself would answer, so the same fix works on both.</p>
+<h3 id="t-agile-err-gitlab-usage">gitlab.pl: unknown command / --OPTION needs a value / mr new needs --source and --title <span class=tag>agile-err-gitlab-usage</span></h3>
+<p>Pattern: gitlab.pl: --* needs a value Pattern: gitlab.pl: unknown option * Pattern: gitlab.pl: unknown command '*' (gitlab.pl help) Pattern: gitlab.pl: sprint COUNT must be a number Pattern: gitlab.pl: issue note needs TEXT or --file FILE Pattern: gitlab.pl: mr new needs --source BRANCH and --title TITLE Pattern: gitlab.pl: --var is KEY=VALUE Pattern: gitlab.pl: schedule new needs --cron &quot;MIN HOUR DOM MON DOW&quot; and --ref BRANCH Pattern: gitlab.pl: schedule next needs a CRON line Pattern: gitlab.pl: no wiki page '*' Pattern: gitlab.pl: *</p>
+<pre>From:    gitlab.pl (every command)
+Means:   The command line is incomplete or misspelled: an option without its
+         value, an unknown option or command, a missing argument the command
+         needs, or a wiki page that does not exist.
+Fix:     gitlab.pl help lists the commands; gitlab.pl help COMMAND shows one
+         command's arguments (<a href="#t-agile-gitlab">agile-gitlab</a>). Quote values with spaces:
+         --title &quot;Close the Stations TODOs&quot;.</pre>
+<h3 id="t-agile-err-gitlab-connect">gitlab.pl: give --url URL or --local DIR / set VAR to a personal or project access token <span class=tag>agile-err-gitlab-connect</span></h3>
+<p>Pattern: gitlab.pl: give --url URL (or GITLAB_URL) or --local DIR (the emulator) Pattern: gitlab.pl: give --project GROUP/NAME (or GITLAB_PROJECT) Pattern: GitLab: give url =&gt; URL (a GitLab server) or local =&gt; DIR (the emulator) Pattern: GitLab: set * to a personal or project access token (scope api) Pattern: talk: give --local DIR (the emulator) or --url URL (or GITLAB_LOCAL / GITLAB_URL) Pattern: talk: give --project GROUP/NAME (or GITLAB_PROJECT) Pattern: kickoff: no --local DIR or --url URL (or GITLAB_URL): which GitLab?</p>
+<pre>From:    gitlab.pl, talk.pl, kickoff.pl start
+Means:   The tools do not know which GitLab to talk to (a server with --url,
+         or the offline emulator in a folder with --local), which project,
+         or the server's token is not in the environment variable named by
+         --token-env (GITLAB_TOKEN by default).
+Fix:     Set them once per shell: export
+         GITLAB_URL=https://gitlab.example.gov
+         GITLAB_PROJECT=tidewater/model GITLAB_TOKEN=... (a personal or
+         project access token with scope api; never commit it). For
+         practice: export GITLAB_LOCAL=DIR (a practice sandbox's env.sh does
+         it).</pre>
+<h3 id="t-agile-err-gitlab-http">GitLab: METHOD PATH: STATUS MESSAGE / curl exit N <span class=tag>agile-err-gitlab-http</span></h3>
+<p>Pattern: GitLab: curl exit *: * Pattern: GitLab: * *: no HTTP status in curl's output Pattern: GitLab: * *: * * Pattern: GitLab: no artifact * from job * on * in * (curl exit *: *) Pattern: GitLab: package upload failed: * Pattern: GitLab: package download failed: *</p>
+<pre>From:    gitlab.pl, talk.pl and the libraries, against a GitLab server
+Means:   The server answered with an error (the status and GitLab's own
+         message are in the line: 401 a bad or expired token, 403 not
+         allowed for your role, 404 a wrong project path or one you cannot
+         see, 409 already exists, 422 a value GitLab rejected), or curl
+         could not reach it (a network, proxy or certificate problem), or
+         something between answered instead of GitLab.
+Fix:     Read GitLab's message in the line first. 401: make a new token
+         (Profile &gt; Access tokens, scope api) and export it. 403: ask a
+         maintainer for the role. 404: check --project (group/name, as in
+         the project's URL). curl exit 6 or 7: the server name or the
+         network/VPN; 60: the certificate (your organization's CA bundle,
+         CURL_CA_BUNDLE). Try the same with --dry-run to see the request.</pre>
+<h3 id="t-agile-err-gitlab-sha">GitLab: FILE does not match the registry's sha256 <span class=tag>agile-err-gitlab-sha</span></h3>
+<p>Pattern: GitLab: * does not match the registry's sha256</p>
+<pre>From:    gitlab.pl package get, the pipeline's intake job
+Means:   The file downloaded from the package registry is not the file that
+         was uploaded: its checksum differs from the one recorded at upload
+         (a broken transfer, or someone replaced the package).
+Fix:     Download it again. If it still differs, stop: do not import the
+         drop; tell the security owner and the prime (the transmittal record
+         has the checksums the prime sent).</pre>
+<h3 id="t-agile-err-gitlab-merge">GitLab: pipeline must succeed / approvals required / merge conflict <span class=tag>agile-err-gitlab-merge</span></h3>
+<p>Pattern: GitLab: pipeline must succeed (pipeline #* *) (405 Method Not Allowed) Pattern: GitLab: pipeline must succeed (!* has no pipeline) (405 Method Not Allowed) Pattern: GitLab: approvals required: * needs *, has * (405 Method Not Allowed) Pattern: GitLab: code owner approval required for * (*) (405 Method Not Allowed) Pattern: GitLab: discussions not resolved (* open) (405 Method Not Allowed) Pattern: GitLab: merge conflict: !* cannot be merged into '*'; merge '*' into '*' and resolve (406 Branch cannot be merged) Pattern: GitLab: MR is not open (!* is *) (405 Method Not Allowed) Pattern: GitLab: MR !* is a draft; mark it ready first (405 Method Not Allowed) Pattern: GitLab: * is not allowed to merge into '*' (405 Method Not Allowed) Pattern: GitLab: merge request !* is not open Pattern: GitLab: source branch '*' no longer exists Pattern: GitLab: squash is not supported by the local emulator (the project merges with merge commits)</p>
+<pre>From:    gitlab.pl mr merge, gitlab.pl flow released
+Means:   GitLab refused the merge because one of the project's rules is not
+         met yet. These are the gates working: the pipeline is red or has
+         not run, a code owner (CODEOWNERS) or the approval rule has not
+         approved, a review thread is still open, the branch conflicts with
+         its target, the merge request is a draft or closed, or your role
+         may not merge into that branch.
+Fix:     gitlab.pl mr show IID names what is missing. Red pipeline: read the
+         failed job's log (gitlab.pl pipeline show ID), fix on the branch,
+         push. Approvals: ask the code owner named in the message. Open
+         threads: answer and resolve them. Conflict: on your branch, git
+         merge origin/develop, fix the conflict markers in Vim, commit, push
+         (<a href="#t-agile-gitlab">agile-gitlab</a>). Draft: /ready in a comment.</pre>
+<h3 id="t-agile-err-gitlab-approve">GitLab: USER wrote merge request !N and cannot approve it <span class=tag>agile-err-gitlab-approve</span></h3>
+<p>Pattern: GitLab: * wrote merge request !* and cannot approve it (401 Unauthorized) Pattern: GitLab: * already approved merge request !* (401 Unauthorized) Pattern: GitLab: * has no access to approve in * (401 Unauthorized)</p>
+<pre>From:    gitlab.pl mr approve
+Means:   An approval must come from someone other than the author, once,
+         with at least the reporter role in the project. The review is the
+         second pair of eyes a configuration change needs.
+Fix:     Ask a teammate who is a code owner for the changed files
+         (CODEOWNERS) to approve. In the emulator, act as them with --as
+         USER.</pre>
+<h3 id="t-agile-err-gitlab-protected">You are not allowed to push code to protected branches on this project. <span class=tag>agile-err-gitlab-protected</span></h3>
+<p>Pattern: You are not allowed to push code to protected branches on this project. Pattern: You are not allowed to force push code to a protected branch on this project. Pattern: You are not allowed to delete protected branches from this project. Pattern: You are not allowed to create this tag as it is protected. Pattern: You are not allowed to change existing tags on this project. Pattern: You are not allowed to push code to this project. Pattern: GitLab: you are not allowed to create this tag as it is protected (403 Forbidden) Pattern: GitLab: you are not allowed to push code to this project (403 Forbidden) Pattern: GitLab: you are not allowed to create branch '*' (403 Forbidden) Pattern: GitLab: * cannot publish packages to * (403 Forbidden) Pattern: GitLab: the deploy token cannot publish packages to * (403 Forbidden) Pattern: GitLab: * cannot create deploy tokens in * (403 Forbidden) Pattern: GitLab: * cannot create trigger tokens in * (403 Forbidden) Pattern: GitLab: invalid trigger token for * (404 Not Found)</p>
+<pre>From:    git push (the server's protection rules), gitlab.pl tag, package,
+         token, trigger
+Means:   main and develop are protected: changes reach them only through
+         merge requests; baseline tags are protected: only maintainers
+         create them and nobody moves or deletes them. Tokens and packages
+         need the right role or scope. This is configuration control
+         working, not a fault.
+Fix:     Push your work to a feature branch and open a merge request
+         (gitlab.pl flow start feature NAME ... flow finish). If you
+         committed on develop by mistake, the primer's Rescue appendix shows
+         how to move the commits to a branch. Tags and tokens: ask a
+         maintainer. A deploy token needs the write_package_registry scope;
+         a trigger token is shown once when made.</pre>
+<h3 id="t-agile-err-gitlab-notfound">GitLab: no project 'PATH' / no branch or tag 'REF' / no milestone 'NAME' <span class=tag>agile-err-gitlab-notfound</span></h3>
+<p>Pattern: GitLab: no project '*' (404 Project Not Found) Pattern: GitLab: no branch or commit '*' in * (400 Invalid reference name) Pattern: GitLab: no branch or commit '*' in * (400 Target * is invalid) Pattern: GitLab: no branch or tag '*' in * (400 Ref is invalid) Pattern: GitLab: source branch '*' does not exist in * Pattern: GitLab: target branch '*' does not exist in * Pattern: GitLab: tag '*' does not exist in * Pattern: GitLab: no milestone '*' in * Pattern: GitLab: no pipeline * in * Pattern: GitLab: no user '*' Pattern: GitLab: no file * to upload</p>
+<pre>From:    gitlab.pl (most commands)
+Means:   The name does not exist on that GitLab: a misspelled project path,
+         a branch that was not pushed (or already deleted after its merge),
+         a sprint milestone not created, a user not added, or a local file
+         path that is wrong.
+Fix:     Check the spelling against GitLab (gitlab.pl mr list, issue list,
+         git branch -r). Push the branch first (gitlab.pl flow publish).
+         Sprint milestones: gitlab.pl sprints START COUNT, or setup with the
+         project file.</pre>
+<h3 id="t-agile-err-gitlab-exists">GitLab: tag 'NAME' already exists / another open merge request already exists <span class=tag>agile-err-gitlab-exists</span></h3>
+<p>Pattern: GitLab: project '*' already exists (400 has already been taken) Pattern: GitLab: milestone '*' already exists in * Pattern: GitLab: branch '*' already exists in * (400 Branch already exists) Pattern: GitLab: tag '*' already exists in * (400 Tag * already exists) Pattern: GitLab: release '*' already exists in * Pattern: GitLab: another open merge request already exists for this source branch: !*</p>
+<pre>From:    gitlab.pl
+Means:   The thing you asked to create is already there. Tags and releases
+         are never reused: a baseline name names one configuration forever.
+Fix:     Use the existing one (the message names it), or choose a new name
+         (baseline-2, not baseline-1 again). For a branch with an open merge
+         request: push to it; the merge request updates by itself.</pre>
+<h3 id="t-agile-err-gitlab-values">GitLab: bad time 'X' / unknown access level / an issue needs a title <span class=tag>agile-err-gitlab-values</span></h3>
+<p>Pattern: GitLab: bad time '*' (want YYYY-MM-DD[THH:MM[:SS]]) Pattern: GitLab: unknown access level '*' (none, developer, maintainer, owner) Pattern: GitLab: issue_type is issue, task or incident, not '*' Pattern: GitLab: link type is relates_to, blocks or is_blocked_by, not '*' Pattern: GitLab: state_event is close or reopen, not '*' Pattern: GitLab: a package name is letters, digits and . _ - ('*') Pattern: GitLab: a package version is letters, digits and . _ + - ('*') Pattern: GitLab: a package file name is letters, digits and . _ + - ('*') Pattern: GitLab: an artifact path may not contain '..' ('*') Pattern: GitLab: deploy token scope is read_repository, read_registry, write_registry, read_package_registry or write_package_registry, not '*' Pattern: GitLab: analytics --by is sprint, week or month, not '*' Pattern: GitLab: project path '*' needs a group: group/name Pattern: GitLab: unknown time zone '*' (UTC, +HH:MM, America/New_York, America/Chicago, America/Denver, America/Los_Angeles, ...) Pattern: GitLab: an issue needs a title Pattern: GitLab: a merge request needs * Pattern: GitLab: a release needs tag_name Pattern: GitLab: a pipeline schedule needs *</p>
+<pre>From:    gitlab.pl and the project file
+Means:   A value is not one GitLab accepts; the message lists the allowed
+         ones.
+Fix:     Use one of the listed values. Dates are YYYY-MM-DD (or
+         YYYY-MM-DDTHH:MM); projects are group/name; time zones are UTC,
+         +HH:MM or a US zone name.</pre>
+<h3 id="t-agile-err-gitlab-cron">GitLab: bad cron 'LINE': want 5 fields / cron 'LINE' never runs <span class=tag>agile-err-gitlab-cron</span></h3>
+<p>Pattern: GitLab: bad cron '*': want 5 fields (minute hour day-of-month month day-of-week) Pattern: GitLab: bad cron '*': '*' is not a * (*-*) Pattern: GitLab: bad cron '*': step '*' in the * field Pattern: GitLab: bad cron '*': range '*' runs backwards Pattern: GitLab: cron '*' never runs Pattern: GitLab: more than 10000 scheduled runs before *: check the cron lines Pattern: GitLab: run_due_schedules is for the local emulator; a GitLab server runs its schedules itself Pattern: GitLab: schedule * skipped: * does not exist yet; re-run setup after flow init</p>
+<pre>From:    gitlab.pl schedule, setup ([schedules] in the project file)
+Means:   A pipeline schedule's cron line is malformed (five fields: minute
+         hour day-of-month month day-of-week), can never fire (0 0 31 2 *),
+         or fires so often that a long span would run thousands of
+         pipelines. A schedule on a branch that does not exist yet (develop
+         before flow init) is skipped with a warning.
+Fix:     Preview a line with gitlab.pl schedule next &quot;0 2 * * 1-5&quot; --tz
+         America/New_York -n 5. Fields: minute 0-59, hour 0-23, day 1-31,
+         month 1-12 or jan-dec, weekday 0-7 or sun-sat. Run setup again
+         after gitlab.pl flow init to create the skipped schedules.</pre>
+<h3 id="t-agile-err-gitlab-projectfile">FILE:LINE: label value is '#RRGGBB | description' (the project file) <span class=tag>agile-err-gitlab-projectfile</span></h3>
+<p>Pattern: *: [project] needs path = group/name Pattern: *:*: a key before any [section] Pattern: *:*: expected KEY = VALUE Pattern: *:*: label value is '#RRGGBB | description' Pattern: *:*: branch rule words are push:LEVEL merge:LEVEL force:yes|no codeowners:yes|no Pattern: *:*: tag rule is create:LEVEL Pattern: *:*: approval rule is N user user ... Pattern: *:*: a schedule is CRON | REF [| TZ [| K=V ...]] Pattern: *:*: schedule variables are KEY=VALUE, not '*'</p>
+<pre>From:    gitlab.pl setup FILE, setup --diff FILE, kickoff.pl start
+Means:   A line in the project file (project.conf) does not follow its
+         format. The file is INI-like: [sections] of KEY = VALUE lines; each
+         section has its own value form.
+Fix:     Compare the line with tools/gitlab/templates/project.conf, which
+         has a commented example of every section. Inline comments start
+         with &quot; ;&quot; (space semicolon), because label colours use #.</pre>
+<h3 id="t-agile-err-gitflow">GitFlow: origin has no 'develop' branch (run init first) / not a feature branch <span class=tag>agile-err-gitflow</span></h3>
+<p>Pattern: GitFlow: start feature, release or hotfix, not '*' Pattern: GitFlow: a branch name is letters, digits and . _ - / ('*') Pattern: GitFlow: origin has no '*' branch (run init first) Pattern: GitFlow: branch '*' already exists on origin Pattern: GitFlow: '*' is not a feature, release or hotfix branch Pattern: GitFlow: merge request !* is not merged yet Pattern: GitFlow: !* did not go into * Pattern: GitFlow: take ours or theirs, not '*' Pattern: GitFlow: this step needs a GitLab connection (gl =&gt; GitLab-&gt;new(...)) Pattern: GitFlow: * already exists Pattern: gitlab.pl: flow pushes to the repository; --dry-run does not apply to it Pattern: gitlab.pl: flow runs inside a clone of the project (no git repository here)</p>
+<pre>From:    gitlab.pl flow init|start|publish|finish|released|take
+Means:   The gitflow step does not fit where you are: flow runs in a clone
+         of the model project; start needs feature, release or hotfix and a
+         simple name; finish runs on such a branch; released runs after the
+         release merge request is merged into main; develop must exist (flow
+         init makes it). --dry-run cannot preview flow, because flow pushes
+         with git.
+Fix:     cd into your clone. git branch shows where you are. Start work with
+         gitlab.pl flow start feature 12-short-name (from develop). Merge
+         the release MR first, then gitlab.pl flow released IID. take is
+         ours or theirs (<a href="#t-agile-gitlab">agile-gitlab</a>).</pre>
+<h3 id="t-agile-err-gitflow-vendor">GitFlow: drop DIR changes nothing on vendor/prime / merging failed <span class=tag>agile-err-gitflow-vendor</span></h3>
+<p>Pattern: GitFlow: vendor import needs drop =&gt; DIR (got *) Pattern: GitFlow: vendor import needs version =&gt; NAME (letters, digits, . _ -) Pattern: GitFlow: vendor import needs convert =&gt; sub { my (*, *) = *; ... } Pattern: GitFlow: origin/* has no root commit Pattern: GitFlow: drop * changes nothing on * Pattern: GitFlow: merging * into * failed: * Pattern: GitFlow: no .xmi file in *</p>
+<pre>From:    gitlab.pl flow vendor DROPDIR VERSION
+Means:   The prime drop could not be imported onto the vendor branch: the
+         drop folder has no .xmi file, the version name is missing or odd,
+         the drop is identical to the last one imported, or git could not
+         merge the vendor branch into the new feature branch (other than an
+         ordinary conflict, which is reported as conflicted files).
+Fix:     Point flow vendor at the unpacked drop folder (with tidewater.xmi,
+         .reqif, MANIFEST.txt) and give the prime's version (v1.1). An
+         identical drop needs no import: record it on the Prime Drop issue.
+         For a failed merge, run git status in the clone and read git's
+         message.</pre>
+<h4 id="t-agile-err-gitflow-allowance">GitFlow: model.pl check gave no violation count <span class=tag>agile-err-gitflow-allowance</span></h4>
+<p>Pattern: GitFlow: tools/sysml/model.pl check gave no violation count: *</p>
+<pre>From:    gitlab.pl flow vendor, gitlab.pl flow allowance VERSION
+Means:   After a drop is merged, flow records the drop's outline count in
+         .ci/outline-max. It runs the kit's model.pl check for that count,
+         and the check printed no count: the kit is not where KIT says, or
+         the model/ folder or sysml.conf cannot be read.
+Fix:     Check that KIT points at the kit (perl $KIT/tools/sysml/model.pl
+         check works in the clone), then run gitlab.pl flow allowance
+         VERSION again.</pre>
+<h3 id="t-agile-err-gitlab-ci-yaml">FILE:LINE: job 'NAME': stage 'X' is not in stages / include: local file does not exist <span class=tag>agile-err-gitlab-ci-yaml</span></h3>
+<p>Pattern: *: !reference nested too deeply (a cycle?) Pattern: *: * must be a map Pattern: *: extends: '*' is not defined Pattern: *: extends: circular chain through '*' Pattern: *: extends: more than 11 levels at '*' Pattern: *: include: an item must be a path or a map (local:, template:, project:, remote:, component:) Pattern: *: include: cycle * Pattern: *: include: local file '*' does not exist (paths start at the repository root) Pattern: *: include: local file '*' must end in .yml or .yaml Pattern: *: include: local: needs a path Pattern: *: include: more than * included files Pattern: *: include: rules must be a list of maps Pattern: *: include: rules: when must be always or never, got '*' Pattern: *: job '*' extends '*', which is not defined Pattern: *: job '*' has no script (or trigger) Pattern: *: job '*' must be a map of keys Pattern: *: job '*': a * line is a map (*) -- quote a command that contains ': ' Pattern: *: job '*': rules cannot be used with only/except Pattern: *: job '*': rules must be a list of maps Pattern: *: job '*': stage '*' is not in stages (*) Pattern: *: job '*': unknown when '*' Pattern: *: stages must be a list Pattern: *: workflow:rules must be a list of maps Pattern: *:*: !reference [*] not found Pattern: *:1: the top level must be a map of keys Pattern: rules:if: bad regular expression /*/ in '*' Pattern: rules:if: cannot read '*' at '*'</p>
+<pre>From:    gitlab.pl ci (the local pipeline runner, lib/GitLabCI.pm), the
+         emulator's pipelines
+Means:   The pipeline file (.gitlab-ci.yml or a file it includes) breaks
+         GitLab's rules at that file and line. GitLab would reject the same
+         file. The commonest: an unquoted script line containing &quot;: &quot; (YAML
+         reads it as a map), a job naming a stage that stages: does not
+         list, a misspelled extends: parent, an include path not starting at
+         the repository root.
+Fix:     Open the file at the line (in Vim: :e +LINE FILE). Quote a script
+         line that contains &quot;: &quot; ('perl ci/job.pl lint' is safe; &quot;echo a: b&quot;
+         must be quoted). gitlab.pl ci --list shows which jobs a pipeline
+         would run, without running them. GitLab's own CI/CD &gt; Editor also
+         validates the file.</pre>
+<h3 id="t-agile-err-gitlab-ci-cli">gitlab.pl ci: not inside a git work tree / --event tag needs --tag T <span class=tag>agile-err-gitlab-ci-cli</span></h3>
+<p>Pattern: gitlab.pl ci: not inside a git work tree Pattern: gitlab.pl ci: no * here or at the top of the work tree (pass --file) Pattern: gitlab.pl ci: a merge request pipeline needs a branch (check one out or pass --branch) Pattern: gitlab.pl ci: HEAD is detached: pass --branch B Pattern: gitlab.pl ci: --event tag needs --tag T (HEAD has no tag) Pattern: gitlab.pl ci: --var needs KEY=VALUE, got '*' Pattern: gitlab.pl ci: unknown --event '*' (push, merge_request_event, tag, schedule, web, trigger) Pattern: gitlab.pl ci: unexpected argument '*' * Pattern: gitlab.pl ci: *</p>
+<pre>From:    gitlab.pl ci (run the pipeline locally)
+Means:   The local run needs a clone with a pipeline file and enough context
+         to pick jobs the way GitLab would: the branch (or tag) and the kind
+         of pipeline.
+Fix:     cd into the clone. gitlab.pl ci --list --event merge_request_event
+         --target develop previews a merge request pipeline; --event push
+         --branch develop a develop pipeline; --event tag --tag baseline-1 a
+         baseline. --var KEY=VALUE sets a CI/CD variable.</pre>
+<h3 id="t-agile-err-ci-job">KIT is not set / the kit on this runner is X, but .kit-version pins Y <span class=tag>agile-err-ci-job</span></h3>
+<p>Pattern: usage: perl ci/job.pl * Pattern: KIT is not set: add it under Settings &gt; CI/CD &gt; Variables (the kit's path on the runner) Pattern: KIT=* does not hold the agile kit (no tools/sysml/model.pl) Pattern: the kit on this runner is *, but .kit-version pins *</p>
+<pre>From:    ci/job.pl (every pipeline job of the model project)
+Means:   Every job calls the kit's tools through the CI/CD variable KIT, the
+         kit's folder on the runner. It is not set, points at the wrong
+         folder, or the runner has a different kit version than the one the
+         model project pins in .kit-version (toolchain changes are reviewed
+         like model changes).
+Fix:     Settings &gt; CI/CD &gt; Variables: KIT = the kit's path on the runner
+         (C:/agile on a Windows runner; /opt/agile-kit in the mbse-ci Docker
+         image). To move to a new kit version, bump .kit-version in a merge
+         request, or put the runner back on the pinned version.</pre>
+<h3 id="t-agile-err-kickoff">kickoff: DIR is not empty / --levels is a comma list of names <span class=tag>agile-err-kickoff</span></h3>
+<p>Pattern: usage: kickoff.pl * Pattern: kickoff: --project is GROUP/NAME, not '*' Pattern: kickoff: * is not empty (use an empty or new folder, or --force) Pattern: kickoff: no templates in * (is this the agile kit?) Pattern: kickoff: cannot enter *: * Pattern: kickoff: git init failed: * Pattern: kickoff: git add failed: * Pattern: kickoff: git commit failed: * Pattern: kickoff: --drop needs --version (e.g. v1.0) Pattern: kickoff: --levels is a comma list of names, top level first (e.g. L1Network,L2Segment,L3Station) Pattern: kickoff: scaffold needs a DIR Pattern: kickoff: no layout map *</p>
+<pre>From:    tools/gitlab/kickoff.pl doctor|scaffold|start
+Means:   scaffold makes a new model repository from the kit's templates in
+         an empty folder; start runs the week-zero steps. The folder is not
+         empty, an argument is malformed (--layout-map names no file), the
+         kit's templates are missing (kickoff.pl was copied out of the
+         kit), or git failed (its message follows).
+Fix:     Use a new folder: perl $KIT/tools/gitlab/kickoff.pl scaffold model
+         --project tidewater/model --levels L1Network,L2Segment,L3Station.
+         Run kickoff.pl from inside the kit. A git failure: run kickoff.pl
+         doctor, which checks git's version and identity (git config
+         user.name / user.email). start --from N resumes after a failed
+         step. --layout-map takes the path of an existing map, e.g. the
+         kit's examples/tidewater-v1/layout.map.</pre>
+<h3 id="t-agile-err-talk">talk: standup needs --as USER / no milestone 'Sprint N' <span class=tag>agile-err-talk</span></h3>
+<p>Pattern: usage: talk.pl * Pattern: talk: no journal at * Pattern: talk: standup needs --as USER Pattern: talk: review needs --sprint N Pattern: talk: --sprint is a number, not '*' Pattern: talk: --date is YYYY-MM-DD, not '*' Pattern: talk: no milestone 'Sprint *' Pattern: talk: milestone '*' has no start date Pattern: talk: milestone '*' has no due date Pattern: talk: translate needs FILE or - (standard input) Pattern: talk: unknown command '*' (standup, review, weekly, translate, help) Pattern: talk: unexpected argument '*'</p>
+<pre>From:    tools/gitlab/talk.pl standup|review|weekly|translate
+Means:   talk.pl drafts words from GitLab and the journal; it needs to know
+         whose stand-up (--as), which sprint (--sprint, matching a milestone
+         named &quot;Sprint N&quot; with start and due dates), and where the journal
+         is (--journal, a daily.pl project).
+Fix:     talk.pl standup --as bob; talk.pl review --sprint 4; talk.pl
+         translate notes.txt (or - to read what you paste). Sprint
+         milestones need dates: gitlab.pl sprints START COUNT makes them.</pre>
+<h3 id="t-agile-err-ci-reports">ci-reports: no 'elements=N errors=E warnings=W' line in LOG <span class=tag>agile-err-ci-reports</span></h3>
+<p>Pattern: usage: ci-reports.pl * Pattern: ci-reports: no 'elements=N errors=E warnings=W' line in * (is it model.pl lint output?) Pattern: ci-reports: no '* tag mismatches' or 'violations' line in * (is it model.pl check output?) Pattern: ci-reports: no 'C requirements linked' line in * (is it reqif2sysml.pl --report --model output?)</p>
+<pre>From:    tools/gitlab/ci-reports.pl (inside ci/job.pl's grammar, lint,
+         outline, todo and trace jobs)
+Means:   ci-reports turns a checker's output into GitLab's merge-request
+         reports (JUnit, Code Quality, metrics). It was given the wrong log
+         for its mode, or the checker failed before printing its summary
+         line.
+Fix:     Read the job log above this line: the checker's own error is there.
+         Run ci/job.pl NAME rather than ci-reports by hand; it passes the
+         right log to the right mode.</pre>
+<h3 id="t-agile-err-gitlab-internal">GitLab: no user given / cannot save STDOUT (a script or the kit itself) <span class=tag>agile-err-gitlab-internal</span></h3>
+<p>Pattern: GitLab: add_note kind is issue or mr, not '*' Pattern: GitLab: a merge request pipeline needs mr_iid Pattern: GitLab: job_artifact needs * Pattern: GitLab: no user given Pattern: GitLab: cannot create * Pattern: GitLab: cannot store *: * Pattern: GitLab: git *: * Pattern: GitFlow: new needs * Pattern: GitFlow: git *: * Pattern: GitFlow: git clone *: * Pattern: GitFlow: copy */*: * Pattern: GitLab: * Pattern: cannot save STDOUT: * Pattern: cannot save STDERR: * Pattern: cannot redirect STDOUT: * Pattern: cannot redirect STDERR: * Pattern: cannot restore STDOUT: * Pattern: cannot restore STDERR: * Pattern: kickoff: cannot save STDOUT: * Pattern: kickoff: cannot save STDERR: * Pattern: kickoff: cannot redirect STDOUT: * Pattern: kickoff: cannot redirect STDERR: * Pattern: kickoff: cannot restore STDOUT: * Pattern: kickoff: cannot restore STDERR: *</p>
+<pre>From:    lib/GitLab.pm, lib/GitFlow.pm, lib/GitLabCI.pm used from a script,
+         ci/job.pl, kickoff.pl
+Means:   A script called the GitLab or GitFlow library without a required
+         argument, or a file or git operation underneath failed (a full
+         disk, a folder that is not writable, or git's own error, which
+         follows the message). The STDOUT/STDERR lines mean the tool could
+         not capture a job's output: almost always a full disk or a temp
+         folder that is not writable.
+Fix:     Read git's or the system's words at the end of the line. Check free
+         space and that the temp folder (TMP/TMPDIR) and the emulator folder
+         are writable. In your own scripts, pass every argument the method's
+         header comment names. If the kit's own commands print it with
+         nothing wrong on disk, report it with the command you ran.</pre>
+<hr>
+<h2 id="t-agile-err-internal">11. INTERNAL INVARIANTS <span class=tag>agile-err-internal</span></h2>
 <p>These messages mean a bug in the kit or a broken copy of it, not something you did. Note the command you ran and the message, and get a fresh copy of the kit (git status shows local changes; git checkout -- FILE restores one).</p>
 <p>Internal: : unknown function '*' Internal: : empty list Internal: range: zero step Internal: chunksOf: n must be &gt; 0 Internal: unwrap: *</p>
 <p>vim:tw=78:ts=8:ft=help:norl:</p>

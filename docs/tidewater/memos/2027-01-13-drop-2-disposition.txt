@@ -1,0 +1,70 @@
+              TIDEWATER COASTAL OBSERVATION PROGRAM
+
+TW-SE
+
+13 JANUARY 2027
+
+MEMORANDUM FOR RECORD
+
+FROM: TIDEWATER MBSE LEAD, CHAIR OF THE MODEL CHANGE BOARD
+
+SUBJECT: DISPOSITION OF PRIME DROP V1.1 (CDRL A003, SYSTEM MODEL)
+
+REFERENCES: (A) CDRL A003, SYSTEM MODEL; (B) PRIME DROP ISSUE FOR
+V1.1 (PLANNED: OPENED AT INTAKE ON 11 JANUARY 2027); (C) DELTA
+AND IMPACT REPORT FOR DROPS V1.0 TO V1.1, PIPELINE DELTA JOB
+
+1.  Drop v1.1, delivered 8 January 2027 under CDRL A003, was
+received on 11 January 2027. Every file matched the sha256
+recorded in its manifest.
+
+2.  Compared with drop v1.0, it adds 7 elements, removes none and
+changes 1. For the government model it adds one requirement,
+TW-SYS-017, changes the text of TW-SYS-006, and touches one
+verification case, TestStationObservations; no hand-made change
+has to be redone.
+
+3.  The change board met on 13 January 2027 and dispositioned the
+changes as follows:
+
++----------+----------+--------------------+------+----------+
+| Change   | Prime ID | Disposition        | Impa | Issue    |
+|          |          |                    | ct   |          |
++==========+==========+====================+======+==========+
+| New      | Hygromet | Accept             | none | #131,    |
+| hygromet | er, part |                    |      | the      |
+| er in    | hygromet |                    |      | December |
+| the      | er       |                    |      | working  |
+| sensor   |          |                    |      | assumpti |
+| suite    |          |                    |      | on,      |
+|          |          |                    |      | confirme |
+|          |          |                    |      | d        |
++----------+----------+--------------------+------+----------+
+| New      | TW-SYS-0 | Accept; verified   | none | planned: |
+| requirem | 17       | by                 |      | opened   |
+| ent      |          | TestStationObserva |      | at       |
+| TW-SYS-0 |          | tions              |      | intake   |
+| 17,      |          |                    |      |          |
+| relative |          |                    |      |          |
+| humidity |          |                    |      |          |
++----------+----------+--------------------+------+----------+
+| TW-SYS-0 | TW-SYS-0 | Accept; closes     | none | #84      |
+| 06 text  | 06       | DR-1               |      | (DR-1)   |
+| now      |          |                    |      |          |
+| matches  |          |                    |      |          |
+| DOORS    |          |                    |      |          |
++----------+----------+--------------------+------+----------+
+
+4.  This drop closes DR-1 (#84), the TW-SYS-006 text drift, and
+confirms the government's working assumption about the hygrometer
+interface recorded in December (#131). It opens no new
+discrepancy reports.
+
+5.  Accepted changes are implemented through merge requests
+citing the prime change ID, in sprint 8.
+
+6.  The point of contact is the undersigned.
+
+JIM
+
+TIDEWATER MBSE LEAD

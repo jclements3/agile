@@ -4,7 +4,7 @@ package Reqif;
 #
 #   my $d   = Reqif::load_reqif($path, %o);           # .reqif or .reqifz
 #   my $d   = Reqif::load_csv($path, cols => { id => 'Object Identifier', text => 'Object Text', ... }, %o);
-#   my $out = Reqif::convert($d, req_style => 'def'|'usage', layout => '{seg}/{pkg}.sysml');
+#   my $out = Reqif::convert($d, req_style => 'def'|'usage', layout => '{seg}/{pkg}.sysml', layout_map => SysmlText::read_layout_map($f));
 #   print Reqif::report_text($out);
 #   my $t   = Reqif::trace($d, $out, $model_dir);     # linked / orphan / unverified against existing SysML v2 text
 #   print Reqif::trace_text($t);
@@ -20,7 +20,7 @@ package Reqif;
 use strict;
 use warnings;
 use XmlLite;
-use SysmlText qw(name ident str doc requirement check);
+use SysmlText qw(name ident str doc requirement check layout_path);
 
 my @ID_ATTRS   = ('Object Identifier', 'ReqIF.ForeignID', 'Absolute Number', 'ID', 'Identifier');
 my @TEXT_ATTRS = ('ReqIF.Text', 'Object Text', 'Text', 'Description');
@@ -352,6 +352,7 @@ sub convert {
         }
     }
     my $src = $d->{source};
+    my @layout_notes;
     for my $i (0 .. $#tops) {
         my $tb = $tops[$i];
         my $self = name($tb->{name});
@@ -361,13 +362,16 @@ sub convert {
         (my $seg = lc $tb->{name}) =~ s/[^a-z0-9]+/-/g; $seg =~ s/^-+|-+$//g; $seg = 'requirements' if $seg eq '';
         (my $pf = $tb->{name}) =~ s/[^A-Za-z0-9_.\-]+/_/g;
         my $fn = $layout; $fn =~ s/\{seg\}/$seg/g; $fn =~ s/\{pkg\}/$pf/g;
+        my $note; ($fn, $note) = layout_path($o{layout_map}, $tb->{name}, $pf, $fn);   # DOORS module -> folder
+        push @layout_notes, $note if defined $note;
+        if (exists $files{$fn}) { (my $alt = $fn) =~ s/\.sysml$/_$pf.sysml/; push @layout_notes, "layout map: $tb->{name} and another module both go to $fn; $tb->{name} written to $alt"; $fn = $alt }
         $files{$fn} = join("\n", @l) . "\n";
     }
     $count{$_} ||= 0 for qw(requirements no_text with_vm without_vm headings orphan_headings empty missing unplaced);
     $lc{$_} ||= 0 for qw(derive satisfy verify trace unresolved);
     return { files => \%files, problems => check(\%files), reqs => { map { $_ => $reqname{$_} } keys %reqname },
              report => { source => $src, objects => $d->{spec_objects}, counts => \%count, links => \%lc, vm => \%vm_count,
-                         relations => scalar @{ $d->{relations} } } };
+                         relations => scalar @{ $d->{relations} }, layout => \@layout_notes } };
 }
 
 sub report_text {
@@ -388,6 +392,7 @@ sub report_text {
         sprintf('  derive %d, satisfy %d, verify %d, trace %d, not between requirements %d', map { $k->{$_} } qw(derive satisfy verify trace unresolved)));
     push @l, 'verification methods: ' . join(', ', map { "$_ $r->{vm}{$_}" } sort keys %{ $r->{vm} }) if %{ $r->{vm} };
     push @l, '', 'files: ' . join(' ', sort keys %{ $out->{files} });
+    push @l, @{ $r->{layout} || [] };
     push @l, 'self-check: ' . (@{ $out->{problems} } ? scalar(@{ $out->{problems} }) . ' problem(s)' : 'ok'), map { "  $_" } @{ $out->{problems} };
     return join("\n", @l) . "\n";
 }
@@ -404,25 +409,47 @@ sub scan_model {
         closedir $dh;
     };
     $w->($dir);
+    my %doc;                                  # requirement name -> its doc text (the first doc within a few lines of the header)
     for my $f (@files) {
         open my $fh, '<', $f or next;
-        my $cur;
+        my ($cur, $since, $open, $pending);
+        my $strip = sub { my $x = shift; $x =~ s/^\s*\*(?!\/)\s?//; $x };   # a block comment's leading ' * '
         while (my $l = <$fh>) {
-            $l =~ s{//.*}{};
-            if ($l =~ /^\s*requirement\s+(?:def\s+)?(\w+)/ && $1 ne 'def') { $cur = $1; $req{$cur} = 1 }
+            if (defined $open) {                  # a doc comment spanning lines
+                if ($l =~ m{^(.*?)\*/}) { $doc{$cur} //= "$open " . $strip->($1); undef $open } else { $open .= ' ' . $strip->($l) }
+                next;
+            }
+            if ($pending) {                       # 'doc' alone on a line, the comment on the next
+                undef $pending;
+                if ($l =~ m{^\s*/\*(.*?)\*/}) { $doc{$cur} //= $1; next }
+                if ($l =~ m{^\s*/\*(.*)$}) { $open = $1; next }
+            }
+            $l =~ s{//.*}{} unless $l =~ m{/\*};
+            if ($l =~ /^\s*requirement\s+(?:def\s+)?(\w+)/ && $1 ne 'def') { $cur = $1; $req{$cur} = 1; $since = 0 }
+            elsif (defined $since) { $since++ }
+            if (defined $cur && $since <= 3 && !defined $doc{$cur}) {
+                if    ($l =~ m{\bdoc\s*/\*(.*?)\*/}) { $doc{$cur} = $1 }
+                elsif ($l =~ m{\bdoc\s*/\*(.*)$}) { $open = $1 }
+                elsif ($l =~ m{^\s*doc\s*$}) { $pending = 1 }
+            }
             if ($l =~ /doorsId\s*(?::\s*\w+\s*)?=\s*"([^"]*)"/ && defined $cur) { $by_doors{$1}{$cur} = 1 }
             $sat{ (split /::/, $1)[-1] } = 1 if $l =~ /^\s*satisfy\s+(?:requirement\s+)?([\w:]+)/;
             $ver{ (split /::/, $1)[-1] } = 1 if $l =~ /^\s*verify\s+(?:requirement\s+)?([\w:]+)/;
         }
         close $fh;
     }
-    return { files => scalar @files, req => \%req, by_doors => \%by_doors, sat => \%sat, ver => \%ver };
+    return { files => scalar @files, req => \%req, by_doors => \%by_doors, sat => \%sat, ver => \%ver, doc => \%doc };
 }
 
+sub _norm_text {                              # text compared for drift: markup gone, whitespace collapsed, the doc-comment escape undone
+    my $t = shift // '';
+    $t =~ s/<[^>]+>//g; $t =~ s{\* /}{*/}g; $t =~ s/\s+/ /g; $t =~ s/^ | $//g;
+    return $t;
+}
 sub trace {
     my ($d, $out, $dir) = @_;
     my $m = scan_model($dir);
-    my (@linked, @orphan, @unver, @both, @missing);
+    my (@linked, @orphan, @unver, @both, @missing, @drift);
     my %doors;
     for my $oid (@{ $d->{order} }) {
         my $ob = $d->{objects}{$oid};
@@ -438,11 +465,14 @@ sub trace {
         push @orphan, $ob->{id} unless $s;
         push @unver, $ob->{id} unless $v;
         push @both, $ob->{id} if $s && $v;
+        my $want = _norm_text($ob->{text});         # drift: the model's doc for this doorsId says something else than DOORS
+        my @differ = grep { defined $m->{doc}{$_} && _norm_text($m->{doc}{$_}) ne $want } sort keys %names;
+        push @drift, { id => $ob->{id}, doors => $ob->{text}, model => $m->{doc}{ $differ[0] }, names => \@differ } if @differ && $want ne '';
     }
     my $extra = grep { !$doors{$_} } keys %{ $m->{by_doors} };
     my $total = @linked + @missing;
     return { dir => $dir, files => $m->{files}, total => $total, linked => \@linked, missing => \@missing, orphan => \@orphan,
-             unverified => \@unver, complete => \@both, extra => $extra };
+             unverified => \@unver, complete => \@both, extra => $extra, drift => \@drift };
 }
 
 sub trace_text {
@@ -453,10 +483,13 @@ sub trace_text {
         sprintf('%-44s %12d', 'F orphan requirements (nothing satisfies)', scalar @{ $t->{orphan} }),
         sprintf('%-44s %12d', 'G unverified requirements (no verify)', scalar @{ $t->{unverified} }),
         sprintf('%-44s %12s', 'I trace completeness (satisfied and verified)', "$pct%"),
-        sprintf('%-44s %12d', 'doorsIds in the model but not in this export', $t->{extra}));
+        sprintf('%-44s %12d', 'doorsIds in the model but not in this export', $t->{extra}),
+        sprintf('%-44s %12d', 'text differs from DOORS', scalar @{ $t->{drift} || [] }));
     push @l, 'not in the model: ' . join(' ', @{ $t->{missing} }) if @{ $t->{missing} };
     push @l, 'orphans: ' . join(' ', @{ $t->{orphan} }) if @{ $t->{orphan} };
     push @l, 'unverified: ' . join(' ', @{ $t->{unverified} }) if @{ $t->{unverified} };
+    push @l, 'drift: ' . join(' ', map { $_->{id} } @{ $t->{drift} || [] }) if @{ $t->{drift} || [] };
+    for my $d (@{ $t->{drift} || [] }) { push @l, "  $d->{id} DOORS: " . _norm_text($d->{doors}), "  $d->{id} model: " . _norm_text($d->{model}) }
     return join("\n", @l) . "\n";
 }
 

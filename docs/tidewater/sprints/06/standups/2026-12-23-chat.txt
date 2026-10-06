@@ -1,0 +1,7 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-118 Retrospective, the management: done (1 task). T TW-129 doc: Twelve-week progress memo to program, by Thu; pairing with Bob after lunch. B none
+[9:02 AM] Tom
+Y none T TW-117 release branch, CCB concurrence, tag baseline-0,, by Thu. B none

@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y none T TW-92 DR-5: ask the prime to delete Legacy Import, by Dec 11. B none
+[9:02 AM] Bob
+Y none T TW-67 (first thing: read the review comments) walk the Stations tree with the prime's modeler;, by Dec 11. B none
+[9:03 AM] Tom
+Y none T TW-92 remove the Legacy Import package from the v2 model, by Dec 11. B none

@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-89 Learn: the requirement recipe;: 1 of 2 tasks done. T TW-92 (first thing: read the review comments) DR-5: ask the prime to delete Legacy Import, by Dec 11. B none
+[9:02 AM] Bob
+Y none T TW-67 walk the Stations tree with the prime's modeler;, by Dec 11. B none
+[9:03 AM] Tom
+Y none T TW-92 remove the Legacy Import package from the v2 model, by Dec 11. B none

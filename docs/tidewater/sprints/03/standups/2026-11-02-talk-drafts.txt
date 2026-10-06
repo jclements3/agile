@@ -1,0 +1,6 @@
+jim draft:  Y TW-31 Enablers, decisions and conventions...: done (4 tasks). T TW-50 talk.pl: draft, then edit, the stand-up, by Nov 13. B none
+jim posted: Y TW-31 Enablers, decisions and conventions: done (4 tasks). T TW-50 talk.pl: draft, then edit, the stand-up, by Nov 13. B none
+bob draft:  Y none T TW-50 workbook second half; talk.pl, by Nov 13. B none
+bob posted: Y none T TW-50 workbook second half; talk.pl, by Nov 13. B none
+tom draft:  Y TW-32 Sprint 2 demo: the pipeline and the...: done (1 task). T TW-50 talk.pl; the Day-9 demo rehearsal, by Nov 13. B none
+tom posted: Y TW-32 Sprint 2 demo: the pipeline and the: done (1 task). T TW-50 talk.pl; the Day-9 demo rehearsal, by Nov 13. B none

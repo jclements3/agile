@@ -1,0 +1,48 @@
+= Part II: Week zero
+
+Part I ended on Friday 2 October 2026 with a signed scorecard, a one-page plan, an email that promised honesty,
+and a zip file from the prime contractor that nobody had opened yet. Part II is everything that has to be true
+before the first sprint can start on Monday, and everything a reader needs to know to follow the twelve weeks
+in Part III with a terminal open.
+
+It is the part you type along with. Jim, Bob and Tom did not learn these things in a classroom. They learned them
+in the gaps of real work: Tom reading about protected branches at the kitchen table on a Saturday, Bob trying git
+commands in a throwaway folder on a Tuesday afternoon until the words "merge conflict" stopped being frightening,
+Jim rewriting the Definition of Done three times because the first two versions were documents nobody would read.
+The chapters here put those lessons in the order a newcomer needs them, which is not the order the team learned
+them.
+
+::: survival
+What you have: a Windows laptop with Git for Windows and Vim; the agile kit checked out; a SysML v1 model you
+exported from Cameo (or, for this book, the Tidewater drops); years of systems engineering judgment.
+
+What you need by the end of Part II: a working terminal and a set of commands you trust; enough git to make a
+branch, commit, push and resolve a conflict; Vim set up to edit and check SysML v2 text; the operating model (who
+does what, how big each piece of work may be, when the team meets); a GitLab project configured from a file; the
+DevSecOps tools worth turning on; a pipeline you can read job by job; and the daily rhythm of stand-ups, poker,
+refinement, kickoff, demo and retrospective.
+:::
+
+The chapters build on each other:
+
+- [[operating-model]] describes how the work is organized: the project, tomes, epics, stories and tasks, with
+  the size rule for each; the two-week cadence; who decides what. It comes first because every later chapter
+  refers to it, and because it is the part a systems engineer will find most familiar. It is a work breakdown
+  structure and a schedule, with a few new words.
+- [[survival]] sets up the laptop. It is written for someone who has never opened a terminal on purpose.
+- [[git]] teaches version control from zero in a practice repository, with every command shown and its real
+  output, and each idea tied to the configuration management practice it replaces.
+- [[vim]] turns the editor you already know into a model workbench: syntax, checks, jump lists, tags, merge
+  conflicts and Markdown for GitLab.
+- [[gitlab-setup]], [[tools]], [[cicd]], [[pipeline]], [[journal]] and [[ceremonies]] set up the shared
+  platform, explain continuous integration, walk through the pipeline file, and establish the daily rhythm.
+
+::: tip If you are short of time
+Read [[operating-model]] and [[survival]] in full. Work through [[git]] with your hands on the keyboard; it is
+the chapter people most regret skipping. Skim [[vim]] and come back to each section when Part III first needs it.
+:::
+
+A word about pace. None of this is hard, but much of it is new at once, and new things in bulk feel hard. The team
+found that an hour a day of deliberate practice in week zero was worth more than a full day of reading. Bob's
+rule, written on a sticky note on the monitor, was: *type it, break it, fix it, then read about it*. The exercises
+at the end of each chapter are built on that rule.

@@ -1,0 +1,670 @@
+== Requirements a pipeline can check: the recipe {#recipe}
+
+::: note What you have, what you need
+**What you have:** decades of writing and reviewing requirements. You know a bad one when you see it: "the system
+shall provide adequate performance" makes every reviewer reach for a red pen. You also know that red pens run out
+of ink. In a 400-requirement specification, the twentieth weak verb gets through because the reviewer is tired.
+
+**What you need from this chapter:** one explicit pattern for a good requirement statement, so that "good" stops
+being a matter of taste; the vocabulary to talk about each part of a statement; and a tool that reads every
+requirement against the pattern on every change, so the red pen never runs out. You will run the tool on Tidewater
+and on the recipe's own worked example.
+:::
+
+This is a core chapter: read it in the first four weeks, and type the commands. It sits here, between the SysML v2
+introduction and the setup chapters, because the requirement statement is where systems engineering and the pipeline
+first meet. A pipeline cannot judge an architecture. It can judge a sentence.
+
+=== Jim's red pen {#recipe-story}
+
+Jim kept a one-page sheet pinned above the desk for most of the document era. It was a requirements recipe: one
+sentence pattern, eighteen numbered parts, six of them required, and a list of verbs nobody could verify. Jim had
+used it for years to review specifications by hand. A review meant printing the SRS, reading every paragraph with
+the sheet beside it, and marking up the margins. A careful review of a 300-requirement specification took Jim about
+three days.
+
+In the Cameo years the sheet did not help much. The requirements were in DOORS, synchronized into the model, and the
+review happened on screen, one requirement at a time in a property panel. Jim stopped using the sheet; there was no
+margin to write in.
+
+In sprint 5 Jim pinned it back up, for a different reason. The team had a pipeline that read every model file on
+every change, and the trace job had already shown that the pipeline could find what tired reviewers missed. Jim
+asked a simple question at refinement: could the pipeline read the requirement text against the recipe?
+
+> I've been doing this with a pen for twenty years. If a script can do the first pass, I can spend my three days on
+> the requirements that are actually wrong, instead of the ones that just say "provide".
+> -- Jim, sprint 5 refinement
+
+The answer was yes, with a qualification this chapter is careful about. A script can check the *form* of a
+requirement: is there exactly one operative verb, is the target verb concrete, is there a measurable threshold, is
+the referenced document identified down to the section. It cannot check whether the requirement is the right
+requirement. The recipe makes the form checkable, so that the human review time goes to the substance.
+
+=== The recipe in one sentence {#recipe-pattern}
+
+The recipe is the user's own requirement-writing standard, developed from industry practice for requirement
+specifications. Its premise is simple: if every requirement follows one sentence pattern, then every requirement
+meets the static criteria of a good requirement by construction: it is verifiable, atomic and clear.
+
+The recipe applies to every requirement in a project's requirement specifications. One paragraph holds one
+requirement and the statements that belong to it. A requirement is a single sentence that applies functional or
+performance criteria to the specification target. These single-sentence structures stand alone as paragraphs, or as
+elements of larger documents and databases.
+
+Here is the pattern. The numbers in brackets are the part numbers used throughout this chapter.
+
+```text
+(U)[1] While[2] / upon[3] ____[4]____, the ____[5]____, for the ____[6]____ function,
+shall/will/should/may[7] ____[8]____ ________[9]________ with/such[10] that
+________[11]________ in accordance with ________[12]________ (____[13]____)
+____[14]____, except ________[15]________. Note:
+________________[16]________________ (____[17]____) ____[18]____
+```
+
+|| Part | Name | Required ||
+| 1 | Classification | Yes |
+| 2 | State | |
+| 3 | Trigger | |
+| 4 | Pre-condition(s) | |
+| 5 | Specification target | Yes |
+| 6 | Allocated function | |
+| 7 | Operative verb | Yes |
+| 8 | Target verb | Yes |
+| 9 | Precise object(s) | Yes |
+| 10 | Modifier | |
+| 11 | Modification(s) | |
+| 12 | Specification | |
+| 13 | Document number | |
+| 14 | Section number | |
+| 15 | Exception(s) | |
+| 16 | Informational statement(s) | |
+| 17 | Requirement ID | Yes |
+| 18 | Requirement tags | |
+Table: The eighteen parts of the requirement recipe
+
+Six parts are required: the classification, the specification target, the operative verb, the target verb, the
+precise objects and the requirement ID. Everything else appears when the requirement needs it. A short requirement is
+not a bad requirement: "(U) The data logger shall store 72 hours of observation records. (TW-SEG-011)" has all six
+required parts and nothing else, and it is a perfectly good requirement.
+
+The pattern reads like a form with blanks. That is deliberate. The recipe is not prose style advice; it is a
+structure, and structures can be checked.
+
+=== The parts, one at a time {#recipe-parts}
+
+==== Classification (part 1)
+
+A classification portion mark is required in most defense-related requirement specifications. The portion mark for
+the requirement statement comes at the beginning of the paragraph. Portion marks include (U), (U//FOUO), (S),
+(S//NF), (S//FRD) and so on. The project's security classification guide (SCG) and its portion-marking instructions
+govern the details. Typical guidance is that every paragraph of a document is portion marked, and since a single
+requirement sits in its own paragraph, every requirement carries its own mark.
+
+::: note FOUO is gone
+The recipe's examples use "(U//FOUO)", For Official Use Only, which is how many existing specifications are marked.
+In current US government practice FOUO has been replaced by Controlled Unclassified Information: CUI, with its own
+categories and banner rules. When you rewrite or port an older specification, follow your program's CUI guide for
+the replacement marking rather than copying FOUO forward. Tidewater is fictional and unmarked; its rewrites below use
+"(U)" only to show where the mark goes.
+:::
+
+The tool you will use in this chapter treats the classification as optional by default, because a notional project
+like Tidewater carries none, and `--require classification` makes it required. A real program turns that option on
+in its pipeline on day one.
+
+==== State, trigger and pre-conditions (parts 2, 3 and 4)
+
+Some requirements, functional or performance, apply only in a specific context. There are two ways to define the
+context: a state and a trigger.
+
+- A **state** is a specific operating mode or status of the element. Common state words are "while" and "when".
+- A **trigger** is an event that causes the action, or that applies the threshold the requirement specifies. Common
+  trigger words are "upon" and "every".
+
+The words after "while" or "upon" are the pre-conditions. It is not necessary to put pre-conditions at the beginning
+of the statement, but placing them first gives the reader the context before the requirement itself, and the recipe
+recommends putting all of them at the head of the statement.
+
+In Tidewater terms: "While in observing mode" is a state; "upon each scheduled transmission time" is a trigger.
+
+==== Specification target and allocated function (parts 5 and 6)
+
+As a rule, the **specification target** is always the subject of the specification itself, at least for performance
+and functional requirements. A requirement found in the "data processor" specification always has "data processor"
+as its specification target. If a requirement in the telemetry unit specification has "the data center" as its
+subject, it is in the wrong specification.
+
+The **allocated function** is optional. It applies the requirement to a structural or functional component of the
+specification target. If the data processor consists of the "data collector", "data extractor" and "message passer"
+top-level functions, stating that the required function is allocated to one of them gives greater resolution to the
+design space.
+
+The only time the specification target may be something other than the subject of the specification is for
+tertiary requirements on a related entity: the developer who builds the specification target, or the tester who
+evaluates it. "The developer shall deliver the source code..." in a software specification is the classic case.
+
+In SysML v2 the specification target becomes the requirement's `subject`, and the allocated function becomes an
+`allocate` relationship or the subject's feature. We come back to that in [[recipe-sysml]].
+
+==== Operative and target verbs (parts 7 and 8)
+
+The core of a requirement statement is a pair of verbs: an operative verb and a target verb. There are four main
+operative verbs in requirements language.
+
+|| Operative verb | Meaning ||
+| shall | The strongest verb. It applies a requisite function or performance threshold to the system. In most contracts every "shall" in a project specification has legal force. |
+| will | A weaker verb. Usage varies, but it typically states something about an external actor, mirroring a "shall" for that actor. |
+| should | A design or implementation guideline: how the system should behave or how a function should be implemented. It is not a requirement. |
+| may | Gives resolution to the available design space. Often an informational statement below a "shall" or "should". |
+Table: The four operative verbs
+
+There may be others. The specification, or a parent document it references, defines the available operative verbs
+and their precise meanings.
+
+The **target verb** is the action or performance the system must meet. Target verbs must be specific and verifiable.
+Some target verbs are common and yet rarely or never verifiable: **provide, have, be, be capable of, establish**.
+Use specific, concrete verbs that belong to the engineering domain instead: send, store, measure, report, detect,
+compute, display, isolate.
+
+The kit's checker adds a few verbs of its own to the recipe's list, because they fail the same test in practice:
+support, allow, enable, handle, ensure, facilitate, accommodate and permit. It also treats "be able to" as a weak
+verb: "shall be able to read" is a promise about capability, and the requirement should state the action itself,
+"shall read", with its threshold.
+
+==== Precise objects (part 9)
+
+The precise objects say what the operative and target verbs act on. They give definition to what the specification
+target is or does. As in ordinary language, the domain of the object is a function of the verb. If the verb is
+"store", the precise object is what is stored, and it must be something the specification target can store. If the
+verb is "maintain", the precise object is a measurable state: altitude, temperature, quantity, state of charge.
+
+==== Modifiers and modifications (parts 10 and 11)
+
+Modifiers apply specificity and constraint to the verb and its objects. A statement can have any number of them, as
+prepositional phrases following the noun-verb-object triple. Almost every preposition in the statement is, by
+definition, a modification. Strictly speaking the state, trigger and exception are modifiers too; this part refers to
+the modifiers that are not states, triggers or exceptions.
+
+The available modifiers follow from the noun-verb-object structure. If a component "shall hand over bus control",
+a prepositional phrase should follow, most likely starting with "to", naming the component that receives bus
+control. And just as the first component must be capable of handing over bus control, the object of the preposition
+must be capable of receiving it and operating accordingly. A modifier is a claim about two things, not one.
+
+Thresholds live here. "Within", "less than", "above", "at least", "every" all introduce a performance threshold, and a
+performance verb without one is a requirement nobody can fail.
+
+==== Specification reference (parts 12, 13 and 14)
+
+Often a requirement is levied on a specification target in one document, but its technical details are found in
+another. A software item required to use floating-point arithmetic would not define every case, exception and
+behavior of floating-point operations; its specification would reference IEEE 754, the standard for binary
+floating-point arithmetic, over and over.
+
+Whenever an external specification is referenced within a requirement, best practice is to include the document
+number (unless it is part of the title) and the specific section or sections that apply. If the requirement is about
+multiplying floating-point numbers, the reference names the sections that define multiplication. It is also
+acceptable to put the document number in the references list rather than in every requirement that cites it.
+
+Used sparingly, the reference can also levy some or all of an external specification's requirements on the current
+target. If an interface specification exists, the specifications of the components at either end may each carry a
+single statement applying the interface specification's requirements to the component.
+
+==== Exceptions (part 15)
+
+Exceptions modify where the requirement applies, for example when the system is in an error state or off-nominal
+condition. Requirements must be true all the time, so a requirement must carry the statements that define precisely
+when it applies. Exceptions are the cut-outs from the state or trigger: they establish the sub-state in which the
+requirement applies.
+
+The position of an exception is more variable than any other part. Depending on how the sentence flows, it can come
+at the end of the statement (as in the pattern), as a modifier (exceptions are prepositional too), or as part of the
+state or trigger.
+
+==== Informational statements (part 16)
+
+Informational statements sit beside the requirement statement to give additional detail or constraint outside the
+statement itself. Sometimes they keep the requirement sentence grammatically clean: requirement statements have a
+specific language, but they must also function as proper English. An informational statement is not part of the
+requirement and carries no obligation. It can carry design constraints or hints for the verification method.
+
+==== Requirement identifier (part 17)
+
+Every requirement has a project-unique identifier that labels it independently of all other requirements. Most
+identifiers combine a number with an acronym that shows where in the system hierarchy the requirement sits:
+TW-SYS-002 is Tidewater's second system requirement, NC_112358 a navigation computer requirement.
+
+The identifier is what makes a requirement findable in a database, traceable in a model and citable in a merge
+request. In the SysML v2 port it becomes the `doorsId` attribute, and it is how the trace job matches the model to
+DOORS ([[sysmlv2-names]]).
+
+==== Requirement tags (part 18)
+
+A tag is an optional short indicator that draws special attention to a requirement.
+
+|| Tag | Meaning | Details ||
+| SC | Safety-critical | The requirement specifies a safety-critical subsystem, element or function. Treatment of SC requirements follows specific processes in the Quality, Safety and Mission Assurance Plan (QSMAP). |
+| SR | Safety-related | The requirement can affect a safety-critical subsystem, element or function without causing a safety-critical issue directly. |
+| MC | Mission-critical | The requirement is mission-critical, subject to the additional rigor established in the QSMAP or a similar document. |
+| RMF | Risk Mitigation Framework | The requirement has specific cybersecurity equity under the RMF.^[In NIST usage, RMF stands for the Risk *Management* Framework (NIST SP 800-37). Use your program's expansion; the tag means the same thing either way: this requirement has cybersecurity equity.] |
+Table: Requirement tags
+
+Tagging safety-critical and mission-critical requirements is common practice, so they are easy to find and can be
+held to the additional rigor those requirements must meet. In SysML v2 a tag becomes metadata (`@MC;`), which a
+pipeline can count and a view can filter on.
+
+=== The worked example, decomposed {#recipe-example}
+
+The recipe comes with a worked example. In a hypothetical project, the following requirement is found in the
+Navigation Computer CIDS (D12340005):
+
+```text
+(U//FOUO) While in normal flight mode, except during the navigational upset condition, the navigation computer
+shall send the guidance solution message to the main computer within 30 msec of the 10 Hz clock signal in
+accordance with the Navigation Computer IRS (D12340000) Section 5.1.4. Note: The 10 Hz clock signal driver is
+either directly or indirectly sampled from the main CCA clock source. (NC_112358) [MC]
+```
+
+Here it is taken apart, element by element.
+
+|| Element | Source text | Evaluation ||
+| Classification | "(U//FOUO)" | Unclassified, but labeled For Official Use Only. Care must be taken when extracting this requirement from its specification and storing or sending it through other media, because it is controlled unclassified information. |
+| State indicator | "While" | The system, subsystem or component is in a specific state as the predicate for performing the required function. |
+| Trigger indicator | none | There is no trigger keyword, but an element of the modification defines a trigger. |
+| Pre-conditions | 1. "in normal flight mode"; 2. "the 10 Hz clock signal" | 1. The requirement applies only while the system is in normal flight mode. The mode need not be defined in this requirement, but it must be defined or referenced in the specification, the Navigation Computer CIDS. 2. A specific trigger, the 10 Hz clock signal, a standard clock signal defined elsewhere in the specification. It appears alongside the modification for grammar and readability. |
+| Specification target | "navigation computer" | The specification is the Navigation Computer CIDS, so the target of its functional and performance requirements is always the navigation computer. The specification may also levy workmanship, security and other requirements on the developer, tester and so on. |
+| Allocated function | none | No allocated function is defined. The allocation of the "send" function will be derived in a lower-level specification descending from the CIDS, or left as design space for the developer to define in the design documentation. |
+| Operative verb | "shall" | The strongest operative verb: complete requisite functionality or performance. In most contracts every "shall" in a project specification has legal force. |
+| Target verb | "send" | Specific and verifiable, given the right objects. The target verb must be something the target can do, and a navigation computer can send a message. "Send" leads us to expect the what and the where: what is sent, and to whom? |
+| Precise object | "guidance solution message" | The navigation computer sends the guidance solution message. The message is identified elsewhere in this specification or a related one (we find later that it is referenced in the Navigation Computer IRS). |
+| Modifier | 1. "to"; 2. "within" | 1. "To" introduces the destination. Modifiers are not universally required, but this requirement would be incomplete without the destination. 2. "Within" signals a performance threshold. Words such as within, less than and above all indicate thresholds. |
+| Modifications | 1. "the main computer"; 2. "30 msec" | 1. The destination of the message, the main computer. 2. The maximum allowable latency for sending the message, coupled with "within". |
+| Specification | "Navigation Computer IRS" | Additional information about this message passing between the navigation computer and the main computer is in the Navigation Computer IRS. |
+| Document number | "D12340000" | The IRS's document number. If the project uses an integrated data environment or library system, the number makes the document quick to locate. |
+| Section number | "Section 5.1.4" | The specific subsection of the IRS where the information is found. This makes it far easier for an analyst to line up the family of specifications. |
+| Exceptions | "during the navigational upset condition" | Placed at the front, like a pre-condition, purely for readability. The requirement applies while the computer is in normal flight mode but the upset condition has not been asserted: a very precise state. |
+| Informational statements | "The 10 Hz clock signal driver is either directly or indirectly sampled from the main CCA clock source." | Not part of the requirement. Related information, design-space constraints or verification elements. Here it says the clock signal is measured against the clock source on the circuit card, which will shape the verification method. |
+| Requirement identifier | "NC_112358" | Project-unique. An acronym for the specification target (NC) and a number (112358) separated by an underscore; searchable in a requirements database, with all its links. |
+| Requirement tags | "MC" | Mission-critical. Quality and mission assurance use the tag to segregate and evaluate requirements under QSMA procedures. |
+Table: The worked example, part by part
+
+Now let a program read it. The kit's checker, `tools/sysml/req-recipe.pl`, takes a plain text file with one
+requirement per paragraph and decomposes each one the same way. Type this into an empty folder; the first command
+writes the example into a file:
+
+```sh run sandbox=scratch expect="Document Number\s+D12340000"
+cat > nav.txt <<'EOF'
+(U//FOUO) While in normal flight mode, except during the navigational upset condition, the navigation computer shall send the guidance solution message to the main computer within 30 msec of the 10 Hz clock signal in accordance with the Navigation Computer IRS (D12340000) Section 5.1.4. Note: The 10 Hz clock signal driver is either directly or indirectly sampled from the main CCA clock source. (NC_112358) [MC]
+EOF
+perl "$KIT/tools/sysml/req-recipe.pl" --require classification nav.txt
+```
+
+The output lists every part it found, then the summary line every run ends with:
+
+```text
+NC_112358  score 100  nav.txt:1
+    Classification              U//FOUO
+    State                       While in normal flight mode
+    Preconditions               in normal flight mode
+    Specification Target        navigation computer
+    Operative Verb              shall
+    Target Verb                 send
+    Precise Object(s)           the guidance solution message
+    Modifier(s)                 to; within
+    Modification(s)             the main computer; 30 msec of the 10 Hz clock signal
+    Specification               Navigation Computer IRS
+    Document Number             D12340000
+    Section Number              5.1.4
+    Exception(s)                during the navigational upset condition
+    Informational Statement(s)  The 10 Hz clock signal driver is either directly or indirectly sampled ...
+    Requirement ID              NC_112358
+    Requirement Tags            MC
+
+requirements=1 findings=0 missing=0
+```
+
+Compare it with the table. The program found the same parts a careful human found. It did not find the trigger
+hidden inside the modification ("of the 10 Hz clock signal"), and it does not need to: the requirement has a
+threshold and a context, and the score is 100. The decomposition is a reading aid. The findings are the point, and
+this requirement has none.
+
+::: tip Read the summary line first
+Every run of the checker ends with `requirements=N findings=F missing=M`. The pipeline reads that line; so should
+you. N is how many requirements were read, F how many problems were found, M how many required parts were missing.
+A score per requirement (100 minus a penalty per problem) helps you sort, but the counts are what you report.
+:::
+
+=== What the checker looks for {#recipe-findings}
+
+Here is a deliberately weak requirement, the kind every specification has a dozen of:
+
+```sh run expect="weak target verb 'provide'" exit=1
+cat > weak.txt <<'EOF'
+The data center shall provide a bulletin. (TW-X-001)
+EOF
+perl "$KIT/tools/sysml/req-recipe.pl" --strict weak.txt
+```
+
+`--strict` makes the checker exit with status 1 when it finds anything, which is how a pipeline job fails. The finding
+is the recipe's first rule:
+
+```text
+    major  weak target verb 'provide' (the recipe): rarely verifiable -- name the concrete action (send, store, measure, report ...)
+```
+
+The findings the checker reports, and their weight:
+
+|| Finding | Severity | Example ||
+| A required part is missing | major | no requirement ID; no target verb |
+| A weak target verb | major | provide, have, be, establish, be capable of, be able to, support, enable, ensure |
+| More than one operative verb, or more than one sentence | major | "... shall measure wind ... and each buoy shall also measure waves." |
+| Passive voice | minor | "Past observations shall be kept ..." |
+| A performance verb with no measurable threshold | minor | "shall report its operating mode" (how often? to whom?) |
+| A reference without a document number or section | minor | "in accordance with the interface control document" |
+| Vague words | minor | as appropriate, etc., and/or, user-friendly, fast, timely, adequate, robust, minimize |
+| "must" instead of "shall", or will/should/may as the operative verb | info | "The logger must store ..." |
+| A tag the project does not define | minor | [XYZ] |
+Table: What the checker reports
+
+The checker parses by heuristics: it finds the first operative verb, reads the clauses before it as state, trigger,
+exception, allocated function and target, and reads the words after it as target verb, objects and modifiers. A
+human reads a sentence better. That is fine: the checker does not replace the reviewer, it makes sure the reviewer
+never has to spend attention on the mechanical problems.
+
+=== Tidewater's requirements, read by the recipe {#recipe-tidewater}
+
+Now the real thing. Make drop 1, the prime's first delivery, and grade its DOORS export:
+
+```sh run expect="requirements=30 findings=15 missing=0" timeout=120
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drop1 > /dev/null
+perl "$KIT/tools/sysml/req-recipe.pl" drop1/tidewater.reqif > recipe-doors.txt
+tail -1 recipe-doors.txt
+```
+
+```text
+requirements=30 findings=15 missing=0
+```
+
+Thirty requirements, fifteen findings, no missing parts. Every requirement has a target, a "shall", a verb, an
+object and an ID; the problems are all in how the requirements are worded. To see which requirements, list the ones
+that scored below 100:
+
+```sh run expect="TW-SYS-001\s+score 77"
+grep -E '^TW-.*score [0-9]+ ' recipe-doors.txt | grep -v 'score 100'
+```
+
+```text
+TW-STK-001  score 85  drop1/tidewater.reqif:1  (Coastal coverage)
+TW-STK-002  score 84  drop1/tidewater.reqif:1  (Timely observations)
+TW-STK-003  score 85  drop1/tidewater.reqif:1  (Public access)
+TW-STK-004  score 85  drop1/tidewater.reqif:1  (Serviceable in the field)
+TW-STK-005  score 92  drop1/tidewater.reqif:1  (Observation history)
+TW-SYS-001  score 77  drop1/tidewater.reqif:1  (Measure conditions)
+TW-SYS-002  score 92  drop1/tidewater.reqif:1  (Scheduled transmission)
+TW-SYS-008  score 92  drop1/tidewater.reqif:1  (Observation interface)
+TW-SYS-009  score 92  drop1/tidewater.reqif:1  (Health reporting)
+TW-SYS-012  score 85  drop1/tidewater.reqif:1  (Vessel access)
+TW-SYS-014  score 92  drop1/tidewater.reqif:1  (Operating mode)
+TW-SEG-003  score 92  drop1/tidewater.reqif:1  (State of charge)
+TW-SEG-004  score 92  drop1/tidewater.reqif:1  (Retry)
+```
+
+Thirteen requirements, fifteen findings: two requirements have two findings each. Jim read them the way Jim used to
+read a marked-up SRS, looking for the pattern rather than the instances.
+
+**The stakeholder needs are written as wishes.** TW-STK-001 says the network "shall provide" observations; TW-STK-003
+and TW-STK-004 say mariners and field crews "shall be able to" read and service. That is normal for stakeholder
+needs, which state what users want in their own words. The recipe still applies, because a need that cannot be
+verified cannot be traced to anything that can. The fix is not to make the needs technical; it is to make each one
+name something observable: what is measured, how often, where.
+
+**One system requirement is two requirements.** TW-SYS-001 reads "Each station shall measure wind, air pressure and
+air temperature, and each buoy shall also measure waves." Two "shall"s, two subjects, two requirements. The checker
+reports it as a major finding and scores it lowest, 77. Two requirements in one sentence break traceability: a
+verification case can pass the first half and fail the second, and the trace cannot say which.
+
+```sh run expect="2 operative verbs"
+perl "$KIT/tools/sysml/req-recipe.pl" --only TW-SYS-001 drop1/tidewater.reqif
+```
+
+**The interface requirements have no thresholds.** TW-SYS-002, -008, -009 and -014 and the segment requirements
+TW-SEG-003 and -004 say "transmit", "send", "report" and "retry" with no number: no latency, no rate, no limit. These
+are the findings that matter most for verification, because a test needs a pass criterion, and a requirement with no
+threshold leaves the test engineer to invent one.
+
+**One requirement is a quality, not an action.** TW-SYS-012 says "Every station shall be serviceable from the service
+vessel." "Be" is the weakest verb on the list. "Serviceable" is a judgement; the requirement does not say what the
+crew must be able to reach, from where, or under what conditions.
+
+::: sidebar The drift shows up again
+Grade the converted model instead of the DOORS export and you get thirty requirements and seventeen findings, two
+more than DOORS. One of the two is TW-SYS-006, the planted drift from [[sysmlv2-trace]]: the DOORS text says the
+bulletin is published "twice a day", the model's copy says only "on a fixed schedule", so the model's version has
+lost its threshold and earns a finding the DOORS version does not. The other is TW-SEG-009, which exists only in the
+model. The recipe check and the trace check are independent, and they found the same problem from two directions.
+:::
+
+=== Rewriting to the recipe {#recipe-rewrites}
+
+Jim rewrote five of the requirements to show what the recipe asks for. The values are notional, like everything in
+Tidewater. Each rewrite sits in `examples/tidewater-v1/recipe-rewrites.txt` with the as-delivered text and its
+finding as comments:
+
+{{include: examples/tidewater-v1/recipe-rewrites.txt}}
+
+Look at TW-SYS-002 before and after:
+
+```text
+Before: Each station shall transmit its observations to the data center on a fixed schedule.
+
+After:  (U) While in observing mode, upon each scheduled transmission time, the telemetry unit shall send the
+        observation record to the data center within 60 s in accordance with the Observation Interface ICD
+        (TW-ICD-001) Section 3.2, except during maintenance mode. Note: Each station's transmission schedule is
+        set in its station configuration. (TW-SYS-002) [MC]
+```
+
+The rewrite added a state (observing mode), a trigger (each scheduled transmission time), a threshold (within 60 s),
+a reference down to the section (TW-ICD-001 Section 3.2) and an exception (maintenance mode). It also changed the
+specification target from "each station" to "the telemetry unit", because the telemetry unit is the thing that
+sends. And it is now testable: a test engineer can write a pass criterion for it without inventing anything.
+
+All five pass the strict check, with classification required:
+
+```sh run expect="requirements=5 findings=0 missing=0"
+perl "$KIT/tools/sysml/req-recipe.pl" --require classification --strict "$KIT/examples/tidewater-v1/recipe-rewrites.txt" | tail -1
+```
+
+::: warning Longer is not the goal
+The rewrites are longer than the originals, and that is not the point. The point is that every word is now doing a
+job: naming a state, a threshold, a reference. A long requirement full of vague words ("in a timely and appropriate
+manner as required") scores worse than a short one. If a rewrite gets long because it is trying to say two things,
+split it, as TW-SYS-001 must be split.
+:::
+
+=== Who may change the words {#recipe-ownership}
+
+Here the recipe meets the contract. Tidewater's requirements live in DOORS, and DOORS belongs to the prime. The
+government team cannot fix TW-STK-001 by editing its copy in the model, for the same reason it never edits the
+prime's Cameo model: the words are the prime's deliverable, and changing them unilaterally would make the government's
+copy disagree with the contract baseline ([[sysmlv2-todo]]).
+
+So in Tidewater, recipe findings on DOORS text become a discrepancy report to the prime. In sprint 5 Jim's story
+"Grade our requirements with the recipe" ended with DR-6, "weak verbs and missing parts in the DOORS text", which
+listed the thirteen requirements, the finding for each, and the five rewrites as suggested wording. The prime
+dispositions it like any other DR: accept the wording, propose its own, or explain why the original stands. When a
+later drop delivers new text, the checker grades it again, and the DR closes when the findings do.
+
+Two consequences are worth stating plainly, because they are where teams go wrong:
+
+- **Fix the source, not the copy.** If the model's copy of a requirement is edited to satisfy the recipe and DOORS
+  is not, the drift check reports a new drift, and the team has created the problem it was trying to remove.
+- **Requirements the government owns can be fixed directly.** If your program's stakeholder needs live in the
+  government's own repository, the recipe findings on them become ordinary stories, fixed by merge request, and the
+  recipe job can be made a gate for those files.
+
+=== The recipe in SysML v2 {#recipe-sysml}
+
+A requirement in SysML v2 text is more than its sentence. The sentence stays, as the requirement's documentation,
+because the sentence is the contractual text. Around it, SysML v2 gives the recipe's parts a home the model can use:
+
+|| Recipe part | SysML v2 ||
+| Classification | an attribute, or a marking metadata (`@Marking`) on the requirement or its package |
+| State, trigger, pre-conditions | an `assume constraint`: the conditions under which the requirement applies |
+| Specification target | the requirement's `subject` |
+| Allocated function | an `allocate` relationship, or a feature of the subject |
+| Operative verb, target verb, objects | the documentation text (the sentence itself) |
+| Modifications with a threshold | an attribute with a unit, and a `require constraint` that compares against it |
+| Specification reference | the documentation text; optionally a dependency to the referenced document's element |
+| Requirement ID | the `doorsId` attribute |
+| Requirement tags | metadata (`@MC;`) |
+Table: Where the recipe's parts live in SysML v2
+
+Here is TW-SYS-002 written that way. The requirement definition captures the *kind* of requirement (an observation
+latency limit on a telemetry unit), and the requirement usage gives the specific limit and carries the recipe
+sentence:
+
+```sh run expect="0 error\(s\)"
+cat > Recipe.sysml <<'EOF'
+package RecipeExample {
+    private import ISQ::*;
+    private import SI::*;
+
+    metadata def MC { doc /* The recipe's tag: mission-critical. */ }
+    part def TelemetryUnit { attribute latency : DurationValue; }
+
+    requirement def ObservationLatency {
+        subject telemetry : TelemetryUnit;
+        attribute maxLatency : DurationValue;
+        require constraint { telemetry.latency <= maxLatency }
+    }
+
+    requirement tw_sys_002 : ObservationLatency {
+        @MC;
+        attribute doorsId = "TW-SYS-002";
+        attribute classification = "U";
+        attribute :>> maxLatency = 60 [s];
+        doc /* (U) While in observing mode, upon each scheduled transmission time, the telemetry unit shall send the
+             * observation record to the data center within 60 s in accordance with the Observation Interface ICD
+             * (TW-ICD-001) Section 3.2, except during maintenance mode. (TW-SYS-002) */
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check Recipe.sysml
+```
+
+The grammar checker accepts it. Now the recipe checker, which reads `.sysml` files directly, finding the requirement's
+documentation, its `doorsId`, the classification attribute and the tag metadata:
+
+```sh run expect="Requirement Tags\s+MC"
+perl "$KIT/tools/sysml/req-recipe.pl" --require classification Recipe.sysml
+```
+
+```text
+TW-SYS-002  score 100  Recipe.sysml:14
+    Classification              U
+    State                       While in observing mode
+    Trigger                     upon each scheduled transmission time
+    ...
+    Requirement ID              TW-SYS-002
+    Requirement Tags            MC
+
+requirements=1 findings=0 missing=0
+```
+
+Why bother with the constraint when the sentence already says "within 60 s"? Because the sentence is for people and
+the constraint is for the model. The constraint makes the threshold a value the model holds, with a unit, that an
+analysis can read, that a verification case can cite, and that a pipeline can compare against a design value. When
+the prime changes the threshold to 45 s, the change shows up in the model as one changed attribute, which the delta
+report can find, instead of as a changed word inside a paragraph.
+
+::: note Tidewater does not do this yet, on purpose
+Tidewater's converted requirements carry only the sentence and the `doorsId`, because that is what the DOORS export
+gives the converter, and because the DOORS text is the prime's. Adding subjects and constraints to the prime's
+requirements would be a government edit to the prime's deliverable. The pattern above is what the team does for
+requirements it owns, and what it proposed to the prime, in the model exchange agreement, as the target form for
+future drops. Treat it as the direction of travel, not week-one work.
+:::
+
+=== The recipe in the pipeline {#recipe-pipeline}
+
+The model repository's pipeline runs the checker on every change, in the `recipe` job. It reads the model's
+requirement files (but not the DOORS conversion, which the trace job compares separately), writes a text report, and
+turns the findings into a Code Quality report so they appear on the merge request:
+
+{{include: tools/gitlab/templates/gitlab-ci.yml | lines 214-228}}
+
+The job reports and never fails, because in Tidewater the findings are the prime's to fix. A program whose
+requirements are its own can make it a gate in two steps: first a ratchet (fail only when a merge request adds a
+finding, compared with `develop`), then, once the count reaches zero, `--strict`.
+
+You can produce the same reports by hand. The Code Quality format is what GitLab shows in the merge request widget;
+JUnit is what it shows in the Tests tab:
+
+```sh run expect="tests=\"30\" failures=\"13\""
+perl "$KIT/tools/sysml/req-recipe.pl" --format junit -o recipe-junit.xml drop1/tidewater.reqif
+perl "$KIT/tools/sysml/req-recipe.pl" --format codequality -o recipe-cq.json drop1/tidewater.reqif
+grep -o 'tests="[0-9]*" failures="[0-9]*"' recipe-junit.xml
+```
+
+Thirty tests, thirteen failures: each requirement is one test, and a requirement with any finding fails. That is the
+view management sees in the Tests tab: "13 of 30 requirements have wording problems", which is a sentence anyone can
+act on.
+
+=== Habits {#recipe-habits}
+
+::: checklist Before you file or approve a requirement
+[ ] One sentence, one "shall"
+[ ] The subject is the thing the specification is about
+[ ] A concrete target verb: not provide, have, be, establish, be able to, support
+[ ] The object is something the subject can act on
+[ ] A threshold with a unit, when the verb is about performance
+[ ] References carry the document number and the section
+[ ] Exceptions stated, not implied
+[ ] Informational notes marked "Note:" and kept out of the obligation
+[ ] An ID, and the tags the project uses
+[ ] The checker's summary line, before and after your change
+:::
+
+=== Exercises {#recipe-exercises}
+
+::: exercise {#ex-recipe-decompose} Decompose by hand, then check
+Take TW-SEG-003 as delivered ("The power system shall report the battery state of charge.") and fill in the
+eighteen-part table by hand. Which required parts are present? Which optional parts would a test engineer need?
+Then run the checker with `--only TW-SEG-003` on the drop-1 DOORS export and compare.
+:::
+
+::: exercise {#ex-recipe-split} Split TW-SYS-001
+Rewrite TW-SYS-001 as two requirements that each pass `--strict`. Put them in a text file, one per paragraph, with
+IDs TW-SYS-001a and TW-SYS-001b, and run the checker on it. What did you have to decide that the original left open?
+:::
+
+::: exercise {#ex-recipe-stakeholder} A need that can be traced
+TW-STK-003 says mariners "shall be able to read the latest bulletin and observations from a public service." Rewrite
+it so it is verifiable without turning it into a system requirement. Hint: what would the program office accept as
+evidence that the need is met?
+:::
+
+::: exercise {#ex-recipe-sysml} Add a constraint
+Extend `Recipe.sysml` with a second requirement, TW-SEG-003, as a `requirement def` with the power system as subject
+and a reporting period attribute with a unit, and a usage carrying the rewritten sentence from
+`recipe-rewrites.txt`. Grammar-check it and grade it.
+:::
+
+::: exercise {#ex-recipe-dr} Write the DR
+Draft the description of DR-6 for the prime: the thirteen requirements, the finding for each in one line, and the
+suggested wording for the five that have it. Keep it to one screen. Which findings would you ask the prime to fix
+first, and why?
+:::
+
+=== Applying this to your project {#recipe-apply}
+
+- **Agree the recipe before you grade anything.** Put the pattern, the weak-verb list and the tag list in your
+  conventions (`docs/conventions/` in a repository made by `kickoff.pl scaffold`). If your program already has a
+  requirements style guide, map its rules onto the eighteen parts; the checker's `--tag` option adds your tags.
+- **Grade the baseline first, as a report.** Run the checker on the requirements as they are today and publish the
+  summary line. That number is your starting point, not a failure.
+- **Fix at the source.** Requirements someone else owns go back to them as a discrepancy report; requirements you own
+  get stories.
+- **Ratchet, then gate.** Fail a merge request only when it adds a finding. Make the job strict when the count reaches
+  zero.
+- **Turn classification on.** On a real program, run with `--require classification` from the first day, so an
+  unmarked requirement can never be merged.

@@ -1,0 +1,142 @@
+pipeline #40 (merge_request_event, refs/merge-requests/14/merge) success, 7 jobs, 135.5 s
+
+==== grammar          check    success   42.2 s
+$ perl ci/job.pl grammar
+$ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
+sysml: 17 file(s), 0 error(s)
+$ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
+ci-reports grammar: 17 check(s), 0 failed, 0 finding(s); grammar_files=17 grammar_errors=0
+
+==== lint             check    success   51.5 s
+$ perl ci/job.pl lint
+$ perl $KIT/tools/sysml/model.pl lint
+lint: 17 file(s), 0 error(s), 0 warning(s)
+elements=148 errors=0 warnings=0
+$ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
+ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=148 lint_errors=0 lint_warnings=0
+
+==== outline          check    success   12.9 s
+$ perl ci/job.pl outline
+$ perl $KIT/tools/sysml/model.pl check
+
+== Level tags ==
+@L tag mismatches         0
+
+== Outline (2..9 children per parent) ==
+violations                19
+    1  directory entries  (model/analysis/)
+    1  package Analysis: members  (model/analysis/Analysis.sysml)
+    1  directory entries  (model/legacy/)
+    1  part def Battery_old: parts  (model/legacy/Legacy_Import.sysml)
+    1  directory entries  (model/logical/)
+    1  directory entries  (model/physical/allocation/)
+    1  directory entries  (model/physical/datacenter/)
+    1  directory entries  (model/physical/network/)
+    1  directory entries  (model/physical/operations/)
+    1  part def ServiceVessel: parts  (model/physical/operations/Operations.sysml)
+    1  directory entries  (model/physical/stations/)
+   25  package Stations: members  (model/physical/stations/Stations.sysml)
+    1  part def Battery: parts  (model/physical/stations/Stations.sysml)
+    1  directory entries  (model/requirements/model/)
+   32  package Requirements: members  (model/requirements/model/Requirements.sysml)
+    1  directory entries  (model/requirements/segment/)
+    1  directory entries  (model/requirements/stakeholder/)
+    1  directory entries  (model/requirements/system/)
+    1  directory entries  (model/verification/)
+$ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality outline-cq.json --metrics outline.metrics outline.txt
+ci-reports outline: 2 check(s), 1 failed, 19 finding(s); level_tag_mismatches=0 outline_violations=19
+outline violations: 19 (allowed: 19)
+
+==== todo             check    success    7.4 s
+$ perl ci/job.pl todo
+TODO lines remaining: 25
+$ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model
+ci-reports todo: 1 check(s), 0 failed, 25 finding(s); todo_lines=25 todo_lines_analysis=2 todo_lines_library=4 todo_lines_logical=4 todo_lines_physical=15
+
+==== secrets          check    success    8.3 s
+$ perl ci/job.pl secrets
+no secrets found in 65 tracked files
+
+==== trace            trace    success   25.4 s
+$ perl ci/job.pl trace
+$ perl $KIT/bin/reqif2sysml.pl --report --model model (without the DOORS modules) imports/v1.0/tidewater.reqif
+reqif2sysml report: tidewater.reqif
+
+DOORS objects (C total: <SPEC-OBJECT> count)     35
+requirements (objects with text)                 30
+  bare objects (an identifier, no attributes)      0
+  with a verification method                     24
+  without a verification method                   6
+headings (section packages)                       5
+  orphan headings (no requirement below)          0
+empty objects (no text, no heading)               0
+objects in no specification                       0
+hierarchy entries naming a missing object         0
+links                                            24
+  derive 24, satisfy 0, verify 0, trace 0, not between requirements 0
+verification methods: Analysis 2, Demonstration 4, Inspection 5, Test 13
+
+files: segment-requirements/Segment_Requirements.sysml stakeholder-needs/Stakeholder_Needs.sysml system-requirements/System_Requirements.sysml
+self-check: ok
+
+trace against model (without the DOORS modules) (14 .sysml files)
+C requirements linked (doorsId in the model)     29 of 30
+F orphan requirements (nothing satisfies)               2
+G unverified requirements (no verify)                   9
+I trace completeness (satisfied and verified)        66.7%
+doorsIds in the model but not in this export            1
+text differs from DOORS                                 1
+not in the model: TW-SYS-016
+orphans: TW-SYS-012 TW-SYS-016
+unverified: TW-STK-001 TW-STK-002 TW-STK-003 TW-STK-004 TW-STK-005 TW-STK-006 TW-SYS-011 TW-SYS-016 TW-SEG-002
+drift: TW-SYS-006
+  TW-SYS-006 DOORS: The data center shall publish a marine bulletin twice a day, on a fixed schedule.
+  TW-SYS-006 model: The data center shall publish a marine bulletin on a fixed schedule.
+$ perl $KIT/tools/gitlab/ci-reports.pl trace --junit trace.xml --metrics trace.metrics trace.txt
+ci-reports trace: 14 check(s), 14 failed, 0 finding(s); trace_linked=29 trace_total=30 trace_orphans=2 trace_unverified=9 trace_completeness_pct=66.7 trace_drift=1 trace_not_in_model=1
+trace gaps: 2 orphan(s), 9 unverified, 1 drifted
+TRACE_MODE=report: gaps are reported, never fatal
+
+==== docs             docs     success   33.6 s
+$ perl ci/job.pl docs
+$ perl $KIT/tools/sysml/model.pl docs
+wrote docs/Nouns.md (38 lines)
+wrote docs/Verbs.md (7 lines)
+wrote docs/idef0/ObserveCoast.md
+1 file(s): 0 error(s), 0 warning(s), 1 model(s), 6 activities, 0 link(s)
+wrote docs/idef0/plates.html
+wrote docs/idef0/INTERFACES
+wrote docs/idef0/svg/plate-O-0.svg
+wrote docs/idef0/svg/plate-O0.svg
+trace: 60 requirements (60 leaf), 13 not satisfied, 17 not verified -> docs/Traceability.md
+  TW-STK-001: not verified
+  TW-STK-002: not verified
+  TW-STK-003: not verified
+  TW-STK-004: not verified
+  TW-STK-005: not verified
+  TW-STK-006: not verified
+  TW-SYS-008: not satisfied
+  TW-SYS-009: not satisfied
+  TW-SYS-010: not satisfied
+  TW-SYS-011: not verified
+  TW-SYS-012: not satisfied
+  TW-SYS-014: not satisfied
+  TW-SEG-002: not verified
+  TW-SEG-003: not satisfied
+  TW-SEG-009: not verified
+  TW-SEG-002: not verified
+  TW-SEG-003: not satisfied
+  TW-STK-001: not verified
+  TW-STK-002: not verified
+  TW-STK-003: not verified
+  TW-STK-004: not verified
+  TW-STK-005: not verified
+  TW-STK-006: not verified
+  TW-SYS-008: not satisfied
+  TW-SYS-009: not satisfied
+  TW-SYS-010: not satisfied
+  TW-SYS-011: not verified
+  TW-SYS-012: not satisfied
+  TW-SYS-014: not satisfied
+  TW-SYS-016: not satisfied
+docs/ is current

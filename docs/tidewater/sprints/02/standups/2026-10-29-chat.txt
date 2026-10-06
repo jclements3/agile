@@ -1,0 +1,15 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y: TW-31 conventions and onboarding docs into docs/
+T: TW-31 toolchain security kickoff with the ISSM
+B: none
+[9:02 AM] Bob
+Y: TW-28 drop-1 MR; record the outline count
+T: TW-28 drop-1 MR; record the outline count
+B: none
+[9:03 AM] Tom
+Y: TW-29 todo and docs jobs; commit docs/
+T: TW-29 todo and docs jobs; commit docs/; TW-32 prepare and give the sprint 2 demo
+B: none

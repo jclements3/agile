@@ -1,0 +1,44 @@
+# mbse-release.txt -- what `perl bin/release.pl --profile mbse` puts in release/agile-mbse-<tag>.zip: only what an MBSE
+# DevSecOps team needs to start (the kit's scrum-only parts, the simulations, the drills and the binder material stay out).
+#
+# One path or glob per line, relative to the kit's root; `**` matches across folders, `*` within one. A line starting
+# with `?` is optional: it is skipped when nothing in the committed tree matches it (a document not written yet).
+# A required line that matches nothing stops the release. # starts a comment.
+#
+# Check the result: unzip it into an empty folder, then
+#   perl agile/tools/gitlab/kickoff.pl doctor            (Perl, git, Vim, the self-test: nothing may be missing)
+#   perl agile/tools/gitlab/kickoff.pl scaffold model    (the templates are all there)
+
+# the programs: the kit's entry point, its commands and their libraries
+agile.pl
+bin/**
+lib/**
+
+# the model tools: SysML v2 grammar check and model tool (model.pl docs calls tools/idef0/idef0.pl),
+# the GitLab client, templates, kickoff and the optional Docker image
+tools/sysml/**
+tools/idef0/**
+tools/gitlab/**
+
+# Vim: the kit's commands and keys, SysML syntax, and the offline help (:help agile)
+vim/**
+
+# the running example: the prime's drop 1 and the generator of all seven drops
+examples/tidewater-v1/**
+sim/tidewater-v1.pl
+
+# the self-test that `kickoff.pl doctor` runs
+tests/prelude.t
+tests/ledger.t
+
+# reading
+docs/GITLAB.html
+docs/OLLAMA.md
+docs/HELP.html
+docs/VIM-CHEATSHEET.html
+docs/SYSML-PORT.html
+docs/SYSML-PORT-QRG.pdf
+docs/img/cover-art.jpg
+?docs/mbse-devsecops-primer.html
+?docs/mbse-devsecops-primer.pdf
+?START-MBSE.md

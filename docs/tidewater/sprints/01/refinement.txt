@@ -1,0 +1,9 @@
+Refinement, 2026-10-15 10:00: the Definition of Ready applied to sprint 2's stories
+
+TW-26  3 pts  Learn: practice lessons 12-13, Vim for models, the SysML v2 workbook (first half)
+TW-27  3 pts  Runner online; the first pipeline gates every MR
+TW-28  4 pts  Import drop 1 through the vendor branch, in layers
+TW-29  2 pts  TODO burn-down and generated docs in the pipeline
+TW-30  2 pts  Level conventions for the part tree
+TW-31  4.5 pts  Enablers, decisions and conventions on record
+TW-32  0.5 pts  Sprint 2 demo: the pipeline and the drop on develop

@@ -1,0 +1,608 @@
+== Administration {#admin}
+
+::: survival The upkeep
+What you have: a GitLab project that works, a runner that runs, three people who know their way around both, and
+a model that passed its first baseline.
+
+What you need: a short list of recurring chores, each with a cadence, an owner and a checklist, so the environment
+is still trustworthy a year from now when nobody remembers how it was set up.
+:::
+
+=== The Friday the nightly pipeline went red {#admin-friday}
+
+Eleven weeks after the briefing, on a Friday morning, Tom opened the project page and saw the nightly status
+pipeline in red. Nothing in the model had changed since Wednesday. The job log ended with a single line from the
+export step: the server had answered `401 Unauthorized`.
+
+It took Tom twenty minutes to find the cause, and most of that time was spent remembering where things were. The
+scheduled pipeline exported GitLab's records for the status metrics, and to do that it used a project access
+token stored in a masked CI/CD variable. The token had been created during week zero with GitLab's default expiry.
+It had expired at midnight.
+
+The fix took two minutes: create a new token, paste it into the variable, re-run the job. The lesson took longer to
+absorb. In the document era, the team's tools had not expired. A Word template did not stop working on a date, and
+a shared drive did not need its permissions reviewed for the system to keep running. The new environment is made of
+parts that need upkeep: credentials that age, a runner whose operating system needs patches, protections that can
+drift when someone with the right role clicks the wrong box, backups that are worthless until someone restores one.
+
+That afternoon Jim and Tom wrote down every recurring chore they could think of, with how often it had to happen and
+who would do it. The list became a page in the wiki and a standing story on the board. This chapter is that list,
+explained.
+
+::: note Administration is configuration management
+None of this is new in kind. A CM office has always kept access lists, verified backups, audited baselines and
+tracked tool versions. What is new is that GitLab records most of it automatically, so the chore is usually a
+review of a record, not the creation of one.
+:::
+
+=== The administration calendar {#admin-calendar}
+
+Every item in this chapter appears in one table. Tom printed it and taped it beside the monitor; it also lives in
+the wiki as the Administration page (the version the team started from, `wiki/Administration.md`, is shown in
+[[templates]]).
+
+|| Chore | Cadence | Owner | Typical time | Evidence it was done ||
+| Access review: members, roles, the prime's accounts | quarterly, and the same day someone leaves | Jim | 30 min | a comment on the Admin story with the member list |
+| Token inventory and rotation | monthly check; rotate before expiry | token owner, checked by Tom | 15 min per token | the inventory table in the wiki, updated |
+| Runner patching: operating system, gitlab-runner, Git for Windows, the kit | monthly | Tom | 1 hour | a green pipeline after the update; versions in the runner page |
+| Runner health: last contact, disk, job queue times | weekly | Tom | 10 min | a note in the Friday quad if anything is wrong |
+| Pipeline schedules: owner current, last run passed | monthly, and on every departure | Tom | 5 min | the schedules page; owner noted in the wiki |
+| Container image rebuild and scan (only if the Docker image is used) | monthly | Tom | 30 min | a new image tag in the registry |
+| Protection audit: settings versus `project.conf` | monthly, and after any admin change | Tom | 20 min | the settings pages match `project.conf` (`setup` re-applied if not) |
+| Project export (backup of issues, MRs, wiki) | each baseline, and monthly | Tom | 20 min | the export file in the package registry, with its checksum |
+| Restore test | quarterly | Tom, watched by Jim | 2 hours | a scratch project restored and its pipeline green |
+| Audit event review | monthly (Premium) | Jim | 20 min | a comment on the Admin story |
+| Milestones two sprints ahead | each sprint planning | Jim | 5 min | the next two milestones exist |
+| Label and board tidy-up | each refinement | Jim | 10 min | no unlabelled open issues |
+| Upgrade watch: GitLab release notes for CI and API changes | monthly | Tom | 30 min | a note in the wiki's Administration page |
+| CODEOWNERS matches the team | on every membership change | Jim | 5 min | an MR changing `CODEOWNERS` |
+Table: The administration calendar
+
+The total is about four hours a month in a normal month and a day in a quarter-end month. Tom tracked it with
+`/spend` on the standing Admin story so the cost was visible in the sprint report rather than hidden in overtime.
+
+::: tip Make the chores into issues
+A chore that lives only in someone's head stops happening when that person is on leave. The team created one story
+per sprint titled "Administration, sprint N" from a template with the sprint's chores as a checklist. It was
+deliberately small (two or three points) and it never carried over: an unchecked chore was moved to the next
+sprint's story with a comment saying why.
+:::
+
+=== Members and access reviews {#admin-members}
+
+==== The five roles {#admin-roles}
+
+GitLab gives every member of a project one of five roles. The names sound like a hierarchy, and they are, but what
+matters for a model project is what each role can do to the controlled configuration.
+
+|| Role | Who on Tidewater | Can do | Cannot do ||
+| Guest | nobody (sometimes a reviewer from another program) | see issues, comment | see the repository on a private project |
+| Reporter | the prime's modeler, the ISSM, the program office | read the model, issues, MRs, pipelines; comment; download packages | push, merge, change settings |
+| Developer | Bob | push feature branches, open and approve MRs, run pipelines, merge into `develop` where the branch rule allows | push to protected branches, change settings or protections, create protected tags |
+| Maintainer | Jim, Tom | everything a developer can, plus merge into `main`, create `baseline-*` tags, manage CI/CD variables, protections and members | delete the project, transfer it (owner only) |
+| Owner | the group owner (the enterprise admins) | everything | n/a |
+Table: GitLab roles as Tidewater uses them
+
+Two choices in that table were argued over.
+
+**Bob is a developer, not a maintainer.** Bob objected at first: Bob does most of the model work and felt a lower
+role was a statement of trust. Jim's answer was about separation of duties, the same principle that kept engineers
+from signing their own CCB approvals in the document era. A developer can do everything the daily work needs. The
+maintainer-only powers are the ones that change the rules (protections, tokens, baselines), and the team agreed
+those should sit with two people, neither of whom does most of the model edits.
+
+**The prime's modeler is a reporter.** The prime's modeler can read the government model and comment on issues,
+which makes discrepancy reports a conversation instead of an email chain. The prime's modeler cannot push, because
+the government v2 model is the government's record; the prime's changes arrive as drops on the vendor branch (see
+[[maintenance]]).
+
+==== Adding a person {#admin-onboarding}
+
+::: checklist Onboarding one person
+[ ] Account exists on the enterprise GitLab (the enterprise admins create it; the person signs in once)
+[ ] Added to the project with the lowest role that lets them do their job (`[members]` in `project.conf`, then `gitlab.pl setup`)
+[ ] SSH key or personal access token set up on their laptop ([[survival]])
+[ ] Added to `CODEOWNERS` if they will own a package, by MR
+[ ] Added to `roster.txt` in the journal (`daily.pl roster add ...`) and to the stand-up invitation
+[ ] Walked through the Onboarding wiki page; first task is a small one with a pairing partner
+[ ] Their first MR merged within their first week
+:::
+
+Membership is in `project.conf` so that the list is reviewed like any other change. When Jim added the deputy
+program manager as a reporter in sprint 8, it was a two-line MR: one line in `[members]`, one line in the wiki's
+contact page, approved by Tom.
+
+```sh
+# in a clone of the project configuration (or the model repo, where project.conf lives under tools/)
+vim project.conf                          # add:  dpm = reporter
+perl bin/gitlab.pl --url https://gitlab.example.com --dry-run setup project.conf    # every request the file implies
+perl bin/gitlab.pl --url https://gitlab.example.com setup project.conf              # apply it
+```
+
+==== Removing a person {#admin-offboarding}
+
+Offboarding is the one chore with a same-day deadline. Access that outlives its need is the most common finding in
+any security review, and it is the easiest to prevent.
+
+::: checklist Offboarding one person (the same day)
+[ ] Removed from the project and from the group (a group membership grants the project too)
+[ ] Their personal access tokens revoked by an admin, or confirmed expired
+[ ] Any CI/CD variable they could read (maintainers can read all of them) rotated
+[ ] Their pipeline schedules taken over by a current member (a schedule runs as its owner)
+[ ] Their open issues and MRs reassigned, with a comment saying to whom and why
+[ ] `CODEOWNERS` updated if they owned a package (the approval rule would otherwise wait for someone who is gone)
+[ ] Removed from `roster.txt` and the stand-up invitation
+[ ] The runner machine's local accounts checked if they had one
+:::
+
+==== The quarterly access review {#admin-access-review}
+
+Every quarter Jim opens the project's member list and compares it with reality: who is on the team, who still needs
+read access, which accounts have not signed in for ninety days. The review takes half an hour and produces one
+comment on the Admin story, listing the members and any change made. Over eighteen months the review removed four
+accounts: a program-office analyst who had moved on, two of the prime's staff who no longer worked on the model, and
+a test account Tom had created during week zero and forgotten.
+
+::: warning Inherited membership is invisible from the project page
+A person who is a member of the `tidewater` group is a member of every project in it, with the group role. When
+you review a project's members, include the inherited ones (the member list shows them with the group's name
+beside them). Most forgotten access is inherited.
+:::
+
+=== Tokens and rotation {#admin-tokens}
+
+==== What a token is, in plain terms {#admin-token-plain}
+
+A token is a password issued to a program rather than to a person. When the pipeline needs to call GitLab's API,
+or a script on Tom's laptop needs to create issues, it cannot type a password into a login page. It sends a long
+random string instead, and GitLab checks the string against its list of tokens, each with an owner, a set of
+permissions (called *scopes*) and an expiry date.
+
+GitLab has several kinds of token. A team new to all this needs to know which kind to use where, because using the
+wrong kind is the commonest security mistake.
+
+|| Token | Belongs to | Use it for | Tidewater example ||
+| Personal access token | one person | scripts that person runs from a laptop | Jim's `gitlab.pl` calls from Vim |
+| Project access token | a bot user in one project | automation that must outlive any one person | the nightly status export |
+| Group access token | a bot user in a group | automation across several projects (Premium on gitlab.com) | not used |
+| Deploy token | the project | read-only access to the repository or packages from outside | the program office's read-only mirror |
+| `CI_JOB_TOKEN` | one running job | calls from inside a pipeline job; expires when the job ends | uploading a prime drop to the package registry |
+| Runner authentication token | one runner | the runner talking to GitLab | `glrt-...` in the runner's `config.toml` |
+| Pipeline trigger token | the project | starting a pipeline from outside | not used |
+Table: Kinds of token and where Tidewater uses each
+
+The rule the team adopted fits on one line: *use `CI_JOB_TOKEN` inside the pipeline whenever it can do the job;
+use a project access token for automation; use personal tokens only for a person's own interactive work.*
+`CI_JOB_TOKEN` is the best kind because nobody has to store, rotate or protect it; it exists only while a job runs.
+
+==== Scopes: the least that works {#admin-scopes}
+
+Each token carries scopes that limit what it can do. The scope names are GitLab's: `read_api`, `api`,
+`read_repository`, `write_repository`, `read_registry`, and a few others. A token for the nightly export only reads,
+so it gets `read_api` and nothing else. A token that creates issues needs `api`, which is broad: it can do anything
+the token's user can do through the API. Give `api` only to tokens whose bot user has a role no higher than the work
+needs (a project access token can be created with the *reporter* or *developer* role, not just maintainer).
+
+==== Where tokens live {#admin-token-storage}
+
+A token used by the pipeline is stored as a CI/CD variable in the project's settings (Settings, CI/CD, Variables),
+with two flags set:
+
+- **Masked**: GitLab replaces the value with `[MASKED]` if a job prints it to the log. This protects against the
+  most common leak, a debugging `echo` left in a script.
+- **Protected**: the variable is only given to pipelines on protected branches and tags (`develop`, `main`,
+  `baseline-*`). A feature branch pipeline does not see it, so a change on an unreviewed branch cannot read it.
+
+The nightly status job runs on `develop`, so a protected variable is fine for it. A job that must run on feature
+branches cannot use a protected variable; if such a job needs a secret, that is a design smell worth a conversation
+with the ISSM.
+
+Tokens never go in files in the repository, not even in a branch that will be deleted: git keeps history, and the
+secret detection job ([[pipeline]]) exists to catch exactly that mistake. On laptops, personal tokens go in an
+environment variable set by the user's shell profile (`GITLAB_TOKEN` for `gitlab.pl`, as `gitlab.pl help` says),
+never in a script.
+
+==== The token inventory and rotation {#admin-token-rotation}
+
+Tom keeps a table on the wiki's Administration page, one row per token: what it is for, its kind, its scopes, the
+variable or place where it is stored, who owns it, and when it expires. GitLab shows the expiry dates too, and sends
+email a week before a personal or project token expires, but the email goes to the token's owner, and a bot user
+has no inbox anybody reads. The inventory is how the Friday incident is prevented.
+
+::: checklist Rotating a project access token
+[ ] Create the new token (Settings, Access tokens) with the same scopes and role, expiry at most ninety days out
+[ ] Paste the value into the CI/CD variable (Settings, CI/CD, Variables), keeping Masked and Protected set
+[ ] Run the job that uses it (`gitlab.pl pipeline run develop --source web`, or the Run pipeline button) and check it passes
+[ ] Revoke the old token
+[ ] Update the expiry date in the inventory table
+:::
+
+Ninety days was a compromise. The ISSM's first position was thirty days, which would have meant a rotation every
+other week for the team's three tokens. Tom showed the inventory and the checklist, and the ISSM agreed to ninety
+days with a monthly check, on the condition that the rotation itself was recorded. It is: each rotation is a comment
+on the Admin story.
+
+==== When a token leaks {#admin-token-leak}
+
+If a token is ever seen where it should not be (pasted into an issue, committed to a branch, printed in a log
+before masking was set), the order of actions matters:
+
+1. **Revoke it first.** Settings, Access tokens, Revoke. Everything else can wait five minutes; this cannot.
+2. Create a replacement and update the variable.
+3. Find where it appeared and remove it (edit the comment; for a commit, the secret is in history even if the file
+   is fixed, which is why revocation comes first).
+4. Check the audit events for use of the old token since it leaked (Premium), or ask the instance admins.
+5. Tell the ISSM, with the times. A leak reported in an hour is an incident handled; a leak found later is a finding.
+
+The team never had a real leak. They rehearsed the procedure once, in sprint 9, with a deliberately created and
+deliberately "leaked" token on a scratch project, and timed it: seven minutes from "found" to "reported".
+
+=== The runner {#admin-runner}
+
+==== What the runner is, and what this section covers {#admin-runner-what}
+
+The *runner* is the machine that executes pipeline jobs. GitLab the server runs nothing itself: when a pipeline
+starts, the server queues its jobs, and a runner program on some machine asks for work, runs the job's script and
+sends back the log and the result. With no runner available, jobs sit in *pending* forever, which is exactly what
+happened to Tidewater's first pipeline for the two days before Tom's runner was registered ([[sprint-1]]).
+
+[[runners]] explains runners from the beginning: scopes, executors, registration, tags and why Tidewater chose a
+project runner with the Windows shell executor on a dedicated virtual machine, running the same Git for Windows Perl
+as the laptops. This section is about keeping that runner healthy for years: the chores, their cadence, and what
+breaks when they are skipped.
+
+==== The runner's set-up, as a record {#admin-runner-install}
+
+Tom kept the runner's installation as a short runbook in the wiki, because the second runner (below) had to be built
+the same way and so will its replacement after the virtual machine is retired. The essentials:
+
+1. A dedicated Windows virtual machine from the enterprise, never a person's laptop: a laptop sleeps, travels and
+   is reimaged, and every MR would wait for it.
+2. Git for Windows at the laptops' version; `perl -v` matches; the kit cloned to `C:\agile` at the agreed tag and its
+   tests passing there (`perl tests/run.pl`).
+3. A local service account, `svc-runner`, with no administrator rights and no interactive logon; gitlab-runner
+   installed as a Windows service running as that account.
+4. The runner created in GitLab (Settings, CI/CD, Runners, New project runner) with tags `windows`, `shell` and `mbse`,
+   then registered on the machine with `gitlab-runner register --url https://gitlab.example.com --token glrt-...` and
+   the `shell` executor.
+5. `config.toml` adjusted (below), the service restarted, a trivial branch pushed and its first job watched from
+   pending to passed.
+
+```text
+concurrent = 2
+[[runners]]
+  name = "tidewater-win-1"
+  url = "https://gitlab.example.com"
+  executor = "shell"
+  shell = "pwsh"
+  environment = ["KIT=C:/agile"]
+  builds_dir = "D:/runner/builds"
+```
+
+The shell executor on Windows runs each job's script in PowerShell (`pwsh`) unless told otherwise, and PowerShell
+reads `$KIT` differently from Git Bash and has no `$(find ...)`. Rather than depend on a particular shell, every line
+of Tidewater's pipeline is one shell-neutral command, `perl ci/job.pl NAME`, and the Perl script does the work. The
+same `.gitlab-ci.yml` therefore runs under `pwsh` on this runner, under Git Bash on a laptop with `gitlab.pl ci`, and
+inside the optional Docker image. The `KIT` variable reaches the script through the environment in every case.
+
+==== Least privilege on the runner {#admin-runner-privilege}
+
+A runner executes whatever is in `.gitlab-ci.yml` on the branch being tested, so anyone who can push a branch can run
+commands on the runner machine as the runner's account. That is the main security fact about runners, and the ISSM
+asked about it in the first meeting. The team's answers, each a setting:
+
+- **The service account has no admin rights** and cannot log on interactively, so a job cannot install software or
+  read other accounts' files.
+- **The runner is a project runner**, registered to `tidewater/model` only, not shared with projects whose members
+  the team does not know.
+- **The runner machine holds no secrets** beyond its own `glrt-` token. Tokens jobs need come from protected, masked
+  CI/CD variables, which feature-branch pipelines never see.
+- **Only members can push.** The prime's modeler is a reporter and cannot push, so the prime cannot run code on the
+  government runner.
+- **The machine follows the program's workstation baseline**: patching, antivirus, logging.
+
+GitLab's *protected* runner flag makes a runner take jobs only from protected branches and tags. The checking runner
+cannot be protected, because merge request pipelines run on feature branches and checking those is the point. From
+sprint 8 the team ran a pattern the ISSM liked: the general runner, unprotected, for checks; and a second, protected
+runner with an extra tag, `release`, for the jobs that publish or hold credentials (`pages`, the package upload, the
+release job), which carry `tags: [release]`. A change on an unreviewed branch can never reach the protected runner.
+
+==== Antivirus, long paths and disk {#admin-runner-machine}
+
+Three Windows details caused most of the runner's trouble in the first months.
+
+- **Antivirus.** Real-time scanning of the builds folder made each job several times slower, because a checkout
+  writes thousands of small files. The enterprise security team agreed to exclude `D:\runner\builds` and the kit
+  folder from on-access scanning, with a scheduled full scan nightly instead. Ask for this in writing; do not just
+  turn scanning off.
+- **Long paths.** Windows limits paths to 260 characters unless told otherwise, and a builds folder plus a deep model
+  path plus a generated file name can exceed it. The fix is `git config --system core.longpaths true` on the runner
+  (and the laptops) and a short `builds_dir`, as above.
+- **Disk.** Each job leaves a checkout and its artifacts behind. The sprint 6 incident, when the builds drive filled
+  and every pipeline failed for most of a day ([[sprint-6]]), led to a scheduled task that deletes build folders
+  older than a week, and a free-space check as the first line of the weekly health look.
+
+==== Updates, health and a second runner {#admin-runner-patching}
+
+Once a month Tom updates the runner, in this order, running a pipeline after each step so a failure points at its
+cause:
+
+1. Windows updates, by the enterprise's normal process.
+2. gitlab-runner. Its version tracks GitLab's: the runner's major and minor version should match the server's, so a
+   server upgrade is followed by a runner upgrade within the month.
+3. Git for Windows, only to the version the laptops move to, after the kit's tests pass under it on one laptop.
+4. The kit, to the agreed tag ([[admin-upgrades]]).
+
+Every Friday Tom spends ten minutes on health: the runner page in GitLab (Settings, CI/CD, Runners) shows each
+runner's *last contact*; a runner that has not contacted GitLab for more than a few minutes is offline, and an
+offline runner means every MR is blocked. Tom also checks free disk space and the *queued duration* of the week's
+jobs; a job that waited more than a minute or two for a runner means the runner is busy or sick. When the runner
+stops, the gitlab-runner service's own log (Windows Event Viewer, Application log) usually says why.
+
+From sprint 7 a second Windows virtual machine runs an identical runner with the same tags. Either can take any
+checking job, so one runner being patched or broken no longer stops the team. Two runners cost the enterprise one
+more small virtual machine; the day the first runner's disk filled cost the team three person-days.
+
+==== The Docker image, if you use one {#admin-docker-image}
+
+The kit offers an optional container image, `mbse-ci` (`tools/gitlab/docker/`), for organizations whose GitLab offers
+only Docker runners. Tidewater did not use it, but a reader's project may. If you do, the image is part of the
+toolchain baseline and needs the same upkeep as the runner:
+
+- **Pin the base image by digest**, not by a moving tag, so a rebuild is deliberate.
+- **Rebuild monthly**, or when the base distribution publishes a security update, and give each rebuild a new tag.
+- **Tag the image with the kit's version.** A pipeline that names `mbse-ci:1.0` always runs the same checks; never use
+  `:latest` in a pipeline.
+- **Scan it** with whatever your security office uses before pushing it to the registry, and keep no credentials in it.
+
+==== Pipeline schedules and who owns them {#admin-schedules}
+
+The project has two scheduled pipelines: a nightly full check of `develop` on working days (cron `0 2 * * 1-5`) and the
+weekly status export on Friday mornings (`0 6 * * 5`). Both are listed in `project.conf`'s `[schedules]` section, so
+they are recreated by `gitlab.pl setup`, and `gitlab.pl schedule` lists and runs them.
+
+A schedule runs *as the user who owns it*. When that user leaves, or loses the role the jobs need, the schedule stops
+or fails, and nobody notices until a Friday report is missing. Two rules followed: schedules are owned by a team
+member who is not about to leave (Tom, with Jim as the named backup), and the offboarding checklist has a line to take
+over the leaver's schedules (Build, Pipeline schedules, Take ownership).
+
+==== What the pipeline costs {#admin-costs}
+
+The kit and its checks cost nothing. On a self-managed GitLab with the team's own runners, there are no per-minute
+charges: the cost is the virtual machines and the time to look after them, about an hour a month each. On GitLab.com
+with GitLab's hosted runners, jobs consume *compute minutes*: each plan includes a quota, and more must be bought.
+Tidewater's pipeline is small (a few minutes per MR), but a reader on hosted runners should estimate MRs per month
+times minutes per pipeline before choosing.
+
+Some gate settings need a paid tier: required approval rules, enforced code-owner approval, push rules and merge
+trains are Premium; security policies and compliance frameworks are Ultimate ([[admin-tiers]]). Prices and the
+features in each tier change; check GitLab's current pricing page before planning a budget.
+
+=== Protection audits {#admin-protection-audit}
+
+==== What drifts and why {#admin-drift}
+
+Protections are settings, and settings drift. Someone with the maintainer role unprotects a branch "for five
+minutes" to fix something and forgets to protect it again. A new GitLab version changes a default. A group setting
+overrides a project setting. In the document era the equivalent was a controlled document quietly edited outside the
+CCB; the defence then was a configuration audit, and it is now.
+
+The difference is that GitLab's protections are in a file. `project.conf` says what the project's settings should be,
+and `gitlab.pl setup` applies it; running it again re-applies the file, so a setting someone changed by hand in the
+web pages goes back to what the file says. Running setup with `--dry-run` prints every API request the file asks
+for, without contacting the server at all:
+
+```sh run sandbox=kit expect="(?s)PUT /api/v4/projects/tidewater%2Fmodel \{.*\"merge_method\":\"merge\".*POST /api/v4/projects/tidewater%2Fmodel/labels"
+perl bin/gitlab.pl --url https://gitlab.example.com --dry-run setup tools/gitlab/templates/project.conf
+```
+
+That is a preview of what the file says, not a comparison with the server: because a dry run reads nothing, it
+prints the full list every time. To audit drift, Tom runs the read-only comparison once a month and after any
+administrative change by anyone. `gitlab.pl setup --diff FILE` reads the live project, prints one line per
+difference, and exits 1 when anything has drifted. Here someone has turned force push on for `develop` in the web
+pages:
+
+```sh run sandbox=scratch cwd=. expect="\[branches\] develop: force file no, live yes"
+cp "$KIT/tools/gitlab/templates/project.conf" audit.conf
+ga() { perl "$KIT/bin/gitlab.pl" --local audit --project tidewater/model "$@"; }
+for u in jim bob tom; do ga user $u > /dev/null; done
+sed -i 's/^\(develop = .*\)force:no/\1force:yes/' audit.conf
+ga --as tom setup audit.conf > /dev/null 2>&1
+cp "$KIT/tools/gitlab/templates/project.conf" project.conf
+ga setup --diff project.conf 2>&1 | grep "^\[branches\]" || true
+```
+
+The file says no force push; the live project says yes. A difference is investigated before it is fixed: the question
+is not only "what changed" but "who changed it and why", which the audit events answer on Premium (and the instance
+admins can answer on Free). Then `setup` puts the project back. On a new project the two schedules also show as
+missing until `develop` exists; that is expected.
+
+==== The monthly audit {#admin-audit-checklist}
+
+::: checklist Monthly protection audit
+[ ] the project's settings pages match `project.conf`; `gitlab.pl setup project.conf` re-applied if they did not
+[ ] `main` and `develop`: push allowed to no one, merge by the intended role, force push off, code owner approval on (Premium)
+[ ] `vendor/prime`: push by maintainers only, merge by no one
+[ ] `baseline-*` tags protected, create by maintainers only
+[ ] Merge settings: merge commit, no squash, pipelines must succeed, discussions must be resolved
+[ ] `CODEOWNERS` on `develop` names only current team members
+[ ] Every merge into `develop` since the last audit had a passing pipeline and an approval by someone other than the author (scorecard measure 3; `gitlab.pl export` gives the MR list)
+[ ] No CI/CD variable is unprotected or unmasked unless the inventory says why
+:::
+
+The seventh line is the important one. It checks the outcome, not the setting: even with every setting right, the
+question a reviewer will ask is "can you show me that every change was reviewed?", and the export answers it with
+the evidence.
+
+=== Backups and restore tests {#admin-backups}
+
+==== What is already safe and what is not {#admin-backup-scope}
+
+Git is distributed: every clone holds the full history of every branch it has fetched. With three engineers and a
+runner, the model's history exists in at least five places, and losing the server would not lose a single commit.
+New users often stop there. They should not, because the repository is only part of what the team now depends on.
+
+|| What | Where it lives | Safe if the server is lost? ||
+| The model, its history, tags | every clone | yes |
+| Issues, comments, the board, labels, milestones | the server only | no |
+| Merge requests, reviews, approvals | the server only | no |
+| The wiki | the server (it is a git repository you can clone) | only if someone clones it |
+| Pipeline history, job logs, artifacts | the server only | no |
+| CI/CD variables, protections, members | the server; mostly in `project.conf` | partly |
+| Packages (the prime drops, baseline bundles) | the server's package registry | no |
+| The journal (`data/tidewater/journal`) | Jim's laptop and its own GitLab project | yes, if pushed |
+Table: What a git clone does and does not protect
+
+Merge requests and their approvals are the audit trail the whole process rests on. Losing them would be like losing
+every signed CCB form.
+
+==== Three layers of backup {#admin-backup-layers}
+
+1. **The instance backup** belongs to the enterprise GitLab administrators, who back up the whole server daily.
+   Tom asked them, in writing, what is backed up, how often, how long it is kept and when a restore was last
+   tested. The answers went in the wiki. The team does not run this layer, but it should know what it covers.
+2. **The project export.** GitLab can export a project (Settings, General, Advanced, Export project) into one archive
+   holding the repository, issues, MRs with their discussions, labels, milestones, the wiki and more. Tom exports at
+   every baseline and once a month, and uploads the archive to the package registry under a `project-export`
+   package, versioned by date, so its checksum is recorded.
+3. **The clones.** Everyone pushes their work daily, and the wiki is cloned onto Tom's laptop and pulled weekly.
+
+==== The restore test {#admin-restore-test}
+
+A backup that has never been restored is a hope, not a backup. Once a quarter Tom restores the latest project export
+into a scratch project (a project in Tom's personal namespace, deleted afterwards) and checks it:
+
+::: checklist Quarterly restore test
+[ ] Import the latest export archive as a new project
+[ ] The default branch, `main`, `develop` and every `baseline-*` tag are present
+[ ] A merge request from the last sprint shows its discussion and approvals
+[ ] The wiki's Home page and Administration page are present
+[ ] Register nothing new: point the existing runner at the scratch project temporarily, run the pipeline on `develop`, and check it passes
+[ ] Rebuild the latest baseline's docs and compare the checksum with the tag message
+[ ] Record the date, the archive's checksum and the result on the Admin story; delete the scratch project
+:::
+
+The first restore test, in sprint 10, failed on the fifth item: the scratch project had no CI/CD variables (an export
+does not carry them, by design, because they hold secrets). That was the useful result. The team added the variable
+list, without values, to `project.conf`'s `[variables]` section, so recreating them is part of the setup file.
+
+The offline emulator ([[tools]]) let Tom rehearse the whole procedure on a laptop before touching the server: the
+emulator's state is one file, and restoring it is copying that file and the bare repository back.
+
+=== Audit events {#admin-audit-events}
+
+GitLab Premium records *audit events*: who added a member, changed a protection, created or revoked a token,
+changed a CI/CD variable, and similar administrative actions, with the time and the source address. (Who pushed what
+and who merged what is in the repository and the MRs on every tier.) Jim reviews the project's audit events once a
+month, looking for three things:
+
+- **Any change to protections or merge settings.** Each should match an MR to `project.conf` or a comment on the
+  Admin story. One that matches nothing is asked about the same day.
+- **Membership changes.** They should match the onboarding and offboarding records.
+- **Token creation and revocation.** They should match the token inventory.
+
+On the Free tier there is no audit event page for projects. The team's fallback was the monthly protection audit
+above, plus the instance administrators' logs on request. That is weaker, and Jim said so in writing when the
+Premium question came up (see [[admin-tiers]]).
+
+=== Upgrades {#admin-upgrades}
+
+Four things in the environment change version, and each needs a different kind of care.
+
+**GitLab itself.** The enterprise administrators upgrade the server, usually monthly. GitLab announces deprecations
+in its release notes months ahead, and occasionally removes a CI keyword or an API field. Tom reads the release notes
+each month for two sections only: CI/CD (anything about keywords the pipeline uses) and the REST API (anything
+`gitlab.pl` calls). After each server upgrade, Tom opens the pipeline editor (Build, Pipeline editor), which
+validates `.gitlab-ci.yml` against the server's current rules, and runs a pipeline on `develop`.
+
+**gitlab-runner.** Upgraded monthly with the runner patching, within the version range the server supports.
+
+**Git for Windows and its Perl.** Upgraded on the laptops and runner together, a few times a year. The kit's tests
+run first on one laptop under the new version ([[commands]] has the command); only when they pass does everyone
+upgrade.
+
+**The kit.** The kit is a dependency like any other. The runner and the laptops use the same *tag* of the kit, never
+whatever is newest. Upgrading the kit is a story: read the kit's changes, run its tests, run the model's pipeline
+locally with the new kit (`KIT=/c/agile-new perl bin/gitlab.pl ci --event merge_request_event --target develop`),
+then move the runner and laptops together. A new kit that changes a converter's output changes what the next
+vendor import produces; that is planned, not discovered.
+
+::: warning Never upgrade on a drop week
+The week a prime drop arrives is the week the team most needs the environment to behave exactly as it did last
+time, so the delta shows only the prime's changes. Upgrades wait for the sprint after.
+:::
+
+=== License tiers {#admin-tiers}
+
+GitLab comes in three tiers: Free, Premium and Ultimate. Several features this book uses are Premium or above, and
+the team spent part of sprint 2 working out which they actually needed. The honest answer was that the process works
+on Free with a few manual substitutes, and that Premium buys enforcement of things Free can only ask people to do.
+
+|| Feature | Tier | How Tidewater uses it | On Free instead ||
+| Protected branches and tags | Free | `develop`, `main`, `vendor/prime`, `baseline-*` | n/a |
+| Merge request approvals (optional) | Free | one approval per MR | n/a |
+| Required approval rules, code owner approval enforced | Premium | a code owner must approve; merge is blocked otherwise | `CODEOWNERS` suggests reviewers; the team's rule and the monthly audit check it was followed |
+| Pipelines, artifacts, schedules, Pages, releases, package registry | Free | all of them | n/a |
+| JUnit and Code Quality reports on the MR | Free | the MR widgets | n/a |
+| Metrics report on the MR | Premium | scorecard numbers shown with their change | the numbers are in the job log and artifact |
+| Scoped labels (`key::value`, one per key) | Premium | `workflow::`, `type::`, `priority::` | plain labels; the board still works; two `workflow` labels can coexist by mistake |
+| Milestone burndown charts | Premium | the sprint burndown | the journal's sprint report |
+| Epics, roadmaps | Premium (multi-level: Ultimate) | not needed | `epic::` and `tome::` labels, the journal's roadmap |
+| Iterations | Premium | not used | milestones named `Sprint N` |
+| Push rules | Premium | reject commits with secrets or large files at push time | the secrets job in the pipeline |
+| Audit events (project) | Premium | the monthly review | the protection audit and the instance logs |
+| DORA metrics, value stream analytics dashboards | Ultimate (VSA basics on Free) | not essential | `gitlab.pl export` and the status metrics |
+Table: Features by tier, and what Tidewater did on each
+
+The program bought Premium for the team in the second quarter, on the strength of one argument Jim made in the
+sprint 6 briefing: on Free, the rule "every change approved by a code owner other than its author" is a team habit
+checked monthly; on Premium, it is a setting the server enforces on every merge. For a program that has to show an
+auditor its change control, the difference was worth the licence cost of three seats.
+
+=== Applying this to your project {#admin-applying}
+
+- **Copy** the administration calendar and turn it into a recurring story. Adjust the cadences to your
+  organization's policies, but keep every row; each one exists because a team like Tidewater's got hurt without it.
+- **Copy** the token rule (job token inside pipelines, project tokens for automation, personal tokens only for a
+  person's own work) and the token inventory. Agree the rotation period with your security officer before you
+  create the first token, not after the first expiry.
+- **Adapt** the runner to your environment. If containers are allowed and your tools run in them, a Linux container
+  runner is simpler to keep clean. Keep the principle that the runner runs the same tool versions as the engineers.
+- **Adapt** the role assignments to your separation-of-duties rules. Write down why each person has the role they
+  have; you will be asked.
+- **Decide locally** which tier you need. List the rules your program must be able to prove, and check which of them
+  your tier can enforce rather than merely record.
+- **Do not skip** the restore test. The first one will find something, as Tidewater's did.
+
+=== Exercises {#admin-exercises}
+
+::: exercise {#ex-admin-roles} Assign the roles
+Your project has five people: a model lead, two modelers, a CM engineer who runs the pipeline, and a contractor
+liaison who must read the model and comment on discrepancy reports. Assign each a GitLab role and write one sentence
+per person justifying it in terms of separation of duties.
+:::
+
+::: exercise {#ex-admin-token} Choose the token
+For each automation, name the kind of token and its scopes: (a) a pipeline job that uploads the prime's drop to the
+package registry; (b) a nightly job that exports MR and pipeline records for the status metrics; (c) Jim's script that
+creates the sprint's milestones from a laptop; (d) a read-only mirror of the repository for the program office.
+:::
+
+::: exercise {#ex-admin-dryrun} Find the drift
+Using the offline emulator, apply `tools/gitlab/templates/project.conf` to a fresh emulator directory with
+`gitlab.pl --local DIR setup`. Then edit the file to allow force push on `develop` and apply it again: what does
+setup print for the protected branch? Now preview the same file with `--url https://gitlab.example.com --dry-run`
+(a dry run contacts nothing). Why does the preview list every request, not only the changed one? How would you have
+noticed the change if someone had made it in the web pages instead of the file? (Try `gitlab.pl setup --diff` on
+the original file. `--dry-run` also works on the offline emulator: it prints the requests and applies nothing.)
+:::
+
+::: exercise {#ex-admin-restore} Plan a restore test
+Write the checklist you would use to restore your own project from an export. Which items on Tidewater's checklist
+would fail on your server, and why? (Hint: think about what an export deliberately leaves out.)
+:::
+
+::: exercise {#ex-admin-tiers} Make the tier case
+Your program is on GitLab Free. Write the three-sentence argument for or against Premium for your team, naming the
+one rule you most need the server to enforce rather than record.
+:::

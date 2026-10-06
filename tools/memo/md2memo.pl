@@ -423,7 +423,7 @@ sub colfit {                               # water-fill: narrow columns keep nat
     while (1) {
         my @u = grep { !exists $fix{$_} } 0 .. $#$nat;
         last unless @u;
-        my $rem = $avail; $rem -= $_ for values %fix;
+        my $rem = $avail; $rem -= $fix{$_} for sort { $a <=> $b } keys %fix;   # column order: hash order would make the PDF vary run to run
         my $fair = $rem / @u;
         my @f = grep { $nat->[$_] <= $fair } @u;
         @f = grep { $min->[$_] >= $fair } @u unless @f;
@@ -431,7 +431,7 @@ sub colfit {                               # water-fill: narrow columns keep nat
         $fix{$_} = $nat->[$_] <= $fair ? $nat->[$_] : $min->[$_] for @f;
     }
     my @u = grep { !exists $fix{$_} } 0 .. $#$nat;
-    my $rem = $avail; $rem -= $_ for values %fix;
+    my $rem = $avail; $rem -= $fix{$_} for sort { $a <=> $b } keys %fix;   # column order: hash order would make the PDF vary run to run
     [ map { exists $fix{$_} ? $fix{$_} : $rem / @u } 0 .. $#$nat ];
 }
 

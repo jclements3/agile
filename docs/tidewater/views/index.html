@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tidewater model views</title>
+<style>
+:root{--bg:#f7f7f4;--ink:#1d2433;--dim:#5b6475;--rule:#d5d8de;--card:#fff;--accent:#1f3a5f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15181e;--ink:#e6e8ec;--dim:#a2a9b6;--rule:#333a46;--card:#1d2129;--accent:#9fb8d8}}
+:root[data-theme="dark"]{--bg:#15181e;--ink:#e6e8ec;--dim:#a2a9b6;--rule:#333a46;--card:#1d2129;--accent:#9fb8d8}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;padding:24px 16px}
+main{max-width:1100px;margin:0 auto}h1{color:var(--accent);font-size:24px;margin:0 0 4px}p{margin:6px 0}
+.dim{color:var(--dim)}code,pre{font-family:ui-monospace,Consolas,monospace;font-size:13px}
+pre{background:var(--card);border:1px solid var(--rule);padding:10px;overflow-x:auto}
+figure{background:var(--card);border:1px solid var(--rule);margin:18px 0;padding:12px}
+figure img{display:block;max-width:100%;height:auto;background:#fff}figcaption{margin-top:8px}
+</style></head><body><main>
+<h1>Tidewater model views</h1>
+<p class="dim">Prime drop 1, converted to SysML v2 text and drawn by the kit. Notional; nothing here is real.</p>
+<p>Every picture below is generated from the model's text. Nobody draws or lays it out by hand, so it is never out of date.
+Make them in your own project with:</p>
+<pre>perl $KIT/tools/sysml/model.pl draw tree  -o tree.svg    # in Vim, from a .sysml buffer: \mw  (:SysDraw tree)
+perl $KIT/tools/sysml/model.pl draw trace -o trace.svg   #                                 \mq  (:SysDraw trace)
+perl $KIT/tools/sysml/model.pl draw ibd   -o ibd.svg     #                                 \mi  (:SysDraw ibd)
+perl $KIT/tools/sysml/model.pl draw pkg   -o pkg.svg     #                                 \mp  (:SysDraw pkg)
+perl $KIT/tools/sysml/model.pl idef0                     # docs/idef0/plates.html and svg/; in Vim  :!perl $KIT/tools/sysml/model.pl idef0
+                                                          # \mW opens the live viewer (wish bin/sysml-view.tcl) beside Vim</pre>
+<figure><img src="tidewater-tree.svg" alt="Part tree: tree-svg: 13 file(s), 44 part def(s), 4 tree(s), 59 part node(s), 1 warning(s)"><figcaption><b>Part tree</b> &middot; <code>model.pl draw tree</code><br>The noun tree from ObservationNetwork down, with level tags where the model has them. <span class="dim">tree-svg: 13 file(s), 44 part def(s), 4 tree(s), 59 part node(s), 1 warning(s)</span></figcaption></figure>
+<figure><img src="tidewater-trace.svg" alt="Requirement trace: trace-svg: 13 file(s), 30 leaf requirement(s), 10 with gaps, 0 warning(s)"><figcaption><b>Requirement trace</b> &middot; <code>model.pl draw trace --mono</code><br>Each requirement and what satisfies and verifies it; the planted gaps show as open shapes. <span class="dim">trace-svg: 13 file(s), 30 leaf requirement(s), 10 with gaps, 0 warning(s)</span></figcaption></figure>
+<figure><img src="tidewater-ibd.svg" alt="Interconnection: 13 file(s): 0 error(s), 0 warning(s), 7 diagram(s), 20 connection(s), 0 boundary crossing(s), 0 on the attack surface"><figcaption><b>Interconnection</b> &middot; <code>model.pl draw ibd</code><br>Parts and the connections between their ports, one diagram per part def that has connections. <span class="dim">13 file(s): 0 error(s), 0 warning(s), 7 diagram(s), 20 connection(s), 0 boundary crossing(s), 0 on the attack surface</span></figcaption></figure>
+<figure><img src="tidewater-pkg.svg" alt="Packages and dependencies: 13 file(s): 0 error(s), 6 warning(s), 21 package(s), 24 dependencies, 0 write-down edge(s), 6 cycle(s); markings not checked (--no-markings)"><figcaption><b>Packages and dependencies</b> &middot; <code>model.pl draw pkg</code><br>The v1 spider web: every package, its imports and references, and the dependency cycles (dashed). <span class="dim">13 file(s): 0 error(s), 6 warning(s), 21 package(s), 24 dependencies, 0 write-down edge(s), 6 cycle(s); markings not checked (--no-markings)</span></figcaption></figure>
+<figure><img src="tidewater-idef0-O-0.svg" alt="IDEF0: Observe Coast: A-0: the whole function as one box"><figcaption><b>IDEF0: Observe Coast</b> &middot; <code>model.pl idef0</code><br>The observation cycle as IDEF0 plates, from the verb tree under ObserveCoast and the allocations. <span class="dim">A-0: the whole function as one box</span></figcaption></figure>
+<figure><img src="tidewater-idef0-O0.svg" alt="IDEF0: Observe Coast: A0: its steps"><figcaption><b>IDEF0: Observe Coast</b> &middot; <code>model.pl idef0</code><br>The observation cycle as IDEF0 plates, from the verb tree under ObserveCoast and the allocations. <span class="dim">A0: its steps</span></figcaption></figure>
+</main></body></html>

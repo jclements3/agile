@@ -1,0 +1,12 @@
+Sprint 1 retrospective, 2026-10-16 11:00
+
+Start:
+  - Writing the task id in every stand-up status
+  - Running the converter report before estimating
+Stop:
+  - Estimating a story before anyone has read the drop
+Continue:
+  - Pairing at the terminal for the first git commands
+  - One issue per action item
+
+Pulse survey (1-5, anonymous): mean 1.9

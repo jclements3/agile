@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-70 Discrepancy reports DR-1 to DR-4 to: done (1 task). Reviewed !13. T TW-72 sprint review with the program office, by Fri. B none
+[9:02 AM] Bob
+Y TW-67 Close the Stations level tags: 25 TODOs closed, 25 left. T TW-67 walk the Stations tree with the prime's modeler;, by Fri. B none
+[9:03 AM] Tom
+Y none T TW-71 add the pages job and the nightly schedule, by Fri; pairing with Jim after lunch. B none

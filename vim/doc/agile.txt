@@ -40,6 +40,7 @@ CONTENTS                                                      *agile-contents*
 18. Troubleshooting                                           |agile-errors|
 19. Quick reference                                           |agile-quickref|
 20. Coding drills (practice for interviews)                   |agile-drills|
+21. GitLab, gitflow and the pipeline                          |agile-gitlab|
 
 In the command lines below, "daily.pl" is short for
 "perl ~/projects/agile/bin/daily.pl" (your clone's path). Set an alias once
@@ -1199,6 +1200,14 @@ into today's stand-up file as est lines (ready when there was consensus,
 commented otherwise) and note vote lines. Without markers:
 chat.pl --est ID --since 09:07 FILE (|agile-chat-pl|).
 
+An answer is a number with an optional unit ("5", "8 pts", "2 days"),
+optionally after "actually", "make it", "I'd say" and the like, or before
+"maybe"; "?" or "idk" for unknown. Anything else is discussion: it never
+replaces a vote, so "that is not 3 days" is not a vote of 3. Someone who wrote
+in a round but gave no answer is listed as "could not read". Lines for tasks
+not yet in the journal (and vote notes) go under default_team in scrum.conf,
+or under the team named in the file (standups/DATE-Team-chat.txt).
+
 ==============================================================================
 8. AGILE.PL: THE COCKPIT, HELP AND PRACTICE                         *agile-pl*
 
@@ -1653,6 +1662,16 @@ release/agile-TAG.zip with a SHA-256 beside it, for another machine. Refuses
 on uncommitted changes. On the target: sha256sum -c the .sha256, unzip, then
 daily.pl init in a project directory.
 
+    perl bin/release.pl --profile mbse [--tag v1.0]
+    perl bin/release.pl --profile mbse --list [--worktree]
+
+A slimmer zip, release/agile-NAME-TAG.zip, holding only the files the profile's
+manifest tools/gitlab/NAME-release.txt lists (one path or glob per line; a
+line starting with ? is optional). The mbse profile is what an MBSE DevSecOps
+team needs: the tools, the Vim setup, the GitLab templates and samples, the
+Tidewater drops, the guides and the primer. --list prints the files instead
+of packing them (--worktree: from the working tree, not the last commit).
+
 devsecops.pl                                                 *agile-devsecops*
     perl bin/devsecops.pl [--quick] [--open]
 
@@ -1754,6 +1773,23 @@ The output is deterministic, and a re-run overwrites hand edits: convert
 into a scratch directory once a segment is hand-fixed.
 Runbook: |agile-howto-port-segment|.
 
+    perl bin/xmi2sysml.pl --out DIR --layout-map layout.map [--map MAP.csv] FILE.xmi
+    perl bin/xmi2sysml.pl --delta OLD.xmi NEW.xmi
+    perl bin/xmi2sysml.pl --delta OLD.xmi NEW.xmi --impact MODEL_DIR [--map OLD-MAP.csv] [--impact-csv F]
+
+--layout-map FILE puts each top-level package at a fixed path (lines
+"Stations = physical/stations/" or "Types = library/Types.sysml", # comments,
+"* = unsorted/" for the rest); use one map for every drop, so the paths stay
+the same and vendor-branch merges stay three-way. --map FILE writes a CSV
+from every v1 element (xmi:id) to its v2 name, file and line. --delta compares
+two drops of the same model by xmi:id: added, removed and changed elements,
+each marked carried (re-convert and merge) or manual (the converter leaves
+it as a TODO: rework by hand), ending with a manual-rework checklist.
+--impact MODEL_DIR adds, per change, what it touches in the government's v2
+model: requirements satisfied, verification cases, connections, allocations,
+references to a renamed element, and hand edits to redo. With the prime's
+CHANGES.csv beside NEW.xmi, the report is grouped by change request.
+
 reqif2sysml.pl                                              *agile-reqif2sysml*
     perl bin/reqif2sysml.pl --report [--model DIR] FILE.reqif
     perl bin/reqif2sysml.pl --out DIR [--layout '{seg}/{pkg}.sysml'] [--check] FILE.reqif|.reqifz|.csv
@@ -1769,7 +1805,10 @@ absolute numbers), --id-attr / --vm-attr / --text-attr / --heading-attr NAME
 PKG, --csv with --col id=NAME --col text=NAME --col heading=NAME --col
 level=NAME --col vm=NAME, --sep C, --stdout, --check. A heading without text
 becomes a nested package; text becomes a requirement; neither becomes a
-TODO. Runbook: |agile-howto-doors|.
+TODO. --layout-map FILE maps DOORS module names to paths, as for xmi2sysml.
+The --model trace also reports drift: a requirement whose doc text in the
+model differs from the DOORS text (markup and whitespace ignored), listed with
+both versions. Runbook: |agile-howto-doors|.
 
 sysml.pl                                                         *agile-sysml*
     perl tools/sysml/sysml.pl check FILE...     file:line:col: error: ...; exit 1
@@ -1814,6 +1853,26 @@ threats [--today D]   the threat table and its checks (|agile-model-threats|)
 gate [--today D]      the validate gate, PASS or FAIL (|agile-model-gate|)
 The worked example is examples/halberd (its README shows every command):
 perl tools/sysml/model.pl --root examples/halberd lint. In Vim: |agile-vim-sysml|.
+
+sysml.conf keys                                          *agile-sysml-conf*
+key = value lines, # comments, in the project's top directory:
+title          used in generated document titles
+noun_root      the part def at the top of the part tree
+verb_root      the action (or calc) def at the top of the function tree
+level_tags     the @L metadata names, level 1 first (L1Network, L2Segment, ...)
+idef0_name     docs/idef0/NAME.md; model_letter: the IDEF0 letter of the root
+idef0_models   auto | steps | root: one IDEF0 model per step (steps), one
+               model whose boxes are the steps (root, for steps without
+               sub-steps), or root when every step is a leaf (auto, default)
+steps          name:LETTER:Label, ... (only with idef0_models = steps)
+control_types  item types drawn as IDEF0 controls; alloc_prefix: the feature
+               path that stands for the verb root in allocate statements
+layers         package layers, lowest first; the pipeline's complexity job
+               fails an import from a higher layer
+acronyms, need_prefix   word splitting; the id prefix of stakeholder needs
+model.pl draw pkg draws packages, dependencies and cycles without markings
+when no package carries @Marking (sysml-pkg-svg.pl --no-markings); model.pl
+gate still requires them.
 
 ------------------------------------------------------------------------------
 The SysML views toolkit                                    *agile-sysml-views*
@@ -2198,6 +2257,197 @@ Task (|agile-howto-practice-coding|):
 Check: p12-dedup was started, the file is no longer the stub, a passing test
 is recorded, and the drill log has p12-dedup as passed.
 
+------------------------------------------------------------------------------
+Lesson 10: your first model change                         *agile-practice-10*
+
+Lessons 10-13 follow Tidewater, a fictional coastal weather network: the
+prime contractor keeps its SysML v1 model in Cameo and delivers it as
+drops; the government team (Jim, Bob, Tom) keeps a SysML v2 text copy.
+Sandbox: the model repository a team gets in week zero, made by
+tools/gitlab/kickoff.pl scaffold, with drop v1.0 converted into it by the
+layout map .ci/layout.map (each package at a fixed path, in every drop).
+model/library/conventions/Conventions.sysml holds the government's level
+tags; .ci/outline-max records the outline findings drop v1.0 brought with
+it. You are Bob, the MBSE engineer. About 30 minutes.
+Task:
+1. Look around (a configuration item's folders and its history): >
+    ls model model/physical
+    git log --oneline
+<2. Count the TODO lines the converter left: the port's open action items. >
+    grep -rc "// TODO" model
+<3. vim model/physical/stations/Stations.sysml, then /StationSegment and n
+   until the cursor is on "part def StationSegment {". The next line is a
+   TODO: in v1 a profile stereotype said StationSegment is level 2.
+4. Replace that whole line (cc deletes it and starts typing, Esc ends): >
+        @L2Segment;
+<   The tag is the v2 form of the stereotype: metadata defined once in
+   model/library/conventions/Conventions.sysml, one line in place of a
+   profile.
+5. Under the line "package Stations {" open a line (o) and type the import
+   that makes the tags visible here, then :w >
+        private import Conventions::*;
+<6. Check it as a reviewer would, without leaving Vim: \mx the grammar of
+   this file, \ml lint for the whole model (0 errors, 0 warnings), \mk the
+   outline and level tags ("@L tag mismatches 0"; the 20 outline findings
+   are the ones drop v1.0 brought). :copen lists findings; Enter on one
+   jumps to its line. Lint does not catch a misspelled tag (@L2Segmnt;);
+   practice check 10 does.
+7. Record the change with its reason (a configuration change, signed): >
+    git add model
+    git commit -m "Tag StationSegment with its level (L2Segment)"
+<Check: StationSegment carries @L2Segment; and no TODO, package Stations
+imports Conventions, the grammar check and lint pass, every level tag sits
+at its level, and the change is committed.
+
+------------------------------------------------------------------------------
+Lesson 11: your first merge request                        *agile-practice-11*
+
+Sandbox: an offline GitLab (SANDBOX/gitlab) holding the Tidewater model
+project: kickoff.pl scaffold on main, develop from it, the scaffold's
+.gitlab/project.conf applied, and drop v1.0 merged into develop through
+vendor/prime (merge request !1). Issue #1 asks Bob for lesson 10's change.
+Your clone is SANDBOX/work; env.sh makes gl mean perl KIT/bin/gitlab.pl.
+You are Bob. About 40 minutes.
+Task:
+1. Once in each Git Bash window: >
+    cd SANDBOX/work
+    source ../env.sh
+    gl issue list
+    gl issue show 1
+<   The issue is the action item: no change without one.
+2. A branch for this change, from develop (a working copy of the baseline
+   for one change request): >
+    gl flow start feature 1-tag-stationsegment
+<3. Make lesson 10's change in model/physical/stations/Stations.sysml, but
+   type the tag WITHOUT its semicolon, on purpose: @L2Segment
+   Add the import line as in lesson 10. Then: >
+    git add model
+    git commit -m "Tag StationSegment with its level (L2Segment)"
+<4. Push and open the merge request: the change request goes to review. >
+    gl flow finish --title "Tag StationSegment with its level" --description "Closes #1"
+<   The pipeline runs at once and fails: the automatic part of the review.
+5. Read why: >
+    gl mr show 2
+    gl pipeline show N
+<   (N is the pipeline number mr show prints.) Open the grammar job's log
+   at the path it prints: "Stations.sysml:14:9: error: unexpected 'doc'".
+   Try gl mr merge 2: GitLab refuses, "pipeline must succeed".
+6. Fix it on the same branch: add the ";" in Vim, then >
+    git commit -am "Add the missing semicolon"
+    gl flow publish
+    gl mr show 2
+<   The new pipeline passes. A push updates the same merge request. The
+   test count still shows failures: the outline findings drop v1.0
+   brought, within what .ci/outline-max allows, so the job passes.
+7. Approval, the CCB signature: gl mr merge 2 is refused again,
+   "approvals required". Jim approves; then you merge: >
+    gl --as jim mr approve 2
+    gl mr merge 2
+    gl issue show 1
+<   Issue #1 closed itself: the merge request said "Closes #1".
+8. Back to the shared baseline: >
+    git checkout develop
+    gl flow sync
+<Check: a merge request from your feature branch to develop that says
+Closes #1, one red pipeline seen and a green one last, approved by someone
+else, merged; issue #1 closed; develop's Stations.sysml has the tag and
+the import.
+
+------------------------------------------------------------------------------
+Lesson 12: a prime drop                                    *agile-practice-12*
+
+Sandbox: lesson 11's project, later: Bob's tag is merged; DR-5 asked the
+prime for a humidity sensor, and Bob modeled an interim HumiditySensor on
+develop meanwhile; issue #3 asks Tom to take in drop v1.1, just delivered
+to SANDBOX/drops/v1.1. You are Tom, who keeps the vendor branch. About 45
+minutes.
+Task:
+1. cd SANDBOX/work, source ../env.sh, then gl issue show 3: the intake
+   checklist, a receiving inspection for a contract delivery.
+2. What changed, in the prime's own v1 terms, element by element: >
+    perl $KIT/bin/xmi2sysml.pl --delta ../drops/v1.0/tidewater.xmi ../drops/v1.1/tidewater.xmi
+<   7 added, 1 changed, 0 manual: the converter carries all of it.
+3. Bring the drop in. vendor/prime holds only the prime's model, converted
+   with the repository's .ci/layout.map; git merges it into yours like two
+   redlines of one drawing against the drawing both started from: >
+    gl flow vendor ../drops/v1.1 v1.1
+<   It stops on a conflict in model/physical/stations/Stations.sysml: both
+   sides added a humidity sensor at the same place.
+4. vim model/physical/stations/Stations.sysml and /<<<<<<< : each conflict
+   shows yours (HEAD: the interim), the common base (empty) and the
+   prime's (vendor/prime). Upstream first: the prime's model wins. Keep
+   the prime's lines; delete yours and the four marker lines. There are
+   two.
+5. Re-apply the government's edit to the prime's new part: in part def
+   Hygrometer replace the TODO line with @L5Assembly; then :w and >
+    perl $KIT/tools/sysml/model.pl lint
+<6. Finish the merge and open the merge request; it closes the intake and
+   DR-5, because the prime delivered what DR-5 asked for: >
+    git add model
+    git commit --no-edit
+    gl flow finish --title "Prime drop v1.1" --description "Closes #3 and #2"
+<7. The pipeline fails on docs: "docs/ is stale". docs/ is generated from
+   the model and kept in the repository, so a reviewer sees what a change
+   does to the documents. Regenerate it, commit, push: >
+    perl $KIT/tools/sysml/model.pl docs
+    git add docs
+    git commit -m "Regenerate docs for drop v1.1"
+    gl flow publish
+<8. Approval and merge (gl mr merge 4 names who is still needed): >
+    gl --as jim mr approve 4
+    gl mr merge 4
+<Check: drop v1.1 on vendor/prime; a merge request from feature/drop-v1.1
+that closes #3 and #2, green, approved by someone else, merged; on develop
+no conflict markers, no HumiditySensor, the prime's hygrometer in the
+sensor suite, Hygrometer tagged @L5Assembly, Bob's StationSegment tag kept.
+
+------------------------------------------------------------------------------
+Lesson 13: your first baseline                             *agile-practice-13*
+
+Sandbox: lesson 12's project with drop v1.1 merged. You are Tom again:
+the configuration manager prepares baseline-1, the first government
+baseline; Jim, the MBSE lead and systems lead, approves it. (An author
+cannot approve their own merge request, and model/library/Interfaces.sysml
+needs the systems lead's approval: so the one who signs is not the one
+who prepares.) About 30 minutes.
+Task:
+1. cd SANDBOX/work, source ../env.sh.
+2. A release branch holds the baseline candidate while it is checked: >
+    gl flow start release baseline-1
+<3. vim CHANGELOG.md: under the [Unreleased] section and above the line
+   "[Unreleased]: ...", add the baseline's section: what it holds. >
+    ## [baseline-1] -- 2027-01-15
+
+    ### Added
+    - Level tags on StationSegment and Hygrometer (!2, !4)
+
+    ### Prime drops merged
+    - v1.0, 2026-10-02
+    - v1.1, 2027-01-08 (#3); closes DR-5 (#2)
+<   Then: >
+    git commit -am "CHANGELOG: baseline-1"
+    gl flow finish --title "Baseline 1"
+<4. The approvals a baseline needs: run gl mr merge 5 after each line;
+   GitLab names who is still missing (the review rule, then the code
+   owners of what changed since main): >
+    gl --as jim mr approve 5
+    gl --as bob mr approve 5
+    gl mr merge 5
+<5. Tag it, publish the release, open the back-merge to develop: >
+    gl flow released 5 --notes CHANGELOG.md
+<   The tag's message carries a sha256 of docs/; the tag's own pipeline
+   (gl pipeline list) re-checks it: the baseline is reproducible.
+6. Merge the back-merge, so develop holds the baseline too: >
+    gl --as jim mr approve 6
+    gl --as bob mr approve 6
+    gl mr merge 6
+    gl pages
+<   gl pages prints where the model site is; it was rebuilt from develop.
+Check: a release merge request to main, green, approved, merged;
+CHANGELOG.md on main has "## [baseline-1]"; tag baseline-1 on the release
+merge commit, with its checksum; release baseline-1; the back-merge merged
+and develop holding main; the model site rebuilt from develop.
+
 ==============================================================================
 17. VIM BASICS                                            *agile-vim-basics*
 
@@ -2436,5 +2686,124 @@ Save and run drill.pl test on this problem; the result opens in a split.
 :DrillTestAll [SECTION | tN]                                   *:DrillTestAll*
 \da                                                                      *\da*
 drill.pl check: every file you have in the workspace, in a split.
+
+==============================================================================
+21. GITLAB, GITFLOW AND THE PIPELINE                          *agile-gitlab*
+
+The model team's GitLab work from the command line, offline or against a
+server. gitlab.pl talks to a GitLab server (--url, with a token) or to the
+offline emulator in a folder (--local DIR), which behaves like GitLab: it
+enforces protected branches and tags, code-owner approvals and "pipelines must
+succeed", runs the project's .gitlab-ci.yml, and merges with real merge
+commits. Everything here is core Perl and needs only Git for Windows.
+Guide: docs/GITLAB.html. Messages: |agile-errors-gitlab|.
+
+gitlab.pl                                                     *agile-gitlab-pl*
+    perl bin/gitlab.pl [--url URL [--token-env VAR] | --local DIR]
+                       [--project GROUP/NAME] [--as USER] [--now ISO] [--dry-run] COMMAND
+setup FILE              apply a project file (tools/gitlab/templates/project.conf):
+                        settings, members, labels, sprints, protected branches
+                        and tags, approval rules, variables, schedules; safe to
+                        run again
+setup --diff FILE       compare the project file with the live project, read
+                        only; prints each difference; exit 1 on drift
+sprints START COUNT     "Sprint N" milestones, two weeks each (--weeks, --prefix)
+issue new|list|show|close|reopen|note|link|label    issues; new takes
+                        --template NAME (from .gitlab/issue_templates); notes
+                        may carry quick actions (/label, /milestone, /estimate)
+mr new|list|show|approve|merge|note|resolve         merge requests; show prints
+                        the pipeline, approvals and the report widgets
+pipeline run|list|show  pipelines and their jobs
+tag, release            annotated tags (protected baseline-* need a maintainer)
+                        and releases with Markdown notes
+wiki put|list|show      wiki pages from Markdown files
+export DIR              CSVs for status metrics: ci_jobs, mrs, issues, defects,
+                        tracker/sprint-N
+package put|get|list    the Generic Package Registry (prime drops, baselines),
+                        checked by sha256
+pages, env              where the GitLab Pages model site is; environments and
+                        deployments
+schedule new|list|run|delete|due|next   cron pipeline schedules; next previews a
+                        cron line: schedule next "0 2 * * 1-5" --tz America/New_York
+analytics               value stream, DORA in model terms, CI/CD, merge request
+                        and issue analytics, from data any tier exposes
+                        (--by sprint|week|month, --csv DIR)
+trigger new|list|run    pipeline trigger tokens (the prime's Jenkins starts the
+                        intake pipeline with DROP_VERSION)
+token deploy new|list   deploy tokens limited to scopes, with an expiry date
+user USERNAME           create a user (emulator, or an admin token)
+ci                      run the pipeline locally: |agile-gitlab-ci|
+flow                    gitflow in a clone: |agile-gitlab-flow|
+help [COMMAND]          the full option list of one command
+--dry-run prints each request that would change something and changes
+nothing; reads still answer (both backends; flow refuses it). Environment:
+GITLAB_URL, GITLAB_LOCAL, GITLAB_PROJECT, GITLAB_USER, GITLAB_TOKEN.
+
+gitlab.pl flow                                              *agile-gitlab-flow*
+Gitflow for the model repository: main holds released baselines, develop is
+the integration branch (GitLab's default branch), work happens on feature/
+branches, baselines on release/ branches, fixes to a baseline on hotfix/
+branches, and every prime drop lands on vendor/prime, never edited by hand.
+flow init                     develop from main
+flow start feature|release|hotfix NAME   a branch from develop (hotfix: main)
+flow publish                  push the current branch
+flow finish [--title T] [--template NAME] [--label L]...   push and open the
+                              merge request (feature -> develop; release and
+                              hotfix -> main)
+flow released IID             after a release merge request merged: tag main
+                              (the docs' sha256 in the message), release,
+                              back-merge merge request to develop
+flow vendor DROPDIR VERSION [--layout-map FILE]   commit the converted prime
+                              drop on vendor/prime and merge it into
+                              feature/drop-VERSION; conflicts are listed
+flow take ours|theirs PATH... resolve conflicted files wholesale
+flow sync                     fetch; fast-forward local main and develop
+
+gitlab.pl ci                                                  *agile-gitlab-ci*
+    perl bin/gitlab.pl ci [--file .gitlab-ci.yml] [--event push|merge_request_event|tag|schedule|web|trigger]
+                          [--branch B] [--target B] [--tag T] [--var K=V]... [--job NAME]... [--manual] [--list]
+Runs the project's pipeline here, offline, choosing jobs as GitLab would for
+that event (rules, only/except, workflow, extends, local includes); --list
+shows the jobs and why the others are skipped, without running anything.
+Includes of GitLab's own templates and of other projects are listed as
+"runs on GitLab only".
+
+ci/job.pl                                                    *agile-ci-job*
+    perl ci/job.pl NAME
+Every job of the model pipeline is one line, perl ci/job.pl NAME, so the same
+.gitlab-ci.yml runs under PowerShell, Git Bash and Docker. Jobs: grammar,
+lint, outline, todo, secrets, trace, vcrm, recipe, complexity, docs, delta,
+drop-package, intake, baseline, publish-package, publish-release, pages,
+status, sil-regression, hil-test. It finds the kit through the CI/CD variable
+KIT and checks it against .kit-version. The trace, outline and complexity
+jobs are ratchets: a merge request fails only when it makes things worse.
+
+kickoff.pl                                                   *agile-kickoff*
+    perl tools/gitlab/kickoff.pl doctor [--quick] [--fix]
+    perl tools/gitlab/kickoff.pl scaffold DIR [--project G/N] [--title T] [--levels L1A,L2B,...]
+    perl tools/gitlab/kickoff.pl start [--yes] [--local DIR | --url URL] [--drop DIR --version V] [--from N]
+Week zero for a model team. doctor checks the laptop (Perl, git and its
+settings, Vim, curl, a quick self-test, GitLab, an SSH key) and prints the fix
+for each problem; --fix sets only the recommended git settings. scaffold makes
+the model repository from tools/gitlab/templates in an empty folder. start
+runs the week-zero steps in order, each only with --yes.
+
+talk.pl                                                         *agile-talk*
+    perl tools/gitlab/talk.pl standup --as USER | review --sprint N | weekly | translate FILE
+Drafts words from GitLab and the journal, never posts: a terse Y/T/B line
+(outcome first, one number), a sprint-review demo script with the four
+headline numbers, a weekly note for management, or a jargon list with "so
+what?" flags for a draft you wrote.
+
+ci-reports.pl, req-recipe.pl, memo-build.pl                 *agile-team-tools*
+    perl tools/gitlab/ci-reports.pl grammar|lint|outline|todo|trace [--junit F] [--codequality F] [--metrics F] LOG
+    perl tools/sysml/req-recipe.pl [--format text|csv|junit|codequality] [--strict] INPUT...
+    perl tools/memo/memo-build.pl [--check] FILE.md...
+ci-reports turns a checker's output into GitLab's merge-request reports.
+req-recipe grades requirement statements against the requirement recipe (the
+18-part single sentence) in .sysml, DOORS or text. memo-build renders a memo
+written from the templates in tools/gitlab/templates/memos/ (through
+md2memo.pl, |agile-memo|) and reports blanks still to fill.
+
 
  vim:tw=78:ts=8:ft=help:norl:

@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-66 Learn: reviewing a model change; the: 2 of 3 tasks done. T TW-70 open DR-1 to DR-4, by Nov 27. B none
+[9:02 AM] Bob
+Y TW-66 Learn: reviewing a model change; the: 2 of 3 tasks done. T TW-67 level tags in Stations, by Nov 27. B none
+[9:03 AM] Tom
+Y none T TW-69 remove the ServiceVessel -> Technician dependency, by Nov 27. B none

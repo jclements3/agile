@@ -1,0 +1,206 @@
+== Checklists {#checklists}
+
+Every checklist in the book, in the order the work meets them. Print the ones you use; tick them in a GitLab issue
+comment (paste the lines as `- [ ]` items) when the record matters. Each names the chapter that explains it.
+
+=== Week zero {#checklist-week0}
+
+From [[directive]] and [[gitlab-setup]].
+
+::: checklist Before sprint 1
+[ ] Ask the enterprise GitLab administrators for the group, the project, the accounts and a runner (lead time: about a week)
+[ ] Book the security officer (ISSM) for a toolchain briefing in sprint 2
+[ ] Check every laptop: Git for Windows (Git Bash, Perl), Vim, the kit at the agreed tag; `perl tests/run.pl` passes
+[ ] Agree the scorecard with management: measures, how each is computed, targets, old-way baselines; signed
+[ ] Ask the prime for stable `xmi:id`s across drops and a `MANIFEST.txt` with checksums in each drop
+[ ] Log the first drop's delivery against its CDRL; store it on approved storage; do nothing else with it yet
+[ ] Put stand-ups, planning, refinement, review and retrospective in the calendar for the whole quarter
+[ ] Enter holidays and planned leave, so the first capacity is honest
+[ ] Make the journal project: `daily.pl init`, `daily.pl roster add ...` for each person
+:::
+
+=== Project set-up {#checklist-setup}
+
+From [[gitlab-setup]] and [[tools]].
+
+::: checklist The GitLab project, first day
+[ ] `project.conf` written: settings, members, branches, tags, labels, sprints, approvals, variables (no secret values)
+[ ] `gitlab.pl --dry-run setup project.conf` reviewed, then applied
+[ ] Default branch is `develop`; merge method is merge commit; squash never; pipelines must succeed; discussions must be resolved
+[ ] `main` and `develop` protected: push allowed to no one, force push off, code owner approval on (Premium)
+[ ] `vendor/prime` protected: push by maintainers, merge by no one
+[ ] `baseline-*` tags protected: created by maintainers only
+[ ] `CODEOWNERS`, issue templates and MR templates committed through the first MR
+[ ] Runner registered on a dedicated machine (project runner, tags, service account without admin rights, `core.longpaths`, antivirus exclusion for the builds folder) and a first job has run
+[ ] `.gitlab-ci.yml` with grammar, lint and outline jobs; a deliberately broken MR has been seen to fail and be blocked
+[ ] Board with workflow columns; sprint milestones two sprints ahead
+[ ] Wiki: Home, Definition of Ready, Definition of Done, Glossary
+:::
+
+=== The sprint {#checklist-sprint}
+
+From [[operating-model]] and [[ceremonies]].
+
+::: checklist Kickoff and planning (day 1)
+[ ] Last sprint's carryover discussed, not just moved
+[ ] Capacity per person from the calendar (holidays, leave, training); `cap` in the stand-up file
+[ ] The sprint goal written in one sentence, in the milestone description
+[ ] Stories pulled in priority order until about 85 to 95 percent of capacity
+[ ] Every pulled story meets the Definition of Ready; every task is 5 points or fewer
+[ ] Estimates settled by `#est` rounds in the chat; outliers explained before a re-vote
+[ ] `commit` lines in the stand-up file; issues moved to the sprint milestone and `workflow::ready`
+[ ] The board shows only this sprint's milestone
+:::
+
+::: checklist Daily stand-up (15 minutes)
+[ ] First question: is `develop` green? If not, fixing it comes first
+[ ] Each person posts one terse line: Yesterday, Today, Blockers, with story ids
+[ ] `daily.pl lint` while people are still on the call; replies pasted back for any status it flags
+[ ] Blockers named, owners agreed; the discussion happens after the stand-up
+[ ] After the call: `daily.pl answers`, confirm the suggested lines, `daily.pl compile`, `daily.pl commit`
+:::
+
+::: checklist Refinement (day 9)
+[ ] New work entered as stories (`new` lines and issues from the Story template)
+[ ] Each candidate story checked against the Definition of Ready; tasks cut to 5 points or fewer
+[ ] `#est` rounds for anything not yet sized
+[ ] Stale stories pruned with a reason
+[ ] Dependencies on the prime or another story linked
+[ ] The next sprint's top stories labelled `workflow::ready`
+:::
+
+::: checklist Review and demo (day 10)
+[ ] Demonstrate from the real system: the merged MRs, a pipeline with its widgets, the model site, the trace
+[ ] Show the scorecard, every agreed measure, including the bad ones
+[ ] Record management's feedback as issues, not as notes
+[ ] Close the stories that meet the Definition of Done; the rest carry over with a reason
+:::
+
+::: checklist Retrospective (day 10)
+[ ] The pulse survey (five questions, 1 to 5), anonymous
+[ ] Start, stop, continue: one change the team will actually make next sprint, written as a story or a rule
+[ ] The monthly pitfall check ([[pitfalls-checklist]]) once a month
+[ ] Last retrospective's change: did it happen?
+:::
+
+::: checklist Weekly communication (Friday)
+[ ] `daily.pl quad` reviewed and sent: priorities, watch items, milestones, accomplishments
+[ ] The scorecard numbers refreshed from the export, not typed
+[ ] Anything management must decide is stated as a decision with a date
+:::
+
+=== A change {#checklist-change}
+
+From [[git]], [[pipeline]] and [[templates]].
+
+::: checklist Author, for every task
+[ ] Branch from up-to-date `develop`: `gitlab.pl flow start feature IID-slug`
+[ ] Converter output edited in place and minimally; government-only content in files the converter never writes (`model/library/conventions/` and the like)
+[ ] `\mx` on each edited file, `\ml` on the model, `gitlab.pl ci --event merge_request_event --target develop` before pushing
+[ ] `docs/` regenerated (`\md`) and committed
+[ ] Commit messages: imperative subject under 72 characters, the why, a `Changelog:` trailer
+[ ] MR from the Default template: what and why, `Closes #task`, model changes, checks ticked
+[ ] Pipeline green on the merged result; every discussion answered
+:::
+
+::: checklist Reviewer, for every MR
+[ ] The change matches the task; nothing unrelated is in it
+[ ] Every closed TODO line is replaced by the construct that closes it
+[ ] No requirement text changed outside a drop
+[ ] Pipeline green; JUnit and code quality widgets show no new failures; TODO count did not rise without a task
+[ ] Trace: no new orphan, unverified or drifted requirement, or a DR is linked
+[ ] Comments are resolvable and specific; suggestions used for small fixes
+[ ] Approve only what you would sign
+:::
+
+=== A prime drop {#checklist-drop}
+
+From [[maintenance]] and [[qrg-port]].
+
+::: checklist Drop intake (one story, finished in the sprint it arrives)
+[ ] Files in a dated folder outside the repository; every sha256 matches `MANIFEST.txt`
+[ ] Prime Drop issue opened from the template in the current sprint
+[ ] Files uploaded to the package registry (`prime-drop`, the version)
+[ ] `gitlab.pl flow vendor DROPDIR VERSION`: `vendor/prime` committed and pushed, `feature/drop-VERSION` started
+[ ] `xmi2sysml.pl --delta OLD NEW` read; each *manual* line is a task
+[ ] Each conflict resolved by taking the vendor side and re-applying the government edit; listed in the MR
+[ ] No conflict markers left; grammar, lint 0/0 and outline pass
+[ ] Trace read: DRs fixed by this drop closed, new gaps raised as DRs
+[ ] MR from the Prime Drop template, approved by a code owner, merged; `CHANGELOG.md` updated
+[ ] Drop latency (delivery to merged) recorded
+:::
+
+::: checklist Discrepancy report to the prime
+[ ] Facts only: what the model says, what DOORS says, what the trace or delta printed
+[ ] The v1 element's qualified name and `xmi:id`; the DOORS id
+[ ] One requested change, specific enough to verify in the next drop
+[ ] Severity set; sent through the contract channel; the prime's tracking number recorded
+[ ] Closed only by the intake issue of the drop that fixes it
+:::
+
+=== A baseline and a hotfix {#checklist-baseline}
+
+From [[maintenance]].
+
+::: checklist Baseline
+[ ] Content decided: which drops and stories are in; the rest moved to the next milestone
+[ ] `gitlab.pl flow start release baseline-N`; only release fixes on the branch
+[ ] `CHANGELOG.md` [Unreleased] moved under the baseline heading; docs regenerated
+[ ] Release MR from the template: content, accepted gaps listed and accepted by the model lead
+[ ] Merged into `main`; `gitlab.pl flow released IID` tags `baseline-N` with the docs hash and opens the back-merge
+[ ] Tag pipeline: the `baseline` job reports that the baseline rebuilds identically
+[ ] Release notes published; project exported and stored; milestones closed
+[ ] Back-merge MR to `develop` merged
+:::
+
+::: checklist Hotfix to a released baseline
+[ ] The defect is in the released baseline and someone depends on it now (otherwise it waits for the next baseline)
+[ ] `gitlab.pl flow start hotfix slug` from `main`; the smallest change that corrects it
+[ ] Hotfix MR to `main`; pipeline green; approved
+[ ] Tagged `baseline-N.1`; the users of baseline-N told
+[ ] The same fix back-merged to `develop`
+:::
+
+=== Administration {#checklist-admin}
+
+From [[admin]]; each is explained there.
+
+::: checklist Onboarding one person
+[ ] Account, project role (the lowest that works), SSH key or token, `CODEOWNERS` if an owner
+[ ] `roster.txt` and the stand-up invitation
+[ ] Onboarding wiki page with a pairing partner; first MR merged within a week
+:::
+
+::: checklist Offboarding one person (the same day)
+[ ] Removed from the project and the group; tokens revoked; readable CI/CD variables rotated
+[ ] Open issues and MRs reassigned; pipeline schedules taken over; `CODEOWNERS`, roster and invitation updated
+:::
+
+::: checklist Monthly
+[ ] Token inventory checked; any token expiring within a month rotated
+[ ] Runner patched (operating system, gitlab-runner matching the server's version, Git for Windows with the laptops, the kit at its tag)
+[ ] Pipeline schedules owned by a current member and passing
+[ ] Container image rebuilt from a pinned base and scanned (only if the Docker image is used)
+[ ] Protection audit: the settings pages match `project.conf` (`setup` re-applied if not); every merge had a passing pipeline and a non-author approval
+[ ] Audit events reviewed (Premium)
+[ ] Project exported to the package registry
+[ ] GitLab release notes read for CI and API changes
+:::
+
+::: checklist Quarterly
+[ ] Access review, inherited memberships included
+[ ] Restore test from the latest export into a scratch project
+:::
+
+=== Before you call the port done {#checklist-port-done}
+
+::: checklist The port's exit criteria
+[ ] TODO count zero, or every remaining TODO has an issue and an accepted reason
+[ ] No duplicate blocks, no package cycles; the clutter has DRs and the prime is removing it upstream
+[ ] Trace: every requirement linked; every orphan, unverified or drifted requirement has a DR
+[ ] Every outline waiver removed; all jobs blocking except those allowed to fail by design, with reasons
+[ ] A baseline tagged on `main` that rebuilds identically
+[ ] At least one prime drop taken through the full intake cycle after the first import
+[ ] Every runbook followed at least once by someone other than its author
+[ ] The scorecard reported every sprint, including the bad sprints
+:::

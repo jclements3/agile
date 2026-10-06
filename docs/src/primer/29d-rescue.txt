@@ -1,0 +1,288 @@
+== Rescue: when something goes wrong {#rescue}
+
+::: survival Before you panic
+What you have: a mistake. A commit on the wrong branch, a merge full of conflict markers, a red pipeline, a Vim
+window that says a swap file exists. Perhaps a sinking feeling.
+
+What you need: the one recipe for this mistake, and the reassurance that nearly everything here can be undone. Every
+recipe in this appendix was run, start to finish, in a sandbox when this book was built: first the mess is made, then
+it is cleaned up.
+:::
+
+=== Three facts that make mistakes cheap {#rescue-facts}
+
+**Your clone is yours.** Until you push, nothing you do on your laptop reaches anyone else. A wrong commit, a bad
+merge, a deleted branch: all of it is local, and all of it can be put back.
+
+**Git almost never forgets.** Every commit you have made in the last few months is still in your clone, even after a
+reset or a deleted branch, and `git reflog` lists where your branch has been. Losing work in git takes real effort.
+
+**The protected branches protect you too.** Nobody can push straight to `develop` or `main`; changes reach them only
+through a merge request that passed the pipeline and a review. So the worst a slip on your laptop can do is make a red
+merge request, which is what merge requests are for.
+
+The one thing that is hard to undo is a secret (a token, a password) that reached GitLab. That has its own recipe,
+and the first step is a phone call, not a git command ([[rescue-secret]]).
+
+=== The practice set-up {#rescue-setup}
+
+The recipes below share one sandbox: a bare repository standing in for GitLab, and a clone of it called `work` with
+`main` and `develop`. To follow along, make an empty folder, open Git Bash in it, and type this first.
+
+```sh run sandbox=scratch expect="develop"
+git init -q --bare gitlab.git
+git clone -q gitlab.git work 2>/dev/null
+cd work
+git switch -q -c main
+printf 'package Stations {\n    part def Hull;\n    part def Mooring;\n}\n' > Stations.sysml
+git add Stations.sysml
+git commit -q -m "Start the Stations package"
+git push -q -u origin main
+git switch -q -c develop
+git push -q -u origin develop
+git branch -a
+```
+
+Every recipe below starts with `cd work`, because each one is typed in a fresh Git Bash window.
+
+=== "I committed to develop by mistake" {#rescue-committed-develop}
+
+You meant to start a feature branch, forgot, and committed on `develop`. You have not pushed (you could not: the
+branch is protected). The fix is two moves: make a branch where you are, which keeps the commit, then put `develop`
+back where GitLab has it.
+
+```sh run expect="feature/7-add-mast. Add the Mast"
+cd work
+printf 'package Stations {\n    part def Hull;\n    part def Mooring;\n    part def Mast;\n}\n' > Stations.sysml
+git commit -q -am "Add the Mast"
+git switch -q -c feature/7-add-mast
+git switch -q develop
+git reset -q --hard origin/develop
+git log --oneline -1 --decorate feature/7-add-mast
+git status --short --branch
+```
+
+`git reset --hard origin/develop` moves your local `develop` to match GitLab's and throws away uncommitted changes, so
+make the branch first. If you had uncommitted edits too, commit them on the new branch before you switch back.
+
+::: tip The habit that prevents it
+Start every piece of work with `gitlab.pl flow start feature NN-words` or `git switch -c feature/NN-words`. Your
+shell prompt in Git Bash shows the branch in brackets; glance at it before `git commit`.
+:::
+
+=== "I want my last commit back as edits" {#rescue-uncommit}
+
+The commit was premature: the message is wrong, or you want to add one more file. `git reset --soft` takes the
+commit away and leaves its changes staged, ready to commit again.
+
+```sh run expect="Changes to be committed"
+cd work
+git switch -q feature/7-add-mast
+git reset --soft HEAD~1
+git status
+```
+
+```sh run expect="Add the Mast part def"
+cd work
+git commit -q -m "Add the Mast part def to Stations"
+git log --oneline -1
+```
+
+Only do this to commits you have not pushed. Once a commit is on GitLab, add a new commit instead of rewriting the
+old one.
+
+=== "I am editing on the wrong branch" {#rescue-wrong-branch}
+
+You started editing, then noticed the prompt says `develop`. If the right branch does not exist yet, `git switch -c`
+takes your uncommitted edits with it. If it does exist, park the edits with `git stash`, switch, and bring them back.
+
+```sh run expect="On branch feature/8-hull-doc"
+cd work
+git switch -q develop
+printf 'package Stations {\n    part def Hull { doc /* The floating body. */ }\n    part def Mooring;\n}\n' > Stations.sysml
+git stash -q
+git switch -q -c feature/8-hull-doc
+git stash pop -q
+git status
+```
+
+=== "I lost a commit" {#rescue-reflog}
+
+You ran a reset you did not mean, or deleted a branch, and a commit seems to be gone. It is not. `git reflog` lists
+every place your `HEAD` has been; `HEAD@{1}` is "where I was one move ago".
+
+```sh run expect="Recovered: [0-9a-f]+ Document the hull"
+cd work
+git switch -q feature/8-hull-doc
+git commit -q -am "Document the hull"
+git reset -q --hard HEAD~1
+git log --oneline -1
+git reflog -3
+git reset -q --hard HEAD@{1}
+echo "Recovered: $(git log --oneline -1)"
+```
+
+If the lost commit is further back, read down the `git reflog` list until you see its message, and use its hash:
+`git branch rescue 1a2b3c4` makes a branch that points at it, without moving anything else.
+
+=== "The merge is full of conflicts and I want out" {#rescue-merge-abort}
+
+A merge stopped with `CONFLICT` and the file is full of `<<<<<<<` markers. If you are not ready to resolve them now,
+you do not have to: `git merge --abort` puts everything back exactly as it was before the merge.
+
+```sh run expect="nothing to commit, working tree clean"
+cd work
+git switch -q develop
+git switch -q -c feature/10-hull-name
+sed -i 's/part def Hull;/part def HullBody;/' Stations.sysml
+git commit -q -am "Rename Hull to HullBody"
+git switch -q develop
+git switch -q -c feature/11-hull-tag
+sed -i 's/part def Hull;/part def Hull { @L4Assembly; }/' Stations.sysml
+git commit -q -am "Tag the hull"
+git merge feature/10-hull-name || echo "the merge stopped"
+git status --short
+git merge --abort
+git status
+```
+
+When you are ready, resolving the conflict is described in [[vim]]: pick the right text between the markers, delete
+the markers, `git add` the file, `git commit`.
+
+=== "I merged, and it was the wrong thing" {#rescue-orig-head}
+
+The merge finished, but it should not have happened: the wrong branch, or a resolution you regret. Before you push,
+`ORIG_HEAD` remembers where you were before the merge.
+
+```sh run expect="before the merge: [0-9a-f]+ Tag the hull"
+cd work
+git switch -q feature/11-hull-tag
+git merge -q --no-edit main
+git reset -q --hard ORIG_HEAD
+echo "before the merge: $(git log --oneline -1)"
+```
+
+=== "A change on develop is wrong" {#rescue-revert}
+
+This is the one case where the mistake has already been reviewed and merged. Nobody rewrites `develop`: you make a
+new change that undoes the old one, and it goes through a merge request like any other. `git revert -m 1` undoes a
+merge commit (the `-m 1` says "keep the side that was develop").
+
+```sh run expect="part def Hull;"
+cd work
+git switch -q develop
+git merge -q --no-ff --no-edit feature/10-hull-name
+merged=$(git rev-parse HEAD)
+git switch -q -c feature/12-revert-hull-rename
+git revert -m 1 --no-edit "$merged" >/dev/null
+grep "part def Hull" Stations.sysml
+```
+
+(The local `develop` was used here as a stand-in for what GitLab did when it merged the merge request. On the real
+project, start from `origin/develop` after `git pull`.) In the merge request, say what was wrong and link the original
+one. GitLab also has a **Revert** button on a merged merge request that does the same thing.
+
+=== "The pipeline is red" {#rescue-red-pipeline}
+
+A red pipeline is not a mistake; it is the safety net working. Read the first failed job's log from the top down to
+the first line that says `error`: it names the file and line. Reproduce it on your laptop, fix it, and push a new
+commit to the same branch. The merge request picks it up and the pipeline runs again.
+
+```sh run exit=1 expect="Broken.sysml:3:5: error: unexpected 'part'"
+cd work
+printf 'package Broken {\n    part def Hull\n    part def Mast;\n}\n' > Broken.sysml
+perl "$KIT/tools/sysml/sysml.pl" check Broken.sysml
+```
+
+The message points at line 3 because that is where the parser noticed; the missing `;` is at the end of line 2. That
+is common: when the error line looks fine, look at the line above.
+
+```sh run expect="1 file.s., 0 error.s."
+cd work
+sed -i 's/part def Hull$/part def Hull;/' Broken.sysml
+perl "$KIT/tools/sysml/sysml.pl" check Broken.sysml
+rm Broken.sysml
+```
+
+Never force-push a branch other people have, and never delete and re-open a merge request to "get a clean
+pipeline": the history of the red run is part of the record. [[model-errors]] lists the messages you will meet and
+their fixes.
+
+=== "I changed a file I should not have" {#rescue-restore}
+
+You opened a converter-written file "just to look" and reformatted it, or a search-and-replace went too far.
+`git restore` puts the file back as it was in your last commit; `git restore --staged` unstages it without touching
+your edits.
+
+```sh run expect="^## feature/12-revert-hull-rename$"
+cd work
+printf '\n// a stray edit\n' >> Stations.sysml
+git restore Stations.sysml
+git status --short --branch
+```
+
+=== "My clone is a mess" {#rescue-fresh-clone}
+
+Untracked files everywhere, branches you no longer understand. First look without deleting: `git clean -n` lists the
+untracked files it would remove. When you are sure, `git clean -fd` removes them. If the whole clone has become
+confusing, keep it aside and clone again; your pushed work is all on GitLab.
+
+```sh run expect="On branch develop"
+mv work work-confusing
+git clone -q gitlab.git work
+cd work
+git switch -q develop
+git status
+```
+
+=== "I pushed a secret" {#rescue-secret}
+
+A token, a password or a private key reached GitLab in a commit. The pipeline's `secrets` job may have told you, or a
+reviewer did. The order matters:
+
+1. **Tell the security owner now** (on Tidewater, Tom, with the ISSM). Do not wait until you have fixed it.
+2. **Rotate the secret**: revoke the token in GitLab, change the password. This is the fix. Anything you do to the
+   repository afterwards only tidies up, because a secret that was pushed must be treated as seen.
+3. **Remove it from the branch** before the merge request merges: amend or rewrite your own feature branch, with the
+   security owner watching, and put the new value in a masked CI/CD variable ([[tools]]).
+4. If it already merged to a protected branch, a maintainer and the security owner decide together whether the
+   history is rewritten; that is never a solo decision.
+
+Marked information pushed to the wrong place (spillage) follows the same first step, and then the program's spillage
+procedure: stop, notify, contain, and do not delete history yourself ([[security]]).
+
+=== "Vim says a swap file exists" {#rescue-vim-swap}
+
+Vim keeps a swap file (`.Stations.sysml.swp`) while a file is open, so that a crash or a closed laptop lid does not
+lose your edits. When you open the file again, Vim warns that the swap file exists and offers choices:
+
+- **[R]ecover** if Vim crashed or the window was closed: your unsaved edits come back. Check them, `:w` to save, then
+  quit and open the file again, answer **[D]elete** to remove the old swap file.
+- **[E]dit anyway** or **[Q]uit** if the file is open in another window right now: go back to that window instead.
+
+From the shell, `vim -r` lists the swap files Vim can recover. Inside Vim, `u` undoes, `Ctrl-R` redoes, and
+`:earlier 10m` takes the buffer back to how it was ten minutes ago, which rescues most "I deleted the wrong block"
+moments without git at all.
+
+=== "I broke a practice lesson" {#rescue-practice}
+
+The practice lessons ([[commands]]) are sandboxes; breaking them is allowed. Reset the lesson and set it up again.
+
+```sh run expect="removed .*lesson10"
+perl "$KIT/agile.pl" practice 10 --dir lessons >/dev/null
+perl "$KIT/agile.pl" practice reset 10 --dir lessons
+```
+
+Without `--dir`, the lessons live in the kit's `data/practice/` folder and `perl agile.pl practice reset N` removes
+them there.
+
+=== When to ask for help {#rescue-ask}
+
+Ask at once, without trying another command, when:
+
+- the mistake involves a secret or marked information;
+- you are about to use `--force` with `git push`, or to delete a branch other people use;
+- a recipe here did not do what it says (that is a bug in this book or the kit, and the team wants to know).
+
+On Tidewater, asking was a stand-up sentence: "B TW-21 my clone of the model is tangled after the drop merge; need: ten
+minutes with Tom after stand-up." It took nine minutes, and Tom wrote the fix down as a new recipe.

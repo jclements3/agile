@@ -5,6 +5,7 @@
 #   perl bin/reqif2sysml.pl --report export.reqif                     # counts only
 #   perl bin/reqif2sysml.pl --out model export.reqif                  # writes model/<segment>/<Module>.sysml
 #   perl bin/reqif2sysml.pl --out model --layout '_reqs/{pkg}.sysml' export.reqifz
+#   perl bin/reqif2sysml.pl --out model --layout-map layout.map export.reqif   # DOORS module -> folder: 'System Requirements = requirements/system/'
 #   perl bin/reqif2sysml.pl --report --model model export.reqif       # + linked / orphan / unverified against model/
 #   perl bin/reqif2sysml.pl --csv --col id='Object Identifier' --col text='Object Text' --col level='Object Level' \
 #        --col vm='Verification Method' --out model module.csv
@@ -23,13 +24,14 @@ use lib "$FindBin::Bin/../lib";
 use Getopt::Long qw(GetOptions);
 use File::Path qw(make_path);
 use Reqif;
+use SysmlText ();
 
 my %o = (layout => '{seg}/{pkg}.sysml', 'req-style' => 'usage', col => {}, attr => []);
-GetOptions(\%o, 'out=s', 'layout=s', 'report', 'stdout', 'req-style=s', 'name=s', 'check', 'csv', 'col=s%', 'sep=s',
+GetOptions(\%o, 'out=s', 'layout=s', 'layout-map=s', 'report', 'stdout', 'req-style=s', 'name=s', 'check', 'csv', 'col=s%', 'sep=s',
            'id-attr=s', 'vm-attr=s', 'text-attr=s', 'heading-attr=s', 'id-prefix=s', 'attr=s@', 'model=s', 'help|h')
     or exit 2;
 if ($o{help} || @ARGV != 1) {
-    print STDERR "usage: reqif2sysml.pl [--report] [--model DIR] [--out DIR [--layout '{seg}/{pkg}.sysml'] | --stdout]\n"
+    print STDERR "usage: reqif2sysml.pl [--report] [--model DIR] [--out DIR [--layout '{seg}/{pkg}.sysml' | --layout-map FILE] | --stdout]\n"
                . "                      [--csv [--col id=NAME --col text=NAME --col heading=NAME --col level=NAME --col vm=NAME] [--sep C]]\n"
                . "                      [--req-style usage|def] [--id-attr NAME] [--vm-attr NAME] [--id-prefix P] [--attr NAME]... FILE\n";
     exit($o{help} ? 0 : 2);
@@ -40,7 +42,9 @@ my %lo = (id_attr => $o{'id-attr'}, vm_attr => $o{'vm-attr'}, text_attr => $o{'t
           id_prefix => $o{'id-prefix'}, name => $o{name}, sep => (defined $o{sep} && $o{sep} eq '\t' ? "\t" : $o{sep}), cols => $o{col});
 my $d = eval { ($o{csv} || $file =~ /\.csv$/i) ? Reqif::load_csv($file, %lo) : Reqif::load_reqif($file, %lo) };
 if (!$d) { print STDERR "reqif2sysml: $@"; exit 2 }
-my $out = Reqif::convert($d, req_style => $o{'req-style'}, layout => $o{layout}, name => $o{name}, extra_attrs => $o{attr});
+my $lm;                                       # --layout-map: DOORS module -> folder (or file), the same for every drop
+if (defined $o{'layout-map'}) { $lm = eval { SysmlText::read_layout_map($o{'layout-map'}) }; if (!$lm) { print STDERR "reqif2sysml: --layout-map $@"; exit 2 } }
+my $out = Reqif::convert($d, req_style => $o{'req-style'}, layout => $o{layout}, name => $o{name}, extra_attrs => $o{attr}, layout_map => $lm);
 my $files = $out->{files};
 my $bad = @{ $out->{problems} } ? 1 : 0;
 if ($o{out}) {
@@ -69,6 +73,7 @@ if ($o{report}) {
         $out->{report}{objects}, $c->{requirements}, $c->{with_vm}, $c->{headings}, $out->{report}{relations}, scalar keys %$files,
         @{ $out->{problems} } ? scalar(@{ $out->{problems} }) . ' problem(s)' : 'ok';
     print STDERR "  $_\n" for @{ $out->{problems} };
+    print STDERR "  $_\n" for @{ $out->{report}{layout} || [] };
     print STDERR Reqif::trace_text(Reqif::trace($d, $out, $o{model})) if $o{model};
 } elsif ($o{model}) {
     print Reqif::report_text($out), Reqif::trace_text(Reqif::trace($d, $out, $o{model}));

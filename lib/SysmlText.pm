@@ -11,6 +11,12 @@ package SysmlText;
 #       style 'def'  : requirement def NAME { doc; attribute doorsId = "..."; ... }  (multi-line)
 #       style 'usage': requirement NAME { doc /* ... */ attribute doorsId = "..."; ... }  (one line: the form
 #                      bin/status-metrics.pl's parse_model counts)
+#   read_layout_map($path) -> { map => { package => target }, default => target|undef, order => [keys] }; dies "FILE:LINE: ..."
+#   layout_path($lm, $package, $file_part, $fallback) -> (path, note|undef)
+#       a layout map pins each top-level package (or DOORS module) to a path, the same for every drop:
+#           Stations = physical/stations/          # a folder: physical/stations/Stations.sysml
+#           Requirements = requirements/model/Cameo.sysml   # an exact file
+#           * = other/                             # packages not listed (else the converter's own layout)
 #   check({ path => text, ... }) -> [ "path:line: problem", ... ]
 #       balanced braces/brackets/parens, terminated comments/strings/names, and every referenced type, specialized
 #       definition, satisfy/verify target, connect/bind end head and import resolves to a name declared somewhere in
@@ -19,7 +25,7 @@ package SysmlText;
 use strict;
 use warnings;
 
-our @EXPORT = qw(name ident str doc requirement check is_keyword);
+our @EXPORT = qw(name ident str doc requirement check is_keyword read_layout_map layout_path);
 sub import {
     my ($class, @want) = @_;
     my $caller = caller;
@@ -228,6 +234,39 @@ sub check {
     }
     my %seen;
     return [ grep { !$seen{$_}++ } @bad ];
+}
+
+# ---------------------------------------------------------------- layout maps
+sub read_layout_map {
+    my ($path) = @_;
+    open my $fh, '<', $path or die "$path: $!\n";
+    my (%map, @order, $default);
+    my $n = 0;
+    while (my $l = <$fh>) {
+        $n++;
+        $l =~ s/\r?\n\z//;
+        $l =~ s/(?:^|\s)#.*//;
+        next unless $l =~ /\S/;
+        my ($k, $v) = $l =~ /^\s*(.*?)\s*=\s*(.*?)\s*$/ or die "$path:$n: expected PACKAGE = folder/ or PACKAGE = folder/File.sysml\n";
+        $k =~ s/^'(.*)'$/$1/; $k =~ s/^"(.*)"$/$1/;
+        die "$path:$n: no package name before '='\n" if $k eq '';
+        die "$path:$n: no path after '=' for $k\n" if $v eq '';
+        die "$path:$n: $v: give a path relative to the output folder, without '..'\n" if $v =~ m{^/|^[A-Za-z]:|(?:^|/)\.\.(?:/|$)|\\};
+        die "$path:$n: $v: a file must end in .sysml (or end the folder with /)\n" if $v !~ m{/$} && $v !~ /\.sysml$/;
+        if ($k eq '*') { die "$path:$n: '*' must be a folder (end it with /)\n" unless $v =~ m{/$}; $default = $v; next }
+        die "$path:$n: $k is mapped twice\n" if exists $map{$k};
+        $map{$k} = $v; push @order, $k;
+    }
+    close $fh;
+    return { path => $path, map => \%map, default => $default, order => \@order };
+}
+sub layout_path {                               # where a top-level package goes: (path, note or undef)
+    my ($lm, $pkg, $pf, $fallback) = @_;
+    return ($fallback, undef) unless $lm;
+    my $v = $lm->{map}{$pkg};
+    return ($v =~ m{/$} ? "$v$pf.sysml" : $v, undef) if defined $v;
+    return ("$lm->{default}$pf.sysml", "layout map: $pkg is not listed; written to $lm->{default}$pf.sysml (the * default)") if defined $lm->{default};
+    return ($fallback, "layout map: $pkg is not listed; written to $fallback (the converter's own layout)");
 }
 
 1;

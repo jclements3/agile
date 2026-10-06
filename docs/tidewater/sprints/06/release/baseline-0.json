@@ -1,0 +1,45 @@
+{
+   "_links" : {
+      "self" : "https://gitlab.gov.example.invalid/tidewater/model/-/releases/baseline-0"
+   },
+   "assets" : {
+      "links" : []
+   },
+   "author" : {
+      "username" : "tom"
+   },
+   "commit" : {
+      "id" : "abd882ae60ce5f51c3b0bb94619e7134f654f59b"
+   },
+   "created_at" : "2026-12-24T16:00:00Z",
+   "description" : "Interim baseline for the program review.\n\n- Procured parts as metadata; DataCenter level tags (TW-90)\n- Prune ObservingStation's trace spaghetti (TW-91)\n- Untangle the Legacy Import package (TW-92)\n- The trace job becomes a gate (TW-93)\n- Grade our requirements with the recipe (TW-94)\n- Release rehearsal and a spillage tabletop (TW-95)\n- Learn: memos and briefings from the model (TW-111)\n- Fork, pin and object flow in ObserveCoast (TW-113)\n- Level tags in Operations (TW-114)\n- Data exchange table for the program review (TW-115)\n- VCRM: which requirements are verified, and how (TW-116)\n- Retrospective, the management briefing and the plan for next semester (TW-118)\n\n## Verification\n\n30 requirements, 2 verified (VCRM: vcrm.html and vcrm.csv, kept with this release's pipeline).\n",
+   "evidences" : [
+      {
+         "collected_at" : "2026-12-24T16:00:00Z",
+         "json" : {
+            "milestones" : [],
+            "release" : {
+               "commit" : "abd882ae60ce5f51c3b0bb94619e7134f654f59b",
+               "name" : "Tidewater model baseline-0",
+               "released_at" : "2026-12-24T16:03:13Z",
+               "tag_name" : "baseline-0"
+            },
+            "report" : {
+               "pipeline" : 108,
+               "status" : "success",
+               "tests" : {
+                  "failed" : 0,
+                  "failures" : [],
+                  "skipped" : 43,
+                  "total" : 63
+               }
+            }
+         },
+         "sha" : "ed280882a4cc62d7"
+      }
+   ],
+   "milestones" : [],
+   "name" : "Tidewater model baseline-0",
+   "released_at" : "2026-12-24T16:03:13Z",
+   "tag_name" : "baseline-0"
+}

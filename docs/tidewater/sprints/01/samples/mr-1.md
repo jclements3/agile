@@ -1,0 +1,23 @@
+# !1 CODEOWNERS, issue and MR templates, .gitignore
+
+## What and why
+
+Who approves what, and the shapes of our issues and merge requests. The project has no pipeline yet: .gitlab-ci.yml arrives in sprint 2, and until "pipelines must succeed" is turned on, merges like this one are checked by review only (Jim approves). This MR therefore has no pipeline, on purpose.
+
+Closes #16
+Part of #3
+
+## Checks
+
+- [ ] `gitlab.pl ci` passed locally (no pipeline in the project yet)
+- [ ] `docs/` regenerated and committed (no docs job yet)
+- [x] No new `// TODO` lines
+- [ ] Trace job: no new orphan, unverified or drifted requirement (no trace job yet)
+
+---- thread
+
+**@jim** (2026-10-14T17:00:00Z) [system]:
+approved this merge request
+
+**@tom** (2026-10-14T17:10:00Z) [system]:
+merged

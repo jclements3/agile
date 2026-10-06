@@ -1,0 +1,165 @@
+Meeting started
+[10:00 AM] Jim
+Refinement for sprint 6. Planning poker: one number per story, in points.
+[10:01 AM] Jim
+#est TW-111 Learn: memos and briefings from the model
+[10:02 AM] Jim
+0.5
+[10:02 AM] Bob
+0.5
+[10:02 AM] Tom
+0.5
+[10:03 AM] Jim
+#est TW-112 BuoyModes state machine by hand
+[10:04 AM] Jim
+3
+[10:04 AM] Bob
+3
+[10:04 AM] Tom
+3
+[10:05 AM] Jim
+#est TW-113 Fork, pin and object flow in ObserveCoast
+[10:06 AM] Jim
+1
+[10:06 AM] Bob
+2
+[10:06 AM] Tom
+1
+[10:06 AM] Jim
+1 to 2. Talk it out: what does the high vote know?
+[10:07 AM] Jim
+#est TW-113 Fork, pin and object flow in ObserveCoast
+[10:08 AM] Jim
+1
+[10:08 AM] Bob
+1
+[10:08 AM] Tom
+1
+[10:09 AM] Jim
+#est TW-114 Level tags in Operations
+[10:10 AM] Jim
+1.5
+[10:10 AM] Bob
+1.5
+[10:10 AM] Tom
+1.5
+[10:11 AM] Jim
+#est TW-115 Data exchange table for the program review
+[10:12 AM] Jim
+3
+[10:12 AM] Bob
+3
+[10:12 AM] Tom
+2
+[10:12 AM] Jim
+2 to 3. Talk it out: what does the high vote know?
+[10:13 AM] Jim
+#est TW-115 Data exchange table for the program review
+[10:14 AM] Jim
+2
+[10:14 AM] Bob
+2
+[10:14 AM] Tom
+2
+[10:15 AM] Jim
+#est TW-116 VCRM: which requirements are verified, and how
+[10:16 AM] Jim
+2
+[10:16 AM] Bob
+3
+[10:16 AM] Tom
+3
+[10:16 AM] Jim
+2 to 3. Talk it out: what does the high vote know?
+[10:17 AM] Jim
+#est TW-116 VCRM: which requirements are verified, and how
+[10:18 AM] Jim
+2
+[10:18 AM] Bob
+2
+[10:18 AM] Tom
+2
+[10:19 AM] Jim
+#est TW-117 Interim baseline-0 for the program review
+[10:20 AM] Jim
+2
+[10:20 AM] Bob
+2
+[10:20 AM] Tom
+2
+[10:21 AM] Jim
+#est TW-118 Retrospective, the management briefing and the plan for next semester
+[10:22 AM] Jim
+2
+[10:22 AM] Bob
+2
+[10:22 AM] Tom
+2
+
+---- Chat.pm tallies
+ESTIMATE TW-111 Learn: memos and briefings from the model  (3 answers at 10:01)
+  Bob            0.5
+  Jim            0.5
+  Tom            0.5
+  consensus: 0.5
+
+ESTIMATE TW-112 BuoyModes state machine by hand  (3 answers at 10:03)
+  Bob            3
+  Jim            3
+  Tom            3
+  consensus: 3
+
+ESTIMATE TW-113 Fork, pin and object flow in ObserveCoast  (3 answers at 10:05)
+  Bob            2
+  Jim            1
+  Tom            1
+  no consensus: median 1, mode 1, range 1-2
+
+ESTIMATE TW-113 Fork, pin and object flow in ObserveCoast  (3 answers at 10:07)
+  Bob            1
+  Jim            1
+  Tom            1
+  consensus: 1
+
+ESTIMATE TW-114 Level tags in Operations  (3 answers at 10:09)
+  Bob            1.5
+  Jim            1.5
+  Tom            1.5
+  consensus: 1.5
+
+ESTIMATE TW-115 Data exchange table for the program review  (3 answers at 10:11)
+  Bob            3
+  Jim            3
+  Tom            2
+  no consensus: median 3, mode 3, range 2-3
+
+ESTIMATE TW-115 Data exchange table for the program review  (3 answers at 10:13)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-116 VCRM: which requirements are verified, and how  (3 answers at 10:15)
+  Bob            3
+  Jim            2
+  Tom            3
+  no consensus: median 3, mode 3, range 2-3
+
+ESTIMATE TW-116 VCRM: which requirements are verified, and how  (3 answers at 10:17)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-117 Interim baseline-0 for the program review  (3 answers at 10:19)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-118 Retrospective, the management briefing and the plan for next semester  (3 answers at 10:21)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+

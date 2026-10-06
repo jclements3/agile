@@ -1,0 +1,408 @@
+== Writing stories and tasks for model work {#stories}
+
+::: survival
+What you have: years of work breakdown structures, action item lists and IMS lines. You know how to break a
+program into deliverables, and you know how a schedule line that says "Model update -- 40% complete" can stay at
+40% for three months.
+
+What you need: to write the small pieces of work this process runs on -- a story that fits one sprint and ends in
+something you can show, tasks under a week that each end in a merged change -- and to write their "done" so that a
+machine can check most of it. You also need to budget the time it takes to learn all of this, before it gets
+taken from your evenings.
+:::
+
+::: note Core path
+This chapter is CORE: you write stories and tasks from the first sprint planning on. The splitting rules and the
+size limits themselves are in [[om-splitting]] and [[om-limits]]; this chapter is about writing the issues.
+:::
+
+=== The Monday the backlog was empty {#stories-monday}
+
+Jim's first sprint planning, on 5 October, was supposed to take ninety minutes. It took three hours, and most of it
+went on a single question Bob asked about the first card on the board: "What does 'Port the Stations package' mean
+when it's done?"
+
+Nobody could say. In the document years, a line like that meant "Bob is working on Stations," and it would be done
+when Bob said it was done, which would be at the review. In the Cameo years it meant the same thing, with a model
+instead of a document. The line had no edge. It could not be finished, only abandoned.
+
+By the end of the three hours the team had rewritten that one line into four stories, and two of them still did not
+fit the sprint. The rest of this chapter is what they learned that afternoon and in the five plannings after it,
+written down so you can get there in less than three hours.
+
+=== Stories, tasks and where each lives {#stories-where}
+
+Recall the levels from [[om-levels]]: a project holds tomes, a tome holds epics, an epic holds stories, a story
+holds tasks. Two of those levels are written by the team every sprint, and they live in different places:
+
+|| Level | Size | Lives in | Written by | Ends in ||
+| Story | less than one sprint | a GitLab issue labelled `type::story`, and one line in the kit's journal (TW-&lt;issue number&gt;) | the person who owns it, at refinement or kickoff | something shown at the sprint review |
+| Task | at most 5 points (a working week) | a GitLab issue labelled `type::task`, linked to its story | the person doing it, at kickoff | one merged change, or one recorded result |
+Table: The two levels the team writes every sprint
+
+The journal tracks stories because the architect's view of the program is stories, epics and tomes; the hours and
+the one-day steps belong to the team ([[om-where]]). GitLab holds both, because the tasks are where the merge
+requests are.
+
+=== A story in systems-engineering words {#stories-invest}
+
+Software teams test a story against the acronym INVEST. Translated into the words of a systems engineer, the six
+letters are six questions you already ask of a work package:
+
+|| Letter | Software word | The question in SE words | A Tidewater "no" ||
+| I | Independent | Can this be done without waiting for another open item? | "Close the Stations TODOs" while the layout decision is still open |
+| N | Negotiable | Is the *outcome* fixed and the method left to the person doing it? | "Use sed to replace the level TODO lines" |
+| V | Valuable | Would the program office care if it were done? | "Reformat Interfaces.sysml" |
+| E | Estimable | Do we know enough to size it, even roughly? | "Fix whatever drop 2 breaks" before drop 2 arrives |
+| S | Small | Does it fit in one sprint with room to spare? | "Port the Stations package" (25 members, 18 TODO lines) |
+| T | Testable | Could someone who did not do it check that it is done? | "Improve the trace" |
+Table: INVEST, translated
+
+The last one is the one that matters most and the one engineers find hardest. "Improve the trace" is a direction,
+not a result. "No requirement in the Stations segment without a verify, checked by the trace job" is a result.
+
+=== Writing the story issue {#stories-issue}
+
+Every story is a GitLab issue made from the Story template (`.gitlab/issue_templates/Story.md`,
+[[templates-story]]). The template has four parts, and each one answers a question the program office will ask.
+
+**The title: a verb and an object.** "Close the Stations level tags." "Grade our requirements with the recipe."
+"Data exchange table for the program review." Not "Stations," not "Recipe work," not "Support the review." A title
+with a verb can be done; a title that is a noun is a topic.
+
+**Why: one or two sentences, for the program.** Who gains what. "The part tree shows every Stations element at its
+level, so the management site's tree view is readable and the outline check can count them." If you cannot write
+this line, the story is probably platform work disguised as engineering, or it is not worth doing this sprint.
+
+**What done looks like: a checklist someone else can tick.** This is the acceptance criteria. Each line must be
+checkable by a person who did not do the work. The next section is about writing these lines so that a machine
+ticks most of them.
+
+**Tasks: one line per task issue, each under five points.** The tasks are written at kickoff by the people who will
+do them, not by Jim the week before.
+
+Here are three of Tidewater's real stories from the first twelve weeks, as they were filed, with their acceptance
+criteria (these come straight from `sim/tidewater-plan.pl`, the plan the simulation runs):
+
+|| Story (sprint) | Done looks like ||
+| Laptops ready: Git for Windows, Vim, the kit (S1) | `kickoff.pl doctor` passes on all three laptops |
+| Close the Network TODO lines (S3) | No TODO lines in `Network.sysml`; the pipeline is green |
+| The trace job becomes a gate (S5) | The trace job fails an MR that adds an orphan, an unverified requirement or drift |
+Table: Three stories and their acceptance criteria
+
+Every one of those lines can be checked by running something. None of them says "reviewed by Jim" or "looks good,"
+because the review is part of every merge request already ([[reviewing]]).
+
+=== Acceptance criteria as pipeline checks {#stories-criteria}
+
+The habit that changed the team's plannings most was a simple one: write each acceptance criterion as something a
+job in the pipeline reports. Then "done" is not an opinion, and nobody has to remember to check.
+
+|| Instead of | Write | Who checks it ||
+| Stations is cleaned up | No `// TODO` lines in `model/physical/stations/` | the `todo` job's count for that folder |
+| Requirements are traced | The trace job shows no new orphan, unverified or drifted requirement | the `trace` job (a ratchet from sprint 5) |
+| The model is correct | Lint 0 errors 0 warnings; the grammar check passes | the `lint` and `grammar` jobs |
+| The documents are updated | `docs/` regenerated; the docs job is green | the `docs` job |
+| The spider web is smaller | One package dependency cycle fewer in the package view | `model.pl draw pkg` ([[diagrams]]) |
+| Requirements are better written | The recipe report shows no finding for the Stations requirements | the `recipe` job ([[recipe]]) |
+| Every Stations requirement is verified | The VCRM shows 100% verify coverage for Stations | the `vcrm` job |
+Table: Acceptance criteria a machine can check
+
+Not every criterion can be a job. "The program office has seen the site" is a meeting. "DR-1 to DR-4 are sent to
+the prime through the contract channel" is a transmittal record. Those are fine: write them as a fact that anyone can
+confirm from a record ("the review notes list the program office attendees"; "the DR issues carry the transmittal
+date"). The rule is not "only machine checks"; the rule is "no opinions."
+
+::: tip Write the criteria before the estimate
+Planning poker ([[ceremonies-poker]]) goes faster when the criteria are already on the card. Half of Tidewater's
+estimate disagreements in sprint 1 were really disagreements about what done meant. In the poker for "Convert drop 1
+and assess it" Bob voted 8 and Jim voted 3; once the criteria were written ("both converter reports attached, the
+TODO inventory by package on the wiki, the backlog estimated"), the second round was 3, 3, 3.
+:::
+
+=== Writing the task issues {#stories-tasks}
+
+A task is the smallest piece anyone tracks: at most five points, done by one person, ending in one merged change
+or one recorded result. Tasks are GitLab issues of type `task`, made from the Task template, with three things the
+story does not have:
+
+- **"Part of #N"** on the first line of the description, naming the story, and a `/relate #N` quick action, so the
+  story's page lists its tasks.
+- **An estimate** with `/estimate 2d`. The team uses days because a point is an ideal day ([[om-points]]).
+- **The merge request closes the task**, not the story. The MR description says `Closes #42` for the task; the story
+  closes when its last task does (Jim closes it at the review if nobody did).
+
+Tasks for model work fall into a few recognizable kinds. Knowing them makes kickoff faster:
+
+|| Kind | Example from Tidewater | Typical size | Ends in ||
+| Close TODO lines | Level tags in Network | 1 to 3 | an MR that removes TODO lines |
+| Hand-write a construct | Write the BuoyModes state def; exhibit it on MooredBuoy | 2 to 4 | an MR with new SysML v2 text |
+| Pipeline job | Add the trace job (report only) and the secrets job | 1 to 3 | an MR to `.gitlab-ci.yml` and `ci/job.pl` |
+| Prime drop step | Import drop 1 onto vendor/prime | 1 to 2 | the vendor commit and the merge MR |
+| Decision | Decide the layered layout; the layout map | 1 | an ADR in `docs/adr/` |
+| Record or report | Open DR-1 to DR-4 | 1 to 2 | issues sent to the prime |
+| Meeting with an outcome | Agree the delivery interface with the prime | 0.5 to 1 | notes and a decision on the wiki |
+| Learning | Practice lessons 10-11; the survival kit, git and Vim chapters | 0.5 to 2 | a lesson checked as done |
+Table: The kinds of task in model work
+
+If a task does not end in one of those things, it is not a task yet. "Look at the Stations package" ends in nothing.
+"Write the TODO inventory by package" ends in a wiki page.
+
+=== Try it: a story and its first task {#stories-try}
+
+Practice lesson 11's sandbox holds an offline GitLab with the Tidewater project and its templates. Make a story from
+the Story template and a task under it, then look at both. First, step into the clone and load the lesson's
+environment (it defines `gl` as a short name for `gitlab.pl`):
+
+```sh run sandbox=practice-11 expect="#2 Close the Stations level tags"
+. ./env.sh > /dev/null
+cd work
+gl issue new "Close the Stations level tags" --template Story --label type::story --milestone "Sprint 1"
+```
+
+The story is issue #2 (the lesson already filed #1). Now the task, with its link and estimate given as quick
+actions in a note -- the same text you would type in the comment box on the web page (the block loads the
+environment again with `. ../env.sh` only because the book's test runs each block in a fresh shell; in your terminal
+once is enough):
+
+```sh run cwd=work expect="changed time estimate to 2d"
+. ../env.sh > /dev/null
+gl issue new "Level tags in Stations" --type task --label type::task --milestone "Sprint 1"
+gl issue note 3 "Part of #2
+/estimate 2d
+/relate #2"
+gl issue show 3
+```
+
+The last command shows the task with the two system notes the quick actions left behind ("changed time estimate to
+2d", "marked this issue as related to #2"). Open the story with `gl issue show 2` and fill in its "Why" and "What
+done looks like" from the template's comments; in the real GitLab you would do that in the web editor or, as the
+team did, in Vim ([[vim-markdown]]).
+
+::: exercise {#ex-story-criteria} Rewrite three criteria
+Rewrite these acceptance criteria so a pipeline job or a record can check them: (a) "The Behavior package is
+finished"; (b) "Traceability is improved for the segment requirements"; (c) "The prime has been told about the
+problems we found."
+:::
+
+=== Splitting patterns for model work {#stories-splitting}
+
+[[om-splitting]] gives the three rules (split by result, pull out the waiting, smallest useful thing first). Model
+work has its own natural seams, and these are the ones the team used most:
+
+1. **By package.** The converter writes one file per package, and packages are owned by people
+   ([[repo-layout]]). "Close the structure TODOs" became one story per segment folder: Network, Stations,
+   DataCenter, Operations.
+2. **By TODO kind.** The converter's TODO lines name their kind (stereotype, state machine, interaction, include,
+   fork, constraint). Level tags are quick and mechanical; a state machine is a design task. Never put both in one
+   story: the quick ones finish and the hard one carries over, and the whole story shows as late.
+3. **By requirement group.** For trace and verification work, split by the DOORS module or the system requirement
+   heading: "Stations verification cases," "Data center verification cases."
+4. **By interface.** An interface touches two owners. One story per interface keeps the reviews short and the
+   right people on them.
+5. **By drop change.** When a prime drop arrives, its change requests (NWM-CR-... numbers in the drop's change
+   list) are natural stories: one per significant change, each with its disposition ([[prime-changes]]).
+6. **Investigation apart from result.** "Find out why drop 3's Storm state does not appear in v2" is a one-day
+   spike; "Add the Storm state by hand" is the task that follows.
+
+::: sidebar The Stations story that would not fit
+Bob's first try at the Stations work was one story of 9 points: level tags, procured parts, the power system's
+parametric and the state machine. Planning poker came back 5, 8, 13. Splitting it by TODO kind gave four
+stories: "Close the Stations level tags" (5, sprint 4, with its last two points carried into sprint 5), "Procured parts as metadata" (sprint 5, together with the DataCenter tags), the parametric
+(later, in the behavior and analysis epic), and "BuoyModes state machine by hand" (3, sprint 6). The level tags
+were the first visible dent in the TODO burn-down that management saw.
+:::
+
+=== Sizing: points, poker and the first sprints {#stories-sizing}
+
+Sizes come from planning poker ([[ceremonies-poker]]): each person votes a number of points, the outliers explain
+themselves, and the team votes again. A few things the team learned about sizing model work:
+
+- **The first time is always bigger.** The first package with level tags took Bob three points; the third took one.
+  Size the first of a kind generously and expect the next ones to shrink. Velocity in the first two sprints is not a
+  forecast of anything.
+- **Waiting is not effort.** A task blocked for three days on the enterprise GitLab administrators is not a
+  five-point task. Size the effort, mark the wait (`/label ~workflow::blocked`), and say it at stand-up as an ask.
+- **Half points are fine, quarter points are not.** A half-day task exists (send the DR, hold the meeting). Anything
+  smaller is part of another task.
+- **Engineering, platform and learning are labelled, not hidden.** Every story carries `work::engineering`,
+  `work::platform` or `work::learning`. The scorecard shows the mix sprint by sprint, so management can see the
+  platform work shrinking and the engineering growing.
+
+=== The learning budget {#stories-learning}
+
+No line in the first plan Jim drafted said "learn git." The first plan held 26 points against a capacity of about
+19, and every point was work. The team would have learned git anyway -- at night, at home, or by failing in front
+of each other in merge requests.
+
+The plan that ran instead budgets the learning as stories, labelled `work::learning`, with real points:
+
+|| Sprint | Learning share | What it covers ||
+| 1 | {{value: docs/tidewater/work-split.json sprints.1.learning}}% | practice lessons 10 and 11; the survival kit, git, Vim and operating-model chapters |
+| 2 | {{value: docs/tidewater/work-split.json sprints.2.learning}}% | practice lessons 12 and 13; Vim for models; the diagrams chapter; the SysML v2 workbook, first half |
+| 3 and 4 | {{value: docs/tidewater/work-split.json sprints.3.learning}}% and {{value: docs/tidewater/work-split.json sprints.4.learning}}% | the workbook, second half; talking about progress; reviewing a model change |
+| 5 and 6 | {{value: docs/tidewater/work-split.json sprints.5.learning}}% and {{value: docs/tidewater/work-split.json sprints.6.learning}}% | the requirement recipe; memos and briefings |
+Table: Tidewater's learning budget (share of each sprint's task points done, [[om-done]])
+
+Sprint 1's learning story is a good model to copy. Its title is a verb and an object ("Learn the tools: survival
+kit, git, Vim, the operating model"); its done is checkable ("each of us finished practice lessons 10 and 11"; "each
+of us read the primer's Part II chapters for our role"); and its tasks are per person, sized for that person (Jim
+1, Bob 1.5, Tom 1.5), because the three do not start from the same place.
+
+::: objection "Management will see 20% of the sprint spent on training and cut it."
+Answer: Management sees it either way. Unbudgeted learning shows up as missed commitments, carried-over stories and
+three tired engineers. Budgeted learning shows up as a line that shrinks every sprint while the engineering line
+grows -- which is exactly the picture Jim showed at the sprint 6 briefing ([[briefing]]). A visible, shrinking cost
+is a much easier conversation than an invisible one.
+:::
+
+The same goes for the other setup work a new team forgets: laptops (one point each, plus the days waiting on the
+software request), the request for enablers memo, the conventions documents, the first demo rehearsal. If it takes
+time, it is a task. If it is a task, it is on the board.
+
+=== The Definition of Ready, applied {#stories-ready}
+
+A story is ready to bring into a sprint when the team can start it on Monday without a meeting. Tidewater's
+Definition of Ready is short ([[om-dor-dod]]); in practice the refinement session checks five things for every
+candidate story:
+
+::: checklist Ready for a sprint
+[ ] The title is a verb and an object.
+[ ] "Why" is written, in the program's words.
+[ ] Every acceptance criterion is checkable by a job or a record.
+[ ] Nothing it needs is waiting outside the team, or the waiting is its own task.
+[ ] It has been through planning poker and fits the sprint with room to spare.
+:::
+
+Stories that pass get the `workflow::ready` label. Stories that do not stay in the backlog, and the conversation
+about why is usually the most useful part of refinement.
+
+=== A worked example: from an epic to its tasks {#stories-worked}
+
+Here is one epic taken all the way down, as the team did it over sprints 2 to 6. The epic is E6, *Structure: close
+the structure TODOs*. Its outcome, from the epic issue: every structural TODO line in the converted model closed, the
+level tags in place, the clutter of the document port removed -- so the part tree and the outline check are true.
+
+**The stories.** At the sprint 2 refinement Jim and Bob listed what "every structural TODO closed" meant, package by
+package and TODO kind by TODO kind, and wrote one story per result:
+
+|| Sprint | Story | Owner | Why it is its own story ||
+| 2 | Level conventions for the part tree | Bob | everything else needs the level tags to exist first |
+| 3 | Close the Network TODO lines | Bob | one package, two kinds of TODO (levels, an include) |
+| 4 | Close the Stations level tags | Bob | the biggest package; levels only |
+| 4 | Units and value types | Bob | a different kind of TODO (units), a different file |
+| 4 | Break the Network to Operations cycle | Tom | a spider-web result, judged by the package view |
+| 5 | Procured parts as metadata; DataCenter level tags | Bob | the second TODO kind in Stations, plus a small package |
+| 5 | Untangle the Legacy Import package | Tom | clutter removal, with a DR to the prime |
+| 6 | Level tags in Operations | Tom | the last package with level TODOs |
+Table: Epic E6 as stories
+
+No story mixes a quick kind of TODO with a slow one; no story spans two packages unless one of them is tiny; each has
+an owner; and the dependency (conventions first) is a story of its own at the start.
+
+**One story, written out.** Here is "Close the Network TODO lines" as Bob filed it from the Story template:
+
+```md
+## Why
+
+The Network package is the top of the part tree. With its level tags and the use case include in place, the tree view
+on the model site starts at the right level, and the outline check counts Network correctly.
+
+## What "done" looks like
+
+- [ ] No `// TODO` lines in `model/physical/network/Network.sysml` (the todo job's per-file count is 0)
+- [ ] The pipeline is green on the MR (grammar, lint 0/0, outline, docs current)
+- [ ] The trace job shows no new orphan, unverified or drifted requirement
+
+## Tasks
+
+| Task | Points | Who |
+|---|---|---|
+| #59 Level tags in Network | 1 | @bob |
+| #60 The include use case in ReviewObservations | 2 | @bob |
+```
+
+**The tasks.** Each task issue says "Part of" the story, carries its estimate, and is closed by one merge request.
+The include task was two points, not one, because nobody had written a SysML v2 `include use case` before; Bob's
+merge request description says so, and links the workbook section Bob used ([[workbook]]). The next include, in a
+later sprint, took half a day.
+
+=== The story in the journal {#stories-journal}
+
+The kit's journal keeps one line per story, not per task ([[journal]]). When a story is committed at kickoff, the
+stand-up file for that day gets two lines; when its last task closes, one more:
+
+```text
+new TW-51 3 "Close the Network TODO lines" p:2 e:"E6 Structure" t:"T2 Port" o:Bob
+commit TW-51 Bob
+...
+done TW-51
+```
+
+The id is TW- and the GitLab story issue number, so anyone can go from the journal to the issue and back. Points in
+the journal are the story's total (the sum of its tasks); the journal is what produces the sprint's committed, done
+and carried-over numbers, the velocity, and the quad ([[ceremonies-weekly]]).
+
+=== Common mistakes, and their fixes {#stories-mistakes}
+
+Every one of these happened on Tidewater in the first six sprints:
+
+|| Mistake | What it looked like | Fix ||
+| A topic, not a result | "Stations" as a story title | a verb and an object: "Close the Stations level tags" |
+| An activity, not a result | "Analyze the trace gaps" | name what the analysis produces: "Write up the drift and the trace gaps" |
+| Criteria as opinions | "Reviewed and approved by Jim" | the review happens on every MR anyway; write what the review is checking for |
+| Hidden waiting | "Runner online" sized at 4 points, 3 of them waiting on the administrators | size the effort; make the wait its own task and label it blocked |
+| Two kinds in one story | level tags and the state machine in one Stations story | split by TODO kind ([[stories-splitting]]) |
+| A task over five points | "Port the requirements" at 8 | it is a story; split it into tasks |
+| Learning as overtime | no learning stories in the first plan | budget it ([[stories-learning]]) |
+| A story nobody owns | "Team: close the TODOs" | one owner per story; tasks can go to others |
+Table: Mistakes in the first six sprints
+
+=== When a story carries over {#stories-carry}
+
+A story that is not done at the end of the sprint is **carried over**: its remaining points move to the next sprint
+in the journal (`carry TW-67`: the Stations story in sprint 4, [[sprint-4]]), and the story issue moves to the next milestone. Carryover is not failure; it is
+information. The question at the retrospective is always *why*:
+
+- **It was too big.** Split the rest before the next kickoff; do not carry the same oversized story twice.
+- **It waited on someone outside the team.** Was the waiting its own task? If not, next time it will be.
+- **Something more urgent came in.** Was it a real interrupt? The journal records unplanned work separately, so the
+  pattern is visible over sprints.
+
+In the first six sprints the plan carried over one story on purpose: "BuoyModes state machine by hand," started in
+sprint 6 and finished in sprint 7. Bob knew at kickoff that it would not finish, because the first hand-written state
+machine was a learning task as much as a modeling one. Writing that down at kickoff turned a surprise into a plan.
+
+=== A backlog to start from {#stories-backlog}
+
+For a new port, the kit has a generic starting backlog, `tools/gitlab/templates/backlog.csv`, derived from
+Tidewater's plan with the Tidewater-specific words taken out: one row per task, with its tome, epic and story, its
+size, the role that usually does it, a sprint hint and an acceptance criterion. The first rows:
+
+{{include: tools/gitlab/templates/backlog.csv | lines 1-8}}
+
+Load it into a spreadsheet, delete what does not apply, rename the epics for your system, and file the first two
+sprints as GitLab issues. It is a starting list, not a plan: the plan comes out of your own refinement sessions.
+
+=== Applying this to your project {#stories-apply}
+
+- **Copy:** the Story and Task templates, the habit of acceptance criteria as pipeline checks, the three work labels,
+  and a learning budget that starts near a fifth of capacity and falls.
+- **Adapt:** the task kinds to your own model's TODO kinds and drop rhythm; the size limits to your sprint length.
+- **Decide locally:** who writes stories (Tidewater: the owner, at refinement), whether tasks live only in GitLab
+  (Tidewater: yes), and how much learning time your management will accept on paper -- then ask for it in the
+  request for enablers ([[memos]]).
+
+::: exercise {#ex-stories-split} Split a story
+"Port the Requirements package" is too big for one sprint. Using the patterns in [[stories-splitting]], split it
+into stories that each fit one sprint, and write one acceptance criterion for each that a pipeline job could check.
+:::
+
+::: exercise {#ex-stories-learning} Budget your own learning
+Your team of four starts next month with no git experience. Draft the learning stories for the first two sprints:
+titles, done criteria, and the points per person.
+:::
+
+You can now write a story issue with a title, a why and checkable criteria; write task issues linked to it with an
+estimate; recognize the kinds of task in model work; split stories along the model's seams; and budget learning as
+work.

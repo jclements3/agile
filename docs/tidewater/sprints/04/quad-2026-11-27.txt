@@ -1,0 +1,36 @@
+Weekly status Model -- as of 2026-11-27 (sprint 4)
+Sprint progress 71% (12/17 SP) improving (was 24%)   On-time delivery: 4/4 this week, 6/6 this sprint
+
+TECHNICAL PRIORITIES
+  OPEN  TW-67        2  "Close the Stations level tags Bob  [CARRY]
+  DONE  TW-70        2  "Discrepancy reports DR-1 to D Jim
+  DONE  TW-68        2  "Units and value types"        Bob
+  DONE  TW-69        2  "Break the Network <-> Operati Tom
+  DONE  TW-71        3  "The model site on GitLab Page Tom
+  DONE  TW-66      1.5  "Learn: reviewing a model chan Bob
+  DONE  TW-72      1.5  "First sprint review with the  Jim
+
+WATCH ITEMS / PM HELP NEEDED
+  (WI) TW-67      carried to next sprint
+
+SCHEDULE MILESTONES
+  30 days out
+    1. T2 Port Tidewater v1 to SysML v2 > E6 Structure: close the structure TODOs =  82%  ETA 2026-12-13
+  60 days out
+    -
+  90 days out
+    -
+
+ACCOMPLISHMENTS (since 2026-11-20)
+  v TW-68        2  "Units and value types"        Bob
+  v TW-71        3  "The model site on GitLab Page Tom
+  v TW-66      1.5  "Learn: reviewing a model chan Bob
+  v TW-72      1.5  "First sprint review with the  Jim
+
+PUNT RATE (tasks punted back to TODO / tasks committed, last 4 sprints)
+  sprint 1    Model          0 / 7     0%
+  sprint 2    Model          0 / 7     0%
+  sprint 3    Model          0 / 6     0%
+  sprint 4    Model          0 / 7     0%
+
+Legend: v on time  x late (carried over, or rework after the demo)  ! slipped   -> pushed right  <- pulled left  = no change  + new

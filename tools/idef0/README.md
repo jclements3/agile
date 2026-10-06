@@ -44,3 +44,10 @@ The Python reference still writes `t#`, which re-derives letters from
 names (Contracting and Customer Support both become C) so dronecorp.md
 no longer lints; the parity tests' `fmt --auto` cases therefore differ
 from the reference on model lines by design.
+
+A model with no activities (only its `t` line, e.g. a leaf step written by
+`tools/sysml/model.pl idef0`) draws its own box on a context plate named
+`X-0` (A-0), where the Python reference crashes in text, svg and html
+(`max()` of an empty list). `svg X-0` also draws the A-0 context plate of
+any model on request: the model as one box with the ports on its `t` line.
+No parity case uses either, so the parity run is unchanged.

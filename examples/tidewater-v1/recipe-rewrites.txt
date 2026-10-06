@@ -1,0 +1,31 @@
+# Five Tidewater requirements rewritten to the requirement recipe (tools/sysml/req-recipe.pl grades them).
+# Values are notional, like everything in Tidewater. Lines starting with # are comments; one requirement per
+# paragraph. Check it:   perl tools/sysml/req-recipe.pl --require classification examples/tidewater-v1/recipe-rewrites.txt
+
+# TW-STK-001 as delivered: "The network shall provide marine weather observations for the coastal region it covers."
+# Finding: weak target verb 'provide'. The rewrite names the action, the objects, where and how often.
+
+(U) The observation network shall measure wind speed, wind direction, air pressure and air temperature at every station in its assigned coastal region at least once every 10 minutes. Note: Wave height and period are measured at moored buoys only (TW-SYS-001). (TW-STK-001)
+
+# TW-SYS-002 as delivered: "Each station shall transmit its observations to the data center on a fixed schedule."
+# Finding: 'transmit' with no measurable threshold. The rewrite adds the state, the trigger, the latency, the
+# interface reference and the exception.
+
+(U) While in observing mode, upon each scheduled transmission time, the telemetry unit shall send the observation record to the data center within 60 s in accordance with the Observation Interface ICD (TW-ICD-001) Section 3.2, except during maintenance mode. Note: Each station's transmission schedule is set in its station configuration. (TW-SYS-002) [MC]
+
+# TW-SYS-008 as delivered: "Stations shall send observations to the data center over the observation interface."
+# Finding: 'send' with no threshold; and it repeats TW-SYS-002. The rewrite makes it the interface-conformance
+# requirement it was meant to be.
+
+(U) The telemetry unit shall format each observation record sent to the data center in accordance with the Observation Interface ICD (TW-ICD-001) Section 3.1. (TW-SYS-008) [MC]
+
+# TW-SYS-012 as delivered: "Every station shall be serviceable from the service vessel."
+# Finding: weak target verb 'be' ("serviceable" cannot be tested). The rewrite says what the crew must be able
+# to reach, from where, and when it does not apply.
+
+(U) While moored alongside the service vessel, the moored buoy, for the maintenance function, shall present its sensor mast and power system access panels within reach of the vessel's deck crane in accordance with the Service Vessel Interface Description (TW-SVI-001) Section 2.4, except in sea states above 4. Note: The deck crane reaches 6 m from the vessel's side. (TW-SYS-012) [SR]
+
+# TW-SEG-003 as delivered: "The power system shall report the battery state of charge."
+# Finding: 'report' with no threshold, and no destination. The rewrite adds both, and an accuracy.
+
+(U) While in observing mode, the power system shall report the battery state of charge to the data logger every 10 minutes with an accuracy of 5 % of rated capacity in accordance with the Health Interface ICD (TW-ICD-002) Section 4.3, except during maintenance mode. (TW-SEG-003)

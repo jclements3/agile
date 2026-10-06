@@ -1,0 +1,34 @@
+GitLab analytics: tidewater/model, 2026-12-14T00:00:00Z .. 2026-12-24T23:59:59Z, by sprint
+
+1. Value stream (hours; 7 issues closed by merge requests)
+   stage                                  n   median      p85
+   issue created -> first commit          7     72.5       98
+   first commit -> MR opened              7        0        0
+   MR opened -> first review              7      3.3      4.8
+   first review -> merged                 7      0.2      0.2
+   merged -> issue closed                 7        0        0
+   issue created -> issue closed          7       78      172
+
+2. DORA, for a model repository
+   deployment frequency               17 (10.82 a week)
+   lead time (first commit -> merged on develop) median 3.5 h, p85 4.4 h
+   change failure rate                0% (0 fix-forward or revert MRs / 7 merges)
+   time to restore (develop red -> green) median 8.6 h, p85 8.6 h (1 restores)
+
+3. CI/CD: 37 pipelines, success rate 89.2%, duration median 2.2 min, p85 3.6 min
+   period                         runs   failed success%   median min
+   Sprint 6                         37        4     89.2          2.2
+   job failures: secrets 3/37, grammar 1/37, lint 1/37, outline 1/37, todo 1/37, trace 1/34
+
+4. Merge requests: 8 opened, 8 merged; time to merge median 3.5 h (p85 5 h); review turnaround median 3.3 h (p85 4.8 h)
+   period                        merged ttm median h review median h
+   Sprint 6                           8          3.5            3.3
+   per author: bob 1/1, jim 1/1, tom 6/6 (merged/opened)
+
+5. Issues: 15 open, age median 15.4 days, p85 34.3 days
+   period                       type            opened  closed
+   Sprint 6                     defect               1       1
+   Sprint 6                     issue                3       2
+   Sprint 6                     story                5       7
+   Sprint 6                     task                10       9
+   oldest open: #84 (discrepancy, 34.3 d), #85 (discrepancy, 34.3 d), #86 (discrepancy, 34.3 d), #87 (discrepancy, 34.3 d), #88 (discrepancy, 34.3 d)

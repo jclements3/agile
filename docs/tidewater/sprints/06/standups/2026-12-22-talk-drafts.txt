@@ -1,0 +1,4 @@
+jim draft:  Y TW-116 VCRM: which requirements are...: done (2 tasks). Reviewed !26. T TW-118 the twelve-week briefing and memo, by Thu. B none
+jim posted: Y TW-116 VCRM: which requirements are: done (2 tasks). Reviewed !26. T TW-118 the twelve-week briefing and memo, by Thu. B none
+tom draft:  Y TW-116 VCRM: which requirements are...: done (2 tasks). T TW-117 release branch, CCB concurrence, tag baseline-0,..., by Thu. B none
+tom posted: Y TW-116 VCRM: which requirements are: done (2 tasks). T TW-117 release branch, CCB concurrence, tag baseline-0,, by Thu. B none

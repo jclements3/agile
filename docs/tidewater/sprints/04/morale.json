@@ -1,0 +1,34 @@
+{
+   "answers" : {
+      "bob" : [
+         3,
+         3,
+         3,
+         3,
+         2
+      ],
+      "jim" : [
+         4,
+         3,
+         3,
+         3,
+         3
+      ],
+      "tom" : [
+         3,
+         3,
+         3,
+         3,
+         3
+      ]
+   },
+   "mean" : 3,
+   "questions" : [
+      "I understand why we are working this way.",
+      "I can do my work in the new tools without help.",
+      "The checks catch problems I would have missed.",
+      "I can see our progress.",
+      "I would choose to keep working this way."
+   ],
+   "sprint" : 4
+}

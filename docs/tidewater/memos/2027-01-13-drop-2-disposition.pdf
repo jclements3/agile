@@ -1,0 +1,152 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 6556 >>
+stream
+2 J
+BT /F1 12.00 Tf 1 0 0 1 166.84 711.00 Tm (TIDEWATER COASTAL OBSERVATION PROGRAM) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 683.40 Tm (TW-SE) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 655.80 Tm (13 JANUARY 2027) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 628.20 Tm (MEMORANDUM FOR RECORD) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 600.60 Tm (FROM: TIDEWATER MBSE LEAD, CHAIR OF THE MODEL CHANGE BOARD) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 573.00 Tm (SUBJECT: DISPOSITION OF PRIME DROP V1.1 \(CDRL A003, SYSTEM MODEL\)) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 545.40 Tm (REFERENCES: \(A\) CDRL A003, SYSTEM MODEL; \(B\) PRIME DROP ISSUE FOR V1.1) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 531.60 Tm (\(PLANNED: OPENED AT INTAKE ON 11 JANUARY 2027\); \(C\) DELTA AND IMPACT) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 517.80 Tm (REPORT FOR DROPS V1.0 TO V1.1, PIPELINE DELTA JOB) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 490.20 Tm (1.  Drop v1.1, delivered 8 January 2027 under CDRL A003, was received on 11 January 2027.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 476.40 Tm (Every file matched the sha256 recorded in its manifest.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 448.80 Tm (2.  Compared with drop v1.0, it adds 7 elements, removes none and changes 1. For the) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 435.00 Tm (government model it adds one requirement, TW-SYS-017, changes the text of TW-SYS-006,) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 421.20 Tm (and touches one verification case, TestStationObservations; no hand-made change has to be) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 407.40 Tm (redone.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 379.80 Tm (3.  The change board met on 13 January 2027 and dispositioned the changes as follows:) Tj ET
+0.60 w 72.00 362.20 m 540.00 362.20 l S
+0.60 w 72.00 351.85 m 72.00 362.20 l S
+0.60 w 180.63 351.85 m 180.63 362.20 l S
+0.60 w 289.25 351.85 m 289.25 362.20 l S
+0.60 w 397.88 351.85 m 397.88 362.20 l S
+0.60 w 431.37 351.85 m 431.37 362.20 l S
+0.60 w 540.00 351.85 m 540.00 362.20 l S
+BT /F2 9.00 Tf 1 0 0 1 75.00 354.70 Tm (Change) Tj ET
+BT /F2 9.00 Tf 1 0 0 1 183.63 354.70 Tm (Prime ID) Tj ET
+BT /F2 9.00 Tf 1 0 0 1 292.25 354.70 Tm (Disposition) Tj ET
+BT /F2 9.00 Tf 1 0 0 1 400.88 354.70 Tm (Impact) Tj ET
+BT /F2 9.00 Tf 1 0 0 1 434.37 354.70 Tm (Issue) Tj ET
+1.20 w 72.00 351.85 m 540.00 351.85 l S
+0.60 w 72.00 341.50 m 72.00 351.85 l S
+0.60 w 180.63 341.50 m 180.63 351.85 l S
+0.60 w 289.25 341.50 m 289.25 351.85 l S
+0.60 w 397.88 341.50 m 397.88 351.85 l S
+0.60 w 431.37 341.50 m 431.37 351.85 l S
+0.60 w 540.00 341.50 m 540.00 351.85 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 344.35 Tm (New hygrometer in the) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 183.63 344.35 Tm (Hygrometer, part) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 292.25 344.35 Tm (Accept) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 400.88 344.35 Tm (none) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 434.37 344.35 Tm (#131, the December) Tj ET
+0.60 w 72.00 331.15 m 72.00 341.50 l S
+0.60 w 180.63 331.15 m 180.63 341.50 l S
+0.60 w 289.25 331.15 m 289.25 341.50 l S
+0.60 w 397.88 331.15 m 397.88 341.50 l S
+0.60 w 431.37 331.15 m 431.37 341.50 l S
+0.60 w 540.00 331.15 m 540.00 341.50 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 334.00 Tm (sensor suite) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 183.63 334.00 Tm (hygrometer) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 434.37 334.00 Tm (working assumption,) Tj ET
+0.60 w 72.00 320.80 m 72.00 331.15 l S
+0.60 w 180.63 320.80 m 180.63 331.15 l S
+0.60 w 289.25 320.80 m 289.25 331.15 l S
+0.60 w 397.88 320.80 m 397.88 331.15 l S
+0.60 w 431.37 320.80 m 431.37 331.15 l S
+0.60 w 540.00 320.80 m 540.00 331.15 l S
+BT /F1 9.00 Tf 1 0 0 1 434.37 323.65 Tm (confirmed) Tj ET
+0.60 w 72.00 320.80 m 540.00 320.80 l S
+0.60 w 72.00 310.45 m 72.00 320.80 l S
+0.60 w 180.63 310.45 m 180.63 320.80 l S
+0.60 w 289.25 310.45 m 289.25 320.80 l S
+0.60 w 397.88 310.45 m 397.88 320.80 l S
+0.60 w 431.37 310.45 m 431.37 320.80 l S
+0.60 w 540.00 310.45 m 540.00 320.80 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 313.30 Tm (New requirement) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 183.63 313.30 Tm (TW-SYS-017) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 292.25 313.30 Tm (Accept; verified by) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 400.88 313.30 Tm (none) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 434.37 313.30 Tm (planned: opened at intake) Tj ET
+0.60 w 72.00 300.10 m 72.00 310.45 l S
+0.60 w 180.63 300.10 m 180.63 310.45 l S
+0.60 w 289.25 300.10 m 289.25 310.45 l S
+0.60 w 397.88 300.10 m 397.88 310.45 l S
+0.60 w 431.37 300.10 m 431.37 310.45 l S
+0.60 w 540.00 300.10 m 540.00 310.45 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 302.95 Tm (TW-SYS-017, relative) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 292.25 302.95 Tm (TestStationObservations) Tj ET
+0.60 w 72.00 289.75 m 72.00 300.10 l S
+0.60 w 180.63 289.75 m 180.63 300.10 l S
+0.60 w 289.25 289.75 m 289.25 300.10 l S
+0.60 w 397.88 289.75 m 397.88 300.10 l S
+0.60 w 431.37 289.75 m 431.37 300.10 l S
+0.60 w 540.00 289.75 m 540.00 300.10 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 292.60 Tm (humidity) Tj ET
+0.60 w 72.00 289.75 m 540.00 289.75 l S
+0.60 w 72.00 279.40 m 72.00 289.75 l S
+0.60 w 180.63 279.40 m 180.63 289.75 l S
+0.60 w 289.25 279.40 m 289.25 289.75 l S
+0.60 w 397.88 279.40 m 397.88 289.75 l S
+0.60 w 431.37 279.40 m 431.37 289.75 l S
+0.60 w 540.00 279.40 m 540.00 289.75 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 282.25 Tm (TW-SYS-006 text now) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 183.63 282.25 Tm (TW-SYS-006) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 292.25 282.25 Tm (Accept; closes DR-1) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 400.88 282.25 Tm (none) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 434.37 282.25 Tm (#84 \(DR-1\)) Tj ET
+0.60 w 72.00 269.05 m 540.00 269.05 l S
+0.60 w 72.00 269.05 m 72.00 279.40 l S
+0.60 w 180.63 269.05 m 180.63 279.40 l S
+0.60 w 289.25 269.05 m 289.25 279.40 l S
+0.60 w 397.88 269.05 m 397.88 279.40 l S
+0.60 w 431.37 269.05 m 431.37 279.40 l S
+0.60 w 540.00 269.05 m 540.00 279.40 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 271.90 Tm (matches DOORS) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 245.25 Tm (4.  This drop closes DR-1 \(#84\), the TW-SYS-006 text drift, and confirms the government's) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 231.45 Tm (working assumption about the hygrometer interface recorded in December \(#131\). It opens no) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 217.65 Tm (new discrepancy reports.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 190.05 Tm (5.  Accepted changes are implemented through merge requests citing the prime change ID, in) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 176.25 Tm (sprint 8.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 148.65 Tm (6.  The point of contact is the undersigned.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 121.05 Tm (JIM) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 93.45 Tm (TIDEWATER MBSE LEAD) Tj ET
+
+endstream
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000214 00000 n 
+0000000312 00000 n 
+0000000407 00000 n 
+0000000553 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+7161
+%%EOF

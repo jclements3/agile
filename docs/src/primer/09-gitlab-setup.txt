@@ -1,0 +1,579 @@
+== Setting up GitLab {#gitlab-setup}
+
+::: survival
+What you have: a laptop with Git, Perl and Vim ([[survival]]), enough git to clone, branch and commit ([[git]]),
+and a directive that says "GitLab".
+
+What you need: a GitLab project that works the way your configuration management plan says it should, before
+the first model file goes into it. By the end of this chapter you will have the project, its members, its
+protected branches and tags, its labels, its sprints, its templates and its code owners, all written down in one
+text file that you can review, re-apply and audit.
+:::
+
+=== Tom's first request {#gitlab-setup-request}
+
+On Thursday 8 October, once the laptops were ready, Tom opened a ticket with the enterprise GitLab administrators
+(task #14 in the sprint 1 plan). It was Tom's first real task in the new way of working, and it was not technical at
+all: it was a form. Tom had
+written hundreds of forms like it for the program's configuration management database. The request asked for three
+things:
+
+- a **group** named `tidewater`, with Jim as its owner;
+- the right for Jim and Tom to create **projects** inside the group;
+- a **runner** registered to the group, on a Windows machine the team could log into, with Git for Windows
+  installed (what a runner is, and why the team needed its own, is the subject of [[cicd]]).
+
+The administrators answered on Thursday: the group existed, the runner would take another week. Tom's stand-up
+status that Tuesday was the first one the team's lint flagged as blocked ([[ceremonies]] shows it). That delay is
+typical, and it is why week zero in [[directive]] put access requests first. Everything else in this chapter can
+be done by the team itself, in an afternoon, once the group exists.
+
+::: warning The administrators are on the critical path
+In every organization the authors have seen, the slowest step of adopting GitLab is not learning it. It is getting
+the group, the runner and the network rules approved. Ask on day one, ask for everything at once, and put the
+request in your stand-up as a blocker until it is done, so management sees the wait.
+:::
+
+=== What GitLab is, in systems engineering terms {#gitlab-setup-terms}
+
+GitLab is a web application that keeps git repositories and the work around them. If you have read [[git]], you
+know that a git repository is a folder with its complete history: every version of every file, who changed it,
+when, and why. Git by itself lives on your laptop. GitLab is the shared place where the team's copy of the
+repository lives, plus everything a configuration management office would want around it: who may change what,
+who must approve, what was checked, what was released.
+
+The vocabulary is new; the ideas are not. The table below maps the GitLab objects this chapter creates to the things a
+systems engineer already knows. The glossary in [[glossary]] has the full list.
+
+|| GitLab object | What it is | The systems engineering thing it replaces ||
+| Group | a folder of projects with shared members and settings | the program's CM library, one per program |
+| Project | one repository plus its issues, merge requests, pipelines and wiki | one controlled item: the system model, with its own change history |
+| Member and role | a person with an access level: guest, reporter, developer, maintainer, owner | the access list on the CM library; who may draft, who may approve |
+| Branch | a named line of work inside the repository | a working copy, a draft revision |
+| Protected branch | a branch nobody may push to directly | the controlled baseline library: changes only through the board |
+| Tag | a permanent name for one exact version | a baseline, a revision letter |
+| Protected tag | a tag nobody may move or delete | a released baseline under configuration control |
+| Merge request (MR) | a proposed change from one branch into another, with discussion and checks | an engineering change proposal, small enough to review in an hour |
+| Code owners | who must approve changes to which files | the signature authority matrix |
+| Pipeline | automated checks run on every proposed change | the configuration audit and the peer review checklist, done by machine |
+| Issue | a unit of tracked work | an action item, a work package, a discrepancy report |
+| Label | a tag on an issue, such as `type::story` | a column in the action item spreadsheet |
+| Milestone | a dated container of issues | a schedule milestone; for this team, a sprint |
+| Board | issues shown as cards in columns by label | the status wall, the whiteboard of sticky notes |
+| Wiki | pages of text kept with the project | the SEMP appendices, the team's working agreements |
+Table: GitLab objects and what they replace
+
+Two of those rows deserve a moment, because they are where most of the value is and where most of the confusion
+starts.
+
+A **protected branch** is GitLab's answer to the question Bob asks first about anything: "Who approves a change?"
+On a protected branch, nobody pushes directly; not Jim, not Tom, not the administrators. Every change arrives as a
+merge request, which runs the pipeline and collects the approvals the rules require. This is the configuration
+control board, scaled down to one change and made impossible to bypass by accident.
+
+A **merge request** is the engineering change proposal you know, with three differences. It is small (an hour of
+review, not a binder). It shows the exact lines that change, side by side with the old ones, so nobody has to
+reconstruct the change from prose. And it carries its own audit: the pipeline's results are attached to it before
+anyone is asked to approve.
+
+=== The decisions behind the settings {#gitlab-setup-decisions}
+
+Before Tom clicked anything, the team spent an hour on Tuesday 6 October deciding how the project should behave.
+This section records those decisions and the reasoning, because the reasoning is what transfers to your project;
+the settings themselves are one file.
+
+==== One project for the model, not one per segment
+
+The team considered a project per package (stations, data center, operations) and rejected it. The packages
+import each other; a change to an interface touches two of them at once; splitting them would make every interface
+change two merge requests that must land together. One project per *controlled item* is the rule that held: the
+Tidewater model is one controlled item, so it is one project. The journal (the team's sprint ledger, [[journal]])
+is a different item with a different audience, so it lives in its own repository.
+
+==== Gitflow, with develop as the default branch
+
+[[git]] introduced branches. A **branching strategy** is the team's rule for which branches exist and how work
+moves between them. The three common ones are:
+
+- **GitHub flow**: one long-lived branch (`main`); every change is a short feature branch merged into it. Simplest.
+- **GitLab flow**: `main` plus environment or release branches downstream of it; fixes go into `main` first and are
+  promoted ("upstream first").
+- **Gitflow**: two long-lived branches. `develop` is where work is integrated; `main` holds only released
+  versions. Release branches stabilize a version before it goes to `main`; hotfix branches repair a released
+  version and go back into both.
+
+The team chose gitflow, for reasons that are about systems engineering, not software:
+
+- **A baseline is a release.** The program needs a small number of formal baselines, each reviewed and accepted.
+  In gitflow, `main` contains only those; anyone who opens `main` sees the last accepted baseline and nothing else.
+- **Integration happens continuously on `develop`.** The day-to-day state of the model, checked on every change, is
+  `develop`. That is what the team works against and what the model site shows.
+- **The prime's drops need a branch of their own.** Gitflow already thinks in terms of several long-lived branches,
+  so adding `vendor/prime` (which holds exactly what the prime delivered, converted) is natural. [[operating-model]]
+  and [[maintenance]] explain the vendor branch in full.
+
+Because work lands on `develop`, the team made `develop` the project's **default branch**. That matters more than it
+sounds: GitLab closes an issue automatically when a merge request that says "Closes #12" is merged *into the default
+branch*. With `main` as default, no issue would ever close by itself.
+
+::: note When to choose something simpler
+If your program has no formal baselines and no contractor deliveries to absorb, GitLab flow (one `main`, short
+feature branches, tags for versions) is simpler and loses little. The rule of thumb: use gitflow when "released"
+and "current" must be different things that people can open separately.
+:::
+
+==== Merge commits, never squash
+
+GitLab can combine a merge request's commits into one ("squash") or keep them and add a merge commit. The tutorial
+material the team read treated squash as a matter of taste. For a model it is not: the team's metrics (lead time,
+review turnaround, who changed what) are computed from the merge history, and squash hides it. The project merges
+with a merge commit every time.
+
+==== Pipelines must succeed; discussions must be resolved
+
+These two switches turn the pipeline and the review from advice into rules. If the pipeline fails, the merge button
+is disabled. If a reviewer opens a thread ("this connection points the wrong way"), the merge waits until the
+thread is resolved. Bob, who spent years chasing comment matrices with no disposition column, liked the second one
+immediately.
+
+==== Who may do what
+
+|| Person | Role | Why ||
+| Jim | maintainer | owns the model's content, approves requirement changes, creates baselines |
+| Bob | developer | writes most of the model changes; can merge into develop once approved |
+| Tom | maintainer | administers the pipeline, the runner, the vendor branch and the tags |
+Table: Members and roles in tidewater/model
+
+Bob asked why Bob, who builds most of the model, was not a maintainer. The answer is the separation of duties the
+team already practiced with documents: the author does not approve the author's own work and does not cut the
+baseline. A developer can do everything the daily work needs; the two maintainers hold the keys to `main` and the
+tags. Least privilege is not an insult; it is what the ISSM will ask about first ([[tools]], [[admin]]).
+
+==== Which branches are protected, and how
+
+|| Branch | Push | Merge | Force push | Code owner approval ||
+| `main` | nobody | maintainers | no | yes |
+| `develop` | nobody | developers | no | yes |
+| `release/*` | maintainers | maintainers | no | no |
+| `hotfix/*` | maintainers | maintainers | no | no |
+| `vendor/prime` | maintainers | nobody | no | no |
+Table: Protected branches
+
+`vendor/prime` is the unusual row. Nothing is ever merged *into* it, and only a maintainer (Tom) pushes to it,
+because its only content is the converter's output for each prime drop, committed by the drop intake procedure.
+Any human edit there would corrupt the comparison between drops.
+
+Feature branches (`feature/12-close-stations-todos`) are not protected: they are the engineers' drafts.
+
+==== Protected tags
+
+Tags named `baseline-*` may be created only by maintainers, and once created they cannot be moved or deleted. A
+baseline is a promise to the program that a particular version existed and was accepted. A tag that could move
+would be a promise that could be quietly broken.
+
+=== Settings as a file: project.conf {#gitlab-setup-conf}
+
+Every setting above can be clicked in GitLab's web pages under Settings. The team decided not to click them. Tom's
+argument, from a decade of CM audits: "If the settings live only in a web page, nobody can review a change to them,
+and nobody can prove what they were last March." So the settings live in a text file, `project.conf`, that is
+committed, reviewed in merge requests like any other change, and applied by a command.
+
+Here is the beginning of the file the team used. Read it as you would read a SEMP appendix: every line is a
+decision from the previous section.
+
+{{include: tools/gitlab/templates/project.conf | lines 1-36}}
+
+A few notes on the format, which is deliberately plain:
+
+- Sections are in square brackets. Lines are `key = value`. A semicolon after a space starts a comment, which is how
+  each line carries its reason.
+- `[members]` uses GitLab's role names. `[branches]` uses `push:`, `merge:`, `force:` and `codeowners:` fields in
+  the order of the protected-branches table.
+- The file never holds a password or a token. Those belong in the variables GitLab protects ([[tools]]).
+
+The rest of the file defines labels, sprints, the approval rule, two CI/CD variables and the two pipeline schedules:
+
+{{include: tools/gitlab/templates/project.conf | lines 37-134}}
+
+==== Labels: scoped, and few
+
+GitLab labels can be **scoped**: a label written `type::story` belongs to the scope `type`, and an issue can carry
+only one label per scope. Adding `type::task` to an issue removes `type::story`. Scoped labels turn a pile of tags
+into columns of a spreadsheet, each with exactly one value:
+
+- `type::` what kind of item: epic, story, task, defect, discrepancy, drop, spike;
+- `tome::` and `epic::` which part of the plan it belongs to ([[operating-model]] explains the hierarchy);
+- `workflow::` where it is on the board: ready, in-progress, review, blocked, done;
+- `priority::`, `severity::`, `owner::`, `phase::`, `area::` for sorting and for the metrics;
+- `work::` engineering, platform or learning: the split the bottom line of this book is built on ([[bluf]]);
+- `doc::` the review stage of a document the model generates, grey to green ([[documents-stages]]);
+- `disposition::` and `prime-change`, `prime-tbd` for the prime's drops ([[prime-changes]]).
+
+The team kept the list short on purpose. Every label must answer a question someone actually asks. `area::`
+mirrors the model's packages and the code owner sections, so "show me everything open on the stations" is one
+click. `owner::prime` marks a discrepancy the prime must fix, so Jim's pre-drop review of what the prime owes is one
+filtered list.
+
+==== Milestones are sprints
+
+The line `sprints = 2026-10-05 39 2` creates thirty-nine milestones named "Sprint 1" to "Sprint 39", each two weeks
+long, starting on Monday 5 October 2026, each due on the Friday of its second week. Every story and task is put in
+the milestone of the sprint that commits to it. A milestone in GitLab is then exactly a sprint backlog: open it and
+you see what the team promised, what is done and what is not.
+
+GitLab Premium has a separate feature, **iterations**, designed for sprints, with automatic cadences and burndown
+charts. The team's license was the Free tier for the first year, so milestones did the job. [[tools]] lists which
+features need which tier.
+
+==== The approval rule and the variable
+
+`Model review = 1 jim bob` says that every merge request needs one approval from Jim or Bob. On GitLab Premium this
+becomes a real approval rule that blocks the merge; on Free, the code owner approval on the protected branches does
+most of the same work. The `KIT` variable tells every pipeline job where the agile kit is checked out on the runner;
+[[pipeline]] uses it in every job. `DOCKER_RUNNER` says whether the runner can run Docker containers
+([[runners]] explains why the team's cannot). The `[schedules]` section creates the nightly full check and the
+weekly status export as cron schedules, each run as the person who ran `setup` ([[tools]]).
+
+=== Applying the file {#gitlab-setup-apply}
+
+The command that applies `project.conf` is part of the kit:
+
+```sh
+perl bin/gitlab.pl --url https://gitlab.example.com --token-env GITLAB_TOKEN setup project.conf
+```
+
+It talks to GitLab through its web API (the same thing the web pages use underneath), authenticated by a personal
+access token that Tom created in Tom's own GitLab profile and kept in an environment variable, never in a file. The
+command creates the project if it does not exist, then makes every setting, member, label, milestone, protection
+and approval match the file.
+
+You do not need a GitLab server to try it. The kit includes an emulator: a small, offline stand-in for GitLab that
+keeps its state in a folder, enforces protected branches with real git hooks, and runs pipelines on your machine.
+Everything in this book that talks to "GitLab" can be pointed at the emulator with `--local DIR` instead of `--url`.
+Type along in a practice folder (`$KIT` is your copy of the kit, set once in [[survival]]):
+
+```sh run sandbox=scratch expect="approval rule Model review \(1\)"
+mkdir -p ~/tw && cd ~/tw
+sed "s#^KIT = /opt/agile#KIT = $KIT#" $KIT/tools/gitlab/templates/project.conf > project.conf
+for u in jim bob tom; do perl $KIT/bin/gitlab.pl --local gl user $u --email $u@example.invalid; done
+perl $KIT/bin/gitlab.pl --local gl --as tom setup project.conf
+```
+
+The first lines of the output:
+
+```text
+GitLab: schedule Nightly full check skipped: develop does not exist yet; re-run setup after flow init
+GitLab: schedule Weekly status skipped: develop does not exist yet; re-run setup after flow init
+created project tidewater/model
+settings: default_branch=develop, merge_method=merge, only_allow_merge_if_all_discussions_are_resolved=true, only_allow_merge_if_pipeline_succeeds=true, remove_source_branch_after_merge=true, squash_option=never
+member jim maintainer
+member bob developer
+member tom maintainer
+variable KIT
+variable DOCKER_RUNNER
+label type::epic
+label type::story
+label type::task
+```
+
+and the last ones:
+
+```text
+milestone Sprint 39
+protected branch main (push:none merge:maintainer force:no codeowners:yes)
+protected branch develop (push:none merge:developer force:no codeowners:yes)
+protected branch release/* (push:maintainer merge:maintainer force:no)
+protected branch hotfix/* (push:maintainer merge:maintainer force:no)
+protected branch vendor/prime (push:maintainer merge:none force:no)
+protected tag baseline-*
+approval rule Model review (1)
+schedule Nightly full check skipped (develop does not exist yet)
+schedule Weekly status skipped (develop does not exist yet)
+```
+
+The whole run took about a quarter of a second. Clicking the same settings through the web pages took Tom most of
+an afternoon the first time, on a scratch project, and Tom missed two of them.
+
+The two schedules were skipped, not lost: a schedule runs the pipeline on a branch, and `develop` does not exist
+until the next section creates it. Setup is safe to re-run: it creates what is missing, updates what differs and
+leaves the rest alone, so the second run, after `develop` exists, adds the schedules.
+
+=== The first commit and the two long-lived branches {#gitlab-setup-first}
+
+A brand-new project has no branches at all; protection rules wait for branches to appear. Tom cloned the empty
+project, added the pipeline file and its job script, the templates, the code owners file and the ignore list, made
+the first commit, and ran the kit's gitflow helper, which pushes `main` and creates `develop` from it. Then Tom ran
+setup a second time, for the schedules, and asked it what still differed from the file:
+
+```sh run cwd=~/tw expect="no differences: the project matches"
+git clone gl/repos/tidewater/model.git tom && cd tom
+cp $KIT/tools/gitlab/templates/gitlab-ci.yml .gitlab-ci.yml
+cp -r $KIT/tools/gitlab/templates/.gitlab $KIT/tools/gitlab/templates/ci .
+cp $KIT/tools/gitlab/templates/CODEOWNERS $KIT/tools/gitlab/templates/README.md \
+   $KIT/tools/gitlab/templates/CHANGELOG.md $KIT/tools/gitlab/templates/.gitignore .
+git add -A
+git commit -m "Project skeleton: pipeline, templates, CODEOWNERS"
+perl $KIT/bin/gitlab.pl --local ../gl --project tidewater/model --as tom flow init
+perl $KIT/bin/gitlab.pl --local ../gl --as tom setup ../project.conf | grep schedule
+perl $KIT/bin/gitlab.pl --local ../gl --project tidewater/model setup --diff ../project.conf
+```
+
+```text
+develop is ready (from main)
+schedule Nightly full check (0 2 * * 1-5, America/New_York, develop)
+schedule Weekly status (0 6 * * 5, America/New_York, develop)
+no differences: the project matches ../project.conf
+```
+
+`setup --diff` reads and never changes anything. It compares the file with the live project and prints only what
+differs, one line per difference, and exits with status 1 when anything does. Tom put it on a monthly reminder: a
+setting someone changed by hand in the web pages shows up there, and the fix is a merge request to `project.conf`
+or a re-run of setup, never a second hand edit ([[admin]]).
+
+The pipeline ran on that first push and failed: the `lint` job could not find a `model/` folder, because there was
+no model yet. Tom's first red pipeline arrived before the first line of SysML. It was a useful lesson about what a
+pipeline is (a set of checks that assume the thing they check exists), and [[cicd]] returns to it. In the
+type-along, `perl $KIT/bin/gitlab.pl --local ../gl --project tidewater/model pipeline list` shows it.
+
+::: tip The shorter way
+`tools/gitlab/kickoff.pl scaffold` does the copying above in one command, and `kickoff.pl start` runs the whole
+week-zero sequence, setup included ([[survival]]). This section does it by hand once, so you know what those
+commands do.
+:::
+
+=== Proving the protections work {#gitlab-setup-prove}
+
+Tom did not trust a setting until it had refused something. The team wrote down three tests, ran them, and kept the
+output as evidence for the ISSM.
+
+**A direct push to develop is refused.** Tom committed a one-line change and tried to push it straight to `develop`.
+The `|| echo` keeps your shell open and shows the refusal's status:
+
+```sh run cwd=~/tw/tom expect="pre-receive hook declined"
+echo "One more line." >> README.md
+git commit -qam "A direct change"
+git push origin HEAD:develop || echo "exit status $?"
+git reset -q --hard HEAD~1          # take the local commit back; nothing reached the server
+```
+
+```text
+remote: GitLab: You are not allowed to push code to protected branches on this project.
+ ! [remote rejected] HEAD -> develop (pre-receive hook declined)
+error: failed to push some refs to '.../tidewater/model.git'
+exit status 1
+```
+
+**A merge with a failing pipeline is refused, even when approved.** Bob's first merge request (the drop 1 import,
+[[sprint-2]] tells that story) had a failing check. Jim approved it anyway, to see what would happen, and tried to
+merge. In the type-along, a small README change on a feature branch plays that merge request; its pipeline fails for
+the same reason the first one did, because there is no model yet:
+
+```sh run cwd=~/tw/tom expect="pipeline must succeed \(pipeline #4 failed\)"
+G="perl $KIT/bin/gitlab.pl --local ../gl --project tidewater/model"
+$G --as bob flow start feature 1-readme
+echo "The Tidewater system model, in SysML v2 text." >> README.md
+git commit -qam "README: what the model is"
+$G --as bob flow finish --title "README: what the model is"
+$G --as jim mr approve 1
+$G --as jim mr merge 1 || echo "exit status $?"
+```
+
+```text
+on feature/1-readme
+!1 feature/1-readme -> develop: README: what the model is
+pipeline #4 failed
+!1 approved by jim
+gitlab.pl: pipeline must succeed (pipeline #4 failed) (405 Method Not Allowed)
+exit status 1
+```
+
+The "405 Method Not Allowed" is what GitLab's real API answers in the same situation; the emulator copies it so that
+scripts written against the emulator behave the same way against the server.
+
+**A baseline tag cannot be moved.** That test waited until sprint 6, when the first baseline existed ([[sprint-6]]).
+
+::: sidebar What the ISSM saw
+The ISSM had approved document repositories for years by reading their access lists. The three
+refusals above, with the date and the command that produced them, were the first time a configuration control
+claim arrived with its own evidence. "I can test that myself," the ISSM said, and did. [[tools]] has the rest of the
+security story.
+:::
+
+=== Code owners: the signature authority matrix {#gitlab-setup-codeowners}
+
+The document era had a signature page: the requirements chapter needed the requirements lead's signature, the
+interface chapter needed both segment leads'. GitLab has the same idea in a file named `CODEOWNERS`, kept in the
+repository and therefore reviewed and versioned like everything else.
+
+{{include: tools/gitlab/templates/CODEOWNERS}}
+
+How to read it:
+
+- Each line pairs a path (a file or a folder, starting from the top of the repository) with the people who must
+  approve changes to it, written `@jim`, `@bob`, `@tom`.
+- Lines are grouped in **sections**, the names in square brackets. A merge request that touches files in two
+  sections needs an approval from each section.
+- A section that starts with `^` is advisory: its owners are asked, not required.
+- Within a section, the last matching line wins.
+
+The team's split follows responsibility, not seniority. Jim is the first owner of requirements and verification,
+because those are the government's commitments to the program; Bob or Jim approve structure and behavior; Tom is the
+first owner of the pipeline file, the job script and the templates, because a careless change there disables the
+checks for everyone; the prime's drops (`/imports/`) need Tom (who imports them) or Jim (who accepts them).
+
+Every section names at least two owners, and that is not generosity. GitLab never lets the author of a merge request
+approve it. A section whose only owner wrote the change could never be satisfied, and the merge request would wait
+forever. Jim's requirement changes are approved by Bob; Tom's pipeline changes by Jim.
+
+With "code owner approval" switched on for `develop` and `main` (the `codeowners:yes` field in `project.conf`),
+GitLab enforces this file on every merge request. On the Free tier the file still works as a list of suggested
+reviewers; enforcement is a Premium feature. The emulator enforces it, so the team practiced the real rule from
+day one.
+
+::: tip Change the file, not the setting
+When someone joins, leaves or goes on long leave, do not loosen the protection: open a merge request that changes
+the owners, and another to change them back. The history of who could approve what, and when, is in the file's
+history.
+:::
+
+=== Templates: the forms {#gitlab-setup-templates}
+
+Templates are Markdown files in the repository, under `.gitlab/issue_templates/` and
+`.gitlab/merge_request_templates/`. When someone creates an issue or a merge request in the web page, a drop-down
+offers the templates; picking one fills the description. The team's templates are the forms of the new way of
+working:
+
+|| Template | Used for | What it asks for ||
+| Story | a slice of value that fits in one sprint | why, acceptance criteria, the task table, the Definition of Ready |
+| Task | one piece of work under a week | the parent story, the steps, the one observable result |
+| Defect | something wrong in the government model or pipeline | where, what, expected, evidence |
+| Discrepancy Report | something wrong in the prime's v1 model | the v1 element by `xmi:id`, the evidence, the drop that should fix it |
+| Prime Drop | intake of one prime delivery | the manifest, checksums, the intake checklist |
+| Epic | a semester-scale group of stories | the outcome, the stories, the exit criteria |
+| Spike | a time-boxed question | the question, the time box, the decision it must produce |
+| Default (MR) | most merge requests | what and why, the model changes, the checklist |
+| Prime Drop (MR) | the merge of a drop into develop | the v1 delta, conflicts, rework tasks |
+| Release (MR) | a release branch into main | the baseline contents and the checks |
+| Hotfix (MR) | a fix to a released baseline | what was wrong, the fix, the back-merge |
+Table: The issue and merge request templates
+
+Each template is GitLab-flavored Markdown with HTML comments as instructions (`<!-- like this -->`, invisible once
+saved) and **quick actions** at the bottom: lines that start with a slash, such as `/label ~"type::story"` or
+`/milestone %"Sprint 3"`, which GitLab executes when the description is saved and then removes from the text. The
+story template, for example, ends with:
+
+```md
+/label ~"type::story" ~"workflow::ready" ~"priority::2"
+/milestone %"Sprint "
+/assign @
+/weight
+```
+
+The incomplete lines are blanks to fill in: the sprint number after `Sprint `, a user name after `@`, a number after
+`/weight`. Fill them before you save. On GitLab, an unfinished quick action is silently ignored, so a story saved
+with `/milestone %"Sprint "` simply has no sprint, which is a quiet way to lose work from a sprint backlog. The kit's
+emulator behaves the same way, so you can see it happen:
+
+```sh run cwd=~/tw/tom expect="milestone: -"
+G="perl $KIT/bin/gitlab.pl --local ../gl --project tidewater/model"
+$G --as jim issue new "Try the story template" --template Story
+$G issue show 1 | grep milestone
+```
+
+The labels from the template's first quick action are there; the milestone is `-`, nothing. Tom's rule after that:
+open every new story once after saving it and check the sprint.
+
+[[templates]] reproduces every template, and [[tools]] has filled-in examples of each Markdown field.
+
+=== Wiki, README and CHANGELOG {#gitlab-setup-wiki}
+
+Three more places hold text, each with a different job:
+
+- The **README** at the top of the repository is the front door: what the model is, how it is organized, how to
+  run the checks. GitLab shows it on the project's home page.
+- The **CHANGELOG** is the human-readable list of what changed in each baseline. The pipeline copies a baseline's
+  section into its release notes ([[pipeline]]).
+- The **wiki** holds the team's working agreements: the Definition of Ready, the Definition of Done, the gitflow
+  rules, the drop intake runbook, the baseline procedure, onboarding, administration and the glossary. The team
+  seeded it from `tools/gitlab/templates/wiki/` in sprint 1 ([[sprint-1]]).
+
+A wiki in GitLab is itself a git repository, so its pages have history too. The team's rule: anything a newcomer
+must read is in the wiki; anything the pipeline needs is in the repository.
+
+=== Signing in: SSH keys and tokens {#gitlab-setup-auth}
+
+Each person needs a way to prove who they are to the server, from the laptop's terminal. There are two, and the
+team used both.
+
+**An SSH key** is a pair of files: a private key that never leaves the laptop and a public key you paste into your
+GitLab profile. Git then authenticates every clone, fetch and push with it. In Git Bash:
+
+```sh
+ssh-keygen -t ed25519 -C "jim laptop, tidewater"
+cat ~/.ssh/id_ed25519.pub          # copy this line into GitLab: your avatar > Preferences > SSH Keys
+ssh -T git@gitlab.example.com      # should greet you by user name
+```
+
+**A personal access token** is a long password-like string that a script presents to GitLab's API. The kit's
+`gitlab.pl` uses one, read from an environment variable. Create it under your avatar > Preferences > Access tokens,
+give it the narrowest scope that works (`api` for setup, `read_api` for reports), give it an expiry date, and put it
+in your shell's startup file rather than in any file inside a repository:
+
+```sh
+echo 'export GITLAB_TOKEN=...' >> ~/.bashrc      # the real value; never commit it
+```
+
+::: warning A token is a password
+The pipeline's `secrets` job looks for GitLab tokens (they start with `glpat-`) in every file of every merge request,
+because sooner or later someone pastes one into a file. If it happens: revoke the token in GitLab first, then remove
+it from the branch. Deleting the line is not enough; the token is in the history. [[admin]] covers rotation.
+:::
+
+=== What the enterprise administrators must do, and what the team does {#gitlab-setup-split}
+
+|| Task | Who | When ||
+| Create the group; make the MBSE lead its owner | enterprise admins | week zero |
+| Register a runner for the group (Windows shell runner with Git for Windows) | enterprise admins with Tom | sprint 1 |
+| Allow the runner to reach the GitLab server and nothing else | network and ISSM | sprint 1 to 3 |
+| Create the project and apply `project.conf` | Tom | sprint 1 |
+| Commit the pipeline, templates, CODEOWNERS | Tom | sprint 1 |
+| Seed the wiki | Jim | sprint 1 |
+| Create epics and the first stories | Jim | sprint 1 planning |
+| Keep `project.conf` and CODEOWNERS current | Tom, by merge request | always |
+| Review members and tokens | Jim and Tom | every quarter ([[admin]]) |
+Table: Who sets up what
+
+=== Exercises {#gitlab-setup-exercises}
+
+::: exercise {#ex-setup-emulator} Build the project
+Using the emulator, create the three users and apply `project.conf` as shown in [[gitlab-setup-apply]]. Then run
+`gitlab.pl --local gl --project tidewater/model issue list` and `gitlab.pl help setup`. How many labels and how many
+milestones did setup create? Where in the file is each one defined?
+:::
+
+::: exercise {#ex-setup-refuse} Make it refuse you
+Clone the project, commit something, and try to push it straight to `develop`, then to `main`. Then create a tag
+named `baseline-0` as Bob (`--as bob`) with `gitlab.pl tag`. Write down each refusal and explain which line of
+`project.conf` caused it.
+:::
+
+::: exercise {#ex-setup-owners} Redraw the signature page
+Take the signature page of a document your team controls today. Write the CODEOWNERS file that would enforce the
+same signatures if the document were a folder of text files. Which signatures had no clear owner?
+:::
+
+::: exercise {#ex-setup-branching} Defend a branching strategy
+Your program has no contractor drops and releases a new model version every month without a formal review. Which
+branching strategy would you choose, and which three lines of `project.conf` would you change?
+:::
+
+=== Applying this to your project {#gitlab-setup-apply-yours}
+
+- **Copy**: the idea of settings as a reviewed text file; protected integration and release branches; protected
+  baseline tags; merge commits; "pipeline must succeed" and "discussions resolved"; code owners drawn from your
+  signature authority; a short list of scoped labels; milestones as sprints.
+- **Adapt**: the branching strategy (gitflow if released and current must be separate, GitLab flow otherwise); the
+  roles (match your separation of duties); the code owner sections (match your organization, not this team's); the
+  label values (keep `type::` and `workflow::`, change the rest).
+- **Decide locally**: which GitLab tier you have and therefore which rules are enforced or merely advisory; who in
+  your enterprise creates groups and runners, and how long they take; where your tokens live.

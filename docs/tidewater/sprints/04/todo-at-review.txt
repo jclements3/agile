@@ -1,0 +1,21 @@
+GitLab To-Do lists at the review (2026-11-27 10:00)
+
+  Jim: 0 review(s) requested, 7 open issue(s) assigned
+    #84 DR-1: TW-SYS-006 text differs between DOORS and the model
+    #85 DR-2: TW-SYS-012 has no satisfy
+    #86 DR-3: TW-SYS-016 is in DOORS but not in the model
+    #87 DR-4: TW-SYS-011 has no verification case
+    #88 DR-7: WaveSensor is tagged L5 but is a direct part of MooredBuoy (L4)
+    #89 Learn: the requirement recipe; writing memos from the model
+    #94 Grade our requirements with the recipe
+
+  Bob: 0 review(s) requested, 4 open issue(s) assigned
+    #67 Close the Stations level tags
+    #77 Walk the Stations tree with the prime's modeler; record what they confirmed
+    #90 Procured parts as metadata; DataCenter level tags
+    #91 Prune ObservingStation's trace spaghetti
+
+  Tom: 0 review(s) requested, 3 open issue(s) assigned
+    #92 Untangle the Legacy Import package
+    #93 The trace job becomes a gate
+    #95 Release rehearsal and a spillage tabletop

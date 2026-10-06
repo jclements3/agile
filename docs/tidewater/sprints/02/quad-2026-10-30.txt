@@ -1,0 +1,35 @@
+Weekly status Model -- as of 2026-10-30 (sprint 2)
+Sprint progress 100% (19/19 SP) improving (was 32%)   On-time delivery: 5/5 this week, 7/7 this sprint
+
+TECHNICAL PRIORITIES
+  DONE  TW-28        4  "Import drop 1 through the ven Bob
+  DONE  TW-26        3  "Learn: practice lessons 12-13 Bob
+  DONE  TW-29        2  "TODO burn-down and generated  Tom
+  DONE  TW-30        2  "Level conventions for the par Bob
+  DONE  TW-31      4.5  "Enablers, decisions and conve Jim
+  DONE  TW-32      0.5  "Sprint 2 demo: the pipeline a Tom
+  DONE  TW-27        3  "Runner online                 Tom
+
+WATCH ITEMS / PM HELP NEEDED
+  none
+
+SCHEDULE MILESTONES
+  30 days out
+    -
+  60 days out
+    -
+  90 days out
+    -
+
+ACCOMPLISHMENTS (since 2026-10-23)
+  v TW-28        4  "Import drop 1 through the ven Bob
+  v TW-29        2  "TODO burn-down and generated  Tom
+  v TW-30        2  "Level conventions for the par Bob
+  v TW-31      4.5  "Enablers, decisions and conve Jim
+  v TW-32      0.5  "Sprint 2 demo: the pipeline a Tom
+
+PUNT RATE (tasks punted back to TODO / tasks committed, last 4 sprints)
+  sprint 1    Model          0 / 7     0%
+  sprint 2    Model          0 / 7     0%
+
+Legend: v on time  x late (carried over, or rework after the demo)  ! slipped   -> pushed right  <- pulled left  = no change  + new

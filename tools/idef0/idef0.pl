@@ -672,10 +672,10 @@ my $BOX_H = 5;
 
 sub dkey {
     my ($t, $el) = @_;
-    return "$el->{letter}0" if $el->{tag} eq 't';
+    return model_plate_id($el) if $el->{tag} eq 't';
     return $el->{node_id} if $el->{tag} eq 'a';
     my $par = $el->{parent};
-    my $pid = $par->{tag} eq 'a' ? $par->{node_id} : "$par->{letter}0";
+    my $pid = $par->{tag} eq 'a' ? $par->{node_id} : model_plate_id($par);
     "$pid.$el->{tag}$el->{number}";
 }
 
@@ -696,16 +696,18 @@ sub doc_html {
     join '', map { '<p>' . md_inline($_) . '</p>' } grep { $_ ne '' } @paras;
 }
 
-sub plates_of {
+sub plates_of {    # a model with no activities (a leaf step) draws its own box: its A-0 context is the whole model
     my $t = shift;
-    my @out = ([$t, $t->{children}]);
+    my @out = ([$t, @{ $t->{children} } ? $t->{children} : [$t]]);
     for my $a (descendants($t)) {
         push @out, [$a, $a->{children}] if @{ $a->{children} };
     }
     @out;
 }
 
-sub plate_id { my ($t, $node) = @_; $node->{tag} eq 'a' ? $node->{node_id} : "$t->{letter}0" }
+my %CONTEXT;    # models whose A-0 context plate (the model as one box) is being drawn
+sub model_plate_id { my $t = shift; !@{ $t->{children} } || $CONTEXT{ refaddr($t) } ? "$t->{letter}-0" : "$t->{letter}0" }   # a leaf model has only its A-0
+sub plate_id { my ($t, $node) = @_; $node->{tag} eq 'a' ? $node->{node_id} : model_plate_id($t) }
 
 sub port_route {
     my ($p, $t) = @_;
@@ -1021,6 +1023,10 @@ sub cmd_svg {
     my ($models) = load_project($files, \@diags);
     my ($errs) = emit_diags(\@diags, \*STDERR);
     return 1 if $errs;
+    if ($nodeid =~ /^(\S+)-0\z/) {    # the A-0 context plate of any model: the whole model as one box with its ICOMs
+        my ($t) = grep { $_->{letter} eq $1 } @$models;
+        if ($t && @{ $t->{children} }) { local $CONTEXT{ refaddr($t) } = 1; print svg_plate($t, $t, [$t], 1), "\n"; return 0 }
+    }
     my @plates = all_plates($models);
     for my $i (0 .. $#plates) {
         my ($t, $node, $boxes) = @{ $plates[$i] };
@@ -1038,7 +1044,7 @@ sub plate_of_port {
     my $a = $p->{parent};
     return undef if !defined $a || $a->{tag} eq 't';
     my $par = $a->{parent};
-    my $pid = $par->{tag} eq 'a' ? $par->{node_id} : "$par->{letter}0";
+    my $pid = $par->{tag} eq 'a' ? $par->{node_id} : model_plate_id($par);
     exists $pageof->{$pid} ? $pid : undef;
 }
 
@@ -1165,7 +1171,7 @@ sub cmd_html {
         my @nav = ("<a href='#top'>&#8962; index</a>");
         if ($node->{tag} eq 'a') {
             my $par = $node->{parent};
-            my $up = $par->{tag} eq 'a' ? $par->{node_id} : "$par->{letter}0";
+            my $up = $par->{tag} eq 'a' ? $par->{node_id} : model_plate_id($par);
             push @nav, "<a href='#plate-$up'>&#8593; $up</a>";
         } else {
             push @nav, "<span class='dim'>top plate</span>";

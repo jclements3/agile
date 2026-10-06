@@ -1,0 +1,290 @@
+== The model repository: what goes where {#repo-layout}
+
+::: survival
+What you have: a shared drive with folders named "SRS," "ICDs (current)," "ICDs (OLD - do not use)" and "Bob's
+working copy," and a Cameo project file that holds everything in one blob.
+
+What you need: one repository whose folders mean something -- where the model lives and in what layers, where the
+prime's deliveries land and why nobody edits them, where decisions and conventions are written down, where the
+pipeline's own files live -- and a layout that every prime drop lands in the same way, so merges keep working for
+eighteen months.
+:::
+
+::: note Core path
+This chapter is CORE: the layout is decided in sprint 2, at the first import, and is very expensive to change later.
+The section on federation ([[repo-layout-federation]]) is LATER.
+:::
+
+=== Why the layout is decided at drop 1 {#repo-layout-why}
+
+Most decisions in this book can be revisited. The folder layout of the model is the exception, and the reason is the
+vendor branch ([[git-vendor]]). Every prime drop is converted and committed to `vendor/prime`, then merged into
+`develop`. Git can merge the new drop into the government's edited copy only when each package lands at the *same
+path* every time. Move `Stations.sysml` from one folder to another after drop 1, and drop 2's Stations arrives at the
+old path as a brand-new file while the edited one sits elsewhere. Every government edit to Stations then has to be
+redone by hand.
+
+So in sprint 2 Bob had one decision to make before the first import, and a day budgeted for it: "Decide the
+layered layout; the layout map." This chapter is that day, written down.
+
+=== Layers: dependencies point one way {#repo-layout-layers}
+
+A model's packages depend on each other. The spider web of the Cameo years ([[cameo-spider]]) was dependencies
+pointing every way: Network used Stations, Stations used DataCenter, DataCenter used Network. Nothing could be
+understood, or changed, on its own.
+
+The cure is old and simple: **layers**. Put the packages in an order, and allow a package to depend only on packages
+in its own layer or the layers below it. Tidewater's order, from the bottom:
+
+|| Layer | Folder | What lives there | May depend on ||
+| Library | `model/library/` | types and units, interface and port definitions, the conventions (level tags, metadata) | nothing in the model |
+| Requirements | `model/requirements/` | the DOORS modules (stakeholder, system, segment) and the requirement copy the Cameo model kept | library |
+| Logical | `model/logical/` | what the network does: the observation cycle and its steps | library, requirements |
+| Physical | `model/physical/` | what it is made of, one folder per segment, and the allocations of functions to parts | library, requirements, logical |
+| Analysis | `model/analysis/` | constraint and calculation definitions (the energy balance) | everything above it in this table |
+| Verification | `model/verification/` | the verification cases | everything above it |
+Table: Tidewater's layers, bottom to top
+
+The order is written in `sysml.conf` (the `layers` key), and from sprint 5 the pipeline's complexity check fails any
+change that makes a package import from a layer above it ([[no-spider-web]]).
+
+::: sidebar Why requirements sit below design
+A new reader often expects requirements at the top, because they come first in the life cycle. In the dependency
+order they sit near the bottom: the design *satisfies* the requirements, so the design depends on them, not the
+other way round. A requirement that imports a part definition is a requirement that knows its own solution. When the
+layering check flagged one in sprint 5, it turned out to be exactly that: a segment requirement written around the
+prime's chosen modem.
+:::
+
+=== The layout map {#repo-layout-map}
+
+The converters decide where each package lands. By default they write one folder per top-level package --
+`model/stations/Stations.sysml`, `model/types/Types.sysml` -- which is fine for a first look and wrong for a
+project: every package at the same level, no layers. Given a **layout map**, they write each package where the map
+says, and they do it the same way for every drop.
+
+Tidewater's map is `examples/tidewater-v1/layout.map` in the kit:
+
+{{include: examples/tidewater-v1/layout.map}}
+
+Three features of the map matter:
+
+- **One line per package**, by the name the package has in the prime's model. `Stations = physical/stations/` puts
+  `Stations` in `model/physical/stations/Stations.sysml`.
+- **The same map for both converters.** The XMI converter writes the model's packages; the ReqIF converter writes the
+  DOORS modules (`Stakeholder Needs = requirements/stakeholder/`).
+- **A catch-all line.** `* = unsorted/` sends any package the prime adds in a later drop to `model/unsorted/`, and
+  the converter's report names it. A new package arriving in `unsorted/` is a signal to decide where it belongs and
+  add its line to the map -- before the first government edit to it.
+
+Convert drop 1 with the map, in an empty folder, and look at what lands where:
+
+```sh run sandbox=scratch expect="model/physical/stations/Stations\.sysml"
+perl "$KIT/bin/xmi2sysml.pl" --out model --layout-map "$KIT/examples/tidewater-v1/layout.map" "$KIT/examples/tidewater-v1/tidewater.xmi"
+perl "$KIT/bin/reqif2sysml.pl" --out model --layout-map "$KIT/examples/tidewater-v1/layout.map" "$KIT/examples/tidewater-v1/tidewater.reqif"
+find model -name '*.sysml' | sort
+```
+
+Sixteen files: fifteen in the six layers, and one in `legacy/`, the clutter the team removes in sprint 5. Every later drop, converted
+with the same map, lands in the same files.
+
+::: warning Change the map only with a plan
+Changing a line of the map moves a package for every future drop. If you must (a package was put in the wrong layer),
+do it in one merge request that moves the file in `develop` *and* updates the map *and* re-imports the current drop on
+the vendor branch with the new map, so both sides of the next merge agree on the path. Treat it as an architecture
+decision and write an ADR ([[repo-layout-docs]]).
+:::
+
+=== The whole repository {#repo-layout-tree}
+
+The model is one folder of the repository. The rest holds what the pipeline, the reviewers and the next person on the
+team need. The kickoff script makes the skeleton ([[gitlab-setup]]); here it is, made in a scratch folder, with drop 1
+converted into it:
+
+```sh run expect="docs/adr/"
+perl "$KIT/tools/gitlab/kickoff.pl" scaffold tidewater-model --project tidewater/model --title Tidewater > /dev/null
+cd tidewater-model
+perl "$KIT/bin/xmi2sysml.pl" --out model --layout-map "$KIT/examples/tidewater-v1/layout.map" "$KIT/examples/tidewater-v1/tidewater.xmi" > /dev/null
+perl "$KIT/bin/reqif2sysml.pl" --out model --layout-map "$KIT/examples/tidewater-v1/layout.map" "$KIT/examples/tidewater-v1/tidewater.reqif" > /dev/null
+git ls-files | sed 's#/[^/]*$#/#' | sort -u
+```
+
+(The last line lists the folders git already tracks; the converted model is not committed yet.) Put together, the
+repository looks like this:
+
+```text
+tidewater-model/
+  .gitlab-ci.yml           the pipeline (one commented file in the first twelve weeks)
+  .gitlab/                 issue and merge request templates; project.conf (the project's GitLab settings)
+  ci/job.pl                what each pipeline job does, in Perl, the same under PowerShell, Git Bash or Docker
+  .ci/                     the pipeline's ratchet files (outline-max ...): numbers that may only go down
+  CODEOWNERS               who must approve a change to which folder
+  README.md CHANGELOG.md   what this is; what changed in each baseline
+  sysml.conf               the model's roots, level tags, layers, IDEF0 names
+  .kit-version             the version of the agile kit the pipeline must run (from sprint 7)
+  model/                   THE MODEL, in layers (library, requirements, logical, physical, analysis, verification)
+  imports/v1.0/ ...        each prime drop exactly as delivered, with its MANIFEST (arrives via vendor/prime)
+  verification/            recorded verification results: results.csv, one schema for every verdict
+  docs/                    generated documents (model.pl docs) and the hand-written ones below
+    adr/                   architecture decision records, one decision per file
+    conventions/           naming, markings, the review checklist
+    memos/                 memos to management, under review like the model
+    onboarding.md          the first day for a new team member
+    model-exchange-agreement.md   the agreement with the prime about drops
+```
+
+=== The files at the top, one by one {#repo-layout-files}
+
+The top of the repository is a handful of files that each answer one question. Look at three of them in the scaffold.
+
+**`sysml.conf` -- what the model's roots are.** The kit's model tools read it to know where the part tree starts,
+where the function tree starts, what the level tags are called, and (later) the layer order and the IDEF0 names:
+
+```sh run cwd=tidewater-model expect="noun_root"
+cat sysml.conf
+```
+
+The scaffold writes generic level tag names (`L1System` ...). Tidewater renamed them to its own (`L1Network,
+L2Segment, L3Station, L4Subsystem, L5Assembly, L6Component`) in the conventions story of sprint 2, so the tags read
+naturally in the model. Change them before the first level tag is written, not after.
+
+**`CODEOWNERS` -- who approves what.** Each section names a folder and the people who must approve a change to it.
+Because the folders are the layers, ownership follows the architecture:
+
+```sh run expect="model/"
+grep -n "^\[\|^/model" CODEOWNERS
+```
+
+The interface definitions get two sections, so a change to them needs two approvals -- the systems lead's and one
+modeler's ([[gitlab-setup-codeowners]]).
+
+**`.gitignore` -- what never goes in.** Every file a pipeline job writes into the project folder (logs, reports, the
+Pages site, exports) is listed, so a local run of the pipeline never leaves junk to commit by accident, along with the
+editor's swap files:
+
+```sh run expect="public"
+grep -c . .gitignore
+grep -n "public\|swp" .gitignore
+```
+
+The rest of the top: `.gitlab-ci.yml` is the pipeline ([[pipeline]]); `ci/job.pl` does each job's work in Perl so the
+same pipeline runs under PowerShell on the Windows runner, Git Bash on a laptop, or a Docker image ([[runners-pwsh]]);
+`.gitlab/` holds the issue and merge request templates and `project.conf`, the project's GitLab settings as a file;
+`README.md` says what the repository is and how to start; `CHANGELOG.md` gets one section per baseline.
+
+=== What never goes in the repository {#repo-layout-never}
+
+A repository is copied to every laptop, backed up, mirrored and read by everyone with access. Some things do not
+belong in it, however convenient:
+
+|| Never commit | Why | Where it goes instead ||
+| tokens, passwords, keys | anyone with read access has them; deleting the commit does not delete them | masked CI/CD variables; the person's own credential store |
+| the prime's `.mdzip` Cameo project | large, binary, proprietary, and nobody can review a change to it | the approved storage the CDRL names; the drop's XMI and ReqIF go in `imports/` |
+| pipeline outputs (reports, logs, `public/`) | they belong to the pipeline run that made them | job artifacts, kept by GitLab |
+| personal working notes | they become everyone's, forever | your own notes, or an issue comment |
+| files with a higher marking than the repository | spillage | the system accredited for them; rehearse what to do ([[security]]) |
+Table: What never goes in
+
+=== The rules that make the layout work {#repo-layout-rules}
+
+A layout is only as good as the rules everyone follows inside it. Tidewater's rules, each with the check that keeps
+it true:
+
+|| Rule | Why | Kept true by ||
+| Layers import downward only | a change at the top cannot ripple into the bottom | the complexity job's layering check (sprint 5) |
+| One folder per segment under `physical/`, owned by its CODEOWNERS section | ownership matches structure; reviews go to the right person | CODEOWNERS approval on `develop` |
+| Converter files are changed only to close a TODO line or by an accepted DR | the prime's content stays the prime's; drops keep merging | review checklist; `--impact` lists hand edits per drop |
+| `imports/` is never edited | the record of what was received, and when | it arrives only through `vendor/prime`, which only Tom can push |
+| Generated documents in `docs/` are regenerated, never hand-edited | they always match the model | the `docs` job fails when `docs/` is stale |
+| Decisions live in `docs/adr/` | a new person learns why before working around it | review checklist |
+| No secrets anywhere | the repository is copied, backed up and read by many | the `secrets` job |
+Table: Rules and the checks that keep them
+
+=== Decisions and conventions on file {#repo-layout-docs}
+
+The scaffold gives every new model repository a small `docs/` folder written for engineers new to all this:
+
+- **`docs/adr/`** holds architecture decision records: one file per decision, numbered, each with its context, the
+  decision and its consequences. Tidewater's first ten (D-1 to D-10, from week zero: gitflow, merge commits, the
+  vendor branch, the layered layout ...) were written in sprint 2. When someone asks "why is it like this?", the
+  answer is a file name.
+- **`docs/conventions/`** holds the naming conventions, the markings guide the security officer fills in, and the
+  review checklist every reviewer uses ([[reviewing]]).
+- **`docs/onboarding.md`** is the first day for a new team member: run the doctor, do practice lessons 10 to 13, read
+  these chapters.
+- **`docs/model-exchange-agreement.md`** is the agreement with the prime: what a drop contains, how often, stable ids,
+  change notes, the return path for discrepancy reports ([[prime-changes]]).
+
+Read one of the decision records the scaffold wrote:
+
+```sh run expect="vendor"
+cat docs/adr/0002-prime-boundary.md | head -20
+```
+
+=== Compared with a reference layout {#repo-layout-reference}
+
+Teams that have done this before publish reference layouts, and one the user of this book brought in is worth
+comparing line by line, because Tidewater departs from it in four places, each for a reason.
+
+|| Reference layout | Tidewater | Why Tidewater differs ||
+| `model/` in layers: library, requirements, logical, physical, analysis, verification | the same layers, via the layout map | -- (the same idea) |
+| `model/external/prime/`: only the interface surface of the prime's model, generated by script | the prime's whole model, mirrored on the vendor branch and edited to close TODO lines | the port *is* the goal: the government needs the whole system model in v2. A subsystem team consuming a prime's model should use the reference's way ([[prime-changes]]); Tidewater does it for DOORS |
+| `tools/` with Python checks, generators and their tests, in the repository | the agile kit, pinned by version (`.kit-version`); only `ci/job.pl` is in the repository | nothing to install on a locked-down laptop; the kit's tools have their own tests |
+| `reports/` never committed; documents rebuilt in CI | `docs/` committed, with a gate that fails when stale | reviewers see the rendered change in the merge request; the baseline tag's checksum covers `docs/` |
+| `prime-inputs/` as a restricted folder or separate repository | `imports/` on the vendor branch | one repository is simpler for three people; the separate restricted repository is right when the prime's data has different access rules |
+| `docs/adr/`, `docs/conventions/`, `onboarding.md`, `model-exchange-agreement.md` | the same | -- |
+| `test/` harnesses and `results/` with signed-off manual verdicts | `verification/results.csv`, one schema | Tidewater's tests are run by the prime's lab; the government records results ([[verification]]) |
+Table: A reference layout and Tidewater's, compared
+
+Neither column is "right." The reference is built for a team that owns its design and its tests; Tidewater is a
+government team porting and maintaining a model the prime owns. Choose the column whose reasons match your situation.
+
+=== When one repository is not enough {#repo-layout-federation}
+
+This section is LATER: three people and one model fit one repository comfortably for the whole eighteen months.
+
+A model outgrows one repository when more than one team changes it, or when other teams consume parts of it. The way
+to split is along the seams the layers already drew, into a GitLab group of repositories:
+
+```text
+program-x/                 a GitLab group
+  mbse-library             the library layer + the pinned tool version, released by tag
+  mbse-system              requirements, logical, system-level physical
+  mbse-comms, mbse-power   one repository per subsystem; each imports the library and the system interfaces
+  mbse-tools               shared tooling, published to the package registry
+  prime-inputs             restricted: the prime's drops, as received
+```
+
+Each repository pins the versions of what it imports (a tag of the library, a tag of the system interfaces). The
+system repository's pipeline pulls the tagged releases of the subsystems and runs the integrated checks. It is the
+same layering, enforced across repositories instead of folders -- which is why getting the layers right in one
+repository first is the best preparation for ever needing more than one.
+
+::: warning Do not federate early
+Splitting a model across repositories before more than one team needs it buys version pinning, release coordination
+and cross-repository merges for no gain. Tidewater stayed in one repository for all thirty-nine sprints.
+:::
+
+=== Applying this to your project {#repo-layout-apply}
+
+- **Copy:** the layers, the layout map used for every drop, the catch-all `unsorted/` line, the `docs/` folder with
+  ADRs and conventions, and the rule that converter files change only to close TODO lines.
+- **Adapt:** the layer names to your domain (a spacecraft might add a separate `operations/` layer); the folders
+  under `physical/` to your segments or subsystems; the map's lines to your prime's package names.
+- **Decide locally, before the first import:** whether the prime's model is mirrored whole (Tidewater) or only its
+  interface surface (the reference), whether its drops live on a vendor branch or in a restricted repository, and
+  whether generated documents are committed.
+
+::: exercise {#ex-layout-map} Place a new package
+Drop 4 adds a package named `Drifters` that the layout map does not list. Where does it land, how do you find out,
+and what three things do you change, in one merge request, before anyone edits it?
+:::
+
+::: exercise {#ex-layout-layers} Spot the upward import
+`model/requirements/segment/Segment_Requirements.sysml` contains `private import Stations::*;`. Which rule does it
+break, why is it a smell, and what do you do about it given that the file came from the prime?
+:::
+
+You can now explain why the layout is fixed at the first import, write a layout map, convert a drop into layers,
+name what goes in each folder of the repository and why, compare your layout with a reference, and say when a model
+needs more than one repository.

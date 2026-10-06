@@ -1,0 +1,15 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y: TW-2 set up Jim's laptop; kickoff.pl doctor
+T: TW-2 set up Jim's laptop; kickoff.pl doctor
+B: none
+[9:02 AM] Bob
+Y: TW-2 set up Bob's laptop; kickoff.pl doctor
+T: TW-2 set up Bob's laptop; kickoff.pl doctor; TW-6 both converters with --report on drop 1
+B: none
+[9:03 AM] Tom
+Y: TW-2 set up Tom's laptop; kickoff.pl doctor
+T: TW-2 set up Tom's laptop; kickoff.pl doctor; TW-3 project.conf with gitlab.pl setup; request
+B: none

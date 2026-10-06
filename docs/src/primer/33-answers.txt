@@ -1,0 +1,2496 @@
+== Answers to the exercises {#answers}
+
+Every exercise in the book has an answer here, in book order. Where an exercise asks you to run something, the answer
+runs it, and the output shown is what the kit really prints; the blocks are tested like every other command in the
+book, so if your output differs, the difference is worth a look. Where an exercise asks for judgement, the answer is
+a model answer: one good response, the reasoning behind it, and what any good answer must contain. Your answer can
+differ from a model answer and still be right; it cannot leave out what the "must contain" lines name.
+
+Many exercises ask about *your own* program. Those answers show what a good response looks like for Tidewater, so you
+can see the shape, and then say what to look for in yours.
+
+The commands below run in three places. A scratch folder holds drops, small models and offline GitLab projects
+made for the answer. The `tidewater` folder is the simulation's state after sprint 6, the same one the sprint
+chapters use. A few answers read the kit itself. Each block says which.
+
+=== Part I: where they start {#answers-part-1}
+
+::: answer [[documents--ex-1]]: Count the copies
+A typical result for one interface requirement on a document-era program: the system specification (owned by the
+systems engineering lead, updated at the last revision), the interface control document (owned by the interface
+lead, two revisions behind), the requirements database export (owned by the requirements manager, refreshed monthly),
+the verification matrix spreadsheet (owned by the test lead), and two briefings. Six places; on most programs two or
+three agree word for word.
+
+You cannot find out without reading them all, which is the point of the exercise. A good answer names the one tool
+that would answer it mechanically: a comparison of the text with the same identifier in each place. In this book that
+is the trace job's *drift* list, which compares DOORS text with the model's text for every requirement on every
+change ([[pipeline]]).
+
+Must contain: every place, an owner for each, a date for each, and an honest "I could not check this one" where that
+is true.
+:::
+
+::: answer [[documents--ex-2]]: Reconstruct a change
+Lay the change out as dated events: request raised, impact assessment started and finished, board scheduled, board
+held, document updated, document re-baselined, downstream documents updated. Then mark each interval *deciding* (a
+person working on it) or *waiting* (in a queue, an inbox, a calendar). On most programs the waiting is well over half
+the elapsed time; the chapter's example was mostly waiting for the next board and for the document owners.
+
+Must contain: the elapsed time, the decided time, the fraction waiting, and the one queue that held it longest.
+That queue is the first thing a merge request with automatic checks removes.
+:::
+
+::: answer [[documents--ex-3]]: The five virtues
+A model answer for Tidewater's document era:
+
+- **Readable by anyone:** a Word file opens everywhere. Cost: anyone can read it, nobody can check it mechanically.
+- **Contractually meaningful:** the specification is a deliverable with a signature. Cost: changing it takes a board.
+- **Reviewed:** every revision went through a review meeting. Cost: weeks of calendar time per review.
+- **Baselined:** revision letters and a document register. Cost: the register and the documents drift apart.
+- **Traced:** a verification matrix spreadsheet. Cost: two days to rebuild it before every review.
+
+Keep the page. After [[scorecard]], each line should have a GitLab counterpart: a text file anyone can read, a merge
+request with approvals, review in hours, a protected tag, a trace job.
+:::
+
+::: answer [[cameo--ex-1]]: Measure it yourself
+Generate drop 1 and search it:
+
+```sh run sandbox=scratch expect="(?s)name=\"Battery\".*name=\"Battery_old\""
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drop1 > /dev/null
+grep -n -o 'name="Battery[^"]*"' drop1/tidewater.xmi
+```
+
+There are two: `Battery` and `Battery_old`. The real battery is the one something uses. A block is real if another
+element has it as a type:
+
+```sh run expect="(?s)Battery used 1 time.*Battery_old used 0 time"
+for n in Battery Battery_old; do
+  id=$(grep -o "xmi:id=\"[^\"]*\" name=\"$n\"" drop1/tidewater.xmi | sed 's/xmi:id="\([^"]*\)".*/\1/')
+  echo "$n used $(grep -c "type=\"$id\"" drop1/tidewater.xmi) time(s)"
+done
+```
+
+`Battery` is the type of the power system's battery part; `Battery_old` sits in the "Legacy Import" package and
+nothing refers to it. Deciding by use, not by name, is the habit to keep.
+:::
+
+::: answer [[cameo--ex-2]]: Read the manifest
+```sh run expect="tidewater.xmi: OK"
+cd drop1
+grep 'tidewater\.' MANIFEST.txt | tr -d '\r' | sed 's/^ *//' | sha256sum -c
+```
+
+The checksums match. If one did not, the file you hold is not the file the prime's build recorded: corrupted in
+transit, edited by someone, or from a different build. Do not import it. Call the prime's modeler (the contract's
+named technical contact) and ask for the drop to be sent again; record the event on the Prime Drop issue
+([[prime-changes]]).
+:::
+
+::: answer [[cameo--ex-3]]: Belief and fact
+A model answer sorts each belief into one of three columns:
+
+- **About the language:** "SysML cannot express our constraints" (it can, with constraint blocks; the team never used
+  them), "a requirement must be a diagram element" (it is an element; diagrams are views of it).
+- **About the tool:** "the model is the diagrams", "you cannot merge two people's work", "you need a seat to read the
+  model". These are Cameo's file format and licensing, not SysML.
+- **About how the team was asked to work:** "the model must contain every document paragraph", "every slide needs a
+  diagram", "nobody may delete anything". These came from how the port was ordered.
+
+Must contain: at least one belief in each column. Most teams find the third column is the longest, which is good news:
+it is the one they can change.
+:::
+
+::: answer [[directive--ex-1]]: Read your own directive
+Three columns: what it says (quote it), what it requires (the minimum that would satisfy an auditor), what it leaves
+open (everything else). For Tidewater's directive ([[directive]]), "adopt DevSecOps practices" *says* a lot and
+*requires* little: a version-controlled model, automated checks, a demonstration within twelve weeks. It leaves open
+the tools, the branching model, the measures and the team's pace.
+
+The open items belong to the person who will be held to the result, which for an MBSE team is the model lead, with
+the program manager's concurrence. Write them down as decisions ([[operating-model]]) so they stop being open.
+:::
+
+::: answer [[directive--ex-2]]: Write down the objections
+The exercise is the method; a good result looks like Tidewater's list in [[directive]]: nine objections in the
+speakers' words, each with a column "answered where, with what evidence". Typical entries: "we will lose the
+diagrams" (answered by generated views, [[diagrams]]); "nobody will read text" (answered by the model site the program
+office reads, [[tools]]); "this is a software process" (answered by the systems engineering share of the work,
+[[bluf]]).
+
+Must contain: the speaker's own words, not a paraphrase, and a planned date for each answer. An objection without a
+date is a promise nobody is held to.
+:::
+
+::: answer [[directive--ex-3]]: Pick your measures
+Five that work for most ports, each computable without judgement:
+
+1. TODO lines left after conversion, from the pipeline's `todo` job; target zero; old-way baseline: none (nobody
+   counted).
+2. Requirements with a verification case, from the trace job; target: every requirement the government owns; old-way
+   baseline: the last verification matrix, counted by hand.
+3. Merge requests that went through a green pipeline and an approval, from GitLab; target: all of them after the
+   first sprint; old-way baseline: changes made without a recorded review.
+4. Change lead time, from GitLab analytics ([[analytics]]); target: days, not weeks; old-way baseline: the board cycle.
+5. The team's pulse survey; target: rising; old-way baseline: the first retrospective.
+
+The skeptic usually rejects the pulse survey ("feelings are not data") and the lead time ("you are comparing a typo
+fix with a board decision"). Both objections are fair. Answer the first by keeping the survey anonymous and the
+questions fixed; answer the second by comparing like with like, and by saying so on the slide.
+:::
+
+::: answer [[devsecops--ex-1]]: Make your own list
+A starting list, with the systems engineering term beside each:
+
+|| DevSecOps term | Closest SE / CM term ||
+| repository | controlled document library |
+| commit | a change to a controlled item, with author and date |
+| branch | a working copy for one change |
+| merge request | engineering change request with its review |
+| pipeline | configuration audit plus review checklist, run by machine |
+| tag | baseline |
+| release | published baseline with its release notes |
+| runner | the machine the audit runs on (no equivalent) |
+| artifact | review package, generated |
+| code owner | approval authority for an item |
+
+"Runner" and "pipeline schedule" usually have no equivalent; that is fine. Compare with the translation table in
+[[devsecops]] and keep the words your team already uses for the rest.
+:::
+
+::: answer [[devsecops--ex-2]]: Which idea first?
+For Tidewater the time-saver was automatic checks on every change (the grammar and lint jobs found in minutes what
+review meetings found in weeks) and the most resisted was small changes reviewed one at a time ("we will drown in
+reviews"). They are usually *different* ideas, and that matters: lead with the time-saver, because it pays for the
+patience the resisted idea needs. A good answer names both and says which one you will introduce first.
+:::
+
+::: answer [[devsecops--ex-3]]: Follow a change
+Write your change against the ten steps (issue, branch, edit, local check, commit, push, merge request, pipeline,
+review and approval, merge). In a document-era process, steps 1, 7 and 9 usually exist (a change request, a review,
+a signature), steps 4 and 8 do not exist at all (no automatic check), and step 10 is a person re-typing the change
+into the master document. The time goes into the review queue and into re-typing. A good answer marks each step
+"existed / missing / done by hand" and puts a duration on each existing one.
+:::
+
+::: answer [[sysmlv2--ex-1]]: Convert and count
+```sh run expect="^52$"
+perl "$KIT/bin/xmi2sysml.pl" --report --out drop1-v2 drop1/tidewater.xmi > drop1-report.txt
+grep -r "// TODO" drop1-v2 | wc -l
+```
+
+Fifty-two, which matches the table "Drop 1's conversion debt, by kind" in [[sysmlv2]].
+:::
+
+::: answer [[sysmlv2--ex-2]]: Read a package
+```sh run expect="connection toArchive connect qc.'out' to archive.'in'"
+grep -n "part \|port \|connection" drop1-v2/datacenter/DataCenter.sysml
+```
+
+The data segment has four parts (ingest, quality control, archive, publisher), three external ports (observations in,
+health in, the public interface out) and five connections in a chain: observations into ingest, ingest to quality
+control, quality control to the archive, the archive to the publisher, the publisher out to the public port. Most
+readers draw it in a few minutes, faster than finding the right diagram among the forty-seven in the v1 model, and
+the text cannot be out of date with itself.
+:::
+
+::: answer [[sysmlv2--ex-3]]: Find a hidden error
+```sh run expect="^1$"
+grep -c "OpaqueExpression" drop1/tidewater.xmi
+```
+
+There is only one, the energy balance. A discrepancy report for it: "The constraint `balance` on `EnergyBalance`
+(xmi:id in the drop) uses `sunHours`, which is not a parameter of the constraint block. Please declare `sunHours`
+(with its unit) or state where its value comes from. Impact: the government's v2 model cannot evaluate the constraint
+until it is declared." Name the element by its id, say what is wrong, say what you need, say why it matters.
+:::
+
+::: answer [[sysmlv2--ex-4]]: Write a state machine
+```sh run expect="0 error"
+cat > modes.sysml <<'EOF'
+package ModesExample {
+    state def BuoyModes {
+        entry; then observing;
+        state observing;
+        state degraded;
+        state maintenance;
+        state recovered;
+        transition observing_to_degraded first observing accept LowBattery then degraded;
+        transition degraded_to_observing first degraded accept Charged then observing;
+        transition to_maintenance first observing accept CrewOnSite then maintenance;
+        transition degraded_to_maintenance first degraded accept CrewOnSite then maintenance;
+        transition back_to_service first maintenance accept CrewDeparts then observing;
+        transition lifted first maintenance accept LiftedAboard then recovered;
+    }
+    attribute def LowBattery;
+    attribute def Charged;
+    attribute def CrewOnSite;
+    attribute def CrewDeparts;
+    attribute def LiftedAboard;
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check modes.sysml
+```
+
+One new line, named so it reads as a sentence, reusing the existing `CrewOnSite` event.
+:::
+
+::: answer [[ex-recipe-decompose]]: Decompose by hand, then check
+By hand: classification (missing; Tidewater is unmarked, so optional here), state and trigger (missing), specification
+target "the power system", operative verb "shall", target verb "report", precise object "the battery state of charge",
+modifier and modification (missing), reference (missing), exceptions (missing), ID TW-SEG-003. All required parts are
+present. A test engineer needs the optional parts the sentence lacks: *to whom* it reports, *how often*, and *how
+accurately*. Without them the requirement cannot fail a test.
+
+```sh run expect="'report' with no measurable threshold"
+perl "$KIT/tools/sysml/req-recipe.pl" --only TW-SEG-003 drop1/tidewater.reqif
+```
+
+The checker agrees: every required part found, one minor finding, no threshold.
+:::
+
+::: answer [[ex-recipe-split]]: Split TW-SYS-001
+```sh run expect="requirements=2 findings=0 missing=0"
+cat > split.txt <<'EOF'
+(U) While in observing mode, each station shall measure wind speed, wind direction, air pressure and air temperature at least once every 10 minutes. (TW-SYS-001a)
+
+(U) While in observing mode, each moored buoy shall measure wave height and wave period at least once every 30 minutes. (TW-SYS-001b)
+EOF
+perl "$KIT/tools/sysml/req-recipe.pl" --strict --require classification split.txt
+```
+
+What you had to decide: how often each quantity is measured (the original had no rate), whether waves are measured
+only by buoys (the original said "each buoy shall *also*"), and in which mode the requirement applies. The rates
+above are notional; on a real program they come from the stakeholder need, and asking for them is a discrepancy report
+to whoever owns the wording.
+:::
+
+::: answer [[ex-recipe-stakeholder]]: A need that can be traced
+"Mariners shall be able to obtain the latest marine bulletin and the latest observation from every station through a
+public service, at any time, without an account." It stays a stakeholder need (it names the mariner and the outcome,
+not a system element) and becomes verifiable by demonstration: the program office watches a mariner, with no account,
+read the latest bulletin and observations. The evidence is the demonstration record. The weak verb "be able to read"
+is replaced by an outcome someone can watch happen.
+:::
+
+::: answer [[ex-recipe-sysml]]: Add a constraint
+```sh run expect="0 error"
+cat > recipe-seg.sysml <<'EOF'
+package RecipeSeg {
+    private import ISQ::*;
+    private import SI::*;
+    part def PowerSystem { attribute socReportPeriod : DurationValue; }
+    requirement def StateOfChargeReporting {
+        doc /* The power system reports the battery state of charge at least once per reporting period. */
+        subject power : PowerSystem;
+        attribute reportingPeriod : DurationValue;
+        require constraint { power.socReportPeriod <= reportingPeriod }
+    }
+    requirement tw_seg_003 : StateOfChargeReporting {
+        attribute doorsId = "TW-SEG-003";
+        doc /* (U) While in observing mode, the power system shall report the battery state of charge to the data logger every 10 minutes with an accuracy of 5 % of rated capacity, except during maintenance mode. */
+        attribute :>> reportingPeriod = 10 [min];
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check recipe-seg.sysml
+```
+
+```sh run expect="TW-SEG-003\s+score 100"
+perl "$KIT/tools/sysml/req-recipe.pl" recipe-seg.sysml
+```
+
+The sentence carries the recipe for people; the constraint carries the same rule for the tools.
+:::
+
+::: answer [[ex-recipe-dr]]: Write the DR
+One screen: a title ("DR-6: thirteen DOORS requirements do not meet the requirement recipe"), a table of the thirteen
+IDs with one-line findings (TW-STK-001 weak verb "provide"; TW-STK-003 and TW-STK-004 "be able to"; TW-SYS-001 two
+operative verbs; TW-SYS-012 "be serviceable"; the rest "no measurable threshold"), and the suggested wording for the
+five in `recipe-rewrites.txt`.
+
+Ask the prime to fix TW-SYS-001 and TW-SYS-012 first: TW-SYS-001 is two requirements in one sentence, so one of them
+cannot be verified separately, and TW-SYS-012 has no satisfy in the model and no verifiable verb, so it blocks both
+traceability and verification. The "no threshold" findings matter too, but they can wait for the wording owner's
+next revision.
+:::
+
+=== The SysML v2 workbook {#answers-workbook}
+
+Each answer below writes its snippet into the scratch folder and checks it. The snippets are complete files, so you
+can run any one of them on its own.
+
+::: answer [[ex-wb-loop]]: Break it three ways
+```sh run expect="(?s)fixed.sysml.*0 error.*m1.sysml:3:5: error: unexpected 'part'.*m2.sysml:4:1: error: unexpected end of file.*m3.sysml:3:26: error: unexpected 'ballast'"
+cat > fixed.sysml <<'EOF'
+package Stations {
+    part def Ballast;
+    part def Hull { part ballast : Ballast; }
+}
+EOF
+sed 's/part def Ballast;/part def Ballast/' fixed.sysml > m1.sysml
+sed '$d' fixed.sysml > m2.sysml
+sed 's/part ballast/prat ballast/' fixed.sysml > m3.sysml
+for f in fixed m1 m2 m3; do echo "== $f.sysml"; perl "$KIT/tools/sysml/sysml.pl" check $f.sysml | head -1; done
+```
+
+Only the misspelled `prat` is reported on the line that is actually wrong (line 3, at the word after `prat`, because
+the checker read `prat` as a name and then found another name). The missing `;` is reported one line *later*, where
+the next statement starts. The missing `}` is reported at the end of the file, wherever that is. The two rules from
+[[workbook]] in action: fix the first error first, and look one line up.
+:::
+
+::: answer [[ex-wb-packages]]: Narrow the imports
+```sh run expect="0 error"
+cat > packages.sysml <<'EOF'
+package Stations {
+    private import Types::StationMode;
+    public import Interfaces::ObservationPort;
+    part def Hull;
+    part def Mooring { attribute mode : StationMode; }
+}
+package Types { attribute def StationMode; }
+package Interfaces { port def ObservationPort; }
+package Fourth {
+    private import Stations::*;
+    part def Check { part hull : Hull; port p : ObservationPort; }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check packages.sysml
+```
+
+`Fourth` sees `Hull` and `Mooring` (Stations' own public members) and `ObservationPort`, because Stations imports it
+*publicly* and so re-exports it. It does not see `StationMode`, which Stations imports privately. A public import is
+a promise to every package that imports you; make imports private unless you mean that promise.
+:::
+
+::: answer [[ex-wb-names]]: Document a decision
+```sh run expect="0 error"
+cat > names.sysml <<'EOF'
+package 'Data Center' {
+    part def QualityControl {
+        doc /* Checks each observation and sets its quality flag. */
+    }
+    comment about QualityControl
+        /* Decision 2026-11: flag, do not delete. A deleted observation cannot be reviewed later, and the archive
+           keeps every record with its flag (TW-SYS-005). */
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check names.sysml
+```
+
+The forecaster's document wants the `doc`: what quality control *is*. The decision belongs in review and in the
+decision log; if it matters for years, it belongs in a decision record ([[operating-model]]), and the comment points
+to it.
+:::
+
+::: answer [[ex-wb-parts]]: A shore station
+```sh run expect="0 error"
+cat > parts.sysml <<'EOF'
+package Parts {
+    part def SensorSuite;
+    part def Battery;
+    part def Cell;
+    part def Mast;
+    part def ObservingStation {
+        part sensors : SensorSuite;
+        part battery : Battery { part cells : Cell[4]; }
+    }
+    part def MooredBuoy :> ObservingStation;
+    part def ShoreStation :> ObservingStation { part mast : Mast; }
+    part def StationSegment {
+        part buoys : MooredBuoy[1..*];
+        part shoreStations : ShoreStation[1..*];
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check parts.sysml
+```
+
+A cell in a buoy in the segment is four levels down from the segment: segment, buoy, battery, cell. The buoy inherits
+the battery from `ObservingStation`, so the depth is the same in a shore station.
+:::
+
+::: answer [[ex-wb-redefinition]]: A shore-station suite
+```sh run expect="0 error"
+cat > redefinition.sysml <<'EOF'
+package Redefinition {
+    private import ISQ::*;
+    private import SI::*;
+    part def Sensor { attribute samplePeriod : DurationValue; }
+    part def SensorSuite {
+        part sensors : Sensor[1..*];
+        attribute samplePeriod : DurationValue = 10 [min];
+    }
+    part def Barometer :> Sensor;
+    part def ShoreSensorSuite :> SensorSuite {
+        part barometer : Barometer :> sensors;
+        attribute :>> samplePeriod = 5 [min];
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check redefinition.sysml
+```
+
+Now without the `:>>`, in a lint project:
+
+```sh run expect="errors=0 warnings=0"
+mkdir -p lintdemo/model && printf 'title = Lint demo\n' > lintdemo/sysml.conf
+sed 's/attribute :>> samplePeriod/attribute samplePeriod/' redefinition.sysml > lintdemo/model/Redefinition.sysml
+perl "$KIT/tools/sysml/model.pl" --root lintdemo lint
+```
+
+Lint says nothing, and that is the lesson. Without `:>>` the suite declares a *second* attribute with the same name
+that hides the inherited one; it is legal text and the kit's lint does not flag the shadowing. A full SysML v2 tool
+with semantic checks (the OMG pilot implementation, `model.pl validate` with Java) reports it. Until then, reviewers
+look for the same name declared twice in a specialization ([[reviewing]]).
+:::
+
+::: answer [[ex-wb-ports]]: A health interface
+```sh run expect="0 error"
+cat > ports.sysml <<'EOF'
+package Ports {
+    item def ObservationRecord;
+    item def HealthReport;
+    port def ObservationPort { out item observation : ObservationRecord; }
+    port def HealthPort { out item health : HealthReport; }
+    interface def ObservationLink { end transmitter : ObservationPort; end receiver : ~ObservationPort; }
+    interface def HealthLink { end transmitter : HealthPort; end receiver : ~HealthPort; }
+    part def TelemetryUnit { port obsOut : ObservationPort; port healthOut : HealthPort; }
+    part def IngestService { port obsIn : ~ObservationPort; port healthIn : ~HealthPort; }
+    part def Network {
+        part telemetry : TelemetryUnit;
+        part ingest : IngestService;
+        interface link : ObservationLink connect transmitter ::> telemetry.obsOut to receiver ::> ingest.obsIn;
+        interface health : HealthLink connect transmitter ::> telemetry.healthOut to receiver ::> ingest.healthIn;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check ports.sysml
+```
+:::
+
+::: answer [[ex-wb-flows]]: Two flows
+```sh run expect="0 error"
+cat > flows.sysml <<'EOF'
+package Flows {
+    item def ObservationRecord;
+    item def HealthReport;
+    part def DataLogger { out item record : ObservationRecord; out item health : HealthReport; }
+    part def TelemetryUnit { in item record : ObservationRecord; in item health : HealthReport; }
+    part def Station {
+        part logger : DataLogger;
+        part telemetry : TelemetryUnit;
+        connection toTelemetry connect logger to telemetry;
+        flow of ObservationRecord from logger.record to telemetry.record;
+        flow of HealthReport from logger.health to telemetry.health;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check flows.sysml
+```
+
+One connection is enough: the connection says the two parts are joined, and each flow says what crosses. Two flows on
+one connection is usually clearer to a reviewer, because it mirrors the hardware (one cable, two kinds of traffic). A
+second connection is right only when there really are two physical paths.
+:::
+
+::: answer [[ex-wb-values]]: A power budget's inputs
+```sh run expect="errors=0 warnings=0"
+cat > values.sysml <<'EOF'
+package Values {
+    private import ISQ::*;
+    private import SI::*;
+    private import ScalarValues::*;
+    attribute def Power :> PowerValue;
+    part def Battery {
+        attribute stateOfCharge : Real;
+        assert constraint socRange { stateOfCharge >= 0.0 and stateOfCharge <= 1.0 }
+    }
+    part def Station { attribute averageLoad : Power; }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check values.sysml
+mkdir -p lintvalues/model && printf 'title = Lint demo\n' > lintvalues/sysml.conf && cp values.sysml lintvalues/model/
+perl "$KIT/tools/sysml/model.pl" --root lintvalues lint
+```
+
+A fraction from zero to one, constrained, is the simplest honest "percentage". Reading the library turns up
+dimensionless ratio types too; use whichever your team agrees on, once, in the library package, so every model says
+it the same way.
+:::
+
+::: answer [[ex-wb-expressions]]: A reserve
+```sh run expect="0 error"
+cat > expressions.sysml <<'EOF'
+package Expressions {
+    private import ISQ::*;
+    private import SI::*;
+    private import ScalarValues::*;
+    part def Battery {
+        attribute capacity : EnergyValue = 400 [W*h];
+        attribute stateOfCharge : Real = 0.8;
+        attribute usable : EnergyValue = capacity * stateOfCharge;
+    }
+    part def Station {
+        part batteries : Battery[2];
+        attribute total : EnergyValue = sum(batteries.usable);
+        attribute reserve : EnergyValue = total - 15 [W] * 24 [h];
+        constraint reservePositive { reserve > 0 [W*h] }
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check expressions.sysml
+```
+
+The English: "The usable energy of the station's batteries shall exceed one day of a 15 W load." The text form is
+exact about units and arithmetic; the English is what a reviewer checks against intent. Keep both: the sentence in the
+`doc`, the expression in the constraint.
+:::
+
+::: answer [[ex-wb-requirements]]: The battery requirement
+```sh run expect="0 error"
+cat > requirements.sysml <<'EOF'
+package Reqs {
+    private import ISQ::*;
+    private import SI::*;
+    part def PowerSystem { attribute socReportPeriod : DurationValue; }
+    requirement def StateOfChargeReporting {
+        doc /* The power system reports the battery state of charge at least once per reporting period. */
+        subject power : PowerSystem;
+        attribute reportingPeriod : DurationValue;
+        require constraint { power.socReportPeriod <= reportingPeriod }
+    }
+    requirement tw_seg_003 : StateOfChargeReporting {
+        attribute doorsId = "TW-SEG-003";
+        attribute :>> reportingPeriod = 10 [min];
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check requirements.sysml
+```
+:::
+
+::: answer [[ex-wb-trace]]: Trace a new requirement
+```sh run expect="0 error"
+cat > trace.sysml <<'EOF'
+package Trace {
+    private import RequirementDerivation::*;
+    requirement tw_stk_002 { doc /* Timely observations. */ }
+    requirement tw_sys_013 { doc /* Each station keeps observations it could not send and sends them later. */ }
+    part def DataLogger;
+    part def Station { part logger : DataLogger; }
+    satisfy tw_sys_013 by Station::logger;
+    #derivation connection {
+        end #original ::> tw_stk_002;
+        end #derive ::> tw_sys_013;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check trace.sysml
+```
+
+The trace job would list TW-SYS-013 as *unverified*: something satisfies it, nothing verifies it. On a merge request
+the ratchet fails only if that is a new gap compared with the target branch ([[pipeline]]); adding a new requirement
+without its verification case is exactly that, so write the case in the same merge request.
+:::
+
+::: answer [[ex-wb-verification]]: Inspect the vessel access
+```sh run expect="0 error"
+cat > verification.sysml <<'EOF'
+package Verification {
+    private import VerificationCases::*;
+    requirement tw_sys_012 {
+        attribute doorsId = "TW-SYS-012";
+        attribute verificationMethod = "Inspection";
+        doc /* Every station shall be serviceable from the service vessel. */
+    }
+    part def ServiceVessel;
+    verification def InspectVesselAccess {
+        doc /* A crew inspects each station type from the service vessel. Method: inspection. */
+        subject vessel : ServiceVessel;
+        objective { verify tw_sys_012; }
+        return verdict : VerdictKind;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check verification.sysml
+```
+
+Record the method on the requirement (`verificationMethod`, as the converters write it from DOORS), because the VCRM
+job reads it from there ([[verification]]); the verification case's `doc` repeats it for the human reader.
+:::
+
+::: answer [[ex-wb-states]]: The Storm mode
+```sh run expect="0 error"
+cat > states.sysml <<'EOF'
+package Modes {
+    attribute def LowBattery;
+    attribute def CrewOnSite;
+    attribute def StormWarning;
+    attribute def StormOver;
+    state def BuoyModes {
+        entry; then observing;
+        state observing;
+        state degraded;
+        state maintenance;
+        state storm;
+        transition first observing accept LowBattery then degraded;
+        transition first degraded accept CrewOnSite then maintenance;
+        transition first maintenance then observing;
+        transition to_storm first observing accept StormWarning then storm;
+        transition from_storm first storm accept StormOver then observing;
+    }
+    part def MooredBuoy { exhibit state modes : BuoyModes; }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check states.sysml
+```
+
+The prime's drop 3 adds the same state with triggers named `stormWarning` and `calm`. Your names may differ; when the
+drop lands, use the prime's names so the next delta stays clean, and say so in the merge request.
+:::
+
+::: answer [[ex-wb-actions]]: Join and finish
+```sh run expect="0 error"
+cat > actions.sysml <<'EOF'
+package Cycle {
+    item def ObservationRecord;
+    item def Bulletin;
+    action def SampleSensors { out record : ObservationRecord; }
+    action def CheckQuality { in record : ObservationRecord; out checked : ObservationRecord; }
+    action def ArchiveObservations { in record : ObservationRecord; }
+    action def PublishBulletin { in record : ObservationRecord; out bulletin : Bulletin; }
+    action def LogBulletin;
+    action def ObserveCoast {
+        out bulletin : Bulletin;
+        action sample : SampleSensors;
+        action check : CheckQuality;
+        action store : ArchiveObservations;
+        action publish : PublishBulletin;
+        action logBulletin : LogBulletin;
+        flow sample.record to check.record;
+        first start then sample;
+        first sample then check;
+        first check then afterCheck;
+        fork afterCheck;
+        first afterCheck then store;
+        first afterCheck then publish;
+        flow check.checked to store.record;
+        flow check.checked to publish.record;
+        join done;
+        first store then done;
+        first publish then done;
+        first done then logBulletin;
+        flow publish.bulletin to ObserveCoast::bulletin;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check actions.sysml
+```
+:::
+
+::: answer [[ex-wb-analysis]]: Use the calc
+```sh run expect="0 error"
+cat > analysis.sysml <<'EOF'
+package Analysis {
+    private import ISQ::*;
+    private import SI::*;
+    private import ScalarValues::*;
+    calc def DailyEnergy {
+        in power : PowerValue;
+        in hours : Real;
+        return energy : EnergyValue = power * hours * (1 [h]);
+    }
+    part def PowerSystem {
+        attribute generation : PowerValue;
+        attribute load : PowerValue;
+        calc dailyLoad : DailyEnergy { in power = PowerSystem::load; in hours = 24.0; }
+        calc dailyGeneration : DailyEnergy { in power = PowerSystem::generation; in hours = 6.0; }
+        constraint balance { dailyGeneration.energy >= dailyLoad.energy }
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check analysis.sysml
+```
+
+A reviewer checks this form more easily: each calc has a name that says what it computes, and the constraint reads
+"generation covers load". The one-line expression is shorter but hides the units of `sunHours` and `24`.
+:::
+
+::: answer [[ex-wb-allocations]]: Allocate the cycle
+```sh run expect="0 error"
+cat > allocations.sysml <<'EOF'
+package Allocations {
+    action def CheckQuality;
+    action def ArchiveObservations;
+    part def QualityControl;
+    part def Archive;
+    allocate CheckQuality to QualityControl;
+    allocate ArchiveObservations to Archive;
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check allocations.sysml
+```
+
+Allocate `PublishBulletin` to the publisher, not to the data center: allocate to the lowest element that actually
+performs the function, but no lower ([[no-spider-web]]). An allocation to the whole data center says nothing a
+reviewer can check, and the IDEF0 plates show the publisher as the mechanism, which is what the forecaster expects.
+:::
+
+::: answer [[ex-wb-metadata]]: A marking
+```sh run expect="0 error"
+cat > metadata.sysml <<'EOF'
+package Conventions {
+    private import ScalarValues::*;
+    metadata def Marking { attribute level : String; }
+}
+package Stations {
+    private import Conventions::*;
+    @Marking { level = "U"; }
+    part def MooredBuoy;
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check metadata.sysml
+```
+
+On a real program the value is decided by the original classification authority, through the security
+classification guide; the team applies it, and the ISSM reviews it. The model records the decision; it does not make
+it ([[security]]).
+:::
+
+::: answer [[ex-wb-usecases]]: Read a bulletin
+```sh run expect="0 error"
+cat > usecases.sysml <<'EOF'
+package UseCases {
+    part def ObservationNetwork;
+    use case def QueryArchive { doc /* Look up observations by station and time. */ }
+    use case def ReadBulletin {
+        doc /* A mariner reads the latest bulletin. */
+        subject network : ObservationNetwork;
+        actor mariner;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check usecases.sysml
+```
+
+No include: reading the latest bulletin never requires a query of the archive; a mariner who wants history performs
+a different use case. Including it would make every bulletin read depend on the archive.
+:::
+
+::: answer [[ex-wb-variants]]: A hybrid
+```sh run expect="0 error"
+cat > variants.sysml <<'EOF'
+package Variants {
+    part def Modem;
+    part def CellularModem :> Modem;
+    part def SatelliteModem :> Modem;
+    part def HybridModem :> Modem;
+    part def TelemetryUnit {
+        variation part modem : Modem {
+            variant part cellular : CellularModem;
+            variant part satellite : SatelliteModem;
+            variant part hybrid : HybridModem;
+        }
+    }
+    part shoreTelemetry : TelemetryUnit { part :>> modem = modem::cellular; }
+    part buoyTelemetry : TelemetryUnit { part :>> modem = modem::satellite; }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check variants.sysml
+```
+
+The trade study needs the same attributes on every variant, with units: cost, power draw, data rate, coverage at sea,
+and availability. Put them on `Modem` so each variant must give a value; a variant without one cannot be scored.
+:::
+
+::: answer [[ex-wb-views]]: A test view
+```sh run expect="0 error"
+cat > views.sysml <<'EOF'
+package Views {
+    private import VerificationCases::*;
+    requirement tw_sys_002;
+    verification def TestStationObservations { objective { verify tw_sys_002; } }
+    viewpoint def TestViewpoint {
+        doc /* Which requirements each verification case covers, and by which method. */
+    }
+    view def CoverageView {
+        satisfy requirement vp : TestViewpoint;
+    }
+    view coverage : CoverageView {
+        expose TestStationObservations;
+        expose tw_sys_002;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check views.sysml
+```
+
+Expose the verification package and the requirements packages, and nothing structural: the test organization needs
+the cases, what they verify and the methods. That view is, in effect, the VCRM ([[verification]]).
+:::
+
+::: answer [[ex-wb-library]]: Find three types
+```sh run expect="(?s)attribute def LengthValue.*attribute def ElectricCurrentValue.*attribute def CelsiusTemperatureValue"
+LIB="$KIT/tools/sysml/vendor/sysml-v2-release/sysml.library/Domain Libraries/Quantities and Units"
+grep -h "attribute def LengthValue\|attribute def ElectricCurrentValue\|attribute def CelsiusTemperatureValue" "$LIB"/*.sysml
+grep -h "attribute <m> metre\|attribute <'°C'>" "$LIB/SI.sysml"
+```
+
+```sh run expect="errors=0 warnings=0"
+cat > library.sysml <<'EOF'
+package Instruments {
+    private import ISQ::*;
+    private import SI::*;
+    part def Thermometer {
+        attribute minTemperature : CelsiusTemperatureValue = -40 ['°C'];
+        attribute maxTemperature : CelsiusTemperatureValue = 60 ['°C'];
+        attribute mastHeight : LengthValue = 4 [m];
+        attribute supplyCurrent : ElectricCurrentValue = 0.02 [A];
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check library.sysml
+mkdir -p lintlib/model && printf 'title = Lint demo\n' > lintlib/sysml.conf && cp library.sysml lintlib/model/
+perl "$KIT/tools/sysml/model.pl" --root lintlib lint
+```
+
+The degree Celsius symbol is quoted (`'°C'`) because it is not a plain name. A temperature *range* is two values,
+minimum and maximum; a single attribute called `range` would hide which is which.
+:::
+
+::: answer [[ex-wb-reading]]: Review a file in five passes
+```sh run expect="(?s)import Interfaces.*import Stations.*Stations.sysml"
+grep -n "import" drop1-v2/datacenter/DataCenter.sysml
+grep -rl "import DataCenter" drop1-v2 | sort
+```
+
+```sh run expect="^5$"
+grep -c "// TODO" drop1-v2/datacenter/DataCenter.sysml
+```
+
+DataCenter imports `Interfaces` and `Stations`; `Stations` imports it back, which is the Stations and DataCenter cycle
+([[no-spider-web]]). Its five TODO lines are all level stereotypes. One `doc` is not a description of the element: the
+second `doc` on `QualityControl` is pasted from a briefing ("From the Ops Concept briefing, slide 22 ..."), and the
+`dependency from QualityControl to SensorSuite` is what closes the cycle.
+
+To the prime, as a discrepancy report: the pasted briefing text and the dependency, because both are in the prime's
+model and come back with every drop. The government's to fix: the level tags (TODO lines the government closes in its
+own copy).
+:::
+
+::: answer [[ex-wb-together]]: Grow the mini model
+The workbook's mini model, rebuilt from the workbook's own text so this answer stays in step with it:
+
+```sh run expect="errors=0 warnings=0"
+awk '/^cat > mini\//{p=1} p{print} /^EOF$/{p=0}' "$KIT/docs/src/primer/06b-sysml-v2-workbook.txt" > make-mini.sh
+mkdir -p mini/model && sh make-mini.sh
+cd mini && perl "$KIT/tools/sysml/model.pl" lint
+```
+
+Adding the state machine to `Network.sysml` as the exercise says gives `Network` ten members, and the outline check
+fails: two to nine children per parent. The state machine is behavior, so the better home is `Behavior.sysml`, with
+`Network` importing it:
+
+```sh run cwd=mini expect="(?s)violations\s+0.*0 not satisfied, 0 not verified"
+perl -0pi -e 's/(    action def Sample)/    attribute def LowBattery;\n    attribute def CrewOnSite;\n    state def BuoyModes {\n        entry; then observing;\n        state observing;\n        state degraded;\n        state maintenance;\n        transition first observing accept LowBattery then degraded;\n        transition first degraded accept CrewOnSite then maintenance;\n        transition first maintenance then observing;\n    }\n$1/' model/Behavior.sysml
+perl -0pi -e 's/(    private import Interfaces::\*;\n)/$1    private import Behavior::*;\n/; s/part def MooredBuoy \{ \@L3Station; \}/part def MooredBuoy { \@L3Station; exhibit state modes : BuoyModes; }/' model/Network.sysml
+perl -0pi -e 's/    satisfy tw_sys_002 by StationSegment;/    requirement tw_sys_005 {\n        attribute doorsId = "TW-SYS-005";\n        doc \/* The data center shall archive every observation together with its quality flag. *\/\n    }\n    satisfy tw_sys_002 by StationSegment;\n    satisfy tw_sys_005 by Archive;/' model/Requirements.sysml
+perl -0pi -e 's/(    verification def TestDataFlow \{)/    verification def DemonstrateArchive {\n        subject archive : Archive;\n        objective { verify tw_sys_005; }\n    }\n$1/' model/Verification.sysml
+perl "$KIT/tools/sysml/sysml.pl" check model/*.sysml
+perl "$KIT/tools/sysml/model.pl" lint
+perl "$KIT/tools/sysml/model.pl" check | tail -1
+perl "$KIT/tools/sysml/model.pl" trace
+```
+
+Now break the trace by removing the new verification case:
+
+```sh run expect="(?s)1 not verified.*TW-SYS-005: not verified"
+perl -0pi -e 's/    verification def DemonstrateArchive \{\n        subject archive : Archive;\n        objective \{ verify tw_sys_005; \}\n    \}\n//' model/Verification.sysml
+perl "$KIT/tools/sysml/model.pl" trace
+```
+
+On a merge request the pipeline's trace job would fail: the target branch had no unverified requirement and this
+change adds one ([[pipeline]]). That is the ratchet: existing gaps are reported, new ones stop the merge.
+:::
+
+::: answer [[ex-wb-worklist]]: Your first TODO
+The TODO line on `ObservationNetwork` reads
+`// TODO stereotype Tidewater_Profile:L1Network on this element (xmi:id ...) not converted`. It is replaced by the
+one line `@L1Network;`, and the package gains `private import Conventions::*;`, where the `Conventions` package
+(in `model/library/conventions/`) defines the level tags.
+:::
+
+=== Part II: week zero {#answers-part-2}
+
+::: answer [[ex-om-size]]: Size the tasks
+A model answer for "write the interface section of the ICD for the observation link": stories "Observation link
+defined in the model" (port def, interface def, the item and its fields; 5 points) and "Observation link reviewed by
+both owners" (review, comments, merge; 2 points). Tasks: "write the item def and its fields" (2), "write the port and
+interface defs" (2), "connect it in the network" (1), "review with the data center owner" (1), "answer the review" (1).
+
+The hardest split is usually the review: it waits on someone else. Rule 2 of [[om-splitting]], *pull out the
+waiting*, is the one that helps: the review becomes its own task, so the modeling finishes on time even when the
+reviewer is busy.
+:::
+
+::: answer [[ex-om-split]]: Split a story
+Split by result, one construct per story, each ending in something that can be shown:
+
+1. "BuoyModes state machine passes lint and appears on the model site" (3 points).
+2. "DailyUpload interaction written and grammar-checked" (2 points).
+3. "ObserveCoast fork, pins and object flows written; the IDEF0 plate shows them" (3 points).
+4. "EnergyBalance constraint written with declared parameters" (3 points).
+
+Eleven points become four stories of at most three, and each one's end state can be demonstrated: open the model site,
+show the plate, run the check.
+:::
+
+::: answer [[ex-om-capacity]]: Compute a sprint's capacity
+Sprint 4 has nine working days (Thanksgiving is a holiday). Prorate each standing capacity by the days each person is
+there:
+
+|| Person | Standing (10 days) | Days present | Capacity ||
+| Jim | 5 | 8 (holiday and Friday's leave) | 5 × 8/10 = 4.0 |
+| Bob | 8 | 9 | 8 × 9/10 = 7.2 |
+| Tom | 8 | 9 | 8 × 9/10 = 7.2 |
+| **Team** | | | **18.4** |
+
+Commit 85 to 95 percent of it: about 15.6 to 17.5 points. The team's real sprint 4 kickoff recorded the same capacity
+and committed seventeen:
+
+{{include: docs/tidewater/sprints/04/kickoff.txt | lines 1-6}}
+:::
+
+::: answer [[ex-om-decision]]: Write a decision record
+A model record, in the template's shape:
+
+```md
+# 0015. Model element names are UpperCamelCase for definitions, lowerCamelCase for usages
+
+Status: accepted, 2026-11-04 (Jim)
+
+## Context
+Names in the converted model mix styles because the v1 model did. Reviews keep arguing about it, and the
+generated documents split names into words by case.
+
+## Decision
+Definitions (part def, port def, ...) use UpperCamelCase; usages use lowerCamelCase. Converted files keep the
+prime's names; the rule applies to government-written elements.
+
+## Consequences
+Reviews stop debating style. The prime's names may differ; we do not rename them, because the next drop would
+undo it.
+
+## Revisit when
+The prime adopts a naming rule, or a second team joins the model.
+```
+
+Must contain: the context in one paragraph, the decision in one sentence, the consequences including the cost, and a
+condition that would reopen it.
+:::
+
+::: answer [[ex-om-raci]]: Enforce a RACI cell
+Three typical cells:
+
+- "The interface lead approves every interface change": enforceable. A CODEOWNERS entry for the interfaces folder
+  plus "code owner approval required" on `develop` ([[gitlab-setup]]).
+- "Only the CM lead creates baselines": enforceable. A protected tag rule `baseline-*` with create:maintainer, and
+  only the CM lead is a maintainer for that purpose.
+- "The model lead is consulted on scope changes": not enforceable by a setting. It is a ceremony: the change goes on
+  the board as a story, and refinement is where the lead is consulted ([[ceremonies]]).
+
+The pattern: approvals and permissions are settings; consultation and judgement are stories and meetings.
+:::
+
+::: answer [[ex-survival-find]]: Find a requirement
+```sh run cwd=. expect="(?s)^5\n.*requirements/Requirements.sysml"
+grep -c ',"Inspection",' drop1/tidewater.csv
+grep -rl "TW-SYS-012" drop1-v2
+```
+
+Five requirements are verified by inspection (TW-SYS-010, TW-SYS-012, TW-SYS-015, TW-SEG-001 and TW-SEG-008), and
+TW-SYS-012 appears in the converted requirements package of the Cameo model.
+:::
+
+::: answer [[ex-survival-count]]: Count the debt by package
+```sh run expect="stations/Stations.sysml:29"
+grep -c "// TODO" drop1-v2/*/*.sysml | sort -t: -k2 -n -r
+```
+
+Stations holds 29 of the 52, because it is the biggest package: most of the model's part definitions live there, and
+each one carries a level stereotype the converter could not carry (`L3Station` down to `L6Component`). Most of the
+debt is that one mechanical kind, which is why it was closed first ([[vim]]).
+:::
+
+::: answer [[ex-survival-checksum]]: Break a checksum
+```sh run expect="(?s)tidewater.csv: FAILED.*did NOT match"
+cp -r drop1 drop1-broken
+sed -i 's/Coastal coverage/Coastal coverag3/' drop1-broken/tidewater.csv
+cd drop1-broken
+grep 'tidewater\.' MANIFEST.txt | tr -d '\r' | sed 's/^ *//' | sha256sum -c 2>&1 || echo "exit status $?"
+```
+
+`sha256sum -c` prints `FAILED` for the changed file and a warning that one checksum did not match. With a real
+delivery: stop, do not import, record it on the Prime Drop issue, and ask the prime to send the drop again
+([[prime-changes]]).
+:::
+
+::: answer [[ex-survival-trouble]]: Make each mistake on purpose
+```sh run expect="(?s)not found.*No such file or directory.*not a git repository"
+sl 2>&1 || true
+ls no-such-folder 2>&1 || true
+git -C / status 2>&1 || true
+```
+
+Read each one aloud: "command not found" (the name is wrong, or the program is not installed), "No such file or
+directory" (the path is wrong; check where you are with `pwd`), "not a git repository" (you are outside the clone;
+`cd` into it). None of them changed anything.
+:::
+
+::: answer [[ex-git-practice]]: The practice afternoon
+The recoveries, each as one command:
+
+|| Mistake | Recovery ||
+| broke a file you had not committed | `git restore FILE` |
+| staged a file by mistake | `git restore --staged FILE` |
+| wrong commit message on the last commit | `git commit --amend -m "..."` (only before pushing) |
+| a commit that should not have happened, already shared | `git revert COMMIT` |
+| a merge that went wrong, still in progress | `git merge --abort` |
+
+The one to remember: on anything already pushed, use `revert`, never `amend` or `reset`. [[rescue]] has each one
+played out.
+:::
+
+::: answer [[ex-git-conflict]]: A conflict with three sides
+Two conflicts, one per merge: the first branch conflicts with the change on `main`, and after you resolve it the second
+branch conflicts with the result. `git log --oneline --all --graph` shows two merge commits on `main`, each with two
+parents. Resolve each so the line says what you mean, not by keeping both versions side by side; with
+`merge.conflictstyle diff3` set, the middle section shows the original line, which tells you what each side changed.
+:::
+
+::: answer [[ex-git-blame]]: The auditor's questions
+```sh
+git blame -L 3,3 model.sysml        # who last changed line 3, and in which commit
+git show COMMIT                     # what that commit changed
+git log -1 --skip=3 --format=%s     # the message of the commit three before the latest
+```
+:::
+
+::: answer [[ex-git-vendor]]: A vendor branch of your own
+```sh run expect="(?s)CONFLICT \(content\).*<<<<<<< HEAD.*The floating body.*=======\n>>>>>>> vendor/prime"
+git init -q -b main vendor-demo && cd vendor-demo
+git config user.name Bob && git config user.email bob@example.invalid
+printf 'package S {\n    part def Hull;\n    part def Mast;\n}\n' > S.sysml
+git add . && git commit -qm "drop 1"
+git branch vendor/prime
+git switch -q -c develop
+sed -i 's|part def Hull;|part def Hull { doc /* The floating body. */ }|' S.sysml && git commit -qam "doc on Hull"
+git switch -q vendor/prime
+sed -i '/Hull/d' S.sysml && git commit -qam "drop 4: the prime deletes Hull"
+git switch -q develop
+git merge vendor/prime 2>&1 || true
+cat S.sysml
+```
+
+A change on one side and a deletion on the other is a conflict: git cannot know whether the deletion or the new `doc`
+should win, so it shows the government's version against an empty prime side. The team accepts the prime's deletion,
+because the prime owns the structure, and checks first whether anything still uses `Hull`. If the `doc` mattered, it
+goes to the prime as a discrepancy report so it survives the next drop.
+:::
+
+::: answer [[ex-git-strategy]]: Choose a strategy
+For Tidewater the facts are: formal baselines (yes), others depending on specific versions (yes, the program office
+and the prime), released versions corrected (yes, a hotfix in sprint 24), publication (every change, through the model
+site). Those point to gitflow: `main` holds baselines, `develop` holds integration, hotfixes are possible.
+
+A program with no formal baselines, one team and continuous publication points to GitLab flow. The decision record
+says which facts decided it, so the decision is revisited when the facts change.
+:::
+
+::: answer [[ex-vim-todo]]: The debt as a jump list
+Grouped by kind, drop 1's fifty-two TODO lines are:
+
+```sh run expect="(?s)36 level stereotype\n6 other\n4 activity construct\n3 procured part\n3 unit"
+grep -rh "// TODO" drop1-v2 | perl -ne '
+  if (/stereotype Tidewater_Profile:L\d/) { $k = "level stereotype" }
+  elsif (/Procured/) { $k = "procured part" }
+  elsif (/InstanceSpecification/) { $k = "unit" }
+  elsif (/ForkNode|InputPin|ObjectFlow|ControlFlow/) { $k = "activity construct" }
+  else { $k = "other" }
+  $c{$k}++; END { print "$c{$_} $_\n" for sort { $c{$b} <=> $c{$a} || $a cmp $b } keys %c }'
+```
+
+Thirty-six level stereotypes, four activity constructs, three procured parts, three units and six others (the state
+machine, the interaction, the include, the constraint expression twice, the profile). Close the level stereotypes
+first: they are mechanical, one substitution per package, and they move the burn-down the most.
+:::
+
+::: answer [[ex-vim-substitute]]: Close the level tags in one package
+In Stations, the level tags are 25 of the 29 TODO lines; after the substitution four remain:
+
+```sh run expect="(?s)3 stereotype \S*Procured.*1 uml:StateMachine .BuoyModes."
+grep "// TODO" drop1-v2/stations/Stations.sysml | grep -v "Tidewater_Profile:L[0-9]" | sed 's/(xmi:id.*//' | perl -pe 's/^\s+\/\/ TODO //; s/ on this element//; s/\s+$/\n/' | sort | uniq -c
+```
+
+Three procured parts (metadata to write) and the BuoyModes state machine (a design task for later).
+:::
+
+::: answer [[ex-vim-break]]: Break it three ways
+- **Misspelled type:** the grammar check passes; lint reports `unresolved type` on the line of the usage.
+- **Missing semicolon:** the grammar check reports it, on the *next* line, where the following statement starts.
+- **Level tag on the wrong level:** the grammar check and lint both pass; `model.pl check` reports a level-tag
+  mismatch on the part def. A misspelled tag name such as `@L1Netwrk;` passes all three, which is why the practice
+  lesson's own check exists ([[vim]]).
+:::
+
+::: answer [[ex-vim-conflict]]: Resolve with the ancestor
+For a single conflict, the marker search (`/^<<<<<<<` then `]c`-style editing) is faster: you see the three versions
+in place and edit one line. For ten conflicts, `git mergetool` with Vim's three-way diff is better, because it walks
+you from conflict to conflict and shows the base beside each side. Either way, the `diff3` middle section (the
+ancestor) is what tells you who changed what.
+:::
+
+::: answer [[ex-vim-mr]]: Write a merge request description in Vim
+A good description says what changed (the Stations level tags, 25 TODO lines closed), why (the structure epic, story
+id), how it was checked (`\mx` and `\ml` clean, the outline count unchanged), and what the reviewer should look at
+(that each tag matches the part's level in the tree). With `git diff --stat` inserted, a reviewer can approve from the
+description and the diff: the change is mechanical and the checks prove the mechanics; the reviewer checks the
+levels.
+:::
+
+::: answer [[ex-story-criteria]]: Rewrite three criteria
+- (a) "The `todo` job reports zero TODO lines in `model/logical/`, and the IDEF0 plates regenerate without warnings."
+- (b) "The trace job reports zero unverified segment requirements, or each one has an open discrepancy report linked
+  from this story."
+- (c) "A Discrepancy Report issue exists for each finding, labelled `owner::prime`, and the transmittal memo is
+  recorded on it."
+
+Each names a job, a number or a record someone can check.
+:::
+
+::: answer [[ex-stories-split]]: Split a story
+By requirement group and by investigation versus result ([[stories-splitting]]):
+
+1. "Stakeholder needs in the model" (the DOORS stakeholder module converted and merged): the `grammar` and `lint`
+   jobs pass and the trace links all stakeholder needs.
+2. "System requirements in the model": the trace job shows every system requirement linked.
+3. "Segment requirements in the model": the same for the segment module.
+4. "Drift and gaps reported" (investigation): one Discrepancy Report issue per drift or gap the trace lists.
+:::
+
+::: answer [[ex-stories-learning]]: Budget your own learning
+Sprint 1, about a fifth of capacity: "Learn the tools: survival kit, git, Vim" (2 points each; done when practice
+lessons 10 and 11 check as done), "Laptops ready" (1 point each, plus the software request's wait; done when
+`kickoff.pl doctor` passes). Sprint 2, about a sixth: "Learn the pipeline and a prime drop" (2 points each; done when
+lessons 12 and 13 check as done and each person has merged one real change). Label them `work::learning` so the
+reserve is visible ([[stories]], [[bluf]]).
+:::
+
+::: answer [[ex-diagrams-cycle]]: Find a cycle
+The Stations and DataCenter cycle is closed by two lines in the prime's files: `dependency from QualityControl to
+SensorSuite` in DataCenter, and `dependency from DataLogger to IngestService` in Stations (plus the imports they
+need). The shared element is the observation record, which already belongs in the library's interfaces; with both
+segments depending only on the library, the cycle disappears. Both dependencies are in the prime's model, so the fix is
+a discrepancy report, not a government edit ([[sprint-4]]).
+:::
+
+::: answer [[ex-diagrams-idef0]]: Read a plate
+For the Check step, from the plates of the converted model:
+
+{{include: docs/tidewater/views/tidewater-idef0.md | lines 49-53}}
+
+Input: the ingested observation record. Output: the checked observation record. Mechanism: Quality Control, supplied
+by `allocate CheckQuality to QualityControl;` in the allocations package.
+:::
+
+::: answer [[ex-setup-emulator]]: Build the project
+```sh run expect="(?s)labels: 72.*milestones: 39"
+gl() { perl "$KIT/bin/gitlab.pl" --local gl --project tidewater/model "$@"; }
+for u in jim bob tom; do gl user $u > /dev/null; done
+gl --as tom setup "$KIT/tools/gitlab/templates/project.conf" > setup.txt
+echo "labels: $(grep -c '^label ' setup.txt)"
+echo "milestones: $(grep -c '^milestone ' setup.txt)"
+```
+
+Setup created seventy-two labels (the `[labels]` section, one line each) and thirty-nine milestones (the one
+`sprints = ...` line in `[milestones]`, which expands to a milestone per sprint).
+:::
+
+::: answer [[ex-setup-refuse]]: Make it refuse you
+```sh run expect="(?s)not allowed to push code to protected branches.*-> develop.*not allowed to push code to protected branches.*-> main.*not allowed to create this tag as it is protected"
+G="$PWD/gl"
+gl() { perl "$KIT/bin/gitlab.pl" --local "$G" --project tidewater/model "$@"; }
+git clone -q gl/repos/tidewater/model.git refuse-demo 2> /dev/null && cd refuse-demo
+git config user.name Tom && git config user.email tom@example.invalid
+git switch -q -c main && echo "Tidewater" > README.md && git add . && git commit -qm "first commit"
+GITLAB_USER_LOGIN=tom git push -q origin main
+gl --as tom flow init > /dev/null && git fetch -q && git switch -q develop
+echo "a direct change" >> README.md && git commit -qam "direct"
+GITLAB_USER_LOGIN=bob git push origin develop 2>&1 | grep -i "not allowed\|->" || true
+GITLAB_USER_LOGIN=bob git push origin develop:main 2>&1 | grep -i "not allowed\|->" || true
+gl --as bob tag baseline-0 main 2>&1 || true
+```
+
+Each refusal comes from one line of `project.conf`: `develop = push:none ...` and `main = push:none ...` in
+`[branches]` (nobody pushes; changes arrive by merge request), and `baseline-* = create:maintainer` in `[tags]` (Bob
+is a developer, so cannot create a baseline).
+:::
+
+::: answer [[ex-setup-owners]]: Redraw the signature page
+A specification's signature page usually reads: prepared by (author), reviewed by (subsystem leads), approved by
+(chief engineer), CM release (CM lead). As a CODEOWNERS file over a folder of text files:
+
+```text
+[Systems lead]
+/model/requirements/   @jim
+[Interfaces] @jim
+/model/library/Interfaces.sysml
+[Segments]
+/model/physical/stations/     @bob
+/model/physical/datacenter/   @bob @tom
+```
+
+The CM release is not a code owner: it is the protected `baseline-*` tag. Signatures with no clear owner are usually
+"reviewed by" lines that list a role nobody holds; those become an open question for the lead.
+:::
+
+::: answer [[ex-setup-branching]]: Defend a branching strategy
+GitLab flow: `main` is the integration branch and the published model, releases are tags on `main`, and there is no
+`develop`. In `project.conf`: set `default_branch = main`, remove the `develop` line from `[branches]` (and make `main`
+`merge:developer`), and drop the `vendor/prime` line, since there are no drops. Monthly versions become tags without a
+release branch.
+:::
+
+::: answer [[ex-layout-map]]: Place a new package
+With Tidewater's map, an unlisted package lands under `unsorted/` (the map's `* = unsorted/` line), and the converter
+says so in its report: "layout map: Drifters is not listed; written to unsorted/...". The `delta` job's report on the
+drop merge request shows the same. In one merge request, before anyone edits it: add the package to the layout map in
+the right layer, move the file there on the vendor branch by re-importing the drop with the new map, and add the folder
+to CODEOWNERS (and to `layers` in `sysml.conf` if it is a new layer).
+:::
+
+::: answer [[ex-layout-layers]]: Spot the upward import
+It breaks the layering rule: requirements are a lower layer than the physical architecture, and lower layers never
+import higher ones. It is a smell because a requirement should not depend on a design; that is how the spider web
+starts. The file is generated from the prime's export, so do not hand-edit it: the complexity job reports upward
+imports in generated files instead of failing on them, and the fix goes to the prime (or to the converter's layout, if
+the import is the converter's own) as a discrepancy report ([[no-spider-web]]).
+:::
+
+::: answer [[ex-tools-rule]]: Apply the rule
+A model answer:
+
+|| Problem today | GitLab tool | The problem it creates if turned on too early ||
+| nobody knows which version of the ICD is current | protected tags and releases | ceremony around every small change before anyone has felt the version problem |
+| reviews happen in e-mail threads nobody can find | merge requests with approvals | approvals queue up behind one reviewer if code owners are drawn too narrowly |
+| status slides take a day each week | the model site on Pages, analytics | a dashboard nobody asked for, numbers nobody trusts yet |
+
+The rule in [[tools]]: a tool appears when the team has felt the pain it removes.
+:::
+
+::: answer [[ex-tools-widget]]: Read a widget
+The JUnit report (`lint.xml`) has one `testcase` per check with a `failure` element carrying the message; GitLab
+shows that message in the merge request's test widget as one failed test. The Code Quality report (`lint-cq.json`)
+has one finding with `description`, `location.path` and `location.lines.begin`; GitLab shows it in the code quality
+widget and on the diff line. The line to look for in both: the `unresolved type` message with its file and line.
+:::
+
+::: answer [[ex-tools-token]]: Choose the token
+- (a) A personal access token with `read_api`, owned by the person who runs the script, with an expiry date.
+- (b) No stored token at all: the pipeline's `CI_JOB_TOKEN`, which exists only while the job runs.
+- (c) A project access token with `read_api` only, stored as a masked, protected CI/CD variable, with an owner and an
+  expiry in the token inventory ([[admin]]).
+:::
+
+::: answer [[ex-tools-off]]: Argue for one left-off tool
+For merge trains: "Twice this month two merge requests were green alone and red together on `develop`, and `develop`
+was red for half a day each time. A merge train tests each merge request on top of the ones queued before it, so
+`develop` stays green." The evidence needed: the count of red `develop` pipelines caused by two green merge requests,
+from analytics ([[analytics]]). Without that evidence, Tom is right to leave it off.
+:::
+
+::: answer [[ex-ai-request]]: Write the approval request
+A complete request names one runtime (Ollama, a specific version), one model family and size from an allowed
+developer, where it runs (three laptops, or one approved server), the data rule ("only information our marking rules
+allow on that machine"), and that the model's origin and license were checked. The office that approves model origin
+is usually the one that approves software intake, with the ISSM concurring; find out by asking both, in writing.
+:::
+
+::: answer [[ex-ai-bakeoff]]: Run a three-task bake-off
+The answer is your scoresheet. A good one has, per task: the prompt written in advance, the number of tries, whether
+the result passed the gates (grammar, lint, the recipe for text), and the minutes to a mergeable result, with and
+without the model. A typical finding: the model helps on the helper script and the discrepancy report text, and
+loses on SysML v2 text, where its first draft fails the gates.
+:::
+
+::: answer [[ex-ai-gate]]: Make the gates catch a hallucination
+The grammar check passes: invented names such as `ISQ::SolarPowerValue` are perfectly good grammar. Lint catches
+them, as `unresolved type` errors on the lines that use them, because lint resolves names against the model and the
+library and the grammar check does not. With the model's own `Power` and `Energy` types both gates pass.
+[[local-ai-energy]] shows the real runs.
+:::
+
+::: answer [[ex-ai-vim]]: The scratch-buffer loop in Vim
+With `cat` standing in for the model, the loop is: select the TODO line and the XMI fragment, `:'<,'>w !cat > /tmp/prompt`,
+`:new`, `:r !cat /tmp/prompt`, `:w answer.sysml`, `\mx`. Most people time it at a minute or two once the keys are
+familiar; the time is in reading the answer, not in the keys.
+:::
+
+::: answer [[ex-ai-dr]]: Check a draft for added facts
+Typical added facts: a date the defect was found, a test that "failed", a section number in a document the prompt
+never named, and a severity. The one that would embarrass you in front of the prime is any invented reference, such as
+"per SRS paragraph 3.2.1": the prime will look it up. Delete every added fact or verify it before sending.
+:::
+
+::: answer [[ex-pipeline-events]]: Which jobs, which event
+Running `gitlab.pl ci --list` for each event reproduces the table in [[pipeline]]. The rule that usually surprises
+people: a job with no `rules:` does not join merge request pipelines at all, on GitLab and locally. Every check job in
+the template has an explicit merge-request rule for that reason.
+:::
+
+::: answer [[ex-pipeline-ratchet]]: Turn the ratchet
+After fixing one violation the `outline` job passes and says "fewer violations than allowed: lower .ci/outline-max to N
+in this MR". Lower the number in `.ci/outline-max` in the same merge request and run it again: it passes with the new
+allowance, and nobody can add a violation back without the job failing.
+:::
+
+::: answer [[ex-pipeline-ratchet-yours]]: Find your ratchet
+Example: "every requirement has a verification method". Counted: requirements with an empty method in the DOORS
+export. The allowed number lives in a one-line file in the repository, like `.ci/outline-max`. Anyone may lower it in
+a merge request that fixes some; only the lead may raise it, and only with a recorded reason, enforced by a CODEOWNERS
+line for that file.
+:::
+
+::: answer [[ex-pipeline-stale]]: Stale documents
+The `docs` job fails: it regenerates the documents and finds the committed ones differ ("docs are stale"). Fix it by
+running `model.pl docs` and committing the result. The team commits generated files so a reviewer sees, in the merge
+request diff, what the change does to the documents people read, and so a baseline's checksum covers the documents
+as well as the model.
+:::
+
+::: answer [[ex-pipeline-weaken]]: Review a pipeline change
+"Request changes. `allow_failure` on lint means a model with unresolved names can merge, and nobody will notice until
+the next release. If lint is noisy, that is information: which messages are noise? Let's fix those (or ratchet the
+count, as we do for the outline) and keep lint blocking." The alternative: a ratchet on the lint warning count, with
+errors still blocking.
+:::
+
+::: answer [[ex-cicd-break]]: Break it and watch it fail
+The `lint` job fails and its log names the file and line with `unresolved type 'NAME'`. In Vim, `:make lint` fills
+the quickfix list from the same message, `:cnext` jumps to the line, the fix is the correct type name, and the job
+passes on the next run.
+:::
+
+::: answer [[ex-cicd-semicolon]]: One line up
+The error names the line *after* the one missing the semicolon (the workbook answer above shows it: `m1.sysml:3:5`,
+when the semicolon was missing on line 2). In one sentence: "The checker only notices a statement did not end when the
+next one starts, so it points at the start of the next statement."
+:::
+
+::: answer [[ex-cicd-add]]: Add a job
+```yaml
+todo:
+  stage: check
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+  script:
+    - perl -e 'my $n = 0; for my $f (@ARGV) { open my $h, "<", $f or next; $n += grep { m{// TODO} } <$h> } print "todo_lines $n\n"' model/*/*.sysml
+```
+
+To show the count on the merge request page, write it to a metrics file and declare it as `artifacts: reports:
+metrics:`; GitLab then shows it in the metrics widget, with the change since the target branch ([[tools]]).
+:::
+
+::: answer [[ex-cicd-allow]]: Allowed to fail
+The pipeline becomes "passed with warnings" and the merge request can merge. That is a bad idea for lint because lint
+errors are real defects (unresolved names), and a warning icon is easy to ignore; a broken model would reach
+`develop`. The team first made `trace` allowed to fail because its gaps were the prime's, inherited and outside the
+team's control, so failing on them would block every merge. The ratchet replaced it because it separates what the team
+inherited (reported) from what a change adds (blocked).
+:::
+
+::: answer [[ex-cicd-manager]]: The manager's question
+On a merge request: "The automated checks found a problem in a proposed change before it was accepted. Nothing in the
+model is affected. The author is fixing it today."
+
+On the integration branch: "The accepted model currently fails a check, so every new change is on hold. We know the
+cause and expect it green by this afternoon. The last good baseline is unaffected."
+:::
+
+::: answer [[ex-runners-pending]]: Make a job pend
+GitLab shows the job as *pending* with "This job is stuck because you don't have any active runners online or
+available with any of these tags assigned to them: does-not-exist". Locally, `gitlab.pl ci --list` still lists the job
+(the local runner ignores tags), which is itself the lesson: tags are a property of the server's runners. Fix it by
+removing the tag, or by registering (or editing) a runner with that tag.
+:::
+
+::: answer [[ex-runners-pwsh]]: Translate a line
+In PowerShell: `if (-not $env:KIT) { Write-Output "KIT is not set"; exit 1 }`. The team chose `perl ci/job.pl NAME`
+because a Perl command line is the same in PowerShell, cmd, Git Bash and Docker, so one pipeline file works on every
+runner, and the logic lives in one script that has its own tests instead of two shell dialects to keep in step.
+:::
+
+::: answer [[ex-runners-isso]]: Write the runner's security description
+One page, in this order: the machine (a dedicated Windows VM, its name and network segment), the account (a service
+account with no interactive login and no administrator rights), what it can reach (the GitLab server only, outbound),
+the credentials on it (the runner token, stored by the runner service; no personal tokens), what runs on it (the
+model project's pipeline jobs only, through a project runner with tags), who maintains it (Tom, patched monthly with
+the runner version kept in step with GitLab's), and how it is cleaned (build folders removed after each job).
+[[runners-account]] is the model.
+:::
+
+::: answer [[ex-review-find]]: Review a change
+The pipeline catches the removed import: lint fails with unresolved names (`ObservationIF`, `HealthIF`) on the port
+lines. Only a reviewer catches the `doc` change, because it is valid text with a different meaning; the generated
+documents in the diff make it visible, and the review checklist asks whether each changed `doc` still says what the
+element is ([[reviewing]]).
+:::
+
+::: answer [[ex-review-rewrite]]: Rewrite a finding
+- (a) "This satisfies TW-SYS-003 with the archive, but the requirement is about ingest. Should it be `IngestService`?"
+- (b) "TW-SYS-013 has no verification case after this change; the trace job will flag it. Can you add the case here,
+  or link the story that will?"
+- (c) "The package has two cycles and a duplicated block (see the pkg view). Could we take the cycle in this merge
+  request and open a story for the duplicate?"
+
+Each says what, where, why it matters, and asks for a specific action.
+:::
+
+::: answer [[ex-journal-init]]: Make a journal
+```sh run cwd=. expect="(?s)applied standups/2026-10-05.txt.*Model"
+mkdir -p journal && cd journal
+perl "$KIT/bin/daily.pl" init . > /dev/null
+perl -pi -e 's/^default_team\s*=\s*/default_team  = Model   /' scrum.conf
+for who in Jim Bob Tom; do perl "$KIT/bin/daily.pl" roster add "$who" $(echo $who | tr A-Z a-z)@example.invalid Model Engineer Gov > /dev/null; done
+cat > standups/2026-10-05.txt <<'PLAN'
+2026-10-05
+sprint 1
+== Model
+cap 19
+new TW-1 4 Learn the tools o:Jim
+new TW-6 3 Convert drop 1 and assess it o:Bob
+new TW-54 2 Runner service account and hardening checklist o:Tom
+commit TW-1 Jim
+commit TW-6 Bob
+commit TW-54 Tom
+PLAN
+perl "$KIT/bin/daily.pl" compile
+perl "$KIT/bin/daily.pl" sprint 1
+```
+:::
+
+::: answer [[ex-journal-break]]: Break the compile
+```sh run cwd=journal expect="(?s)NOT applied.*unknown task 'XX-99'.*journal unchanged"
+before=$(sha256sum scrum.txt)
+printf '2026-10-06\nsprint 1\n== Model\ndone XX-99\n' > standups/2026-10-06.txt
+perl "$KIT/bin/daily.pl" compile 2>&1 || true
+[ "$before" = "$(sha256sum scrum.txt)" ] && echo "journal unchanged"
+rm standups/2026-10-06.txt
+```
+
+The kit names the unknown task and writes nothing: a stand-up file with any error is rejected whole, never half
+applied.
+:::
+
+::: answer [[ex-journal-split]]: Where does it go?
+- (a) GitLab: a task, under one week, closed by a merge request.
+- (b) The journal *and* GitLab: a story in the journal (points, sprint), its tasks in GitLab.
+- (c) The journal: an epic, as the `e:` tag on its stories.
+- (d) Neither: hours stay in the team's own time records (GitLab's `/spend` if the team uses it); the journal never
+  holds hours.
+- (e) The journal (a `block` line on the story, so the quad shows it) and GitLab (the `workflow::blocked` label on the
+  task, with the reason in a comment).
+:::
+
+::: answer [[ex-journal-est]]: Re-estimate
+```sh run cwd=journal expect="(?s)Sprint:1:Model:Committed\s+2 SP.*Equity:Intake\s+-2 SP"
+printf '2026-10-07\nsprint 1\n== Model\nest TW-6 5\n' > standups/2026-10-07.txt
+perl "$KIT/bin/daily.pl" compile > /dev/null
+grep -A3 "2026-10-07 Standup" scrum.txt
+```
+
+The kit posts the difference (two more points) instead of replacing the three, because the journal is a ledger:
+history is never rewritten, so the original estimate and the change both stay visible, and velocity can be computed
+honestly afterwards.
+:::
+
+::: answer [[ex-cer-lint]]: Lint your own status
+```sh run cwd=journal expect="(?s)ERROR Tom: B is empty.*Repost as"
+cat > standups/2026-10-06-chat.txt <<'CHAT'
+[9:01 AM] Tom
+Y TW-54 sent the hardening checklist T TW-54 wait for the ISSM B
+CHAT
+perl "$KIT/bin/daily.pl" --today 2026-10-06 lint standups/2026-10-06-chat.txt || echo "exit status $?"
+perl "$KIT/bin/daily.pl" --today 2026-10-06 lint standups/2026-10-06-chat.txt --reply || true
+```
+
+```sh run cwd=journal expect="0 errors, 0 warnings"
+cat > standups/2026-10-06-chat.txt <<'CHAT'
+[9:01 AM] Tom
+Y TW-54 sent the hardening checklist to the ISSM T TW-54 answer the ISSM's questions B TW-54 waiting on the ISSM's signature, no date -- need: Jim to ask for a date today
+CHAT
+perl "$KIT/bin/daily.pl" --today 2026-10-06 lint standups/2026-10-06-chat.txt
+```
+:::
+
+::: answer [[ex-cer-poker]]: Play a round
+The tally shows the spread and the outlier for each round. The spread usually comes from one person knowing something
+the others do not (Bob's high vote on TW-3 in sprint 1 came from experience of the export). Discussion should change
+the number when it surfaces that knowledge; if it does not, take the higher of the converged votes and note the risk on
+the story.
+:::
+
+::: answer [[ex-cer-ready]]: Apply the Definition of Ready
+The first item that usually fails is "has acceptance criteria a pipeline job or a record can check". Making it ready
+means writing those criteria (as in the stories exercises above), sizing it under a sprint, and naming the owner. If a
+dependency outside the team exists, it becomes its own task first.
+:::
+
+::: answer [[ex-cer-demo]]: Plan a demo without slides
+Twenty minutes: the question the two weeks answered (two minutes), the model site's front page with the four headline
+numbers (three), one merge request from red to green, opened live (five), one before-and-after with a number (three),
+one safe live change (five), and the ask with a date (two). The question for the audience: "Is this the evidence you
+need for the next milestone, and if not, what is missing?"
+:::
+
+::: answer [[ex-talk-rewrite]]: Rewrite five statuses
+For the three at the start of [[talking]], outcome first with one number:
+
+- "Y TW-12 Stations level tags done: 9 TODO lines closed, 43 left. T TW-15 decide who owns ObservationRecord, by
+  Thursday. B none"
+- "Y TW-22 the trace found 2 requirements nothing satisfies; they are the prime's, report goes Friday. T TW-22 draft
+  the report. B none"
+- "Y TW-3 runner request sent. T TW-4 pipeline draft. B TW-3 waiting on IT approval of the runner machine -- need: Jim
+  to escalate today"
+
+The hardest is usually the blocker: it must name what you need and from whom, which feels like complaining. It is not;
+it is the one sentence management can act on.
+:::
+
+::: answer [[ex-talk-ladder]]: Climb the ladder
+For "the model site is live": one sentence, "The program office can now see the current model, its checks and its
+numbers on a web page that updates on every change." Thirty seconds: add what is on the page and the one number that
+moved. Five minutes: open the page, show the part tree, the trace page and the burn-down, and say what it replaces.
+If the colleague cannot repeat the one sentence, it had a mechanism in it ("Pages", "pipeline"); take it out.
+:::
+
+::: answer [[ex-talk-map]]: Your stakeholder map
+For Tidewater: the program manager (schedule and risk; the one number is TODO lines left against the plan), the deputy
+program manager (change control; the open prime changes), the ISSM (security; open security findings), the prime's
+modeler (the drop loop; open discrepancy reports), the test organization (verification; requirements with a
+verification case). The pipeline produces all of these except the program manager's plan comparison, which comes from
+the journal.
+:::
+
+::: answer [[ex-talk-draft]]: Draft from GitLab
+`talk.pl standup --as bob` drafts the closed task as done and the next open task as today, with a number. The edit
+that matters turns "closed #N" into what it means: "Stations tags done: the structure epic is 60% through, and the
+model site shows the new tree."
+:::
+
+::: answer [[ex-talk-demo]]: Run a dry run
+The narrator usually stumbles at the transitions: from the question to the first screen, and from the live change to
+the ask. Fix the script by writing the transition sentence into it ("That is what changed; here is what it means for
+the review"), and by moving any screen that needs explanation before it makes sense to the end or out.
+:::
+
+=== Part III: twelve weeks {#answers-part-3}
+
+::: answer [[sprint-1--ex-1]]: The first status
+Bob's Tuesday lines become one line per question, each naming the story (TW-6, *Convert drop 1 and assess it*). On
+the kickoff Monday nothing came before the sprint, so the honest yesterday is `none`. In the scratch journal from the
+journal exercises above:
+
+```sh run sandbox=scratch cwd=journal expect="(?s)0 errors, 0 warnings.*0 errors, 0 warnings"
+cat > standups/2026-10-05-chat.txt <<'CHAT'
+[9:02 AM] Bob
+Y: none
+T: TW-6 run both converters on drop 1 with --report
+B: none
+CHAT
+cat > standups/2026-10-06-chat.txt <<'CHAT'
+[9:02 AM] Bob
+Y: TW-6 read the converter reports
+T: TW-6 TODO inventory by package
+B: none
+CHAT
+perl "$KIT/bin/daily.pl" --today 2026-10-05 lint standups/2026-10-05-chat.txt
+perl "$KIT/bin/daily.pl" --today 2026-10-06 lint standups/2026-10-06-chat.txt
+```
+:::
+
+::: answer [[sprint-1--ex-2]]: Read the drop yourself
+```sh run sandbox=tidewater cwd=. expect="(?s)TODO uml:StateMachine 'BuoyModes' \(xmi:id _22_1_7f3a0c1_7a13eb20b93a\).*xmi:type=\"uml:StateMachine\" xmi:id=\"_22_1_7f3a0c1_7a13eb20b93a\" name=\"BuoyModes\""
+perl "$KIT/bin/xmi2sysml.pl" --out s1/model --layout-map "$KIT/examples/tidewater-v1/layout.map" drops/v1.0/tidewater.xmi > /dev/null
+grep -n "TODO.*BuoyModes" s1/model/physical/stations/Stations.sysml
+grep -o '<[^>]*xmi:id="_22_1_7f3a0c1_7a13eb20b93a"[^>]*>' drops/v1.0/tidewater.xmi
+```
+
+The id points at the `uml:StateMachine` named BuoyModes, owned as a behavior in the v1 model. In Vim, `/TODO.*BuoyModes`
+finds the line, and the id is what you search for in the XMI (or quote in a discrepancy report) to find the original.
+:::
+
+::: answer [[sprint-1--ex-3]]: A spread worth having
+The rounds went 2, 5, 3 and then 3, 3, 3:
+
+{{include: docs/tidewater/sprints/01/poker-2026-10-05.txt | lines 140-150}}
+
+Bob's sentence, a model answer: "Creating the project is an hour; proving the protections refuse a push, and getting
+the runner requested, is the rest." The note on the story: "Includes proving the branch protection refuses a direct
+push (task #15) and the runner request; the runner's approval is outside the team." Both moved into the plan: task
+#15 is "Prove a direct push to develop is refused".
+:::
+
+::: answer [[sprint-1--ex-4]]: Your week zero
+Tidewater's own record, for comparison:
+
+```sh run sandbox=tidewater cwd=. expect="Total\s+15.0"
+tail -n +4 sprints/00/week-zero.txt
+```
+
+A model answer lists the same kinds of hours: the directive meeting, the kickoff with management, software requests,
+the repository skeleton, the first security conversation, the decisions, the practice repository, and the delivery
+agreement with the prime. The ones people are tempted to hide in sprint 1 are the waits and the security meeting,
+because they produce nothing on a board. Do not: hidden hours make sprint 1's velocity look worse than it was and
+the next team's plan too optimistic, and the waits are exactly what management can shorten if it sees them.
+:::
+
+::: answer [[sprint-2--ex-1]]: Translate the failure
+What a systems engineer needs: "The runner reads each job's script as PowerShell, not as the Bash we tested on our
+laptops, so `$(...)` and `||` mean nothing to it and the job dies on line one." What Tom changed: "Each job's script
+became one line, `perl ci/job.pl NAME`, which reads the same in every shell, with the logic moved into a Perl script
+in the repository."
+:::
+
+::: answer [[sprint-2--ex-2]]: Re-run the demo
+A five-minute model script:
+
+1. **The question** (30 seconds): "Can the program trust that every change to the model is checked before it is
+   accepted?"
+2. **The output** (1 minute): the merge request list, six of six changes merged with green checks, and the model
+   now on `develop`.
+3. **One before-and-after** (1 minute): "Review turnaround is 3.3 hours, median. Before, a model change waited for the
+   next review board."
+4. **One safe live change** (2 minutes): on a scratch branch, misspell one type; the pipeline goes red with the file
+   and line; fix it; green.
+5. **The ask** (30 seconds): "We need the runner machine approved by 13 November, or the checks stay on our
+   laptops."
+:::
+
+::: answer [[sprint-2--ex-3]]: Read the integration branch
+```sh run sandbox=tidewater cwd=. expect="(?s)cdc5559.*80a956f Merge branch 'feature/drop-v1.0'.*2cbb927"
+git -C work/bob log --oneline --first-parent --before=2026-10-31 origin/develop
+```
+
+|| Merge | Story | Kind ||
+| 2cbb927 feature/16 | TW-3, CODEOWNERS and templates | machinery |
+| 2b589e3 feature/37 | TW-4, the first pipeline | machinery |
+| 398eb79 feature/43 | the government conventions package | model (library) |
+| c304f3f feature/44 | level tags in `sysml.conf` | machinery |
+| b98b22c feature/46 | decision records 0001 to 0014 | records |
+| 80a956f feature/drop-v1.0 | drop 1 import | **the model** |
+| cdc5559 feature/42 | the `todo` burn-down job | machinery |
+
+The drop-v1.0 merge brought the model in. CODEOWNERS, the pipeline, the level tags and the burn-down job changed only
+the machinery; the conventions package is the team's first model text, and the decision records are documentation.
+:::
+
+::: answer [[sprint-2--ex-4]]: A layout for your model
+A model answer for a typical model: the library gets value types, units, port and interface definitions and the
+conventions; requirements get the DOORS modules; logical gets the functional architecture and the activities;
+physical gets one folder per segment; analysis gets constraints and trade studies; verification gets the cases.
+The least sure package is usually the one that mixes interfaces and structure (Tidewater's `Interfaces`). After the
+third drop, moving it costs one layout-map line, one re-import on the vendor branch, a CODEOWNERS change, and a
+merge that touches every file importing it; the converter's `--delta` shows how many.
+:::
+
+::: answer [[ex-sprint-3-red-x]]: Make the grammar check say no
+The lesson's checks say when it is done (`perl agile.pl practice check 11`). A model stand-up line for the next
+morning: "Y TW-61 Stations port merged after a red grammar check: 1 syntax error found by the pipeline, 0 by the
+reviewer. T TW-62 ... B none".
+:::
+
+::: answer [[ex-sprint-3-trace]]: Read the trace report
+```sh run sandbox=tidewater cwd=. expect="(?s)orphans: TW-SYS-012 TW-SYS-016.*drift: TW-SYS-006"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model pipeline show 29 | grep trace
+grep "^orphans\|^unverified\|^drift" gitlab/pipelines/tidewater-model/29/trace.log
+```
+
+- **TW-SYS-012, orphan:** the prime's. Nothing in the prime's model satisfies it; adding a `satisfy` would put a
+  design decision in a file the next drop overwrites.
+- **TW-SYS-016, orphan:** the prime's, for the same reason; it is also unverified, so one report covers both gaps.
+- **TW-SYS-006, drift:** the prime's. The model's text no longer matches DOORS, and DOORS is the prime's master, so
+  the prime decides which wording is right.
+
+All three become discrepancy reports, not government edits.
+:::
+
+::: answer [[ex-sprint-3-blocker]]: Rewrite Tom's stand-up
+On 9 November the wait had already started; the rewrite names it in the B line with what Tom needs from whom:
+
+```sh run sandbox=scratch cwd=journal expect="0 errors, 0 warnings"
+cat > standups/2026-10-07-chat.txt <<'CHAT'
+[9:03 AM] Tom
+Y: TW-54 hardening checklist sent to the ISSM
+T: TW-54 answer the ISSM's questions; the runner request is ready to submit
+B: TW-54 runner request waiting on the ISSM's review, no date -- need: Jim to ask the ISSM for a date today
+CHAT
+perl "$KIT/bin/daily.pl" --today 2026-10-07 lint standups/2026-10-07-chat.txt
+```
+
+(The scratch journal's dates differ from the story; the lint checks the form, which is what matters here.) A blocker
+in the B line goes into the quad's watch items the same day, so Jim would have seen it on the first morning, not the
+third.
+:::
+
+::: answer [[ex-sprint-4-cycle]]: Find a cycle
+```sh run sandbox=tidewater cwd=work/bob expect="(?s)'Stations' depends on 'DataCenter', which depends back on it.*5 cycle"
+perl "$KIT/tools/sysml/model.pl" draw pkg -o ../../pkg.svg 2>&1 | grep "cycle"
+```
+
+The remaining Stations and DataCenter cycle is made by two dependencies: `DataLogger` to `IngestService` in Stations
+and `QualityControl` to `SensorSuite` in DataCenter. Remove one by moving the element both sides share (the
+observation record) into the library, so both segments depend downward. That is a design decision because it
+decides which segment owns the data's definition and changes the interface both owners review; it also touches the
+prime's files, so it goes through a discrepancy report.
+:::
+
+::: answer [[ex-sprint-4-dr]]: Write a discrepancy report
+For the six unverified stakeholder needs (TW-STK-001 to TW-STK-006):
+
+```md
+# DR: stakeholder needs have no verification
+
+## What we found
+Drop v1.1: TW-STK-001 to TW-STK-006 have no verification case (trace job, pipeline #29).
+
+## Why it matters
+Without a case, the VCRM cannot show the needs met at acceptance.
+
+## What we ask
+Add a case per need, or state that each need is verified through the system requirements derived from it, by DOORS id.
+
+## Evidence
+trace.log of pipeline #29; v1 ids of the six requirements.
+```
+
+Open it on the emulator with `gitlab.pl issue new "Stakeholder needs have no verification" --template "Discrepancy
+Report" --label owner::prime`.
+:::
+
+::: answer [[ex-sprint-4-demo]]: Rehearse a demo
+The draft opens with a generic question and lists four merge requests. A rewrite: open with "Can the program office
+read the model without Cameo?", show the model site first (the part tree and the trace page), give one before-and-after
+("TODO lines: 50 to 22 this sprint"), make the safe live change already in the draft (delete one `satisfy` on a
+scratch branch and watch the trace name the requirement), and close with an ask and a date: "the tier decision by
+11 December, so the merge-request approvals can be enforced before the baseline."
+:::
+
+::: answer [[ex-s5-recipe]]: Grade a module
+```sh run sandbox=tidewater cwd=. expect="(?s)TW-SEG-003\s+score 92.*TW-SEG-004\s+score 92.*requirements=8 findings=2"
+mkdir -p seg && git -C work/jim archive origin/develop model/requirements/segment | tar -xm -C seg
+perl "$KIT/tools/sysml/req-recipe.pl" seg/model/requirements/segment 2>&1 | grep "requirements=\|score 9[0-9] "
+```
+
+The two lowest are TW-SEG-003 and TW-SEG-004. Rewrites that pass the strict check:
+
+```sh run cwd=. expect="requirements=2 findings=0"
+cat > seg-rewrite.txt <<'REQ'
+(U) While in observing mode, the power system shall report the battery state of charge to the data logger every 10 minutes with an accuracy of 5 % of rated capacity, except during maintenance mode. (TW-SEG-003)
+
+(U) Upon a failed transmission, the telemetry unit shall retry the transmission at least 3 times within 10 minutes, except during maintenance mode. (TW-SEG-004)
+REQ
+perl "$KIT/tools/sysml/req-recipe.pl" --strict seg-rewrite.txt 2>&1 | tail -1
+```
+:::
+
+::: answer [[ex-s5-ratchet]]: Break the trace on purpose
+```sh run cwd=work/bob expect="this change adds trace gaps: orphans 2 -> 3 \(new: TW-SYS-003\)"
+back=$(git rev-parse --abbrev-ref HEAD)
+git switch -q -c try-ratchet origin/develop
+f=$(grep -rl "satisfy TW_SYS_003 by IngestService;" model)
+sed -i '/satisfy TW_SYS_003 by IngestService;/d' "$f" && git commit -qam "drop one satisfy"
+CI_PIPELINE_SOURCE=merge_request_event CI_MERGE_REQUEST_TARGET_BRANCH_NAME=develop perl ci/job.pl trace 2>&1 | tail -1
+git switch -q "$back" && git branch -q -D try-ratchet
+```
+
+The line names TW-SYS-003. Note that the job also needs `CI_PIPELINE_SOURCE=merge_request_event`: with only the
+target branch set it treats the run as a branch pipeline and says "not a merge request: reported only".
+:::
+
+::: answer [[ex-s5-dr]]: Write a discrepancy report
+For TW-SEG-004 (no time window on the retry), in under a hundred words:
+
+```md
+# DR: TW-SEG-004 retry has no time bound
+
+What we found: TW-SEG-004 says the telemetry unit shall retry a failed transmission, with no count or time
+window (recipe finding, recipe-doors.txt).
+Why it matters: a test cannot pass or fail it; any retry, however late, complies.
+What we ask: state the count and the window, for example "at least 3 times within 10 minutes", and the mode in
+which it applies.
+```
+:::
+
+::: answer [[ex-s5-retro]]: Read the record of a tabletop
+```sh run sandbox=tidewater cwd=. expect="(?s)#108\s+closed\s+Spillage tabletop.*Done: Spillage tabletop"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model issue show 108 | sed -n '1p;$p'
+```
+
+The record says only that it was done. The three bullets, as a model answer:
+
+- **What we did:** pushed a file marked above the repository's level to a feature branch, then ran the spillage
+  procedure: stop, call the ISSM, do not delete or rewrite anything ourselves.
+- **What surprised us:** the copy was already in three places (the runner's build folder, a job artifact and a
+  clone) before anyone noticed.
+- **What we would change:** a marking check in the pipeline's first stage, and the ISSM's phone number in the
+  README.
+:::
+
+::: answer [[ex-s6-baseline]]: Audit baseline-0
+```sh run cwd=work/tom expect="(?s)baseline-0 rebuilds identically.*after a docs edit: baseline-0 rebuilds identically.*after a model edit: the tagged tree does not rebuild its docs"
+back=$(git rev-parse --abbrev-ref HEAD)
+git checkout -q baseline-0
+CI_COMMIT_TAG=baseline-0 perl ci/job.pl baseline 2>&1 | grep "rebuild"
+f=$(git ls-files docs | head -1) && echo "x" >> "$f"
+echo "after a docs edit: $(CI_COMMIT_TAG=baseline-0 perl ci/job.pl baseline 2>&1 | grep rebuild)"
+git checkout -q -- . && sed -i 's/\bThermometer\b/AirThermometer/g' model/physical/stations/Stations.sysml
+echo "after a model edit: $(CI_COMMIT_TAG=baseline-0 perl ci/job.pl baseline 2>&1 | grep rebuild)"
+git checkout -q -- . && git checkout -q "$back"
+```
+
+A changed character under `docs/` does *not* trip the audit: the job regenerates the documents from the model and
+hashes what it built, so the hand edit is overwritten. A change to the model does trip it, because the documents it
+generates no longer match the tag. The exercise's docs edit therefore shows the opposite of what it implies; edit a
+model file to see the failure.
+:::
+
+::: answer [[ex-s6-vcrm]]: Two measures, one slide
+- "Verify coverage: 21 of 30 requirements (70%) have a verification case that claims them. Unchanged since drop 1;
+  the nine gaps are the prime's."
+- "Verification status (VCRM): 2 of 30 requirements have a recorded verdict, both by inspection. Expected: the
+  program has not reached test."
+
+An outside reader should say "most requirements have a plan to verify them, and two are verified so far". If they
+say "verification dropped", the slide still needs work.
+:::
+
+::: answer [[ex-s6-plan]]: Fix the plan, not the sprint
+Split TW-112 so its first task fits before Bob's leave: "BuoyModes states and transitions written from the v1
+diagram" (1 point, Bob, 14 to 17 December) inside the sprint, and "BuoyModes triggers, guards and review" (2 points)
+in sprint 7. Done for the first task, as a pipeline check: the `grammar` and `lint` jobs pass on the merge request,
+the BuoyModes TODO line is gone (the `todo` job's count drops by one), and the outline job reports no new violation.
+:::
+
+::: answer [[ex-s6-table]]: An assumption to the prime
+```md
+# DR: confirm when a station's health report is "late"
+
+What we found: TW-SYS-009 does not define when a health report is late. The data exchange table (baseline-0)
+carries our assumption, written in Interfaces::health: late = two missed transmissions.
+Why it matters: the data center's station-down alarm, and its verification case, depend on the number.
+What we ask: confirm the assumption, or give the period and the count, in the next drop.
+```
+
+If the prime disagrees, the `health` flow's doc text changes, the data exchange table regenerates, and the alarm
+logic and verification case in DataCenter change with it; the `prime-tbd` label closes with the drop that settles it.
+:::
+
+=== Part IV: making the case {#answers-part-4}
+
+::: answer [[analytics--ex-1]]: Run the report yourself
+```sh run sandbox=tidewater cwd=. expect="(?s)issue created -> first commit\s+\d+\s+96.9.*success rate 84.6%.*week of 2026-12-21"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model analytics --since 2026-11-02 --until 2026-11-13 | sed -n '/Value stream/,/^$/p;/^3\. CI/p'
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model analytics --since 2026-12-14 --until 2026-12-24 --by week | grep "week of" | head -2
+```
+
+The longest stage is *issue created to first commit*, about four days at the median. That is not a problem: the
+team files the sprint's issues at the kickoff, so each one waits for its turn by design. The stages after the first
+commit (opening the merge request, review, merge) take hours, and they are the ones that measure the flow.
+:::
+
+::: answer [[analytics--ex-2]]: Translate a DORA measure
+- **Deployment frequency:** "How often the published model is updated: the model site rebuilt, or a baseline
+  released."
+- **Lead time for changes:** "How long a change takes from the first edit to being part of the accepted model."
+- **Change failure rate:** "How often an accepted change had to be corrected or undone."
+- **Time to restore:** "When the accepted model fails its checks, how long until it passes again."
+
+Leave out deployment frequency, because it mostly counts the nightly schedule, and change failure rate, because at
+zero it says nothing yet. Keep lead time and time to restore: they answer "how fast" and "how safe".
+:::
+
+::: answer [[analytics--ex-3]]: Find the trap
+The final version is right. The draft's line, "6.7% verified (VCRM) (down 63.3 from 70)", compares two different
+measures: the VCRM's *verdict recorded* against the trace's *case exists*. Read out, it would have told the program
+manager that verification collapsed in sprint 6, when nothing got worse: a stricter measure appeared. The review
+record keeps verify coverage at 70% and reports the VCRM separately.
+:::
+
+::: answer [[scorecard--ex-1]]: Read it like a skeptic
+A model answer:
+
+|| Measure | The question | The evidence ||
+| 2, change lead time | "Is 3.5 hours a real change, or only typo fixes?" | the merge request list in the analytics output, per author, and each MR's diff |
+| 4, trace answer time | "Who timed 22 seconds, and on what?" | the trace job's duration in the pipeline logs (`gitlab/pipelines/.../trace.log`) |
+| 12, morale | "Is three people's anonymous answer meaningful?" | `sprints/NN/morale.json`, with the question wording |
+
+The skeptic is right to ask: with three people, morale is a conversation starter, not a statistic, and the scorecard
+should say so.
+:::
+
+::: answer [[scorecard--ex-2]]: The measure that missed
+"We set out to remove both package cycles inherited from the old model; we removed one, and the other is still
+there because a second reference between DataCenter and Stations remains. Finding and removing that last reference
+is planned for sprint 7, and the complexity job reports the count on every change, so you will see when it reaches
+zero." The briefing's own sentence is shorter and says the same thing ([[briefing-3]]).
+:::
+
+::: answer [[scorecard--ex-3]]: Your own baseline
+The answer is your program's numbers. A good one says, for each: lead time (a change board log: days from a change
+request to its approval, *measured* if the log has dates), trace answer time (how long the last "which requirements
+are unverified?" question took, usually *remembered*), and review turnaround (comment-matrix dates, *measured* if the
+matrices are filed). Mark remembered numbers as such on every slide that uses them.
+:::
+
+::: answer [[proving--ex-1]]: Draw your own sample
+```sh run cwd=. expect="(?s)part def IngestService.*TW_STK_005 .*title = \"Observation history\""
+perl "$KIT/bin/xmi2sysml.pl" --report --layout-map "$KIT/examples/tidewater-v1/layout.map" --map map15.csv --out v1check15 drops/v1.0/tidewater.xmi > /dev/null
+perl -ne 'next if $. == 1; my @f = split /,/; print "$f[2] -> $f[4]\n" if $f[4] =~ /^(part def|requirement|port|connection|action def|satisfy)/ && $. % 15 == 0' map15.csv
+git clone -q -b develop gitlab/repos/tidewater/model.git port15
+grep -n 'name="IngestService"' drops/v1.0/tidewater.xmi
+grep -n -A2 "part def IngestService" port15/model/physical/datacenter/DataCenter.sysml
+grep '"TW-STK-005"' drops/v1.0/tidewater.csv
+grep -h "TW_STK_005 {" port15/model/requirements/stakeholder/*.sysml
+```
+
+- **IngestService:** same. The class became a part def of the same name, with its documentation and ports.
+- **Observation history (TW-STK-005):** same, reworded. The v1 class was named by its title; the v2 requirement is
+  named by its DOORS id, keeps the title as an attribute, and carries the DOORS text in its `doc`.
+:::
+
+::: answer [[proving--ex-2]]: Explain a difference
+Two folds from drop 1's map:
+
+- **The multiplicity of a part** (a `LiteralInteger` and a `LiteralUnlimitedNatural`, two v1 elements) folds into
+  the `[4]` on the usage: v2 writes the bounds inline, so nothing is lost; there are just fewer elements.
+- **A generalization** folds into the `:>` of the definition, for example `attribute def Power :> PowerValue`. v1
+  stores the inheritance as its own element; v2 writes it as part of the declaration.
+
+The test of a fold is the same each time: can you point at the v2 text that carries the information? If so, it is
+not a loss.
+:::
+
+::: answer [[briefing--ex-1]]: Rewrite a slide headline
+- "Every model change is now checked automatically before anyone accepts it."
+- "The model answers in seconds questions that used to take days."
+- "Twelve weeks in, two thirds of the team's work is systems engineering again."
+
+A program manager remembers the second: it names a pain they have felt, and a number.
+:::
+
+::: answer [[briefing--ex-2]]: Rehearse the demo
+```sh run cwd=. expect="unverified 9 -> 10 \(new: TW-SYS-003\)"
+git clone -q -b develop gitlab/repos/tidewater/model.git demo-verify
+cd demo-verify && git checkout -q -b scratch/demo-verify
+perl -0pi -e 's/^(\s*)verify TW_SYS_003;\n//m' model/verification/Verification.sysml
+git commit -qam "demo: drop one verify"
+CI_PIPELINE_SOURCE=merge_request_event CI_MERGE_REQUEST_TARGET_BRANCH_NAME=develop perl ci/job.pl trace 2>&1 | tail -1
+```
+
+In one sentence: "This change removed the only test for TW-SYS-003, and the check caught it before anyone accepted
+the change."
+:::
+
+::: answer [[briefing--ex-3]]: Find your ask
+A model ask: "Approve the runner machine request by 13 November. Without it, the automated checks run only on our
+laptops, nothing stops an unchecked change, and the December baseline cannot be rebuilt by anyone but us." One
+decision, one date, one consequence the decision-maker cares about.
+:::
+
+::: answer [[communicating--ex-1]]: Read a quad
+{{include: docs/tidewater/sprints/04/quad-2026-11-27.txt | lines 13-14}}
+
+The one watch item is TW-67, the Stations level tags story, carried into the next sprint. `(WI)` marks a watch item
+(for awareness); `(PM)` would ask for the program manager's help. The program manager should note it and do nothing:
+the team owns it, and the story finishes early the next sprint.
+:::
+
+::: answer [[communicating--ex-2]]: Write the note
+```sh run cwd=. expect="(?s)On track.*TODO lines"
+perl "$KIT/tools/gitlab/talk.pl" --local gitlab --project tidewater/model weekly --date 2026-11-13
+```
+
+A note to send:
+
+> On track. Three stories finished this week; 50 converter TODO lines remain; 21 of 30 requirements have a
+> verification case (70%); the nine without are the prime's and are reported. One risk: the runner's security review
+> has waited three days for the ISSM. Ask: a date from the ISSM by Tuesday.
+
+The draft lists no risk, because the ISSM wait was in stand-up chat, not in GitLab. Jim adds what only people know.
+:::
+
+::: answer [[communicating--ex-3]]: Map your own template
+A typical program weekly template: accomplishments (merged MRs and closed stories), next week (the open milestone's
+issues), schedule (the quad's milestones, from the journal), risks (blocked issues and old discrepancy reports),
+metrics (the pipeline's scorecard), staffing (no source), budget (no source). Staffing and budget have no source in
+the system; the lead writes them, or they come from the finance system, and the note says which.
+:::
+
+::: answer [[ex-memo-enablers]]: Ask for what you need
+The finished memo passes the check silently and builds:
+
+```sh run sandbox=scratch cwd=. expect="(?s)check: exit 0.*wrote docs/memos/2026-10-21-request-for-enablers\.pdf"
+mkdir -p docs/memos
+cp "$KIT/docs/tidewater/memos/2026-10-21-request-for-enablers.md" docs/memos/
+perl "$KIT/tools/memo/memo-build.pl" --check docs/memos/2026-10-21-request-for-enablers.md && echo "check: exit 0"
+perl "$KIT/tools/memo/memo-build.pl" docs/memos/2026-10-21-request-for-enablers.md
+```
+
+Your own asks, as a table row each: "Training time, 4 points per person in sprint 1 and 2 in sprint 2; so the team
+learns on the board, not on weekends; by the sprint 1 kickoff; if not, the transition takes twice as long." Do the
+same for the runner (by sprint 2, or checks stay on laptops), the tool approval, and the GitLab tier decision.
+:::
+
+::: answer [[ex-memo-mfr]]: Record a decision
+The memo for record is signed, dated and addressed to a reader outside the team: it is what an auditor or the
+contracting officer files. The ADR lives beside the model, is versioned with it, and is read by the next engineer. The
+memo carries authority; the ADR carries context and is easy to supersede. Keep both for decisions that bind the
+program (the branching model), and only the ADR for decisions that bind the team.
+:::
+
+::: answer [[ex-memo-vim]]: Build from Vim
+Yes: the `.txt` diff shows the changed paragraph as a few changed lines, with the rest unchanged, because the build
+wraps text the same way every time. The PDF diff is binary and unreadable. That is why the team commits the `.txt`
+beside the PDF.
+:::
+
+::: answer [[ex-memo-progress]]: Draft the progress memo from evidence
+From the pipeline: TODO lines, trace numbers, pipelines passing. From GitLab: stories done, merge requests, review
+turnaround. From you: the plan comparison, the risks only people know (the ISSM's wait), and the document-era
+baselines. A memo with more of the third kind than the first two needs more evidence before it goes out.
+:::
+
+::: answer [[ex-minds-survey]]: Run the pulse on your own team
+The answer is your team's data. Tidewater's dip came in sprint 3, when the new tools were in use and the old
+shortcuts were gone; most teams predict sprint 2. A prediction made in advance and checked afterwards is the point:
+it tests whether you know your team.
+:::
+
+::: answer [[ex-minds-objections]]: Write your team's objections down
+The answer is your team's list. The objections still open after six sprints are usually about the supplier ("the
+prime will never change its model") or the organization ("the CCB will not accept a merge request"); the tool
+objections ("git is too hard") are usually answered by sprint 3, with evidence.
+:::
+
+::: answer [[ex-dil-own-day]]: Write your own two-column day
+Rows that change most: waiting for a review (hours instead of weeks), finding the current version (the branch, not
+an e-mail hunt), and building status slides (generated). Rows that do not change: thinking about the design,
+talking to the people who own the requirements, and meetings with the supplier.
+:::
+
+::: answer [[ex-documents-grade]]: Grade a document both ways
+The pipeline is right about what it can check (references resolve, nothing is missing, the text matches DOORS); the
+hand grade is right about what it cannot (whether the design is good, whether the reader understands it). Where they
+disagree on something the pipeline checks, trust the pipeline and find out why the hand grade missed it.
+:::
+
+::: answer [[ex-lead-learning]]: Budget the learning
+A model plan: a fifth of sprint 1, a sixth of sprint 2, a tenth of sprint 3, as `work::learning` stories with
+practice lessons as acceptance criteria. The engineering scope that moves is usually the second package of
+conversion work: with learning on the board, sprint 2 holds one package, not two ([[playbook-learning]]).
+:::
+
+::: answer [[ex-lead-first-win]]: Choose the first win
+Three typical questions: "which requirements have no verification?" (the trace job), "what changed in the
+supplier's last drop?" (the converter's delta), "who changed this requirement and when?" (git blame on the
+requirements file). The trace is the one for sprint 1: it needs only the drop and the converter, and the skeptic who
+has answered it by hand for years is the right person to run it.
+:::
+
+::: answer [[ex-lead-no]]: Say no with a date
+- "Not this sprint: the special report needs the trace job, which is ready in sprint 3. Today I can send last
+  review's numbers."
+- "Not today, unless it replaces something: the model change goes on the board for Wednesday's refinement. If it is
+  urgent, tell me which story it displaces."
+- "Not until the sprint ends on the 23rd: Bob is committed to the drop import. From the 26th, for two weeks."
+:::
+
+::: answer [[ex-lead-signs]]: Read the signs
+The answer is your team's. The common signs: stand-up lines that list activities with no outcome, merge requests
+open for days, a red `develop` nobody mentions. Change one practice per sprint, and tell management the sign and the
+fix in the same sentence.
+:::
+
+=== Part V: living with it {#answers-part-5}
+
+::: answer [[ex-admin-roles]]: Assign the roles
+- **Model lead: Maintainer.** Owns protections and baselines; the only one who can change who approves what.
+- **Two modelers: Developer.** They push branches and open merge requests, but cannot merge into protected branches
+  alone or change the rules that check them.
+- **CM engineer: Maintainer**, for tags and releases, with the protections still requiring another person's approval
+  on merges, so running the pipeline does not mean approving content.
+- **Contractor liaison: Reporter.** Reads the model and comments on issues, cannot push: the supplier's view never
+  becomes the supplier's write access.
+:::
+
+::: answer [[ex-admin-token]]: Choose the token
+- (a) The job's own `CI_JOB_TOKEN`, which can publish to the project's package registry; no stored token.
+- (b) A project access token with `read_api`, stored as a masked, protected variable, with an owner and expiry.
+- (c) Jim's personal access token with `api`, short expiry, kept out of any file; or a project access token with the
+  Maintainer role if the script becomes routine.
+- (d) A deploy token with `read_repository` only.
+:::
+
+::: answer [[ex-admin-dryrun]]: Find the drift
+```sh run sandbox=scratch cwd=. expect="(?s)protected branch develop \(push:none merge:developer force:yes.*\"allow_force_push\":true,.*\"name\":\"develop\".*\[branches\] develop: force file no, live yes"
+cp "$KIT/tools/gitlab/templates/project.conf" drift.conf
+ga() { perl "$KIT/bin/gitlab.pl" --local drift --project tidewater/model "$@"; }
+for u in jim bob tom; do ga user $u > /dev/null; done
+ga --as tom setup drift.conf > /dev/null 2>&1
+sed -i 's/^\(develop = .*\)force:no/\1force:yes/' drift.conf
+ga --as tom setup drift.conf 2>&1 | grep "protected branch develop"
+perl "$KIT/bin/gitlab.pl" --url https://gitlab.example.com --project tidewater/model --dry-run setup drift.conf | grep '"name":"develop"'
+sed -i 's/^\(develop = .*\)force:yes/\1force:no/' drift.conf
+ga setup --diff drift.conf 2>&1 | grep "^\[branches\]"
+```
+
+Setup prints the protected branch with `force:yes`. The preview lists every request because a dry run reads nothing
+from the server: it cannot know what is already set, so it shows the whole file. A change made in the web pages
+shows up with `setup --diff`, which compares the file with the live project (the last line above, after the file was
+put back); re-running `setup` puts the setting back. Two corrections to the book: `--dry-run` now works with
+`--local` too (it prints and applies nothing), and the read-only comparison the admin chapter says the kit lacks is
+`setup --diff`.
+:::
+
+::: answer [[ex-admin-restore]]: Plan a restore test
+The checklist: import the export into a scratch group; check the repository, branches and tags; issues, merge
+requests and comments; labels and milestones; the wiki; then re-create what an export leaves out on purpose. An
+export carries no CI/CD variables or secrets, no runners, no protected-branch and tag rules in some versions, no
+group-level settings, and no container or package registry contents. Those items fail on any server, by design;
+they must be re-applied from `project.conf` and the token inventory.
+:::
+
+::: answer [[ex-admin-tiers]]: Make the tier case
+"On Free, the rule that a model change needs another engineer's approval is a habit we record; on Premium, GitLab
+refuses the merge without it, and the code owner of the interface files must be one of the approvers. For a model
+the government will baseline under contract, an approval the server enforces is the evidence an auditor needs. The
+cost is a few seats a year against one finding at a configuration audit."
+:::
+
+::: answer [[maintenance--ex-1]]: Run a drop through the loop yourself
+The delta from drop 2 to drop 3 marks five elements manual, all of the storm mode:
+
+```sh run cwd=. expect="(?s)manual \(the converter does not carry these; rework the v2 text by hand\): 5.*BuoyModes::Storm"
+for n in 2 3 4; do perl "$KIT/sim/tidewater-v1.pl" --drop $n pd/d$n > /dev/null; done
+perl "$KIT/bin/xmi2sysml.pl" --delta pd/d2/tidewater.xmi pd/d3/tidewater.xmi | grep "^manual"
+perl "$KIT/bin/xmi2sysml.pl" --delta pd/d2/tidewater.xmi pd/d3/tidewater.xmi | grep -B1 "manual:" | grep -v "^--" | head -3
+```
+
+NWM-CR-0015's new state, two transitions and two triggers (`stormWarning`, `calm`) sit inside the BuoyModes state
+machine, which the converter leaves as a TODO line: there is no v2 text for them to land in, so an engineer adds
+them to the hand-written state machine. The fuse, the deleted requirement, the new satisfy and the deleted duplicate
+block are all carried.
+:::
+
+::: answer [[maintenance--ex-2]]: Cut the next baseline
+The changelog section names the baseline and date, the drop merged (v1.2) and its change requests (NWM-CR-0015 to
+0019, with the storm mode marked "reworked by hand"), and the discrepancy reports the drop closed. The release links
+to the package (model and documents tarball, VCRM, toolchain inventory, checksum file) and names the sprint
+milestones it closes; the tag message records the documents' checksum.
+:::
+
+::: answer [[maintenance--ex-3]]: A hotfix that the prime must also fix
+"In baseline-1 the requirement TW-SYS-007 is satisfied by BulletinPublisher, which does not provide the public
+interface the requirement is about; we corrected it to DataSegment::publicOut in baseline-1.1. That relationship is
+generated from your v1 model on every drop, so the next drop will put the old satisfy back and our correction will
+appear as a hand edit to redo. Please change the satisfy in your model to the public interface, and tell us which
+drop carries it."
+:::
+
+::: answer [[ex-verification-vcrm]]: Read the matrix
+```sh run sandbox=tidewater cwd=work/bob expect="(?s)TW-SYS-011,Analysis,,no case.*unverified: .*TW-SYS-011"
+git checkout -q develop
+perl ci/job.pl vcrm > /dev/null && grep ",no case," vcrm.csv
+grep "^unverified:" ../../gitlab/pipelines/tidewater-model/29/trace.log
+```
+
+TW-SYS-011, for example, has an analysis method and no case; the trace lists it as unverified, and it has no
+satisfy gap. The case is the prime's to write, because the prime owns the system model's verification; ask through
+a discrepancy report naming the requirement, its method, and the drop you need the case in.
+:::
+
+::: answer [[ex-verification-stages]]: Map your program to the stages
+The answer is your program's table. The five stages are traceability first (government, now), automated result
+capture (the prime or test organization, once their harness can write the format), a parallel pilot on one
+subsystem (joint, between campaigns), shifting checks left (government and prime, after the pilot), and scaling and
+retiring legacy artifacts (with the customer's agreement). A good answer names the campaign each one must not
+interrupt, such as a qualification test series.
+:::
+
+::: answer [[ex-prime-delta]]: Read a drop like a change board
+```sh run sandbox=scratch cwd=. expect="(?s)requirements touched\s+3\s+TW-STK-002, TW-SYS-002, TW-SYS-016.*hand edits to redo\s+0"
+perl "$KIT/bin/xmi2sysml.pl" --out g3/model --layout-map "$KIT/examples/tidewater-v1/layout.map" --map m3.csv pd/d3/tidewater.xmi > /dev/null
+perl "$KIT/bin/xmi2sysml.pl" --delta pd/d3/tidewater.xmi pd/d4/tidewater.xmi --impact g3/model --map m3.csv | sed -n '/^== NWM/p;/impact summary/,$p'
+```
+
+|| Change request | Disposition | Why ||
+| NWM-CR-0020 salinity | accept | a new field in the observation record, with a reason; the converter carries it |
+| NWM-CR-0021 drifting buoys | accept with impact | a new part in the station segment that touches both network interfaces |
+| NWM-CR-0022 TW-SYS-016 | accept | it answers the government's own discrepancy report |
+| NWM-CR-0023 TW-SYS-002 interval | accept with impact | the requirement changed, so its verification case must change |
+
+The drifting buoys add government work: the observation and health links now carry a new kind of station, so the
+interface owners review the links, the data exchange table regenerates, and the verification of the links needs a
+drifting-buoy case.
+:::
+
+::: answer [[ex-prime-reject]]: Write the clarification
+```md
+# DR: NWM-CR-0025 renames PublishBulletin with no rationale
+
+What we need: the reason for renaming the activity PublishBulletin to IssueBulletin, or a withdrawal of the rename.
+Why it matters: the name is referenced by the government's hand-written behavior, by test procedures and by
+documents outside the model. Accepting it means changing all of them.
+By when: with drop v1.5, so the change board can disposition both together.
+Disposition until then: reject, clarify.
+```
+:::
+
+::: answer [[ex-prime-tamper]]: Break the intake on purpose
+```sh run cwd=. expect="(?s)MISMATCH tidewater.reqif.*REJECTED: 1 file.s. missing or altered.*ACCEPTED for import" timeout=180
+perl "$KIT/tools/gitlab/kickoff.pl" scaffold model --project tidewater/model --title Tidewater > /dev/null
+cp -r pd/d4 pd/d4-copy && sed -i '0,/TW-SYS-001/s/TW-SYS-001/TW-SYS-00l/' pd/d4-copy/tidewater.reqif
+cd model
+perl "$KIT/bin/gitlab.pl" ci --event trigger --branch develop --job intake --var DROP_VERSION=v1.3 \
+    --var INTAKE_DROP_DIR="$PWD/../pd/d4-copy" --logs ../intake-1 > /dev/null 2>&1 || echo "exit status $?"
+grep -E "^(MISMATCH|REJECTED)" ../intake-1/intake.log
+perl "$KIT/sim/tidewater-v1.pl" --drop 4 ../pd/d4-copy > /dev/null
+perl "$KIT/bin/gitlab.pl" ci --event trigger --branch develop --job intake --var DROP_VERSION=v1.3 \
+    --var INTAKE_DROP_DIR="$PWD/../pd/d4-copy" --logs ../intake-2 > /dev/null 2>&1
+grep "^ACCEPTED" ../intake-2/intake.log
+```
+
+The first run rejects the drop and names the file with both checksums; the second accepts it. Regenerating is the
+only acceptable fix because the manifest's checksums describe what the prime built: editing the file back by hand
+might match by luck or not at all, and editing the manifest would make the check worthless. On a real program the
+"regenerate" step is the prime's build sending the drop again.
+:::
+
+::: answer [[ex-prime-boundary]]: Choose a strategy
+In `model/external/prime/`, generated and never edited: the system and segment requirements
+allocated to the data center, the port and interface definitions the
+data center connects to (`ObservationIF`, `HealthIF`, the observation record), and the parameters the data center
+depends on (reporting intervals). The data center team owns its own design: IngestService, QualityControl, the
+archive and the publisher, their behavior, the satisfy links to the generated requirements and the verification
+cases.
+:::
+
+::: answer [[ex-se-work-label]]: Label your backlog
+Tidewater's sprint 7 plan: "Break the Stations and DataCenter cycle", "The DailyUpload interaction by hand", "The
+EnergyBalance constraint expression" and "Retire the Tidewater Profile TODO" are engineering. "Pin the kit version"
+is platform, and makes every later engineering story cheaper to verify: a baseline rebuilt next year uses the same
+checks as the one cut today. If a platform story cannot name the engineering it speeds up, it can probably wait.
+:::
+
+::: answer [[ex-se-work-split]]: Split along the decisions
+1. Find every reference between Stations and DataCenter and decide which are real design dependencies (2 points).
+2. Decide where the shared element belongs (the library, or one segment) and move it (2 points).
+3. Remove or redirect the remaining accidental references, and confirm with the complexity job that the cycle count
+   is zero (1 point).
+
+The plan has one task, "Remove the QualityControl to SensorSuite dependency" (2 points). That is the split along a
+command, and it is why the cycle survived: it removed the dependency it was written against, and nobody had looked
+for the other reference first.
+:::
+
+::: answer [[ex-no-spider-web-measure]]: Measure a model you own
+On Tidewater, as a stand-in:
+
+```sh run sandbox=tidewater cwd=work/bob expect="(?s)cycles: DataCenter <-> Stations.*max_fan_out 3"
+git checkout -q develop
+perl ci/job.pl complexity 2>&1 | sed -n '/^cycles:/,/^upward/p;/^max_fan_out/p'
+```
+
+The DataCenter and Stations cycle is an accident: two trace-style dependencies drawn on v1 diagrams, not a design
+need, since the two segments exchange data through the network's interfaces. The largest fan-out (3) is the network
+package, which is a real dependency: the network is what connects the segments.
+:::
+
+::: answer [[ex-no-spider-web-practices]]: Mark the twenty practices for your project
+The answer is your table. For most teams the three with the biggest effect in the next sprint are layering with a
+one-way rule (1), small reviewable changes (17), and generated views (12), because each one prevents new tangle
+without needing the old tangle fixed first.
+:::
+
+::: answer [[ex-security-gate]]: Close a boundary crossing
+Rebuild the worked example, add the laptop and its interface, and run the gate:
+
+```sh run sandbox=scratch cwd=. expect="(?s)interface 'ifcMaintenance' in 'ObservationNetwork' crosses untrusted->trusted with no satisfied security requirement.*FAIL.*exit status 1" timeout=300
+mkdir -p secgate && cd secgate
+awk '/expect="5 package"/ || /expect="0 error.s., 0 warning.s. -> PASS"/ {p=1; next} p && /^```$/ {p=0} p' "$KIT/docs/src/primer/26e-security.txt" > build.sh
+sh build.sh > /dev/null 2>&1
+f=model/physical/Network.sysml
+sed -i 's#^    port def ObservationPort .*#&\n    port def MaintenancePort { doc /* A maintenance session into the data center. */ }#' $f
+sed -i 's#^        part publicSite : PublicSite;#&\n        part laptop : MaintenanceLaptop;#' $f
+sed -i 's#^        satisfy secR01 by dataCenter;#        interface ifcMaintenance { end ::> laptop.service; end ::> dataCenter.maintIn; attribute fromZone = "untrusted"; attribute toZone = "trusted"; attribute secReq = ""; }\n&#' $f
+sed -i 's#port publicOut : ObservationPort; }#port publicOut : ObservationPort; port maintIn : ~MaintenancePort; }#' $f
+sed -i 's#^}$#    part def MaintenanceLaptop { @TrustZone { zone = Zone::untrusted; } doc /* A technician laptop, brought to the data center. */ port service : MaintenancePort; }\n}#' $f
+perl "$KIT/tools/sysml/model.pl" gate 2>&1 | grep -E "error: interface .ifcMaintenance.|FAIL" || true
+perl "$KIT/tools/sysml/model.pl" gate > /dev/null 2>&1 || echo "exit status $?"
+```
+
+Then the requirement, the satisfy and the verification:
+
+```sh run cwd=secgate expect="0 error.s., 0 warning.s. -> PASS" timeout=300
+sed -i 's/attribute toZone = "trusted"; attribute secReq = ""; }/attribute toZone = "trusted"; attribute secReq = "secR03"; }/' model/physical/Network.sysml
+sed -i 's/^        satisfy secR02 by dataCenter;/&\n        satisfy secR03 by dataCenter;/' model/physical/Network.sysml
+sed -i 's#^}$#    requirement secR03 { attribute doorsId = "TW-SEC-003"; @SecurityRequirement; doc /* The data center shall accept a maintenance session only from a laptop the program issued, authenticated by its hardware token. */ }\n}#' model/requirements/SecurityRequirements.sysml
+sed -i 's#^}$#    verification def TestMaintenanceAccess {\n        doc /* Connect an unissued laptop and an issued one; confirm only the issued one gets a session. */\n        subject network : ObservationNetwork;\n        objective { verify secR03; }\n    }\n}#' model/verification/SecurityVerification.sysml
+perl "$KIT/tools/sysml/model.pl" gate | tail -1
+```
+
+The engineering decisions: which zone a maintenance laptop belongs in (untrusted, because it travels), what the
+data center should trust about it (an issued device and a token, not a password), whether the requirement also
+mitigates a threat worth adding to the register (an unauthorized maintenance session), and how to verify it (a test
+with a laptop that should be refused). The `sed` lines are the typing.
+:::
+
+::: answer [[ex-security-table]]: Your twenty-six
+The answer is your table. Most ISSMs ask first about point 1 (what the model contains, and at what level), point 4
+(separating repositories by sensitivity) and point 9 (runners as privileged machines), because those decide whether
+the system can be authorized at all. Every LATER needs a story or epic name; "later" without one is the pattern the
+chapter warns about.
+:::
+
+::: answer [[ex-playbook-plan]]: Your twelve-week table
+The answer is your program's table. A good row reads like Tidewater's: "Sprint 2: the first drop on the integration
+branch, every change gated. Done when: the drop's merge request merged with a green pipeline, and a direct push to
+`develop` is refused." Each goal names an outcome a manager recognizes; each "done when" is a pipeline result, a
+record or a merged change.
+:::
+
+::: answer [[ex-playbook-decisions]]: Your decision records
+Each ADR has the template's four parts: context, decision, consequences and when to revisit ([[ex-om-decision]] has
+a model). The merge-method record is the one most teams get wrong: if you will measure lead time or review turnaround
+from history, choose merge commits, and say so as the reason.
+:::
+
+::: answer [[ex-playbook-backlog]]: Your sprint 1
+```sh run sandbox=kit expect="(?s)sprint 1: 10\b.*sprint 2: 12\b"
+perl -MText::ParseWords -ne 'next if $. == 1; s/\r//; my @c = parse_line(",", 0, $_); $p{$c[6]} += $c[4] if $c[6] =~ /^[12]$/;
+  END { print "sprint $_: $p{$_}\n" for sort keys %p }' "$KIT/tools/gitlab/templates/backlog.csv"
+```
+
+Ten and twelve points as written, before multiplying the "one per person" tasks by the team's size (for three people,
+sprint 1 grows by five points). Against a three-person capacity of about nineteen with a fifth reserved for learning,
+it fits. What to cut first: the stories your program does not need (no supplier, no drop intake), then anything that
+is not on the path to the first gated change.
+:::
+
+::: answer [[ex-playbook-week0]]: Run week zero offline
+```sh run sandbox=scratch cwd=. expect="(?s)week zero is set up.*Create the GitLab project and protect its branches" timeout=300
+mkdir -p harbor && cd harbor
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 first-drop > /dev/null
+perl "$KIT/tools/gitlab/kickoff.pl" start --yes --local gitlab --project harbor/model --title Harbor \
+    --drop first-drop --version v1.0 > start.log 2>&1 || echo "exit status $?"
+grep "week zero is set up" start.log
+perl "$KIT/bin/gitlab.pl" --local gitlab --project harbor/model issue list
+```
+
+Five stories: the protected project, the first pipeline, receiving the drop, converting it, and the working
+agreements. Programs without a supplier rewrite the two drop stories; most programs rewrite the conversion story's
+acceptance criteria to name their own packages.
+:::
+
+::: answer [[ex-pitfall-diagnose]]: Diagnose the symptom
+- (a) **Reformatting the converter's output** ([[pitfall-reformat]]). Diff the government's file against the
+  vendor branch with whitespace ignored, and revert everything but the level tags.
+- (b) **Changing requirement text in the model** ([[pitfall-req-text]]). Find the merge request in the drift report
+  and restore the DOORS wording; send the improvement to the prime as a discrepancy report.
+- (c) **Trusting the TODO count alone** ([[pitfall-todo-only]]). Run the converter's `--delta` on the drop and
+  rework the manual lines by hand.
+- (d) **Red is normal** ([[pitfall-red-normal]]). Stop merging, name an owner for the red pipeline today, and fix it
+  before anything else.
+:::
+
+::: answer [[ex-pitfall-yours]]: Your two pitfalls
+The answer is your organization's. A good one names a symptom you can observe in your own tools ("the drift count
+rose after our MR"), not a feeling, and a rule that a setting or a check enforces, not a reminder.
+:::
+
+::: answer [[ex-pitfall-delta]]: Prove the TODO count blind spot
+```sh run cwd=. expect="(?s)storm lines in the converted drop 3: 0.*Stations::MooredBuoy::BuoyModes::Storm"
+for n in 2 3; do perl "$KIT/bin/xmi2sysml.pl" --out conv$n pd/d$n/tidewater.xmi > /dev/null; done
+diff conv2/stations/Stations.sysml conv3/stations/Stations.sysml || true
+echo "storm lines in the converted drop 3: $(grep -ci storm conv3/stations/Stations.sysml)"
+perl "$KIT/bin/xmi2sysml.pl" --delta pd/d2/tidewater.xmi pd/d3/tidewater.xmi | grep "BuoyModes::Storm$"
+```
+
+The converted files differ only by the fuse. The storm mode appears only in the delta: it is inside the BuoyModes
+state machine, which the converter writes as one TODO line in both drops, so the TODO count does not change while
+the content behind it does.
+:::
+
+=== Appendices {#answers-appendices}
+
+::: answer [[ex-templates-story]]: Write a story
+```sh run cwd=. expect="(?s)#1 .*Close the DataCenter TODO lines.*#4 .*Review and merge"
+gs() { perl "$KIT/bin/gitlab.pl" --local story-gl --project tidewater/model "$@"; }
+for u in jim bob tom; do gs user $u > /dev/null; done
+gs --as tom setup "$KIT/tools/gitlab/templates/project.conf" > /dev/null 2>&1
+gs --as jim issue new "Close the DataCenter TODO lines" --template "$KIT/tools/gitlab/templates/.gitlab/issue_templates/Story.md" \
+   --label type::story --milestone "Sprint 5" --assign bob > /dev/null
+for t in "Level tags in DataCenter|1" "Units on the DataCenter attributes|2" "Review and merge|1"; do
+  gs --as jim issue new "${t%|*}" --type task --description "Part of #1
+/estimate ${t#*|}d
+/assign @bob
+/relate #1" > /dev/null
+done
+gs issue list
+```
+
+Each task description's quick actions ran: the estimate, the assignee and the link to the story. The story's own
+template carries the label and milestone lines.
+:::
+
+::: answer [[ex-templates-features]]: Find the features
+A model answer for three samples: the merge request sample uses headings, a table, task lists, an issue reference
+and a closing keyword; the review sample uses mentions and a suggestion block; the release sample uses headings,
+milestone references and an alert. For the Discrepancy Report template, add a collapsible section for the evidence
+(the trace log excerpt), so the report stays short and the evidence travels with it.
+:::
+
+::: answer [[ex-templates-dr]]: Write a discrepancy report
+```sh run cwd=. expect="orphans: TW-SYS-012 TW-SYS-016"
+perl "$KIT/bin/reqif2sysml.pl" --report --model drop1-v2 drop1/tidewater.reqif 2>&1 | grep "^orphans"
+```
+
+```md
+# DR: TW-SYS-012 has nothing that satisfies it
+
+What we found: in drop v1.0, no element satisfies TW-SYS-012 (trace report, orphans).
+What we ask: add the satisfy relationship to the element that meets it in your model, or tell us that the
+requirement is allocated outside the model.
+How we verify: the trace job on the next drop's import merge request no longer lists TW-SYS-012 as an orphan.
+```
+
+The prime answered it in drop v1.2 with NWM-CR-0018, satisfying it by the service vessel.
+:::
+
+::: answer [[study-plan--ex-1]]: Build your own plan
+```sh run sandbox=kit expect="(?s)S1 jim .*S1 bob .*Practice lessons 10-11"
+perl -e 'require "./sim/tidewater-plan.pl";
+  my %h; for my $s (grep { $_->{n} <= 6 } @{ tw_plan() }) {
+    for my $st (grep { $_->{work} eq "learning" } @{ $s->{stories} }) {
+      for (@{ $st->{tasks} }) { $h{"S$s->{n} $_->{who}"} += 8 * $_->{p}; printf "S%d %-4s %4.1f h  %s\n", $s->{n}, $_->{who}, 8 * $_->{p}, $_->{t} } } }
+  print "$_: $h{$_} h\n" for sort keys %h'
+```
+
+Sum the hours per person and sprint, as the last lines do, and compare them with the tables. A difference means the
+backlog reserves less learning than the plan promises; fix the backlog, not the table.
+:::

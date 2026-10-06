@@ -1,0 +1,39 @@
+Weekly status Model -- as of 2026-12-04 (sprint 5)
+Sprint progress 43% (8/18 SP) new   On-time delivery: 3/4 this week, 3/4 this sprint  ! under 80%
+
+TECHNICAL PRIORITIES
+  DONE  TW-67        2  "Close the Stations level tags Bob
+  OPEN  TW-91        2  "Prune ObservingStation's trac Bob
+  DONE  TW-92        3  "Untangle the Legacy Import pa Tom
+  DONE  TW-93        2  "The trace job becomes a gate" Tom
+  OPEN  TW-94        2  "Grade our requirements with t Jim
+  OPEN  TW-95        3  "Release rehearsal and a spill Tom
+  DONE  TW-89        1  "Learn: the requirement recipe Jim
+  OPEN  TW-90      3.5  "Procured parts as metadata    Bob
+
+WATCH ITEMS / PM HELP NEEDED
+  none
+
+SCHEDULE MILESTONES
+  30 days out
+    1. T2 Port Tidewater v1 to SysML v2 > E7 Requirements and trace ->  64%  ETA 2026-12-27
+    2. (none) > (none)                    ->  73%  ETA 2026-12-27
+    3. T1 Stand up MBSE DevSecOps > E1 GitLab project and gitflow ->  71%  ETA 2026-12-27
+  60 days out
+    -
+  90 days out
+    -
+
+ACCOMPLISHMENTS (since 2026-11-27)
+  x TW-67        2  "Close the Stations level tags Bob  (carried over)
+  v TW-92        3  "Untangle the Legacy Import pa Tom
+  v TW-93        2  "The trace job becomes a gate" Tom
+  v TW-89        1  "Learn: the requirement recipe Jim
+
+PUNT RATE (tasks punted back to TODO / tasks committed, last 4 sprints)
+  sprint 2    Model          0 / 7     0%
+  sprint 3    Model          0 / 6     0%
+  sprint 4    Model          0 / 7     0%
+  sprint 5    Model          0 / 8     0%
+
+Legend: v on time  x late (carried over, or rework after the demo)  ! slipped   -> pushed right  <- pulled left  = no change  + new

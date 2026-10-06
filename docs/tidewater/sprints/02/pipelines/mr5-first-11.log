@@ -1,0 +1,30 @@
+pipeline #11 (merge_request_event, refs/merge-requests/5/merge) success, 3 jobs, 61.7 s
+
+==== grammar          check    success     40 s
+$ perl ci/job.pl grammar
+$ perl $KIT/tools/sysml/sysml.pl check model/library/conventions/Conventions.sysml
+sysml: 1 file(s), 0 error(s)
+$ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/library/conventions/Conventions.sysml
+ci-reports grammar: 1 check(s), 0 failed, 0 finding(s); grammar_files=1 grammar_errors=0
+
+==== lint             check    success   46.7 s
+$ perl ci/job.pl lint
+$ perl $KIT/tools/sysml/model.pl lint
+lint: 1 file(s), 0 error(s), 0 warning(s)
+elements=0 errors=0 warnings=0
+$ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
+ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=0 lint_errors=0 lint_warnings=0
+
+==== outline          check    success     14 s
+$ perl ci/job.pl outline
+$ perl $KIT/tools/sysml/model.pl check
+
+== Level tags ==
+@L tag mismatches         0
+
+== Outline (2..9 children per parent) ==
+violations                1
+    1  directory entries  (model/library/)
+$ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality outline-cq.json --metrics outline.metrics outline.txt
+ci-reports outline: 2 check(s), 1 failed, 1 finding(s); level_tag_mismatches=0 outline_violations=1
+outline violations: 1 (allowed: 1)

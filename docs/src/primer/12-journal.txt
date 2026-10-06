@@ -1,0 +1,402 @@
+== Stand-ups, the journal and the board {#journal}
+
+::: survival
+What you have: a GitLab project where tasks live as issues ([[gitlab-setup]], [[tools]]), and an operating model that
+says work comes in tomes, epics, stories and tasks ([[operating-model]]).
+
+What you need: a record of the plan that management can trust: what each sprint committed, what it finished, what
+slipped, how fast the team goes, and where each epic and tome stands. This chapter sets up the agile kit's
+**journal**, a plain-text ledger of stories kept in Vim, explains how it divides the work with GitLab, and shows the
+reports it produces. [[ceremonies]] then shows the daily and fortnightly rhythm that feeds it.
+:::
+
+=== Two records, one plan {#journal-two}
+
+By the end of sprint 1 the team had two places that knew about the work, and Bob asked the obvious question: why two?
+
+> If every task is an issue in GitLab, why do we also keep a journal? That's the double bookkeeping we were promised
+> would go away.
+> -- Bob, sprint 1 review
+
+The answer is that the two records hold different things, for different readers, at different levels of the
+hierarchy.
+
+|| Level | Size rule | Where it lives | Who reads it ||
+| Project | years; this one is 39 sprints | the journal: one journal per project | the program |
+| Tome | under a year (two semesters) | the journal, `t:` on each story; a `tome::` label in GitLab | the program manager |
+| Epic | under a semester (13 sprints) | the journal, `e:` on each story; an `epic::` label in GitLab | Jim, management |
+| Story | under one sprint | **the journal** (id `TW-N`) and a GitLab issue labeled `type::story` (number N) | Jim, the team |
+| Task | under a week (5 points or fewer) | **GitLab only**: an issue labeled `type::task`, closed by a merge request | the person doing it |
+Table: The hierarchy, and where each level is recorded
+
+The journal tracks **stories and above**: the commitments the team makes to management, sprint by sprint, and the
+roll-up into epics and tomes. GitLab tracks **tasks and the stories they belong to**: the day-to-day work, the merge
+requests that do it, the reviews and the pipelines.
+
+The link between them is the number. A story is GitLab issue 12 and journal item `TW-12`. Anyone reading a stand-up
+note that mentions `TW-12` opens issue 12 in GitLab to see its tasks, merge requests and discussion; anyone looking
+at issue 12 knows the journal tracks it as `TW-12`.
+
+This is a deliberate application of a rule the agile kit has always had: the architect's journal holds commitments
+and their state, and task-level detail stays in the team's own tool. Tasks change daily; they are cut, merged,
+re-cut. A journal that tracked them would be noisy and always out of date. Stories change state a few times each,
+and every change is a fact management cares about: committed, done, carried, blocked.
+
+::: note Why not GitLab for everything?
+GitLab's Premium tier has epics and iterations with burndown charts, and with it a team could keep the whole hierarchy
+in GitLab. The team had the Free tier, and more importantly a need GitLab does not meet: a ledger in which points
+are never edited after the fact, only moved, so last month's numbers are exactly what they were last month. That
+property is what lets [[scorecard]] compare sprint 1 with sprint 6 without anyone asking "has this been restated?"
+:::
+
+=== Everything is a ledger {#journal-ledger}
+
+The journal is a text file, `scrum.txt`, in the format of **ledger-cli**, a decades-old plain-text accounting tool.
+That sounds odd for a scrum record until you see what it buys.
+
+Every story has **points** (the team's estimate of its size: one point is one ideal person-day). The points sit in an
+**account**, and the account *is* the story's state:
+
+```text
+Backlog:Model  ->  Sprint:N:Model:Committed  ->  Done
+                                             ->  Carryover  ->  next sprint's Committed
+                                             ->  Removed
+```
+
+When the team commits a story to sprint 1, its points move from `Backlog:Model` to `Sprint:1:Model:Committed`. When
+it is done, they move to `Sprint:1:Model:Done`. Nothing is ever edited; each event is a new entry that moves points.
+Re-estimating a story posts the difference, not a new number. Like money in double-entry bookkeeping, points are
+conserved: every entry balances, and the totals cannot drift.
+
+Here is what the journal recorded on the first day of sprint 1, written by the kit from the planning notes (the
+compile step is below):
+
+```text
+; ---- standup 2026-10-05 (standups/2026-10-05.txt)
+~ Sprint 1
+    Model   19 SP
+
+2026-10-05 Intake TW-1 Create the GitLab group and model project
+    Backlog:Model                     4 SP   ; id: TW-1, epic: E1 GitLab project and gitflow, owner: Tom, prio: 1, tome: T1 Stand up MBSE DevSecOps
+    Equity:Intake
+
+2026-10-05 Standup Model
+    Backlog:Model                     -4 SP   ; id: TW-1
+    Sprint:1:Model:Committed          4 SP   ; id: TW-1, owner: Tom
+```
+
+(an excerpt). The `~ Sprint 1` entry records the team's capacity for the sprint, 19 points. The `Intake` entry brings
+a new story into the backlog with its metadata after the semicolon: its epic, owner, priority and tome. The `Standup`
+entry moves its 4 points into the sprint's commitment.
+
+You never write these entries by hand. You write terse notes, and the kit writes the ledger.
+
+=== Setting up the journal {#journal-init}
+
+The journal is its own git repository, separate from the model, because it has a different audience and different
+rules (it is the team's management record; the model is a controlled item). The kit creates one:
+
+```sh run sandbox=scratch expect="created scrum.conf"
+mkdir -p ~/tidewater-journal && cd ~/tidewater-journal
+perl $KIT/bin/daily.pl init .
+```
+
+```text
+created .gitattributes
+created .gitignore
+created scrum.conf
+created scrum.txt
+git init
+
+Next:
+  1. edit scrum.conf (recipients, markings, townhall time, facilitator = your Teams display name)
+  2. the people:  daily.pl roster add "Lee, Ann" ann.lee@example.com Alpha Lead ACME   (name exactly as Teams shows it)
+  3. the backlog: daily.pl new, then 'new ID PTS title e:Epic t:Tome o:"Owner Name"' lines under '== Team', then compile
+  4. add to ~/.vimrc:   source $KIT/vim/scrum.vim
+     then in Vim:  :SNew  :SCompile  :SReport  :SDraft  :SAll  :SStatus
+```
+
+`scrum.conf` holds the settings, one `key = value` per line. For a single team the ones that matter on day one are
+`default_team = Model` (the team's name in the journal; the new file leaves it empty) and `unit = SP` (story points,
+already set). In Vim it is one edit; from the shell, one command. The people go in `roster.txt`, with their names
+exactly as the meeting chat shows them, because the stand-up tools match chat names to the roster:
+
+```sh run cwd=~/tidewater-journal expect="Tom  \| tom@example.invalid"
+perl -pi -e 's/^default_team\s*=\s*/default_team  = Model   /' scrum.conf
+perl $KIT/bin/daily.pl roster add "Jim" jim@example.invalid Model "MBSE lead" Gov
+perl $KIT/bin/daily.pl roster add "Bob" bob@example.invalid Model "MBSE engineer" Gov
+perl $KIT/bin/daily.pl roster add "Tom" tom@example.invalid Model "CM and DevSecOps engineer" Gov
+cat roster.txt
+```
+
+```text
+# name | email               | team  | role                      | org
+  Bob  | bob@example.invalid | Model | MBSE engineer             | Gov
+  Jim  | jim@example.invalid | Model | MBSE lead                 | Gov
+  Tom  | tom@example.invalid | Model | CM and DevSecOps engineer | Gov
+```
+
+Jim keeps the journal repository on the team's share as well as in GitLab (a second project in the `tidewater`
+group, private to the three of them), and commits it at the end of each day with `daily.pl commit`.
+
+=== The stand-up file {#journal-file}
+
+Each day's notes go in one small text file, `standups/YYYY-MM-DD.txt`, written in Vim (`:SNew` creates today's file
+with the open stories listed as comments). The notes use a handful of four-letter verbs, each one line:
+
+|| Verb | Meaning | Example ||
+| `sprint N` | which sprint this file belongs to | `sprint 1` |
+| `== Team` | the team the following lines are about | `== Model` |
+| `cap N` | the team's capacity for the sprint, in points | `cap 19` |
+| `new ID PTS title ...` | a new story into the backlog, with `p:` priority, `e:` epic, `t:` tome, `o:` owner | see below |
+| `commit ID Owner` | commit a story to the sprint | `commit TW-1 Tom` |
+| `done ID ...` | stories finished today | `done TW-3` |
+| `block ID why` / `unblock ID` | a story is blocked, or no longer | `block TW-1 waiting on the enterprise GitLab admins` |
+| `carry ID ...` | at the sprint's end, stories that go to the next sprint | `carry TW-11` |
+| `est ID N` | a new estimate (posts the difference) | `est TW-7 5` |
+| `note text` | a line for the record and the status mail | `note Demo went well` |
+Table: The stand-up verbs used most
+
+Sprint 1's planning file, written by Jim on Monday 5 October after the kickoff. In Vim, Jim typed the lines into the
+file `:SNew` opened; to type along from the shell, write the same lines with a here-document (everything between the
+`<<'PLAN'` line and the `PLAN` line goes into the file):
+
+```sh run expect="^note Sprint 1 kickoff"
+mkdir -p standups && cat > standups/2026-10-05.txt <<'PLAN'
+2026-10-05
+sprint 1
+== Model
+cap 19
+new TW-1 4 Create the GitLab group and model project p:1 e:"E1 GitLab project and gitflow" t:"T1 Stand up MBSE DevSecOps" o:Tom
+new TW-2 4 First pipeline gates every MR p:1 e:"E2 Pipeline and quality gates" t:"T1 Stand up MBSE DevSecOps" o:Tom
+new TW-3 3 Receive drop 1 and record it p:1 e:"E5 Drop 1 intake and first import" t:"T2 Port Tidewater v1 to SysML v2" o:Jim
+new TW-4 4 Convert drop 1 and assess it p:1 e:"E5 Drop 1 intake and first import" t:"T2 Port Tidewater v1 to SysML v2" o:Bob
+new TW-5 2 Working agreements p:2 e:"E3 Team practices and onboarding" t:"T1 Stand up MBSE DevSecOps" o:Jim
+commit TW-1 Tom
+commit TW-2 Tom
+commit TW-3 Jim
+commit TW-4 Bob
+commit TW-5 Jim
+note Sprint 1 kickoff: goal "A GitLab project the team can work in; drop 1 received and assessed"
+PLAN
+tail -1 standups/2026-10-05.txt
+```
+
+(The story numbers in this chapter's examples come from a practice journal; Part III uses the numbers from the real
+run.) Quoted values (`e:"E1 GitLab project and gitflow"`) may contain spaces; unquoted ones may not.
+
+Then the **compile** step checks the file and, if every line is valid, appends the ledger entries to `scrum.txt`:
+
+```sh run expect="applied standups/2026-10-05.txt \(6 transactions\)"
+perl $KIT/bin/daily.pl compile
+```
+
+```text
+applied standups/2026-10-05.txt (6 transactions)
+```
+
+A stand-up file with a single mistake (an unknown story id, a `done` for a story that was never committed, a verb
+misspelled) is rejected whole, with every problem listed, and nothing is written. That is the journal's own gate: it
+never contains half a day.
+
+In Vim the same steps are `:SNew` (today's file), `:SCompile`, and `:SStatus`. [[vim]] lists the rest.
+
+=== What the journal tells you {#journal-views}
+
+Everything the journal reports is computed from the ledger when you ask; nothing is stored separately, so nothing can
+disagree.
+
+The sprint view, the morning after planning (`--today` sets the date the journal reads as "today", so this works on
+any day you type it):
+
+```sh run expect="Model   19      17     0    17"
+perl $KIT/bin/daily.pl --today 2026-10-06 sprint
+```
+
+```text
+Teams: sprint 1
+Team   Cap  Commit  Done  Open  Carry  Removed  Done%  Load%
+-----  ---  ------  ----  ----  -----  -------  -----  -----
+Model   19      17     0    17      0        0     0%    89%
+Total   19      17     0    17      0        0     0%    89%
+```
+
+`Load%` is commitment divided by capacity: 17 of 19 points, 89%. The kit's metrics treat a load above 110% as a
+warning (the team is promising more than it can do) and below 70% as another (it is not using its capacity, or the
+capacity is wrong). Jim aimed for 85 to 95% every sprint.
+
+The epics view, at the end of sprint 1:
+
+```text
+Epics by tome
+Tome                              Epic                                     Tasks  Total  Done  In sprint  Backlog  Done%
+--------------------------------  ---------------------------------------  -----  -----  ----  ---------  -------  -----
+T1 Stand up MBSE DevSecOps        E1 GitLab project and gitflow                1      4     4          0        0   100%
+T1 Stand up MBSE DevSecOps        E2 Pipeline and quality gates                2      9     4          0        5    44%
+T1 Stand up MBSE DevSecOps        E3 Team practices and onboarding             1      2     2          0        0   100%
+T2 Port Tidewater v1 to SysML v2  E5 Drop 1 intake and first import            3     10     7          0        3    70%
+T2 Port Tidewater v1 to SysML v2  E6 Structure: close the structure TODOs      1      3     0          0        3     0%
+```
+
+(The column is headed "Tasks" because the kit calls every journal item a task; in this project every journal item is a
+story.)
+
+Velocity, the points done per sprint, which becomes the basis for forecasts once there are three sprints of history:
+
+```text
+Model  (avg velocity 17.0 over the last 1 completed sprint)
+Sprint  Cap  Commit  Done  Done%
+------  ---  ------  ----  -----
+     1   19      17    17   100%
+```
+
+And the ledger itself, through the kit's ledger tool, balances to zero, which is the proof that no points were
+created or lost. Right after planning, in your journal:
+
+```sh run expect="17 SP  Sprint:1:Model:Committed"
+perl $KIT/bin/ledger.pl -f scrum.txt bal
+```
+
+```text
+              -17 SP  Equity:Intake
+               17 SP  Sprint:1:Model:Committed
+--------------------
+                   0
+```
+
+and in the practice journal at the end of sprint 1, after the stories were done and the next ones were filed:
+
+```text
+               11 SP  Backlog:Model
+              -28 SP  Equity:Intake
+               17 SP  Sprint:1:Model
+               17 SP    Done
+--------------------
+                   0
+```
+
+Twenty-eight points came in (`Equity:Intake` is the counterweight of every intake); seventeen are done in sprint 1;
+eleven wait in the backlog for sprint 2.
+
+=== Estimates that change {#journal-est}
+
+Estimates change, especially in the first weeks, when the team does not yet know how long anything takes. In the
+journal a new estimate is a posting of the difference. When the team re-estimated story `TW-7` from 4 to 5 points in
+refinement ([[ceremonies]] shows the poker round), the journal recorded:
+
+```text
+2026-10-14 Intake TW-7 Docs, outline and TODO jobs
+    Backlog:Model                     4 SP   ; id: TW-7, epic: E2 Pipeline and quality gates, owner: Tom, prio: 1, tome: T1 Stand up MBSE DevSecOps
+...
+    Backlog:Model                     1 SP   ; id: TW-7
+```
+
+The original 4 points and the added 1 are both visible forever. A forecast made on the 13th and one made on the 15th
+can each be reproduced from the journal as it stood that day; the kit can load the journal "as of" any date. In the
+document era, the action item spreadsheet had one estimate column, overwritten.
+
+=== A story from end to end {#journal-story}
+
+It helps to follow one story through both records. Take the story Bob owned in sprint 1, "Convert drop 1 and assess
+it", four points.
+
+**Monday, planning.** Jim creates the story as a GitLab issue with the Story template (its number becomes the id: in
+the practice project it was issue 1) and the journal line `new TW-4 4 Convert drop 1 and assess it ...` with
+`commit TW-4 Bob`. In GitLab the issue gets the labels `type::story`, `tome::port`, `epic::drop-intake` and the
+milestone "Sprint 1". Bob cuts it into tasks during the kickoff, each its own issue with the Task template and "Part
+of" the story:
+
+|| Task | Points | What it produces ||
+| Run both converters with --report | 1 | the two converter reports, attached to the story |
+| TODO inventory by package | 2 | a table of the 52 TODO lines by package and kind, in the story |
+| Estimate the port backlog with the team | 1 | candidate stories for the structure epic, poker-estimated |
+Table: The tasks of one story
+
+**Tuesday to Thursday, the work.** Each task moves across the board: `workflow::in-progress` when Bob starts it, a
+comment with the result and `/spend` when it is finished, `/close`. [[tools]] shows the first task's history, driven
+entirely by quick actions. Bob's stand-up lines name the story, not the tasks (`Y TW-4 read the converter report`),
+because the journal knows stories.
+
+**Friday of week 2, done.** When the last task closes, Bob says `done` in the stand-up; the answers step suggests the
+`done TW-4` line; Jim confirms and compiles. In GitLab, Jim checks the story's acceptance criteria and closes it with a
+comment. The journal moved 4 points from `Sprint:1:Model:Committed` to `Sprint:1:Model:Done`, dated that day; GitLab
+recorded three closed tasks with their time and their outputs.
+
+Neither record holds the other's detail, and neither needs to. Management sees the story in the quad; anyone who
+wants the details follows the number.
+
+::: tip When a story will not fit
+If, during the sprint, a story turns out bigger than the sprint, do not stretch it. Split it: the finished part is a
+story that is done; the rest is a new story in the backlog, estimated at the next refinement. The journal's `carry`
+exists for the story that is nearly done on the last day, not for the one that was never going to fit.
+:::
+
+=== The board and the journal, day to day {#journal-board}
+
+The team kept the two in step with three habits:
+
+- **The board is for tasks; the journal is for stories.** The GitLab board, scoped to the current sprint's milestone,
+  is what the team looks at during the day. The journal is updated once a day, after the stand-up.
+- **A story is done when its last task closes.** GitLab closes a task when its merge request merges; when a story's
+  last task is closed, the owner says so in the stand-up (`done TW-12`), and Jim's journal records it.
+- **Blocked is said out loud.** A blocked task gets the `workflow::blocked` label in GitLab and a comment saying why; the
+  story gets a `block` line in the journal the same day, so the weekly report to management shows it ([[ceremonies]],
+  [[communicating]]).
+
+=== The reports {#journal-reports}
+
+The journal feeds every report the team sends upward. Each one is a command, and each was produced every sprint
+without anyone assembling a slide:
+
+- `daily.pl review N`: the sprint report at the review: committed, done, carried, velocity, predictability, and each
+  epic's remaining points and forecast completion sprint. Sprint 1's began:
+
+```text
+Sprint 1 report -- as of 2026-10-16: 17/17 SP done (100%), 0 carried over, 0 removed.
+
+Team           Commit  Done  Done%  Carry Carry%   Load Velocity  Predict%  Punted Interrupt    Cap
+Model              17    17   100%      0     0%    89%     17.0      100%       0         0     19
+```
+
+- `daily.pl quad`: the weekly one-page status in four quadrants (technical priorities, watch items, schedule
+  milestones, accomplishments), shown in [[ceremonies]] and [[communicating]].
+- `daily.pl health`: every metric against its threshold, red, amber or fine.
+- `daily.pl report`: all of the above as HTML pages, plus the cockpit dashboard.
+
+::: warning One hundred percent is not the goal
+Sprint 1 in the practice journal finished 17 of 17, and so did the real sprint 1 ({{value: docs/tidewater/sprints/01/scorecard.json 11_delivery.done}} of {{value: docs/tidewater/sprints/01/scorecard.json 11_delivery.committed}}). Sprint 4 did not:
+it finished {{value: docs/tidewater/sprints/04/scorecard.json 11_delivery.done}} of {{value: docs/tidewater/sprints/04/scorecard.json 11_delivery.committed}} story points ([[om-done]]) and carried a walk-through into sprint 5, and that is fine ([[sprint-4]]). A team
+that finishes everything every sprint is committing too little. The kit's metrics look for predictability (done over
+committed) of 80% or better, not 100%.
+:::
+
+=== Exercises {#journal-exercises}
+
+::: exercise {#ex-journal-init} Make a journal
+Create a journal with `daily.pl init`, add yourself and two colleagues to the roster, and write a planning file for
+a sprint of your own work with three stories. Compile it, then run `daily.pl sprint` and `daily.pl epics`.
+:::
+
+::: exercise {#ex-journal-break} Break the compile
+Add a line `done XX-99` to a stand-up file and compile. What does the kit say, and what did it write to `scrum.txt`?
+:::
+
+::: exercise {#ex-journal-split} Where does it go?
+For each item, decide whether it belongs in the journal, in GitLab, or both, and why: (a) "write the state definition
+for BuoyModes, 3 points"; (b) "close the Stations TODO lines, 8 points"; (c) "the structure port"; (d) "Bob spent 4
+hours on the review"; (e) "blocked: waiting for the ISSM".
+:::
+
+::: exercise {#ex-journal-est} Re-estimate
+Re-estimate one of your stories with an `est` line. Look at the ledger entries it produced. Why does the kit post the
+difference instead of replacing the number?
+:::
+
+=== Applying this to your project {#journal-apply}
+
+- **Copy**: two records with a clear split (commitments and roll-ups in the journal, tasks in the team's tool); one
+  number for a story in both; points that move and are never edited; a compile step that rejects a bad day whole;
+  reports computed from the record, never assembled by hand.
+- **Adapt**: the hierarchy's names and size rules to your program; the capacity per person; the load band.
+- **Decide locally**: who keeps the journal (one person, usually the lead); where it lives; who may read it; which
+  reports go to whom ([[communicating]]).

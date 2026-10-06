@@ -7,3 +7,6 @@
 tests/status-metrics/* -text
 # the SysML views toolkit's fixtures are converter inputs byte for byte (one is UTF-16; DOORS exports may be Windows-1252)
 tools/sysml/views/tests/fixtures/** -text
+examples/tidewater-v1/tidewater.csv -text
+examples/tidewater-v1/MANIFEST.txt -text
+examples/tidewater-v1/CHANGES.csv -text

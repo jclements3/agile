@@ -1,0 +1,194 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 8701 >>
+stream
+2 J
+BT /F1 12.00 Tf 1 0 0 1 166.84 711.00 Tm (TIDEWATER COASTAL OBSERVATION PROGRAM) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 683.40 Tm (TW-SE) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 655.80 Tm (21 OCTOBER 2026) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 628.20 Tm (MEMORANDUM FOR TIDEWATER PROGRAM MANAGER) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 600.60 Tm (FROM: TIDEWATER MBSE LEAD) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 573.00 Tm (SUBJECT: ENABLERS NEEDED TO BRIEF MEASURED RESULTS AT THE DECEMBER) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 559.20 Tm (PROGRAM MANAGEMENT REVIEW) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 531.60 Tm (REFERENCES: \(A\) PROGRAM MEMORANDUM, ADOPTION OF DEVSECOPS) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 517.80 Tm (PRACTICES FOR SYSTEMS ENGINEERING ARTIFACTS, 24 SEPTEMBER 2026; \(B\)) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 504.00 Tm (TWELVE-WEEK SCORECARD AND PLAN, 2 OCTOBER 2026) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 476.40 Tm (1.  The team is on track for the December briefing. Drop 1 of the prime's model is received,) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 462.60 Tm (checked against its manifest and converted: the converter left 52 items that need a person, and) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 448.80 Tm (the drop goes onto the integration branch this sprint. The first pipeline is written and runs locally;) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 435.00 Tm (it checks every change once the runner below is in place.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 407.40 Tm (2.  To keep that date, the team needs the following decisions:) Tj ET
+0.60 w 72.00 389.80 m 540.00 389.80 l S
+0.60 w 72.00 379.45 m 72.00 389.80 l S
+0.60 w 82.50 379.45 m 82.50 389.80 l S
+0.60 w 219.58 379.45 m 219.58 389.80 l S
+0.60 w 356.67 379.45 m 356.67 389.80 l S
+0.60 w 402.92 379.45 m 402.92 389.80 l S
+0.60 w 540.00 379.45 m 540.00 389.80 l S
+BT /F2 9.00 Tf 1 0 0 1 75.00 382.30 Tm (#) Tj ET
+BT /F2 9.00 Tf 1 0 0 1 85.50 382.30 Tm (Ask) Tj ET
+BT /F2 9.00 Tf 1 0 0 1 222.58 382.30 Tm (Why \(the outcome it buys\)) Tj ET
+BT /F2 9.00 Tf 1 0 0 1 359.67 382.30 Tm (Needed by) Tj ET
+BT /F2 9.00 Tf 1 0 0 1 405.92 382.30 Tm (If not) Tj ET
+1.20 w 72.00 379.45 m 540.00 379.45 l S
+0.60 w 72.00 369.10 m 72.00 379.45 l S
+0.60 w 82.50 369.10 m 82.50 379.45 l S
+0.60 w 219.58 369.10 m 219.58 379.45 l S
+0.60 w 356.67 369.10 m 356.67 379.45 l S
+0.60 w 402.92 369.10 m 402.92 379.45 l S
+0.60 w 540.00 369.10 m 540.00 379.45 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 371.95 Tm (1) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 85.50 371.95 Tm (Four protected hours a week per) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 222.58 371.95 Tm (the team learns while it delivers) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 367.67 371.95 Tm (26 Oct) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 405.92 371.95 Tm (the conversion burn-down slows by) Tj ET
+0.60 w 72.00 358.75 m 72.00 369.10 l S
+0.60 w 82.50 358.75 m 82.50 369.10 l S
+0.60 w 219.58 358.75 m 219.58 369.10 l S
+0.60 w 356.67 358.75 m 356.67 369.10 l S
+0.60 w 402.92 358.75 m 402.92 369.10 l S
+0.60 w 540.00 358.75 m 540.00 369.10 l S
+BT /F1 9.00 Tf 1 0 0 1 85.50 361.60 Tm (person for training, through 18) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 405.92 361.60 Tm (about a third) Tj ET
+0.60 w 72.00 348.40 m 72.00 358.75 l S
+0.60 w 82.50 348.40 m 82.50 358.75 l S
+0.60 w 219.58 348.40 m 219.58 358.75 l S
+0.60 w 356.67 348.40 m 356.67 358.75 l S
+0.60 w 402.92 348.40 m 402.92 358.75 l S
+0.60 w 540.00 348.40 m 540.00 358.75 l S
+BT /F1 9.00 Tf 1 0 0 1 85.50 351.25 Tm (December) Tj ET
+0.60 w 72.00 348.40 m 540.00 348.40 l S
+0.60 w 72.00 338.05 m 72.00 348.40 l S
+0.60 w 82.50 338.05 m 82.50 348.40 l S
+0.60 w 219.58 338.05 m 219.58 348.40 l S
+0.60 w 356.67 338.05 m 356.67 348.40 l S
+0.60 w 402.92 338.05 m 402.92 348.40 l S
+0.60 w 540.00 338.05 m 540.00 348.40 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 340.90 Tm (2) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 85.50 340.90 Tm (A two-hour review slot with the) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 222.58 340.90 Tm (the toolchain is approved for) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 368.67 340.90 Tm (6 Nov) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 405.92 340.90 Tm (secret detection and runner) Tj ET
+0.60 w 72.00 327.70 m 72.00 338.05 l S
+0.60 w 82.50 327.70 m 82.50 338.05 l S
+0.60 w 219.58 327.70 m 219.58 338.05 l S
+0.60 w 356.67 327.70 m 356.67 338.05 l S
+0.60 w 402.92 327.70 m 402.92 338.05 l S
+0.60 w 540.00 327.70 m 540.00 338.05 l S
+BT /F1 9.00 Tf 1 0 0 1 85.50 330.55 Tm (ISSM for the runner and repository) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 222.58 330.55 Tm (program data) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 405.92 330.55 Tm (hardening stay unapproved) Tj ET
+0.60 w 72.00 317.35 m 72.00 327.70 l S
+0.60 w 82.50 317.35 m 82.50 327.70 l S
+0.60 w 219.58 317.35 m 219.58 327.70 l S
+0.60 w 356.67 317.35 m 356.67 327.70 l S
+0.60 w 402.92 317.35 m 402.92 327.70 l S
+0.60 w 540.00 317.35 m 540.00 327.70 l S
+BT /F1 9.00 Tf 1 0 0 1 85.50 320.20 Tm (security description) Tj ET
+0.60 w 72.00 317.35 m 540.00 317.35 l S
+0.60 w 72.00 307.00 m 72.00 317.35 l S
+0.60 w 82.50 307.00 m 82.50 317.35 l S
+0.60 w 219.58 307.00 m 219.58 317.35 l S
+0.60 w 356.67 307.00 m 356.67 317.35 l S
+0.60 w 402.92 307.00 m 402.92 317.35 l S
+0.60 w 540.00 307.00 m 540.00 317.35 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 309.85 Tm (3) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 85.50 309.85 Tm (Keep one Cameo seat, for reading) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 222.58 309.85 Tm (each drop can be opened when its) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 366.42 309.85 Tm (30 Nov) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 405.92 309.85 Tm (a drop with a bad export cannot be) Tj ET
+0.60 w 72.00 296.65 m 72.00 307.00 l S
+0.60 w 82.50 296.65 m 82.50 307.00 l S
+0.60 w 219.58 296.65 m 219.58 307.00 l S
+0.60 w 356.67 296.65 m 356.67 307.00 l S
+0.60 w 402.92 296.65 m 402.92 307.00 l S
+0.60 w 540.00 296.65 m 540.00 307.00 l S
+BT /F1 9.00 Tf 1 0 0 1 85.50 299.50 Tm (the prime's drops only) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 222.58 299.50 Tm (XMI export is in question) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 405.92 299.50 Tm (checked) Tj ET
+0.60 w 72.00 296.65 m 540.00 296.65 l S
+0.60 w 72.00 286.30 m 72.00 296.65 l S
+0.60 w 82.50 286.30 m 82.50 296.65 l S
+0.60 w 219.58 286.30 m 219.58 296.65 l S
+0.60 w 356.67 286.30 m 356.67 296.65 l S
+0.60 w 402.92 286.30 m 402.92 296.65 l S
+0.60 w 540.00 286.30 m 540.00 296.65 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 289.15 Tm (4) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 85.50 289.15 Tm (A second runner machine on the) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 222.58 289.15 Tm (no merge waits when the first) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 370.42 289.15 Tm (8 Jan) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 405.92 289.15 Tm (one runner outage blocks every) Tj ET
+0.60 w 72.00 275.95 m 72.00 286.30 l S
+0.60 w 82.50 275.95 m 82.50 286.30 l S
+0.60 w 219.58 275.95 m 219.58 286.30 l S
+0.60 w 356.67 275.95 m 356.67 286.30 l S
+0.60 w 402.92 275.95 m 402.92 286.30 l S
+0.60 w 540.00 275.95 m 540.00 286.30 l S
+BT /F1 9.00 Tf 1 0 0 1 85.50 278.80 Tm (program network) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 222.58 278.80 Tm (runner is down) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 405.92 278.80 Tm (merge) Tj ET
+0.60 w 72.00 275.95 m 540.00 275.95 l S
+0.60 w 72.00 265.60 m 72.00 275.95 l S
+0.60 w 82.50 265.60 m 82.50 275.95 l S
+0.60 w 219.58 265.60 m 219.58 275.95 l S
+0.60 w 356.67 265.60 m 356.67 275.95 l S
+0.60 w 402.92 265.60 m 402.92 275.95 l S
+0.60 w 540.00 265.60 m 540.00 275.95 l S
+BT /F1 9.00 Tf 1 0 0 1 75.00 268.45 Tm (5) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 85.50 268.45 Tm (A decision on the GitLab tier that) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 222.58 268.45 Tm (approvals enforced by the platform,) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 368.17 268.45 Tm (15 Jan) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 405.92 268.45 Tm (approvals rely on the team's) Tj ET
+0.60 w 72.00 255.25 m 540.00 255.25 l S
+0.60 w 72.00 255.25 m 72.00 265.60 l S
+0.60 w 82.50 255.25 m 82.50 265.60 l S
+0.60 w 219.58 255.25 m 219.58 265.60 l S
+0.60 w 356.67 255.25 m 356.67 265.60 l S
+0.60 w 402.92 255.25 m 402.92 265.60 l S
+0.60 w 540.00 255.25 m 540.00 265.60 l S
+BT /F1 9.00 Tf 1 0 0 1 85.50 258.10 Tm (enforces code-owner approval rules) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 222.58 258.10 Tm (not by habit) Tj ET
+BT /F1 9.00 Tf 1 0 0 1 405.92 258.10 Tm (discipline alone) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 231.45 Tm (3.  Until then, the team will keep the review rule by agreement, run the pipeline on the single) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 217.65 Tm (runner, and read drops from their XMI exports.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 190.05 Tm (4.  Request a decision on items 1 and 2 by 26 October, and on items 3 to 5 at the November) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 176.25 Tm (program management review.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 148.65 Tm (5.  The point of contact is the undersigned.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 121.05 Tm (JIM) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 93.45 Tm (TIDEWATER MBSE LEAD) Tj ET
+
+endstream
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000214 00000 n 
+0000000312 00000 n 
+0000000407 00000 n 
+0000000553 00000 n 
+trailer
+<< /Size 8 /Root 1 0 R >>
+startxref
+9306
+%%EOF

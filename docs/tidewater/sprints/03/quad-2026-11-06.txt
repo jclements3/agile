@@ -1,0 +1,34 @@
+Weekly status Model -- as of 2026-11-06 (sprint 3)
+Sprint progress 37% (5/15 SP) new   On-time delivery: 2/2 this week, 2/2 this sprint
+
+TECHNICAL PRIORITIES
+  DONE  TW-51        3  "Close the Network TODO lines" Bob
+  OPEN  TW-52        3  "DOORS modules into the model" Jim
+  DONE  TW-53      2.5  "Trace report and secret detec Tom
+  OPEN  TW-54        2  "Runner hardening with the ISS Tom
+  OPEN  TW-55        2  "First drift and gap analysis  Jim
+  OPEN  TW-50      2.5  "Learn: the workbook second ha Tom
+
+WATCH ITEMS / PM HELP NEEDED
+  none
+
+SCHEDULE MILESTONES
+  30 days out
+    1. T2 Port Tidewater v1 to SysML v2 > E7 Requirements and trace +   0%  ETA 2026-11-29
+    2. (none) > (none)                    ->  55%  ETA 2026-11-29
+    3. T1 Stand up MBSE DevSecOps > E4 Toolchain security and authorization to use +   0%  ETA 2026-11-29
+  60 days out
+    -
+  90 days out
+    -
+
+ACCOMPLISHMENTS (since 2026-10-30)
+  v TW-51        3  "Close the Network TODO lines" Bob
+  v TW-53      2.5  "Trace report and secret detec Tom
+
+PUNT RATE (tasks punted back to TODO / tasks committed, last 4 sprints)
+  sprint 1    Model          0 / 7     0%
+  sprint 2    Model          0 / 7     0%
+  sprint 3    Model          0 / 6     0%
+
+Legend: v on time  x late (carried over, or rework after the demo)  ! slipped   -> pushed right  <- pulled left  = no change  + new

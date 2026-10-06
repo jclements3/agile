@@ -1,0 +1,6 @@
+jim draft:  Y TW-55 First drift and gap analysis from the...: done (1 task). T TW-66 reviewing a model change: the checklist, by Nov 27. B none
+jim posted: Y TW-55 First drift and gap analysis from the: done (1 task). T TW-66 reviewing a model change: the checklist, by Nov 27; pairing with Bob after lunch. B none
+bob draft:  Y none T TW-66 reviewing a model change: line comments, by Nov 27. B none
+bob posted: Y none T TW-66 reviewing a model change: line comments, by Nov 27; pairing with Tom after lunch. B none
+tom draft:  Y none T TW-66 the Day-9 demo rehearsal, by Nov 27. B none
+tom posted: Y none T TW-66 (first thing: read the review comments) the Day-9 demo rehearsal, by Nov 27. B none

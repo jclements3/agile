@@ -1,0 +1,20 @@
+Tidewater: twelve weeks of MBSE in GitLab -- briefing to program management, 2026-12-24
+
+1. Where we started: documents, then a Cameo model nobody could merge or review (47 diagrams, 2 package cycles).
+2. What we built: a GitLab project, a pipeline that checks every change, the model in SysML v2 text, a model site.
+3. The scorecard, sprint by sprint:
+
+   sprint  TODO lines  lead time (h)  gated        morale
+   1       0           2.2            0 of 1       1.9
+   2       52          3.6            6 of 6       2.4
+   3       50          4.2            4 of 4       2.2
+   4       22          3.5            4 of 4       3
+   5       14          3.5            5 of 5       3.8
+   6       5           3.5            7 of 7       4.1
+
+4. Before and after (document-era numbers are notional): a requirement change took 23 working days through the CCB;
+   a model change now takes hours from MR to merge, reviewed and checked.
+5. The demo: open an MR, watch the pipeline, see the trace and the VCRM on the site.
+6. Next semester: drops 2 and 3, behavior, baseline 1 in sprint 20.
+
+The written twin of this briefing is the twelve-week progress memo (docs/tidewater/memos/2026-12-24-twelve-week-progress.md).

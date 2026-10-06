@@ -1,0 +1,142 @@
+== A day in the life, week twelve {#day-in-life}
+
+::: survival Where this chapter fits
+What you have: Bob's Thursday, 17 December 2026 -- the second-to-last week of the twelve -- exactly as GitLab and
+the stand-up chat recorded it.
+
+What you need: a concrete picture of what the work feels like once the tools are learned, beside the same kind of
+day three years earlier in the Cameo era. Managers ask "what does a normal day look like now?" This is the answer.
+:::
+
+Nothing on this day was staged for the book. It is an ordinary working day in sprint 6, chosen because it has most
+of what a small model team meets in practice: a failed overnight check, a change that the pipeline sends back, a
+review that requests changes, a merge that is refused until a discussion is resolved, and the next morning a secret
+that nearly got into the repository. Every time below is Eastern time, as GitLab recorded it.
+
+{{include: docs/tidewater/sprints/06/day-in-life/timeline.txt}}
+
+=== 09:00 -- the stand-up, and the night's failure {#dil-standup}
+
+The first thing Bob saw was not an email. It was the GitLab To-Do list and the board: the scheduled "Nightly full
+check" pipeline from 02:00 had failed, in every job, before any check ran. Bob opened an issue for it at 09:15,
+labelled it, and linked the failing job:
+
+{{include-md: docs/tidewater/sprints/06/day-in-life/incident.md}}
+
+The failure was not in the model. The runner -- the Windows machine that runs the team's pipeline -- had filled its
+disk with old build directories. At the stand-up it took one sentence to hand over ("Tom, the nightly died on disk
+space, #132"), and Tom had it cleared and re-run by 10:30. In the Cameo era the equivalent -- a tool failing
+overnight -- would have been discovered when someone opened the model and it would not load.
+
+The stand-up itself was three lines in the meeting chat, drafted with `talk.pl` and edited before posting
+([[talking]]):
+
+{{include: docs/tidewater/sprints/06/standups/2026-12-17-chat.txt}}
+
+You can open the issue Bob filed in the simulation's GitLab:
+
+```sh run sandbox=tidewater timeout=180 expect="#132\s+closed"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model issue show 132
+```
+
+=== 10:00 -- a draft that the pipeline sends back {#dil-draft}
+
+Bob's own work that week was the hand-written flows in the `ObserveCoast` activity: the fork, the pin, the object
+and control flows that the converter could not carry from v1 ([[workbook]]). Bob opened merge request !23 as a
+*draft* at 10:00 -- a draft is a merge request that says "look, but do not merge yet" -- and the pipeline ran on it
+straight away. It failed. The grammar, lint and outline checks were green; the trace check was red:
+
+{{include: docs/tidewater/sprints/06/pipelines/mr23-first-86.log | lines 97-101}}
+
+Bob had tidied a doc comment on requirement TW-SYS-007 while in the file, and the new wording no longer
+matched DOORS. The trace job compares the model's requirement text with the DOORS export on every change; a
+*new* difference fails the merge request ([[pipeline]]). The old difference, TW-SYS-006, is the prime's and is
+tracked as a discrepancy report, so it does not fail anything. Bob put the wording back, pushed, and the next
+pipeline (#87) was green. Bob marked the draft ready at noon. In the Cameo era a reworded requirement in the model
+would have been found -- if at all -- at the next DOORS synchronisation, weeks later, by someone else.
+
+=== 14:05 -- reviewing Tom's change {#dil-review}
+
+At 14:05 Bob's To-Do list showed one item: Tom had asked Bob to review !24, "Document what crosses each interface".
+Bob did not read the raw text diff alone. Bob read the generated documentation the pipeline attached, then went to
+the line that looked wrong and left a line comment with a *suggestion* -- a proposed replacement the author can
+apply with one click -- and requested changes:
+
+{{include-md: docs/tidewater/samples/mr-review-thread.md}}
+
+The comment is the review culture the team built in [[reviewing]]: it names the problem ("late" assumes a schedule
+nobody wrote down), cites the requirement, and offers a concrete fix that keeps the uncertainty visible as an
+assumption to confirm with the prime.
+
+At 14:20 Tom tried to merge. GitLab refused: the project requires every discussion on a merge request to be
+resolved first ([[gitlab-setup]]), and Bob's thread was open. Tom applied the suggestion; Bob resolved the thread
+at 14:50 and approved; Jim, as the code owner for interfaces, had already approved; Tom merged at 15:10. The same
+click closed task #123, because the merge request description said "Closes #123".
+
+The merge request's page shows its checks as GitLab's widgets would:
+
+```sh run expect="!24\s+merged"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model mr show 24 | head -8
+```
+
+One rough edge is visible there, and the book does not hide it: the test widget lists the requirement gaps the
+government has already reported to the prime as *failed tests*, even though the pipeline is green, because the
+trace report marks every gap, old or new, as a failure. The pipeline itself only fails on new gaps. Until the
+report is changed to mark inherited gaps as skipped, read the widget's "failed" count together with the trace
+job's verdict line.
+
+=== 15:30 -- the day closes {#dil-close}
+
+Bob merged !23 at 15:30, which closed Bob's task #121. By the end of the day both changes were on `develop`, both
+had passed their checks on the merge request, both had been reviewed and approved by someone other than the
+author, and the board, the burn-down and the model site all showed it without anyone writing a
+status report. The nightly schedule would run the full check again at 02:00.
+
+> Six things happened before lunch and I knew about every one of them from GitLab, not from email.
+> -- Bob, 17 December 2026
+
+The next morning, Friday, Tom's merge request !25 failed a different check: the secrets scan found a test access
+token pasted into a helper script. By 11:30 it was fixed: revoke the token, issue a new one as a masked CI/CD
+variable, and rewrite the branch so the token never reached `develop` ([[rescue]]). The sprint 6 retrospective's
+"stop" list has one line that came from that morning: "Pasting tokens into scripts, even test ones."
+
+=== The same Thursday, 2023, the Cameo way (notional) {#dil-2023}
+
+::: note This half is notional
+Nothing below comes from the simulation. It is a composite of how the team described their Cameo-era days in
+[[cameo]], written as one day so it can be compared. Treat the times as typical, not measured.
+:::
+
+|| Time | December 2023, Cameo and documents | December 2026, GitLab and SysML v2 ||
+| 08:30 | Email from the prime: the model export for the review will be late. | GitLab To-Do: the nightly check failed; an issue is open by 09:15. |
+| 09:00 | Status meeting, forty minutes, everyone reads their slide. | Stand-up, fifteen minutes, three lines in chat, drafted from GitLab. |
+| 10:00 | Bob checks out a Cameo project lock; Tom has it, Bob waits. | Bob opens a draft merge request; the pipeline runs on it in minutes. |
+| 11:00 | Bob edits the activity diagram; layout takes most of the hour. | The pipeline finds a reworded requirement before anyone else sees it. |
+| 13:00 | Screenshots pasted into a review briefing, slide by slide. | Bob reads Tom's change in the generated docs and leaves a line comment. |
+| 14:30 | The review comments come back as a marked-up PDF. | The comment is a suggestion Tom applies with one click. |
+| 15:30 | Someone asks which requirements are unverified; "I'll get back to you". | The trace answer is on the model site, current as of the last merge. |
+| 16:30 | A requirement changed in DOORS last month; nobody noticed. | Every DOORS difference is checked on every change. |
+Table: One Thursday, three years apart. The left column is notional; the right column is the evidence above.
+
+The point of the comparison is not that the old day was lazy. The engineers worked as hard in 2023. The difference
+is where the effort went: in 2023 most of it went into moving information between tools and people by hand, and
+the checks happened at reviews, weeks later. In 2026 the moving and checking are done by the pipeline on every
+change, and the people spend their day on the model and on each other's work.
+
+::: exercise {#ex-dil-own-day} Write your own two-column day
+Pick one ordinary day from last month. Write what you did, hour by hour, in the left column. In the right column
+write what the same work would look like with a merge request, a pipeline and a model site. Which rows would
+change most? Which would not change at all?
+:::
+
+=== You can now {#dil-you-can}
+
+- Describe a normal working day in a GitLab model team, hour by hour, with the evidence a manager can check.
+- Explain why a draft merge request that fails its pipeline is good news, not bad.
+- Read a merge request's widgets and know which numbers are new problems and which are inherited ones.
+
+=== Applying this to your project {#dil-applying}
+
+Copy the shape: a To-Do list instead of email, a nightly full check, draft merge requests, required discussion
+resolution, suggestions in reviews. Adapt the times to your team's hours and your stand-up. Decide locally whether
+a nightly failure is picked up at the stand-up (Tidewater) or by whoever is on call that week.

@@ -1,0 +1,6 @@
+jim draft:  Y none T TW-55 write up the drift and the trace gaps, by Fri. B none
+jim posted: Y none T TW-55 write up the drift and the trace gaps, by Fri. B none
+bob draft:  Y none T none B none
+bob posted: Y none T review the open MRs, then the sprint 3 demo, by the review. B none
+tom draft:  Y none T TW-50 talk.pl; the Day-9 demo rehearsal, by Fri. B TW-54 runner service account and hardening... blocked: waiting on the ISSM to approve the runner service account -- need: help to unblock it
+tom posted: Y none T TW-50 talk.pl; the Day-9 demo rehearsal, by Fri. B TW-54 runner service account and hardening... blocked: waiting on the ISSM to approve the runner service account -- need: help to unblock it

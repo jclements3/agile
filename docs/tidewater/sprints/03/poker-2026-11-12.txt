@@ -1,0 +1,119 @@
+Meeting started
+[10:00 AM] Jim
+Refinement for sprint 4. Planning poker: one number per story, in points.
+[10:01 AM] Jim
+#est TW-66 Learn: reviewing a model change; the rehearsed demo
+[10:02 AM] Jim
+1.5
+[10:02 AM] Bob
+1.5
+[10:02 AM] Tom
+1.5
+[10:03 AM] Jim
+#est TW-67 Close the Stations level tags
+[10:04 AM] Jim
+3
+[10:04 AM] Bob
+5
+[10:04 AM] Tom
+5
+[10:04 AM] Jim
+3 to 5. Talk it out: what does the high vote know?
+[10:05 AM] Jim
+#est TW-67 Close the Stations level tags
+[10:06 AM] Jim
+5
+[10:06 AM] Bob
+5
+[10:06 AM] Tom
+5
+[10:07 AM] Jim
+#est TW-68 Units and value types
+[10:08 AM] Jim
+2
+[10:08 AM] Bob
+2
+[10:08 AM] Tom
+2
+[10:09 AM] Jim
+#est TW-69 Break the Network <-> Operations cycle
+[10:10 AM] Jim
+2
+[10:10 AM] Bob
+2
+[10:10 AM] Tom
+2
+[10:11 AM] Jim
+#est TW-70 Discrepancy reports DR-1 to DR-4 to the prime
+[10:12 AM] Jim
+2
+[10:12 AM] Bob
+2
+[10:12 AM] Tom
+2
+[10:13 AM] Jim
+#est TW-71 The model site on GitLab Pages, rebuilt nightly
+[10:14 AM] Jim
+3
+[10:14 AM] Bob
+3
+[10:14 AM] Tom
+3
+[10:15 AM] Jim
+#est TW-72 First sprint review with the program office; the delivery interface with the prime
+[10:16 AM] Jim
+1.5
+[10:16 AM] Bob
+1.5
+[10:16 AM] Tom
+1.5
+
+---- Chat.pm tallies
+ESTIMATE TW-66 Learn: reviewing a model change; the rehearsed demo  (3 answers at 10:01)
+  Bob            1.5
+  Jim            1.5
+  Tom            1.5
+  consensus: 1.5
+
+ESTIMATE TW-67 Close the Stations level tags  (3 answers at 10:03)
+  Bob            5
+  Jim            3
+  Tom            5
+  no consensus: median 5, mode 5, range 3-5
+
+ESTIMATE TW-67 Close the Stations level tags  (3 answers at 10:05)
+  Bob            5
+  Jim            5
+  Tom            5
+  consensus: 5
+
+ESTIMATE TW-68 Units and value types  (3 answers at 10:07)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-69 Break the Network <-> Operations cycle  (3 answers at 10:09)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-70 Discrepancy reports DR-1 to DR-4 to the prime  (3 answers at 10:11)
+  Bob            2
+  Jim            2
+  Tom            2
+  consensus: 2
+
+ESTIMATE TW-71 The model site on GitLab Pages, rebuilt nightly  (3 answers at 10:13)
+  Bob            3
+  Jim            3
+  Tom            3
+  consensus: 3
+
+ESTIMATE TW-72 First sprint review with the program office; the delivery interface with the prime  (3 answers at 10:15)
+  Bob            1.5
+  Jim            1.5
+  Tom            1.5
+  consensus: 1.5
+

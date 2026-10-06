@@ -1,0 +1,13 @@
+Week zero, Tuesday 2026-09-29 to Friday 2026-10-02 -- before sprint 1 (hours per person; outside the sprint backlog)
+
+Date        Who   Hours  Activity
+2026-09-24  all    1.0   The directive meeting: the program manager reads the DevSecOps memo to the team (docs/tidewater/memos/2026-09-24-directive)
+2026-09-29  jim    2.0   Kickoff with the program manager and deputy PM: the twelve-week scorecard agreed (chapter 4)
+2026-09-29  tom    2.5   Software request for Git for Windows and Vim on three laptops; kickoff.pl doctor on Tom's own laptop (2 FAIL, 4 WARN)
+2026-09-30  tom    1.5   kickoff.pl scaffold: the model repository skeleton; kickoff.pl start --dry-run read with Jim
+2026-09-30  jim    1.5   First meeting with the ISSM: what the runner and the repository will hold (notional, unclassified)
+2026-10-01  jim    2.0   Decisions D-1 .. D-10 drafted (recorded as ADRs in sprint 2)
+2026-10-01  bob    3.0   Practice repository: clone, branch, commit, merge (the primer's git chapter); "configuration management with fewer forms"
+2026-10-02  jim    1.0   Delivery agreement call with the prime's modeler: stable xmi:ids, DRs that cite v1 ids, a MANIFEST with every drop
+2026-10-02  jim    0.5   Drop 1 (v1.0) arrives by CDRL file transfer
+Total              15.0  hours across the three, about 2 person-days: not in sprint 1's capacity

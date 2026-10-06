@@ -1,0 +1,14 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y: TW-1 practice lessons 10-11; the operating model
+T: TW-2 set up Jim's laptop; kickoff.pl doctor
+B: none
+[9:02 AM] Bob
+Y: TW-1 practice lessons 10-11; the survival kit, git; TW-2 set up Bob's laptop; kickoff.pl doctor
+T: TW-2 set up Bob's laptop; kickoff.pl doctor
+B: TW-2 the software request for Git for Windows is still with the help desk
+[9:03 AM] Tom
+Y: TW-1 draft pipeline
+T: TW-2 runner, still waiting

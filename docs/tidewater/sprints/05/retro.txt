@@ -1,0 +1,10 @@
+Sprint 5 retrospective, 2026-12-11 11:00
+
+Start:
+  - Lowering .ci/outline-max in the same MR that fixes a violation
+Stop:
+  - Cleaning up trace links by eye
+Continue:
+  - The ratchet: it caught a real mistake
+
+Pulse survey (1-5, anonymous): mean 3.8

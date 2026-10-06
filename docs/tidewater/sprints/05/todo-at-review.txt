@@ -1,0 +1,22 @@
+GitLab To-Do lists at the review (2026-12-11 10:00)
+
+  Jim: 0 review(s) requested, 10 open issue(s) assigned
+    #84 DR-1: TW-SYS-006 text differs between DOORS and the model
+    #85 DR-2: TW-SYS-012 has no satisfy
+    #86 DR-3: TW-SYS-016 is in DOORS but not in the model
+    #87 DR-4: TW-SYS-011 has no verification case
+    #88 DR-7: WaveSensor is tagged L5 but is a direct part of MooredBuoy (L4)
+    #109 DR-5: The Legacy Import package is clutter from the document port
+    #110 DR-6: Weak verbs and missing parts in the DOORS requirement text
+    #111 Learn: memos and briefings from the model
+    #116 VCRM: which requirements are verified, and how
+    #118 Retrospective, the management briefing and the plan for next semester
+
+  Bob: 0 review(s) requested, 2 open issue(s) assigned
+    #112 BuoyModes state machine by hand
+    #113 Fork, pin and object flow in ObserveCoast
+
+  Tom: 0 review(s) requested, 3 open issue(s) assigned
+    #114 Level tags in Operations
+    #115 Data exchange table for the program review
+    #117 Interim baseline-0 for the program review

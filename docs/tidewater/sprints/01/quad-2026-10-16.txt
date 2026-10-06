@@ -1,0 +1,34 @@
+Weekly status Model -- as of 2026-10-16 (sprint 1)
+Sprint progress 100% (16/16 SP) improving (was 42%)   On-time delivery: 5/5 this week, 7/7 this sprint
+
+TECHNICAL PRIORITIES
+  DONE  TW-3         3  "Create the GitLab group and m Tom
+  DONE  TW-5       1.5  "Receive drop 1 and record it" Jim
+  DONE  TW-6         3  "Convert drop 1 and assess it" Bob
+  DONE  TW-1         4  "Learn the tools: survival kit Jim
+  DONE  TW-2         3  "Laptops ready: Git for Window Tom
+  DONE  TW-4       1.5  "Draft the first pipeline and  Tom
+  DONE  TW-7       0.5  "Working agreements: Definitio Jim
+
+WATCH ITEMS / PM HELP NEEDED
+  none
+
+SCHEDULE MILESTONES
+  30 days out
+    -
+  60 days out
+    -
+  90 days out
+    -
+
+ACCOMPLISHMENTS (since 2026-10-09)
+  v TW-3         3  "Create the GitLab group and m Tom
+  v TW-5       1.5  "Receive drop 1 and record it" Jim
+  v TW-6         3  "Convert drop 1 and assess it" Bob
+  v TW-4       1.5  "Draft the first pipeline and  Tom
+  v TW-7       0.5  "Working agreements: Definitio Jim
+
+PUNT RATE (tasks punted back to TODO / tasks committed, last 4 sprints)
+  sprint 1    Model          0 / 7     0%
+
+Legend: v on time  x late (carried over, or rework after the demo)  ! slipped   -> pushed right  <- pulled left  = no change  + new

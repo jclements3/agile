@@ -1,0 +1,10 @@
+Refinement, 2026-12-09 10:00: the Definition of Ready applied to sprint 6's stories
+
+TW-111  0.5 pts  Learn: memos and briefings from the model
+TW-112  3 pts  BuoyModes state machine by hand
+TW-113  1 pts  Fork, pin and object flow in ObserveCoast
+TW-114  1.5 pts  Level tags in Operations
+TW-115  2 pts  Data exchange table for the program review
+TW-116  2 pts  VCRM: which requirements are verified, and how
+TW-117  2 pts  Interim baseline-0 for the program review
+TW-118  2 pts  Retrospective, the management briefing and the plan for next semester

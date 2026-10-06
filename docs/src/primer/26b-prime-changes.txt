@@ -1,0 +1,607 @@
+== The prime's model changes: receive, assess, disposition {#prime-changes}
+
+::: survival The prime keeps changing the model you just ported
+What you have: a SysML v2 model the team built from the prime's Cameo export, a contract that says the prime
+maintains the authoritative v1 model, and a calendar with a new drop on it every quarter.
+
+What you need: a way to take each drop in without losing a week, without losing your own work, and without
+accidentally accepting a change nobody authorized. This chapter is that way, end to end, with every command run
+against real drops.
+:::
+
+The port was never a one-time conversion. Northwind Marine Systems, the prime, kept its Cameo model and kept
+changing it: a new sensor, a new operating mode, a deleted requirement, a renamed activity, test results from its
+lab. Seven drops arrive over the eighteen months of the Tidewater project, and every one of them lands on a model
+that Jim, Bob and Tom have been editing in the meantime.
+
+In the document era this was the problem everybody dreaded and nobody owned. A new revision of the SRS arrived as
+a PDF with change bars, somebody compared it by eye with the old one, and the differences that mattered to the
+government's own documents were found weeks later, often at a review, often by the customer. Bob remembered it
+well:
+
+> Rev D of the ICD came in on a Friday. By the next Friday I had found eleven changes. The twelfth one we found at
+> the PDR, in front of the program manager.
+> -- Bob, at the sprint 6 retrospective
+
+This chapter shows the loop the team built instead. It has six steps, each with a tool, and each step produces a
+record someone can audit later:
+
+1. **Receive** the drop and check it is exactly what the prime sent.
+2. **Archive** it unchanged, where nobody can edit it.
+3. **Compare** it with the previous drop, element by element, by the prime's own element IDs.
+4. **Assess** what each change touches in the government's model.
+5. **Disposition** each significant change at the change board, as an issue with a decision.
+6. **Implement** the accepted changes through ordinary merge requests, and report problems back to the prime.
+
+Before any of that, there is one question that is not about tools at all.
+
+=== Contract first {#prime-changes-contract}
+
+**A change in the prime's model is not direction.** This is the single most important sentence in this chapter.
+The prime maintains its Cameo model under a contract data requirement (CDRL A003 on Tidewater). When the prime adds
+a hygrometer to the sensor suite in its model, that tells you what the prime has done. It does not tell the
+government team to do anything. If Bob updates the government model because "the prime's model changed," and the
+change was never approved through the contract, Bob has just spent government effort on work nobody authorized, and
+possibly accepted a change the program office would have rejected.
+
+So before the first drop, three questions go to the program office and the contracting officer's representative,
+in writing:
+
+- **What is the prime's model, contractually?** Is it the authoritative source for requirements and interfaces,
+  or supporting data? On many programs the specifications and interface control documents still govern, and the
+  model is a deliverable that illustrates them. On Tidewater the System Requirements Specification in DOORS
+  governs; the Cameo model is "supporting data, maintained by the contractor."
+- **Which version is on contract?** The drop that was delivered last is not necessarily the one the program
+  accepted. Tidewater's rule: a drop becomes the reference only after the change board has dispositioned it.
+- **Through which channel do changes become direction?** A contract modification, technical direction letter,
+  an approved engineering change proposal, or an interface change approved by the interface control working group.
+  The drop itself is never the channel.
+
+Jim's answer to the third question became the rule the team works by: **every drop goes through the change board,
+with the program office and contracts represented, before anything in it changes the government model.** The board
+is small on Tidewater (Jim and the deputy program manager), and it meets in GitLab, but it exists, and its
+decisions are recorded.
+
+::: objection "We are the government. We can just change our model."
+Bob said it in sprint 2: the government team owns the v2 model, so why ask anybody's permission to keep it in step
+with the prime?
+
+Answer: you can change your model whenever you like. What you cannot do is let the prime's model decide what your
+model says without a decision on record. If the prime renames an activity, follows it with three more changes,
+and one of them conflicts with a requirement the program office cares about, the record has to show who looked at
+it and what they decided. The change board costs Jim and the deputy program manager twenty minutes per drop. The
+alternative is an audit finding, or an unfunded change.
+:::
+
+==== The model exchange agreement {#prime-changes-agreement}
+
+The second thing to settle before the first drop is how drops arrive. Tidewater wrote it down as a short model
+exchange agreement, a page in the repository's `docs/` folder that both sides signed in week zero. It is the
+interface control document for the interface between two organizations' engineering processes, and like any ICD it
+says what crosses, in what format, how often, and what happens when something is wrong:
+
+{{include: tools/gitlab/templates/docs/model-exchange-agreement.md | lines 1-40}}
+
+Two clauses in that agreement made every later step possible, and they are worth asking for on any program:
+
+- **Stable element IDs.** Cameo gives every element an ID (`xmi:id`). If the prime's export keeps those IDs from
+  one drop to the next, a program can compare drops element by element and know that a renamed activity is the
+  same activity. If the export generates new IDs each time, every comparison degrades to guessing by name. The
+  prime's modeler agreed in week zero; it cost them a checkbox in the export settings.
+- **Change notes with every drop.** A list of the prime's own change requests, each with an ID, a one-line
+  rationale and the elements it touches. The prime already had this list for its own change control; the
+  agreement just asks for it to be delivered.
+
+=== Receive: what arrived, and is it what was sent? {#prime-changes-receive}
+
+To follow along you need drops. The kit's generator writes the same seven drops the Tidewater team received, each
+with the prime's manifest and change list. Make the first five:
+
+```sh run sandbox=scratch expect="CHANGES\.csv" timeout=180
+for n in 1 2 3 4 5; do perl "$KIT/sim/tidewater-v1.pl" --drop $n drops/d$n > /dev/null; done
+ls drops/d2
+```
+
+A drop is four or five files: the Cameo model as XMI (`tidewater.xmi`), the DOORS modules as ReqIF and as CSV, the
+prime's change list (`CHANGES.csv`), and a manifest. From drop 4 on there are also the prime's test results. The
+manifest is the transmittal record. Read it first, every time:
+
+```sh run expect="NWM-CR-0012"
+cat drops/d2/MANIFEST.txt
+```
+
+It names the delivery (version, date, CDRL), who built it and with what (the prime's Jenkins job and build number,
+its repository commit, the tool versions), the change requests in this drop, and a SHA-256 checksum for every file.
+The checksums are what make "is this what was sent?" a question with a yes-or-no answer instead of an opinion.
+Check them before anyone opens a file:
+
+```sh run expect="tidewater\.xmi: OK"
+cd drops/d2
+sed -n '/^Files/,$p' MANIFEST.txt | tr -d '\r' | awk 'NF == 2 { print $1 "  " $2 }' | sha256sum -c
+```
+
+(The `tr -d '\r'` is there because the prime's Windows build writes the manifest with Windows line endings; without
+it `sha256sum` looks for a file whose name ends in an invisible carriage return.) Every line must say `OK`. A single `FAILED` means the file is not what the prime's build produced: it was damaged
+in transit, edited on the way, or the manifest itself is wrong. Either way the drop is not imported. The team does
+not fix it; the prime sends it again.
+
+::: tip Why a checksum and not a careful look
+A checksum is a fingerprint of the file's exact bytes. Change one character anywhere in a 120 KB XMI file and the
+fingerprint changes completely. It is the same idea as the configuration audit's check that the delivered
+configuration matches the documented one, done by a program in a second instead of by a person in an afternoon.
+:::
+
+=== Archive: keep it exactly as delivered {#prime-changes-archive}
+
+The received drop is evidence. Months later someone will ask "what exactly did the prime deliver on 2 April?", and
+the answer has to be the files themselves, not a converted copy that has since been edited. Tidewater keeps every
+drop in two places, neither of which anybody edits:
+
+- **The vendor branch** (`vendor/prime`) of the model repository. Each drop is converted there, as delivered, and
+  committed with the raw files under `imports/<version>/`. Nobody commits anything else to that branch; its
+  protection rule allows only the configuration manager to push, and nobody to merge into it. The vendor branch
+  is the reason a new drop can be merged into a model the team has been editing: git compares the new drop with
+  the old drop *as converted*, and carries only the prime's changes across. [[git]] explains the idea, and
+  practice lesson 12 lets you do it.
+- **The Generic Package Registry** of the GitLab project, as `prime-drop/<version>`. The pipeline's `drop-package`
+  job files every drop there automatically, with its checksum, so the CDRL deliverable sits next to the model it
+  became and can be downloaded by version.
+
+If your program's access rules for the prime's data differ from those for the model, the archive moves to its own
+restricted project and the model project references it by version. The loop stays the same.
+
+=== Compare: what changed, element by element {#prime-changes-delta}
+
+Converting a drop is the easy part. The hard question is what changed since the last drop, because that is what
+the team has to assess. The converter answers it directly from the two XMI files, matching elements by the prime's
+IDs:
+
+```sh run expect="7 added, 0 removed, 1 changed"
+perl "$KIT/bin/xmi2sysml.pl" --delta drops/d1/tidewater.xmi drops/d2/tidewater.xmi | head -25
+```
+
+Read the first four lines before anything else. They say how big the change is, and they split it in two:
+
+- **Carried by the converter.** Re-converting the drop reproduces the change in SysML v2 text. The vendor-branch
+  merge brings it across without anyone retyping it.
+- **Manual.** The converter does not carry this kind of element (state machines, interactions, constraint
+  expressions, which it leaves as TODO lines). A person has to rework the government's v2 text by hand. These are
+  the expensive changes, and the report lists them at the end as a checklist.
+
+Drop 2 is all carried. Drop 3 is not. Its change to the buoy's operating modes (a new Storm state) sits inside a
+state machine, which the converter leaves as a TODO; the government team wrote the state machine by hand in
+sprint 6. Look at the manual list:
+
+```sh run expect="manual rework list"
+perl "$KIT/bin/xmi2sysml.pl" --delta drops/d2/tidewater.xmi drops/d3/tidewater.xmi | sed -n '1,4p;/manual rework list/,$p'
+```
+
+Five manual items, all inside `BuoyModes`: the Storm state, two transitions, and their two triggers. Without the
+element-level comparison this change would have been invisible: the converted v2 text of drop 3 is the same as
+drop 2's around the state machine, because both just say TODO there. A diff of the converted files would have shown
+nothing. This is the strongest argument for stable IDs and an element-level delta.
+
+::: note Why compare v1 with v1, not v2 with v2
+It is tempting to convert both drops and diff the SysML v2 text. That catches everything the converter carries and
+misses everything it does not, which is exactly the part that needs a person. The comparison has to happen on the
+prime's model, in the prime's terms, with the converter's coverage reported per change.
+:::
+
+=== Assess: what does it touch in our model? {#prime-changes-impact}
+
+The delta says what changed in the prime's model. The change board needs to know what that touches in the
+government's model: which requirements, which verification cases, which interfaces, and which hand edits the team
+made that now need redoing. That is impact analysis, and it needs one more piece of information: where each of the
+prime's elements ended up in the government's v2 text.
+
+The converter writes that as a map when it converts a drop. Start the government's model from drop 1, laid out in
+layers with the same layout map the team uses ([[repo-layout]]), and keep the map:
+
+```sh run expect="206 of 206 in scope ported"
+mkdir -p maps
+perl "$KIT/bin/xmi2sysml.pl" --out gov/model --layout-map "$KIT/examples/tidewater-v1/layout.map" \
+    --map maps/v1.0-map.csv drops/d1/tidewater.xmi
+head -4 maps/v1.0-map.csv
+```
+
+Each row ties one of the prime's elements (its `xmi_id`) to the v2 name, kind, file and line it became. Now ask
+the question the board needs answered, for drop 2:
+
+```sh run expect="requirements touched +3"
+perl "$KIT/bin/xmi2sysml.pl" --delta drops/d1/tidewater.xmi drops/d2/tidewater.xmi \
+    --impact gov/model --map maps/v1.0-map.csv --impact-csv impact-v1.1.csv | sed -n '/impact summary/,$p'
+```
+
+The summary is the change board's agenda in eight lines: three requirements touched (the new humidity requirement
+TW-SYS-017, the stakeholder need it derives from, and TW-SYS-006, whose wording the prime aligned with DOORS), two
+verification cases, one interface and one allocation, grouped under three of the prime's change requests. Above
+the summary, the full report walks through each change request with its rationale and every v2 element it touches,
+with file and line, so a reviewer can open exactly those lines.
+
+==== Change requests: the prime's own reasons {#prime-changes-crs}
+
+Because the drop carries the prime's change list, the impact report is grouped by the prime's change requests
+rather than by element. That turns a list of forty element changes into three or four decisions:
+
+```sh run expect="NWM-CR-0025"
+cat drops/d5/CHANGES.csv
+```
+
+Drop 5 has two change requests. NWM-CR-0024 adds a reserve term to the energy balance constraint, with a reason.
+NWM-CR-0025 renames the activity `PublishBulletin` to `IssueBulletin`, and the rationale column is empty. The
+impact report says so plainly:
+
+```sh run expect="without a rationale +1 +NWM-CR-0025"
+perl "$KIT/bin/xmi2sysml.pl" --delta drops/d4/tidewater.xmi drops/d5/tidewater.xmi --impact gov/model \
+    | sed -n '/^== NWM-CR-0025/,/^$/p;/impact summary/,$p'
+```
+
+A rename with no reason is not something to accept by reflex. Names in the model are referenced from requirement
+text, from test procedures, from the government's own hand-written behavior and from documents outside the model.
+The board needs to know why before it agrees. That case, a change request with no rationale, is the textbook
+reason for the "reject or clarify" disposition below.
+
+==== Hand edits that need redoing {#prime-changes-hand-edits}
+
+The most valuable line in the impact summary is the last one: **hand edits to redo**. The government team closes
+the converter's TODO lines by hand, writing the state machines, interactions and constraint expressions the
+converter could not carry. When the prime then changes one of those constructs, the vendor-branch merge brings
+nothing across (the converter carried nothing), and the team's hand-written version silently goes stale. The impact
+analysis looks for exactly that: a TODO line the converter would write, which is no longer in the government's
+model because someone replaced it.
+
+Play the part of Bob in sprint 6, closing the `BuoyModes` TODO by hand:
+
+```sh run expect="exhibit state buoyModes"
+perl -i -pe 's{^(\s*)// TODO uml:StateMachine .BuoyModes.*$}{$1exhibit state buoyModes : BuoyModes;   // written by hand}' \
+    gov/model/physical/stations/Stations.sysml
+grep -n "buoyModes" gov/model/physical/stations/Stations.sysml
+```
+
+Then drop 3 arrives, with the prime's new Storm state:
+
+```sh run expect="hand edits to redo +1"
+perl "$KIT/bin/xmi2sysml.pl" --delta drops/d2/tidewater.xmi drops/d3/tidewater.xmi --impact gov/model \
+    | sed -n '/impact summary/,$p'
+```
+
+The report names the hand edit, the file and the line: Bob's state machine needs a Storm state, and nothing else in
+the loop would have said so. On Tidewater this became a task in the drop-3 intake story, assigned to the person who
+wrote the original edit.
+
+=== Disposition: one issue per significant change {#prime-changes-disposition}
+
+The impact report is the input to the change board. The board's output is a decision per change request, recorded
+where the work happens: in GitLab issues. Tidewater opens one issue per drop (the intake, from the Prime Drop
+template) and one issue per significant change request, labeled `prime-change`, with exactly one of four
+disposition labels:
+
+|| Disposition | Meaning | What happens next ||
+| `disposition::accept` | Accepted as delivered | The vendor-branch merge brings it in; nothing more |
+| `disposition::accept-with-impact` | Accepted, and it adds government work | Linked tasks for the extra work; the cost and schedule effect noted on the issue |
+| `disposition::reject-clarify` | Not accepted yet | A discrepancy report asks the prime for the rationale or a correction; the issue stays open until the prime answers |
+| `disposition::no-impact` | Cosmetic | Nothing for the government model to do |
+Table: The four dispositions a change request can get
+
+On Tidewater, drop 4's drifting buoys were accepted with impact (new verification cases, a new part of the station
+segment to review); drop 5's unexplained rename was sent back for clarification; most change requests were simply
+accepted; and the documentation edits in drop 7 had no impact. Which drops and change requests got which
+disposition is part of the simulation's later sprints, and the counts belong to its evidence rather than to this
+page.
+
+The issues themselves take a minute to open. Create a scratch GitLab and the project from the team's project file:
+
+```sh run sandbox=scratch expect="protected branch main"
+gl() { perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model "$@"; }
+for u in jim bob tom; do gl user $u; done
+gl --as tom setup "$KIT/tools/gitlab/templates/project.conf" | grep -E "^(created|protected branch main)"
+```
+
+Then open the intake issue and one issue per change request, straight from the impact CSV the converter wrote:
+
+```sh run expect="NWM-CR-0014"
+gl() { perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model "$@"; }
+gl --as jim issue new "Prime drop v1.1: intake and disposition" --label type::drop --label prime-change
+perl -ne 'chomp; my @c = split /,/; print "$c[-1]\n" if $. > 1 && $c[-1]' impact-v1.1.csv | sort -u |
+while read cr; do
+  title=$(grep "^$cr," drops/d2/CHANGES.csv | cut -d, -f2)
+  gl --as jim issue new "$cr $title" --label prime-change --description "Drop v1.1. See the impact report on the intake issue."
+done
+gl issue list --label prime-change
+```
+
+Each disposition is a quick action in a comment, so the decision, who made it and when are all in the issue's
+history:
+
+```sh run expect="disposition::accept"
+gl() { perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model "$@"; }
+gl --as jim issue note 2 '/label ~"disposition::accept"'
+gl issue show 2 | head -3
+```
+
+The deputy program manager concurs in a comment on the intake issue. That comment is the change board's minutes.
+
+::: objection "This is a lot of ceremony for a sensor."
+Tom raised it at the drop-2 intake: three issues and a board decision for one hygrometer and a requirement.
+
+Answer: the ceremony is proportional. A drop with three change requests takes three issues and one twenty-minute
+conversation. The issues are generated from the impact report, so nobody types the list. And the record is what
+lets the team answer, six months later, "when did we accept the humidity requirement, and who agreed?" in one
+search instead of an archaeology project. When a drop is truly trivial, the board dispositions everything as
+accept in one comment, and the intake closes the same day.
+:::
+
+==== prime-tbd: when you cannot wait for the drop {#prime-changes-tbd}
+
+Sometimes the government team needs a change before the prime delivers it. In sprint 6 the team knew from the
+prime's modeler that a humidity sensor was coming, and Bob needed something in the model for the data exchange
+table. Waiting for drop 2 would have stalled the table for a month. So Bob modeled an interim `HumiditySensor` on
+develop, and the team opened an issue labeled `prime-tbd`: work that rests on an assumption about the prime's next
+drop, closed when the drop lands.
+
+When drop 2 arrived, the vendor-branch merge conflicted exactly where Bob's interim sensor sat, which is the
+point: the conflict forces the decision. The team kept the prime's hygrometer, deleted the interim, and closed the
+`prime-tbd` issue in the same merge request. Practice lesson 12 replays that merge, and you can run its first steps
+here:
+
+```sh run sandbox=practice-12 cwd=work expect="conflicts:" timeout=240
+. ../env.sh
+perl "$KIT/bin/xmi2sysml.pl" --delta ../drops/v1.0/tidewater.xmi ../drops/v1.1/tidewater.xmi | head -4
+gl flow vendor ../drops/v1.1 v1.1 || echo "exit status $?"
+```
+
+The conflict is the system working: two teams changed the same thing, and git stopped to ask a person which one
+wins. Finish the lesson to resolve it in Vim (`agile.pl practice 12`).
+
+=== Implement, and report back {#prime-changes-implement}
+
+Accepted changes reach the government model through the normal merge request flow, nothing special:
+
+- The vendor-branch import and its merge into a `feature/drop-<version>` branch are done by the configuration
+  manager (`gitlab.pl flow vendor`), and the merge request carries the delta and impact reports in its pipeline
+  (the `delta` job runs on drop branches automatically).
+- Each hand edit to redo becomes a task, linked to its change request issue, and goes in on its own branch with its
+  own review. The merge request description cites the prime's change request ID, so the history reads
+  "Storm state added to BuoyModes (NWM-CR-0015)."
+- Conflicts are resolved upstream-first: the prime's version wins, then the government's edit is reapplied on top
+  of it. Never the other way around, or the next drop will conflict again.
+
+Problems the team finds go back to the prime as **discrepancy reports**: GitLab issues labeled
+`type::discrepancy` and `owner::prime`, transmitted through the contracting channel with the memo template in
+`docs/memos/templates/` ([[memos]]), and kept open until a later drop fixes them. The prime's change requests cite
+them when they do, which closes the loop visibly. Drop 3's NWM-CR-0018 and NWM-CR-0019 say "Answers government DR"
+in their rationale; drop 4's NWM-CR-0022 brings TW-SYS-016 into the model in answer to another. The discrepancy
+report numbers in this paragraph are the ones the prime's change notes cite; the simulation's issue numbers for
+them are in its evidence.
+
+==== Returning the government's model {#prime-changes-return}
+
+The exchange runs both ways. When the prime needs the government's design data (at a baseline, or for an interface
+the government owns), the team returns it as a controlled deliverable: built from a baseline tag, never from a
+working branch, with a transmittal record just like an incoming drop. Here is the mechanics, on a scaffolded model
+repository:
+
+```sh run sandbox=scratch expect="sha256:"
+perl "$KIT/tools/gitlab/kickoff.pl" scaffold model --project tidewater/model --title Tidewater > /dev/null
+cd model
+git tag -a baseline-0 -m "baseline-0 (practice)"
+mkdir -p ../deliverable
+git archive --format=tar.gz --prefix=tidewater-model-baseline-0/ -o ../deliverable/tidewater-model-baseline-0.tar.gz baseline-0 model docs
+cd ../deliverable && echo "sha256: $(sha256sum tidewater-model-baseline-0.tar.gz)"
+```
+
+On Tidewater the pipeline does this on every baseline tag (the `publish-package` job puts the archive, the
+verification matrix and the toolchain inventory in the package registry), and the transmittal memo goes out with
+it. Be honest with the prime about one limit: **the kit has no SysML v2 to SysML v1 converter.** The government
+returns SysML v2 text, the generated tables and the verification matrix. Whether the prime's Cameo can import SysML
+v2 text depends on the prime's tool version; settle it in the model exchange agreement, not on delivery day.
+
+=== Two strategies at the v1-to-v2 boundary {#prime-changes-strategies}
+
+Tidewater mirrors the prime's whole model: every drop is converted in full onto the vendor branch, and the
+government's model is that conversion plus the government's edits. There is a second strategy, and on many programs
+it is the better one.
+
+|| | Full mirror (Tidewater) | Interface surface ||
+| What is converted | the whole v1 model, every drop | only what you consume: your allocated requirements, your external interfaces, the parameters you depend on |
+| Where it lives | the government model itself, layered folders | one generated package (for example `model/external/prime/`), never hand-edited |
+| How your design uses it | you edit the converted text in place, closing TODO lines | your design satisfies and connects to elements of the generated package |
+| What a new drop does | a 3-way merge on the vendor branch; conflicts where both sides edited | the package is regenerated; validate and trace checks show what broke |
+| Best when | the government needs the whole system model in v2 (the port is the goal) | you are a subsystem or segment team consuming a prime's model |
+Table: Mirroring the whole model versus translating only the interface surface
+
+Tidewater chose the full mirror because the government's goal was the system model itself. It already uses the
+interface-surface pattern in one place: the DOORS modules. They are converted by script into
+`model/requirements/` on every drop and never hand-edited; the government's design satisfies them. If your team
+owns a subsystem and the prime owns the system, start with the interface surface: it is smaller, the generated
+package never conflicts, and the boundary is explicit.
+
+=== The prime's Jenkins: a delivery interface {#jenkins}
+
+Northwind builds its drops in Jenkins, a continuous integration server older than GitLab's and still common in
+industry. The government team uses GitLab. Nobody on Jim's team needs to run Jenkins, and the government never asks
+the prime to migrate. What the team does need is to understand what Jenkins hands them, and to agree how.
+
+==== Jenkins in GitLab terms {#jenkins-terms}
+
+Most Jenkins words have a GitLab counterpart. You need them to read the prime's build records and to talk to the
+prime's build engineer:
+
+|| Jenkins | GitLab | In systems-engineering words ||
+| Jenkinsfile | `.gitlab-ci.yml` | the procedure, written down and versioned |
+| agent (a build machine, by label) | runner (by tag) | the bench the procedure runs on |
+| stage / steps | stage / `script` | the procedure's sections and lines |
+| `environment { }` | `variables:` | the procedure's settings |
+| `withCredentials` | a masked CI/CD variable | a credential handed over for one step, never written down |
+| JUnit plugin (`junit 'results.xml'`) | `artifacts: reports: junit:` | test results read into a trend |
+| `archiveArtifacts ... fingerprint: true` | job artifacts, package registry | the delivered items, kept with their checksums |
+| build number, job URL | pipeline ID, pipeline URL | the record's serial number |
+| shared workspace between stages | a fresh workspace per job | GitLab starts each job clean; pass files on as artifacts |
+Table: Jenkins and GitLab, side by side
+
+The last row is the one that surprises people moving between the two: a Jenkins job usually keeps one working
+folder for all its stages, while GitLab gives each job a fresh checkout. [[cicd]] explains why.
+
+==== Three ways a drop can arrive {#jenkins-patterns}
+
+From least to most automated, these are the delivery patterns a model exchange agreement can choose between:
+
+1. **File delivery.** The prime's Jenkins builds the drop and archives it; someone transfers the files under the
+   CDRL to approved government storage; Tom runs the intake by hand. This is how Tidewater's first three drops
+   arrived, and it is the right place to start: nobody has to grant anybody network access.
+2. **Push into GitLab.** The prime's Jenkins uploads the drop to the government project's Generic Package
+   Registry, using a deploy token that can do nothing but write packages, and then fires a pipeline trigger with
+   the drop's version. The government's `intake` job runs on its own. Tidewater switched to this from drop 4.
+3. **GitLab pulls from Jenkins.** A scheduled government job fetches the prime's last successful build over the
+   prime's API. Possible, and usually blocked: it needs a network path from the government enclave into the
+   contractor's, and credentials for the prime's server held by the government. Few security officers approve it.
+
+The illustrative Jenkinsfile in the kit shows what pattern 2 looks like on the prime's side. The kit does not run
+it (there is no Jenkins here); read it for the shape:
+
+{{include: tools/gitlab/templates/prime/Jenkinsfile | lines 1-17}}
+
+==== Two tokens, each able to do one thing {#jenkins-tokens}
+
+Pattern 2 needs two credentials, created by a maintainer of the government project and handed to the prime
+through the contracting channel. Each can do exactly one thing, and each expires:
+
+```sh run expect="write_package_registry"
+gl() { perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model "$@"; }
+gl --as tom token deploy new prime-jenkins --scope write_package_registry --expires 2027-12-31
+```
+
+The deploy token can upload packages. It cannot read the model, push code, open issues or see anything else. If
+it leaks, the worst an attacker can do is upload a fake drop, which the intake job will reject because its
+checksums will not match the manifest the prime's build wrote.
+
+```sh run expect="glptt-"
+gl() { perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model "$@"; }
+gl --as tom trigger new "prime Jenkins delivery"
+```
+
+The trigger token can start a pipeline and pass it variables. It cannot change anything. The triggered pipeline
+runs the government's own `intake` job, as the token's owner, with the government's rules. Both tokens live in
+Jenkins' credential store on the prime's side, and in the government's token inventory ([[admin-tokens]]) with an
+owner and an expiry date.
+
+With the deploy token, the prime's build uploads the drop; in the scratch GitLab you can play that part:
+
+```sh run expect="prime-drop/v1.3"
+gl() { perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model "$@"; }
+for f in drops/d4/*; do gl --as tom package put prime-drop v1.3 "$f" > /dev/null; done
+gl package list
+```
+
+==== The intake job: the government's gate {#jenkins-intake}
+
+The triggered pipeline runs one job: `intake`. It is in the team's pipeline file, and short:
+
+{{include: tools/gitlab/templates/gitlab-ci.yml | lines 262-276}}
+
+It fetches every file of the drop, checks each one against the checksum in the manifest the prime's build wrote,
+keeps the drop as received (an artifact that never expires: it is formal evidence), and opens the Prime Drop issue.
+A green build on the prime's side is evidence that the prime's checks passed. It is not acceptance. Acceptance is
+the government's own gates on the import merge request, and the board's disposition.
+
+You can run the intake exactly as the trigger would, locally, against a folder instead of the registry. It needs a
+model repository with the team's pipeline, which the scaffold you made above has:
+
+```sh run expect="pipeline: success" timeout=120
+cd model
+perl "$KIT/bin/gitlab.pl" ci --event trigger --branch develop --job intake \
+    --var DROP_VERSION=v1.3 --var INTAKE_DROP_DIR="$PWD/../drops/d4" --logs ../intake-logs
+grep -E "^(ok|ACCEPTED)" ../intake-logs/intake.log
+```
+
+Now the case the intake exists for: a file changed somewhere between the prime's build and the government. One
+line added to the XMI, the kind of edit nobody would notice by eye:
+
+```sh run expect="REJECTED" timeout=120
+cp -r drops/d4 drops/d4-altered && echo "<!-- edited in transit -->" >> drops/d4-altered/tidewater.xmi
+cd model
+perl "$KIT/bin/gitlab.pl" ci --event trigger --branch develop --job intake \
+    --var DROP_VERSION=v1.3 --var INTAKE_DROP_DIR="$PWD/../drops/d4-altered" --logs ../intake-bad \
+    || echo "exit status $?"
+grep -E "^(MISMATCH|REJECTED)" ../intake-bad/intake.log
+```
+
+The pipeline fails, the log names the file and both checksums, and the drop is not imported. The team tells the
+prime, and the prime's build sends it again. Nobody spends an afternoon working out what changed.
+
+==== The ICD between the two pipelines {#jenkins-icd}
+
+Everything above is an interface between two organizations' processes, and it deserves the same treatment as any
+other interface: written down, agreed, and changed under control. Tidewater's version is a section of the model
+exchange agreement. Its checklist, which you can lift for your own program:
+
+::: checklist The pipeline interface, agreed with the prime
+[ ] What crosses: the file list per drop (XMI, ReqIF, CSV, CHANGES.csv, results, MANIFEST.txt)
+[ ] Formats and versions: Cameo version and export settings (stable IDs on), DOORS export options
+[ ] The manifest fields: version, date, CDRL, Jenkins job URL and build number, prime repository commit, tool versions, a checksum per file, the change requests
+[ ] How it crosses: file delivery, or registry upload plus trigger (and who may change the pattern)
+[ ] Who holds which credential: the deploy token and the trigger token, their scopes, expiry and rotation
+[ ] What the government does on receipt: the intake checks, the board, the disposition time
+[ ] What happens when something is wrong: rejected drop, resend, discrepancy reports and their return path
+[ ] Markings: the prime's proprietary and export markings, preserved through every conversion
+:::
+
+=== Cautions {#prime-changes-cautions}
+
+A few things went wrong, or nearly did, on Tidewater and on programs like it:
+
+- **You will probably still need a Cameo seat.** If the prime delivers `.mdzip` project files instead of XMI, or
+  if an export goes wrong and someone has to look at the original, the government needs at least one Cameo licence
+  to open it. Budget for one during the transition rather than discovering the need on drop day. The model
+  exchange agreement should ask for XMI and ReqIF so the seat is rarely used.
+- **The prime's markings travel with the data.** Proprietary and export-control markings in the prime's model
+  apply to every conversion of it: the v2 text, the generated documents, the packages. Preserve them, mark the
+  vendor branch and the archive accordingly, and restrict access to the people the markings allow. If those
+  people are fewer than the model team, the archive goes in its own project ([[security]]).
+- **Don't freeze waiting for the prime.** If a drop is late, keep working against the last accepted one, and
+  record every assumption about the next drop as a `prime-tbd` issue. The conflict at the next merge will make the
+  team revisit each one.
+- **Never edit the vendor branch by hand.** It is tempting to "just fix" a converter quirk there. The next drop's
+  import overwrites it, or worse, merges around it. Fix converter problems in the converter, and government
+  changes on develop.
+- **Keep the drop loop's records in GitLab, not in email.** The intake issue, the change-request issues, the
+  dispositions and the discrepancy reports are the configuration management record of the boundary. An email
+  thread with the prime's modeler is fine for the conversation; the decision goes in the issue.
+
+=== Applying this to your project {#prime-changes-apply}
+
+- **Before the first drop:** get the three contract answers in writing, write the model exchange agreement, and ask
+  for stable IDs and change notes. Those two requests cost the supplier almost nothing and make everything else in
+  this chapter possible.
+- **Choose your boundary strategy:** full mirror if the model itself is your deliverable, interface surface if you
+  consume someone else's model.
+- **Start with file delivery,** move to registry-and-trigger once the intake job has proven itself on a few drops.
+- **Copy the six steps** (receive, archive, compare, assess, disposition, implement) and the four disposition
+  labels. The tools are in the kit; the discipline is the change board meeting on every drop.
+- **Measure the loop:** the time from delivery to merged on the integration branch, the share of change requests
+  with a disposition within a week, and the open discrepancy reports. These are the numbers that tell management
+  the boundary is under control.
+
+::: exercise {#ex-prime-delta} Read a drop like a change board
+Generate drops 3 and 4 (`perl "$KIT/sim/tidewater-v1.pl" --drop N DIR`) and run the delta between them with
+`--impact` against a model converted from drop 3. For each change request, propose a disposition and write one
+sentence of justification. Which change adds government work, and what work?
+:::
+
+::: exercise {#ex-prime-reject} Write the clarification
+Draft the discrepancy report for NWM-CR-0025 (the rename with no rationale) from the Discrepancy Report issue
+template: what you need from the prime, why the rename matters to the government model, and by which drop you need
+the answer.
+:::
+
+::: exercise {#ex-prime-tamper} Break the intake on purpose
+Copy a drop, change one character in `tidewater.reqif`, and run the intake job locally against the copy. Then fix
+the copy by regenerating the file instead. What does the intake report each time, and why is "regenerate" the only
+acceptable fix?
+:::
+
+::: exercise {#ex-prime-boundary} Choose a strategy
+Your team owns the data center segment; the prime owns the system model. Sketch which elements of the Tidewater
+model would go in an `external/prime` package under the interface-surface strategy, and which the data center
+team would own.
+:::

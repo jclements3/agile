@@ -1,0 +1,24 @@
+pipeline #1 (push, feature/37-first-pipeline) failed, 3 jobs, 57.8 s
+
+==== grammar          check    failed    35.6 s
+$ FILES=$(find model -name '*.sysml' | sort)
+FILES=$(find : The term 'FILES=$(find' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the
+spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ FILES=$(find model -name '*.sysml' | sort)
++ ~~~~~~
+    + CategoryInfo          : ObjectNotFound: (FILES=$(find:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+==== lint             check    failed    42.8 s
+$ perl "$KIT/tools/sysml/model.pl" lint > lint.txt || true
+At line:1 char:50
++ perl "$KIT/tools/sysml/model.pl" lint > lint.txt || true
++                                                  ~~
+The token '||' is not a valid statement separator in this version.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : InvalidEndOfLine
+
+==== outline          check    failed    15.4 s
+$ perl "$KIT/tools/sysml/model.pl" check
+Can't open perl script "/tools/sysml/model.pl": No such file or directory

@@ -1,0 +1,161 @@
+== Quick reference: SysML v1 to v2 {#qrg-port}
+
+The converters are `bin/xmi2sysml.pl` (Cameo XMI to SysML v2 text) and `bin/reqif2sysml.pl` (DOORS ReqIF or CSV to
+requirements, and the trace). Nothing in the v1 model is dropped silently: what the converter cannot carry becomes a
+`// TODO` line naming the v1 type and its `xmi:id`, and the `--report` lists it. The kit's one-sheet port card is
+`docs/SYSML-PORT-QRG.pdf`; this appendix adds the hand fixes and the drop cycle.
+
+=== What maps to what {#qrg-port-map}
+
+|| SysML v1 (XMI) | SysML v2 text written by xmi2sysml ||
+| Package, Model (top level) | `package` (one file per top-level package) |
+| Block, Class, Component, Actor | `part def`; Generalization becomes `:>` |
+| InterfaceBlock (or a Class used only as a port type) | `port def`; FlowProperty becomes an `in`/`out`/`inout` feature |
+| ConstraintBlock | `constraint def` with its parameters; the expression becomes a TODO |
+| Signal | `item def` |
+| DataType, ValueType, PrimitiveType | `attribute def` (UML primitives map to `ScalarValues::*`) |
+| Enumeration | `enum def` |
+| Part property (composite, Block-typed) | `part n : T[m..n];` |
+| Reference property (non-composite, Block-typed) | `ref part` |
+| Value property (value-typed or untyped) | `attribute` (default value kept) |
+| Signal-typed property | `item` |
+| Port, ProxyPort, FullPort, FlowPort | `port n : PortDef;` (conjugated: `~PortDef`); atomic flow ports become `port { in attribute ... }` |
+| Connector | `connection NAME connect a.p to b.q;` |
+| BindingConnector | `bind a = b;` |
+| Activity | `action def` with parameters, call actions, control flows as `first`/`then` |
+| UseCase | `use case def` (skeleton) |
+| Requirement and Cameo's requirement kinds | `requirement` with `doc`, `doorsId`, `title`, `verificationMethod` |
+| TestCase | `verification def` |
+| Satisfy | `satisfy R by X;` |
+| Verify | `verify R;` inside the test case's `verification def` objective |
+| DeriveReqt | a `#derivation connection` |
+| Trace, Refine, Copy, Dependency, Usage, Realization, Abstraction | `dependency from A to B;` |
+| Allocate | `allocate A to B;` |
+| ownedComment | `doc /* ... */` |
+| Diagrams, `xmi:Extension` | counted and skipped (redraw views from the text) |
+Table: The converter's mapping (from lib/Xmi.pm)
+
+Requirements are named from their DOORS id by both converters (`TW-SYS-001` becomes `TW_SYS_001`), so satisfy and
+verify written by one resolve against the other.
+
+=== The TODO lines and their hand fixes {#qrg-port-todo}
+
+|| The converter writes | Means | Hand fix (in place) ||
+| `// TODO stereotype Profile:L3Station on this element (xmi:id ...) not converted` | a project-profile stereotype | `@L3Station;` with a `metadata def L3Station;` in `model/library/conventions/Conventions.sysml` and `private import Conventions::*;` |
+| `// TODO stereotype Profile:Procured ... not converted` | a stereotype with tagged values | `@Procured { supplier = "..."; partNumber = "..."; }` and a `metadata def` with those attributes |
+| `// TODO uml:InstanceSpecification 'watt' ...` | a unit | `attribute def Power :> ISQ::PowerValue;` (specialize the ISQ quantity) |
+| `// TODO uml:StateMachine 'BuoyModes' ...` | a state machine | a hand-written `state def` (below) |
+| `// TODO uml:Interaction 'DailyUpload' ...` | a sequence diagram | `message ... of T from a to b;` in the context part def |
+| `// TODO uml:Include ...` | a use case include | `include use case x : X;` |
+| `// TODO uml:ForkNode ...: activity node not converted` | fork, join, decision, merge | `fork f;` with `first a then f; first f then b;` |
+| `// TODO uml:InputPin ...: pin (object flow) not converted` | a pin | an `in`/`out` parameter on the action def |
+| `// TODO uml:ObjectFlow ...: activity edge not converted ...` | an object flow | `flow a.out to b.in;` |
+| `// TODO uml:ControlFlow ...: activity edge not converted ...` | a control flow touching a fork or pin | `first a then b;` |
+| `// TODO constraint expression (parametrics) not converted` and `// TODO uml:Constraint ...: constraint: LANG: TEXT` | the constraint's expression, shown as text | write the expression in the `constraint def` |
+| `// TODO uml:Profile ...` | the project profile itself | replaced by `model/library/conventions/Conventions.sysml`; close with a comment |
+| ` // TODO type ... not resolved` | a type reference the export does not contain | find the type (often another export) or raise a DR |
+Table: TODO lines and their fixes
+
+Find every TODO in Vim: `:vimgrep /\/\/ TODO/ model/**/*.sysml` then `:copen`. Close a TODO only with the construct
+that replaces it; never delete one without its replacement.
+
+Hand-fix patterns, each checked against the SysML v2 grammar with `sysml.pl check`:
+
+```sysml
+@L3Station;
+@Procured { supplier = "Notional Logger Co."; partNumber = "LG-100"; }
+
+include use case queryArchive : QueryArchive;
+
+state def BuoyModes {
+    entry; then Observing;
+    state Observing;
+    state Degraded;
+    transition toDegraded first Observing accept lowBattery then Degraded;
+    transition toObserving first Degraded accept charged then Observing;
+}
+
+fork afterCheck;
+first check then afterCheck;
+first afterCheck then store;
+flow check.record to store.record;
+
+constraint def EnergyBalance {
+    in generation : Real; in sunHours : Real; in load : Real;
+    generation * sunHours >= load * 24
+}
+
+message sendObservations of ObservationRecord from buoy to ingest;
+```
+
+=== Converter options {#qrg-port-options}
+
+|| Command | Use ||
+| `xmi2sysml.pl --report FILE.xmi` | read first: counts by type, ported versus remaining, the TODO list, stereotypes not converted |
+| `xmi2sysml.pl --out DIR --check FILE.xmi` | write the files (one per top-level package) and grammar-check them |
+| `xmi2sysml.pl --stdout FILE.xmi` | all files to the screen (`... \| vim -`) |
+| `xmi2sysml.pl --req-style def` | `requirement def` blocks instead of the default one-line usages |
+| `xmi2sysml.pl --delta OLD.xmi NEW.xmi` | two drops compared by `xmi:id`: added, removed, changed; *carried* or *manual* |
+| `xmi2sysml.pl --delta OLD NEW --impact model` | the same, plus what each change touches in your v2 model and which hand edits to redo |
+| `xmi2sysml.pl --out DIR --layout-map FILE` | put each package in its layer folder (`Package = folder/`); the same map for every drop |
+| `xmi2sysml.pl --out DIR --map MAP.csv` | also record where every v1 element landed in the v2 text |
+| `reqif2sysml.pl --report FILE.reqif` | objects, requirements, headings, links, verification methods |
+| `reqif2sysml.pl --out DIR FILE.reqif` | requirements as SysML v2 text, one file per DOORS module |
+| `reqif2sysml.pl --report --model DIR FILE.reqif` | the trace: C, F, G, I and drift against the v2 model |
+| `reqif2sysml.pl --csv FILE.csv` | a DOORS CSV export; `--col id=NAME --col text=NAME` if the columns are unusual |
+Table: Converter options
+
+Exit codes for both: 0 ok; 1 the self-check or `--check` found a problem; 2 bad usage or an unreadable file.
+
+=== Reading the v1 delta {#qrg-port-delta}
+
+```text
+xmi delta: tidewater.xmi (v1.1) -> tidewater.xmi (v1.2)
+elements 567 -> 570: 12 added, 9 removed, 0 changed
+carried by the converter (re-convert the drop and merge it): 16
+manual (the converter does not carry these; rework the v2 text by hand): 5
+
+added:
+  + uml:State              Stations::MooredBuoy::BuoyModes::Storm
+      manual: inside uml:StateMachine 'BuoyModes', which the converter leaves as a TODO in
+      stations/Stations.sysml; rework the v2 text by hand
+  + uml:Property           Stations::PowerSystem::fuse
+      carried: stations/Stations.sysml
+```
+
+|| Mark | Means | Action ||
+| `carried: FILE` | the vendor import already contains this change | review it in the merge |
+| `manual: a TODO line in FILE` | the element itself is not converted | a task to update the hand-written replacement |
+| `manual: inside X, which the converter leaves as a TODO` | a change inside a construct the converter does not carry; **invisible in the converted text** | a task: the TODO count will not show it |
+| `~ ... -- renamed 'Old' -> 'New'` (same `xmi:id`) | a rename in v1, carried | check every government edit that names the old name (lint fails on it) |
+| `~ ... -- properties changed` | an attribute of the element changed | review it; manual if inside a TODO construct |
+| `manual rework list:` `[ ] ...` | the delta's own checklist of manual items, with `xmi:id` | paste into the drop story as tasks |
+Table: Delta marks
+
+=== The drop cycle {#qrg-port-drop}
+
+|| Step | Command or place | Done when ||
+| 1 Receive | files to a dated folder outside the repo; `sha256sum` against `MANIFEST.txt` | every hash matches |
+| 2 Record | issue from the *Prime Drop* template, current sprint | issue open, checklist pasted |
+| 3 Store | `gitlab.pl package put prime-drop VERSION FILE` (or the `drop-package` job) | package listed with its sha256 |
+| 4 Import | `gitlab.pl flow vendor DROPDIR VERSION` | `vendor/prime` has the new commit; `feature/drop-VERSION` exists |
+| 5 Delta | `xmi2sysml.pl --delta OLD NEW` (the `delta` job) | each *manual* line is a task |
+| 6 Conflicts | per file: take the vendor side, re-apply the government edit; check with `\mx` | no conflict markers; lint 0/0 |
+| 7 MR | `gitlab.pl flow finish --template "Prime Drop"` | delta summary and conflict table in the description |
+| 8 Trace | the `trace` job | fixed DRs closed, new gaps raised as DRs |
+| 9 Merge | code owner approval; merge | `develop` green; `CHANGELOG.md` updated; issue closed |
+Table: The drop cycle
+
+=== Trace measures {#qrg-port-trace}
+
+|| Measure | Meaning | From ||
+| C linked | DOORS requirements whose `doorsId` is in the model | `reqif2sysml.pl --report --model` |
+| F orphans | requirements nothing satisfies | same |
+| G unverified | requirements no verification case verifies | same |
+| I completeness | percent both satisfied and verified | same |
+| drift | `doc` text in the model differs from DOORS (normalized) | same; line "text differs from DOORS" and a `drift:` list |
+| in model, not in export | `doorsId` values the model has and DOORS does not | same |
+Table: Trace measures
+
+A drifted, orphaned or unverified requirement is never fixed by editing the model's requirement text: it is a
+discrepancy report to the prime, closed by the drop that fixes it ([[pitfall-req-text]]).

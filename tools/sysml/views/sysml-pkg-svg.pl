@@ -6,6 +6,8 @@
 #
 #   --nested      draw nested packages as their own boxes (default: rolled up into root packages)
 #   --hide P,Q    leave these packages (and their edges) out of the picture; still checked
+#   --no-markings draw packages, dependencies and cycles only: no marking checks (model.pl draw pkg
+#                 passes it when no file in the model carries @Marking, e.g. a freshly converted v1 model)
 #   --levels L    marking levels, lowest first (default: the Level enumeration found in the
 #                 model, e.g. SecMeta's `enum def Level { enum U; enum CUI; enum ITAR; }`)
 #
@@ -22,8 +24,8 @@ use File::Find; use Getopt::Long;
 binmode STDOUT, ':encoding(UTF-8)'; binmode STDERR, ':encoding(UTF-8)';
 
 my %O = (o => 'packages.svg');
-GetOptions(\%O, 'o=s', 'title=s', 'nested', 'levels=s', 'hide=s') && @ARGV
-    or do { print STDERR "usage: perl sysml-pkg-svg.pl [-o packages.svg] [--title T] [--nested] [--hide P,Q] [--levels U,CUI,ITAR] DIR|FILE...\n"; exit 2 };
+GetOptions(\%O, 'o=s', 'title=s', 'nested', 'levels=s', 'hide=s', 'no-markings') && @ARGV
+    or do { print STDERR "usage: perl sysml-pkg-svg.pl [-o packages.svg] [--title T] [--nested] [--hide P,Q] [--levels U,CUI,ITAR] [--no-markings] DIR|FILE...\n"; exit 2 };
 my %HIDE = map { $_ => 1 } split /,/, $O{hide} // '';
 
 my @files;
@@ -176,9 +178,10 @@ sub resolve_q {
     return undef;
 }
 
+my $NOMARK = $O{'no-markings'};   # a dependency view only (model.pl draw pkg asks for it when nothing in the model is marked)
 for my $p (@porder) { $p->{rank} = rank_of($p) }
 # root marking rule
-for my $p (grep { !$_->{parent} } @porder) {
+for my $p ($NOMARK ? () : grep { !$_->{parent} } @porder) {
     diag($p->{file}, $p->{line}, 'error', "root package '$p->{qname}' has no \@Marking") unless defined $p->{marking};
 }
 
@@ -342,7 +345,7 @@ for my $n (@N) {
     $n->{inside} = $max > $n->{rank} ? $max : undef;
     $n->{l1} = $n->{qname};
     $n->{l2} = $n->{lib} ? "\x{ab}library\x{bb} " : '';
-    $n->{l2} .= defined $n->{marking} ? "\@Marking $n->{marking}" : ($n->{parent} ? 'inherits ' . lvl($n->{rank}) : 'NO MARKING');
+    $n->{l2} .= $NOMARK ? '' : defined $n->{marking} ? "\@Marking $n->{marking}" : ($n->{parent} ? 'inherits ' . lvl($n->{rank}) : 'NO MARKING');
     $n->{l3} = ($n->{inside} ? 'contains ' . lvl($n->{inside}) . '; ' : '') . "$n->{ndef} def(s)" . ($n->{nreq} ? ", $n->{nreq} req(s)" : '');
     unless ($O{nested}) {           # rolled-up counts
         for my $q (grep { $_ != $n && root_of($_) == $n } @porder) { $n->{rdef} += $q->{ndef}; $n->{rreq} += $q->{nreq}; $n->{nsub}++ }
@@ -391,17 +394,21 @@ push @o, qq{<?xml version="1.0" encoding="UTF-8"?>},
   qq{<rect width="100%" height="100%" fill="#ffffff"/>};
 my $sum = sprintf '%d file(s): %d error(s), %d warning(s), %d package(s), %d dependenc%s, %d write-down edge(s), %d cycle(s)',
     scalar @files, $NERR, $NWARN, scalar keys %P, $ndep, $ndep == 1 ? 'y' : 'ies', $wd, scalar @back;
-push @o, qq{<text x="$PAD" y="26" font-size="16" font-weight="bold" fill="$C{ink}">} . esc($O{title} // 'Packages and markings') . '</text>',
+$sum .= '; markings not checked (--no-markings)' if $NOMARK;
+$O{title} =~ s/packages and markings\z/packages and dependencies/ if $NOMARK && defined $O{title};   # model.pl draw pkg passes its default title
+push @o, qq{<text x="$PAD" y="26" font-size="16" font-weight="bold" fill="$C{ink}">} . esc($O{title} // ($NOMARK ? 'Packages and dependencies' : 'Packages and markings')) . '</text>',
   qq{<text x="$PAD" y="46" fill="$C{dim}">} . esc($sum . ($O{hide} ? "; not drawn: $O{hide}" : '')) . '</text>';
 # legend: levels low to high, then edge kinds
 my $lx = $PAD; my $ly = 60;
 push @o, qq{<g font-size="11" fill="$C{dim}">};
-for my $i (0 .. $#LEVELS) {
+for my $i ($NOMARK ? () : 0 .. $#LEVELS) {
     push @o, qq{<rect x="$lx" y="$ly" width="22" height="13" fill="$PAL[$i % @PAL]" stroke="$PALL[$i % @PALL]"/><text x="} . ($lx + 28) . qq{" y="} . ($ly + 11) . '">' . esc($LEVELS[$i]) . '</text>';
     $lx += 40 + stw($LEVELS[$i]);
 }
+unless ($NOMARK) {
 push @o, qq{<rect x="$lx" y="$ly" width="22" height="13" fill="#ffffff" stroke="$C{bad}" stroke-dasharray="3 2"/><text x="} . ($lx + 28) . qq{" y="} . ($ly + 11) . '">no marking</text>';
 $lx += 120;
+}
 push @o, qq{<path d="M$lx } . ($ly + 7) . qq{ h28" stroke="$C{edge}" marker-end="url(#ar)"/><text x="} . ($lx + 34) . qq{" y="} . ($ly + 11) . '">imports</text>';
 $lx += 100;
 push @o, qq{<path d="M$lx } . ($ly + 7) . qq{ h28" stroke="$C{edge}" stroke-dasharray="2 3" marker-end="url(#ar)"/><text x="} . ($lx + 34) . qq{" y="} . ($ly + 11) . '">references only</text>';
@@ -441,8 +448,8 @@ for my $d (sort { (@{$a->{bad}} ? 1 : 0) <=> (@{$b->{bad}} ? 1 : 0) } (map { $DE
 # boxes
 for my $n (@N) {
     my $r = $n->{rank};
-    my ($fill, $stroke, $dash) = $r >= 0 ? ($PAL[$r % @PAL], $PALL[$r % @PALL], '') : ($C{none}, $C{bad}, ' stroke-dasharray="4 3"');
-    $stroke = $C{bad} if !defined $n->{marking} && !$n->{parent};
+    my ($fill, $stroke, $dash) = $r >= 0 ? ($PAL[$r % @PAL], $PALL[$r % @PALL], '') : $NOMARK ? ($C{none}, $C{edge}, '') : ($C{none}, $C{bad}, ' stroke-dasharray="4 3"');
+    $stroke = $C{bad} if !$NOMARK && !defined $n->{marking} && !$n->{parent};
     my @tip = ($n->{qname}, $n->{l2}, $n->{l3}, "$n->{file}:$n->{line}");
     push @tip, 'imports: ' . join(', ', map { join('::', @{$_->{segs}}) . ($_->{star} ? "::$_->{star}" : '') } @{$n->{imports}}) if @{$n->{imports}};
     my ($x, $y) = ($n->{x}, $n->{y});
@@ -450,7 +457,7 @@ for my $n (@N) {
       sprintf(qq{<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="3" fill="$fill" stroke="$stroke" stroke-width="1.6"$dash/>}, $x, $y, $n->{w}, $n->{h}),
       ($n->{inside} ? sprintf(qq{<rect x="%.1f" y="%.1f" width="6" height="%.1f" fill="$PALL[$n->{inside} % @PALL]"/>}, $x + $n->{w} - 6, $y, $n->{h}) : ()),
       sprintf(qq{<text x="%.1f" y="%.1f" font-weight="bold" fill="$C{ink}">%s</text>}, $x + $PADX, $y + 4 + $LH - 2, esc($n->{l1})),
-      sprintf(qq{<text x="%.1f" y="%.1f" font-size="$SFS" fill="%s">%s</text>}, $x + $PADX, $y + 4 + 2 * $LH - 2, (!defined $n->{marking} && !$n->{parent}) ? $C{bad} : $C{dim}, esc($n->{l2})),
+      sprintf(qq{<text x="%.1f" y="%.1f" font-size="$SFS" fill="%s">%s</text>}, $x + $PADX, $y + 4 + 2 * $LH - 2, (!$NOMARK && !defined $n->{marking} && !$n->{parent}) ? $C{bad} : $C{dim}, esc($n->{l2})),
       sprintf(qq{<text x="%.1f" y="%.1f" font-size="$SFS" fill="$C{dim}">%s</text>}, $x + $PADX, $y + 4 + 3 * $LH - 2, esc($n->{l3})),
       '</g>';
 }

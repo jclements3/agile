@@ -1,0 +1,32 @@
+GitLab analytics: tidewater/model, 2026-11-02T00:00:00Z .. 2026-11-13T23:59:59Z, by sprint
+
+1. Value stream (hours; 4 issues closed by merge requests)
+   stage                                  n   median      p85
+   issue created -> first commit          4     96.9       98
+   first commit -> MR opened              4        0        0
+   MR opened -> first review              4      4.1     95.2
+   first review -> merged                 4      0.2      0.2
+   merged -> issue closed                 4        0        0
+   issue created -> issue closed          4     99.4    101.5
+
+2. DORA, for a model repository
+   deployment frequency               0 (0 a week)
+   lead time (first commit -> merged on develop) median 4.2 h, p85 95.2 h
+   change failure rate                0% (0 fix-forward or revert MRs / 4 merges)
+   time to restore (develop red -> green) median - h, p85 - h (0 restores)
+
+3. CI/CD: 13 pipelines, success rate 84.6%, duration median 1.7 min, p85 2 min
+   period                         runs   failed success%   median min
+   Sprint 3                         13        2     84.6          1.7
+   job failures: grammar 2/13, lint 2/13
+
+4. Merge requests: 4 opened, 4 merged; time to merge median 4.2 h (p85 95.2 h); review turnaround median 4.1 h (p85 95.2 h)
+   period                        merged ttm median h review median h
+   Sprint 3                           4          4.2            4.1
+   per author: bob 2/2, jim 1/1, tom 1/1 (merged/opened)
+
+5. Issues: 7 open, age median 1.4 days, p85 1.4 days
+   period                       type            opened  closed
+   Sprint 3                     story                7       6
+   Sprint 3                     task                10      10
+   oldest open: #66 (story, 1.4 d), #67 (story, 1.4 d), #68 (story, 1.4 d), #69 (story, 1.4 d), #70 (story, 1.4 d)

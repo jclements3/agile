@@ -1,0 +1,29 @@
+iid,title,author,source,target,created_at,merged_at,lead_hours,labels,state
+1,"CODEOWNERS, issue and MR templates, .gitignore",tom,feature/16-codeowners-and-templates,develop,2026-10-14T15:00:00Z,2026-10-14T17:10:00Z,2.2,workflow::review,merged
+2,"The first pipeline: grammar, lint, outline",tom,feature/37-first-pipeline,develop,2026-10-23T15:00:00Z,2026-10-23T20:10:00Z,5.2,workflow::review,merged
+3,Add the government conventions package,bob,feature/43-add-the-government-conventions-package,develop,2026-10-23T16:30:00Z,2026-10-23T20:00:00Z,3.5,workflow::review,merged
+4,Name the level tags in sysml.conf,bob,feature/44-name-the-level-tags-in-sysml-conf,develop,2026-10-26T15:00:00Z,2026-10-26T18:40:00Z,3.7,workflow::review,merged
+5,Decision records: ADRs 0001-0014,jim,feature/46-decision-records-adrs-0001-0014,develop,2026-10-26T15:45:00Z,2026-10-26T19:15:00Z,3.5,workflow::review,merged
+6,Prime drop v1.0,tom,feature/drop-v1.0,develop,2026-10-27T15:00:00Z,2026-10-29T15:00:00Z,48.0,workflow::review;type::drop;prime-change,merged
+7,"Pipeline: Adds the todo (port burn-down) and docs (generated docs current) jobs, and commits docs/",tom,feature/42-pipeline-adds-the-todo-port-burn-down-an,develop,2026-10-29T15:45:00Z,2026-10-29T19:15:00Z,3.5,workflow::review,merged
+8,Level tags in Network,bob,feature/59-level-tags-in-network,develop,2026-11-04T15:00:00Z,2026-11-04T18:30:00Z,3.5,workflow::review,merged
+9,Replace the Include TODO with an include use case,bob,feature/60-replace-the-include-todo-with-an-include,develop,2026-11-06T15:00:00Z,2026-11-06T20:00:00Z,5.0,workflow::review,merged
+10,Prime drop v1.0 with the DOORS modules,jim,feature/drop-v1.0-doors,develop,2026-11-06T15:45:00Z,2026-11-10T15:00:00Z,95.2,workflow::review;type::drop;prime-change,merged
+11,Pipeline: Adds the trace report (report only for now) and the secrets job,tom,feature/63-pipeline-adds-the-trace-report-report-on,develop,2026-11-06T16:30:00Z,2026-11-06T20:00:00Z,3.5,workflow::review,merged
+12,Break the Network <-> Operations cycle,tom,feature/79-break-the-network-operations-cycle,develop,2026-11-19T15:00:00Z,2026-11-19T18:30:00Z,3.5,workflow::review,merged
+13,Level tags in Stations,bob,feature/76-level-tags-in-stations,develop,2026-11-20T15:00:00Z,2026-11-20T20:00:00Z,5.0,workflow::review,merged
+14,"Pipeline: Adds the pages job: the model site for management, rebuilt on every merge and nightly",tom,feature/81-pipeline-adds-the-pages-job-the-model-si,develop,2026-11-24T15:00:00Z,2026-11-24T18:30:00Z,3.5,workflow::review,merged
+15,Units for Power and Energy,bob,feature/78-units-for-power-and-energy,develop,2026-11-27T15:00:00Z,2026-11-27T18:30:00Z,3.5,workflow::review,merged
+16,Remove the Legacy Import clutter,tom,feature/102-remove-the-legacy-import-clutter,develop,2026-12-02T15:45:00Z,2026-12-02T19:15:00Z,3.5,workflow::review,merged
+17,Pipeline: The trace job becomes a ratchet: it fails an MR that adds a gap,tom,feature/104-pipeline-the-trace-job-becomes-a-ratchet,develop,2026-12-04T15:00:00Z,2026-12-04T18:30:00Z,3.5,workflow::review,merged
+18,Procured parts as @Procured metadata,bob,feature/99-procured-parts-as-procured-metadata,develop,2026-12-07T15:00:00Z,2026-12-07T18:30:00Z,3.5,workflow::review,merged
+19,Level tags in DataCenter,bob,feature/100-level-tags-in-datacenter,develop,2026-12-09T15:00:00Z,2026-12-09T18:30:00Z,3.5,workflow::review,merged
+20,Prune ObservingStation's trace links,bob,feature/101-prune-observingstation-s-trace-links,develop,2026-12-11T15:00:00Z,2026-12-11T20:00:00Z,5.0,workflow::review,merged
+21,Level tags in Operations,tom,feature/122-level-tags-in-operations,develop,2026-12-15T15:00:00Z,2026-12-15T18:30:00Z,3.5,workflow::review,merged
+22,"Inspection verdicts, signed",jim,feature/126-inspection-verdicts-signed,develop,2026-12-16T15:00:00Z,2026-12-16T18:30:00Z,3.5,workflow::review,merged
+23,"Fork, pin and flows in ObserveCoast",bob,feature/121-fork-pin-and-flows-in-observecoast,develop,2026-12-17T15:00:00Z,2026-12-17T20:30:00Z,5.5,workflow::review,merged
+24,Document what crosses each interface,tom,feature/123-document-what-crosses-each-interface,develop,2026-12-17T15:45:00Z,2026-12-17T20:10:00Z,4.4,workflow::review,merged
+25,Generate the data exchange table,tom,feature/124-generate-the-data-exchange-table,develop,2026-12-18T15:00:00Z,2026-12-18T20:00:00Z,5.0,workflow::review,merged
+26,Pipeline: Adds the vcrm job and the baseline jobs,tom,feature/125-pipeline-adds-the-vcrm-job-and-the-basel,develop,2026-12-21T15:00:00Z,2026-12-21T18:30:00Z,3.5,workflow::review,merged
+27,Release baseline-0,tom,release/baseline-0,main,2026-12-24T15:00:00Z,2026-12-24T16:00:00Z,1.0,workflow::review,merged
+28,Back-merge baseline-0 into develop,tom,main,develop,2026-12-24T16:00:00Z,2026-12-24T16:30:00Z,0.5,,merged

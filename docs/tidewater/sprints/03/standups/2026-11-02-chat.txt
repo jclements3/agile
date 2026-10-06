@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-31 Enablers, decisions and conventions: done (4 tasks). T TW-50 talk.pl: draft, then edit, the stand-up, by Nov 13. B none
+[9:02 AM] Bob
+Y none T TW-50 workbook second half; talk.pl, by Nov 13. B none
+[9:03 AM] Tom
+Y TW-32 Sprint 2 demo: the pipeline and the: done (1 task). T TW-50 talk.pl; the Day-9 demo rehearsal, by Nov 13. B none

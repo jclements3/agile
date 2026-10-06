@@ -1,0 +1,15 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y: TW-31 memo: request for enablers
+T: TW-31 memo: request for enablers
+B: none
+[9:02 AM] Bob
+Y: TW-26 lessons 12-13; Vim for models; workbook first; TW-28 decide the layered layout; the layout map
+T: TW-28 decide the layered layout; the layout map
+B: none
+[9:03 AM] Tom
+Y: TW-26 lessons 12-13; Vim for models; workbook first; TW-27 runner registration and tags; TW-27 pipeline; fix it for the PowerShell runner
+T: TW-27 pipeline; fix it for the PowerShell runner
+B: none

@@ -1,0 +1,17 @@
+Sprint 3 review, 2026-11-13 10:00
+
+Goal: Network closed; DOORS in the model; the trace report on every change
+
+Demonstrated:
+  TW-50 Learn: the workbook second half; talking about progress
+  TW-51 Close the Network TODO lines
+  TW-52 DOORS modules into the model
+  TW-53 Trace report and secret detection in the pipeline
+  TW-54 Runner hardening with the ISSM
+  TW-55 First drift and gap analysis from the trace
+
+Artifacts shown: the merge requests and pipelines of the sprint.
+
+Feedback (Deputy PM): "Which requirements have no verification? You said you would know." Bob opened the trace report: 9 of 30, each with its ID; they are the prime's to fix and go out as discrepancy reports in sprint 4.
+
+The four headline numbers: TODO lines left 50; verify coverage 70%; open DRs 0; blocked items 0.

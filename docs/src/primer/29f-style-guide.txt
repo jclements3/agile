@@ -1,0 +1,146 @@
+== Modeling style guide {#style}
+
+A style guide exists so that three people write one model, not three. Every rule here is short, has a reason, and is
+the same rule the model repository's `docs/conventions/naming.md` states, which `kickoff.pl scaffold` puts in every
+new project. When the two disagree, the repository's copy wins: it is the one the team reviews and changes by merge
+request.
+
+There is one rule above all the others:
+
+::: warning Government text and the prime's text follow different rules
+Files the converter writes from the prime's drops keep the prime's names and layout, exactly as delivered, with only the
+`// TODO` lines replaced. Every rule below about names, order and formatting applies to what the **government** writes.
+Changing the prime's text for style makes every later drop conflict ([[pitfalls]]); ask the prime through a
+discrepancy report instead.
+:::
+
+=== Names {#style-names}
+
+|| Thing | Rule | Example | Not ||
+| package | UpperCamelCase noun, the subject it holds | `Stations`, `PowerSystem` | `stations_pkg`, `Pkg1` |
+| definition (part, port, item, interface, state) | UpperCamelCase noun | `MooredBuoy`, `ObservationIF` | `moored_buoy`, `Block1` |
+| action definition | UpperCamelCase verb phrase | `CheckQuality`, `PublishBulletin` | `QC` |
+| usage (part, port, attribute, action) | lowerCamelCase, the role it plays | `buoys`, `obsOut`, `stateOfCharge` | `MooredBuoy1`, `p1` |
+| requirement usage | the DOORS id, `-` and `.` as `_` | `TW_SYS_006` | `req6` |
+| requirement id | as DOORS has it, never reused | `TW-SYS-006` | a new number for an edited requirement |
+| verification definition | verb + what it shows | `TestDataFlow`, `InspectVesselAccess` | `Test1` |
+| metadata definition | what it marks | `Procured`, `L3Station` | `Stereo7` |
+| quoted names | only to match a source that used spaces | `'Stakeholder Needs'` (from DOORS) | in new government text |
+Table: Names in the model
+
+A name says what the thing **is**, not where it sits in a diagram or a document. `Copy of SensorSuite`, `Battery_old`
+and `TBD Component` came from the v1 model's spider web; they do not come back. Acronyms are written as words in
+names (`ObservationIf` would be correct by the rule; `ObservationIF` is kept because the prime chose it), and
+abbreviations are avoided unless the program uses them in speech.
+
+=== Files and folders {#style-files}
+
+- **One top-level package per file**, named after the package: `Stations.sysml` holds `package Stations`.
+- **Folders are layers**, in this order: `library/`, `requirements/`, `logical/`, `physical/`, `analysis/`,
+  `verification/`. A package may depend on its own layer or a lower one, never a higher one; the `complexity` job
+  checks it ([[no-spider-web]]). For the prime's packages the layer is set by the converter's layout map, so every drop
+  lands in the same folder ([[repo-layout]]).
+- **Government-only additions** go in the layer they belong to (`library/conventions/Conventions.sysml`,
+  `logical/GovBehavior.sysml`), never inside a converter-written file, and begin with a comment that says why they
+  exist.
+- **Generated files are never edited by hand**: `docs/` comes from `model.pl docs`, the DOORS requirement packages from
+  `reqif2sysml.pl`. Change the source and regenerate.
+
+=== Inside a file {#style-inside}
+
+A government-written file, in the order its parts appear:
+
+```sh run sandbox=scratch expect="1 file.s., 0 error.s."
+cat > GovBehavior.sysml <<'EOF'
+// Government-owned: the observation cycle's hand-written behavior, which the converter
+// cannot carry from v1 (opaque fork and object flows). Decision record: docs/adr/. Owner: Bob.
+package GovBehavior {
+    doc /* Hand-written behavior that completes the prime's activities. */
+    private import ScalarValues::Real;
+
+    action def ReportHealth {
+        doc /* Send battery state, mode and faults to the data center. */
+        in stateOfCharge : Real;
+        out report : Real;
+    }
+}
+EOF
+perl "$KIT/tools/sysml/sysml.pl" check GovBehavior.sysml
+```
+
+- **The opening comment** answers three questions in two or three lines: why this file exists, which decision allowed
+  it, who owns it.
+- **The package's `doc` comment** says what the package holds, in one sentence a reviewer can check against its
+  contents.
+- **Imports come first and name exactly what is used** (`private import ScalarValues::Real;`). A wildcard
+  (`::*`) is allowed only in files the converter writes, where it is the converter's choice.
+- **Every definition has a `doc` comment** that says what the thing is or does, in the program's words, not the
+  model's: "Send battery state, mode and faults to the data center", not "ReportHealth action def".
+- **Members in a stable order**: parts, then ports, then attributes, then connections and satisfy relationships, then
+  behavior. Not alphabetical: grouped by kind, so a diff shows what kind of thing changed.
+- **One statement per line**, four spaces of indentation, no tabs. Lines under about 120 characters; a long
+  requirement text is the exception, because its `doc` is the requirement.
+
+=== Metadata, not stereotypes {#style-metadata}
+
+- Use **metadata definitions** for what v1 did with stereotypes: level tags (`@L3Station;`), procurement
+  (`@Procured { supplier = "..."; partNumber = "..."; }`), markings (`@Marking { level = Level::U; }`), trust zones.
+- Keep the set **small and declared in one place**, the conventions library. A new metadata definition is a decision:
+  it needs a merge request that says what will read it.
+- A tag nobody reads is decoration. If no check, view or report uses a metadata definition, remove it.
+
+=== Relationships {#style-relationships}
+
+- **Declare each relationship once**, on the element that owns the responsibility: the part `satisfy`s the
+  requirement, the verification case `verify`s it. Reverse views (which parts satisfy this requirement?) are generated,
+  never maintained by hand.
+- **Trace at the level that actually satisfies**, and no lower. A requirement satisfied by the data center is satisfied
+  by `DataCenter`, not by each of its five services.
+- **Allocate at the agreed level** (Tidewater: the segment and station level), not every step to every component.
+- **No `dependency` used as a vague "related to"**: it is how the v1 model grew its cycles. If two elements are
+  related, say how (satisfy, allocate, connect) or leave them alone.
+
+=== Requirement text {#style-requirements}
+
+Requirement statements follow the recipe ([[recipe]]): one requirement per statement, a measurable threshold where the
+verb implies one, no weak verbs (provide, support, be capable of), the specification target as the subject, and the
+project-unique ID. The prime's DOORS modules own the wording on Tidewater, so a recipe finding there becomes a
+discrepancy report, not an edit.
+
+=== TODO lines {#style-todo}
+
+- A converter `// TODO` line is replaced by the line or block that closes it, **in place**, without moving or
+  reformatting the lines around it. The next drop then merges cleanly.
+- A TODO you cannot close yet stays as it is; do not delete it to make the count fall. The count is the port's
+  burn-down, and it has to be true.
+- Government text has no TODO lines of its own. Open an issue instead, and put the issue number in a comment if the
+  reader needs to know.
+
+=== Commits and merge requests {#style-commits}
+
+- **Commit message**: a first line under about 60 characters, in the imperative ("Add the Storm mode to BuoyModes"),
+  then a blank line and *why*. The "what" is in the diff.
+- **Merge request title**: what the model gains, as a verb phrase someone could demo ("Close the Stations TODO lines").
+- **One story's worth per merge request.** A merge request that touches four packages for four reasons is four merge
+  requests.
+- **Decisions in ADRs**: one decision per file in `docs/adr/`, with the context, the decision and the consequences.
+  Anything a new team member might "fix" without knowing why it is that way deserves one.
+
+=== Branches, tags and issues {#style-branches}
+
+|| Thing | Rule | Example ||
+| feature branch | `feature/<issue number>-<a few words>` | `feature/41-sys006-wording` |
+| release branch | `release/baseline-N` | `release/baseline-1` |
+| hotfix branch | `hotfix/<what>` | `hotfix/satisfy-sys-014` |
+| drop branch | made by `gitlab.pl flow vendor` | `feature/drop-v1.1` |
+| tag | `baseline-N`, annotated, made by `gitlab.pl flow released` | `baseline-0` |
+| story title | something you could show at the review | `Break the Stations to DataCenter cycle` |
+| task title | one piece of work under a week | `Move the ObservationRecord dependency to Interfaces` |
+| discrepancy report title | the v1 element and the problem | `DR: TW-SYS-012 has no satisfy in drop 1` |
+Table: Names outside the model
+
+=== Changing this guide {#style-changing}
+
+The style guide is the team's, not this book's. Change `docs/conventions/naming.md` by merge request, with the reason in
+the description, and say in the review what existing text will be brought in line and when (never "all at once": a
+style sweep across converter-written files is exactly the reformatting [[pitfalls]] warns about).

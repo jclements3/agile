@@ -1,0 +1,9 @@
+Refinement, 2026-11-25 10:00: the Definition of Ready applied to sprint 5's stories
+
+TW-89  1 pts  Learn: the requirement recipe; writing memos from the model
+TW-90  3.5 pts  Procured parts as metadata; DataCenter level tags
+TW-91  2 pts  Prune ObservingStation's trace spaghetti
+TW-92  3 pts  Untangle the Legacy Import package
+TW-93  2 pts  The trace job becomes a gate
+TW-94  2 pts  Grade our requirements with the recipe
+TW-95  3 pts  Release rehearsal and a spillage tabletop

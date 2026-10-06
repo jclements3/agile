@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-90 Reviewed !19. T TW-109 DR-5: The Legacy Import package is clutter from, by Fri. B none
+[9:02 AM] Bob
+Y TW-90 Procured parts as metadata;: 5 TODOs closed, 14 left. T TW-91 (first thing: read the review comments) remove the duplicate trace links, by Fri. B none
+[9:03 AM] Tom
+Y TW-95 Release rehearsal and a spillage: 1 of 2 tasks done. T TW-95 spillage tabletop: a marked file pushed by mistake, by Fri; pairing with Jim after lunch. B none

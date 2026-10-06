@@ -1,0 +1,453 @@
+== Sprint 1: A GitLab project the team can work in {#sprint-1}
+
+::: survival
+What you have: three laptops that have never run git, a prime drop that arrived the Friday before, a directive, and a
+team that would rather be writing documents.
+
+What you need from this sprint: a GitLab project with its rules switched on, laptops that pass the kit's doctor, the
+drop converted and measured, and an honest estimate of what the port will cost. Nothing in the model changes yet.
+:::
+
+=== The question, and the mood {#sprint-1-question}
+
+Every sprint in this book answered one systems engineering question. Sprint 1's was the one a systems engineer asks
+first about any inherited work product: **what do we actually have, and what will it cost to make it ours?**
+
+The prime's model had arrived the Friday before, by CDRL file transfer, as an XMI export, a DOORS ReqIF export, a CSV
+and a manifest. Nobody on the team had opened the XMI, and nobody wanted to. The team's mood at the kickoff is best
+captured by the first thing Bob said that morning, which the stand-up chat preserved:
+
+{{include: docs/tidewater/sprints/01/quotes.txt | lines 1-1}}
+
+The pulse survey at the end of the sprint put a number on it: a mean of
+{{value: docs/tidewater/sprints/01/morale.json mean}} on a scale of one to five, the lowest of the twelve weeks. The
+five questions, and how each person answered them on Friday 16 October, were:
+
+|| Question | Jim | Bob | Tom ||
+| I understand why we are working this way. | {{value: docs/tidewater/sprints/01/morale.json answers.jim.0}} | {{value: docs/tidewater/sprints/01/morale.json answers.bob.0}} | {{value: docs/tidewater/sprints/01/morale.json answers.tom.0}} |
+| I can do my work in the new tools without help. | {{value: docs/tidewater/sprints/01/morale.json answers.jim.1}} | {{value: docs/tidewater/sprints/01/morale.json answers.bob.1}} | {{value: docs/tidewater/sprints/01/morale.json answers.tom.1}} |
+| The checks catch problems I would have missed. | {{value: docs/tidewater/sprints/01/morale.json answers.jim.2}} | {{value: docs/tidewater/sprints/01/morale.json answers.bob.2}} | {{value: docs/tidewater/sprints/01/morale.json answers.tom.2}} |
+| I can see our progress. | {{value: docs/tidewater/sprints/01/morale.json answers.jim.3}} | {{value: docs/tidewater/sprints/01/morale.json answers.bob.3}} | {{value: docs/tidewater/sprints/01/morale.json answers.tom.3}} |
+| I would choose to keep working this way. | {{value: docs/tidewater/sprints/01/morale.json answers.jim.4}} | {{value: docs/tidewater/sprints/01/morale.json answers.bob.4}} | {{value: docs/tidewater/sprints/01/morale.json answers.tom.4}} |
+Table: The pulse survey at the sprint 1 retrospective (1 = strongly disagree, 5 = strongly agree)
+
+Read that table as a baseline, not a verdict. Nobody understood yet why they were working this way, and nobody could
+work without help. The rest of Part III is, among other things, the story of those cells changing.
+
+=== Week zero, briefly {#sprint-1-week-zero}
+
+Sprint 1 did not start from nothing. The week before it, the team spent about two person-days on things that had to
+happen before a sprint could: the directive meeting, the scorecard agreed with the program manager, the software
+request for Git for Windows and Vim, the first meeting with the ISSM, the decisions drafted, and the delivery call with
+the prime's modeler. The record is short enough to read whole:
+
+{{include: docs/tidewater/sprints/00/week-zero.txt}}
+
+Two things in it matter for what follows. First, those hours are *outside* sprint 1's capacity, on purpose: they were
+the cost of deciding to start, and the team did not want them hidden inside a sprint where they would make the first
+velocity look worse than it was. Second, the delivery call on 2 October is where Jim asked the prime for stable element
+ids and a manifest with every drop. Everything the team later automated about prime drops depends on that one
+conversation. If you take one thing from week zero into your own project, take that call ([[prime-changes]]).
+
+The record is in the simulation's state too; this is the first command of the chapter, and like every runnable block
+in this book it is tested:
+
+```sh run sandbox=tidewater expect="Week zero, Tuesday 2026-09-29"
+cat sprints/00/week-zero.txt | head -3
+```
+
+=== The kickoff: Monday 5 October, 09:00 {#sprint-1-kickoff}
+
+The kickoff ran ninety minutes and replaced the day's stand-up. Jim opened with the goal Jim had written on the
+whiteboard the night before:
+
+> A GitLab project the team can work in; drop 1 received and assessed.
+
+Then capacity. The standing numbers ([[operating-model]]) are five points a sprint for Jim, whose other duties do not
+stop for a port, and eight each for Bob and Tom. Monday 12 October was a federal holiday, so each person's capacity
+was prorated by working days. Then the commitment, kept deliberately below capacity. The kit printed the result as
+the kickoff record, and this is the plan the team worked to for the next two weeks, exactly as it was recorded:
+
+{{include: docs/tidewater/sprints/01/kickoff.txt}}
+
+Read the plan from the top down and three decisions stand out.
+
+**The learning story comes first.** TW-1, "Learn the tools," is a story with points, an owner per task and a done date,
+like any other. It is {{value: docs/tidewater/work-split.json sprints.1.learning}}% of the sprint's task points done ([[om-done]]). Jim's
+argument, made to the program manager in week zero and repeated to the team at the kickoff, was that the
+learning would happen either way: on the board, where it is visible and can be protected, or on nights and weekends,
+where it becomes resentment. Putting it on the board also made it measurable, which mattered later when management
+asked what the overhead had cost ([[bluf]]).
+
+**Most of the sprint is platform work.** Laptops, the GitLab project, the first pipeline, the working agreements: none
+of it changes the model. That is the honest shape of a first sprint, and the team said so in the plan rather than
+dressing it up. Only TW-5 and TW-6, receiving and assessing the drop, are engineering.
+
+**The commitment is below capacity.** The kickoff line says how far below. Jim's first draft had been much larger
+([[operating-model]]); cutting it was, by Jim's own account later, the most useful thing Jim did in week zero, because it
+meant sprint 1 finished.
+
+The journal holds the same numbers. This is the sprint report the kit prints from the ledger, run against the
+simulation's journal:
+
+```sh run sandbox=tidewater expect="Model\s+18\.9\s+16\.5\s+16\.5"
+perl "$KIT/bin/daily.pl" --conf journal/scrum.conf sprint 1
+```
+
+==== Planning poker, the first time {#sprint-1-poker}
+
+Each story was estimated in the meeting chat with a `#est` round: Jim posted the story, each person posted a number,
+and the kit's tally ([[ceremonies]]) read the chat afterwards. When the votes spread, Jim did what the method asks:
+the highest and lowest voters said what they knew, and the team voted again. The round that taught the team the most
+was the one for converting and assessing the drop:
+
+{{include: docs/tidewater/sprints/01/poker-2026-10-05.txt | lines 176-187}}
+
+The spread was wide. The high vote came from Bob, who had spent two years of evenings fighting Cameo's exports and
+expected the conversion to be a week of hand work. The low vote came from Jim, who had run the converter once in week
+zero and knew it does the bulk mechanically. The conversation in between was the useful part: the story was not
+"convert the model" but "convert it and *measure* what is left," and the measuring is a report, not hand work. The
+second round converged. Bob's worry did not disappear; it moved, correctly, into the later stories that close the TODO
+lines the converter leaves behind.
+
+::: tip What poker is for
+A spread is information, not a failure. If everyone votes the same number at once, either the story is well
+understood or nobody has thought about it. The second round matters less than the sentence each outlier says
+between the rounds. In the chat record the sentences are not there, only the numbers; write them into the story's
+notes when they change the plan.
+:::
+
+=== Week one {#sprint-1-week-1}
+
+==== Monday 5: the first stand-up, and the first lint {#sprint-1-mon}
+
+The stand-up is written ([[ceremonies]]). Each person posts Yesterday, Today and Blockers in the meeting chat, and
+after the meeting Jim pastes the chat into the kit, which checks it. The very first stand-up looked like this:
+
+{{include: docs/tidewater/sprints/01/standups/2026-10-05-chat.txt}}
+
+and the kit's lint said:
+
+{{include: docs/tidewater/sprints/01/standups/2026-10-05-lint.txt}}
+
+The warnings are fair. "Meetings, reviews" is what everyone wrote on a Monday in the document era, and it tells the
+reader nothing about the plan. The fix is not to invent work for yesterday; it is to name the story the work served, or
+to write that the day was the kickoff. Nobody minded the warnings on day one. The point of the lint is that it is
+the same every day, so the habit forms without anyone having to nag.
+
+==== Tuesday 6: the lint finds an error, and Bob finds a phrase {#sprint-1-tue}
+
+On Tuesday Bob wrote the status the way one would write an e-mail:
+
+{{include: docs/tidewater/sprints/01/standups/2026-10-06-chat.txt | lines 8-11}}
+
+{{include: docs/tidewater/sprints/01/standups/2026-10-06-lint.txt}}
+
+An error, not a warning: the kit could not find the three parts at all, so Bob's day did not reach the journal. Jim
+sent Bob the reply line the lint suggests, Bob reposted, and that was the end of it. It is worth noticing what did
+*not* happen: nobody had to read Bob's paragraph and decide whether it was a status. The format did that.
+
+The same afternoon Bob finished the practice lessons and said the sentence the team quoted to each other for the rest
+of the twelve weeks:
+
+{{include: docs/tidewater/sprints/01/quotes.txt | lines 2-2}}
+
+Bob meant it as a complaint. It is also the best one-line description of git for a systems engineer that this book
+knows of.
+
+==== Wednesday 7 and Thursday 8: three laptops pass the doctor {#sprint-1-laptops}
+
+Each laptop was sized at one point in the laptop story, TW-2, after week zero had shown that a software request on a government laptop takes
+days, not minutes. Each person ran `kickoff.pl doctor` ([[survival]]) until it passed. Tom's final run:
+
+{{include: docs/tidewater/sprints/01/doctor-tom.txt}}
+
+The one warning is a missing SSH key. The team decided to use HTTPS with a personal access token instead, because the
+token was simpler to get approved, and wrote that down rather than leaving the warning unexplained. A doctor run with
+warnings is fine. A doctor run with warnings nobody can explain is how laptops drift apart.
+
+==== Thursday 8: drift in two minutes {#sprint-1-drift}
+
+The best moment of sprint 1 happened on its fourth day, and it happened to the team's biggest skeptic. Bob ran both
+converters on drop 1 for TW-6, the first time anyone on the team had used them on the real drop. The XMI converter
+reported what it carried and what it could not:
+
+{{include: docs/tidewater/sprints/01/drop1-xmi2sysml-report.txt | lines 54-56}}
+
+Then the requirements converter compared the prime's DOORS text with the requirement text inside the prime's own
+model, and printed this at the bottom:
+
+{{include: docs/tidewater/sprints/01/drop1-trace.txt | lines 21-32}}
+
+The last three lines are the drift: the same requirement, TW-SYS-006, says "twice a day" in DOORS and does not in the
+model. In the document era nobody would have found it until a review, if then, because finding it meant reading two
+documents side by side. Bob posted in the chat:
+
+{{include: docs/tidewater/sprints/01/quotes.txt | lines 3-3}}
+
+You can do what Bob did. These two commands convert the drop into a scratch folder with the team's layout map and run
+the trace against it:
+
+```sh run sandbox=tidewater expect="drift: TW-SYS-006"
+perl "$KIT/bin/xmi2sysml.pl" --out s1/model --layout-map "$KIT/examples/tidewater-v1/layout.map" drops/v1.0/tidewater.xmi
+perl "$KIT/bin/reqif2sysml.pl" --report --model s1/model drops/v1.0/tidewater.reqif
+```
+
+and this counts the TODO lines the converter left, which is the port's starting debt:
+
+```sh run expect="^52$"
+grep -r "// TODO" s1/model | wc -l
+```
+
+::: sidebar Why the drift mattered more than the number
+The converter's numbers were reassuring: everything in scope ported, and a manageable set of TODO lines. But numbers
+like that do not change minds; they confirm what the person who ran the tool already believed. The drift changed a
+mind, because it was a real defect in a real deliverable, found in two minutes by the person who least wanted to be
+there. If you are leading a team like this one, look for that moment early and let the skeptic have it.
+:::
+
+The drift became the team's first discrepancy report to the prime later, in sprint 4 ([[sprint-4]]). In sprint 1 it
+stayed a note on TW-6, because the team had not yet agreed how to report discrepancies, and Jim did not want the first
+thing the prime received from the new process to be improvised.
+
+==== Friday 9: the project exists {#sprint-1-setup}
+
+Tom applied the project file to the GitLab group the enterprise administrators had created. The command is one line;
+its output is long, because it is the whole configuration of the project, read back:
+
+{{include: docs/tidewater/sprints/01/setup.txt | lines 1-8}}
+
+Look at one setting in particular: `only_allow_merge_if_pipeline_succeeds=false`. In sprint 1 there was no runner, so
+there could be no pipeline, so the rule that a merge needs a green pipeline had to wait. The team turned it on in
+sprint 2, the day the runner came online ([[sprint-2]]). Switching on a gate before the thing it checks exists is a
+reliable way to make a team hate the gate.
+
+The first weekly quad went to management that afternoon. Its first two lines told the story of the first week:
+
+{{include: docs/tidewater/sprints/01/quad-2026-10-09.txt | lines 1-2}}
+
+Less than half the sprint was done after half the sprint, which is normal when the first week is learning and laptops.
+The quad says so without anyone having to explain it.
+
+=== Week two {#sprint-1-week-2}
+
+Monday 12 October was a holiday. The second week was four days.
+
+==== Tuesday 13: proving a refusal {#sprint-1-refusal}
+
+Tom's task #15 sounds odd for a systems engineer: prove that a push is *refused*. But a rule you have never seen fire
+is a rule you do not know works. Tom pushed a commit straight to the protected integration branch, and GitLab
+answered:
+
+{{include: docs/tidewater/sprints/01/protect-proof.txt}}
+
+That rejection is the configuration management board's rule, enforced by software: nothing reaches the integration
+branch except through a reviewed merge request. Tom saved the output to the issue as evidence and closed it.
+
+The same day Jim checked the drop against its manifest. Every file the prime delivered is listed in the manifest with
+a SHA-256 checksum, and checking them takes one line. The `tr` at the front removes Windows line endings from the
+manifest, which the prime's build writes:
+
+```sh run expect="tidewater\.xmi: OK"
+cd drops/v1.0 && tr -d '\r' < MANIFEST.txt | sed -n 's/^  \([0-9a-f]\{64\}\)  /\1  /p' | sha256sum -c
+```
+
+The first time Jim ran it without the `tr`, every file "failed," which is the kind of thing that ruins a morning if
+you do not know about line endings. It is in the rescue appendix now ([[rescue]]).
+
+==== Wednesday 14: the first merge request, without a pipeline {#sprint-1-mr1}
+
+Tom's first merge request committed the CODEOWNERS file, the issue and merge request templates, and the `.gitignore`.
+It is the first merge request the project ever had, and its description says something unusual:
+
+{{include-md: docs/tidewater/sprints/01/samples/mr-1.md}}
+
+It has no pipeline on purpose: the pipeline file arrives in sprint 2. Jim approved it, Tom merged it, and the project
+had its first reviewed change. Two of the checklist boxes are ticked that could not have applied yet, because there
+was no pipeline to run and no docs to regenerate. Nobody noticed at the time. It is a small thing, and it is exactly the kind of small thing that decides whether a
+checklist means anything: tick only what you actually did.
+
+The kit lets you read any merge request the team made, from the simulation's GitLab:
+
+```sh run sandbox=tidewater expect="!1\s+merged"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model mr show 1
+```
+
+Bob closed the assessment the same day. The story issue shows what "done" meant for an engineering story in sprint 1:
+
+{{include-md: docs/tidewater/sprints/01/samples/story-TW-6.md}}
+
+and the task for running the converters, closed on Friday 9, shows the habit the team adopted for every task: the
+result goes in a comment on the issue, where the next person will look for it, not in an e-mail:
+
+{{include-md: docs/tidewater/sprints/01/samples/task-21.md}}
+
+==== Thursday 15: the Definition of Done, and refinement {#sprint-1-dod}
+
+Jim wrote the working agreements into the wiki. The Definition of Done is the part the team argued about longest,
+because it is where "finished" stops being a matter of opinion:
+
+{{include-md: docs/tidewater/sprints/01/samples/wiki-definition-of-done.md}}
+
+At 10:00 the team held the sprint's refinement ([[ceremonies]]): the stories for sprint 2, checked against the
+Definition of Ready and estimated with poker. The record:
+
+{{include: docs/tidewater/sprints/01/refinement.txt}}
+
+Notice what the list says about the team's thinking at the end of its first week and a half. The drop is not merged
+yet; the plan is to bring it in through the vendor branch, *in layers*, which means Bob had already decided the
+model's folder layout would follow the layered structure rather than the converter's default ([[repo-layout]]). That
+decision is cheap in sprint 2 and very expensive later, because every future drop must land in the same folders.
+
+==== Friday 16: a red pipeline on a laptop {#sprint-1-local-ci}
+
+Tom's last task was to run the draft pipeline on Tom's laptop against drop 1, with the kit's local runner ([[cicd]]).
+There was still no GitLab runner, so this was the only way to see the pipeline work. It did not pass:
+
+{{include: docs/tidewater/sprints/01/local-ci-draft.txt}}
+
+Grammar and lint passed: the converted model is valid SysML v2 and structurally sound. The outline check failed,
+because the converted packages and folders do not meet the rule that every parent has between two and nine children.
+That is not a defect Tom introduced; it is what the prime's model looks like.
+
+This is the first real decision of the port, and it is worth slowing down for, because every team porting an
+inherited model will face it.
+
+::: objection "Just turn the outline check off until the port is done"
+That was Tom's first suggestion, and it is the most common one. The trouble is that a check you have turned off does
+not come back on by itself; the team would have shipped baseline-0 with the check still off.
+
+Answer: The team kept the check and gave it an *allowance*: the number of violations the drop arrived with is
+recorded in a file in the repository, the pipeline fails only if a change makes the number bigger, and every change
+that makes it smaller lowers the allowance in the same merge request. The inherited debt is visible, counted and
+paid down; new debt is refused. This is a *ratchet*, and the team used the same idea later for the trace and
+complexity checks ([[pipeline]]).
+:::
+
+The review that afternoon was short. The deputy program manager attended, as the meeting record shows:
+
+{{include: docs/tidewater/sprints/01/meetings.csv | lines 12-13}}
+
+and the review record is plain:
+
+{{include: docs/tidewater/sprints/01/review.txt}}
+
+The four headline numbers at the bottom show how little there was to show: no TODO lines because the drop was not in
+the model yet, no verification coverage because the trace did not run in a pipeline yet. The demonstration was a walk
+through the board and the GitLab project. The deputy's reaction was polite and noncommittal. The team took it as
+licence to keep going, which it was.
+
+==== The retrospective {#sprint-1-retro}
+
+{{include: docs/tidewater/sprints/01/retro.txt}}
+
+The *start* items are both about evidence. Writing the story id in every status is the lint lesson from Monday.
+Running the converter report before estimating is the poker lesson: the TW-6 round would have taken one vote instead
+of two if Bob had seen the report first. The *stop* item says the same thing from the other side. The *continue* items
+are about how the team learned: at the terminal, in pairs, with one issue per action so nothing lived only in
+someone's memory.
+
+=== The numbers at the end of sprint 1 {#sprint-1-numbers}
+
+The scorecard ([[directive]]) was computed by the kit from GitLab and the journal at the end of the sprint:
+
+|| Measure | End of sprint 1 ||
+| Story points committed / done | {{value: docs/tidewater/sprints/01/scorecard.json 11_delivery.committed}} / {{value: docs/tidewater/sprints/01/scorecard.json 11_delivery.done}} ({{value: docs/tidewater/sprints/01/scorecard.json 11_delivery.pct}}%) |
+| Work mix: engineering / platform / learning points | {{value: docs/tidewater/sprints/01/scorecard.json work_mix.engineering}} / {{value: docs/tidewater/sprints/01/scorecard.json work_mix.platform}} / {{value: docs/tidewater/sprints/01/scorecard.json work_mix.learning}} |
+| Merges to the integration branch | {{value: docs/tidewater/sprints/01/scorecard.json merges}} |
+| Gated changes (pipeline and code-owner approval) | {{value: docs/tidewater/sprints/01/scorecard.json 3_gated_changes}} |
+| Change lead time, median hours | {{value: docs/tidewater/sprints/01/scorecard.json 2_lead_time_hours}} |
+| Review turnaround, median hours | {{value: docs/tidewater/sprints/01/scorecard.json 10_review_turnaround_hours}} |
+| Share of stand-up lines with an outcome and a number | {{value: docs/tidewater/sprints/01/scorecard.json standup_outcome_share}} |
+| Pulse survey mean | {{value: docs/tidewater/sprints/01/scorecard.json 12_morale}} |
+Table: The scorecard at the end of sprint 1
+
+Everything committed was done. The one gated-changes figure that reads badly, no change gated, is the merge request
+with no pipeline, and it is honest: there was nothing to gate it with yet. The stand-up outcome share needs a word of
+explanation: nearly half the stand-up lines had an outcome and a number in them, which looks good until you read the
+lines and see that the numbers are mostly lesson numbers. The share fell in sprint 2 and only became meaningful when
+the team learned to say what a day changed ([[sprint-2]], [[talking]]).
+
+=== What Jim told management {#sprint-1-management}
+
+The weekly quad went to the program manager on Friday afternoon ([[communicating]]). Its top lines:
+
+{{include: docs/tidewater/sprints/01/quad-2026-10-16.txt | lines 1-13}}
+
+Jim added two sentences of Jim's own in the covering e-mail, and they are a fair model for a first-sprint report:
+
+> We have a project, protected branches, three working laptops and drop 1 measured: everything in scope converts, and
+> the conversion debt is counted. We also found a requirement whose text differs between DOORS and the prime's model,
+> which we will report to the prime formally once the reporting route is agreed.
+
+No adjectives, no promises about December, one finding, and the next thing management will see: the model itself, on
+the integration branch, at the end of sprint 2.
+
+=== Tools adopted this sprint, and the pain each removed {#sprint-1-tools}
+
+|| Tool | The pain it removed ||
+| `kickoff.pl doctor` | "It works on my machine": three laptops checked the same way, with the fix printed beside each problem |
+| GitLab issues, labels and the board | action items in e-mail threads that nobody could find a week later |
+| Protected branches and code owners | changes reaching the baseline without a reviewer; enforced, and proved on day six |
+| Merge requests | review by meeting; every change now has a description, a reviewer and a record |
+| The stand-up lint | statuses that read like news rather than plans |
+| Both converters with `--report` | guessing what the prime's model contains |
+| `gitlab.pl ci`, the local runner | waiting for a server to find out whether the pipeline works |
+Table: What sprint 1 brought in
+
+=== What went wrong, and why it was fine {#sprint-1-wrong}
+
+- **The first stand-ups failed the lint.** Expected, cheap to fix, and fixed by the habit rather than by a rule.
+- **The first merge request had no pipeline.** Unavoidable without a runner; the description said so, which is what
+  made it acceptable.
+- **Checklist boxes ticked by habit.** Not caught in review. A template checklist is only worth what the person
+  ticking it actually did.
+- **The first pipeline was red.** On a laptop, before anything depended on it, which is the cheapest place for a
+  pipeline to be red. The red outline check produced the ratchet, one of the most useful ideas of the twelve weeks.
+- **The drift was found and then parked.** Deliberately: the team wanted an agreed discrepancy-report route before
+  sending the prime anything.
+
+=== You can now... {#sprint-1-can-now}
+
+- run `kickoff.pl doctor` and act on its output;
+- read a stand-up lint and fix a status that fails it;
+- run planning poker and use the spread, not just the result;
+- convert a prime drop, read the converter's report, and count the conversion debt;
+- run the trace and find text drift between DOORS and the model;
+- verify a delivery against its manifest;
+- explain why a gate is switched on only when the thing it checks exists;
+- explain a ratchet, and why it beats turning a check off.
+
+=== Exercises {#sprint-1-exercises}
+
+::: exercise The first status
+Rewrite Bob's Tuesday status from the chat above so that the lint parses it and it names the story it served. Then
+write Monday's "meetings, reviews" line the way the lint would accept on a kickoff day.
+:::
+
+::: exercise Read the drop yourself
+In the `tidewater` sandbox, convert drop 1 as Bob did, then open `s1/model/physical/stations/Stations.sysml` in Vim
+and find the TODO line for the `BuoyModes` state machine. What v1 element does its id point at? (Practice lesson 10
+walks through the same edit on a smaller scale; [[vim]].)
+:::
+
+::: exercise A spread worth having
+Look at the TW-3 rounds in `docs/tidewater/sprints/01/poker-2026-10-05.txt`. Bob voted highest. Write the one
+sentence Bob might have said between the rounds, and the sentence you would add to the story's notes.
+:::
+
+::: exercise Your week zero
+List the hours your own team would spend before its first sprint, in the format of the week-zero record. Which of
+them would you be tempted to hide inside sprint 1, and why should you not?
+:::
+
+=== Applying this to your project {#sprint-1-applying}
+
+- **Make the first sprint about the shop and say so.** Laptops, the project, the rules, the first pipeline on a laptop.
+  Do not promise model progress in sprint 1; promise a measured starting point.
+- **Put learning on the board** with points and owners. It is the first thing management will ask about later.
+- **Measure the inherited work before you estimate it.** Run the converters, count the debt, run the trace. The first
+  real finding is your best argument; let the person who doubts the most find it.
+- **Switch gates on in the order the things they check come into being,** and prove each one refuses what it should.
+- **Ratchet inherited debt** instead of switching checks off.
+- **Ask the prime for stable ids and a manifest** before the first drop, not after.

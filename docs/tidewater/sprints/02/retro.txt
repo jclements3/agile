@@ -1,0 +1,13 @@
+Sprint 2 retrospective, 2026-10-30 11:00
+
+Start:
+  - A Day-9 demo rehearsal: question, output, before and after, one live change, the ask
+  - Rotating who drives the demo
+Stop:
+  - Writing shell in the YAML
+  - Demoing the terminal instead of the answer
+Continue:
+  - Running gitlab.pl ci before every push
+  - Small MRs: the drop-1 merge was the only big one, and it was reviewable
+
+Pulse survey (1-5, anonymous): mean 2.4

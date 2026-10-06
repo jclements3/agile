@@ -1,0 +1,542 @@
+== The rhythm: stand-ups, poker, refinement, kickoff, demo, retro {#ceremonies}
+
+::: survival
+What you have: a journal of stories ([[journal]]), tasks in GitLab ([[tools]]), and two-week sprints.
+
+What you need: the meetings that keep the plan honest, run in a way three systems engineers can sustain: a daily
+stand-up of terse written statuses, planning poker for estimates, a mid-sprint refinement, a kickoff on day one and a
+demo and retrospective on the last day. Each meeting produces a record the kit reads, so nobody writes minutes. This
+chapter shows each one with real chat pastes and the kit's real output.
+:::
+
+=== Why meetings at all {#ceremonies-why}
+
+The team's first reaction to the word "ceremonies" was predictable.
+
+> We already have too many meetings. Now we get a daily one and four more every two weeks?
+> -- Tom, week zero
+
+The answer the team arrived at, after a sprint of trying it, was that these meetings *replace* others rather than add
+to them. The weekly status meeting, the action item review, the monthly schedule review and most of the e-mail chains
+went away, because their questions were answered in fifteen minutes a day and two hours a fortnight, from records the
+meetings themselves produced.
+
+|| When | Meeting | Length | Produces | Replaces ||
+| Daily, 09:00 | stand-up | 15 minutes | Y/T/B statuses; blocks; done stories | the weekly status meeting, the action item review |
+| Day 1 (Monday, week 1) | sprint kickoff and planning | 90 minutes | the sprint goal; capacity; committed stories; task issues | the monthly schedule review |
+| Wednesday, week 2 | refinement | 1 hour | the next sprint's candidate stories, estimated and ready | ad hoc tasking e-mails |
+| Day 10 (Friday, week 2) | demo (sprint review) | 60 minutes | what was shown, feedback, accepted stories | review-by-screenshot briefings |
+| Day 10, after the demo | retrospective | 60 minutes | one or two changes; the pulse survey | the annual lessons-learned exercise |
+| Every Friday | weekly status | 0 minutes of meeting | the quad, sent to management | the weekly status slides |
+Table: The two-week rhythm
+
+=== The daily stand-up: terse, written, linted {#ceremonies-standup}
+
+The team's stand-up is a Teams meeting at 09:00 whose main event is the chat. Each person posts one line with three
+parts, **Y** (what I did yesterday), **T** (what I will do today) and **B** (what blocks me), each naming the story it
+is about:
+
+```text
+Y TW-4 read the converter report T TW-4 TODO inventory by package B none
+```
+
+The kit reads two shapes. In sprints 1 and 2 the team posted the three parts on three lines, as most people do at
+first; this is Tidewater's first stand-up, from the meeting chat:
+
+{{include: docs/tidewater/sprints/01/standups/2026-10-05-chat.txt}}
+
+From sprint 3 they posted one line per person, drafted by `talk.pl` ([[talking]]) and edited before posting, with the
+outcome and a number first. The examples in this section use the one-line shape because it is shorter to type; the
+lint treats both the same way.
+
+Then they talk only about the blockers and anything that needs two people. The statuses are the record; the talk is
+for help.
+
+Why written, and why so terse? Because a written status can be checked by a program, compiled into the journal and
+compared with yesterday's, and a spoken one cannot. And because three engineers who had spent years writing status
+paragraphs for slides found that one line, with an id, said more.
+
+The rules, from the team's wiki:
+
+- **Every part is present.** `B none` when nothing blocks you; an empty B is not "none", it is a missing answer.
+- **Every Y and T names a story id** (`TW-4`). Work with no id is invisible in the plan; if it matters, it should be a
+  story.
+- **A blocker goes in B, not in T.** "Waiting on the admins" is not something you will *do* today.
+- **Capital Y, T, B as delimiters**; lower-case letters inside the text are just letters.
+
+==== The lint
+
+To type along, you need a journal with sprint 1 planned. If you made one in [[journal]], use it; otherwise these
+commands make the same one in a few seconds:
+
+```sh run sandbox=scratch expect="Model   19      17"
+mkdir -p ~/tidewater-journal && cd ~/tidewater-journal
+if [ ! -f scrum.txt ]; then                 # only if you do not have the journal from the last chapter
+perl $KIT/bin/daily.pl init . > /dev/null
+perl -pi -e 's/^default_team\s*=\s*/default_team  = Model   /' scrum.conf
+for who in Jim Bob Tom; do perl $KIT/bin/daily.pl roster add "$who" $(echo $who | tr A-Z a-z)@example.invalid Model Engineer Gov; done
+mkdir -p standups && cat > standups/2026-10-05.txt <<'PLAN'
+2026-10-05
+sprint 1
+== Model
+cap 19
+new TW-1 4 Create the GitLab group and model project p:1 e:"E1 GitLab project and gitflow" t:"T1 Stand up MBSE DevSecOps" o:Tom
+new TW-2 4 First pipeline gates every MR p:1 e:"E2 Pipeline and quality gates" t:"T1 Stand up MBSE DevSecOps" o:Tom
+new TW-3 3 Receive drop 1 and record it p:1 e:"E5 Drop 1 intake and first import" t:"T2 Port Tidewater v1 to SysML v2" o:Jim
+new TW-4 4 Convert drop 1 and assess it p:1 e:"E5 Drop 1 intake and first import" t:"T2 Port Tidewater v1 to SysML v2" o:Bob
+new TW-5 2 Working agreements p:2 e:"E3 Team practices and onboarding" t:"T1 Stand up MBSE DevSecOps" o:Jim
+commit TW-1 Tom
+commit TW-2 Tom
+commit TW-3 Jim
+commit TW-4 Bob
+commit TW-5 Jim
+PLAN
+perl $KIT/bin/daily.pl compile
+fi
+perl $KIT/bin/daily.pl --today 2026-10-06 sprint | head -4
+```
+
+While people are still on the call, Jim pastes the chat into a file and runs the kit's **lint** on it: a check of
+every status against the rules. Here is the chat of Tuesday 6 October, sprint 1, day 2, the team's first real
+stand-up. Jim pasted it into `standups/2026-10-06-chat.txt` (in Vim, `\sp` does the paste; from the shell, a
+here-document does the same):
+
+```sh run cwd=~/tidewater-journal expect="ERROR Tom: B is empty"
+cat > standups/2026-10-06-chat.txt <<'CHAT'
+[9:01 AM] Jim
+Y TW-3 logged the CDRL delivery, checksums match T TW-3 move drop 1 to approved storage, TW-5 draft DoR B none
+[9:02 AM] Tom
+Y requested the group and a runner T TW-1 waiting on the admins B
+[9:03 AM] Bob
+yesterday: read the converter report. today: TODO inventory. blockers: none
+CHAT
+perl $KIT/bin/daily.pl --today 2026-10-06 lint standups/2026-10-06-chat.txt || echo "exit status $?"
+```
+
+```text
+standups/2026-10-06-chat.txt:2: ok    Jim: Y/T/B parsed
+standups/2026-10-06-chat.txt:4: ERROR Tom: B is empty (write 'none')
+standups/2026-10-06-chat.txt:6: warn  Bob: no task id in Y (e.g. TW-1); no task id in T (e.g. TW-1)
+# 3 answered, 1 error, 1 warning
+```
+
+The lint reads Bob's longhand correctly but warns that there are no story ids. It refuses Tom's status: the B is
+empty, and the blocker is sitting in the T. The `--reply` option writes the lines to paste back into the chat, so
+people fix their own statuses during the call:
+
+```sh run expect="Hey Tom! I couldn't read your status"
+perl $KIT/bin/daily.pl --today 2026-10-06 lint standups/2026-10-06-chat.txt --reply || echo "exit status $?"
+```
+
+```text
+Hey Tom! I couldn't read your status (B is empty (write 'none')). Repost as: Y did TW-1 T doing TW-2 B none
+Hey Bob! Got it. Add the task id next time so it counts (e.g. Y did TW-4 T doing TW-4 B none).
+```
+
+Tom and Bob reposted, and Jim pasted the new lines under the old ones:
+
+```sh run expect="3 answered, 0 errors, 0 warnings"
+cat >> standups/2026-10-06-chat.txt <<'CHAT'
+[9:06 AM] Tom
+Y TW-1 requested the group and a runner T TW-2 draft the first .gitlab-ci.yml B TW-1 waiting on the enterprise GitLab admins
+[9:07 AM] Bob
+Y TW-4 read the converter report T TW-4 TODO inventory by package B none
+CHAT
+perl $KIT/bin/daily.pl --today 2026-10-06 lint standups/2026-10-06-chat.txt
+```
+
+and the second lint was clean (the parser keeps each person's last status):
+
+```text
+standups/2026-10-06-chat.txt:2: ok    Jim: Y/T/B parsed
+standups/2026-10-06-chat.txt:8: ok    Tom: Y/T/B parsed
+standups/2026-10-06-chat.txt:10: ok    Bob: Y/T/B parsed
+# 3 answered, 0 errors, 0 warnings
+```
+
+`--table` shows what the parser understood, one row per person, which is how you check that it read what you meant:
+
+```sh run expect="ok\tTom\tTW-1 requested the group and a runner"
+perl $KIT/bin/daily.pl --today 2026-10-06 lint standups/2026-10-06-chat.txt --table
+```
+
+```text
+state	who	Y	T	B	note
+ok	Jim	TW-3 logged the CDRL delivery, checksums match	TW-3 move drop 1 to approved storage, TW-5 draft DoR	none
+ok	Tom	TW-1 requested the group and a runner	TW-2 draft the first .gitlab-ci.yml	TW-1 waiting on the enterprise GitLab admins
+ok	Bob	TW-4 read the converter report	TW-4 TODO inventory by package	none
+```
+
+In the first two weeks the lint flagged something almost every day. By sprint 3 the statuses were clean, and the
+kit's read-backs (a confirmation line for each clean status) stopped by themselves after a run of clean days, as
+`scrum.conf`'s `readback_clean_days` sets.
+
+In Vim, the whole loop is one layout: `:STown` opens the chat buffer, the lint table and the replies side by side;
+`\sp` pastes and lints, `\sy` copies the replies to the clipboard. [[vim]] has the details.
+
+==== After the call: answers and flags
+
+After the call, `daily.pl answers` reads the day's chat, writes the statuses into the record, raises **flags**, and
+appends suggested journal lines to today's stand-up file for Jim to confirm:
+
+```sh run expect="AMBER Tom +blocked: TW-1 waiting on the enterprise GitLab admins"
+perl $KIT/bin/daily.pl --today 2026-10-06 answers
+```
+
+```text
+Model stand-up answers: 3 people, 1 blocked
+  Jim            Y: TW-3 logged the CDRL delivery, checksums match
+                 T: TW-3 move drop 1 to approved storage, TW-5 draft DoR
+                 B: none
+  Tom            Y: TW-1 requested the group and a runner
+                 T: TW-2 draft the first .gitlab-ci.yml
+                 B: TW-1 waiting on the enterprise GitLab admins
+  Bob            Y: TW-4 read the converter report
+                 T: TW-4 TODO inventory by package
+                 B: none
+flags:
+  AMBER Tom            blocked: TW-1 waiting on the enterprise GitLab admins
+wrote standups/2026-10-06-Model-answers.txt
+  attendance: 3 rows (3 answered) -> attendance.csv
+  appended suggested lines to standups/2026-10-06.txt
+```
+
+The suggested line in the stand-up file was `block TW-1 waiting on the enterprise GitLab admins`. Jim compiled it,
+and the block was on the record. The flags grow with the days: a blocker reported two days running is amber, three
+days red; the same "today" three days running is amber ("is this stuck?"); a story id that is not in the sprint, or
+not in the journal at all, is flagged; someone who says "done" in Y gets a suggested `done` line to confirm. None of
+these is applied automatically. The kit suggests, the lead confirms.
+
+::: sidebar What the terse format did for the team
+By the end of sprint 2 Bob, who had complained loudest about "status theater", said the one-line status was the first
+status format that had ever told Bob anything about the other two's work. It also made the blockers impossible to
+bury: the enterprise administrators' slow runner request was red on the weekly report by its third day, and
+management called the administrators before the team had to.
+:::
+
+=== Planning poker {#ceremonies-poker}
+
+**Planning poker** is a way to estimate that avoids the loudest voice setting the number. Everyone votes at the same
+time, in points, without seeing the others' votes; if the votes differ, the highest and lowest explain their reasons,
+and the team votes again. The discussion is the point: a wide spread means people understand the story differently.
+
+The team plays it in the meeting chat with the kit's `#est` rounds. Jim posts `#est` and the story; each person posts
+a number; the kit tallies the round from the pasted chat. Here is the refinement session of Wednesday 14 October,
+sprint 1, week 2, with three candidate stories for sprint 2:
+
+```sh run expect="(?m)^3$"
+cat > standups/2026-10-14-chat.txt <<'CHAT'
+[10:02 AM] Jim
+Refinement. Three candidates for sprint 2. Vote in points: 1 point = one ideal day.
+#est TW-6 import drop 1 on vendor/prime and merge to develop
+[10:03 AM] Bob
+3
+[10:03 AM] Tom
+3
+[10:03 AM] Jim
+2
+[10:05 AM] Jim
+#est TW-7 docs, outline and TODO jobs
+[10:06 AM] Tom
+3
+[10:06 AM] Bob
+8
+[10:06 AM] Jim
+3
+[10:09 AM] Bob
+the docs job means generating docs for the first time, model.pl docs warned on our model. that is not 3 days
+[10:12 AM] Jim
+#est TW-7 docs, outline and TODO jobs (revote)
+[10:13 AM] Tom
+5
+[10:13 AM] Bob
+5
+[10:13 AM] Jim
+5
+[10:15 AM] Jim
+#vote Split TW-7 so the docs job is its own story? y/n
+[10:15 AM] Bob
+y
+[10:15 AM] Tom
+n
+[10:16 AM] Jim
+n
+CHAT
+grep -c "#est" standups/2026-10-14-chat.txt      # three rounds
+```
+
+```sh run expect="result: n \(majority\)"
+perl $KIT/bin/daily.pl --today 2026-10-14 chat standups/2026-10-14-chat.txt
+```
+
+```text
+ESTIMATE TW-6 import drop 1 on vendor/prime and merge to develop  (3 answers at 10:02)
+  Bob            3
+  Jim            2
+  Tom            3
+  no consensus: median 3, mode 3, range 2-3
+
+ESTIMATE TW-7 docs, outline and TODO jobs  (3 answers at 10:05)
+  Bob            8
+  Jim            3
+  Tom            3
+  no consensus: median 3, mode 3, range 3-8 — re-discuss with Bob
+
+ESTIMATE TW-7 docs, outline and TODO jobs (revote)  (3 answers at 10:12)
+  Bob            5
+  Jim            5
+  Tom            5
+  consensus: 5
+
+VOTE Split TW-7 so the docs job is its own story?  (3 votes at 10:15)
+  n           2  Jim, Tom
+  y           1  Bob
+  result: n (majority)
+appended to standups/2026-10-14.txt (uncomment the est lines you accept; note lines apply as-is)
+```
+
+Three things in that output are worth slowing down for.
+
+**The real disagreement was on TW-7.** Bob voted 8 against two 3s, and explained: generating the model documents for
+the first time had produced warnings, so the docs job was not a routine job. After Bob's explanation the team voted 5,
+unanimously. The estimate moved because of information, not pressure. That is what poker is for.
+
+**Bob's explanation did not count as a vote.** It contained a number ("that is not 3 days"), but the kit reads
+only answers as votes: a number with an optional unit, optionally after "actually" or "make it" and the like. Anything
+else in a round is discussion, so Bob's 8 stood, and the tally flagged it for re-discussion ("re-discuss with Bob").
+People can still change their vote by posting a new answer ("actually 5"); the latest answer wins.
+
+**The kit suggests; Jim decides.** The tally appends lines to the day's stand-up file, commented out, for Jim to
+accept by removing the semicolon:
+
+```text
+; ---- chat 2026-10-14
+== Model
+; est TW-6 3   ; median, no consensus: Bob 3, Jim 2, Tom 3
+; est TW-7 3   ; median, no consensus: Bob 8, Jim 3, Tom 3
+; est TW-7 5   ; consensus: Bob 5, Jim 5, Tom 5   ; task not in journal yet
+note vote Split TW-7 so the docs job is its own story? -> n (n 2, y 1)
+```
+
+Jim accepted the revote (`est TW-7 5`) and left the others commented. TW-6 stayed at the 3 it was proposed at.
+
+::: note Which team section the lines go under
+Est lines for tasks the journal already knows go under that task's team. The rest -- stories not filed yet, like
+TW-7 here, and the vote notes -- go under `default_team` from `scrum.conf` (the team set it to `Model` in week
+zero), or under the team in the chat file's name (`standups/DATE-Model-chat.txt`). Look at the end of the file the
+tally wrote:
+
+```sh run expect="(?m)^== Model\s*$"
+tail -6 standups/2026-10-14.txt
+```
+
+With neither set, the tally says so (`chat: no team for est lines of tasks not in the journal yet`) and leaves those
+lines under a bare `==`, where an uncommented `est` line would fail the compile. Set `default_team` once and the
+question never comes up.
+:::
+
+==== How big is a point?
+
+The team's scale was 1 point = one ideal person-day: a day with no meetings and no interruptions. A task may be at
+most 5 points (under a week); a story is a few tasks and must fit in one sprint; Jim's capacity was about 5 points a
+sprint (the rest of Jim's time went to management), Bob's and Tom's about 8. Using ideal days rather than abstract
+"story points" was a concession to the team's background: systems engineers estimate in days, and pretending
+otherwise would have cost more trust than it bought.
+
+=== Refinement and the Definition of Ready {#ceremonies-refinement}
+
+**Refinement** (also called backlog grooming) prepares the next sprint's stories so planning is quick. It happens on
+the Wednesday of the second week, so there is time to fix what it finds before Monday. Jim brings candidate stories;
+the team splits them, estimates them, and checks each against the **Definition of Ready**, kept in the wiki and in the
+Story template ([[gitlab-setup]]):
+
+::: checklist Definition of Ready (a story may enter a sprint when)
+[ ] it fits in one sprint and names its epic and tome
+[ ] its acceptance criteria are written so someone who did not do the work can check them
+[ ] its tasks are cut, each at most 5 points (under a week)
+[ ] its dependencies on the prime or on another story are linked
+[ ] it has been estimated in poker, and the spread was explained
+:::
+
+A ready story gets the `workflow::ready` label in GitLab. The refinement's journal file brings the new stories in with
+`new` lines (into the backlog, not yet committed), plus the accepted `est` lines:
+
+```sh run expect="TW-7   5     1"
+cat > standups/2026-10-14.txt <<'REF'
+2026-10-14
+sprint 1
+== Model
+note Refinement: sprint 2 candidates, Definition of Ready applied
+new TW-6 3 Import drop 1 on vendor/prime and merge it to develop p:1 e:"E5 Drop 1 intake and first import" t:"T2 Port Tidewater v1 to SysML v2" o:Bob
+new TW-7 4 Docs, outline and TODO jobs p:1 e:"E2 Pipeline and quality gates" t:"T1 Stand up MBSE DevSecOps" o:Tom
+new TW-8 3 Level conventions p:2 e:"E6 Structure: close the structure TODOs" t:"T2 Port Tidewater v1 to SysML v2" o:Bob
+est TW-7 5
+note vote Split TW-7 so the docs job is its own story? -> n (n 2, y 1)
+REF
+perl $KIT/bin/daily.pl compile
+perl $KIT/bin/daily.pl --today 2026-10-14 backlog Model
+```
+
+(Jim rewrote the day's file with the refinement lines and the accepted estimate, replacing the tally's commented
+suggestions.) After compiling, the backlog showed the three stories with TW-7 at its new 5 points:
+
+```text
+Model backlog: 3 tasks, 11 SP
+ID    SP  Prio  Tome                              Epic                                     Owner  Age  Title                                                  Blocked
+----  --  ----  --------------------------------  ---------------------------------------  -----  ---  -----------------------------------------------------  -------
+TW-6   3     1  T2 Port Tidewater v1 to SysML v2  E5 Drop 1 intake and first import        Bob      0  Import drop 1 on vendor/prime and merge it to develop
+TW-7   5     1  T1 Stand up MBSE DevSecOps        E2 Pipeline and quality gates            Tom      0  Docs, outline and TODO jobs
+TW-8   3     2  T2 Port Tidewater v1 to SysML v2  E6 Structure: close the structure TODOs  Bob      0  Level conventions
+```
+
+=== Kickoff and planning {#ceremonies-kickoff}
+
+The sprint starts on Monday morning with ninety minutes that do three things:
+
+1. **The goal.** One sentence that says what the sprint is *for*, in terms management would recognize. Sprint 1's:
+   "A GitLab project the team can work in; drop 1 received and assessed." A goal lets the team make trade-offs during
+   the sprint without asking: anything that serves the goal wins.
+2. **Capacity.** Each person's available days, minus holidays, leave and known meetings, summed into the `cap` line.
+   Sprint 1 lost a day to the Columbus Day holiday; sprint 4 lost Thanksgiving and a day of Jim's leave.
+3. **Commitment.** The team pulls ready stories, highest priority first, until the total is about 85 to 95% of
+   capacity. Each committed story gets the sprint's milestone in GitLab and its tasks are created (or confirmed) as
+   task issues; the journal gets the `cap` and `commit` lines ([[journal]] shows sprint 1's file).
+
+The kickoff ends with the board reset: last sprint's closed cards gone, this sprint's stories in `workflow::ready`.
+
+=== The demo {#ceremonies-demo}
+
+The **sprint review**, or demo, is where the team shows working results to the people who care about them:
+management, the deputy program manager who chairs the configuration control board, sometimes the prime's modeler.
+The rule that made the team's demos work was borrowed from the document era's worst habit and turned inside out:
+
+> Show the thing, not a slide about the thing.
+> -- Jim's note on the demo agenda, sprint 1
+
+So the demo shows real artifacts, in the tools: the merge request with its pipeline widgets, the board, the TODO count
+falling, the trace report, from sprint 4 the model website. Sprint 1's demo showed the project and its protections,
+a merge request blocked by a lint failure, and the drop 1 TODO inventory of 52 lines. It took twenty minutes.
+
+At the end of the demo, Jim marks the stories the audience accepted as done in the journal, and runs the sprint
+report:
+
+```sh run expect="Sprint 1 report -- as of 2026-10-16: 17/17 SP done \(100%\)"
+printf '2026-10-16\nsprint 1\n== Model\ndone TW-1 TW-2 TW-3 TW-4 TW-5\nnote Sprint 1 review: all five accepted\n' > standups/2026-10-16.txt
+perl $KIT/bin/daily.pl compile
+perl $KIT/bin/daily.pl --today 2026-10-16 review 1
+```
+
+```text
+Sprint 1 report -- as of 2026-10-16: 17/17 SP done (100%), 0 carried over, 0 removed.
+
+Team           Commit  Done  Done%  Carry Carry%   Load Velocity  Predict%  Punted Interrupt    Cap
+Model              17    17   100%      0     0%    89%     17.0      100%       0         0     19
+
+Epics (remaining / team velocity = sprints to done):
+  T1 Stand up MBSE DevSecOps > E1 GitLab project and gitflow  100%     0 SP left  ETA sprint 1
+  T1 Stand up MBSE DevSecOps > E2 Pipeline and quality gates   44%     5 SP left  ETA sprint 2
+  T1 Stand up MBSE DevSecOps > E3 Team practices and onboarding  100%     0 SP left  ETA sprint 1
+  T2 Port Tidewater v1 to SysML v2 > E5 Drop 1 intake and first import   70%     3 SP left  ETA sprint 2
+  T2 Port Tidewater v1 to SysML v2 > E6 Structure: close the structure TODOs    0%     3 SP left  ETA sprint 2
+wrote reports/sprint-1-report.txt
+wrote reports/sprint-1-report.html
+```
+
+(from the practice journal; the real sprint 1 is in [[sprint-1]]). Unfinished stories are either carried into the next
+sprint (`carry`) or returned to the backlog, never quietly left open.
+
+=== The retrospective {#ceremonies-retro}
+
+The **retrospective** is the team talking to itself about how it works, not what it built. The format the team used:
+
+1. **The pulse survey**, five questions answered anonymously on a 1 to 5 scale ([[directive]] defines them):
+   I understand why we are working this way; I can do my work in the new tools without help; the checks catch problems
+   I would have missed; I can see our progress; I would choose to keep working this way. Five minutes, on paper or a
+   form. The averages go on the scorecard ([[scorecard]]).
+2. **Start, stop, continue.** Each person writes what the team should start doing, stop doing and keep doing.
+3. **One or two changes.** Not ten. Each change becomes a story or a working-agreement edit, with an owner.
+4. **Last sprint's changes.** Did they help? Keep or drop.
+
+The retrospective is the one meeting where nothing is recorded in the journal except the survey average and the
+changes. What people say stays in the room. That rule mattered: the team was discouraged at the start ([[directive]]),
+and the retrospective had to be a place to say so.
+
+The changes that came out of the first six retrospectives (the report widgets, the ratchet, the "keep numbers out of
+chat comments" rule, the second runner) are told in Part III, and the pulse survey's arc in [[minds]].
+
+=== Telling management every week {#ceremonies-weekly}
+
+Every Friday, Jim sends management the **quad**: one page in four quadrants, generated from the journal. The practice
+journal's at the end of sprint 1:
+
+```sh run expect="Weekly status Model -- as of 2026-10-16 \(sprint 1\)"
+perl $KIT/bin/daily.pl --today 2026-10-16 quad Model
+```
+
+```text
+Weekly status Model -- as of 2026-10-16 (sprint 1)
+Sprint progress 100% (17/17 SP) improving (was 18%)   On-time delivery: 4/4 this week, 5/5 this sprint
+
+TECHNICAL PRIORITIES
+  DONE  TW-1         4  Create the GitLab group and mo Tom
+  DONE  TW-2         4  First pipeline gates every MR  Tom
+  DONE  TW-3         3  Receive drop 1 and record it   Jim
+  DONE  TW-4         4  Convert drop 1 and assess it   Bob
+  DONE  TW-5         2  Working agreements             Jim
+  TODO  TW-6         3  Import drop 1 on vendor/prime  Bob
+  TODO  TW-7         5  Docs, outline and TODO jobs    Tom
+  TODO  TW-8         3  Level conventions              Bob
+
+WATCH ITEMS / PM HELP NEEDED
+  none
+
+SCHEDULE MILESTONES
+  30 days out
+    1. T1 Stand up MBSE DevSecOps > E2 Pipeline and quality gates <-  44%  ETA 2026-11-01
+    2. T2 Port Tidewater v1 to SysML v2 > E5 Drop 1 intake and first import <-  70%  ETA 2026-11-01
+    3. T2 Port Tidewater v1 to SysML v2 > E6 Structure: close the structure TODOs +   0%  ETA 2026-11-01
+
+ACCOMPLISHMENTS (since 2026-10-09)
+  v TW-1         4  Create the GitLab group and mo Tom
+  v TW-2         4  First pipeline gates every MR  Tom
+  v TW-4         4  Convert drop 1 and assess it   Bob
+  v TW-5         2  Working agreements             Jim
+```
+
+(an excerpt; in your journal every story was done on the Friday, so the on-time line reads 5/5 this week, and the
+trend arrows differ). Watch items are where a blocker more than three days old appears with "PM help needed", which is how the
+runner request reached management in the real sprint 1. [[communicating]] covers the quad, the sprint mail and the
+twelve-week briefing in full.
+
+=== Exercises {#ceremonies-exercises}
+
+::: exercise {#ex-cer-lint} Lint your own status
+Write yesterday's work as a Y/T/B line in a chat file, in the Teams copy format above, with one deliberate mistake.
+Run `daily.pl lint` on it, then `--reply`. Fix it until the lint is clean.
+:::
+
+::: exercise {#ex-cer-poker} Play a round
+With two colleagues, estimate three of your real tasks in an `#est` chat and tally it with `daily.pl chat`. Where did
+the spread come from? Did discussion change the number?
+:::
+
+::: exercise {#ex-cer-ready} Apply the Definition of Ready
+Take a work item from your current plan and check it against the Definition of Ready. What would you have to do to make
+it ready? Which item failed first?
+:::
+
+::: exercise {#ex-cer-demo} Plan a demo without slides
+Write the agenda for a twenty-minute demo of your team's last two weeks that shows only real artifacts. What would you
+show, in what order, and what question do you want the audience to answer?
+:::
+
+=== Applying this to your project {#ceremonies-apply}
+
+- **Copy**: terse written statuses with an id in every part, linted during the call; poker in the chat with a revote
+  after the outliers explain; refinement mid-sprint against a written Definition of Ready; a one-sentence sprint goal;
+  demos that show the thing; a short retrospective with a pulse survey and one or two changes; a weekly one-page status
+  generated, not written.
+- **Adapt**: the times (a team across time zones may need asynchronous stand-ups in the chat alone); the scale (ideal
+  days or abstract points, but pick one and keep it); who attends the demo.
+- **Decide locally**: what goes upward and what stays in the team; who confirms the kit's suggested lines; which
+  meetings these replace, agreed with management in writing so the calendar actually gets lighter.

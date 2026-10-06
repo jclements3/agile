@@ -1,0 +1,15 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y: TW-1 practice lessons 10-11; the operating model
+T: TW-1 practice lessons 10-11; the operating model
+B: none
+[9:02 AM] Bob
+yesterday the kickoff, then the practice repo
+today practice lesson 10
+no blockers
+[9:03 AM] Tom
+Y: TW-1 practice lessons 10-11; the survival kit, git
+T: TW-1 practice lessons 10-11; the survival kit, git; TW-2 set up Tom's laptop; kickoff.pl doctor
+B: none

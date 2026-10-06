@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 A plain-text scrum "battle rhythm" kit for a solutions architect running several Scrum teams
 under a two-week sprint tempo. Everything — backlog, sprints, stand-up notes, votes/estimates,
 attendance, AI-assisted status summaries — is stored in a ledger-cli-style plain-text journal
-edited in Vim, and compiled/reported by pure Core Perl (5.10+, no CPAN, no XS, runs on Git for
+edited in Vim, and compiled/reported by pure Core Perl (5.10+; the GitLab tools need 5.14+ for JSON::PP; no CPAN, no XS, runs on Git for
 Windows' Perl — nothing to install, no network required except optionally for the AI backend).
 
 The repo root *is* the kit — a standard `bin/lib/tests/docs` layout, nothing nested under a
@@ -45,7 +45,7 @@ There is no build step and no package manager — everything is `use lib` agains
 
 Test suites map 1:1 to the libs: `tests/prelude.t`, `tests/ledger.t`, `tests/quad.t`,
 `tests/scrum.t`, `tests/standup.t`, `tests/calendar.t`, `tests/chat.t`, `tests/answers.t`,
-`tests/attendance.t`, `tests/quad.t`, `tests/roster.t`, `tests/cockpit.t`, `tests/drill.t`, `tests/metrics.t`, `tests/status_metrics.t`,
+`tests/attendance.t`, `tests/quad.t`, `tests/roster.t`, `tests/gitlab.t`, `tests/gitlab-ci.t`, `tests/ci-job.t`, `tests/ci-reports.t`, `tests/kickoff.t`, `tests/talk.t`, `tests/practice.t`, `tests/req-recipe.t`, `tests/memo-templates.t`, `tests/tidewater.t`, `tests/primer.t`, `tests/primer-runs.t`, `tests/cockpit.t`, `tests/drill.t`, `tests/metrics.t`, `tests/status_metrics.t`,
 `tests/xmi2sysml.t`, `tests/reqif2sysml.t`, `tests/sysml.t`, `tests/sysml-views.t`, `tests/halberd.t`, `tests/memo.t`, `tests/help.t`, `tests/drills.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
 `Calendar.pm`'s COM calls offline.
 
@@ -208,6 +208,28 @@ counted divergences) and the Emacs mode; `tools/idef0-kit/` is the original Pyth
 `docs/VIM-CHEATSHEET.html` is the one-page Vim reference for every mode; `vim/ftplugin/idef0.vim` is the Vim twin of the
 Emacs IDEF0 mode. The user's 90-day binder is not in this repo (it was removed from the public history on 2026-10-05; a scrubbed copy may come back later as plain files, never as a subtree of the private binder repo). Secrets gates: `.secrets-allow` (devsecops.pl) and
 `.gitleaks.toml` (CI) list the documented fake keys the binder's DevSecOps chapter uses as teaching examples -- exact values only.
+
+**MBSE DevSecOps in GitLab (Tidewater, the second running example; fictional, civilian, notional):** `START-MBSE.md` is
+the front door for a team. GitLab tooling, all core Perl: `lib/GitLab.pm` (REST v4 via curl, or `local => DIR`, an
+offline emulator: bare repos with a protection hook, MRs merged --no-ff, CODEOWNERS approvals, pipelines run by
+GitLabCI on the merged result, packages, pages, schedules with a cron engine, triggers, deploy tokens, analytics,
+`setup --diff`, `--dry-run`), `lib/GitLabCI.pm` (a `.gitlab-ci.yml` subset: parse, rules, local includes, run jobs
+locally; `parallel => N`), `lib/GitFlow.pm` (main/develop/feature/release/hotfix + `vendor/prime` drop imports that keep
+government files), `bin/gitlab.pl` (one CLI over them; `gitlab.pl help`). `tools/gitlab/`: `templates/` (project.conf,
+gitlab-ci.yml where every job is `perl ci/job.pl NAME` for PowerShell portability, ci/job.pl, CODEOWNERS, issue/MR
+templates, wiki, docs/, memos/, prime/Jenkinsfile), `kickoff.pl doctor|scaffold|start` (week zero), `talk.pl` (drafts
+stand-ups, review scripts, weekly notes), `ci-reports.pl`, `pages-index.pl`, `mkguide.pl` -> `docs/GITLAB.html`,
+`docker/` (optional mbse-ci image), `mbse-release.txt` (`bin/release.pl --profile mbse`). Converters gained
+`xmi2sysml.pl --delta/--map/--impact/--layout-map` (prime change requests from CHANGES.csv) and `reqif2sysml.pl`
+drift and `--layout-map`; `tools/sysml/req-recipe.pl` grades requirement text against the user's requirement recipe;
+`tools/memo/memo-build.pl` renders memo templates. Practice lessons 10-13 (`agile.pl practice N`) run on the emulator.
+`sim/tidewater-v1.pl --drop N` writes the prime's seven v1 drops; `sim/tidewater-sim.pl` runs the government team (Jim,
+Bob, Tom) sprint by sprint through all of it (S1-S6 green; S7-39 pending); `sim/tidewater-evidence.pl` copies a run
+into `docs/tidewater/` (frozen evidence the book cites), `sim/tidewater-render.pl` -> `docs/TIDEWATER.html`,
+`sim/tidewater-split.pl` -> `docs/tidewater/work-split.json` (the BLUF's numbers); `tests/tidewater.t` caches a run.
+**The primer** (`docs/mbse-devsecops-primer.{html,tex,pdf}`, cover from `docs/img/cover-art.jpg`) is built by
+`sim/primer.pl` from `docs/src/primer/*.txt` (markup in its README.txt); runnable blocks are executed by
+`tests/primer-runs.t` in sandboxes, and numbers are cited from the evidence with `{{value:}}`, never typed.
 
 ## Architecture
 

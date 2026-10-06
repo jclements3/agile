@@ -1,0 +1,32 @@
+2026-11-30
+  10:00 jim  closed #97 The recipe chapter; a memo from pipeline numbers
+2026-12-02
+  10:00 bob  closed #96 Walk the Stations tree with the prime's modeler; record what they confirmed
+  10:45 tom  opened !16 Remove the Legacy Import clutter (pipeline #52 success)
+  11:30 jim  closed #103 DR-5: ask the prime to delete Legacy Import
+  14:15 tom  closed #102 Remove the Legacy Import package from the v2 model
+  14:15 tom  merged !16
+2026-12-03
+  10:00 bob  closed #98 The recipe chapter
+2026-12-04
+  10:00 tom  opened !17 Pipeline: The trace job becomes a ratchet: it fails an MR that adds a gap (pipeline #57 success)
+  10:45 jim  closed #105 Read the recipe findings for the DOORS modules
+  13:30 tom  closed #104 Trace ratchet: fail only on new gaps
+  13:30 tom  merged !17
+2026-12-07
+  10:00 bob  opened !18 Procured parts as @Procured metadata (pipeline #61 success)
+  13:30 bob  closed #99 Procured parts as metadata
+  13:30 bob  merged !18
+2026-12-08
+  10:00 jim  closed #106 DR-6: weak verbs and missing parts in the DOORS text
+2026-12-09
+  10:00 bob  opened !19 Level tags in DataCenter (pipeline #66 success)
+  10:45 tom  closed #107 Rehearse release and hotfix in tidewater/sandbox
+  13:30 bob  closed #100 Level tags in DataCenter
+  13:30 bob  merged !19
+2026-12-10
+  10:00 tom  closed #108 Spillage tabletop: a marked file pushed by mistake
+2026-12-11
+  10:00 bob  opened !20 Prune ObservingStation's trace links (pipeline #71 failed)
+  15:00 bob  closed #101 Remove the duplicate trace links
+  15:00 bob  merged !20

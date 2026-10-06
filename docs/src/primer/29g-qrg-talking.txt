@@ -1,0 +1,88 @@
+== Quick reference: saying it so they hear it {#qrg-talking}
+
+=== The pattern {#qrg-talking-pattern}
+
+|| Part | What | Example ||
+| Outcome | what is now true, in the listener's words | "Stations structure is done" |
+| Evidence | one number | "nine TODO lines closed, forty-three left" |
+| Next or ask | what happens next by a day, or what you need from whom by a day | "decide who owns the observation record by Thursday" / "need Jim to escalate today" |
+Table: Outcome, evidence, next or ask
+
+Keep the mechanism (how you did it) for when someone asks. The "so what?" test: if the honest answer is "so
+nothing", say the outcome it served, or leave it out.
+
+=== Five stand-up shapes {#qrg-talking-standup}
+
+```text
+Y TW-12 [outcome]: [X] of [Y] done, [Z] left. T TW-15 [next outcome], by [day]. B none
+Y TW-22 the check caught [problem] at [early stage] instead of [late stage]. T ... B none
+B TW-3 [what cannot happen] until [thing]. Need: [person] to [action] by [day]
+T TW-31 [question] answered by [day]: [what you will hand over]
+Y TW-9 I don't know yet whether [X]; I'll know by [day] after [action]
+```
+
+Every line keeps Y, T and B, a story id in each, and `B none` when nothing blocks. One number per line.
+
+=== The ladder {#qrg-talking-ladder}
+
+|| Rung | Length | Holds ||
+| One sentence | 10 seconds | the outcome and the number |
+| Thirty seconds | 3 to 4 sentences | outcome, number, what it means for the next milestone, the ask |
+| Five minutes | the thirty seconds, one thing shown, one before-and-after | the demo |
+Table: Write the one-sentence version first; say each rung out loud once
+
+=== The demo in six lines {#qrg-talking-demo}
+
+1. The question this sprint answered, and the one-line answer.
+2. Show the output, not the tool (the site, the matrix, a red-to-green merge request).
+3. One before-and-after, with a number.
+4. One safe live change, on a scratch branch.
+5. What it means for the next milestone.
+6. The ask, with a name and a date.
+
+Roles: **driver** (keyboard, silent), **narrator** (the words), **note-taker** (questions become issues). Rotate them
+every sprint. Dry run on Day 9.
+
+=== The four numbers, every review {#qrg-talking-numbers}
+
+TODO lines left. Verify coverage. Open discrepancy reports and prime changes. Blocked items. Same order, every
+stand-up summary, weekly note, review and memo. Headlines state the conclusion: "Trace: 29 of 30 linked, green".
+
+=== Jargon to plain {#qrg-talking-jargon}
+
+|| Say instead of | Plain ||
+| pipeline, CI | the automated checks that run on every change |
+| merge request, MR | a proposed change, reviewed before it is accepted |
+| the pipeline is green | all the automated checks passed (say what that proves) |
+| lint errors | errors the checks found before review |
+| rebased, merged develop in | (leave it out; say what the change does) |
+| feature branch | my working copy of the change (usually leave it out) |
+| trace coverage | how many requirements link to a design and a test |
+| VCRM | the verification matrix: how and whether each requirement is verified |
+| baseline, tag | a frozen, approved version we can always return to |
+| prime drop | the prime's latest model update |
+| refactoring, technical debt | cleanup that keeps future changes fast and cheap |
+| TODO lines | conversion items still to finish by hand |
+Table: Jargon to plain
+
+=== Bad news {#qrg-talking-bad-news}
+
+|| Situation | Say ||
+| a check found a problem | "Found early: that's the system working. Impact, fix." |
+| a worse number you can now see | "Not new, newly visible. Here's the date it closes." |
+| behind | "Behind by [time] because [cause]. To recover we need [X], or we can [trade-off]." |
+| you don't know | "I don't know yet. I'll know by [day] after [action]." |
+Table: Fact, cause in one clause, next with a date
+
+=== Tools {#qrg-talking-tools}
+
+```sh
+perl $KIT/tools/gitlab/talk.pl standup --as bob --prefix TW-    # tomorrow's Y/T/B draft from GitLab
+perl $KIT/tools/gitlab/talk.pl review --sprint 4 --md           # the demo script, four numbers, the ladder
+perl $KIT/tools/gitlab/talk.pl weekly --baseline baseline.txt   # Friday's note to management
+perl $KIT/tools/gitlab/talk.pl translate draft.txt              # jargon list and "so what?" flags
+perl $KIT/bin/daily.pl propose                                  # today's statuses from yesterday's answers
+perl $KIT/bin/daily.pl quad                                     # the weekly quad that goes with the note
+```
+
+Drafts only: nothing is posted. Read every number before you say it. Chapter: [[talking]].

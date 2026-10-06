@@ -1,0 +1,184 @@
+== Quick reference: git, gitflow and the GitLab tools {#qrg-gitlab}
+
+Commands assume Git Bash and the kit at `$KIT` (for example `export KIT=/c/agile`). `gitlab.pl` needs `--url` and a
+token in `$GITLAB_TOKEN` for a real server, or `--local DIR` for the offline emulator; set `GITLAB_URL` and
+`GITLAB_PROJECT` once in `~/.bashrc` to shorten every line. Full syntax: [[commands]].
+
+=== git, every day {#qrg-gitlab-git}
+
+|| Command | Does ||
+| `git status` | where am I, what changed |
+| `git switch develop && git pull` | start from the latest integrated model |
+| `git switch -c feature/19-stations-level-tags` | a branch for one task (issue 19) |
+| `git diff` / `git diff --staged` | unstaged / staged changes |
+| `git add -p FILE` | stage changes hunk by hunk, answering y/n |
+| `git restore FILE` / `git restore --staged FILE` | discard a change / unstage it |
+| `git commit` | record it; Vim opens for the message |
+| `git push -u origin HEAD` | first push of a new branch |
+| `git merge develop` | bring `develop` into your branch (do it daily on a long task) |
+| `git merge --abort` | back out of a conflicted merge |
+| `git stash` / `git stash pop` | shelve / restore unfinished work |
+| `git log --oneline --graph --all -20` | the recent history of every branch |
+| `git fetch --prune` / `git branch -d B` | tidy after a merge |
+| `git show baseline-1` | a baseline's tag message and commit |
+Table: git every day
+
+Never: `git push --force` on a shared branch, `git rebase` of pushed commits, commits on `develop` or `main`.
+
+=== Gitflow, by branch type {#qrg-gitlab-gitflow}
+
+|| Branch | From | Merges into | Who | Steps ||
+| `feature/IID-slug` | `develop` | `develop` | anyone | `flow start feature IID-slug`; commit; `flow finish --template Default`; review; merge |
+| `release/baseline-N` | `develop` | `main` | maintainer | `flow start release baseline-N`; only fixes; `flow finish --template Release`; merge; `flow released IID` (tag, release, back-merge) |
+| `hotfix/slug` | `main` | `main`, then `develop` | maintainer | `flow start hotfix slug`; fix; `flow finish --template Hotfix`; merge; `flow released IID` |
+| `vendor/prime` | first commit of `main` | `feature/drop-VERSION` | maintainer (import only) | `flow vendor DROPDIR VERSION`; resolve conflicts; `flow finish --template "Prime Drop"` |
+| `develop` | `main` | (receives MRs) | nobody pushes | protected; the default branch |
+| `main` | | (receives release and hotfix MRs) | nobody pushes | protected; only baselines |
+Table: Gitflow branches
+
+All `flow` commands are `perl "$KIT/bin/gitlab.pl" flow ...`, run inside a clone of the model repository.
+
+=== gitlab.pl at a glance {#qrg-gitlab-cli}
+
+|| Goal | Command ||
+| Apply the project settings | `gitlab.pl setup project.conf` (`--dry-run` first) |
+| Make sprint milestones | `gitlab.pl sprints 2026-10-05 39` |
+| New story from the template | `gitlab.pl issue new "Close the Stations TODO lines" --template Story --milestone "Sprint 4"` |
+| New task | `gitlab.pl issue new "Level tags in Stations" --template Task --type task --label type::task` |
+| Comment with quick actions | `gitlab.pl issue note 19 "/spend 3h"` |
+| List my open issues | `gitlab.pl issue list --label workflow::in-progress` |
+| Open an MR | `gitlab.pl mr new --source feature/19-x --title "..." --template Default --reviewer jim` |
+| Approve / merge | `gitlab.pl mr approve 19` / `gitlab.pl mr merge 19` |
+| Pipeline status | `gitlab.pl pipeline list --ref develop` / `pipeline show ID` |
+| Run the pipeline locally | `gitlab.pl ci --event merge_request_event --target develop` |
+| What would run | `gitlab.pl ci --list --event merge_request_event --target develop` |
+| Upload a prime drop | `gitlab.pl package put prime-drop v1.1 tidewater.xmi` |
+| Baseline release | `gitlab.pl flow released IID --notes release-notes.md` |
+| Status metrics inputs | `gitlab.pl export exports/ --since 2026-10-05` |
+| Pipeline schedules | `gitlab.pl schedule list` / `schedule run ID` (defined in `project.conf` `[schedules]`) |
+| Check a cron line | `gitlab.pl schedule next "0 2 * * 1-5" --tz America/New_York -n 3` (needs no server) |
+| Numbers for a review | `gitlab.pl analytics --by sprint` (value stream, DORA, pipelines, MRs, issues) |
+| Practise offline | add `--local /tmp/gl` to any command |
+Table: gitlab.pl at a glance
+
+=== Quick actions {#qrg-gitlab-quick}
+
+Type them on their own line in any issue or MR description or comment; they run when you save and disappear from the
+text.
+
+|| Quick action | Does | Where ||
+| `/label ~"type::story" ~"workflow::ready"` | add labels (a scoped label replaces its sibling) | issue, MR |
+| `/unlabel ~"workflow::blocked"` | remove a label | issue, MR |
+| `/milestone %"Sprint 4"` | set the sprint | issue, MR |
+| `/assign @bob` `/unassign @bob` | set / clear the assignee | issue, MR |
+| `/assign_reviewer @jim` | ask for a review | MR |
+| `/estimate 2d` | the task's size (1 point = 1 ideal day) | issue, MR |
+| `/spend 3h` | time spent (`/spend -1h` corrects) | issue, MR |
+| `/weight 3` | story points on an issue (Premium) | issue |
+| `/due 2026-11-20` | due date | issue |
+| `/relate #8 #11` | link related issues | issue |
+| `/close` `/reopen` | close / reopen | issue, MR |
+| `/approve` | approve the MR | MR |
+| `/merge` | merge when the pipeline succeeds | MR |
+| `/draft` `/ready` | mark the MR draft / ready | MR |
+| `/duplicate #12` | close as a duplicate | issue |
+| `/confidential` | make the issue confidential | issue |
+Table: Quick actions
+
+=== References and Markdown {#qrg-gitlab-refs}
+
+|| Type | Becomes ||
+| `#19` | a link to issue 19 (`tidewater/model#19` from another project) |
+| `!19` | merge request 19 |
+| `%"Sprint 4"` | the milestone |
+| `~"type::story"` | the label, as a coloured chip |
+| `@bob` | a mention: Bob is notified |
+| `9f3c1e2` | a commit (7 or more hex characters) |
+| `Closes #19` (in an MR description) | closes issue 19 when the MR merges into the default branch |
+| `- [ ] item` / `- [x] item` | a task list item, clickable |
+| `[[_TOC_]]` | a table of contents of the headings |
+| `<details><summary>Log</summary> ... </details>` | a collapsed section |
+| `> [!note]` | an alert box (also `[!warning]`, `[!tip]`) |
+| a fenced block tagged `mermaid` | a diagram drawn from text |
+| a fenced block tagged `suggestion:-0+1` | in a review comment: a change the author applies with one click |
+| `[^1]` and a line `[^1]: text` | a footnote |
+Table: References and GitLab Markdown
+
+=== Pipeline: triggers and rules {#qrg-gitlab-pipeline}
+
+|| `$CI_PIPELINE_SOURCE` | When | Tidewater runs ||
+| `merge_request_event` | an MR is opened or its branch is pushed | the checks on the merged result |
+| `push` | a push to a branch without an open MR (`develop`, `main`, `vendor/prime`) | the checks; `pages` on `develop` |
+| (a tag, `$CI_COMMIT_TAG` set) | a tag is created | `baseline` and `publish-release` on `baseline-*` |
+| `schedule` | a pipeline schedule fires | nightly full check (`FULL=1`): every check and `pages`; weekly: `status` only |
+| `trigger` | the prime's Jenkins starts a pipeline with a trigger token and `DROP_VERSION` | `intake` only |
+| `web` | someone presses Run pipeline | as for the branch |
+Table: Pipeline sources
+
+```yaml
+rules:
+  - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'      # MR pipelines
+  - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'            # develop
+  - if: '$CI_COMMIT_TAG =~ /^baseline-/'                     # baselines
+  - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    when: never                                             # not on the nightly
+  - when: on_success                                        # otherwise
+```
+
+|| Keyword | Means ||
+| `stage` | which column; stages run in order |
+| `script` | the commands; any non-zero exit fails the job |
+| `rules` / `when` | whether the job runs: `on_success`, `always`, `manual`, `never` |
+| `allow_failure: true` | a failure shows yellow and does not block the merge |
+| `artifacts: paths` | files kept after the job (download from the job page) |
+| `artifacts: reports` | `junit`, `codequality`, `metrics`: shown on the MR |
+| `artifacts: when: always` | keep them even when the job fails |
+| `needs` | start as soon as these jobs finish |
+| `extends` / `&anchor` `<<: *anchor` | reuse settings from a hidden `.job` |
+| `environment` | record a deployment (the model site) |
+| `include: template:` | GitLab's own job definitions (Secret Detection) |
+Table: Pipeline keywords
+
+Tidewater's jobs keep every script line shell-neutral: `script: [perl ci/job.pl lint]`. The Perl script does the work,
+so the same file runs under PowerShell on the Windows shell runner, Git Bash on a laptop and the optional Docker image.
+
+Every job starts in a fresh checkout: use `artifacts` to pass files to later stages and to keep evidence; `cache` only
+speeds things up and may be empty.
+
+=== Variables and tokens {#qrg-gitlab-tokens}
+
+|| What | Use for | Setting ||
+| CI/CD variable, Protected | secrets for `develop`, `main`, tags only | Settings, CI/CD, Variables |
+| CI/CD variable, Masked | hidden as `[MASKED]` in job logs | same |
+| `KIT` | where the kit is on the runner | project variable or runner `environment` |
+| Runner tags | which runner takes a job: `windows`, `shell`, `mbse`; `release` for the protected runner | job `tags:`; Settings, CI/CD, Runners |
+| `CI_JOB_TOKEN` | API calls from inside a job (package upload) | automatic, expires with the job |
+| Project access token | automation (the nightly export), scope `read_api` | Settings, Access tokens |
+| Personal access token | your own `gitlab.pl` from a laptop, in `$GITLAB_TOKEN` | Preferences, Access tokens |
+| Deploy token | read-only clone or package download from outside | Settings, Repository |
+| SSH key | `git push` / `git pull` from your laptop | Preferences, SSH keys |
+Table: Variables and tokens
+
+Never put a token in a file in the repository. A leaked token: revoke first, then everything else ([[admin]]).
+
+=== Where things are in GitLab {#qrg-gitlab-ui}
+
+Menu names follow the left sidebar of GitLab 16 and 17; older versions differ slightly.
+
+|| You want | Go to ||
+| Issues, the board, sprints | Plan, Issues / Issue boards / Milestones |
+| The wiki | Plan, Wiki |
+| Merge requests | Code, Merge requests |
+| Files, branches, tags, history | Code, Repository / Branches / Tags / Commits |
+| Pipelines, job logs | Build, Pipelines / Jobs |
+| Edit and validate `.gitlab-ci.yml` | Build, Pipeline editor (Validate, Visualize, Full configuration) |
+| The nightly schedule | Build, Pipeline schedules |
+| Releases, packages, the model site | Deploy, Releases / Package Registry / Pages |
+| Environments | Operate, Environments |
+| Members, labels | Manage, Members / Labels |
+| Audit events (Premium) | Secure, Audit events |
+| Merge method, squash, approvals | Settings, Merge requests |
+| Protected branches and tags | Settings, Repository |
+| Variables, runners | Settings, CI/CD |
+| Tokens | Settings, Access tokens |
+Table: Where things are

@@ -1,0 +1,4 @@
+standups/2026-12-11-Model-chat.txt:5: warn  Jim: TW-109 is not in the journal; DR-5 is not in the journal
+standups/2026-12-11-Model-chat.txt:7: ok    Bob: Y/T/B parsed
+standups/2026-12-11-Model-chat.txt:9: warn  Tom: no task id in T (e.g. TW-1)
+# 3 answered, 0 errors, 2 warnings

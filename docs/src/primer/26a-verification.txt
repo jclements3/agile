@@ -1,0 +1,202 @@
+== Verification as a closed loop {#verification}
+
+::: survival Where this chapter fits
+What you have: requirements in the model with `verify` relationships to verification cases; a pipeline; a prime
+contractor and a test organization who actually run the tests.
+
+What you need: a way to turn "which requirements are verified, and by what evidence?" into a report the pipeline
+regenerates on every change -- and a plan for moving testing onto that footing under management pressure, without
+putting formal verification evidence at risk.
+:::
+
+Testing is where a program proves the system works and where the customer accepts it. It is the worst place for a
+big-bang tool change. This chapter shows what the Tidewater team built for verification in the first twelve weeks,
+which is deliberately small, and then the staged plan for the rest of the program. Everything after sprint 6 in
+this chapter is the plan, not the evidence; it says so where it applies.
+
+=== The loop {#verification-loop}
+
+Verification in a model repository is a loop with three parts.
+
+1. **Plan the tests in the model.** Each requirement has a `verify` relationship to a verification case, and the
+   case states its method (test, analysis, inspection or demonstration), its subject and its objective
+   ([[workbook]]).
+2. **Execute** the tests wherever they run -- the prime's lab, a simulation, an engineer's inspection.
+3. **Feed the results back** in one results format, and let the pipeline regenerate the verification
+   cross-reference matrix (VCRM) on every change.
+
+The government team owns the first and third parts for Tidewater. The prime and its test organization own the
+second. That split is the most important design decision in this chapter: the government does not need to run the
+prime's tests to know, at any moment, which requirements have evidence behind them.
+
+=== One results format {#verification-schema}
+
+Every verdict -- automated or not, the prime's or the government's -- goes into a CSV file in the model repository's
+`verification/` folder, with the same columns:
+
+```csv
+requirement,case,verdict,commit,environment,timestamp,signed_by
+```
+
+The `verdict` is `passed`, `failed` or `not run`. `commit` names the version of the model the test was run
+against, so a result can never be mistaken for evidence about a later design. `signed_by` is empty for an
+automated result and carries a person's name for an inspection, analysis or demonstration -- the results that will
+never come out of a test harness, and that matter just as much. Keeping them in the same file is what keeps the
+matrix complete: an inspection verdict signed by Jim counts exactly like a passed automated test.
+
+=== Sprint 6: the VCRM in the pipeline {#verification-sprint6}
+
+In sprint 6 Jim's story "VCRM: which requirements are verified, and how" added the `vcrm` job to the pipeline and
+entered the government's first signed inspection verdicts. From then on every merge request's pipeline printed the
+matrix's summary line. Here it is from the last merge request of the twelve weeks:
+
+{{include: docs/tidewater/sprints/06/pipelines/mr26-first-100.log | lines 101-103}}
+
+Read it the way a test lead would. Of the requirements in the model, a few have passing evidence, many have a
+verification case but no result yet -- the prime has not run those tests -- and some have no verification case at
+all. The last group is the one that matters: those are the requirements the trace reports as *unverified*
+({{value: docs/tidewater/sprints/06/scorecard.json 5_trace.G}} of them at the end of sprint 6), and they are the
+prime's to fix, raised as discrepancy reports. That is why verify coverage stayed flat through the first twelve
+weeks: the team made the gap visible and reported it; it did not, and should not, write verification cases for the
+prime.
+
+You can regenerate the matrix yourself from the simulation's model at the end of sprint 6. Bob's clone is in the
+sandbox; switch it to `develop` and run the job exactly as the pipeline does:
+
+```sh run sandbox=tidewater cwd=work/bob timeout=240 expect="VCRM: 30 requirements"
+git checkout -q develop
+perl ci/job.pl vcrm
+```
+
+The government's signed verdicts are the results file the job read:
+
+```sh run expect="signed_by"
+cat verification/results-gov.csv
+```
+
+And the matrix itself is a CSV the model site publishes, one row per requirement:
+
+```sh run expect="TW-SEG-001,Inspection,TestStationObservations,verified"
+head -4 vcrm.csv
+```
+
+=== The testing transition, under pressure {#verification-transition}
+
+Management's pressure to "move testing to DevSecOps" arrived in the same directive as everything else. The team's
+answer was to move testing last, in stages, and never to put formal evidence at risk. These are the ground rules
+it adopted, and the five stages, each with what Tidewater did or plans to do.
+
+**Ground rules.**
+
+- **Don't break what is contractually committed.** Test plans, procedures and reports are often contract
+  deliverables with an agreed format and approval chain. The new approach has to produce them, or the customer
+  has to agree to a change, before it replaces the old one. Check with the program office and contracts first.
+- **Protect the test schedule from the tool change.** If a test event is near, freeze the method for it, and change
+  between campaigns, never during one. For Tidewater the prime's Station acceptance test campaign (notional, spring
+  2027) is a frozen window: no verification-process change merges during it.
+- **Separate the three changes.** SysML v2, a DevSecOps pipeline and agile ways of working are three transitions
+  that management tends to bundle. Tidewater sequenced them: ways of working and git first, the port next,
+  testing last.
+
+|| Stage | What it is | Tidewater ||
+| 1. Traceability first | Verification cases in the model and a generated VCRM; tests executed exactly as today. | Done: the trace report from sprint 3, the VCRM from sprint 6. |
+| 2. Automate result capture | Existing test harnesses emit a standard format (JUnit XML or the results CSV); the pipeline ingests it. | Planned: the prime's results arrive with each drop from drop 4. |
+| 3. Pilot one subsystem in parallel | The full approach for one contained package, run beside the legacy process for one cycle; differences reconciled. | Planned: the Stations VCRM beside the prime's legacy test matrix for drops 4 and 5. |
+| 4. Shift testing left | Model-level checks on every merge request; long regressions nightly; hardware time for what only hardware can prove. | Planned: the energy-balance and latency checks of the engineering epic. |
+| 5. Scale and retire | Package by package; retire legacy artifacts only once the customer accepts the new ones. | Planned: the legacy matrix retired at baseline-2, with the program office's agreement. |
+Table: The five stages and Tidewater's mapping. Only stage 1 is evidence; stages 2 to 5 are the plan.
+
+**Managing the pressure.** Report what management cares about: verification coverage, time from a design change to
+test feedback, problems found before the lab versus in it, hours spent assembling review packages. Push back with
+specifics and a date ("we switch at the campaign boundary, after the pilot, with the customer's agreement"), not
+with "we're not ready". Ask for the enablers in writing: training time, a test-automation engineer, runner hardware
+for the lab, the tool approvals ([[memos]]). Bring the test team in from the start to co-own the verification case
+format and the results schema; a process designed without them fails at the bench. Accept that some verification
+stays manual, and make sure its results flow into the same matrix. Get the customer and any independent test
+organization to accept model-generated evidence early, by showing them the pilot's output.
+
+**Risks to watch.**
+
+- *Tool maturity.* Keep the model and the results in plain, tool-neutral text so a tool that falls short does not
+  strand the evidence.
+- *Model-test drift.* If test procedures change outside the model, the matrix lies. Procedure changes go through
+  merge requests like model changes.
+- *Over-automation theater.* A green pipeline that checks trivial things breeds false confidence. Every automated
+  check should map to a real verification objective.
+- *Hardware contention.* Automated hardware tests can starve manual testing of bench time; schedule the bench.
+
+=== Higher fidelity: model, software and hardware in the loop {#verification-fidelity}
+
+Tidewater's government team owns no lab, so it runs no software-in-the-loop (SIL) or hardware-in-the-loop (HIL)
+tests. The kit's pipeline template still carries both, switched off, so a program that does have a simulation or a
+bench starts from a tested template. The levels are:
+
+|| Level | What runs | Where | Trigger ||
+| Model in the loop | Constraint and calculation checks, executable behavior | The normal runner | Every merge request |
+| Software in the loop | Real software against a simulated environment | A normal or high-performance runner | Nightly schedule |
+| Hardware in the loop | Real hardware on a lab bench | A runner attached to the bench | By hand, gated |
+| Qualification | The full system, formal procedures | The test facility | At the test readiness review baseline |
+Table: Increasing fidelity, and where each level runs.
+
+The HIL job in the template shows the GitLab features a lab needs: a runner *tag* that only the bench's runner has,
+a *resource group* so two pipelines never fight over one bench, `when: manual` so a person confirms the bench is
+ready, and an *environment* so the bench's history of what ran on it is recorded:
+
+{{include: tools/gitlab/templates/gitlab-ci.yml | lines 368-384}}
+
+Both jobs are off unless a project variable switches them on. You can confirm which jobs a pipeline would run, on
+your laptop, without a lab:
+
+```sh run sandbox=scratch expect="sil-regression\s+trace\s+on_success"
+git init -q -b develop lab && cd lab
+cp "$KIT/tools/gitlab/templates/gitlab-ci.yml" .gitlab-ci.yml
+git add . && git commit -qm "pipeline template"
+perl "$KIT/bin/gitlab.pl" ci --list --event schedule --branch develop --var SIL_ENABLED=true | grep -E "sil|hil"
+```
+
+```sh run expect="hil-test\s+trace\s+manual"
+cd lab
+perl "$KIT/bin/gitlab.pl" ci --list --event push --branch develop --var HIL_ENABLED=true --var CI_DEFAULT_BRANCH=develop | grep hil
+```
+
+The local runner accepts the resource group and the manual rule, but only a real GitLab enforces them -- one job at
+a time on the bench, and a protected environment that only authorized test engineers can start. Test those on the
+server before the first bench run.
+
+Formal evidence has to outlive GitLab's default artifact expiry. The template marks the verification jobs'
+artifacts `expire_in: never`; for qualification evidence, also archive the results to the package registry with
+the baseline ([[pipeline]]).
+
+=== Closing the loop on failures {#verification-failures}
+
+When a test fails, the result goes into the results file like any other, the matrix shows it red on the next
+pipeline, and an issue is opened as the discrepancy report -- linked to the requirement, the verification case,
+the failing job and its artifacts. The fix goes through the normal merge request flow, and the test runs again as
+regression. In Tidewater's plan the first failed result arrives with drop 5 and opens a discrepancy report
+automatically ([[prime-changes]]).
+
+Tag the configuration under test -- a test readiness baseline, a qualification baseline -- so every result names
+exactly which design it tested. A result without a commit is an anecdote.
+
+::: exercise {#ex-verification-vcrm} Read the matrix
+In the tidewater sandbox, regenerate the VCRM as above and open `vcrm.csv`. Pick one requirement with status
+"no case". Find it in the trace report. Who should write its verification case, and how would you ask them?
+:::
+
+::: exercise {#ex-verification-stages} Map your program to the stages
+Write the five stages down for your own program. For each, name the owner (government, prime, test organization),
+the date it could start, and the test campaign it must not interrupt.
+:::
+
+=== You can now {#verification-you-can}
+
+- Keep every verdict -- automated, inspection, analysis -- in one results format with the commit it applies to.
+- Regenerate a VCRM on every change and read what its numbers mean for who has to act.
+- Plan a testing transition in stages that management can track and that never gambles a qualification.
+
+=== Applying this to your project {#verification-applying}
+
+Copy the results schema and the rule that every verdict names a commit. Adapt the VCRM's columns to your contract's
+deliverable format. Decide locally who owns each stage, which test campaigns are frozen windows, and when the
+customer sees the pilot's output. Start with stage 1 even if nothing else is possible: a generated matrix that
+shows the unverified requirements is the quickest visible win in testing.

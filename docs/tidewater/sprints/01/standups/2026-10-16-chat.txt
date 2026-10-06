@@ -1,0 +1,15 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y: TW-7 definition of Ready and Done in the wiki
+T: meetings, reviews
+B: none
+[9:02 AM] Bob
+Y: meetings, reviews
+T: meetings, reviews
+B: none
+[9:03 AM] Tom
+Y: TW-4 .gitlab-ci.yml: grammar, lint, outline; TW-4 draft locally on drop 1 with gitlab.pl ci
+T: TW-4 draft locally on drop 1 with gitlab.pl ci
+B: none

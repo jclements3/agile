@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-94 Grade our requirements with the recipe: 1 of 2 tasks done. Reviewed !17. T TW-94 DR-6: weak verbs and missing parts in the DOORS, by Fri. B none
+[9:02 AM] Bob
+Y none T TW-90 procured parts as metadata, by Fri. B none
+[9:03 AM] Tom
+Y TW-93 The trace job becomes a gate: done (1 task). T TW-95 rehearse release and hotfix in tidewater/sandbox, by Fri; pairing with Jim after lunch. B none

@@ -1,0 +1,19 @@
+Sprint 5 review, 2026-12-11 10:00
+
+Goal: Procured parts and DataCenter closed; Legacy Import untangled; trace becomes a gate
+
+Demonstrated:
+  TW-67 Close the Stations level tags
+  TW-89 Learn: the requirement recipe; writing memos from the model
+  TW-90 Procured parts as metadata; DataCenter level tags
+  TW-91 Prune ObservingStation's trace spaghetti
+  TW-92 Untangle the Legacy Import package
+  TW-93 The trace job becomes a gate
+  TW-94 Grade our requirements with the recipe
+  TW-95 Release rehearsal and a spillage tabletop
+
+Artifacts shown: the merge requests and pipelines of the sprint, the model site (GitLab Pages).
+
+Feedback (Deputy PM): "Can I get the trace numbers without asking you?" Jim showed the trace page on the model site, rebuilt on every merge; the link goes in the weekly note.
+
+The four headline numbers: TODO lines left 14; verify coverage 70%; open DRs 7; blocked items 0.

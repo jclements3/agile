@@ -90,6 +90,39 @@ like 'draw: the default title names the project', slurp("$tmp/tree.svg"), qr/>Ha
     check '  ... and each is well-formed', join(' ', map { wellformed("$tmp/halberd-$_.svg") } qw(tree trace ibd pkg)), 'ok ok ok ok';
     check '  ... the trace view is drawn for print (--mono: status as shapes, not the colored default)', (slurp("$tmp/halberd-trace.svg") ne slurp("$tmp/trace.svg") ? 1 : 0), 1;
 }
+{   # Tidewater: a raw v1 conversion (no markings, converted activities) draws every view and IDEF0 plate
+    my $tv = "$tmp/tidewater-views";
+    my ($o, $rc) = run(undef, $^X, "$root/sim/tidewater-views.pl", '--out', $tv);
+    check 'sim/tidewater-views.pl runs', $rc, 0;
+    my @f = qw(tidewater-tree.svg tidewater-trace.svg tidewater-ibd.svg tidewater-pkg.svg tidewater-idef0-O-0.svg tidewater-idef0-O0.svg tidewater-idef0.md index.html);
+    check 'docs/tidewater/views are current (perl sim/tidewater-views.pl)',
+        join(' ', grep { slurp("$tv/$_") ne slurp("$root/docs/tidewater/views/$_") } @f) || 'all equal', 'all equal';
+    check '  ... each SVG is well-formed', join(' ', map { wellformed("$tv/$_") } grep { /\.svg$/ } @f), join(' ', ('ok') x 6);
+    like '  ... pkg: unmarked model drawn as dependencies, the spider web\'s cycles shown, no marking errors', $o,
+        qr/^pkg: \d+ file\(s\): 0 error\(s\), \d+ warning\(s\), \d+ package\(s\), \d+ dependencies, 0 write-down edge\(s\), [1-9]\d* cycle\(s\); markings not checked \(--no-markings\)/m;
+    like '  ... IDEF0: one model, the observation cycle\'s six steps as boxes, flows matched by type, mechanisms from def-level allocations',
+        slurp("$tv/tidewater-idef0.md"), qr/tO Observe Coast\n.*  a# Sample Sensors\n.*    o# Observation Record\n    m# Sensor Suite\n  a# Transmit Observations\n.*    i# Observation Record\n.*  a# Publish Bulletin\n.*    o# Bulletin/s;
+}
+{   # an IDEF0 model with no activities (a leaf step) draws its own box on its A-0 plate instead of crashing
+    my $leaf = "$tmp/leaf.md";
+    open my $h, '>', $leaf or die "$leaf: $!"; print {$h} "# Leaf\n\n```idef0\ntS Sample\n## Read every sensor.\n  o# Sample\n  m# Network\n```\n"; close $h;
+    my $idef0 = "$root/tools/idef0/idef0.pl";
+    my ($o, $rc) = run(undef, $^X, $idef0, 'text', $leaf);
+    like 'idef0.pl text on a leaf model: its one plate is S-0', "$rc $o", qr/^0 .*S-0\s+Sample/s;
+    ($o, $rc) = run(undef, $^X, $idef0, 'svg', 'S-0', $leaf);
+    like '  ... svg S-0 draws the box', "$rc $o", qr/^0 <svg .*>Sample</s;
+    ($o, $rc) = run(undef, $^X, $idef0, 'svg', 'E-0', "$root/tools/idef0/examples/dronecorp/dronecorp.md");
+    like '  ... and any model\'s A-0 context plate on request (svg E-0)', "$rc $o", qr/^0 <svg .*>E-0</s;
+}
+{   # the gate still insists on markings: --no-markings is the drawing wrapper's, never the gate's
+    my $unm = "$tmp/unmarked/model";
+    make_path($unm);
+    open my $h, '>', "$unm/A.sysml" or die "$unm/A.sysml: $!"; print {$h} "package A { part def P; }\n"; close $h;
+    my ($o, $rc) = run(undef, $^X, "$VIEWS/sysml-pkg-svg.pl", '-o', "$tmp/u.svg", $unm);
+    like 'sysml-pkg-svg.pl on an unmarked model: still an error without --no-markings', "$rc $o", qr/^1 .*root package 'A' has no \@Marking/s;
+    ($o, $rc) = run(undef, $^X, "$VIEWS/sysml-pkg-svg.pl", '--no-markings', '-o', "$tmp/u.svg", $unm);
+    like '  ... and with --no-markings: dependencies only, exit 0', "$rc $o", qr/^0 .*0 error\(s\).*markings not checked \(--no-markings\)/s;
+}
 my ($o, $rc) = run($root, $^X, $MODEL, '--root', 'examples/halberd', 'draw', 'tree', '--root', 'InterceptorSegment', '-o', "$tmp/t2.svg");
 like "a tool's own --root after the command goes to the tool (model.pl keeps the first)", "$rc $o", qr/^0 tree-svg: 29 file\(s\), 65 part def\(s\), 1 tree\(s\), 31 part node\(s\)/;
 ($o, $rc) = run($root, $^X, $MODEL, '--root', 'examples/halberd', 'draw');

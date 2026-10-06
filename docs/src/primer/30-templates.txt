@@ -1,0 +1,297 @@
+== Templates and GitLab Markdown, field by field {#templates}
+
+This appendix prints every template the Tidewater project uses and every filled-in sample of a GitLab text field,
+with notes on the Markdown each one uses. The files are in the kit under `tools/gitlab/templates/` (copied into the
+model repository) and `tools/gitlab/samples/`. Read it with GitLab open in another window and try each feature in a
+scratch issue.
+
+=== How GitLab uses templates {#templates-how}
+
+GitLab looks for description templates in two folders of the repository's default branch:
+
+- `.gitlab/issue_templates/NAME.md` appears in the *Choose a template* list when someone creates an issue;
+- `.gitlab/merge_request_templates/NAME.md` appears in the same list on a new merge request. A merge request
+  template named `Default.md` is filled in automatically on every new MR.
+
+Because templates are files in the repository, they are changed like the model: by merge request, reviewed by their
+code owner (Tom), and recorded in history. The Definition of Done can therefore say "the MR description follows the
+Default template" and mean a specific, versioned text.
+
+Three things in templates do work beyond filling in text:
+
+- **HTML comments** (`<!-- ... -->`) are prompts. They are visible while you edit and invisible once the description is
+  saved, so a template can explain each section without the explanation cluttering the issue.
+- **Quick actions** on their own lines at the end (`/label ...`, `/milestone ...`, `/assign ...`) run when the issue or MR
+  is created, so every story starts with the right labels without anyone remembering them. A quick action with
+  nothing after it (`/assign @` with no name) does nothing and is removed, which lets a template remind the author to
+  fill it in.
+- **Task lists** (`- [ ] item`) become checkboxes that anyone with access can tick without editing the text, and GitLab
+  counts them in the issue list ("2 of 5 checklist items").
+
+=== GitLab Markdown in fifteen features {#templates-features}
+
+|| Feature | You write | Used in ||
+| Headings | `## What and why` | every template |
+| Tables | rows of cells between `\|` characters, a `\|---\|---\|` line under the header | stories, MRs, DRs, releases |
+| Task lists | `- [ ] item` and `- [x] item` | Story, Task, MR checks, DoR, DoD |
+| HTML comments | `<!-- prompt -->` | every template |
+| Quick actions | `/label ~"type::story"` on its own line | every issue and MR template |
+| Issue and MR references | `#19`, `!19`, `tidewater/model#19` | stories, MRs, comments |
+| Milestone references | `%"Sprint 4"` | Story, Task, release notes |
+| Label references | `~"workflow::review"` | comments, the board legend |
+| Mentions | `@jim` | MR reviews, DRs |
+| Closing keywords | `Closes #19` in an MR description | Default, Hotfix |
+| Table of contents | `[[_TOC_]]` | the wiki, the README |
+| Collapsible sections | `<details><summary>Log</summary> ... </details>` | Story (the DoR), MR pipeline logs |
+| Alerts | a quote starting `> [!note]` (or `[!tip]`, `[!important]`, `[!warning]`, `[!caution]`) | wiki, README, release notes |
+| Diagrams | a fenced block tagged `mermaid` | Gitflow, Drop Intake Runbook, the README |
+| Suggestions | a fenced block tagged `suggestion:-0+1` in a review comment on a diff line | MR reviews |
+Table: The GitLab Markdown this project uses
+
+Footnotes (`[^1]` in the text and a line `[^1]: the note` at the end) are used in wiki decision records. Mathematics
+(`$...$`) and front matter are available but the project never needed them.
+
+=== Issue templates {#templates-issues}
+
+==== Story {#templates-story}
+
+{{include-md: tools/gitlab/templates/.gitlab/issue_templates/Story.md}}
+
+Line by line:
+
+- The opening comment states the size rule (one sprint, tasks under a week) and the naming rule. It disappears when the
+  story is saved, so it is a reminder, not clutter.
+- **Why** asks for the outcome in one or two sentences. Jim insisted on it after sprint 1, when two stories turned out
+  to be the same work described differently; the *why* makes duplicates obvious.
+- **What "done" looks like** is the acceptance criteria as a task list. Two items are pre-filled because they apply to
+  every story that changes the model: a green pipeline and no new trace gaps. The reviewer ticks them.
+- **Tasks** is a table of task issues with points and owners. GitLab turns `#21` into a link showing the task's title
+  and state, so the table is also a live status view.
+- The Definition of Ready sits inside `<details>`, collapsed, so it is there for the refinement session and out of the
+  way afterwards.
+- The quick actions label the story (`type::story`, `workflow::ready`, a priority), and leave the milestone, assignee
+  and weight for the author: `%"Sprint "` without a number reminds without guessing.
+
+==== Task {#templates-task}
+
+{{include-md: tools/gitlab/templates/.gitlab/issue_templates/Task.md}}
+
+A task is the smallest unit and the template is correspondingly short. `Part of #` links it to its story. **Do** is a
+checklist the reviewer can follow; its pre-filled line, "Run `gitlab.pl ci` locally before pushing", is the habit
+that keeps pipeline failures off the shared branches. **Done when** asks for one observable result, such as "grep
+finds no TODO in `model/physical/stations/Stations.sysml`". `/estimate 1d` sets a default estimate the author changes; GitLab
+shows estimate against `/spend` time on the issue.
+
+==== Defect, Discrepancy Report, Prime Drop, Epic, Spike {#templates-other-issues}
+
+{{include-md: tools/gitlab/templates/.gitlab/issue_templates/Defect.md}}
+
+A **defect** is something wrong in the government's own model or pipeline. Its labels say where it was found
+(`phase::port` or `phase::maintenance`) and what kind it is (`area::interface` for problems between packages, the
+status metrics' measure H).
+
+{{include-md: tools/gitlab/templates/.gitlab/issue_templates/Discrepancy Report.md}}
+
+A **discrepancy report** is a problem in the prime's v1 model or DOORS. The government does not fix it; it reports it.
+The two-column table without a header row (`| | |` then `|---|---|`) is a GitLab idiom for a form: labels on the left,
+values on the right. The **Closure** checklist has two steps, sent and fixed, and the second names the drop intake
+issue that confirmed the fix. That link is how a DR's life is traced from finding to closure.
+
+{{include-md: tools/gitlab/templates/.gitlab/issue_templates/Prime Drop.md}}
+
+The **prime drop** template is the intake checklist for one delivery. Its task list follows the drop cycle in
+[[qrg-port]] step by step, so the issue itself records that every step was done, by whom and when.
+
+{{include-md: tools/gitlab/templates/.gitlab/issue_templates/Epic.md}}
+
+On GitLab Free there are no group epics, so an epic is an ordinary issue labelled `type::epic` whose description lists
+its stories. On Premium the same text goes in a real epic, and the stories are attached to it.
+
+{{include-md: tools/gitlab/templates/.gitlab/issue_templates/Spike.md}}
+
+A **spike** is time-boxed investigation that ends in a decision, not in a model change. Its output is usually a wiki
+decision record (sample 12 below).
+
+=== Merge request templates {#templates-mrs}
+
+{{include-md: tools/gitlab/templates/.gitlab/merge_request_templates/Default.md}}
+
+The Default template is filled in on every new MR. Its opening comment calls the MR what it is in systems engineering
+terms, a change request in miniature. `Closes #` and `Part of #` connect the MR to its task and story: when the MR
+merges into the default branch (`develop`), GitLab closes the task automatically. **Checks** is the author's own
+checklist, deliberately overlapping the pipeline: the author runs the same checks before asking anyone to review.
+`/assign_reviewer @bob` is a default the author changes; the code owner rules decide who must approve regardless.
+
+{{include-md: tools/gitlab/templates/.gitlab/merge_request_templates/Prime Drop.md}}
+
+The Prime Drop MR template carries the delta summary and a conflict table: one row per conflicted file with how it was
+resolved. The reviewer checks the table against the drop's manifest.
+
+{{include-md: tools/gitlab/templates/.gitlab/merge_request_templates/Release.md}}
+
+{{include-md: tools/gitlab/templates/.gitlab/merge_request_templates/Hotfix.md}}
+
+Release and hotfix MRs target `main`. The Release template records the baseline in a two-column form (which commit
+of `develop`, which prime drops, which sprints), the release checklist and the gaps accepted with it. The Hotfix
+template asks for what is wrong in the released baseline, the smallest change that corrects it, and an after-merge
+checklist: tag `baseline-N.1`, back-merge to `develop`, tell the baseline's users. After either merges, `gitlab.pl flow
+released IID` tags `main`, creates the release and opens the back-merge MR.
+
+=== Repository files {#templates-repo-files}
+
+==== CODEOWNERS {#templates-codeowners}
+
+{{include: tools/gitlab/templates/CODEOWNERS}}
+
+`CODEOWNERS` is not Markdown but it lives with the templates. Each `[Section]` lists default owners after its name;
+each path below it can name its own. GitLab reads the file from the MR's target branch. A `^` before a section makes it
+advisory: the generated `docs/` are listed so reviewers are suggested, but no approval is required for them. With code
+owner approval enforced on `develop` (Premium), an MR touching `model/doors/` cannot merge until Jim approves.
+
+==== README, CHANGELOG, release notes {#templates-readme}
+
+{{include-md: tools/gitlab/templates/README.md}}
+
+The README is the first page anyone sees in the repository. It uses an alert to say up front that everything is
+notional, a table for who does what, a layout table and a mermaid diagram of the branches.
+
+{{include-md: tools/gitlab/templates/CHANGELOG.md}}
+
+The CHANGELOG follows the common *Keep a Changelog* layout: one section per baseline, newest first, with Added,
+Changed and Fixed. Its entries come from the `Changelog:` trailer the team puts in commit messages (sample 13). The
+link at the bottom compares the last baseline with `develop`; `../-/compare/` is GitLab's relative path for a
+comparison page.
+
+{{include-md: tools/gitlab/templates/release-notes.md}}
+
+Release notes are the description of a GitLab release. `> [!important]` makes the "cite this baseline by its tag" rule
+impossible to miss. The **Known gaps** task list records what the baseline ships with on purpose, so nobody mistakes
+an accepted gap for an oversight.
+
+==== The project file {#templates-project-conf}
+
+{{include: tools/gitlab/templates/project.conf | lines 1-60}}
+
+The full file continues with the area, owner, workflow, priority and severity labels, the sprint milestones, the
+approval rule and the variables. `gitlab.pl setup` applies it ([[commands]]); every comment beside a setting says
+why that setting was chosen, which is the record an auditor or a newcomer needs.
+
+=== Wiki pages {#templates-wiki}
+
+The wiki is a git repository of Markdown pages beside the code. The team's pages started from these templates and
+were changed by the team over the project; `gitlab.pl wiki put TITLE FILE` publishes one.
+
+{{include-md: tools/gitlab/templates/wiki/Home.md}}
+
+{{include-md: tools/gitlab/templates/wiki/Definition of Ready.md}}
+
+{{include-md: tools/gitlab/templates/wiki/Definition of Done.md}}
+
+The Definition of Done is a task list grouped by level (task, story, sprint, baseline). Pasting it into a story's
+comment gives a checklist to tick; keeping it in the wiki gives one place to change it.
+
+{{include-md: tools/gitlab/templates/wiki/Gitflow.md}}
+
+{{include-md: tools/gitlab/templates/wiki/Drop Intake Runbook.md}}
+
+{{include-md: tools/gitlab/templates/wiki/Baseline Procedure.md}}
+
+{{include-md: tools/gitlab/templates/wiki/Onboarding.md}}
+
+{{include-md: tools/gitlab/templates/wiki/Administration.md}}
+
+The Glossary wiki page (`wiki/Glossary.md`) carries the same translations as [[glossary]], in the wiki's tables.
+
+=== Filled-in samples {#templates-samples}
+
+Each sample is what one GitLab field looks like after the team has filled it in, set in sprints 1 to 6. The index:
+
+{{include-md: tools/gitlab/samples/README.md}}
+
+==== Planning: epic, story, task {#templates-samples-planning}
+
+{{include-md: tools/gitlab/samples/01-epic.md}}
+
+{{include-md: tools/gitlab/samples/02-story.md}}
+
+{{include-md: tools/gitlab/samples/03-task.md}}
+
+The story's task table shows how references work as a status view: each `#N` renders with the task's title and an
+open or closed icon. The task is short because the story carries the context.
+
+==== Problems: defect, discrepancy report, prime drop {#templates-samples-problems}
+
+{{include-md: tools/gitlab/samples/04-defect.md}}
+
+{{include-md: tools/gitlab/samples/05-discrepancy-report.md}}
+
+{{include-md: tools/gitlab/samples/06-prime-drop.md}}
+
+==== Change: merge request, review, comments {#templates-samples-change}
+
+{{include-md: tools/gitlab/samples/07-merge-request.md}}
+
+The MR description's pipeline table sits inside `<details>`, so the review starts with what changed and why, and the
+log is one click away.
+
+{{include-md: tools/gitlab/samples/08-review-thread.md}}
+
+The review thread shows the three moves of a GitLab review: a comment on a line (resolvable, so the MR cannot merge
+until it is resolved), a *suggestion* the author applies with one click, and quick actions (`/relate`, `/approve`,
+`/merge`) that do the bookkeeping in the same comment.
+
+{{include-md: tools/gitlab/samples/09-issue-comments.md}}
+
+Comments on a story double as its log: each stand-up-sized update carries a `/spend` and a workflow label change, so
+the board and the time report update themselves.
+
+==== Time and record: milestone, release, wiki, commits {#templates-samples-record}
+
+{{include-md: tools/gitlab/samples/10-milestone.md}}
+
+{{include-md: tools/gitlab/samples/11-release.md}}
+
+{{include-md: tools/gitlab/samples/12-wiki-decision.md}}
+
+A decision record in the wiki: status, who decided, the context, the decision, the consequences, a diagram and a
+footnote. It is the document era's memo for record, with the difference that it is versioned and linked from the
+issues it affects.
+
+{{include-md: tools/gitlab/samples/13-commit-messages.md}}
+
+Commit messages are not a GitLab field, but GitLab shows them everywhere and links their references. The format is
+the common git convention: a subject in the imperative under 72 characters, a blank line, the reason, and trailers
+(`Changelog:`, `Issue:`, `Reviewed-by:`) last.
+
+==== The board and references {#templates-samples-board}
+
+{{include-md: tools/gitlab/samples/14-board-and-labels.md}}
+
+{{include-md: tools/gitlab/samples/15-snippet-and-mentions.md}}
+
+=== Applying this to your project {#templates-applying}
+
+- **Copy** the folder structure (`.gitlab/issue_templates/`, `.gitlab/merge_request_templates/`) and the Default MR
+  template on day one; they cost nothing and shape every change from the start.
+- **Adapt** the labels and the quick actions in each template to your own label set. Keep scoped labels for anything
+  that has exactly one value at a time (type, workflow state, priority).
+- **Decide locally** which fields your auditors will look for (the closure of a discrepancy report, the approval of a
+  baseline) and make sure a template asks for each one.
+
+=== Exercises {#templates-exercises}
+
+::: exercise {#ex-templates-story} Write a story
+In a scratch project, or on the emulator with `gitlab.pl --local /tmp/gl issue new ... --template Story`, write a
+story for "Close the DataCenter TODO lines" with three tasks under five points each. Make every quick action run.
+:::
+
+::: exercise {#ex-templates-features} Find the features
+Pick three samples and list every GitLab Markdown feature each uses, from the table in [[templates-features]].
+Which feature would you add to the Discrepancy Report template, and why?
+:::
+
+::: exercise {#ex-templates-dr} Write a discrepancy report
+Run the trace on drop 1 (`reqif2sysml.pl --report --model`) and write the discrepancy report for one orphan
+requirement, using the template. What exactly do you ask the prime to change, and how will you verify it in the next
+drop?
+:::

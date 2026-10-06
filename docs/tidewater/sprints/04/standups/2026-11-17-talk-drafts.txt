@@ -1,0 +1,6 @@
+jim draft:  Y TW-66 Learn: reviewing a model change; the...: 2 of 3 tasks done. T TW-70 open DR-1 to DR-4, by Nov 27. B none
+jim posted: Y TW-66 Learn: reviewing a model change; the: 2 of 3 tasks done. T TW-70 open DR-1 to DR-4, by Nov 27. B none
+bob draft:  Y TW-66 Learn: reviewing a model change; the...: 2 of 3 tasks done. T TW-67 level tags in Stations, by Nov 27. B none
+bob posted: Y TW-66 Learn: reviewing a model change; the: 2 of 3 tasks done. T TW-67 level tags in Stations, by Nov 27. B none
+tom draft:  Y none T TW-69 remove the ServiceVessel -> Technician dependency, by Nov 27. B none
+tom posted: Y none T TW-69 remove the ServiceVessel -> Technician dependency, by Nov 27. B none

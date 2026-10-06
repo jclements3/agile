@@ -1,0 +1,284 @@
+== Reviewing a model change {#reviewing}
+
+::: survival
+What you have: decades of document reviews -- comment matrices, redlines, the review board where forty people
+looked at slide 37 -- and three years of Cameo reviews by screenshot, where nobody could tell exactly what had
+changed.
+
+What you need: to review a merge request in under half an hour, knowing exactly what changed; to read a `.sysml`
+diff and the generated views beside it; to write findings that teach rather than blame; and to know when to approve,
+when to ask for a change, and when to say "this is too big to review."
+:::
+
+::: note Core path
+This chapter is CORE. Every model change on Tidewater is reviewed by a second person from the first week; the team
+budgeted half a point each in sprint 4 to learn to do it well.
+:::
+
+=== Slide 37 {#reviewing-slide37}
+
+Jim's last review before the directive was a Cameo model review for the prime's preliminary design. The model was
+presented as sixty slides of diagram screenshots. On slide 37, an internal block diagram of the power system, Jim
+noticed that the charge regulator now connected straight to the battery. Had that changed since the last review?
+Nobody in the room could say. The prime's modeler thought so; the screenshot from three months earlier was in another
+deck; the action item to find out took two weeks.
+
+A merge request answers that question before anyone asks it. It shows exactly which lines changed, who changed them,
+why, what the automated checks found, and what the change does to every view of the model. The reviewer's job is no
+longer to discover what changed. It is to judge whether the change is right.
+
+::: objection "We don't have time to review every change. We reviewed at milestones."
+Answer: A milestone review of three months of changes takes the program days and finds problems weeks after they
+were made. A review of one small change takes fifteen to thirty minutes and finds the problem the day it was made.
+The total time is smaller, and the problems are cheaper. Tidewater's median review turnaround was measured every
+sprint ([[analytics]]); it fell below a day by sprint 4.
+:::
+
+=== What the pipeline already checked {#reviewing-machine}
+
+Before a reviewer opens a merge request, the pipeline has run on it ([[pipeline]]). By the time it is green, these
+are already true, and the reviewer does not spend a minute on them:
+
+- Every `.sysml` file parses against the official SysML v2 grammar.
+- Lint reports 0 errors and 0 warnings; the outline and level rules hold.
+- The trace has no *new* orphan, unverified or drifted requirement (from sprint 5).
+- The generated documents in `docs/` match the model.
+- No token, password or key is in the change.
+
+That list is the reason a review can be short. **If the pipeline is red, do not review.** Say so in one line and
+wait; reviewing a change that does not yet pass is reviewing the wrong thing.
+
+=== The reviewer's question {#reviewing-question}
+
+What is left is the part no machine can judge: *is the change right?* Tidewater's review checklist
+(`docs/conventions/review-checklist.md` in every scaffolded repository) breaks that question into a handful of
+things to look at. Here it is in full:
+
+{{include-md: tools/gitlab/templates/docs/conventions/review-checklist.md}}
+
+Two items on that list do most of the work in practice.
+
+**"It does what the issue asked, and no more."** The most common problem in Tidewater's first sprints was not a wrong
+change; it was a change that did two things. Bob's first Stations merge request tagged levels *and* reformatted the
+indentation of the whole file, so the diff showed 180 changed lines for twelve real changes. Jim asked for it to be
+split, and the second version was reviewed in ten minutes.
+
+**"Converter files: lines that came from the prime are changed only to close a TODO line or by an accepted DR."**
+This is the rule that keeps prime drops merging ([[repo-layout-rules]]). A reviewer who sees a change to a
+prime-delivered line that is not a TODO closure asks: is this the prime's to fix? If yes, it becomes a discrepancy
+report, not a merge request.
+
+=== A review, start to finish {#reviewing-walk}
+
+Practice lesson 11's sandbox has the Tidewater project in an offline GitLab, with a clone for Bob and the pipeline
+the team uses. Play both sides: Bob makes a small change and opens a merge request; Jim reviews it.
+
+==== Bob: the change {#reviewing-walk-change}
+
+Bob tags the station segment with its level -- one TODO line closed, one import added. (The `perl -0pi` line is a
+scripted stand-in for the edit you would make in Vim.)
+
+```sh run sandbox=practice-11 expect="pipeline #\d+ success"
+. ./env.sh > /dev/null
+cd work
+gl flow start feature 1-stationsegment-level
+perl -0pi -e 's{// TODO stereotype Tidewater_Profile:L2Segment[^\n]*}{\@L2Segment;}; s{(package Stations \{\n)}{$1    private import Conventions::*;\n}' model/physical/stations/Stations.sysml
+git commit -qam "Tag StationSegment with its level (L2Segment)"
+gl flow finish --title "Tag StationSegment with its level" --description "Closes #1"
+```
+
+`flow finish` pushes the branch, opens the merge request against `develop`, and runs its pipeline. The last line
+says which merge request it is and that its pipeline succeeded. Each block after this one starts with `. ../env.sh`:
+the book's own test runs every block in a fresh shell, so it loads the lesson's environment again. In your terminal
+you load it once, and it stays loaded until you close the window.
+
+==== Jim: what changed, in text {#reviewing-walk-diff}
+
+The reviewer starts with the merge request itself -- its description, its pipeline, its test widget -- and then the
+diff. On the web these are the Overview and Changes tabs. From the clone:
+
+```sh run cwd=work expect="@L2Segment;"
+. ../env.sh > /dev/null
+gl --as jim mr show 2
+git diff develop...feature/1-stationsegment-level
+```
+
+The three dots in `develop...feature/...` mean "what the branch changed since it left `develop`," which is exactly
+what the merge request will bring in. The diff shows one line removed (the TODO), one added (`@L2Segment;`) and the
+import. That is a change you can review completely in two minutes.
+
+How to read a `.sysml` diff:
+
+- **Lines starting with `-` are gone, `+` are new.** A changed line shows as one of each.
+- **The `@@ ... @@` lines say where.** The text after the second `@@` is often the enclosing package or definition,
+  which tells you the context without opening the file.
+- **Look at what each `+` line *means*,** not only what it says. `@L2Segment;` means "this part is a segment."
+  Is StationSegment a segment? (Yes: it is one of the network's three segments.)
+- **Look for what is missing.** A new `satisfy` without a `verify`; a new port with no connection; a requirement
+  with no DOORS id. The pipeline catches some of these; the reviewer catches the rest.
+
+==== Jim: what changed, in pictures {#reviewing-walk-views}
+
+Text diffs show lines. Model changes are often easier to judge as pictures: what the change did to the part tree,
+the trace, the package dependencies. The kit draws the views of both versions with the differences colored
+([[diagrams-diff]]). Write them outside the clone, so they do not end up in a commit:
+
+```sh run expect="0 new gap"
+. ../env.sh > /dev/null
+mkdir -p ../review
+perl "$KIT/tools/sysml/model.pl" diff --git develop..feature/1-stationsegment-level -o ../review/stations-level
+cat ../review/stations-level-changes.txt
+```
+
+The summary line is the most useful single line a reviewer reads: how many changes, how many *new trace gaps*, how
+many new error findings. "0 new gaps" tells Jim the change cannot have broken traceability. The colored SVGs in
+`../review/` show where the change sits in the part tree.
+
+In the real GitLab the reviewer often does not need this command at all: from sprint 4 the pipeline publishes the
+model site, and the merge request's pipeline has the drawn views as artifacts. Open the artifact, not the text.
+
+==== Jim: the finding {#reviewing-walk-finding}
+
+The change is right. But Jim wants one more thing: a line of documentation saying why StationSegment is the L2 level,
+so a reader of the part tree does not have to guess. That is a finding, and it must be resolved before the merge:
+
+```sh run expect="discussions not resolved"
+. ../env.sh > /dev/null
+gl --as jim mr note 2 "Line 12: the tag is right. Please add a doc line saying the station segment is the L2 level of the network, so a reader of the part tree knows why." --resolvable
+gl --as jim mr approve 2
+gl mr merge 2 || true
+```
+
+The merge is refused: "discussions not resolved." The project setting *all threads must be resolved* turns every
+resolvable comment into a small gate. Bob answers the finding -- with a change, or with a reply that explains -- and
+resolves the thread; then the merge goes through:
+
+```sh run expect="merged as"
+. ../env.sh > /dev/null
+gl mr resolve 2
+gl mr merge 2
+```
+
+Notice what Jim did *not* do: Jim did not withhold the approval while waiting for a one-line doc comment. Jim approved
+the engineering and left a resolvable thread for the polish. The order matters to the author's day.
+
+=== Suggestions: the redline you can apply {#reviewing-suggestions}
+
+On the web, a reviewer who knows the exact replacement text can write it as a **suggestion**: a comment on a line
+with a fenced block marked `suggestion`. The author applies it with one click, and the merge request gets a commit
+with the reviewer's text. It is the redline, applied.
+
+{{include-md: tools/gitlab/samples/08-review-thread.md}}
+
+The first comment in that thread shows the form: three backticks, the word `suggestion`, an optional range (`:-0+1`
+means "this line and the one after"), and the replacement lines. Use suggestions for exact wording, a missing unit,
+a name that breaks the convention -- anything where you already know the answer. Do not use them for design
+questions; ask those as questions.
+
+=== Different changes, different questions {#reviewing-kinds}
+
+Not every merge request is reviewed the same way. The kinds of task in [[stories-tasks]] produce different kinds of
+change, and each has its own first question:
+
+|| Change | Typical size | The reviewer's first question | Look at ||
+| TODO closure (level tags, procured parts) | 5 to 40 lines | is each tag the right level for that part? | the diff; the part tree view |
+| Hand-written construct (state machine, flows, constraint) | 20 to 80 lines | does it say what the v1 model meant? | the v1 element in the drop (its xmi:id is in the TODO line); the IDEF0 or state view |
+| Requirement change | a few lines | is it one testable statement, by the recipe? | the recipe report; the trace view |
+| Interface change | a few lines, wide effect | who uses this port or item, and do they agree? | the interconnection view; the second approver |
+| Prime drop merge | hundreds of lines | what did the prime change, and what does it break of ours? | the delta and impact report, not the diff |
+| Pipeline change | `.gitlab-ci.yml`, `ci/job.pl` | does every job still run, and does a red still block? | the pipeline of the MR itself, all jobs listed |
+| Decision record or convention | one file | is the decision clear, and are its consequences named? | the text |
+Table: What to ask first, by kind of change
+
+=== Reviewing a prime drop merge {#reviewing-drops}
+
+A prime drop merge request is the one review where reading the diff line by line is the wrong approach. A drop
+changes hundreds of lines, most of them exactly as the prime delivered them; the government does not review the
+prime's work line by line, it reviews *what the drop does to the government's model*.
+
+So the drop's merge request carries the two reports from the converter, and the reviewer reads those first
+([[prime-changes]]):
+
+- **The delta**, `xmi2sysml.pl --delta OLD.xmi NEW.xmi`: every element the prime added, removed or changed, by its v1
+  id, each marked *carried* (the converter brings it over) or *manual* (the converter cannot, and someone must rework
+  it by hand). The manual list is the reviewer's checklist: each item is a task, or already done in this MR.
+- **The impact**, `--impact model`: for each change, which of the government's requirements, verification cases,
+  interfaces and allocations it touches, and which of the government's hand edits must be redone. A hand edit listed
+  here and not redone in the merge request is a finding.
+
+Then the conflicts: every file git could not merge on its own is listed in the merge request description, with how
+it was resolved. The reviewer checks that each resolution took the prime's side for the prime's content and re-applied
+the government's edits on top -- never the other way round ([[pitfall-take-ours]]).
+
+=== Writing findings that teach {#reviewing-etiquette}
+
+The team's first reviews were stiff. Bob wrote "This is wrong." Tom wrote nothing and approved. Jim wrote three
+paragraphs. By sprint 4 they had settled on a few habits, which the review checklist's last table records:
+
+- **Say what and why in one or two sentences, on the exact line.** "The battery `capacity` has no unit; `Energy`
+  would let the energy balance check it" teaches; "units?" does not.
+- **Ask, when you are not sure.** "Why does QualityControl depend on SensorSuite? It closes a cycle with Stations."
+  The author may know something you do not.
+- **Separate must from could.** Prefix optional ideas with "Optional:" or "Nit:", and do not hold the merge for them.
+- **Praise specifically, once.** "Good split -- this is reviewable in ten minutes" tells the author what to repeat.
+- **Never review the person.** The comment is about the line, not about who wrote it. On a three-person team, every
+  reviewer is reviewed by the people they review.
+
+::: sidebar Tom approved everything
+In sprints 2 and 3, Tom approved every merge request Tom was asked to review, usually within minutes, without a
+comment. At the sprint 3 retrospective Tom said why: "Who am I to tell Bob the model is wrong? Bob knows it
+better than I do." Jim's answer became a team rule: the reviewer's job is not to know more than the author; it is to
+be the second pair of eyes the change has never had. Tom's first real finding, in sprint 4, was a requirement
+`satisfy` pointing at the whole Network instead of the Telemetry Unit -- exactly the "trace at the right level" item
+on the checklist, and something Bob had not seen because Bob had written it.
+:::
+
+=== Approve, ask for changes, or ask to split {#reviewing-decide}
+
+A reviewer ends with one of three outcomes:
+
+|| Outcome | When | How ||
+| Approve | You would sign for the change as it is, or with only optional comments | the Approve button, or the `/approve` quick action |
+| Ask for changes | Something must change before merging | a resolvable thread on each finding (some GitLab versions also offer "Request changes" when you submit a review); do not approve yet |
+| Ask to split | The change is too big to review in about half an hour, or does two unrelated things | one comment saying so and suggesting the split; do not review the rest |
+Table: The three outcomes of a review
+
+Approval is enforced, not ceremonial: `CODEOWNERS` names who must approve a change to each folder, and an interface
+change needs two approvals, Jim's as systems lead and the other modeler's ([[gitlab-setup-codeowners]]). GitLab will
+not let an author approve their own change.
+
+=== Turnaround {#reviewing-turnaround}
+
+A review that waits three days costs more than a review that finds a problem. The team agreed on three habits:
+
+- **Review before you start new work in the morning.** The GitLab To-Do list shows every merge request waiting for
+  you.
+- **A first response within one working day**, even if it is "I'll look at this after the stand-up tomorrow."
+- **Small changes get reviewed first.** They are quick, and they unblock someone.
+
+Review turnaround is one of the analytics the team reported to management from sprint 4 ([[analytics]]): the time
+from a merge request being opened to its first review comment or approval.
+
+=== Applying this to your project {#reviewing-apply}
+
+- **Copy:** the review checklist, the rule that a red pipeline is not reviewed, resolvable threads as gates, and the
+  habit of reviewing the generated views, not only the text.
+- **Adapt:** the checklist's engineering items to your model's conventions and your program's review criteria; the
+  CODEOWNERS sections to your team's ownership.
+- **Decide locally:** who reviews whom (on three people, everyone reviews everyone), whether a second approval is
+  needed for interfaces, and the turnaround you will measure.
+
+::: exercise {#ex-review-find} Review a change
+In the practice-11 sandbox, start a branch, change the `doc` comment of `StationSegment` and, in the same commit,
+remove the `private import Interfaces::*;` line from `Stations.sysml`. Open the merge request. Which of the two changes
+does the pipeline catch, and which would only a reviewer catch?
+:::
+
+::: exercise {#ex-review-rewrite} Rewrite a finding
+Rewrite these three review comments so they teach: (a) "wrong"; (b) "trace?"; (c) "This whole package is a mess,
+please clean it up."
+:::
+
+You can now review a model merge request: check that the pipeline is green, read the description and the diff,
+compare the generated views of both versions, write a finding on the exact line, use suggestions, and choose between
+approving, asking for changes and asking for a split.

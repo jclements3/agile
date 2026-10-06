@@ -1,0 +1,19 @@
+Sprint 6 review, 2026-12-24 10:00
+
+Goal: Behavior started; Operations closed; the data exchange table; interim baseline-0 for the program review
+
+Demonstrated:
+  TW-111 Learn: memos and briefings from the model
+  TW-113 Fork, pin and object flow in ObserveCoast
+  TW-114 Level tags in Operations
+  TW-115 Data exchange table for the program review
+  TW-116 VCRM: which requirements are verified, and how
+  TW-117 Interim baseline-0 for the program review
+  TW-118 Retrospective, the management briefing and the plan for next semester
+
+Carried to sprint 7:
+  TW-112 BuoyModes state machine by hand
+
+Artifacts shown: the merge requests and pipelines of the sprint, the model site (GitLab Pages).
+
+The four headline numbers: TODO lines left 5; verify coverage 70%; open DRs 7; blocked items 0.

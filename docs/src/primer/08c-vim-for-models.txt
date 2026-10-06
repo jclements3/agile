@@ -1,0 +1,558 @@
+== Vim for models {#vim}
+
+::: survival
+What you have: years of Vim. You can move, search, change, yank and put without thinking; you have a `.vimrc` with
+a few lines you copied from someone in 2009; and the kit is now sourced from it ([[survival-vim]]).
+
+What you need: to read a converted model comfortably; to turn the converter's TODO lines into a jump list and close
+them one by one; to run the model checks from inside Vim and land on each error; to jump to any definition or DOORS
+id by name; to resolve a merge conflict without leaving the editor; and to write commit messages, issue descriptions
+and merge request descriptions in Vim instead of a web text box.
+:::
+
+=== The one thing they brought {#vim-brought}
+
+When the directive arrived, the team's inventory of relevant skills was short. None of the three had written code.
+None had used git. But all three had used Vim for years, for the most unglamorous reasons: Jim to clean up DOORS
+exports before pasting them into Excel, Bob to fix the XML of a Cameo export that would not import, Tom to edit the
+CM database's load files with macros nobody else understood. In the Cameo years, Vim was the tool they used when
+the real tools failed.
+
+The parachute drop turned that around. In the new way the model *is* text, and the best tool any of them had for
+text was already in their hands. Bob put it this way at the end of sprint 2: "For three years the model was the
+one thing I couldn't edit in Vim. Now it's the only thing I edit in Vim."
+
+This chapter is not a Vim tutorial. It assumes you can already edit text in Vim and shows what the kit adds, and
+which ordinary Vim features matter most for model work. Every command shown was run against the converted Tidewater
+drop.
+
+=== What the kit adds {#vim-kit}
+
+Sourcing the kit's `vim/scrum.vim` from your `.vimrc` ([[survival-vim]]) does four things:
+
+- **File types.** Files ending `.sysml` become type `sysml`; stand-up notes, the journal, pasted chat, drill sheets
+  and IDEF0 models get their own types too. Each type has syntax colors and settings.
+- **Commands and keys.** `:Sys...` commands and `\m` keys in SysML buffers; `:S...` commands and `\s` keys for the
+  stand-up and the journal ([[journal]]); `:Idef...` for IDEF0 models.
+- **A compiler.** `:make` in a SysML buffer runs the kit's model checks and loads every error into Vim's quickfix
+  list.
+- **Help.** `:help agile` and every topic under it, including `:help agile-vim-sysml` for this chapter's commands.
+
+In a SysML buffer the kit sets these options (you can see each with `:set OPTION?`):
+
+|| Option | Value | Effect ||
+| `filetype` | `sysml` | syntax colors for keywords, names, strings, comments |
+| `shiftwidth`, `expandtab` | 4, on | indentation is four spaces, never tabs (the converter's style) |
+| `commentstring`, `comments` | `// %s` | `gq` and comment formatting know SysML comments |
+| `iskeyword` | adds `-` | `TW-SYS-006` is one word for `*`, `w` and Ctrl-] |
+| `foldmethod` | `syntax` | every `{ ... }` block can be folded |
+| `tags` | `./tags;,tags` | Ctrl-] finds the project's tags file from any subfolder |
+| `makeprg` | the kit's `model.pl` for this project | `:make lint`, `:make check` run the model checks |
+Table: What the kit sets in a SysML buffer
+
+The **leader** key is backslash unless you have changed it, so `\ml` means backslash, then `m`, then `l`, typed in
+normal mode. (Strictly, the SysML keys use the *local* leader, which is also backslash by default.)
+
+=== Reading a model {#vim-reading}
+
+A converted model is a folder of files, one per package. Open them all at once from the model's top folder:
+
+```sh
+cd ~/w2s
+vim drop1-v2/*/*.sysml
+```
+
+(If you no longer have the converted drop from [[survival-commands]], make it again in `~/w2s` first:)
+
+```sh run expect="206 of 206 in scope ported" timeout=120
+mkdir -p ~/w2s
+cd ~/w2s
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drop1
+perl "$KIT/bin/xmi2sysml.pl" --out drop1-v2 drop1/tidewater.xmi
+```
+
+Then move around with commands you mostly know:
+
+|| To | Type ||
+| go to the next file / previous file | `:next` / `:prev` (or `:n` / `:N`) |
+| list the open files and jump to one | `:ls`, then `:b NUMBER` or `:b Stat` and Tab |
+| see two files side by side | `:vsplit drop1-v2/datacenter/DataCenter.sysml`; Ctrl-W w moves between them |
+| fold every block, to see only the definitions | `zM`; open one fold with `zo`, all with `zR`, toggle with `za` |
+| find the next definition of any kind | `/def ` then `n` |
+| jump from a brace to its partner | `%` |
+| find every use of the name under the cursor | `*` (next), `#` (previous) |
+| highlight all matches of the last search | `:set hlsearch` (`:noh` clears it) |
+Table: Reading a converted model
+
+Folding is the one the team found most useful. `Stations.sysml` is 180 lines; `zM` folds it to the list of its
+definitions, one line each, which reads like a block definition diagram's list of blocks. Open the one you care
+about with `zo`. Bob's habit, from the first week: open a file, `zM`, read the outline, then `zo` into the part that
+matters.
+
+=== The TODO list as a jump list {#vim-todo}
+
+Vim's **quickfix list** is a list of positions in files (file, line, column, message) that Vim can step through,
+opening each file at the right line. Compilers fill it with errors; `:vimgrep` fills it with search results. For
+model work it is the most valuable feature Vim has, because it turns any list of places into an action-item list
+where every item opens itself.
+
+The converter marks everything it could not carry with a `// TODO` comment. Make them a jump list:
+
+```vim run cwd=~/w2s
+:vimgrep /\/\/ TODO/ drop1-v2/**/*.sysml
+:copen
+```
+
+`:vimgrep /PATTERN/ FILES` searches every file and fills the quickfix list; `**` means "this folder and every folder
+below it." The pattern is `// TODO` with each slash escaped as `\/`, because `/` ends a Vim pattern. `:copen` opens
+the list in a window at the bottom. On drop 1 it holds 52 entries, the conversion debt.
+
+::: warning Search for "// TODO", not "TODO"
+`:vimgrep /TODO/` finds 65 lines, not 52. Every converted file starts with a header comment ("review before
+committing; TODO lines need a person") that contains the word TODO but is not a TODO line. The pipeline's count uses
+the same `// TODO` pattern as this chapter. If your count and the pipeline's disagree, check the pattern first.
+:::
+
+Now work through the list:
+
+|| To | Type ||
+| open the entry under the cursor in the list | Enter |
+| go to the next / previous entry | `:cnext` / `:cprev` (`:cn` / `:cp`) |
+| go to the first / last | `:cfirst` / `:clast` |
+| close / reopen the list window | `:cclose` / `:copen` |
+| see older lists (after running another search or check) | `:colder` / `:cnewer` |
+Table: Moving through the quickfix list
+
+Map `:cnext` to a key you like. Bob used `]q` and `[q` (from a plugin Bob already had), Tom mapped F8. The kit
+leaves the choice to you.
+
+=== Closing a TODO line: a worked edit {#vim-edit}
+
+Thirty-six of drop 1's 52 TODO lines are the same kind: a stereotype from the v1 project profile
+(`Tidewater_Profile:L3Station` and its siblings) that the converter could not carry, because SysML v2 has no
+stereotypes. In SysML v2 the equivalent is metadata ([[sysmlv2]]): a `metadata def` declared once, applied to an
+element with `@`. The government's plan was to declare the six level tags once, in a package of its own in the
+lowest layer of the model, `model/library/conventions/`, and to replace each TODO line with the matching tag.
+
+To follow along, make a model repository the way week zero does ([[gitlab-setup]]): the kit's scaffold, with
+Tidewater's level names, then drop 1 converted into it with the layout map that puts each package in its layer
+([[repo-layout]]):
+
+```sh run sandbox=scratch cwd=. expect="13 file\(s\), self-check ok" timeout=180
+perl "$KIT/tools/gitlab/kickoff.pl" scaffold tidewater-model --levels L1Network,L2Segment,L3Station,L4Subsystem,L5Assembly,L6Component
+cd tidewater-model
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drops/v1.0
+perl "$KIT/bin/xmi2sysml.pl" --out model --layout-map "$KIT/examples/tidewater-v1/layout.map" drops/v1.0/tidewater.xmi
+```
+
+First, the declarations. They live in `model/library/conventions/Conventions.sysml`, which the scaffold writes from
+the level names it was given; on Tidewater Bob wrote the first version by hand in Vim, and it reads:
+
+```sysml
+package Conventions {
+    doc /* Metadata definitions used across the model. */
+    metadata def L1Network { doc /* Level 1 of the part tree. */ }
+    metadata def L2Segment { doc /* Level 2 of the part tree. */ }
+    metadata def L3Station { doc /* Level 3 of the part tree. */ }
+    metadata def L4Subsystem { doc /* Level 4 of the part tree. */ }
+    metadata def L5Assembly { doc /* Level 5 of the part tree. */ }
+    metadata def L6Component { doc /* Level 6 of the part tree. */ }
+}
+```
+
+Then each TODO line. One at a time, in the Network package, the line
+
+```sysml
+        // TODO stereotype Tidewater_Profile:L1Network on this element (xmi:id _22_1_7f3a0c1_70e9bef7d9f2) not converted
+```
+
+becomes
+
+```sysml
+        @L1Network;
+```
+
+That is `cc` and typing, for one line. For thirty-six lines, use a substitution. In the file you are editing:
+
+```vim
+:%s/\/\/ TODO stereotype Tidewater_Profile:\(L\d\w*\) on this element.*$/@\1;/
+```
+
+Read it in pieces: `%s` substitutes on every line of the file; the pattern matches the TODO comment, capturing the
+level name (`L` followed by a digit and more word characters) inside `\(` and `\)`; `.*$` swallows the rest of the
+line; the replacement is `@`, the captured name (`\1`) and a semicolon. The indentation in front of the comment is
+not part of the match, so it stays. Add `c` at the end (`.../@\1;/c`) to confirm each change one by one; the team
+always did, the first time in each file.
+
+In the repository just made, the whole edit for the Network package, including the import line described next, is
+four Vim commands (practice lesson 10, `perl $KIT/agile.pl practice 10`, walks through the same edit with a
+checker that tells you when it is right):
+
+```vim run cwd=tidewater-model
+:edit model/physical/network/Network.sysml
+:%s/\/\/ TODO stereotype Tidewater_Profile:\(L\d\w*\) on this element.*$/@\1;/
+:/^package Network {/put ='    private import Conventions::*;'
+:write
+```
+
+Finally the package must be able to see the new definitions. Add one import line at the top of the package, next
+to the converter's imports:
+
+```sysml
+package Network {
+    private import Conventions::*;
+    private import DataCenter::*;
+```
+
+Check the result with the grammar checker, from Vim (next section) or the terminal:
+
+```text run expect="sysml: 2 file\(s\), 0 error\(s\)"
+$ perl "$KIT/tools/sysml/sysml.pl" check model/library/conventions/Conventions.sysml model/physical/network/Network.sysml
+sysml: 2 file(s), 0 error(s)
+```
+
+One TODO line closed is one fewer in the pipeline's count. Two weeks of such edits, in small merge requests, is how
+the structural TODOs of drop 1 were closed in sprints 2 to 5.
+
+::: warning A misspelled tag is not caught by lint
+While testing this chapter's edit, a deliberately misspelled tag (`@L1Netwrk;`) passed both the grammar check and
+the kit's lint. The grammar check checks form, not names, and lint resolves the *types* of parts and attributes but
+not metadata names. The outline check (`\mk`, [[vim-check]]) does compare level tags with the part tree, but only
+tags it recognizes, so it reported nothing either. Use the substitution (which copies the name from the converter's
+own TODO line, so it cannot be misspelled), or Ctrl-N completion, rather than typing tag names. A wrongly *placed*
+tag is caught: putting `@L2Segment;` on `ObservationNetwork` makes the outline check report
+`ObservationNetwork: tagged L2, first reached at L1`.
+:::
+
+=== Checking from Vim {#vim-check}
+
+The kit runs the same checks the pipeline runs ([[pipeline]]), from inside Vim, with every finding loaded into the
+quickfix list. Run them before you commit; then the pipeline never tells you anything you did not already know.
+
+|| Key | Command | Checks | Scope ||
+| `\mx` | `:SysSyntax` | the official SysML v2 grammar (`sysml.pl check`) | this file |
+| `\ml` | `:SysLint` | grammar, unresolved types, imports, duplicates (`model.pl lint`) | the whole model |
+| `\mk` | `:SysCheck` | the outline rule (2 to 9 children per parent) and level tags (`model.pl check`) | the whole model |
+| `\mg` | `:SysGate` | the security gate: markings, trust zones, threats ([[tools]]) | the whole model |
+| `\mv` | `:SysValidate` | a full compile with the SysML v2 Pilot implementation, if Java is installed | the whole model |
+Table: Model checks from Vim
+
+Each saves the file first, runs the check, and opens the quickfix window if there are findings. `:make lint` and
+`:make check` do the same as `\ml` and `\mk`.
+
+Here is a real finding. Change the type of the shore station's mast from `Mast` to `Mastt` (a typo) and press `\ml`.
+Lint prints:
+
+```text
+model/physical/stations/Stations.sysml:47:21: error: unresolved type 'Mastt'
+lint: 14 file(s), 1 error(s), 0 warning(s)
+elements=148 errors=1 warnings=0
+```
+
+and the quickfix list holds one entry: `model/physical/stations/Stations.sysml:47:21`, error, `unresolved type 'Mastt'`. Enter
+on it puts the cursor on the `M` of `Mastt`, line 47, column 21. Fix it, press `\ml` again, and the list is empty.
+The last line, `elements=148 errors=0 warnings=0`, is the line the pipeline's lint job reads; anything other than
+zero errors and zero warnings fails the job.
+
+A syntax error (here a missing semicolon after `part mast : Mast`) looks like this from `\mx`:
+
+```text
+model/physical/stations/Stations.sysml:48:5: error: unexpected '}'; expected ',', '.', ':', '::', '::>', ':=', ':>', ':>>', ...
+sysml: 1 file(s), 1 error(s)
+```
+
+Notice that the error is reported on line 48, the line *after* the mistake: the parser only discovers the semicolon
+is missing when it meets the closing brace. Grammar errors often point just past the real problem. Look one line up.
+
+The outline check, `\mk`, reports something different: not errors in what is written, but shape. On the raw drop 1
+conversion it reports eighteen violations, such as `25  package Stations: members` (a package with 25 direct
+members, more than the nine the outline rule allows) and `1  part def Battery: parts` (a definition with only one
+part). These are not mistakes. They are the spider web of [[cameo]] measured in another way, and closing them is part
+of the port's later stories ([[sprint-5]]).
+
+=== Tags: jumping by name and by DOORS id {#vim-tags}
+
+A **tags file** is an index of where every name is defined. With one, Ctrl-] on any name jumps to its definition in
+whichever file holds it, and Ctrl-T jumps back. You may have used tags for code; the kit builds them for models.
+
+Press `\mt` (`:SysTags`) in any SysML buffer:
+
+```text
+tags: wrote 217 tags to tags (in vim: Ctrl-] on a name, Ctrl-T to go back)
+```
+
+Now put the cursor on `ObservingStation` anywhere and press Ctrl-]; Vim opens `model/physical/stations/Stations.sysml` at the
+definition. Press Ctrl-T to come back. The tags file also indexes requirements by their **DOORS identifier**, so
+Ctrl-] on `TW-SYS-006`, in a requirement, a satisfy line, an issue description you are editing in Vim or a pasted
+chat, opens the requirement. You can also type the jump directly:
+
+```vim
+:tag TW-SYS-006
+```
+
+(Because the kit adds `-` to `iskeyword`, the whole id is one word for Ctrl-] and `*`.)
+
+Rebuild the tags with `\mt` after a merge brings in new definitions. The file is called `tags` at the top of the
+project; list it in the model repository's `.gitignore`, since everyone builds their own.
+
+=== Seeing the model {#vim-views}
+
+Text is the source, but people also need to see the structure. The kit can show it without leaving Vim:
+
+|| Key | Command | Shows ||
+| `\mn` | `:SysNouns` | the part tree, in a split |
+| `\mb` | `:SysVerbs` | the function (action) tree, in a split |
+| `\mr` | `:SysTrace` | regenerates the trace matrix and opens `docs/Traceability.md` |
+| `\md` | `:SysDocs` | regenerates everything in `docs/` |
+| `\mw`, `\mq`, `\mi`, `\mp` | `:SysDraw tree`, `trace`, `ibd`, `pkg` | an SVG drawing in the current folder |
+| `\mW` | `:SysView` | the live viewer window beside Vim |
+| `\mf`, `\mo` | | show the name under the cursor in the viewer; open the file and line last clicked in it |
+Table: Seeing the model from Vim
+
+The part tree of the converted drop 1, from `\mn` (the first lines):
+
+```text
+Observation Network
+├── Station Segment
+│   ├── Moored Buoy
+│   │   ├── Sensor Suite
+│   │   │   ├── Anemometer
+│   │   │   ├── Barometer
+│   │   │   └── Thermometer
+│   │   ├── Data Logger
+│   │   ├── Telemetry Unit
+│   │   │   ├── Modem
+│   │   │   └── Antenna
+│   │   ├── Hull
+│   │   │   ├── Sensor Mast
+│   │   │   └── Ballast
+```
+
+This needs a `sysml.conf` file at the project's top that names the roots of the trees (`noun_root =
+ObservationNetwork`, `verb_root = ObserveCoast`); the model repository has one from the first commit
+([[gitlab-setup]]).
+
+`\mW` starts the **live viewer**, a separate window (built with the Tcl/Tk toolkit that ships in Git for Windows)
+that draws the part tree, trace, internal block diagram or package diagram and redraws whenever you save. Put it on
+the second monitor. `\mf` on a name highlights that element in the drawing; clicking an element in the drawing and
+pressing `\mo` in Vim opens the file at its line. It is the closest thing to Cameo's diagrams the new way has, with
+the difference that the drawing is always generated from the text and never edited.
+
+::: note The trace from Vim and the trace in the pipeline
+`\mr` runs the kit's model-side trace, which reads only the model. On drop 1 it reports six requirements "not
+satisfied," and only one of them, TW-SYS-012, really is: it treats a requirement satisfied by a port or an attribute
+(TW-SYS-008, satisfied by `ObservingStation.obsOut`, and likewise TW-SYS-009, TW-SYS-010, TW-SYS-014 and TW-SEG-003)
+as unsatisfied. The pipeline's trace job uses the DOORS export as well and counts it
+correctly. Use `\mr` for a quick look while editing, and the pipeline's report as the number of record.
+:::
+
+=== Merge conflicts in Vim {#vim-conflicts}
+
+[[git-conflicts]] showed what a conflict looks like. Here is how to resolve one quickly.
+
+**First, one setting.** Tell git to show the common ancestor in conflicts as well as the two sides:
+
+```sh run
+git config --global merge.conflictstyle diff3
+```
+
+With it, the vendor-branch conflict from [[git-vendor]] looks like this:
+
+```text
+package Stations {
+    part def Buoy {
+<<<<<<< HEAD
+        @L3Station;
+||||||| 7e52f56
+        // TODO stereotype Tidewater_Profile:L3Station on this element (xmi:id _22_1_7f3a0c1_0215) not converted
+=======
+        // TODO stereotype Tidewater_Profile:L2Segment on this element (xmi:id _22_1_7f3a0c1_0215) not converted
+>>>>>>> vendor/prime
+        doc /* A moored buoy. */
+```
+
+The middle section, between `|||||||` and `=======`, is the line as it was before either side changed it. Now the
+conflict explains itself: the team replaced the L3 TODO with a tag; the prime changed the level from L3 to L2. The
+right resolution is the team's form with the prime's level, `@L2Segment;`. Without the middle section you would have
+to work that out from the history. For vendor merges, where every conflict is "our edit versus their change," the
+team found the ancestor indispensable.
+
+**Resolving in plain Vim.** Open the file and find the markers:
+
+```vim
+/^[<|=>]\{7\}
+```
+
+That pattern matches any line starting with seven of `<`, `|`, `=` or `>`, so `n` steps through every marker in the
+file. At each conflict, edit the lines into the right result and delete the marker lines with `dd`. When no markers
+are left (the search finds nothing), save, then in the terminal `git add FILE` and `git commit`.
+
+**Resolving with vimdiff.** For a file with several conflicts, git can open Vim with each version side by side:
+
+```sh
+git config --global merge.tool vimdiff
+git mergetool
+```
+
+Vim opens four windows: LOCAL (yours), BASE (the ancestor) and REMOTE (theirs) across the top, and MERGED (the file
+you are fixing) below. In the MERGED window, `]c` and `[c` jump to the next and previous difference, and
+
+```vim
+:diffget LOCAL
+:diffget REMOTE
+:diffget BASE
+```
+
+copy that side's version of the current difference into MERGED. Edit by hand when neither side is right. `:wqa`
+saves and closes everything, and git marks the file resolved. (`git mergetool` leaves `.orig` backup files; add `*.orig` to the model repository's `.gitignore`, or run
+`git config --global mergetool.keepBackup false`.)
+
+::: tip Check before you commit a resolution
+A resolved conflict is a hand edit, so check it like one: `\mx` on the file and `\ml` on the model before
+`git commit`. A stray `=======` line left behind by a hurried resolution is a grammar error, and `\mx` catches it
+before anyone else sees it.
+:::
+
+=== Commit messages, issues and merge requests in Vim {#vim-markdown}
+
+Everything you write for GitLab is plain text, and you can write all of it in Vim.
+
+**Commit messages.** With `core.editor` set to `vim` ([[survival-git-config]]), `git commit` opens Vim with Vim's
+built-in `gitcommit` file type: the subject line turns a warning color past 50 characters, and the second line is
+flagged if it is not blank. Write the message ([[git-messages]]), `:wq`.
+
+**Issue and merge request descriptions.** GitLab's descriptions and comments are **GitLab-flavored Markdown**, plain
+text with light markup: `#` headings, `-` lists, `- [ ]` checkboxes, `|` tables, three backticks around code. The
+model project keeps templates for each kind of issue and merge request in `.gitlab/issue_templates/` and
+`.gitlab/merge_request_templates/`. Here is the story template the team filled in for every story:
+
+{{include-md: tools/gitlab/templates/.gitlab/issue_templates/Story.md}}
+
+Copy the template, fill it in with Vim, and create the issue from the file with the kit's GitLab client
+([[gitlab-setup]]):
+
+```sh
+cp .gitlab/issue_templates/Story.md /tmp/story.md
+vim /tmp/story.md
+perl "$KIT/bin/gitlab.pl" issue new "Close the Network TODOs" \
+    --template /tmp/story.md --label type::story --milestone "Sprint 3"
+```
+
+`gitlab.pl mr new ... --template FILE` does the same for a merge request description. Bob preferred this to GitLab's
+web text box from the first week: Vim's editing, spell checking (`:setlocal spell`), and no lost text when the
+browser session times out.
+
+For Markdown files, set the type and teach Vim's Markdown syntax to color code blocks:
+
+```vim
+:set filetype=markdown
+let g:markdown_fenced_languages = ['sysml', 'sh', 'yaml', 'perl']
+```
+
+(Put the `let` line in your `.vimrc`.) Then a SysML snippet inside three backticks with `sysml` after them is colored
+as SysML inside the Markdown.
+
+**Pulling command output into what you are writing.** `:r !COMMAND` runs a command and inserts its output below the
+cursor. In a merge request description:
+
+```vim
+:r !git log --oneline develop..HEAD
+:r !git diff --stat develop
+```
+
+inserts the list of commits on your branch, or the files changed, exactly. The reviewer sees facts, not a summary.
+
+=== The terminal inside Vim {#vim-terminal}
+
+You do not have to leave Vim to run git or the kit.
+
+|| To | Type ||
+| run one command and see its output | `:!git status` |
+| run a command on the current file | `:!git diff %` (`%` is the current file's name) |
+| open a terminal in a Vim window | `:terminal` (Ctrl-W N to scroll its output; `exit` to close) |
+| insert a command's output into the buffer | `:r !git log --oneline -5` |
+| filter lines through a command | select lines, then `!sort` |
+Table: The terminal from inside Vim
+
+Tom's working layout, by sprint 3: Vim full screen, the model file on the left, `:terminal` on the right for git
+and the pipeline runner, the quickfix list at the bottom. Jim kept a separate Git Bash window; Bob switched between
+the two as the task required. There is no right answer.
+
+=== The stand-up and the journal from Vim {#vim-standup}
+
+The kit was built for running a team's daily rhythm from Vim, and the same Vim that edits the model runs the
+stand-up. Jim, as the person who runs the meeting, used these from the first day of sprint 1; [[journal]] and
+[[ceremonies]] show them in use.
+
+|| Key | Command | Does ||
+| `\sw` | `:STown` | the meeting layout: pasted chat on the left, the lint table and the replies on the right |
+| `\sp` | | paste the meeting chat and check everyone's status lines |
+| `\sy` | | copy the replies to the clipboard, to paste back into the chat |
+| `\sn` | `:SNew` | today's stand-up file |
+| `\sc` | `:SCompile` | compile the stand-up into the journal |
+Table: The stand-up keys used most
+
+`:help agile-vim-keys` lists them all.
+
+=== A card for the monitor {#vim-card}
+
+|| In a SysML buffer | Does ||
+| `\mx` | grammar check, this file |
+| `\ml` | lint the model; errors to quickfix |
+| `\mk` | outline and level tags |
+| `\mt` | rebuild tags; then Ctrl-] / Ctrl-T |
+| `\mn`, `\mb` | part tree, function tree |
+| `\mr` | trace (model side) |
+| `\mw`, `\mq`, `\mi`, `\mp` | draw tree, trace, IBD, packages |
+| `\mW`, `\mf`, `\mo` | live viewer; focus; jump back |
+| `:vimgrep /\/\/ TODO/ model/**/*.sysml` | the conversion debt as a jump list |
+| `:copen`, `:cnext`, `:cprev` | the jump list |
+| `/^[<\|=>]\{7\}` | find conflict markers |
+| `:diffget LOCAL`, `REMOTE`, `BASE` | take a side in `git mergetool` |
+| `:r !git log --oneline develop..HEAD` | your branch's commits, into the text |
+| `zM`, `zo`, `zR` | fold all, open one, open all |
+Table: The model workbench on one card
+
+=== Applying this to your project {#vim-apply}
+
+Copy: the quickfix habit (every list of places becomes a jump list); running the pipeline's checks from the editor
+before committing; tags for names and requirement ids; `merge.conflictstyle diff3`; writing GitLab text in the
+editor.
+
+Adapt: if your team does not use Vim, the same ideas exist in other editors (a problems list, go-to-definition, a
+merge editor). What matters is that the editor runs the same checks as the pipeline, from the same commands, so the
+pipeline's verdict is never a surprise.
+
+Decide locally: key mappings for the quickfix list; whether generated files (tags, drawings) are committed or
+ignored; and a shared `.vimrc` fragment for the team's conventions, kept in the model repository so new members get
+it with their first clone.
+
+=== Exercises {#vim-exercises}
+
+::: exercise {#ex-vim-todo} The debt as a jump list
+Convert drop 1 and load its TODO lines into the quickfix list. Step through the first ten. Group the 52 lines by kind
+(level stereotype, procured part, unit, activity construct, other): how many of each? Which kind would you close
+first, and why?
+:::
+
+::: exercise {#ex-vim-substitute} Close the level tags in one package
+In a converted copy of drop 1, close every level-tag TODO line in `Stations.sysml` with one substitution (confirm
+each), add the `Conventions` package and the import, and check with `\mx` and `\ml`. How many TODO lines are left in
+the file, and what kinds are they?
+:::
+
+::: exercise {#ex-vim-break} Break it three ways
+In the same copy, make three mistakes: a misspelled type, a missing semicolon, and a level tag on the wrong level.
+Which check finds each one, and on which line does it report it?
+:::
+
+::: exercise {#ex-vim-conflict} Resolve with the ancestor
+Recreate the vendor-branch conflict from [[git-vendor]] with `merge.conflictstyle diff3` set, and resolve it once
+by hand with the marker search and once with `git mergetool`. Which did you prefer for a single conflict? For ten?
+:::
+
+::: exercise {#ex-vim-mr} Write a merge request description in Vim
+Copy the Default merge request template from the model project's templates, fill it in for the change you made in the
+substitution exercise, and use `:r !git diff --stat` to insert the files changed. Could a reviewer approve your
+change from the description and the diff alone?
+:::

@@ -27,6 +27,17 @@ it as unvetted third-party software and get it approved the way any other downlo
       approval to be installed. Ask through the normal software request, with the facts above.
 - [ ] **License.** The model page states none. Ask whoever approves software whether that is acceptable, or
       whether only models with a stated license (for example base Qwen3, Apache-2.0) are allowed.
+- [ ] **Model origin.** This model is built on Qwen3, which comes from a Chinese developer. Many organizations restrict
+      models by origin, even when they run offline. Check the policy before anyone pulls it. If such models are
+      not allowed, use a general model from an allowed developer instead (gpt-oss from OpenAI, Gemma from Google,
+      Llama from Meta, Granite from IBM, Phi from Microsoft, Mistral). Check the Ollama library for current tags
+      and memory needs. Expect any general model to be weak at SysML v2 syntax, so it is better used for helper
+      scripts, CI YAML and requirement wording than for `.sysml` text.
+- [ ] **Where it runs.** An approved shared server on the program network, running Ollama, is often easier to get
+      accredited than installs on every laptop. It can also run larger models. Laptops then reach it at
+      `http://<server>:11434` instead of `localhost`.
+- [ ] **Bake-off.** Before the team standardizes on a model, spend a day trying the candidates on its real tasks.
+      Score each answer by whether it passes the kit's checkers and how long review takes.
 - [ ] **Data handling.** Ollama runs locally; prompts and answers stay on the laptop. Even so, only give it
       information your marking rules allow on that machine, the same rule `lib/Ai.pm` applies to any AI service.
 - [ ] **Network.** Downloading needs the internet. If the work laptop is restricted, bring the model in by the

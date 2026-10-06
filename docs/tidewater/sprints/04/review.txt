@@ -1,0 +1,20 @@
+Sprint 4 review, 2026-11-27 10:00
+
+Goal: Stations levels and Types closed, one cycle broken, gaps reported; the model site for management
+
+Demonstrated:
+  TW-66 Learn: reviewing a model change; the rehearsed demo
+  TW-68 Units and value types
+  TW-69 Break the Network <-> Operations cycle
+  TW-70 Discrepancy reports DR-1 to DR-4 to the prime
+  TW-71 The model site on GitLab Pages, rebuilt nightly
+  TW-72 First sprint review with the program office; the delivery interface with the prime
+
+Carried to sprint 5:
+  TW-67 Close the Stations level tags
+
+Artifacts shown: the merge requests and pipelines of the sprint, the model site (GitLab Pages).
+
+Feedback (Program manager): "I can open this on my phone?" The rehearsed demo led with the question, showed the model site, one before-and-after (the cycle: two lines removed, a week of diagram reading before), one live change, and the ask.
+
+The four headline numbers: TODO lines left 22; verify coverage 70%; open DRs 5; blocked items 0.

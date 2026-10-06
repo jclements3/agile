@@ -1,0 +1,56 @@
+{
+   "10_review_turnaround_hours" : 2,
+   "11_delivery" : {
+      "committed" : 16.5,
+      "done" : 16.5,
+      "pct" : 100
+   },
+   "12_morale" : 1.9,
+   "1_todo_lines" : 0,
+   "2_lead_time_hours" : 2.2,
+   "3_gated_changes" : "0 of 1",
+   "4_trace_answer_seconds" : null,
+   "5_trace" : {},
+   "6_drs" : {
+      "closed" : 0,
+      "opened" : 0
+   },
+   "7_spider_web" : {
+      "cycles" : 0,
+      "duplicates" : 0,
+      "max_fan_out" : 0,
+      "max_relationships_per_part" : 0
+   },
+   "8_pipeline_health" : {
+      "develop_pipelines" : 0,
+      "passing" : 0,
+      "worst_restore_hours" : null
+   },
+   "9_baselines" : {
+      "reproducible" : 0,
+      "tagged" : 0
+   },
+   "capacity" : 18.9,
+   "date" : "2026-10-16",
+   "document_era_baseline_notional" : {
+      "ccb_change_working_days" : 23,
+      "drift_found" : "never systematically",
+      "model_review_weeks" : 3,
+      "unverified_question_days" : 2
+   },
+   "first_pipeline_pass" : {
+      "ai_assisted_mrs" : 0,
+      "ai_assisted_passed" : 0,
+      "mrs" : 1,
+      "passed" : 0
+   },
+   "merges" : 1,
+   "sprint" : 1,
+   "standup_outcome_share" : 0.48,
+   "work_mix" : {
+      "committed" : 16.5,
+      "engineering" : 4.5,
+      "learning" : 4,
+      "platform" : 8
+   }
+}

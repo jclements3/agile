@@ -1,0 +1,213 @@
+== How the team changed its mind {#minds}
+
+::: survival Where this chapter fits
+What you have: twelve weeks of evidence -- stand-up chat, retrospectives, a pulse survey every second Thursday,
+quotes people did not expect to have written down.
+
+What you need: an honest account of how three skeptical engineers moved from "why can't we just send the Word
+doc?" to "keep doing this", without pretending the middle was smooth. You also need a way to measure that change
+on your own team, because management will ask, and because the team deserves to see it.
+:::
+
+In [[directive]] the team raised nine objections in one meeting. They were not excuses. Each one was a real fear
+held by a person who had been burned before: by a document port that took two years, by a tool nobody else could
+read, by an approval that never came, by management goals that moved. This chapter takes the objections one at a
+time, in the order they were raised, and sets beside each one the evidence the twelve weeks produced. Where the
+evidence does not answer the objection, the chapter says so.
+
+=== The pulse, sprint by sprint {#minds-pulse}
+
+At every retrospective each person answered the same five questions, anonymously, on a scale of one (strongly
+disagree) to five (strongly agree). The questions were chosen in [[directive]] before any work started, so nobody
+could tune them to the result.
+
+|| Sprint | Mean | What happened that sprint ||
+| 1 | {{value: docs/tidewater/sprints/01/morale.json mean}} | Learning the tools, the GitLab project, drop 1 received |
+| 2 | {{value: docs/tidewater/sprints/02/morale.json mean}} | The first pipeline died on the PowerShell runner; drop 1 reached `develop` |
+| 3 | {{value: docs/tidewater/sprints/03/morale.json mean}} | Bob's first red merge request; three days waiting on the ISSM |
+| 4 | {{value: docs/tidewater/sprints/04/morale.json mean}} | The model site on a phone; the first cycle broken |
+| 5 | {{value: docs/tidewater/sprints/05/morale.json mean}} | The trace gate stopped a mistake before it merged |
+| 6 | {{value: docs/tidewater/sprints/06/morale.json mean}} | Interim baseline; the management briefing |
+Table: The pulse survey's mean, from each sprint's morale.json.
+
+The shape matters more than the end point. The line rose in sprint 2, *fell* in sprint 3, and only then climbed.
+The dip is the most useful number in this chapter. It came in the sprint where the team stopped learning in a
+sandbox and started being judged by the pipeline on real work -- and in the same sprint, a security approval sat
+unsigned for three days. If you run this survey on your own team and see a dip in the third or fourth sprint, it
+does not mean the change is failing. It means the change has become real.
+
+The five questions moved differently. Here are sprint 1 and sprint 6, person by person:
+
+|| Question | Jim, S1 | Bob, S1 | Tom, S1 | Jim, S6 | Bob, S6 | Tom, S6 ||
+| I understand why we are working this way. | {{value: docs/tidewater/sprints/01/morale.json answers.jim.0}} | {{value: docs/tidewater/sprints/01/morale.json answers.bob.0}} | {{value: docs/tidewater/sprints/01/morale.json answers.tom.0}} | {{value: docs/tidewater/sprints/06/morale.json answers.jim.0}} | {{value: docs/tidewater/sprints/06/morale.json answers.bob.0}} | {{value: docs/tidewater/sprints/06/morale.json answers.tom.0}} |
+| I can do my work in the new tools without help. | {{value: docs/tidewater/sprints/01/morale.json answers.jim.1}} | {{value: docs/tidewater/sprints/01/morale.json answers.bob.1}} | {{value: docs/tidewater/sprints/01/morale.json answers.tom.1}} | {{value: docs/tidewater/sprints/06/morale.json answers.jim.1}} | {{value: docs/tidewater/sprints/06/morale.json answers.bob.1}} | {{value: docs/tidewater/sprints/06/morale.json answers.tom.1}} |
+| The checks catch problems I would have missed. | {{value: docs/tidewater/sprints/01/morale.json answers.jim.2}} | {{value: docs/tidewater/sprints/01/morale.json answers.bob.2}} | {{value: docs/tidewater/sprints/01/morale.json answers.tom.2}} | {{value: docs/tidewater/sprints/06/morale.json answers.jim.2}} | {{value: docs/tidewater/sprints/06/morale.json answers.bob.2}} | {{value: docs/tidewater/sprints/06/morale.json answers.tom.2}} |
+| I can see our progress. | {{value: docs/tidewater/sprints/01/morale.json answers.jim.3}} | {{value: docs/tidewater/sprints/01/morale.json answers.bob.3}} | {{value: docs/tidewater/sprints/01/morale.json answers.tom.3}} | {{value: docs/tidewater/sprints/06/morale.json answers.jim.3}} | {{value: docs/tidewater/sprints/06/morale.json answers.bob.3}} | {{value: docs/tidewater/sprints/06/morale.json answers.tom.3}} |
+| I would choose to keep working this way. | {{value: docs/tidewater/sprints/01/morale.json answers.jim.4}} | {{value: docs/tidewater/sprints/01/morale.json answers.bob.4}} | {{value: docs/tidewater/sprints/01/morale.json answers.tom.4}} | {{value: docs/tidewater/sprints/06/morale.json answers.jim.4}} | {{value: docs/tidewater/sprints/06/morale.json answers.bob.4}} | {{value: docs/tidewater/sprints/06/morale.json answers.tom.4}} |
+Table: The five pulse questions, sprint 1 and sprint 6.
+
+Bob started lowest on the first and last questions -- Bob did not see why, and would not have chosen this. Those
+are the two that changed most. Nobody's answer reached the top of the scale on "I can do my work in the new tools
+without help" by sprint 6. That is honest: twelve weeks makes a team competent, not expert, and the book does not
+claim more.
+
+You can read every answer yourself. The survey files are plain JSON in the evidence:
+
+```sh run sandbox=kit expect="sprint 6: mean 4\.1"
+for f in docs/tidewater/sprints/0*/morale.json; do
+  perl -MJSON::PP -0ne '$d = JSON::PP->new->decode($_); print "sprint $d->{sprint}: mean $d->{mean}\n"' "$f"
+done
+```
+
+=== The objections, revisited {#minds-objections}
+
+==== "We already did this once. Modeling took two years and gave us a spider web."
+
+Bob's objection was the deepest, because it was about the last time. The Cameo port had been sold as the end of
+document drift; it delivered a model that only three people could open and that nobody trusted.
+
+The evidence is partial, and that is worth saying. The v1 drop arrived with
+{{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.cycles}} package dependency cycle remaining in the v2
+model by sprint 6, against two in drop 1 -- the Network and Operations cycle was broken in sprint 4; the DataCenter
+and Stations cycle is still there at the end of sprint 6. The worst part definition dropped from fourteen relationship ends in
+v1 to {{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.max_relationships_per_part}} in v2. Tom's
+reaction to the first cycle break, in sprint 4:
+
+> The cycle was two lines. In Cameo it was a week of looking at a diagram.
+> -- Tom, 24 November 2026
+
+The measurement is in [[no-spider-web]]. What changed Bob's mind was not the numbers, though. It was that the
+complexity was *visible on every change* instead of discovered at a review. A spider web grows one innocent link at
+a time; a check that runs on every merge request stops the innocent link.
+
+==== "Why can't we just do systems engineering the old way?"
+
+Tom asked it; Bob said it out loud on the first morning:
+
+> Why can't we just send the Word doc? It worked for twenty years.
+> -- Bob, 5 October 2026
+
+The answer in [[directive]] was that nothing changes what a requirement or a baseline *is*; what changes is how
+the team keeps them. The evidence for that answer came three days later, from Bob:
+
+> I found the drift in two minutes. It used to take a week, and we only looked before a review.
+> -- Bob, 8 October 2026
+
+That sentence was the first time anyone on the team compared the new way to the old way in a unit they cared
+about. It was also the first number in the scorecard ([[scorecard]]): the trace answers in
+{{value: docs/tidewater/sprints/06/scorecard.json 4_trace_answer_seconds}} seconds what the document era answered in
+{{value: docs/tidewater/sprints/06/scorecard.json document_era_baseline_notional.unverified_question_days}} days
+(notional, from the program's last document-era review cycle).
+
+==== "We're systems engineers, not programmers."
+
+Nobody wrote a program in twelve weeks. They edited text files in Vim, which all three already used, and typed git
+commands they learned in an afternoon ([[git]]). Bob's verdict after that afternoon:
+
+> Spent the afternoon in the practice repo. Branch, commit, merge. It is configuration management with fewer forms.
+> -- Bob, 6 October 2026
+
+The harder moment came in the third sprint, when the pipeline said no to Bob for the first time:
+
+> A red X on my own MR. One missing word, and the machine found it before Jim did.
+> -- Bob, 4 November 2026
+
+That quote is from the dip sprint, and it is not a happy one. It became one of the reasons the pulse rose
+afterwards: the red X was private, immediate and fixable, which a red-pen review two weeks later never was.
+
+==== "The contractor owns the model. Anything we do is a copy that will go stale."
+
+This objection is only partly answered by the first twelve weeks, because only one prime drop arrived in them. What
+the twelve weeks proved is the *mechanism*: drop 1 came in on the vendor branch ([[sprint-2]]), the government's own
+edits sat beside it without being overwritten, and every gap the government found went back to the prime as a
+discrepancy report -- {{value: docs/tidewater/sprints/06/scorecard.json 6_drs.opened}} of them by the end of sprint 6,
+none closed yet, because the prime closes them in later drops. Whether the copy stays current is answered by the
+drops in [[prime-changes]], not by this chapter.
+
+==== "Nobody outside our team will be able to read SysML v2 text."
+
+Jim raised it as devil's advocate. The answer turned out to be that nobody outside the team *needed* to read the
+text: they read the model site the pipeline publishes. The program manager's reaction in the sprint 4 review:
+
+> I can open this on my phone? I have never seen the model without a briefing.
+> -- Program manager, 20 November 2026
+
+Fewer people could read the Cameo model, which needed a licence. More people read the v2 model than ever read the
+v1 one, because it was a web page.
+
+==== "The ISSM will never approve this in time."
+
+Tom was half right, and the evidence shows it. The toolchain review did slow the team down:
+
+> Three days waiting on a signature. The pipeline was the fast part.
+> -- Tom, 10 November 2026
+
+That wait is part of the sprint 3 dip. The lesson the team drew, recorded in the sprint 3 retrospective, was to
+stop "waiting for the ISSM without a date" -- to ask for a date, and to keep working on what did not need the
+approval. The approval came. The objection was right about the delay and wrong about the outcome.
+
+==== "We'll spend twelve weeks learning tools and have nothing to show."
+
+The BLUF ([[bluf]]) answers this with the time split: learning and platform work fell from most of sprint 1 to a
+small share of sprint 6. The scorecard answers it with results: TODO lines from the conversion fell to
+{{value: docs/tidewater/sprints/06/scorecard.json 1_todo_lines}}, every change in sprint 6 was gated
+({{value: docs/tidewater/sprints/06/scorecard.json 3_gated_changes}}), and an interim baseline was tagged and
+reproduced ({{value: docs/tidewater/sprints/06/scorecard.json 9_baselines.reproducible}}). There was something to
+show from sprint 2 onward; the problem in sprint 2 was that the team showed it badly ([[talking]]).
+
+==== "Management will just move the goalposts."
+
+Tom said this quietly, at the end of the meeting. The defense was the scorecard, agreed in writing in week one. At
+the sprint 6 review the program manager did not move the goalposts; they asked for the same ones again:
+
+> Keep doing this. Show me the same numbers in March.
+> -- Program manager, 24 December 2026
+
+==== "In three years there'll be another directive."
+
+Probably true, and the twelve weeks cannot disprove it. What the team kept from them is not a tool but a habit:
+the system's description as reviewed text under configuration control, with checks that run on every change. The
+text is in an open standard, the checks are scripts the team owns, and the history is in git. Whatever the next
+directive brings, it starts from a model that can be read, diffed and converted -- which the v1 model could not.
+
+=== What actually changed minds {#minds-what-changed}
+
+Reading the quotes in order, three things recur:
+
+- **A number in a unit the engineer cared about.** "Two minutes, it used to take a week." Not a dashboard, not a
+  velocity chart -- a comparison to their own experience.
+- **A mistake caught privately and early.** The red X on Bob's merge request, the trace gate that stopped Bob
+  deleting a satisfy Bob thought was a duplicate (sprint 5). Being stopped by a machine before a colleague saw the
+  mistake built trust in the checks faster than any explanation.
+- **Being seen by management without a briefing.** The program manager on the phone; Jim answering the deputy PM's
+  trace question with a link instead of a week of slides:
+
+> The deputy PM asked for the trace numbers. I sent a link.
+> -- Jim, 9 December 2026
+
+What did *not* change minds: being told the new way was better, the GitLab feature list, and the sprint 2 demo,
+which showed the terminal instead of the answer. Management's feedback on that demo was blunt -- "I did not follow
+the demo. What did we get for the two weeks?" -- and it is in the evidence too.
+
+::: exercise {#ex-minds-survey} Run the pulse on your own team
+Take the five questions above. Ask them at your next three retrospectives, anonymously, on a one-to-five scale.
+Plot the mean. Before you look at the result, write down which sprint you expect the dip in, and why.
+:::
+
+::: exercise {#ex-minds-objections} Write your team's objections down
+In your kickoff meeting, write every objection on the whiteboard in the speaker's words, with the speaker's
+name if they agree. Put the list in the wiki. At the end of each sprint, add the evidence for or against each one.
+Which objections are still unanswered after six sprints?
+:::
+
+=== You can now {#minds-you-can}
+
+- Measure a team's change of mind with a short, fixed pulse survey and read its shape, not just its end point.
+- Answer an old-way objection with evidence from your own project instead of argument.
+- Recognize the third-sprint dip as a sign the change has become real.
+
+=== Applying this to your project {#minds-applying}
+
+Copy the five questions and the habit of writing objections down in the speaker's words. Adapt the scale and the
+timing to your retrospectives. Decide locally whether the survey is anonymous (Tidewater's was) and who sees the
+raw answers. Do not promise management a rising line; promise them the measurement, and explain the dip in advance.

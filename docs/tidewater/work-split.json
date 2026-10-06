@@ -1,0 +1,111 @@
+{
+   "ceremony_hours" : {
+      "kickoff" : 1.5,
+      "refinement" : 0.94,
+      "retro" : 0.89,
+      "review" : 0.89,
+      "share_of_sprint" : 8,
+      "standup" : 2.01,
+      "total" : 6.23
+   },
+   "s1_39" : {
+      "engineering" : 53,
+      "learning" : 13,
+      "platform" : 34,
+      "points" : 95
+   },
+   "s1_6" : {
+      "engineering" : 53,
+      "learning" : 13,
+      "platform" : 34,
+      "points" : 95
+   },
+   "source" : "the simulation run (sim/tidewater-sim.pl --sprints 6), read from the evidence in docs/tidewater by sim/tidewater-evidence.pl: points are DONE points (a task counts in the sprint whose day log closes it; points and work type from that sprint's plan); engineering/platform/learning/overhead are percent of those points; meetings from sprints/NN/meetings.csv, hours per person for Jim, Bob and Tom; time.* is percent of paid hours (3 people x 80 h per sprint). Only sprints 1-6 ran, so s1_39 covers sprints 1-6 until the later sprints are simulated.",
+   "sprints" : {
+      "1" : {
+         "committed" : {
+            "engineering" : 4.5,
+            "learning" : 4,
+            "platform" : 8,
+            "points" : 16.5
+         },
+         "engineering" : 27,
+         "learning" : 24,
+         "overhead" : 73,
+         "platform" : 48,
+         "points" : 16.5
+      },
+      "2" : {
+         "committed" : {
+            "engineering" : 6,
+            "learning" : 3,
+            "platform" : 10,
+            "points" : 19
+         },
+         "engineering" : 32,
+         "learning" : 16,
+         "overhead" : 68,
+         "platform" : 53,
+         "points" : 19
+      },
+      "3" : {
+         "committed" : {
+            "engineering" : 8,
+            "learning" : 2.5,
+            "platform" : 4.5,
+            "points" : 15
+         },
+         "engineering" : 53,
+         "learning" : 17,
+         "overhead" : 47,
+         "platform" : 30,
+         "points" : 15
+      },
+      "4" : {
+         "committed" : {
+            "engineering" : 12.5,
+            "learning" : 1.5,
+            "platform" : 3,
+            "points" : 17
+         },
+         "engineering" : 70,
+         "learning" : 10,
+         "overhead" : 30,
+         "platform" : 20,
+         "points" : 15
+      },
+      "5" : {
+         "committed" : {
+            "engineering" : 12.5,
+            "learning" : 1,
+            "platform" : 5,
+            "points" : 18.5
+         },
+         "engineering" : 68,
+         "learning" : 5,
+         "overhead" : 32,
+         "platform" : 27,
+         "points" : 18.5
+      },
+      "6" : {
+         "committed" : {
+            "engineering" : 11.5,
+            "learning" : 0.5,
+            "platform" : 2,
+            "points" : 14
+         },
+         "engineering" : 77,
+         "learning" : 5,
+         "overhead" : 23,
+         "platform" : 18,
+         "points" : 11
+      }
+   },
+   "time" : {
+      "ceremonies" : 8,
+      "engineering" : 28,
+      "learning" : 7,
+      "other" : 39,
+      "platform" : 18
+   }
+}

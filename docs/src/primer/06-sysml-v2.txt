@@ -1,0 +1,661 @@
+== SysML v2 for SysML v1 modelers {#sysmlv2}
+
+::: note What you have, what you need
+**What you have:** you know SysML v1: blocks, parts, ports, connectors, requirements, satisfy and verify, activities
+and state machines. You learned them as boxes and lines on diagrams.
+
+**What you need from this chapter:** to recognize the same things written as text in SysML v2, to read the
+converter's output with confidence, and to understand exactly what the converter leaves for a person to do. You
+will type a few commands and check a few files with the grammar checker.
+:::
+
+=== Bob reads the converter output {#sysmlv2-bob}
+
+On Monday 5 October, the first day of sprint 1, Bob ran the converter on drop 1 for the first time. Bob had been
+dreading it. The Cameo model had taken two years to build, and Bob expected the conversion to be either useless or
+incomprehensible.
+
+To follow along you need drop 1. [[survival-commands]] shows how to set up a practice folder; in short:
+
+```sh run expect="drop 1 \(v1\.0, 2026-10-02\)" timeout=120
+mkdir -p ~/w2s
+cd ~/w2s
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drop1
+```
+
+Then Bob's command, from `~/w2s`:
+
+```sh run cwd=~/w2s expect="(?s)ported vs remaining.*self-check: ok" timeout=120
+perl "$KIT/bin/xmi2sysml.pl" --report --out drop1-v2 drop1/tidewater.xmi
+```
+
+The command ran in under a second and wrote a folder of text files, one per top-level package of the Cameo model.
+Bob opened the stations file in Vim:
+
+```sh
+vim drop1-v2/stations/Stations.sysml
+```
+
+and scrolled to the power system. Bob looked at it for a long time, then called Jim over.
+
+```sysml
+    part def PowerSystem {
+        // TODO stereotype Tidewater_Profile:L4Subsystem on this element (xmi:id ...) not converted
+        doc /* Solar generation, storage and regulation for a buoy. */
+        part solar : SolarPanel;
+        part battery : Battery;
+        part regulator : ChargeRegulator;
+        attribute averageLoad : Power;
+        port supplyOut : PowerIF;
+        connection charge connect solar.'out' to regulator.'in';
+        connection store connect regulator.toBattery to battery.terminal;
+        part balance : EnergyBalance;
+        bind balance.generation = solar.ratedPower;
+        bind balance.storage = battery.capacity;
+        bind balance.load = averageLoad;
+    }
+```
+
+> That's the IBD. That's the whole IBD, the one I drew four times. It's twelve lines. I can read it. I can read it
+> faster than I could read the diagram.
+> -- Bob, sprint 1, day 1
+
+It is worth being careful about what Bob was and was not saying. Bob was not saying text is always better than
+diagrams. Diagrams are better for seeing shape, and the kit can draw them from the text (see [[vim]] and [[tools]]).
+Bob was saying that *as a record*, something to review, compare, check and keep, twelve lines of text are better than
+a diagram whose meaning is spread across a layout, a property panel and a model tree. That observation, on day one,
+was the first crack in Bob's skepticism.
+
+This chapter teaches you to read what Bob read.
+
+=== Why text, and why now {#sysmlv2-why}
+
+SysML v1 was defined as an extension of UML, and like UML it had no standard text notation. The model was whatever
+the tool stored; the exchange format, XMI, was XML written for machines (you saw it in [[cameo]]). Every tool vendor
+stored models differently, and moving a model between tools was unreliable.
+
+SysML v2 is a new language, standardized by the Object Management Group, with two notations defined together: a
+graphical notation (diagrams) and a **textual notation** (the text you are about to read). Both describe the same
+model, and the textual notation is complete: anything you can model, you can write as text. The language also comes
+with a standard API for tools to exchange models.
+
+For this team, the textual notation is what makes DevSecOps possible. Text can be:
+
+- **compared**: line by line, by git, showing exactly what changed between two versions (Cameo could not do this
+  usefully, see [[cameo]]);
+- **merged**: two people's changes to different lines combined automatically, and conflicts shown precisely when
+  they touch the same line;
+- **checked**: by small programs that read the text (the grammar checker, the linter, the trace report);
+- **edited in any editor**: including Vim, which the whole team already uses;
+- **reviewed**: in a merge request, as a diff, by anyone with a browser.
+
+::: note The grammar checker
+The kit includes a SysML v2 syntax checker built from the official SysML v2 grammar files. Every v2 snippet in this
+book has been checked with it:
+
+```sh run expect="sysml: 1 file\(s\), 0 error\(s\)"
+perl "$KIT/tools/sysml/sysml.pl" check drop1-v2/stations/Stations.sysml
+```
+
+A file that follows the grammar prints `sysml: 1 file(s), 0 error(s)`. A file that does not prints each error with
+its line number, in a format Vim can jump to ([[vim]]).
+:::
+
+=== Five ideas that cover most of SysML v2 {#sysmlv2-ideas}
+
+SysML v2 has a large specification, but a model like Tidewater uses a small part of it. Five ideas cover almost
+everything in this book.
+
+==== Idea 1: definitions and usages
+
+The single most important idea in SysML v2 is the separation between a **definition** (a kind of thing) and a
+**usage** (a use of that kind of thing in a particular place). You already know this idea from SysML v1, under
+different names:
+
+|| SysML v1 | SysML v2 definition | SysML v2 usage ||
+| block | `part def SolarPanel` | `part solar : SolarPanel;` (a part property typed by the block) |
+| value type | `attribute def Power` | `attribute ratedPower : Power;` |
+| interface block (port type) | `port def PowerIF` | `port supplyOut : PowerIF;` |
+| signal | `item def ObservationRecord` | `item record : ObservationRecord;` |
+| activity | `action def SampleSensors` | `action sample : SampleSensors;` (a call behavior action) |
+| state machine | `state def BuoyModes` | `exhibit state modes : BuoyModes;` |
+| constraint block | `constraint def EnergyBalance` | `constraint balance : EnergyBalance;` (or `part`, as the converter writes) |
+| requirement | `requirement def` | `requirement TW_SYS_011 { ... }` |
+| test case | `verification def TestDataFlow` | `verification testDataFlow : TestDataFlow;` |
+Table: Definitions and usages, from SysML v1 to SysML v2
+
+The keyword `def` marks a definition. A line without `def`, with a colon, is a usage: "a part named `solar`, of kind
+`SolarPanel`." That is exactly a SysML v1 part property whose type is the `SolarPanel` block. The difference is that
+SysML v2 applies the same pattern to everything, consistently.
+
+==== Idea 2: everything lives in a package, and packages import each other
+
+A SysML v2 file contains packages, and packages contain definitions and usages:
+
+```sysml
+package Stations {
+    private import Analysis::*;
+    private import Interfaces::*;
+    private import Types::*;
+    doc /* Everything that goes out to a site: moored buoys and shore stations. */
+    part def StationSegment { ... }
+}
+```
+
+The `import` lines say which other packages this one uses names from. `Interfaces::*` means "every name in the
+Interfaces package." `private` means the imported names are visible inside this package but not passed on to
+packages that import this one. Imports are how SysML v2 makes dependencies between packages explicit, and they are
+exactly what you need to see the package dependency cycles from [[cameo]]: if `Stations` imports `DataCenter` and
+`DataCenter` imports `Stations`, the cycle is written right there in the text.
+
+==== Idea 3: the body of a definition is its structure
+
+Inside the braces of a `part def` go its features: parts, attributes, ports and connections. Compare the converter's
+output for `PowerSystem` (above) with what you would have drawn in v1:
+
+- the `part` lines are the part properties, the boxes inside the IBD frame;
+- the `attribute` line is a value property;
+- the `port` line is a port on the frame;
+- each `connection ... connect A to B` line is a connector between two ports, written with dotted paths
+  (`solar.'out'` means "the port named `out` on the part named `solar`");
+- each `bind A = B` line is a binding connector, the kind used in parametric diagrams to tie a constraint parameter
+  to a value property.
+
+Notice `'out'` and `'in'` in quotes. `out` and `in` are SysML v2 keywords (they mark directions), so a name that
+happens to be a keyword must be quoted. The converter does this automatically. You will see the same with `'send'`
+in the behavior package.
+
+==== Idea 4: documentation is part of the model
+
+```sysml
+    doc /* Solar generation, storage and regulation for a buoy. */
+```
+
+A `doc` comment is attached to the element it sits in and is part of the model, not a note on a diagram. The
+converter turns every v1 comment into a `doc`. Plain comments, which the model ignores, start with `//`; the
+converter uses them for its `TODO` lines, which is why the TODO lines can be counted and removed without changing
+the model's meaning.
+
+==== Idea 5: metadata replaces stereotypes
+
+In SysML v1, the team extended the language with a profile: custom stereotypes like `L5Assembly` (the level of a
+block in the part tree) and `Procured` (a part bought from a supplier, with tagged values for the supplier and part
+number). In SysML v2 the equivalent is **metadata**: a `metadata def` declares the annotation, and `@Name` applies it:
+
+```sysml
+package Conventions {
+    doc /* Government modeling conventions for the Tidewater v2 model. */
+    metadata def L1Network { doc /* The whole network. */ }
+    metadata def L2Segment { doc /* A segment. */ }
+}
+package Network {
+    private import Conventions::*;
+    part def ObservationNetwork {
+        @L1Network;
+        doc /* Every station, the data center and the field crew that keeps them running. */
+    }
+}
+```
+
+The converter does not know the team's custom profile, so it cannot translate the stereotypes; it leaves a TODO line
+on every element that carried one. Closing those TODOs is the team's first big piece of work in [[sprint-2]] and
+[[sprint-3]], and it is mechanical: write the `metadata def` once, then replace each TODO line with the matching
+`@Level;` line.
+
+=== Side by side: the solar panel {#sysmlv2-solar}
+
+Here is the solar panel from [[cameo]] again, in both forms. On the left of the comparison (first block) the v1 XMI,
+on the right (second block) what the converter writes.
+
+```text
+<packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_a89dbce342d7" name="SolarPanel">
+  <ownedComment ... body="Generates power."> ... </ownedComment>
+  <ownedAttribute xmi:type="uml:Property" ... name="ratedPower" type="_22_1_7f3a0c1_dd4fe0cc913f">
+    <defaultValue xmi:type="uml:LiteralReal" ... value="40"/>
+  </ownedAttribute>
+  <ownedAttribute xmi:type="uml:Port" ... name="out" aggregation="composite" type="_22_1_7f3a0c1_dba6f2e0627e"/>
+</packagedElement>
+<sysml:Block ... base_Class="_22_1_7f3a0c1_a89dbce342d7"/>
+<Tidewater_Profile:L5Assembly ... base_Class="_22_1_7f3a0c1_a89dbce342d7"/>
+<Tidewater_Profile:Procured ... base_Class="_22_1_7f3a0c1_a89dbce342d7" partNumber="SP-40" supplier="Notional Solar Ltd."/>
+```
+
+```sysml
+    part def SolarPanel {
+        // TODO stereotype Tidewater_Profile:L5Assembly on this element (xmi:id ...) not converted
+        // TODO stereotype Tidewater_Profile:Procured on this element (xmi:id ...) not converted
+        doc /* Generates power. */
+        attribute ratedPower : Power = 40;
+        port 'out' : PowerIF;
+    }
+```
+
+Everything the XMI says about the solar panel is in those seven lines. The type identifiers have become names
+(`Power`, `PowerIF`). The `sysml:Block` record has become the word `part def`. The default value is `= 40`. The two
+custom stereotypes are TODO lines that name exactly what was not carried and give the v1 identifier, so a person can
+find the original. After the team's conventions are in place, the finished version reads:
+
+```sysml
+    part def SolarPanel {
+        @L5Assembly;
+        @Procured { supplier = "Notional Solar Ltd."; partNumber = "SP-40"; }
+        doc /* Generates power. */
+        attribute ratedPower : Power = 40;
+        port 'out' : PowerIF;
+    }
+```
+
+That version was checked with the grammar checker (inside a small package that declares `Power`, `PowerIF` and the
+two metadata definitions), as was every snippet in this chapter.
+
+=== Side by side: a requirement and its satisfy {#sysmlv2-requirement}
+
+In v1, a requirement is a UML class with a stereotype application that holds its identifier and text, and a satisfy
+relationship is a UML abstraction with another stereotype application:
+
+```text
+<packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_f832863d9d67" name="Own power"/>
+...
+<packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_2dc66f99c741"
+                 client="_22_1_7f3a0c1_53498550400d" supplier="_22_1_7f3a0c1_f832863d9d67"/>
+...
+<MD_Customization_for_Requirements__additional_stereotypes:performanceRequirement
+    ... base_Class="_22_1_7f3a0c1_f832863d9d67" Id="TW-SYS-011"
+    Text="Each buoy shall run from its own solar panel and battery." risk="Low" verifyMethod="Analysis"/>
+<sysml:Satisfy xmi:id="_22_1_7f3a0c1_090cc58cfa58" base_Abstraction="_22_1_7f3a0c1_2dc66f99c741"/>
+```
+
+Reading that takes work: the abstraction's `client` is the `PowerSystem` block (by identifier), its `supplier` is
+the requirement (by identifier), and only the stereotype application at the bottom says it is a satisfy. The
+converter writes:
+
+```sysml
+requirement TW_SYS_011 { doc /* Each buoy shall run from its own solar panel and battery. */ attribute doorsId = "TW-SYS-011"; attribute title = "Own power"; attribute verificationMethod = "Analysis"; attribute risk = "Low"; }
+...
+satisfy TW_SYS_011 by PowerSystem;
+```
+
+The requirement's name is its DOORS identifier with the hyphens changed to underscores (`TW_SYS_011`), because a
+SysML v2 name cannot contain a hyphen without quotes. The identifier itself is kept, exactly, as an attribute named
+`doorsId`, and that attribute is how the trace report matches the model against DOORS ([[pipeline]]). The v1 name
+("Own power") becomes the `title`. The satisfy relationship is one line that says what it means.
+
+Derivation (the v1 `deriveReqt` relationship) becomes a connection using the standard library's derivation
+definitions:
+
+```sysml
+    #derivation connection {
+        end #original ::> TW_STK_006;
+        end #derive ::> TW_SYS_011;
+    }
+```
+
+Verification lives inside a `verification def` (the v1 test case), in its objective:
+
+```sysml
+    verification def TestStationObservations {
+        doc /* Sensors and transmission on a buoy and a shore station. */
+        subject station : ObservingStation;
+        objective {
+            verify TW_SYS_001;
+        }
+    }
+```
+
+=== Where the converter stops {#sysmlv2-todo}
+
+The converter (`bin/xmi2sysml.pl`, in the kit) maps every SysML v1 construct it understands into SysML v2, and for
+everything else it writes a `// TODO` line at the place the construct belonged, naming the v1 type and identifier. It
+never drops anything silently. This design choice is what makes the port measurable: the TODO lines *are* the
+remaining work.
+
+Here is what the converter carries and what it leaves, in general:
+
+|| SysML v1 | Converter output ||
+| Package, Model | `package`, one file per top-level package |
+| Block, Class, Actor | `part def` |
+| InterfaceBlock (or a class used only as a port type) | `port def` |
+| ConstraintBlock | `constraint def` with its parameters; the expression becomes a TODO |
+| Signal | `item def` |
+| ValueType, DataType | `attribute def` (primitive types map to `ScalarValues`); units become a comment and a TODO |
+| Enumeration | `enum def` |
+| Activity | `action def` with parameters, call actions and control flows as `first ... then ...` |
+| UseCase | `use case def` (skeleton) |
+| Requirement (and Cameo's requirement kinds) | requirement with `doc`, `doorsId`, `title`, `verificationMethod` |
+| TestCase | `verification def` |
+| part, reference, value and flow properties | `part`, `ref part`, `attribute`, `in`/`out` features |
+| ports (flow, proxy, full) | `port` |
+| Connector, BindingConnector | `connection ... connect ... to ...`, `bind ... = ...` |
+| Generalization | `:>` (specialization) |
+| Satisfy, Verify, DeriveReqt | `satisfy`, `verify` in an objective, `#derivation connection` |
+| Trace, Refine, other dependencies | `dependency from ... to ...` |
+| Allocate | `allocate ... to ...` |
+| Comment | `doc` |
+| State machine, interaction, include/extend, fork/join/decision nodes, pins, object flows, constraint expressions, custom stereotypes, instance specifications | `// TODO` line |
+| Diagrams and tool extensions | counted and skipped |
+Table: What the converter carries (from the converter's own mapping table)
+
+For drop 1, the TODO lines break down like this:
+
+|| TODO kind | Lines | What a person must do ||
+| custom level stereotype (L1Network ... L6Component) | 36 | write the conventions package once; replace each line with `@Level;` |
+| custom Procured stereotype | 3 | replace with `@Procured { supplier = ...; partNumber = ...; }` |
+| unit (InstanceSpecification) | 3 | define the units, or specialize ISQ quantity types |
+| the profile itself | 1 | replaced by the government conventions package |
+| state machine (BuoyModes) | 1 | write a `state def` by hand from the v1 diagram |
+| interaction (DailyUpload) | 1 | write the message sequence by hand, or decide to keep it as a view only |
+| use case include | 1 | write `include use case` |
+| fork node, input pin, object flow, control flow from the fork | 4 | write `fork`, `flow` and the extra successions by hand |
+| constraint expression | 2 | write the expression in the `constraint def` body |
+| **total** | **52** | |
+Table: Drop 1's conversion debt, by kind
+
+That table is the shape of the port. The 39 stereotype lines are mechanical and fast, so the TODO count will fall
+quickly in the first sprints. The last nine are judgment calls that need the v1 diagrams open beside the text, and
+they take longer. [[operating-model]] turns the table into stories and tasks.
+
+=== Writing what the converter could not {#sysmlv2-hand}
+
+Three of the hand-written replacements are worth seeing now, because they show SysML v2 constructs the converter
+never writes.
+
+==== The buoy's state machine
+
+The v1 model has a state machine with four states and seven transitions on the moored buoy. The converter leaves:
+
+```sysml
+        // TODO uml:StateMachine 'BuoyModes' (xmi:id ...): no SysML v2 mapping in this converter
+```
+
+Bob wrote the replacement in [[sprint-6]] from the v1 diagram. A version that passes the grammar check:
+
+```sysml
+package ModesExample {
+    state def BuoyModes {
+        entry; then observing;
+        state observing;
+        state degraded;
+        state maintenance;
+        state recovered;
+        transition observing_to_degraded first observing accept LowBattery then degraded;
+        transition degraded_to_observing first degraded accept Charged then observing;
+        transition to_maintenance first observing accept CrewOnSite then maintenance;
+        transition back_to_service first maintenance accept CrewDeparts then observing;
+        transition lifted first maintenance accept LiftedAboard then recovered;
+    }
+    attribute def LowBattery;
+    attribute def Charged;
+    attribute def CrewOnSite;
+    attribute def CrewDeparts;
+    attribute def LiftedAboard;
+}
+```
+
+Each transition reads as a sentence: *first* in this state, *accept* this event, *then* go to that state. The v1
+diagram also had a transition from `degraded` to `maintenance`; a complete version adds it the same way. Note what
+this means for the future: when the prime adds a "Storm" state to the v1 state machine in drop 3, the converter's
+output will not change at all, because the converter writes only the TODO line. The change is invisible in the
+converted text. [[maintenance]] shows how the team catches it anyway, by comparing the v1 drops directly.
+
+==== The energy balance
+
+The v1 constraint block's expression was written in English-like text, which v1 tools store but do not check:
+
+```text
+<ownedRule xmi:type="uml:Constraint" ... name="balance">
+  <specification xmi:type="uml:OpaqueExpression" ...><body>generation * sunHours &gt;= load * 24</body>
+  <language>English</language></specification>
+</ownedRule>
+```
+
+Look closely: the expression uses `sunHours`, but the constraint block has no parameter named `sunHours`. The v1
+tool never noticed, because an "opaque expression" is just a string. In SysML v2 the expression is part of the
+language, so the hand-written version has to declare everything it uses:
+
+```sysml
+    constraint def EnergyBalance {
+        in generation : Real;
+        in sunHours : Real;
+        in load : Real;
+        generation * sunHours >= load * 24
+    }
+```
+
+Writing it by hand surfaced a modeling error that had been in the v1 model for three years. This happened again and
+again during the port, and it became one of the team's favorite arguments in [[minds]]: *the act of writing the
+model as text found mistakes the diagrams had hidden.* Each such finding became a discrepancy report to the prime.
+
+==== The observation cycle's fork
+
+The v1 activity `ObserveCoast` has a fork after the quality check, so that archiving and health logging can proceed
+in parallel. The converter carried the call actions and the simple control flows, and left TODOs for the fork, the
+pin and the object flow. A hand-written version:
+
+```sysml
+    action def ObserveCoast {
+        out bulletin : Bulletin;
+        action sample : SampleSensors;
+        action check : CheckQuality;
+        action store : ArchiveObservations;
+        action logHealth { in report : HealthReport; }
+        action publish : PublishBulletin;
+        fork afterCheck;
+        first start then sample;
+        first sample then check;
+        first check then afterCheck;
+        first afterCheck then store;
+        first afterCheck then logHealth;
+        first store then publish;
+        flow publish.bulletin to bulletin;
+    }
+```
+
+(The real activity also has `send` and `ingest` steps; they are left out here to keep the example short.)
+
+=== Bob's Wednesday, again {#sysmlv2-trace}
+
+On the third day of sprint 1, Bob ran the requirements converter's trace against the converted drop 1. The command
+reads the DOORS export from the drop and the converted model, and compares them requirement by requirement:
+
+```sh run expect="(?s)29 of 30.*orphans: TW-SYS-012 TW-SYS-016.*drift: TW-SYS-006"
+perl "$KIT/bin/reqif2sysml.pl" --report --model drop1-v2 drop1/tidewater.reqif
+```
+
+The last lines of its report:
+
+```text
+C requirements linked (doorsId in the model)     29 of 30
+F orphan requirements (nothing satisfies)               2
+G unverified requirements (no verify)                   9
+I trace completeness (satisfied and verified)        66.7%
+doorsIds in the model but not in this export            1
+text differs from DOORS                                 1
+not in the model: TW-SYS-016
+orphans: TW-SYS-012 TW-SYS-016
+unverified: TW-STK-001 TW-STK-002 TW-STK-003 TW-STK-004 TW-STK-005 TW-STK-006 TW-SYS-011 TW-SYS-016 TW-SEG-002
+drift: TW-SYS-006
+  TW-SYS-006 DOORS: The data center shall publish a marine bulletin twice a day, on a fixed schedule.
+  TW-SYS-006 model: The data center shall publish a marine bulletin on a fixed schedule.
+```
+
+It ran in about a seventh of a second. Bob read it twice, then went back to the 2019 email in [[documents]] and
+checked: the question "which requirements don't have a verification method?" was answered by the `unverified` line,
+and the answer included things Bob's spreadsheet method would never have found.
+
+Line by line:
+
+- **C, linked: 29 of 30.** One DOORS requirement, TW-SYS-016 (a common time reference), does not appear in the
+  model at all. Nobody had noticed in three years.
+- **F, orphans: 2.** Nothing in the model satisfies TW-SYS-012 (stations serviceable from the vessel) or TW-SYS-016.
+  TW-SYS-012 has a *trace* from the mast block, which looks like coverage on a diagram but is not a satisfy.
+- **G, unverified: 9.** Six of the nine are stakeholder needs, which are verified through the system requirements
+  derived from them; that is a modeling convention to agree, not a defect. The other three (TW-SYS-011,
+  TW-SYS-016, TW-SEG-002) are real gaps.
+- **I, completeness: 66.7%.** The share of requirements that are both satisfied and verified.
+- **In the model but not in DOORS: 1.** TW-SEG-009 (a lowerable mast) exists in Cameo but not in DOORS. Either the
+  prime added it to the model and forgot DOORS, or DOORS deleted it and the model kept it.
+- **Text drift: 1.** TW-SYS-006 says "twice a day" in DOORS and not in the model. Which one is right is a question
+  for the CCB; that they differ is now a fact that anyone can see, on every run.
+
+Each of those findings becomes a discrepancy report to the prime in [[sprint-4]], and the run itself becomes the
+pipeline's `trace` job in [[sprint-3]]. Bob summed it up at the stand-up the next morning:
+
+> Y: ran the trace against drop 1 -- found the drift in two minutes, it used to take a week, and we never found
+> this one. T: TODO inventory by package. B: none.
+> -- Bob, stand-up, 8 October
+
+=== Three rules for reading SysML v2 text {#sysmlv2-rules}
+
+When you open a converted file for the first time, these three rules will carry you most of the way.
+
+1. **Find the `def`s first.** Each `part def`, `port def`, `action def`, `requirement` and `verification def` is a
+   thing in the system's vocabulary. Read the names and the `doc` lines before reading any bodies. That gives you
+   the map.
+2. **Read every line inside a body as a sentence.** `part solar : SolarPanel;` reads "has a part, solar, which is a
+   SolarPanel." `connection charge connect solar.'out' to regulator.'in';` reads "a connection named charge joins
+   the solar panel's out port to the regulator's in port." `satisfy TW_SYS_011 by PowerSystem;` reads "PowerSystem
+   satisfies TW-SYS-011."
+3. **Treat every `// TODO` as an open action item.** It names what the converter could not carry and where the
+   original is. Until it is closed, the model is incomplete at exactly that spot, and nowhere else.
+
+::: objection "Engineers outside the team won't read this."
+Jim, again in the devil's advocate role.
+
+Answer: Many will not, and they do not have to. The text is the record that the maintainers edit, review and check.
+Everyone else reads what is generated from it: the published site with diagrams, trees and trace reports
+([[tools]]). In the Cameo era, the record was readable only by three license holders, and everyone else saw
+screenshots. Now the record is readable by anyone with an editor, and the generated views by anyone with a browser.
+:::
+
+::: objection "The converter will get things wrong, and we won't notice."
+Bob.
+
+Answer: The converter reports what it mapped, folded and left as TODO, element type by element type, and the
+pipeline runs the grammar checker and a structure check on every change ([[pipeline]]). The trace report compares
+every requirement against DOORS. What remains is semantic review by a person, which is what the merge request is
+for. [[sprint-1]] shows the team's assessment of the converter's output, package by package, before anything was
+merged.
+:::
+
+=== Names, identifiers and the way back to v1 {#sysmlv2-names}
+
+A port has to keep a thread back to the original, so that every element in the v2 model can be traced to the v1
+element it came from, and every requirement to DOORS. The converter keeps three such threads.
+
+- **DOORS identifiers.** Every requirement keeps its DOORS identifier as `attribute doorsId = "TW-SYS-011";`. Its
+  SysML v2 name (`TW_SYS_011`) is derived from the identifier, but the attribute is what the trace report reads, so
+  renaming a requirement never breaks the trace.
+- **v1 identifiers on every TODO.** Each TODO line carries the `xmi:id` of the v1 element it stands for. When Bob
+  writes the state machine by hand, the TODO line being replaced names the exact v1 element it stood for; that
+  identifier goes into the merge request description, so the record shows which v1 element each hand-written part
+  replaced.
+- **Stable names.** The converter names v2 elements after their v1 names (with spaces and keywords quoted:
+  `'serial number'`, `'out'`). Because the prime's tool keeps an element's identifier stable from drop to drop, and
+  the converter is deterministic, converting the same element in two drops produces the same text. That property is
+  what lets git compare and merge successive drops, as [[operating-model]] explains.
+
+=== The standard library {#sysmlv2-library}
+
+SysML v2 comes with a standard library of definitions that every model can use. The converter uses a few of them:
+
+- `ScalarValues::Real`, `ScalarValues::Integer`, `ScalarValues::String`, `ScalarValues::Boolean` for the v1
+  primitive types;
+- `RequirementDerivation` for the derivation connections;
+- the ISQ (International System of Quantities) packages for physical quantities, which the team uses when closing
+  the unit TODOs (a `Power` attribute should eventually specialize the ISQ power quantity rather than a bare `Real`).
+
+You do not need to read the library. You do need to know it exists, because the grammar checker and the structure
+check accept names from it without a declaration in your files, and because when you see `ScalarValues::` or
+`ISQ::` in the model, the definition is in the standard, not in Tidewater.
+
+=== A first session with the text, in Vim {#sysmlv2-vim}
+
+[[vim]] covers the kit's Vim support in full. Here is enough to read the converter's output comfortably on day
+one, using only plain Vim commands the team already knew:
+
+|| To do this | Type ||
+| open every converted file at once | `vim /tmp/drop1-v2/*/*.sysml` |
+| go to the next file / previous file | `:next` / `:prev` |
+| find the next definition | `/def ` then `n` for the next |
+| jump from an opening brace to its closing brace | `%` |
+| fold everything between braces, to see only the definitions | `:set foldmethod=syntax` then `zM` (open with `zo`) |
+| list every TODO in every file, as a jump list | `:vimgrep /TODO/ /tmp/drop1-v2/**/*.sysml` then `:copen` |
+| jump to the next / previous TODO in that list | `:cnext` / `:cprev` |
+| find every use of a name under the cursor | `*` |
+Table: Reading converted SysML v2 in plain Vim
+
+The `:vimgrep` line is the one Bob used most in the first week. It turns the 52 TODO lines into a list Vim can step
+through, one at a time, with the file opened at the right line each time. Bob called it "the action item list I
+always wanted."
+
+With the kit's Vim files loaded (see [[survival]]), `.sysml` files also get syntax highlighting, and `:make` runs
+the grammar checker and lint and puts every error into the same jump list.
+
+=== Habits from SysML v1 to unlearn {#sysmlv2-unlearn}
+
+Some habits that served the team well in Cameo work against them in text. The team found these the hard way;
+listing them here may save you some of the trouble.
+
+- **Drawing to think.** In Cameo, the way to design was to draw. In text, sketch on paper or a whiteboard if that
+  helps, then write. Do not try to keep a hand-drawn diagram "in sync" with the text; generate diagrams from the
+  text when you need them.
+- **One giant change before anyone sees it.** In Cameo, Bob would work for a week and then show the result. In the
+  new way, a change that takes more than a day or two to review is too big; split it ([[operating-model]]). Small
+  changes are reviewed better and merged sooner.
+- **Fixing the layout.** A surprising share of Cameo time went into moving boxes so lines did not cross. In text
+  there is no layout. Whitespace and order in the file are for readability, and the team agreed a simple
+  convention (definitions in the order of the part tree, one blank line between definitions) and stopped thinking
+  about it.
+- **Copying an element to make a variant.** Cameo makes copying easy, which is how `Battery_old` and
+  `Copy of SensorSuite` came to exist. In SysML v2, a variant is a specialization (`part def B :> A`) or a
+  redefinition, and the original stays the single source.
+- **Trace links to everything that mentions a block.** The `ObservingStation` block carries 17 relationship ends
+  because the team drew a trace to every requirement that mentioned it in any document. A trace link should mean
+  something specific (satisfy, verify, derive, refine). If it does not, leave it out; the trace report
+  ([[pipeline]]) computes the useful relationships.
+- **The model as a private workspace.** In Cameo, the model lived on Bob's machine. In the new way, the model is a
+  shared record; every change is visible to the team the moment its merge request opens. That feels exposed at
+  first. It is also what makes help possible.
+
+=== Reading the converter report, column by column {#sysmlv2-report}
+
+The first table in the converter's report has a row for every element type in the XMI and four columns. Learning to
+read it takes five minutes and saves hours.
+
+|| Column | Meaning | What to look for ||
+| `in` | how many elements of this type the XMI holds | surprises: types you did not know the model used |
+| `mapped` | how many became a SysML v2 element of their own | should equal `in` for blocks, ports, properties, requirements |
+| `folded` | how many were absorbed into another element (a connector end into its connector, a multiplicity into its property, a generalization into `:>`) | nothing to do; folded is fine |
+| `todo` | how many fall under a TODO line | the types to plan work for |
+Table: The converter report's four columns
+
+Below that table, the report lists the stereotype applications (including the custom ones it could not convert),
+the `ported vs remaining` count (the elements that the status metrics in the kit call "in scope": classes, ports,
+properties, connectors and activities), what the output contains by SysML v2 keyword, and every TODO with its v1
+identifier. When the prime delivers a new drop, comparing two of these reports is the quickest first look at what
+changed in size and debt, before the detailed comparison in [[maintenance]].
+
+=== Exercises {#sysmlv2-exercises}
+
+::: exercise Convert and count
+Run `perl sim/tidewater-v1.pl --drop 1 /tmp/drop1` and then
+`perl bin/xmi2sysml.pl --report --out /tmp/drop1-v2 /tmp/drop1/tidewater.xmi`. In the terminal, count the TODO lines
+with `grep -r "// TODO" /tmp/drop1-v2 | wc -l`. Does your count match the table "Drop 1's conversion debt, by kind"?
+:::
+
+::: exercise Read a package
+Open `/tmp/drop1-v2/datacenter/DataCenter.sysml` in Vim. Without looking at any diagram, draw the data center's
+internal block diagram on paper from the text: the parts, the ports and the connections. Then compare with the
+v1 diagram list in [[cameo]]. Which was faster to understand?
+:::
+
+::: exercise Find a hidden error
+The energy balance expression used a parameter that was never declared. Search the drop-1 XMI for other opaque
+expressions (`/OpaqueExpression` in Vim). Are there others? What would you write in a discrepancy report to the
+prime about the one you found?
+:::
+
+::: exercise Write a state machine
+Add the missing transition from `degraded` to `maintenance` (event `CrewOnSite`) to the `BuoyModes` example, save it
+as `/tmp/modes.sysml`, and check it with `perl tools/sysml/sysml.pl check /tmp/modes.sysml`.
+:::

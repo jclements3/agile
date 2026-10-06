@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-68 Reviewed !15. T TW-89 the recipe chapter; a memo from pipeline numbers, by Dec 11. B none
+[9:02 AM] Bob
+Y TW-68 Units and value types: 3 TODOs closed, 22 left. T TW-67 walk the Stations tree with the prime's modeler;, by Dec 11. B none
+[9:03 AM] Tom
+Y none T TW-92 remove the Legacy Import package from the v2 model, by Dec 11; pairing with Jim after lunch. B none

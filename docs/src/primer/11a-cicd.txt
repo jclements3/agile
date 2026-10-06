@@ -1,0 +1,554 @@
+== CI/CD from zero {#cicd}
+
+::: survival
+What you have: a GitLab project ([[gitlab-setup]]), git on your laptop ([[git]]), and a sense from [[tools]] that
+"the pipeline" is the most important tool in the box.
+
+What you need: to understand what continuous integration and continuous delivery are, in words you already use;
+to know the parts of a pipeline by name; to read a job log, passing and failing; to run the pipeline on your own
+laptop before you push; and to explain a red pipeline to a manager. No programming. The next chapter,
+[[pipeline]], then walks through the team's real pipeline file line by line.
+:::
+
+=== Tom's question {#cicd-question}
+
+On the Wednesday of week one, Tom stood at the whiteboard with a marker and asked the question that the whole team
+had been too embarrassed to ask:
+
+> Everybody keeps saying CI/CD. I run configuration management for a living. Is this something I already do with a
+> new name, or something new?
+> -- Tom, sprint 1, day 3
+
+The honest answer is: both. Continuous integration and continuous delivery are practices that systems engineering
+already has, done at a speed and a regularity that only a machine can manage. This chapter takes the two halves in
+turn, then the vocabulary, then the skill of reading what a pipeline tells you.
+
+=== CI: continuous integration, in systems engineering words {#cicd-ci}
+
+**Integration** is a word systems engineers own. It is the moment the parts come together and you find out whether
+they fit. In the document era, integration of the *descriptions* of the system (the specification, the interface
+documents, the requirement matrix) happened at milestone reviews: every few months, someone gathered the latest
+version of each document, read them side by side, and wrote down where they disagreed. Between reviews, each
+document drifted on its own. The drift was found late, in a conference room, and fixed by hand.
+
+**Continuous integration** means that every change is integrated into the shared description the same day it is
+made, and is checked automatically when it is. In the model's terms:
+
+- every change is made on a short branch and proposed as a merge request against `develop`, the shared model;
+- before anyone reviews it, a machine runs the same set of checks on the *combined* result (the change merged into
+  the latest shared model), in minutes;
+- if a check fails, the change does not merge until it is fixed;
+- changes are small enough (one task, under a week of work, usually a day) that a failure points at a handful of
+  lines, not a binder.
+
+Compare that with two things Tom knew well:
+
+- A **configuration audit** checks that the configuration item matches its documentation. Done by people, it happens
+  at a few milestones a year. CI runs a configuration audit on every change.
+- A **peer review checklist** asks the same questions of every document: are the requirements numbered, does every
+  interface have two ends, is every term defined. Done by people, it depends on who has time. CI runs the checklist
+  the same way every time.
+
+> So CI is the configuration audit and the peer review checklist, run by a machine on every change, before I sign.
+> -- Tom, writing on the whiteboard
+
+That sentence is the definition this book uses.
+
+::: note What "integrate" does not mean here
+Continuous integration of the model does not mean the hardware is integrated, or that the model is "complete".
+It means the shared description is always in a state that passed its checks. That is a smaller claim, and a much
+more useful one than the document era could make: on any given day, the model on `develop` is consistent with
+itself, by the rules the team wrote down.
+:::
+
+=== CD: continuous delivery {#cicd-cd}
+
+**Delivery** is also a word systems engineers own: the contract data requirement says what must be delivered, in
+what form, when. In the document era, producing a deliverable was a project: export the diagrams, regenerate the
+tables, assemble the document, check the cross-references, convert to PDF, route for signature. It took days, and so
+it happened only when someone demanded it.
+
+**Continuous delivery** means the products of the model are produced by the pipeline from the model, never by hand,
+and are always ready to hand over. For the Tidewater team the products are:
+
+- the generated documents: the part tree, the function tree, the traceability report;
+- the diagrams the kit's view tools draw from the text;
+- the requirement trace against DOORS;
+- the model website (GitLab Pages, [[tools]]);
+- for each baseline, the release notes and the evidence that the baseline rebuilds identically.
+
+None of these is ever edited by hand. If one is wrong, the model is wrong, and the fix is a change to the model.
+
+The "D" is sometimes read as **deployment**: putting new software into service. For a model team there is almost
+nothing to deploy. The only deployment in this book is publishing the model website after each merge, and publishing
+a release when a baseline is tagged. When people at your organization say "CI/CD", they usually mean the whole
+idea; this book does too.
+
+=== The anatomy of a pipeline {#cicd-anatomy}
+
+A **pipeline** is the set of automated checks and production steps that GitLab runs for one event (a push, a
+merge request, a tag, a schedule). It is described in one file at the top of the repository, `.gitlab-ci.yml`,
+written in a text format called YAML (indentation matters; [[pipeline]] explains the few rules you need).
+
+Here is the vocabulary, each word with its Tidewater example.
+
+::: definition The parts of a pipeline
+pipeline: one run of the checks for one event. Example: the run GitLab starts when Bob opens a merge request
+  that closes the Stations level-tag TODOs.
+stage: a group of jobs that run together; stages run in order, and a stage starts only if the previous one
+  passed. Example: `check` (grammar, lint, outline, todo, secrets), then `trace` (trace, vcrm), then `docs`.
+job: one check or one production step; it runs a short script and passes or fails. Example: `lint`, which
+  runs the kit's model linter and fails unless it finds zero errors and zero warnings.
+script: the commands a job runs, the same commands you would type in a terminal. Example: `perl ci/job.pl lint`,
+  which runs the linter and the report writer ([[runners]] explains why every job is one such line).
+runner: the computer that runs the jobs. Example: a Windows machine with Git for Windows and the agile kit
+  checked out, registered to the group by the enterprise administrators.
+rules: when a job runs. Example: `delta` runs only on the branch that merges a prime drop; `baseline` only when
+  a `baseline-*` tag is created.
+artifact: a file a job keeps after it finishes, downloadable from the job page and passed to later jobs. Example:
+  `lint.txt`, the linter's full output.
+report: an artifact in a format GitLab understands and shows on the merge request page. Example: `lint.xml`,
+  which fills the test widget.
+variable: a named value the jobs can read. Example: `KIT`, the path of the kit on the runner.
+cache: files kept between pipelines to save time. Example: none in this pipeline; the jobs are fast enough.
+allow_failure: a job whose failure shows yellow and does not block the merge. Example: the first version of
+  `trace`, because most trace gaps are the prime's to fix (it later became a ratchet instead, [[pipeline]]).
+manual job: a job that waits for someone to press its play button. Example: none yet.
+environment: a named place a job deploys to, with a history of deployments. Example: `model-site`, the model
+  website.
+:::
+
+A picture helps. The merge request pipeline for an ordinary model change looks like this in GitLab's pipeline
+graph, one column per stage:
+
+```text
+  check                  trace             docs
+  -----------------      -------------     --------
+  [ok] grammar      -->  [ok] trace    -->  [ok] docs
+  [ok] lint              [ok] vcrm
+  [ok] outline           [ok] recipe
+  [ok] todo
+  [ok] secrets
+  [ok] complexity
+```
+
+All six `check` jobs run at the same time (if the runner can run several at once; the team's runner ran them one
+after another, which made no practical difference at these durations). The `trace` stage starts when all of them pass,
+and `docs` when the three trace-stage jobs pass. After a merge into `develop`, a fourth stage, `publish`, rebuilds the
+model site ([[pipeline]]).
+
+=== What starts a pipeline {#cicd-triggers}
+
+|| Event | GitLab's name for it | What it is for, here ||
+| Someone pushes commits to a branch with no open merge request | `push` | a quick check of a draft; also every merge into `develop` or `main` |
+| A merge request is opened or its branch is pushed again | `merge_request_event` | the gate: the checks that must pass before the change may merge |
+| A tag is created | a tag pipeline (`CI_COMMIT_TAG` is set) | the baseline audit and the release |
+| A schedule fires | `schedule` | the nightly check and the weekly status export |
+| Someone presses "Run pipeline" | `web` | a manual re-run, for example after the runner was repaired |
+Table: What starts a pipeline
+
+Two refinements matter.
+
+**One pipeline per change, not two.** When a branch has an open merge request, a push to it would normally start
+both a branch pipeline and a merge request pipeline. The team's file has a `workflow:` section that suppresses the
+branch pipeline in that case ([[pipeline]]). Fewer pipelines, less confusion about which result counts.
+
+**Schedules are cron.** A schedule fires at times written as a cron expression (`0 2 * * 1-5` is 02:00 on weekdays),
+on a branch you choose, and runs the pipeline as the schedule's owner. The team has two: nightly checks and the
+weekly status export ([[tools]], [[pipeline]]).
+
+**Merged results.** The merge request pipeline runs on the result of merging the change into the current `develop`,
+not on the branch alone. If Bob's branch was started on Monday and Tom merged a change to an interface on Tuesday,
+Bob's Wednesday pipeline checks Bob's change *together with* Tom's. That is the integration in continuous
+integration. GitLab calls this a merged results pipeline; the kit's emulator does the same.
+
+=== Every job starts from nothing {#cicd-fresh}
+
+This is the idea that surprises everyone the first time, and it is the source of most "it works on my machine"
+puzzles. Each job runs in a **fresh environment**: the runner gets a clean copy of the repository at the commit being
+checked, runs the job's script, keeps the artifacts the job declared, and throws everything else away. The next job,
+even in the same pipeline, starts again from a clean copy.
+
+Consequences:
+
+- A file one job writes is not there for the next job, unless the first job declares it as an **artifact**. Later
+  stages download earlier stages' artifacts by default; a job can name the jobs it needs (`needs:` or
+  `dependencies:`) to download only theirs.
+- Anything that must be the same for every job (the path of the kit, for example) is a **variable**, not something
+  a job sets up and the next one inherits.
+- Something slow that does not change often (downloading tools, for software teams) can be kept in a **cache**
+  between pipelines. A cache is a speed-up, never a correctness requirement: a job must still work if the cache is
+  empty. The team's jobs take seconds and use no cache.
+- Your laptop is *not* fresh: it has files you created, settings you forgot, tools nobody else has. That is why the
+  local run below runs each job's script in a controlled way, and why a pipeline is a better witness than "it worked
+  for me".
+
+|| Mechanism | Keeps what | Between | Use it for ||
+| Artifact | files a job declares | jobs of the same pipeline, and for download afterwards | outputs: reports, logs, the website |
+| Cache | files a job declares as cache | pipelines | speed-ups that are safe to lose |
+| Variable | a named value | every job | settings and secrets |
+Table: Artifacts, cache and variables
+
+=== Reading a pipeline {#cicd-reading}
+
+A pipeline answers three questions, in this order: did it pass, which job failed, and why. GitLab shows the first
+on the merge request (a green check mark or a red cross next to the pipeline), the second on the pipeline page (the
+graph above, with each job's status), and the third in the failed job's **log**: everything the job printed, line by
+line, with each command shown before its output.
+
+==== A passing job, line by line
+
+Here is the real log of the `lint` job on the team's import of drop 1, run on a laptop. Run it yourself in the sandbox
+of practice lesson 11 (`perl $KIT/agile.pl practice 11` builds it), which holds the same import; GitLab's web page
+shows the same lines with timestamps and a few lines of runner preamble:
+
+```sh run sandbox=practice-11 cwd=work expect="elements=148 errors=0 warnings=0"
+. ../env.sh > /dev/null
+perl ci/job.pl lint
+```
+
+```text
+$ perl ci/job.pl lint
+$ /usr/bin/perl /opt/agile/tools/sysml/model.pl lint
+lint: 17 file(s), 0 error(s), 0 warning(s)
+elements=148 errors=0 warnings=0
+$ /usr/bin/perl /opt/agile/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
+ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=148 lint_errors=0 lint_warnings=0
+```
+
+(The path of the kit, `/opt/agile` here, is wherever the runner's `KIT` variable points.) Read it as a transcript:
+
+- Lines starting with `$` are commands; every other line is what the previous command printed.
+- The first line is the job's whole script, `perl ci/job.pl lint`. Everything after it was printed by that script,
+  which shows each command it runs before running it ([[runners]] explains why every job is one such line).
+- Before running anything, the script checks that the `KIT` variable is set and points at the kit. If not, the job
+  stops with a sentence that says what to fix: `KIT is not set: add it under Settings > CI/CD > Variables (the kit's
+  path on the runner)`.
+- The linter checked 17 files and 148 model elements and found nothing wrong.
+- The report writer turned that output into the files GitLab shows on the merge request ([[tools]]).
+- Then the script applies the gate: the linter's last line must end in `errors=0 warnings=0`. It printed nothing more,
+  because nothing was wrong. Silence after the last command is success.
+
+==== A failing job, line by line
+
+On a scratch branch, Bob typed the part type `Hull` as `Hul` and ran the same job:
+
+```sh run expect="lint is not 0/0"
+git switch -q -c scratch/hul
+sed -i 's/part hull : Hull;/part hull : Hul;/' model/physical/stations/Stations.sysml
+perl ci/job.pl lint || echo "exit status $?"
+```
+
+```text
+$ perl ci/job.pl lint
+$ /usr/bin/perl /opt/agile/tools/sysml/model.pl lint
+model/physical/stations/Stations.sysml:38:21: error: unresolved type 'Hul'
+lint: 17 file(s), 1 error(s), 0 warning(s)
+elements=148 errors=1 warnings=0
+$ /usr/bin/perl /opt/agile/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
+ci-reports lint: 2 check(s), 2 failed, 1 finding(s); model_elements=148 lint_errors=1 lint_warnings=0
+lint is not 0/0 (elements=148 errors=1 warnings=0)
+```
+
+The line that matters is the third: `model/physical/stations/Stations.sysml:38:21: error: unresolved type 'Hul'`. Every
+checker in the kit writes problems in the same shape: **file, line, column, severity, message**. Line 38, column
+21, of the Stations file names a type that does not exist. The last line, `lint is not 0/0`, is the gate saying why
+the job failed. Everything between is supporting detail.
+
+::: tip The habit
+When a pipeline is red: open the failed job, search the log for `error:`, read the first one, go to that file and
+line. Fix the first error first; later errors are often caused by it.
+:::
+
+==== When the line number points one line too late
+
+The grammar checker reads the text the way a parser does: token by token, until something cannot follow what came
+before. A missing semicolon is therefore reported where the parser noticed, which is the *next* line:
+
+```sysml
+        part hull : Hull
+        part mooring : Mooring;
+```
+
+```sh run expect=":39:9: error: unexpected 'part'"
+git checkout -q -- .
+sed -i 's/part hull : Hull;/part hull : Hull/' model/physical/stations/Stations.sysml
+perl $KIT/tools/sysml/sysml.pl check model/physical/stations/Stations.sysml || echo "exit status $?"
+```
+
+```text
+model/physical/stations/Stations.sysml:39:9: error: unexpected 'part'; expected ',', '.', ':', '::', '::>', ':=', ':>', ':>>', ...
+sysml: 1 file(s), 1 error(s)
+```
+
+Line 39 is the `part mooring` line, which is perfectly fine; the mistake is the end of line 38. When a grammar error
+seems to point at an innocent line, look at the end of the line above. The list after "expected" is what the parser
+would have accepted instead; a semicolon is not in the visible part of the list, which is the parser's way of being
+unhelpful. Bob kept a sticky note on the monitor: *grammar error: look one line up*.
+
+==== From the log to the line, in Vim
+
+Reading line numbers off a web page and typing them into the editor is the document era's page-number hunt. Vim
+does it for you. The kit sets up Vim's **quickfix** list for SysML: inside the model repository, open any `.sysml`
+file and type
+
+```vim
+:compiler sysml
+:make lint
+```
+
+Here is the same thing run on the scratch branch with the `Hul` mistake, ending with `:clist`, which prints the list:
+
+```vim run expect="Stations.sysml:38 col 21 error: unresolved type 'Hul'"
+:!git checkout -q -- . && sed -i 's/part hull : Hull;/part hull : Hul;/' model/physical/stations/Stations.sysml
+:edit model/physical/stations/Stations.sysml
+:compiler sysml
+:silent make lint
+:redir! >> /dev/stdout
+:clist
+:redir END
+```
+
+Vim runs the same linter the pipeline runs, reads its `file:line:col: error: message` lines, and jumps to the first
+problem. `:cnext` goes to the next one, `:copen` shows the list. `:make check` does the same for the outline check.
+Outside a model repository, `:make` checks the current file's grammar. [[vim]] covers the rest of Vim for models;
+the point here is that the pipeline and your editor speak the same format, so fixing a red pipeline is the same
+motion as fixing a typo.
+
+=== Running it on your own machine first {#cicd-local}
+
+A pipeline that fails on the server costs a few minutes and a red mark on the merge request. A pipeline that fails
+on your laptop before you push costs seconds and nobody sees it. The kit's `gitlab.pl ci` reads the same
+`.gitlab-ci.yml`, decides which jobs GitLab would run for a given event using the same rules, and runs them in the
+current repository.
+
+First ask what would run. Throw the scratch branch away, then list:
+
+```sh run expect="pipeline: 10 jobs"
+git checkout -q -- . && git switch -q - && git branch -q -D scratch/hul
+perl $KIT/bin/gitlab.pl ci --event merge_request_event --target develop --var KIT=$KIT --list
+```
+
+On Bob's branch with the drop 1 import, the answer was:
+
+```text
+grammar                  check      on_success .gitlab-ci.yml  rules: rule 4 matched
+lint                     check      on_success .gitlab-ci.yml  rules: rule 4 matched
+outline                  check      on_success .gitlab-ci.yml  rules: rule 4 matched
+todo                     check      on_success .gitlab-ci.yml  rules: rule 4 matched
+secrets                  check      on_success .gitlab-ci.yml  rules: rule 4 matched
+complexity               check      on_success .gitlab-ci.yml  rules: rule 4 matched
+trace                    trace      on_success .gitlab-ci.yml  rules: rule 4 matched
+vcrm                     trace      on_success .gitlab-ci.yml  rules: rule 4 matched
+recipe                   trace      on_success .gitlab-ci.yml  rules: rule 4 matched
+docs                     docs       on_success .gitlab-ci.yml  rules: rule 4 matched
+include: (conditional: rules), template: Security/Secret-Detection.gitlab-ci.yml -          skipped    -               include: runs on GitLab only
+delta                    -          skipped    .gitlab-ci.yml  rules: no rule matched
+drop-package             -          skipped    .gitlab-ci.yml  rules: no rule matched
+intake                   -          skipped    .gitlab-ci.yml  rules: no rule matched
+baseline                 -          skipped    .gitlab-ci.yml  rules: no rule matched
+publish-package          -          skipped    .gitlab-ci.yml  rules: no rule matched
+publish-release          -          skipped    .gitlab-ci.yml  rules: no rule matched
+sil-regression           -          skipped    .gitlab-ci.yml  rules: no rule matched
+hil-test                 -          skipped    .gitlab-ci.yml  rules: no rule matched
+pages                    -          skipped    .gitlab-ci.yml  rules: no rule matched
+status                   -          skipped    .gitlab-ci.yml  rules: no rule matched
+pipeline: 10 jobs
+```
+
+Ten jobs would run; the others are for other events (a drop branch, a delivery from the prime, a tag, the default
+branch, the schedule, and two simulation jobs that wait for a test harness the program does not have yet), and the
+list says which rule excluded each. The third column names the file each job came from, which matters once a
+pipeline is split into several files with `include: local` ([[pipeline]]). GitLab's own template for secret scanning is listed but not run: it only exists on the server, and only with a
+Docker runner ([[runners]]).
+
+Then run them, dropping `--list`. Each job's log goes to a folder you name with `--logs`, and a failing job's last
+lines are printed under it:
+
+```sh run expect="pipeline: success \(10 jobs\)" timeout=180
+perl $KIT/bin/gitlab.pl ci --event merge_request_event --target develop --var KIT=$KIT --logs ../ci-logs
+```
+
+[[pipeline]] shows the full run, including how the `outline` job lives with the violations the raw drop 1
+conversion inherited.
+
+::: note The CI/CD editor on the server
+GitLab has the same idea built in: Build > Pipeline editor. It checks the YAML as you type, shows the pipeline as a
+graph ("Visualize"), validates it against a chosen branch ("Validate"), and shows the "full configuration" with every
+`include:` and `extends:` expanded. Use it when you change the pipeline file. Use `gitlab.pl ci` when you change the
+model, because it actually runs the checks.
+:::
+
+=== Gates {#cicd-gates}
+
+A **gate** is a check that must pass before work moves on: a milestone entry criterion, enforced by software on every
+change. A pipeline job that blocks the merge when it fails is a gate (lint's zero over zero); a job that is allowed to
+fail is a warning light, not a gate (the first version of `trace`); a ratchet is a gate on change, not on state
+(`outline`, and `trace` later; [[pipeline]]). Project settings add gates of their own: the pipeline must succeed, a
+code owner must approve, discussions must be resolved. Deciding which checks are gates and which are warnings is one
+of the most consequential decisions in a pipeline, and it is a systems engineering decision, not a software one:
+block on what must never reach the shared model, warn on what someone else must fix. Most gates cost nothing; some
+settings need a paid GitLab tier, and hosted runners charge compute minutes ([[tools-gates]]).
+
+=== Shift left: catch it at the merge, not at integration {#cicd-shift}
+
+"Shift left" is DevSecOps jargon for a systems engineering truism: a defect found earlier is cheaper to fix. Draw the
+life cycle as a line from left (idea) to right (operations); every check you move to the left finds problems when
+they cost less.
+
+For a model, the leftmost possible check is the merge request. An interface whose two ends disagree (a port typed
+one way on the stations side and another on the data center side) costs a few minutes to fix when the pipeline
+flags it on the merge request that introduced it. Found at an integration review three months later, it costs a
+meeting, a discrepancy report, two document revisions and the review's credibility. The status metrics in
+`docs/STATUS-METRICS.html` count exactly this, as metric H: interface mismatches caught at merge versus those that
+reached integration. For Tidewater the second number stayed at zero; [[scorecard]] has the counts.
+
+The pipeline is the team's safety net, not its judge. Three habits make that true:
+
+- **Never merge red.** The project setting enforces it, but the habit matters more: a red pipeline on `develop` means
+  everybody's next merge request inherits the failure.
+- **Fix forward, quickly.** If something red reaches `develop` (it happened once, in sprint 6, when the runner's disk
+  filled up, [[sprint-6]]), the first priority of whoever is free is to make it green again. The scorecard measures
+  the time from the first red to the next green.
+- **Fail fast.** Cheap checks (grammar, lint) run first, so a typo fails in seconds instead of after the slow jobs.
+
+=== The Sec in DevSecOps {#cicd-sec}
+
+Security in a pipeline is mostly unglamorous, and it is cheap precisely because it is automated:
+
+- **Secrets never in the repository.** The `secrets` job looks for tokens and keys in every change ([[tools]]).
+- **Secrets in protected, masked variables.** The weekly export's token is given only to pipelines on protected
+  branches, and never printed in a log.
+- **A least-privilege runner.** The runner's account can read the kit and write its own work folder; it cannot
+  reach anything but the GitLab server, and it holds no credentials of its own beyond its registration
+  ([[admin]]).
+- **Protected branches and tags.** Nobody, including the team, changes the shared model or a baseline outside a
+  reviewed, checked merge request.
+- **Verifiable baselines.** Each baseline tag records a checksum of the generated documents; the `baseline` job
+  proves the tagged model rebuilds them identically. Tampering with a baseline would require changing a protected
+  tag, which nobody can do.
+
+None of these needed a security specialist. Each is one setting or one job, and each answers a question the ISSM
+asks of every system ([[tools]] lists the questions).
+
+=== Growing a pipeline one job at a time {#cicd-grow}
+
+The team's pipeline did not start with fifteen jobs. It grew the way Tom's rule from [[tools]] says tools should:
+one job each time a problem repeated.
+
+|| Sprint | Job added | The problem it answered ||
+| 1 | grammar, lint, outline | "we can't tell whether a change broke the model" |
+| 2 | todo, docs, report widgets | "how much is left?", "the generated docs are stale", "I can't find the error in the log" |
+| 3 | secrets, trace | "the ISSM asked about credentials", "which requirements are unlinked today?" |
+| 4 | pages, schedules | "management wants to see the model", "something broke overnight and nobody noticed" |
+| 5 | recipe, the trace ratchet, drop-package, baseline, publish-release | "the DOORS text is vague", "a trace gap slipped in", "where is the exact delivery?", "prove the baseline" |
+| 6 | vcrm, delta (rehearsed for drop 2) | "which requirements are verified, and how?", "what did the prime change that the converter can't show?" |
+| later | complexity, intake, publish-package, the SIL/HIL templates | "is the spider web growing back?", "a drop arrived from the prime's Jenkins", "give other teams the baseline" |
+Table: How the pipeline grew
+
+Each job has a cost: runner time, a log someone must read when it fails, false alarms. The team reviewed the
+pipeline at each retrospective with two questions: which job caught something real this sprint, and which job
+failed for a reason that was not a real problem? A job that never catches anything and sometimes cries wolf is a
+candidate for removal.
+
+=== The minimum pipeline for any SysML v2 text repository {#cicd-minimum}
+
+If you take one thing from this chapter to your own project, take this. It needs a runner with Perl, the agile kit
+checked out at the path in the `KIT` variable, and the kit's job script copied into the repository as `ci/job.pl`
+(from `tools/gitlab/templates/ci/job.pl`). Each script line is a single `perl` command, so the same file works on a
+Windows runner whose shell is PowerShell, in Git Bash and in a Docker image ([[runners]] tells how the team learned
+that the hard way):
+
+```yaml
+stages:
+  - check
+
+grammar:
+  stage: check
+  script:
+    - perl ci/job.pl grammar
+
+lint:
+  stage: check
+  script:
+    - perl ci/job.pl lint
+```
+
+Try it on the lesson's model, as if it were your project's only pipeline file:
+
+```sh run expect="pipeline: success \(2 jobs\)"
+cat > ../minimum.yml <<'EOF2'
+stages:
+  - check
+
+grammar:
+  stage: check
+  script:
+    - perl ci/job.pl grammar
+
+lint:
+  stage: check
+  script:
+    - perl ci/job.pl lint
+EOF2
+perl $KIT/bin/gitlab.pl ci --file ../minimum.yml --event push --branch develop --var KIT=$KIT
+```
+
+Two jobs: every file is valid SysML v2, and every name in the model resolves. With "pipelines must succeed" switched
+on, that alone makes the model's integration branch trustworthy in a way no document set ever was. Everything else
+in [[pipeline]] is added on top, one problem at a time.
+
+One subtlety. Jobs with no `rules:` run in *branch* pipelines (every push), not in merge request pipelines: ask
+`gitlab.pl ci --event merge_request_event --list` and it answers "not added to merge request pipelines" for both.
+That is GitLab's default, and for the minimum pipeline it is fine: the branch pipeline on the merge request's source
+branch is the one GitLab checks before allowing the merge. The team's full pipeline uses `rules:` and a `workflow:`
+section so that the gate is a merged results pipeline instead ([[pipeline]]).
+
+=== Explaining a red pipeline to a manager {#cicd-manager}
+
+Sooner or later the program manager will see a red mark and ask what it means. The answer the team gave, which
+worked:
+
+> A red pipeline means the checks caught a problem in a proposed change before it reached the shared model. That is
+> the system working. The change will not merge until it is fixed, usually the same day. A red pipeline on the
+> shared model itself would be a problem, and we measure how long it lasts: so far, once, for less than a day.
+> -- Jim, to the deputy program manager, sprint 4 review
+
+=== Exercises {#cicd-exercises}
+
+::: exercise {#ex-cicd-break} Break it and watch it fail
+In your practice repository, create a branch, change one part's type to a name that does not exist, and run
+`gitlab.pl ci --event merge_request_event --target develop --var KIT=$KIT --job lint`. Find the error line in the
+log. Then fix it with `:make lint` in Vim and run the job again.
+:::
+
+::: exercise {#ex-cicd-semicolon} One line up
+Delete a semicolon at the end of a `part` line and run the grammar checker on that file. Which line does the error
+name? Explain the difference to a colleague in one sentence.
+:::
+
+::: exercise {#ex-cicd-add} Add a job
+Add a job to the minimum pipeline that counts `// TODO` lines and prints the count, and never fails. Run it locally.
+What would you need to add so the count appears on the merge request page? (Hint: [[tools]].)
+:::
+
+::: exercise {#ex-cicd-allow} Allowed to fail
+Make the `lint` job of the minimum pipeline `allow_failure: true` and break the model again. What does the pipeline
+status become? Write two sentences on why this would be a bad idea for `lint`, and two on why the team first
+made `trace` allowed to fail and later replaced that with a ratchet.
+:::
+
+::: exercise {#ex-cicd-manager} The manager's question
+Write the three sentences you would say to your program manager about a red pipeline on a merge request, and the
+three you would say about a red pipeline on the integration branch.
+:::
+
+=== Applying this to your project {#cicd-apply}
+
+- **Copy**: the definitions (CI = the configuration audit and peer review checklist on every change; CD = every
+  product generated from the model, always ready); never merge red; run the pipeline locally before pushing; the
+  two-job minimum pipeline on day one.
+- **Adapt**: the jobs to your checks (your organization may have its own modeling rules; each one that a program can
+  check is a job); the triggers (a slower project may need only merge request and tag pipelines).
+- **Decide locally**: where the runner lives and who maintains it; which checks block a merge and which only warn;
+  how you will explain red and green to your management, before the first red appears.

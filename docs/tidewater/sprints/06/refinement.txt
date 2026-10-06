@@ -1,0 +1,7 @@
+Refinement, 2026-12-23 10:00: the Definition of Ready applied to sprint 7's stories
+
+TW-133  2 pts  Break the Stations <-> DataCenter cycle
+TW-134  2 pts  The DailyUpload interaction by hand
+TW-135  2 pts  The EnergyBalance constraint expression
+TW-136  1 pts  Retire the Tidewater Profile TODO
+TW-137  2 pts  Pin the kit version

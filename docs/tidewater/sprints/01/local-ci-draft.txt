@@ -1,0 +1,22 @@
+$ perl $KIT/bin/gitlab.pl ci --event push --branch feature/pipeline-draft --var KIT=$KIT
+grammar                  check      success             2.0s
+lint                     check      success             2.4s
+outline                  check      failed              0.7s
+    |     1  directory entries  (model/logical/)
+    |     1  directory entries  (model/physical/allocation/)
+    |     1  directory entries  (model/physical/datacenter/)
+    |     1  directory entries  (model/physical/network/)
+    |     1  directory entries  (model/physical/operations/)
+    |     1  part def ServiceVessel: parts  (model/physical/operations/Operations.sysml)
+    |     1  directory entries  (model/physical/stations/)
+    |    25  package Stations: members  (model/physical/stations/Stations.sysml)
+    |     1  part def Battery: parts  (model/physical/stations/Stations.sysml)
+    |     1  directory entries  (model/requirements/model/)
+    |    32  package Requirements: members  (model/requirements/model/Requirements.sysml)
+    |     1  directory entries  (model/requirements/segment/)
+    |     1  directory entries  (model/requirements/stakeholder/)
+    |     1  directory entries  (model/requirements/system/)
+    |     1  directory entries  (model/verification/)
+pipeline: failed (3 jobs)
+logs: /tmp/gitlab-ci
+(exit 1)

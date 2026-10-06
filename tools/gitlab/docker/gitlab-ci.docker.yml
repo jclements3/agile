@@ -1,0 +1,12 @@
+# The Docker-runner variant of the model pipeline: paste these keys at the top of .gitlab-ci.yml (or `include:` this
+# file) ONLY if your GitLab runs jobs on Docker runners. Everything else in the pipeline stays the same.
+#
+# The image comes from this project's Container Registry (built and pushed as README.md shows). KIT points at the
+# kit inside the image, so the project's KIT CI/CD variable is not needed on Docker runners.
+default:
+  image: $CI_REGISTRY/tidewater/model/mbse-ci:1.0     # pin a version; never :latest
+  tags: [docker]                                      # the runner tag your admins gave the Docker runners
+
+variables:
+  KIT: /opt/agile-kit
+  DOCKER_RUNNER: "true"          # lets the GitLab-managed Secret Detection template run (it needs a Docker runner)

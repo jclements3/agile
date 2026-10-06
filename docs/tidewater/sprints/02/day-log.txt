@@ -1,0 +1,38 @@
+2026-10-19
+  10:00 jim  closed #33 Practice lessons 12-13; the diagrams chapter
+2026-10-20
+  10:00 bob  closed #34 Lessons 12-13; Vim for models; workbook first half
+  10:45 tom  closed #35 Lessons 12-13; Vim for models; workbook first half
+  11:30 tom  closed #36 Check the runner registration and tags
+2026-10-21
+  10:00 jim  closed #45 Memo: request for enablers
+2026-10-22
+  10:00 bob  closed #39 Decide the layered layout; the layout map
+2026-10-23
+  10:00 tom  opened !2 The first pipeline: grammar, lint, outline (pipeline #1 failed)
+  10:45 tom  closed #38 Turn on "pipelines must succeed" and the MR report widgets
+  11:30 bob  opened !3 Add the government conventions package (pipeline #5 success)
+  15:00 bob  closed #43 Write the conventions package
+  15:00 bob  merged !3
+  15:10 tom  closed #37 Commit the pipeline; fix it for the PowerShell runner with ci/job.pl
+  15:10 tom  merged !2
+2026-10-26
+  10:00 bob  opened !4 Name the level tags in sysml.conf (pipeline #8 success)
+  10:45 jim  opened !5 Decision records: ADRs 0001-0014 (pipeline #11 success)
+  13:40 bob  closed #44 Name the level tags in sysml.conf
+  13:40 bob  merged !4
+  14:15 jim  closed #46 Write docs/adr/0001..0010
+  14:15 jim  merged !5
+2026-10-27
+  10:00 tom  closed #40 Import drop 1 onto vendor/prime
+  10:00 tom  opened !6 Prime drop v1.0 (pipeline #14 success)
+2026-10-28
+  10:00 jim  closed #47 Conventions and onboarding docs into docs/
+2026-10-29
+  10:00 bob  closed #41 Review and merge the drop-1 MR; record the outline count
+  10:45 tom  opened !7 Pipeline: Adds the todo (port burn-down) and docs (generated docs current) jobs, and commits docs/ (pipeline #17 success)
+  14:15 tom  closed #42 Add the todo and docs jobs; commit docs/
+  14:15 tom  merged !7
+2026-10-30
+  10:00 jim  closed #48 Toolchain security kickoff with the ISSM
+  10:45 tom  closed #49 Prepare and give the sprint 2 demo

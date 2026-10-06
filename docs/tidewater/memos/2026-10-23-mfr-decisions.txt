@@ -1,0 +1,76 @@
+              TIDEWATER COASTAL OBSERVATION PROGRAM
+
+TW-SE
+
+23 OCTOBER 2026
+
+MEMORANDUM FOR RECORD
+
+FROM: TIDEWATER MBSE LEAD
+
+SUBJECT: TEN DECISIONS ON HOW THE TIDEWATER SYSML V2 MODEL IS
+MANAGED
+
+REFERENCES: (A) PROGRAM MEMORANDUM, ADOPTION OF DEVSECOPS
+PRACTICES FOR SYSTEMS ENGINEERING ARTIFACTS, 24 SEPTEMBER 2026;
+(B) DECISION RECORDS IN THE MODEL REPOSITORY, DOCS/ADR/
+
+1.  On 23 October 2026 the MBSE lead confirmed the ten decisions
+below. Each has a decision record with its context and
+consequences in reference (b).
+
+2.  The decisions and their reasons are:
+
+    a.  D-1. The v2 model is SysML v2 textual notation in a git
+repository, because text can be compared, merged, checked and
+reviewed line by line.
+
+    b.  D-2. Gitflow branching: develop is the default
+integration branch and main holds baselines only, because
+day-to-day work must never wait on a release.
+
+    c.  D-3. Every merge is a merge commit, with no squash and no
+fast-forward, because the history of who changed what feeds the
+metrics and the audit trail.
+
+    d.  D-4. DOORS stays authoritative for requirement text and
+the model holds a converted copy, because the prime and the
+program manage requirements in DOORS; the pipeline reports any
+drift.
+
+    e.  D-5. Prime drops land on a vendor branch, converted and
+never edited by hand, and are merged into develop, so that git
+merges the prime's changes with the team's own.
+
+    f.  D-6. The team never edits the v1 model; problems in it go
+to the prime as discrepancy reports, because the prime owns the
+v1 model under the contract.
+
+    g.  D-7. Conversion debt, the TODO lines the converter
+leaves, is the primary measure of port progress, because it is
+computed, countable and indisputable.
+
+    h.  D-8. Tasks are at most 5 points and stories fit one
+sprint; tasks live in GitLab and stories in the journal, because
+small changes are reviewed properly.
+
+    i.  D-9. The pipeline runs on a Windows shell runner with Git
+for Windows' Perl, because it uses the same tools as the laptops
+and needs nothing new approved.
+
+    j.  D-10. Everything that can be a file is a file under
+version control, because then it can be reviewed, rebuilt and
+audited.
+
+3.  Each decision will be revisited when the condition in its
+decision record occurs, for example D-5 when the prime delivers
+SysML v2 directly.
+
+4.  Effective immediately, changes to these decisions are made by
+merge request to the decision records, approved by the MBSE lead.
+
+5.  The point of contact is the undersigned.
+
+JIM
+
+TIDEWATER MBSE LEAD

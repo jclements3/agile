@@ -1,0 +1,4 @@
+standups/2026-10-07-Model-chat.txt:5: ok    Jim: Y/T/B parsed
+standups/2026-10-07-Model-chat.txt:9: ok    Bob: Y/T/B parsed
+standups/2026-10-07-Model-chat.txt:13: ERROR Tom: B is empty (write 'none')
+# 3 answered, 1 error, 0 warnings

@@ -78,7 +78,9 @@ sub rounds {
         }
         next unless $r;
         push @{ $r->{msgs} }, $m;
-        $r->{answers}{ $m->{who} } = $first;
+        my $answer = $r->{kind} eq 'est' ? norm_est($first) : norm_vote($first, $r->{options});
+        if (defined $answer) { $r->{answers}{ $m->{who} } = $first }       # only an answer counts: a comment never replaces a vote
+        else                 { push @{ $r->{discussion} }, $m }
     }
     @rounds;
 }
@@ -104,12 +106,16 @@ sub norm_vote {
     return 'abstain' if $t =~ /^(?:abstain|pass|skip|-)$/;
     undef;
 }
+my $EST_UNIT  = qr/(?:sp|pts?|points?|story\s*points?|h|hrs?|hours?|d|days?)/;
+my $EST_PRE   = qr/(?:actually|revote|re-vote|my vote|vote|make it|change(?:\s+(?:mine|my vote))?\s+to|now|ok|okay|i'?d say|i say|say|call it|i think)/;
+my $EST_HEDGE = qr/(?:maybe|probably|i think|ish|or so|tops|at most)/;
 sub norm_est {                                # -> number | '?' | undef
     my $raw = shift;
     (my $t = lc $raw) =~ s/^\s+|\s+$//g;
     return '?' if $t =~ /^(?:\?|idk|unknown|☕|coffee|pass)$/;
-    return $1 + 0 if $t =~ /^(\d+(?:\.\d+)?)\s*(?:sp|pts?|points?|story\s*points?|h|hrs?|hours?|d|days?)?\.?$/;
-    return $1 + 0 if $t =~ /^(?:[^\d]*?)(?<![\w-])(\d+(?:\.\d+)?)(?![\w-])(?:[^\d]*)$/;   # exactly one free-standing number: "actually 8", not "RPT-9"
+    # an answer is a number with an optional unit, optionally after a revote phrase ("actually 8", "I'd say 8") and
+    # before a hedge ("8, maybe"); anything else -- "that is not 3 days", "5 or 8", "RPT-9 is big" -- is discussion
+    return $1 + 0 if $t =~ /^(?:$EST_PRE[,:]?\s+)?(\d+(?:\.\d+)?)\s*$EST_UNIT?\.?(?:\s*,?\s*$EST_HEDGE)?[.!]?$/;
     undef;
 }
 
@@ -123,6 +129,9 @@ sub tally {
         my $v = $r->{kind} eq 'est' ? norm_est($r->{answers}{$who}) : norm_vote($r->{answers}{$who}, $r->{options});
         if (defined $v) { $by{$who} = $v } else { push @unparsed, [ $who, $r->{answers}{$who} ] }
     }
+    my %said;                                                                  # people who wrote in the round but never a readable answer
+    for my $m (@{ $r->{discussion} // [] }) { next if exists $by{ $m->{who} } || $m->{who} eq ($r->{by} // ''); $said{ $m->{who} } = (split /\n/, $m->{text})[0] // '' }
+    push @unparsed, map { [ $_, $said{$_} ] } sorted(keys %said);
     my $t = { kind => $r->{kind}, subject => $r->{subject}, by => $r->{by}, time => $r->{time}, n => scalar keys %by, answers => \%by, unparsed => \@unparsed };
     if ($r->{kind} eq 'est') {
         my @nums = sorted(grep { $_ ne '?' } values %by);
@@ -248,7 +257,12 @@ is the only function to touch; keep a sample in C<examples/>.
 A round starts at a marker message (C<#est> / C<#estimate> / C<#vote> /
 C<#poll>) and runs until the next marker. Only the first line of each
 message counts. One answer per person, the latest wins, so people can change
-their mind. Estimates: numbers with or without a unit, C<?> for unknown;
+their mind; a message that is not an answer is discussion and never replaces
+a vote ("that is not 3 days" is not a vote of 3). An estimate answer is a
+number with an optional unit (C<5>, C<8 pts>, C<3sp>, C<2 days>), optionally
+after a revote phrase (C<actually 8>, C<make it 5>, C<I'd say 8>) or before a
+hedge (C<8, maybe>), or C<?> / C<idk> for unknown; anyone who wrote in a round
+but gave no readable answer is listed as "could not read". Estimates:
 consensus when everyone agrees, otherwise the median with the range and the
 people more than a median away flagged for re-discussion. Votes: C<y/n>
 synonyms map to yes/no; option lists on the marker (C<A B C> or C<y/n>) are

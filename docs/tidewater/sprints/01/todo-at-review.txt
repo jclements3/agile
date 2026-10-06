@@ -1,0 +1,15 @@
+GitLab To-Do lists at the review (2026-10-16 10:00)
+
+  Jim: 0 review(s) requested, 1 open issue(s) assigned
+    #31 Enablers, decisions and conventions on record
+
+  Bob: 0 review(s) requested, 3 open issue(s) assigned
+    #26 Learn: practice lessons 12-13, Vim for models, the SysML v2 workbook (first half)
+    #28 Import drop 1 through the vendor branch, in layers
+    #30 Level conventions for the part tree
+
+  Tom: 0 review(s) requested, 4 open issue(s) assigned
+    #25 Intake prime drop v1.0 (2026-10-02)
+    #27 Runner online; the first pipeline gates every MR
+    #29 TODO burn-down and generated docs in the pipeline
+    #32 Sprint 2 demo: the pipeline and the drop on develop

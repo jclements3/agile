@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y none T TW-109 DR-5: The Legacy Import package is clutter from, by Fri. B none
+[9:02 AM] Bob
+Y none T TW-91 remove the duplicate trace links, by Fri. B none
+[9:03 AM] Tom
+Y TW-95 Release rehearsal and a spillage: done (2 tasks). T the sprint 5 review: demo ready by 10 am. B none

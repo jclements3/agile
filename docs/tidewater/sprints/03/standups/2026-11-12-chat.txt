@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y none T TW-55 write up the drift and the trace gaps, by Fri. B none
+[9:02 AM] Bob
+Y none T review the open MRs, then the sprint 3 demo, by the review. B none
+[9:03 AM] Tom
+Y none T TW-50 talk.pl; the Day-9 demo rehearsal, by Fri. B TW-54 runner service account and hardening... blocked: waiting on the ISSM to approve the runner service account -- need: help to unblock it

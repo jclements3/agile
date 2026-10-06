@@ -5,6 +5,13 @@ package Xmi;
 #   my $out = Xmi::convert($m, req_style => 'def'|'usage', layout => '{seg}/{pkg}.sysml', name => 'Loose');
 #   # $out = { files => { relpath => text }, report => {...}, problems => [ self-check ] }
 #   print Xmi::report_text($out);
+#   print Xmi::delta_text(Xmi::delta(Xmi::load($old), Xmi::load($new)));   # two drops of the same model: added, removed,
+#                                                                       # changed by xmi:id; carried by the converter or manual
+#   print Xmi::map_csv($m, $out);                    # the v1 -> v2 map: xmi_id,v1_type,v1_qualified_name,v2_qualified_name,v2_kind,file,line
+#   my $i = Xmi::impact($delta, $model_dir, map => Xmi::read_map_csv($csv));   # what a delta touches in the government's
+#   print Xmi::impact_text($i); print Xmi::impact_csv($i);                     # v2 model: requirements, verification
+#   impact(..., changes => Xmi::read_changes_csv('drop/CHANGES.csv'))         # grouped by the prime's change requests
+#                                                                       # cases, interfaces, allocations, hand edits to redo
 #
 # Mapping (SysML 1.x -> v2), one line each; everything else becomes a "// TODO <xmi:type> (xmi:id ...)" comment in
 # the nearest converted owner and is listed in the report -- nothing is dropped silently:
@@ -26,7 +33,7 @@ package Xmi;
 use strict;
 use warnings;
 use XmlLite;
-use SysmlText qw(name ident str doc requirement check is_keyword);
+use SysmlText qw(name ident str doc requirement check is_keyword layout_path);
 
 our @IN_SCOPE = qw(Class Port Property Connector Activity);   # status-metrics Appendix A, metric A's v1 filter
 
@@ -253,6 +260,14 @@ sub convert {
     };
     my $qualified = sub { my ($id) = @_; my $c = $chain->($id); return join '::', map { name($nm{$_}) } @$c };
     my $topof = sub { return $chain->($_[0])[0] };
+    my %map;                                  # xmi:id -> { kind, q }: the v2 line each element is written to (for --map / --impact)
+    my $tag = sub {                           # tag(id, v2 kind, v2 qualified name, lines): mark the first line with the element's id
+        my ($id, $kind, $q, @l) = @_;
+        return wantarray ? @l : $l[0] unless defined $id && @l;
+        $map{$id} //= { kind => $kind, q => $q };
+        $l[0] = "\x01$id\x01$l[0]";
+        return wantarray ? @l : $l[0];
+    };
     my $ref; $ref = sub {                           # ref($ctx_ns, $target) -> how to name $target from inside $ctx_ns
         my ($ctx, $tid) = @_;
         return undef unless defined $tid && defined $nm{$tid} && $kind{$tid} ne 'libtype';
@@ -314,7 +329,7 @@ sub convert {
         my $nmv = defined $n->{a}{name} ? " '$n->{a}{name}'" : '';
         push @unmapped, { id => $id, type => $n->{t}, name => (defined $n->{a}{name} ? $n->{a}{name} : ''), why => $why };
         my $w; $w = sub { my $x = shift; $status{ $x->{id} } ||= 'todo-child' if $x->{id}; $w->($_) for XmlLite::kids($x) }; $w->($_) for XmlLite::kids($n);
-        return "$ind// TODO uml:$n->{t}$nmv (xmi:id $id): $why";
+        return scalar $tag->($id, 'todo', undef, "$ind// TODO uml:$n->{t}$nmv (xmi:id $id): $why");
     };
     my $stereo_notes = sub {                  # TODO lines for stereotypes we do not understand
         my ($id, $ind) = @_;
@@ -332,7 +347,7 @@ sub convert {
         my @l;
         for my $c (XmlLite::kids($n, 'ownedComment')) {
             my $b = defined $c->{a}{body} ? $c->{a}{body} : do { my $k = XmlLite::kid($c, 'body'); $k ? XmlLite::text($k) : '' };
-            push @l, doc($b, $ind);
+            push @l, $tag->($c->{id}, 'doc', $n->{id} && $nm{ $n->{id} } ? $qualified->($n->{id}) : undef, doc($b, $ind));
             $status{ $c->{id} } = 'mapped' if $c->{id}; $out{doc}++;
         }
         return @l;
@@ -380,7 +395,9 @@ sub convert {
         my $v = $value->($ctx, $n);
         $out{$kw =~ /(\w+(?: part)?)$/ ? $1 : $kw}++;
         $status{$id} = 'mapped';
-        return "$ind$dir$kw " . $N->($id) . (defined $ty ? " : $ty" : '') . $mult->($n) . (defined $v ? " = $v" : '') . ";$cmt";
+        (my $bk = $kw) =~ s/^derived //;
+        return scalar $tag->($id, $bk, $qualified->($ctx) . '::' . $N->($id),
+            "$ind$dir$kw " . $N->($id) . (defined $ty ? " : $ty" : '') . $mult->($n) . (defined $v ? " = $v" : '') . ";$cmt");
     };
     my $port_line = sub {
         my ($ctx, $id, $ind) = @_;
@@ -394,11 +411,11 @@ sub convert {
         if ($tk =~ /^(attrdef|enumdef|lib|itemdef)$/) {        # an atomic flow port: the flowing thing goes inside
             my $d = $fp ? (_sattr($fp, 'direction') || 'inout') : 'inout';
             my $what = $tk eq 'itemdef' ? 'item' : 'attribute';
-            return "${ind}port " . $N->($id) . $mult->($n) . " { $d $what flowValue : $ty; }$cmt";
+            return scalar $tag->($id, 'port', $qualified->($ctx) . '::' . $N->($id), "${ind}port " . $N->($id) . $mult->($n) . " { $d $what flowValue : $ty; }$cmt");
         }
         my $note = '';
         if ($tk eq 'partdef') { $note = ' // TODO the type is a part def (also used as a part); give the port a port def' }
-        return "${ind}port " . $N->($id) . (defined $ty ? ' : ' . ($conj ? '~' : '') . $ty : '') . $mult->($n) . ";$cmt$note";
+        return scalar $tag->($id, 'port', $qualified->($ctx) . '::' . $N->($id), "${ind}port " . $N->($id) . (defined $ty ? ' : ' . ($conj ? '~' : '') . $ty : '') . $mult->($n) . ";$cmt$note");
     };
     my $end_path = sub {
         my ($ctx, $e) = @_;
@@ -419,10 +436,10 @@ sub convert {
         return $todo->($id, 'connector without two resolvable ends', $ind) if @p != 2 || grep { !defined } @p;
         $fold->($_) for XmlLite::kids($n);
         $status{$id} = 'mapped';
-        if ($has->($id, 'BindingConnector')) { $out{bind}++; return "${ind}bind $p[0] = $p[1];" }
+        if ($has->($id, 'BindingConnector')) { $out{bind}++; return scalar $tag->($id, 'bind', $qualified->($ctx), "${ind}bind $p[0] = $p[1];") }
         $out{connection}++;
         my $named = defined $n->{a}{name} && $n->{a}{name} ne '';
-        return "${ind}connection " . ($named ? $N->($id) . ' ' : '') . "connect $p[0] to $p[1];";
+        return scalar $tag->($id, 'connection', $qualified->($ctx) . ($named ? '::' . $N->($id) : ''), "${ind}connection " . ($named ? $N->($id) . ' ' : '') . "connect $p[0] to $p[1];");
     };
     my $rel_lines = sub {
         my ($ctx, $id, $ind) = @_;
@@ -460,7 +477,9 @@ sub convert {
                 }
             }
         }
-        return @l;
+        my ($rk) = grep { $has->($id, $_) } qw(Satisfy Verify DeriveReqt Allocate);
+        my %rkind = (Satisfy => 'satisfy', Verify => 'verification def', DeriveReqt => 'derivation', Allocate => 'allocate');
+        return $tag->($id, $rk ? $rkind{$rk} : 'dependency', $qualified->($ctx), @l);
     };
     my $activity_lines = sub {                # parameters, nodes and edges of an Activity
         my ($ctx, $id, $ind) = @_;
@@ -471,7 +490,7 @@ sub convert {
             $fold->($_) for XmlLite::kids($p);
             my $d = $p->{a}{direction} || 'in'; $d = 'out' if $d eq 'return';
             my ($ty, undef, $cmt) = $typeref->($ctx, $p);
-            push @l, "$ind$d " . $N->($p->{id}) . (defined $ty ? " : $ty" : '') . $mult->($p) . ";$cmt";
+            push @l, scalar $tag->($p->{id}, 'parameter', $qualified->($ctx) . '::' . $N->($p->{id}), "$ind$d " . $N->($p->{id}) . (defined $ty ? " : $ty" : '') . $mult->($p) . ";$cmt");
             $status{ $p->{id} } = 'mapped'; $out{parameter}++;
         }
         for my $c (XmlLite::kids($n, 'node')) {
@@ -482,7 +501,7 @@ sub convert {
             if ($t =~ /^(CallBehaviorAction|OpaqueAction|CallOperationAction)$/) {
                 my ($b) = _idrefs($c, 'behavior');
                 my $bt = defined $b && $nm{$b} ? ' : ' . $ref->($ctx, $b) : '';
-                push @l, "${ind}action " . $N->($c->{id}) . "$bt;";
+                push @l, scalar $tag->($c->{id}, 'action', $qualified->($ctx) . '::' . $N->($c->{id}), "${ind}action " . $N->($c->{id}) . "$bt;");
                 $nodename{ $c->{id} } = $N->($c->{id});
                 $status{ $c->{id} } = 'mapped'; $out{action}++;
                 push @l, map { $todo->($_->{id}, 'pin (object flow) not converted', $ind) } grep { $_->{id} } XmlLite::kids($c);
@@ -494,7 +513,7 @@ sub convert {
             my ($s) = _idrefs($c, 'source'); my ($t) = _idrefs($c, 'target');
             if (($c->{t} || '') eq 'ControlFlow' && defined $s && defined $t && $nodename{$s} && $nodename{$t}) {
                 $fold->($_) for XmlLite::kids($c);
-                push @l, "${ind}first $nodename{$s} then $nodename{$t};";
+                push @l, scalar $tag->($c->{id}, 'succession', $qualified->($ctx), "${ind}first $nodename{$s} then $nodename{$t};");
                 $status{ $c->{id} } = 'mapped'; $out{succession}++;
                 next;
             }
@@ -519,12 +538,12 @@ sub convert {
             elsif ($k eq 'conn')   { push @l, $conn_line->($id, $cid, $ind) }
             elsif ($k eq 'rel')    { push @l, $rel_lines->($id, $cid, $ind) }
             elsif ($k eq 'literal') {
-                if ($kind{$id} eq 'enumdef') { push @l, "${ind}enum " . $N->($cid) . ';'; $status{$cid} = 'mapped'; $out{'enum'}++; $fold->($_) for XmlLite::kids($c) }
+                if ($kind{$id} eq 'enumdef') { push @l, scalar $tag->($cid, 'enum', $qualified->($id) . '::' . $N->($cid), "${ind}enum " . $N->($cid) . ';'); $status{$cid} = 'mapped'; $out{'enum'}++; $fold->($_) for XmlLite::kids($c) }
                 else { push @l, $todo->($cid, 'literal outside an enumeration', $ind) }
             }
             elsif ($k eq 'assoc')  { $fold->($c) }
             elsif ($k eq 'libtype') { $fold->($c) }
-            elsif ($k eq 'comment') { push @l, "${ind}comment " . do { my $b = defined $c->{a}{body} ? $c->{a}{body} : ''; my @d = doc($b, ''); $d[0] =~ s/^doc //; "@d" }; $status{$cid} = 'mapped'; $out{comment}++ }
+            elsif ($k eq 'comment') { push @l, $tag->($cid, 'comment', $qualified->($id), "${ind}comment ") . do { my $b = defined $c->{a}{body} ? $c->{a}{body} : ''; my @d = doc($b, ''); $d[0] =~ s/^doc //; "@d" }; $status{$cid} = 'mapped'; $out{comment}++ }
             elsif ($NS{$k})        { push @l, $emit->($cid, $ind) }
             elsif ($c->{t} =~ /^(PackageImport|ElementImport|ProfileApplication)$/) { $fold->($c) }   # library/profile imports
             else                   { push @l, $todo->($cid, $c->{t} eq 'Constraint' ? 'constraint: ' . _constraint($c) : 'no SysML v2 mapping in this converter', $ind) }
@@ -551,8 +570,9 @@ sub convert {
             my $title = $n->{raw};
             $title = undef if defined $title && $title eq $nm{$id};
             $out{ $style eq 'usage' ? 'requirement' : 'requirement def' }++;
-            my @l = requirement({ name => $N->($id), doorsId => $n->{doorsId}, text => $text, title => $title,
-                                  vm => _sattr($app, 'verifyMethod'), attrs => \@attrs, body => [ map { (my $x = $_) =~ s/^\Q$in\E//; $x } @b ] }, $style, $ind);
+            my @l = $tag->($id, $style eq 'usage' ? 'requirement' : 'requirement def', $qualified->($id),
+                           requirement({ name => $N->($id), doorsId => $n->{doorsId}, text => $text, title => $title,
+                                  vm => _sattr($app, 'verifyMethod'), attrs => \@attrs, body => [ map { (my $x = $_) =~ s/^\Q$in\E//; $x } @b ] }, $style, $ind));
             # hoisted sub-requirements follow their parent
             push @l, $emit->($_->{id}, $ind) for grep { $_->{id} && $kind{ $_->{id} } eq 'req' && !$status{ $_->{id} } } XmlLite::kids($n);
             return @l;
@@ -572,7 +592,9 @@ sub convert {
             }
         }
         if ($k eq 'verif' && $verifies{$id}) {
-            push @b, "${in}objective {", (map { "$in    verify " . ($ref->($id, $_) || "TODO_$_") . ';' } grep { $nm{$_} } @{ $verifies{$id} }), "$in}";
+            my %rel_of;                       # requirement id -> the Verify relationship that names it
+            for my $r (sort keys %verif_rel) { next unless grep { $_ eq $id } @{ $verif_rel{$r}[0] }; $rel_of{$_} //= $r for @{ $verif_rel{$r}[1] } }
+            push @b, "${in}objective {", (map { scalar $tag->($rel_of{$_}, 'verify', $qualified->($id), "$in    verify " . ($ref->($id, $_) || "TODO_$_") . ';') } grep { $nm{$_} } @{ $verifies{$id} }), "$in}";
             $out{verify} += grep { $nm{$_} } @{ $verifies{$id} };
             for my $r (keys %verif_rel) { if (grep { $_ eq $id } @{ $verif_rel{$r}[0] }) { $status{$r} = 'mapped'; $fold->($_) for XmlLite::kids($el->{$r}) } }
         }
@@ -582,12 +604,12 @@ sub convert {
         if ($k eq 'package') {                # imports go first; filled in after the whole tree is emitted
             unshift @b, "$in\x00IMPORTS $id";
         }
-        return ("$ind$head;") if !@b;
-        return ("$ind$head {", @b, "$ind}");
+        return ($tag->($id, $kw{$k}, $qualified->($id), "$ind$head;")) if !@b;
+        return ($tag->($id, $kw{$k}, $qualified->($id), "$ind$head {"), @b, "$ind}");
     };
 
     # ---- emit each top-level package
-    my %files;
+    my %files; my @layout_notes;
     for my $tp (@top) {
         my @body;
         if ($tp eq $LOOSE) {
@@ -625,6 +647,9 @@ sub convert {
         my $pn = $nm{$tp}; (my $seg = lc $pn) =~ s/[^a-z0-9]+/-/g; $seg =~ s/^-+|-+$//g; $seg = 'model' if $seg eq '';
         (my $pf = $pn) =~ s/[^A-Za-z0-9_.\-]+/_/g;
         $fn =~ s/\{seg\}/$seg/g; $fn =~ s/\{pkg\}/$pf/g;
+        my $note; ($fn, $note) = layout_path($o{layout_map}, $pn, $pf, $fn);
+        push @layout_notes, $note if defined $note;
+        if ($files{$fn}) { push @layout_notes, "layout map: $pn and another package both go to $fn; $pn written to " . ($fn =~ s/\.sysml$/_$pf.sysml/r); $fn =~ s/\.sysml$/_$pf.sysml/ }
         $files{$fn} = { tp => $tp, text => $txt };
     }
     # anything typed that nothing reached: a TODO at the end of the first file, never silently dropped
@@ -646,6 +671,32 @@ sub convert {
     }
     my $src = $m->{path}; $src =~ s{.*[/\\]}{};
     my %text = map { $_ => "// generated by xmi2sysml.pl from $src -- review before committing; TODO lines need a person\n" . $files{$_}{text} } keys %files;
+    my %at;                                   # xmi:id -> [file, line]: where the tags ended up; then strip them
+    for my $f (sort keys %text) {
+        my @L = split /\n/, $text{$f}, -1;
+        for my $i (0 .. $#L) { while ($L[$i] =~ s/\x01([^\x01]*)\x01//) { $at{$1} //= [ $f, $i + 1 ] } }
+        $text{$f} = join "\n", @L;
+    }
+    # every element gets a row: its own line, or the line of the nearest ancestor that has one (folded into it,
+    # or inside a construct that became a TODO line)
+    my %DEFK = map { $_ => 1 } ('package', 'part def', 'port def', 'constraint def', 'verification def', 'action def', 'item def',
+                                'attribute def', 'enum def', 'use case def', 'requirement', 'requirement def');
+    my @maprows;
+    for my $id (@{ $m->{order} }) {
+        my ($src_id, $kind) = ($id, undef);
+        $src_id = $m->{parent}{$src_id} while defined $src_id && !$at{$src_id};
+        next unless defined $src_id;
+        my $e = $map{$src_id};
+        $kind = $src_id eq $id ? $e->{kind} : $e->{kind} eq 'todo' ? 'todo' : 'folded';
+        my $def; for (my $x = $src_id; defined $x; $x = $m->{parent}{$x}) { if ($map{$x} && $DEFK{ $map{$x}{kind} } && $at{$x}) { $def = $x; last } }
+        my $q = $e->{q};
+        $q = ($def ? $map{$def}{q} : '') . '::(TODO ' . $el->{$src_id}{t} . ')' if !defined $q;
+        $q = ($def ? $map{$def}{q} : '') if !defined $q || $q eq '';
+        push @maprows, { id => $id, type => $el->{$id}{t}, q => $q, kind => $kind, file => $at{$src_id}[0], line => $at{$src_id}[1],
+                         def => $def ? $map{$def}{q} : '', defkind => $def ? $map{$def}{kind} : '', todo_id => ($kind eq 'todo' ? $src_id : undef),
+                         todo_name => ($kind eq 'todo' ? $el->{$src_id}{a}{name} : undef) };
+    }
+    @maprows = sort { $a->{file} cmp $b->{file} || $a->{line} <=> $b->{line} || $a->{id} cmp $b->{id} } @maprows;
 
     # ---- report
     my %in;
@@ -659,9 +710,11 @@ sub convert {
     my $scope = 0; my $scope_done = 0;
     for my $t (@IN_SCOPE) { $scope += $in{$t}{in} || 0; $scope_done += ($in{$t}{mapped} || 0) + ($in{$t}{folded} || 0) }
     my $problems = check(\%text);
+    my %file_of = map { $files{$_}{tp} => $_ } keys %files;          # top-level package id -> output file (for delta)
     return { files => \%text, problems => $problems,
+             status => \%status, file_of => \%file_of, map => \@maprows,
              report => { source => $src, in => \%in, out => \%out, unmapped => \@unmapped, stereotypes => \%stc,
-                         stereo_todo => \%stereo_todo, extensions => $m->{ext}, unresolved => \%unres,
+                         stereo_todo => \%stereo_todo, extensions => $m->{ext}, unresolved => \%unres, layout => \@layout_notes,
                          scope => $scope, scope_done => $scope_done, total => scalar @{ $m->{order} } } };
 }
 
@@ -698,8 +751,500 @@ sub report_text {
     push @l, '', 'unmapped (TODO in the output): ' . scalar @u;
     push @l, map { sprintf('  uml:%-22s %-24s %s%s', $_->{type}, $_->{id}, ($_->{name} ne '' ? "'$_->{name}' " : ''), $_->{why}) } @u;
     push @l, '', 'files: ' . join(' ', sort keys %{ $out->{files} });
+    push @l, @{ $r->{layout} || [] };
     push @l, 'self-check: ' . (@{ $out->{problems} } ? scalar(@{ $out->{problems} }) . ' problem(s)' : 'ok'), map { "  $_" } @{ $out->{problems} };
     return join("\n", @l) . "\n";
 }
 
+# ---------------------------------------------------------------------------------------------------------------
+# the v1 -> v2 map: one row per v1 element, the v2 line it went to (TODO lines included, v2_kind todo; elements folded
+# into an owner's line, v2_kind folded). Sorted by file, line, xmi:id.
+sub _csvf { my $v = shift // ''; return $v =~ /[",\r\n]/ ? '"' . ($v =~ s/"/""/gr) . '"' : $v }
+sub map_csv {
+    my ($m, $out) = @_;
+    my $t = "xmi_id,v1_type,v1_qualified_name,v2_qualified_name,v2_kind,file,line\n";
+    $t .= join(',', map { _csvf($_) } $_->{id}, "uml:$_->{type}", _qname($m, $_->{id}), $_->{q}, $_->{kind}, $_->{file}, $_->{line}) . "\n" for @{ $out->{map} };
+    return $t;
+}
+sub read_map_csv {                             # -> { xmi_id => { q, kind, file, line } }; dies "FILE: message"
+    my ($path) = @_;
+    open my $fh, '<', $path or die "$path: $!\n";
+    local $/; my $text = <$fh>; close $fh;
+    $text =~ s/\r//g;
+    my @rows;
+    my ($f, @row, $q) = ('');
+    while ($text =~ /\G(?:"((?:[^"]|"")*)"|([^,\n]*))(,|\n|\z)/gc) {
+        my $v = defined $1 ? $1 =~ s/""/"/gr : $2;
+        push @row, $v;
+        if ($3 ne ',') { push @rows, [ @row ]; @row = (); last if $3 eq '' }
+    }
+    my $head = shift @rows;
+    die "$path: not an xmi2sysml map (expected the header xmi_id,v1_type,v1_qualified_name,v2_qualified_name,v2_kind,file,line)\n"
+        unless $head && join(',', @$head) eq 'xmi_id,v1_type,v1_qualified_name,v2_qualified_name,v2_kind,file,line';
+    my %m;
+    for my $r (@rows) { next unless @$r >= 7 && $r->[0] ne ''; $m{ $r->[0] } = { q => $r->[3], kind => $r->[4], file => $r->[5], line => $r->[6] } }
+    return \%m;
+}
+
+# ---------------------------------------------------------------------------------------------------------------
+# delta: what changed between two exports of the same v1 model (the prime's drops), element by element by xmi:id.
+#   my $d = Xmi::delta(Xmi::load($old), Xmi::load($new));   # { added, removed, changed => [ item ], old, new, counts }
+#   print Xmi::delta_text($d);
+# An item is { id, type, qname, what => [ text ], carried => 1|0, where => 'seg/Pkg.sysml' or the reason it is manual }.
+# carried: the converter writes the element into v2 text, so re-converting the drop and merging carries the change;
+# manual: the element is a TODO line or sits inside a construct the converter does not carry (a state machine, an
+# interaction, an activity's fork or pins, a stereotype it does not know), so the v2 text must be reworked by hand.
+sub _qname {
+    my ($m, $id) = @_;
+    my @p;
+    for (my $x = $id; defined $x; $x = $m->{parent}{$x}) {
+        my $n = $m->{el}{$x};
+        last if $n->{t} eq 'Model' && !defined $m->{parent}{$x};
+        my $nm = $n->{a}{name};
+        if (!defined $nm || $nm eq '') {
+            next unless $x eq $id;
+            $nm = $n->{t} eq 'Comment' ? 'comment' : _anon_label($m, $x);
+        }
+        unshift @p, $nm;
+    }
+    return join '::', @p;
+}
+sub _anon_label {                              # a readable label for an unnamed element: a relationship by its ends
+    my ($m, $id) = @_;
+    my $n = $m->{el}{$id};
+    my $nm = sub { my $e = $m->{el}{ $_[0] // '' }; $e && defined $e->{a}{name} ? $e->{a}{name} : '?' };
+    if ($n->{t} =~ /^(Abstraction|Dependency|Usage|Realization)$/) {
+        my ($st) = map { $_->{l} } sort { $a->{l} cmp $b->{l} } values %{ $m->{st}{$id} || {} };
+        my ($c) = _idrefs($n, 'client'); my ($s) = _idrefs($n, 'supplier');
+        return '(' . ($st // $n->{t}) . ' ' . $nm->($c) . ' -> ' . $nm->($s) . ')';
+    }
+    return '(Transition ' . $nm->($n->{a}{source}) . ' -> ' . $nm->($n->{a}{target}) . ')' if $n->{t} eq 'Transition';
+    return "($n->{t})";
+}
+sub _own_sig {                                 # the element's own content: attributes plus untyped descendants, not typed ones
+    my ($n) = @_;
+    my $walk; $walk = sub {
+        my ($x, $top) = @_;
+        return '' if !$top && defined xtype($x) && defined xid($x);
+        my $s = join '', map { " $_=$x->{a}{$_}" } grep { $_ ne 'xmi:id' && ($top ? $_ ne 'name' : 1) } sort keys %{ $x->{a} };
+        my $k = '';
+        for my $c (@{ $x->{k} || [] }) { next if ref $c && defined xtype($c) && defined xid($c); $k .= ref $c ? '<' . $c->{l} . $walk->($c, 0) . '>' : do { (my $t = $c) =~ s/\s+/ /g; $t =~ s/^ | $//g; $t } }
+        return "$s$k";
+    };
+    return $walk->($n, 1);
+}
+sub _st_sig {                                  # stereotypes applied to an element and their tag values
+    my ($m, $id) = @_;
+    my $st = $m->{st}{$id} || {};
+    my %out;
+    for my $k (sort keys %$st) {
+        my $a = $st->{$k};
+        $out{ $a->{l} } = { map { $_ => $a->{a}{$_} } grep { $_ ne 'xmi:id' && !/^base_/ } keys %{ $a->{a} } };
+    }
+    return \%out;
+}
+sub _where {                                   # carried (and the file) or manual (and why), from a conversion's status
+    my ($m, $conv, $id) = @_;
+    my $s = $conv->{status}{$id} // '';
+    my $top = $id; $top = $m->{parent}{$top} while defined $m->{parent}{$top} && defined $m->{parent}{ $m->{parent}{$top} };
+    my $file = $conv->{file_of}{$top} // (sort keys %{ $conv->{files} })[0] // '?';
+    if ($s eq 'mapped' || $s eq 'folded') { return (1, $file) }
+    if ($s eq 'todo') { return (0, "manual: a TODO line in $file (the converter does not carry uml:$m->{el}{$id}{t})") }
+    my $p = $m->{parent}{$id};
+    $p = $m->{parent}{$p} while defined $p && ($conv->{status}{$p} // '') eq 'todo-child';
+    my $o = defined $p ? $m->{el}{$p} : undef;
+    my $on = $o ? "uml:$o->{t}" . (defined $o->{a}{name} ? " '$o->{a}{name}'" : '') : 'an element';
+    return (0, "manual: inside $on, which the converter leaves as a TODO in $file; rework the v2 text by hand");
+}
+sub delta {
+    my ($old, $new, %o) = @_;
+    my $co = convert($old, %o);
+    my $cn = convert($new, %o);
+    my (@added, @removed, @changed);
+    my %in_old = map { $_ => 1 } @{ $old->{order} };
+    my %in_new = map { $_ => 1 } @{ $new->{order} };
+    my $item = sub {
+        my ($m, $conv, $id, @what) = @_;
+        my ($carried, $where) = _where($m, $conv, $id);
+        return { id => $id, type => $m->{el}{$id}{t}, qname => _qname($m, $id), what => \@what, carried => $carried, where => $where };
+    };
+    for my $id (@{ $new->{order} }) {
+        next if $id =~ /^anon_/;
+        if (!$in_old{$id}) { push @added, $item->($new, $cn, $id); next }
+        my ($a, $b) = ($old->{el}{$id}, $new->{el}{$id});
+        my @what;
+        my ($na, $nb) = map { $_ // '' } $a->{a}{name}, $b->{a}{name};
+        push @what, "renamed '$na' -> '$nb'" if $na ne $nb;
+        my ($pa, $pb) = map { $_ // '' } $old->{parent}{$id}, $new->{parent}{$id};
+        push @what, 'moved from ' . ($pa ne '' ? _qname($old, $pa) : '(top)') . ' to ' . ($pb ne '' ? _qname($new, $pb) : '(top)') if $pa ne $pb;
+        push @what, 'type changed uml:' . $a->{t} . ' -> uml:' . $b->{t} if $a->{t} ne $b->{t};
+        push @what, ($a->{t} eq 'Comment' ? 'text changed' : 'properties changed') if !@what && _own_sig($a) ne _own_sig($b);
+        @what = grep { $_ ne 'properties changed' } @what if $a->{t} =~ /^(Package|Model)$/;   # a package's members are reported on themselves
+        my ($sa, $sb) = (_st_sig($old, $id), _st_sig($new, $id));
+        for my $k (sort { lc $a cmp lc $b } keys %{ { %$sa, %$sb } }) {
+            if    (!defined $sa->{$k}) { push @what, "stereotype $k applied" }
+            elsif (!defined $sb->{$k}) { push @what, "stereotype $k removed" }
+            else {
+                my ($ta, $tb) = ($sa->{$k}, $sb->{$k});
+                my @tags = grep { ($ta->{$_} // '') ne ($tb->{$_} // '') } sort keys %{ { %$ta, %$tb } };
+                push @what, "stereotype $k: " . join(', ', map { "$_ changed" } @tags) if @tags;
+            }
+        }
+        push @changed, $item->($new, $cn, $id, @what) if @what;
+    }
+    for my $id (@{ $old->{order} }) {
+        next if $id =~ /^anon_/ || $in_new{$id};
+        push @removed, $item->($old, $co, $id);
+    }
+    my $count = sub { my $c = 0; $c += $_->{carried} ? 0 : 1 for @_; $c };
+    my @all = (@added, @removed, @changed);
+    return { old => $old, new => $new, added => \@added, removed => \@removed, changed => \@changed, conv_old => $co, conv_new => $cn,
+             counts => { old => scalar @{ $old->{order} }, new => scalar @{ $new->{order} }, added => scalar @added,
+                         removed => scalar @removed, changed => scalar @changed, manual => $count->(@all),
+                         carried => @all - $count->(@all) } };
+}
+sub delta_text {
+    my ($d) = @_;
+    my $c = $d->{counts};
+    my $src = sub { (my $p = $_[0]{path}) =~ s{.*[/\\]}{}; my $v = _drop_label($_[0]); $v ? "$p ($v)" : $p };
+    my @l = ('xmi delta: ' . $src->($d->{old}) . ' -> ' . $src->($d->{new}),
+             sprintf('elements %d -> %d: %d added, %d removed, %d changed', @$c{qw(old new added removed changed)}),
+             sprintf('carried by the converter (re-convert the drop and merge it): %d', $c->{carried}),
+             sprintf('manual (the converter does not carry these; rework the v2 text by hand): %d', $c->{manual}));
+    for my $sec (['added', '+'], ['removed', '-'], ['changed', '~']) {
+        my ($k, $mk) = @$sec;
+        next unless @{ $d->{$k} };
+        push @l, '', "$k:";
+        for my $i (@{ $d->{$k} }) {
+            push @l, sprintf('  %s %-22s %s%s', $mk, "uml:$i->{type}", $i->{qname}, @{ $i->{what} } ? ' -- ' . join('; ', @{ $i->{what} }) : '');
+            push @l, '      ' . ($i->{carried} ? "carried: $i->{where}" : $i->{where});
+        }
+    }
+    my @man = map { my $k = $_; map { [ $k, $_ ] } grep { !$_->{carried} } @{ $d->{$k} } } qw(added removed changed);
+    if (@man) {
+        push @l, '', 'manual rework list:';
+        push @l, sprintf('  [ ] %s uml:%s %s%s (xmi:id %s)', $_->[0], $_->[1]{type}, $_->[1]{qname},
+                         (@{ $_->[1]{what} } ? ' -- ' . join('; ', @{ $_->[1]{what} }) : ''), $_->[1]{id}) for @man;
+    }
+    return join("\n", @l) . "\n";
+}
+# ---------------------------------------------------------------------------------------------------------------
+# impact: what a delta between two drops touches in the government's v2 model.
+#   my $i = Xmi::impact($delta, $model_dir, map => $old_map);   # $old_map from read_map_csv (optional)
+#   print Xmi::impact_text($i); print Xmi::impact_csv($i);
+# For each added / removed / changed v1 element: the v2 elements it maps to (the new drop's conversion for added, the
+# old drop's for removed, both for changed), and then, read from the SysML v2 text in $model_dir: the requirements
+# they satisfy, the verification cases that verify those requirements, the connections and allocations that reference
+# them, what refers to them by type (for a removal or rename), and whether the government edited the affected
+# definitions since the old drop was merged (a definition that differs from the old drop's conversion, or a TODO
+# line that is no longer there: closed by hand, so the change must be reworked by hand).
+my $V2HEAD = qr/^\s*(?:(?:private|public|protected)\s+)?(?:abstract\s+|variation\s+|#\w+\s+)*(library\s+package|package|(?:part|port|action|item|attribute|enum|constraint|verification|use\s+case|requirement|interface|connection|state|calc|analysis|occurrence|allocation|metadata|view|viewpoint|rendering|concern|case|flow)\s+def|requirement|part|action|state|item|verification|constraint|interface|connection|exhibit\s+state|perform\s+action)\s+('[^']*'|\w+)/;
+sub _v2_scan {                                  # { rel => text } -> defs, satisfies, verifies, connections, allocations, usages
+    my ($files) = @_;
+    my (%defs, @sat, @ver, @conn, @alloc, @use, %doors, %lines);
+    for my $f (sort keys %$files) {
+        my @L = split /\n/, $files->{$f}, -1;
+        $lines{$f} = \@L;
+        my @stack; my ($depth, $inc) = (0, 0);
+        for my $i (0 .. $#L) {
+            my $s = $L[$i]; my $ln = $i + 1;
+            if ($inc) { if ($s =~ s{^.*?\*/}{}) { $inc = 0 } else { next } }
+            my $raw = $s;
+            $s =~ s{/\*.*?\*/}{}g; $inc = 1 if $s =~ s{/\*.*$}{};
+            $s =~ s{//.*$}{};
+            $s =~ s/"(?:[^"\\]|\\.)*"/""/g;
+            my $ctx = @stack ? $stack[-1][2] : '';
+            my ($vctx) = map { $_->[2] } grep { $_->[3] =~ /^verification/ } reverse @stack;
+            my $opens = () = $s =~ /\{/g; my $closes = () = $s =~ /\}/g;
+            if ($s =~ $V2HEAD) {
+                my ($k, $nm) = ($1, $2); $k =~ s/\s+/ /g;
+                my $q = $ctx ne '' ? "$ctx\::$nm" : $nm;
+                $defs{$q} //= { file => $f, start => $ln, end => $ln, kind => $k, name => $nm, ctx => $ctx };
+                $doors{$nm} = $1 if $k =~ /^requirement/ && $raw =~ /doorsId\s*=\s*"([^"]*)"/;
+                if ($s =~ /\G\s*:\s*~?([\w:'.]+)/gc || $s =~ /^\s*[^:]*?\b\Q$nm\E\s*:\s*~?([\w:'.]+)/) {
+                    push @use, { name => $nm, type => $1, ctx => $ctx, file => $f, line => $ln, kind => $k } if $k !~ / def$|package/;
+                }
+                push @stack, [ $nm, $depth, $q, $k ] if $opens > $closes;
+            }
+            elsif ($s =~ /^\s*(?:in|out|inout|subject|ref|derived|abstract)\b[^:;]*?\b(\w+|'[^']*')\s*:\s*~?([\w:'.]+)/) {
+                push @use, { name => $1, type => $2, ctx => $ctx, file => $f, line => $ln, kind => 'usage' };
+            }
+            if (defined $ctx && @stack && $raw =~ /doorsId\s*=\s*"([^"]*)"/) { $doors{ $stack[-1][0] } //= $1 }
+            push @sat, { req => $1, by => $2, ctx => $ctx, file => $f, line => $ln } if $s =~ /^\s*satisfy\s+(?:requirement\s+)?([\w:'.]+)\s+by\s+([\w:'.]+)/;
+            push @ver, { req => $1, ctx => $vctx // $ctx, file => $f, line => $ln } if $s =~ /^\s*verify\s+(?:requirement\s+)?([\w:'.]+)\s*;/;
+            push @alloc, { from => $1, to => $2, ctx => $ctx, file => $f, line => $ln } if $s =~ /^\s*allocate\s+([\w:'.]+)\s+to\s+([\w:'.]+)/;
+            if ($s =~ /\bconnect\s+(?:\w+\s*::>\s*)?([\w:'.]+)\s+to\s+(?:\w+\s*::>\s*)?([\w:'.]+)/ || $s =~ /^\s*bind\s+([\w:'.]+)\s*=\s*([\w:'.]+)/) {
+                my ($a, $b) = ($1, $2);
+                my ($cn) = $s =~ /^\s*(?:connection|interface)\s+(\w+)\s*(?::\s*\w+\s*)?connect/;
+                push @conn, { ends => [ $a, $b ], name => $cn, ctx => $ctx, file => $f, line => $ln, text => _trim($raw) };
+            }
+            $depth += $opens - $closes;
+            while (@stack && $depth <= $stack[-1][1]) { my $e = pop @stack; $defs{ $e->[2] }{end} = $ln }
+        }
+    }
+    return { defs => \%defs, sat => \@sat, ver => \@ver, conn => \@conn, alloc => \@alloc, use => \@use, doors => \%doors, lines => \%lines };
+}
+sub _trim { my $t = shift // ''; $t =~ s/^\s+|\s+$//g; $t =~ s/\s+/ /g; $t }
+sub _last { my $p = shift // ''; my @s = split /::|\./, $p; my $l = $s[-1] // ''; $l =~ s/^'|'$//g; $l }
+sub _segs { my $p = shift // ''; map { (my $x = $_) =~ s/^'|'$//g; $x } split /::|\./, $p }
+sub _block {                                   # the normalized text of a definition (header to closing brace)
+    my ($scan, $q) = @_;
+    my $d = $scan->{defs}{$q} or return undef;
+    my $L = $scan->{lines}{ $d->{file} };
+    return join "\n", grep { $_ ne '' } map { _trim($_) } @{$L}[ $d->{start} - 1 .. $d->{end} - 1 ];
+}
+sub _read_tree {
+    my ($dir) = @_;
+    my %t;
+    my $w; $w = sub {
+        my ($d, $rel) = @_;
+        opendir my $dh, $d or return;
+        for my $e (sort grep { !/^\./ } readdir $dh) {
+            my $p = "$d/$e"; my $r = $rel eq '' ? $e : "$rel/$e";
+            if (-d $p) { $w->($p, $r) }
+            elsif ($e =~ /\.sysml$/ && open my $fh, '<', $p) { binmode $fh; local $/; $t{$r} = <$fh>; $t{$r} =~ s/\r//g; close $fh }
+        }
+        closedir $dh;
+    };
+    $w->($dir, '');
+    return \%t;
+}
+my %IMPACT_DEFK = map { $_ => 1 } ('part def', 'port def', 'constraint def', 'verification def', 'action def', 'item def',
+                                    'attribute def', 'enum def', 'use case def', 'requirement', 'requirement def');
+sub impact {
+    my ($d, $dir, %o) = @_;
+    die "$dir: not a directory\n" unless -d $dir;
+    my $mtext = _read_tree($dir);
+    my $model = _v2_scan($mtext);
+    my ($co, $cn) = @$d{qw(conv_old conv_new)};
+    my $oscan = _v2_scan($co->{files});
+    my $nscan = _v2_scan($cn->{files});
+    my %omap = map { $_->{id} => $_ } @{ $co->{map} };
+    my %nmap = map { $_->{id} => $_ } @{ $cn->{map} };
+    my @notes;
+    if ($o{map}) {                             # a map written when the old drop was converted (the layout the team used)
+        my $moved = 0;
+        for my $id (sort keys %{ $o{map} }) {
+            my $r = $o{map}{$id};
+            my $cur = $omap{$id} || { def => '', defkind => '' };
+            if ($o{layout_map} && $cur->{file} && $r->{file} ne $cur->{file}) {   # the layout map decides paths: keep the conversion's
+                $moved++;
+                $omap{$id} = { %$cur, q => $r->{q}, kind => $r->{kind}, id => $id };
+                next;
+            }
+            $omap{$id} = { %$cur, %$r, id => $id };
+        }
+        push @notes, "--map: $moved row(s) name a path the layout map puts elsewhere; the layout map's paths are used" if $moved;
+    }
+    my $doors = { %{ $nscan->{doors} }, %{ $oscan->{doors} }, %{ $model->{doors} } };
+    my $rname = sub { my $n = _last(shift); $doors->{$n} // $n };
+    my (%req_all, %ver_all, %conn_all, %alloc_all, %edit_all, @items);
+    for my $kind (qw(added removed changed)) {
+        for my $it (@{ $d->{$kind} }) {
+            my @src = $kind eq 'added' ? ([ $d->{new}, \%nmap ]) : $kind eq 'removed' ? ([ $d->{old}, \%omap ]) : ([ $d->{old}, \%omap ], [ $d->{new}, \%nmap ]);
+            my (@v2, %seen);
+            for my $s (@src) {
+                my ($m, $map) = @$s;
+                my @ids = ([ $it->{id}, 0 ]);
+                if ($it->{type} =~ /^(Abstraction|Dependency|Usage|Realization)$/ && $m->{el}{ $it->{id} }) {   # a relationship: its ends too
+                    push @ids, map { [ $_, 1 ] } _idrefs($m->{el}{ $it->{id} }, 'client'), _idrefs($m->{el}{ $it->{id} }, 'supplier');
+                }
+                for my $x (@ids) { my $r = $map->{ $x->[0] } or next; push @v2, { %$r, end => $x->[1] } unless $seen{"$r->{q}\0$r->{kind}"}++ }
+            }
+            my (%reqs, %vers, %conns, %allocs, @refs, @edits);
+            my (%names, %defs);                # simple names to look for; definitions to compare
+            for my $r (@v2) {
+                if ($r->{kind} =~ /^requirement/) { $reqs{ $rname->($r->{q}) } = "$r->{file}:$r->{line}" }
+                next if $r->{end};             # a relationship's other end: listed, not followed further
+                if ($IMPACT_DEFK{ $r->{kind} } && $r->{kind} !~ /^requirement/) { $names{ _last($r->{q}) } = 1; $defs{ $r->{q} } = 1 }
+                if ($r->{kind} =~ /^(part|port|attribute|item|ref part|action|parameter|enum)$/) { $names{ _last($r->{q}) } = 1 }
+                $defs{ $r->{def} } = 1 if $r->{def} && $r->{defkind} && $IMPACT_DEFK{ $r->{defkind} } && $r->{defkind} !~ /^requirement/;
+                $names{ _last($r->{def}) } = 1 if $r->{def} && $r->{defkind} && $r->{defkind} !~ /^requirement|package/ && $r->{kind} ne 'todo';
+                $vers{ _last($r->{q}) } = "$r->{file}:$r->{line}" if $r->{kind} eq 'verify';
+                $vers{ _last($r->{def}) } = "$r->{file}:$r->{line}" if ($r->{defkind} // '') eq 'verification def' && $r->{kind} ne 'verify';
+                $vers{ _last($r->{q}) } = "$r->{file}:$r->{line}" if $r->{kind} eq 'verification def' && $r->{q} !~ /_verification(?:_\d+)?$/;
+            }
+            my %own = map { $_ => 1 } grep { $defs{$_} } keys %defs;
+            # the government's model: what satisfies / verifies / connects / allocates / refers to these
+            for my $s (@{ $model->{sat} }) {
+                if (grep { $names{$_} } _segs($s->{by})) { $reqs{ $rname->($s->{req}) } //= "$s->{file}:$s->{line}" }
+            }
+            my %rq = map { $_ => 1 } keys %reqs;
+            for my $v (@{ $model->{ver} }) { $vers{ _last($v->{ctx}) } //= "$v->{file}:$v->{line}" if $rq{ $rname->($v->{req}) } }
+            my %in_model = map { $rname->($_->{name}) => 1 } grep { $_->{kind} =~ /^requirement/ } values %{ $model->{defs} };
+            for my $v (@{ $nscan->{ver} }) {   # a requirement the government does not have yet: what the new drop verifies it with
+                my $rn = $rname->($v->{req});
+                $vers{ _last($v->{ctx}) } //= "$v->{file}:$v->{line} (new drop)" if $rq{$rn} && !$in_model{$rn};
+            }
+            my %usage;                         # ctx \0 usage name -> its type is one of ours
+            for my $u (@{ $model->{use} }) { $usage{"$u->{ctx}\0$u->{name}"} = $u if $names{ _last($u->{type}) } }
+            for my $c (@{ $model->{conn} }) {
+                my $hit = 0;
+                for my $e (@{ $c->{ends} }) {
+                    my @sg = _segs($e);
+                    $hit = 1 if $usage{"$c->{ctx}\0$sg[0]"} || (!@sg ? 0 : (@sg > 1 && $names{ $sg[-1] } && $usage{"$c->{ctx}\0$sg[0]"}));
+                    $hit = 1 if $defs{ $c->{ctx} } && $names{ $sg[0] };
+                }
+                $conns{ $c->{name} ? "$c->{ctx}::$c->{name}" : "$c->{ctx}: $c->{text}" } = "$c->{file}:$c->{line}" if $hit;
+            }
+            for my $a (@{ $model->{alloc} }) {
+                $allocs{"allocate $a->{from} to $a->{to}"} = "$a->{file}:$a->{line}" if grep { $names{$_} } _segs($a->{from}), _segs($a->{to});
+            }
+            my $breaks = $kind eq 'removed' || grep { /^renamed|^moved/ } @{ $it->{what} || [] };
+            my %refctx;
+            if ($breaks) {
+                for my $u (@{ $model->{use} }) {
+                    next unless $names{ _last($u->{type}) } && $u->{ctx} ne '';
+                    push @refs, { what => "$u->{ctx}::$u->{name} : $u->{type}", at => "$u->{file}:$u->{line}" };
+                    $refctx{ $u->{ctx} } = 1;
+                }
+            }
+            # hand edits: TODO lines closed by hand, and definitions the government changed since the old drop
+            my %todo_seen;
+            for my $r (@v2) {
+                next unless $r->{kind} eq 'todo' && $r->{todo_id} && !$todo_seen{ $r->{todo_id} }++;
+                next if grep { /\(xmi:id \Q$r->{todo_id}\E\)/ } values %$mtext;
+                my $in = $r->{def} || $r->{q};
+                push @edits, { what => "TODO for " . _todo_label($r) . " closed by hand in " . _last($in), where => $in,
+                               at => _where_in($model, $in, $r) };
+            }
+            my %edited = map { $_->{where} => 1 } @edits;
+            for my $q (sort(keys %defs), sort keys %refctx) {
+                next if $edited{$q}++;
+                my ($was, $now) = (_block($oscan, $q), _block($model, $q));
+                next unless defined $was;
+                if (!defined $now) { push @edits, { what => _last($q) . ' was removed or moved by the government', where => $q, at => '' }; next }
+                next if $was eq $now;
+                push @edits, { what => _last($q) . ($refctx{$q} && !$own{$q} ? ' refers to it and' : '') . ' was edited by the government since ' . _drop_label($d->{old}),
+                               where => $q, at => "$model->{defs}{$q}{file}:$model->{defs}{$q}{start}" };
+            }
+            $req_all{$_} //= $reqs{$_} for keys %reqs;
+            $ver_all{$_} //= $vers{$_} for keys %vers;
+            $conn_all{$_} //= $conns{$_} for keys %conns;
+            $alloc_all{$_} //= $allocs{$_} for keys %allocs;
+            $edit_all{ $_->{what} } //= $_ for @edits;
+            push @items, { change => $kind, item => $it, v2 => \@v2, reqs => \%reqs, vers => \%vers, conns => \%conns,
+                           allocs => \%allocs, refs => \@refs, edits => \@edits };
+        }
+    }
+    # already merged? On a drop branch after the vendor merge the model holds the new drop's conversion: every
+    # definition the delta changes matches the new drop rather than the old one, and the 'hand edits' are the drop itself
+    my ($like_new, $like_old) = (0, 0);
+    my %dq; for my $x (@items) { for my $r (@{ $x->{v2} }) { $dq{$_} = 1 for grep { $_ } $r->{q}, $r->{def} } }
+    for my $q (sort keys %dq) {
+        my ($ob, $nb, $mb) = (_block($oscan, $q), _block($nscan, $q), _block($model, $q));
+        next if defined $ob && defined $nb && $ob eq $nb;
+        next unless defined $mb;
+        if    (defined $nb && $mb eq $nb) { $like_new++ }
+        elsif (defined $ob && $mb eq $ob) { $like_old++ }
+    }
+    if ($like_new && $like_new > $like_old) {
+        push @notes, 'warning: the model already contains ' . (_drop_label($d->{new}) || 'NEW') . ": run --impact against develop before the drop is merged"
+                   . " ($like_new changed definition(s) match the new drop, $like_old the old one); hand edits are not reported";
+        $_->{edits} = [] for @items;
+        %edit_all = ();
+    }
+    my $crs = $o{changes};
+    if ($crs) {                                # each change belongs to the CR naming it, or one of its owners (or a relationship's end)
+        my %of; for my $c (@$crs) { $of{$_} //= $c for @{ $c->{ids} } }
+        for my $x (@items) {
+            my $m = $x->{change} eq 'removed' ? $d->{old} : $d->{new};
+            my $id = $x->{item}{id};
+            my $cr;
+            for (my $p = $id; defined $p && !$cr; $p = $m->{parent}{$p}) { $cr = $of{$p} }
+            $x->{cr} = $cr;
+        }
+    }
+    return { dir => $dir, files => scalar(keys %$mtext), delta => $d, items => \@items, reqs => \%req_all, vers => \%ver_all, changes => $crs, notes => \@notes,
+             conns => \%conn_all, allocs => \%alloc_all, edits => [ map { $edit_all{$_} } sort keys %edit_all ] };
+}
+sub read_changes_csv {                         # the prime's CHANGES.csv: cr_id,title,rationale,kind,xmi_ids,requirements
+    my ($path) = @_;
+    open my $fh, '<', $path or die "$path: $!\n";
+    local $/; my $text = <$fh>; close $fh;
+    $text =~ s/\r//g;
+    my (@rows, @row);
+    while ($text =~ /\G(?:"((?:[^"]|"")*)"|([^,\n]*))(,|\n|\z)/gc) {
+        push @row, defined $1 ? $1 =~ s/""/"/gr : $2;
+        if ($3 ne ',') { push @rows, [ @row ]; @row = (); last if $3 eq '' }
+    }
+    my $head = shift @rows;
+    die "$path: not a CHANGES.csv (expected the header cr_id,title,rationale,kind,xmi_ids,requirements)\n"
+        unless $head && join(',', @$head) eq 'cr_id,title,rationale,kind,xmi_ids,requirements';
+    return [ map { { cr => $_->[0], title => $_->[1] // '', rationale => $_->[2] // '', kind => $_->[3] // '',
+                     ids => [ split ' ', $_->[4] // '' ], reqs => [ split ' ', $_->[5] // '' ] } } grep { @$_ >= 4 && $_->[0] ne '' } @rows ];
+}
+sub _todo_label { my $r = shift; my $q = $r->{q} // ''; ($q =~ /\(TODO (\w+)\)$/ ? "uml:$1" : _last($q)) . (defined $r->{todo_name} ? " '$r->{todo_name}'" : '') }
+sub _where_in { my ($scan, $q, $r) = @_; my $d = $scan->{defs}{$q}; $d ? "$d->{file}:$d->{start}" : "$r->{file}:$r->{line}" }
+sub impact_text {
+    my ($i) = @_;
+    my $sym = { added => '+', removed => '-', changed => '~' };
+    my @l = ('', "impact on $i->{dir} ($i->{files} .sysml files)", @{ $i->{notes} || [] });
+    my @groups = ([ undef, $i->{items} ]);
+    if ($i->{changes}) {                       # by change request, in the prime's order; changes no CR names last
+        my %by; push @{ $by{ $_->{cr} ? $_->{cr}{cr} : '' } }, $_ for @{ $i->{items} };
+        @groups = ((map { [ $_, $by{ $_->{cr} } || [] ] } @{ $i->{changes} }), ($by{''} ? ([ { cr => '' }, $by{''} ]) : ()));
+    }
+    for my $g (@groups) {
+      my ($cr, $xs) = @$g;
+      if ($cr) {
+        if ($cr->{cr} eq '') { push @l, '', '== changes no change request names (ask the prime)' }
+        else {
+            push @l, '', "== $cr->{cr} $cr->{kind}: $cr->{title}" . (@$xs ? '' : ' (no change in this delta)'),
+                     '   rationale: ' . ($cr->{rationale} =~ /\S/ ? $cr->{rationale} : '(none given -- ask the prime for clarification)');
+            push @l, '   requirements: ' . join(' ', @{ $cr->{reqs} }) if @{ $cr->{reqs} };
+        }
+      }
+      for my $x (@$xs) {
+        my $it = $x->{item};
+        push @l, '', sprintf('%s uml:%s %s%s', $sym->{ $x->{change} }, $it->{type}, $it->{qname}, @{ $it->{what} || [] } ? ' -- ' . join('; ', @{ $it->{what} }) : '');
+        push @l, map { sprintf '    v2: %s (%s, %s:%d)', $_->{q}, $_->{kind}, $_->{file}, $_->{line} } @{ $x->{v2} };
+        push @l, '    requirements: ' . join(', ', sort keys %{ $x->{reqs} }) if %{ $x->{reqs} };
+        push @l, '    verification cases: ' . join(', ', sort keys %{ $x->{vers} }) if %{ $x->{vers} };
+        push @l, map { "    interface: $_ ($x->{conns}{$_})" } sort keys %{ $x->{conns} };
+        push @l, map { "    allocation: $_ ($x->{allocs}{$_})" } sort keys %{ $x->{allocs} };
+        push @l, map { "    referenced by: $_->{what} ($_->{at})" } @{ $x->{refs} };
+        push @l, map { "    hand edit: $_->{what}" . ($_->{at} ? " ($_->{at})" : '') } @{ $x->{edits} };
+      }
+    }
+    my $list = sub { my $h = shift; join(', ', sort keys %$h) };
+    push @l, '', 'impact summary:',
+        sprintf('%-28s %3d  %s', 'requirements touched', scalar(keys %{ $i->{reqs} }), $list->($i->{reqs})),
+        sprintf('%-28s %3d  %s', 'verification cases touched', scalar(keys %{ $i->{vers} }), $list->($i->{vers})),
+        sprintf('%-28s %3d  %s', 'interfaces touched', scalar(keys %{ $i->{conns} }), join('; ', sort keys %{ $i->{conns} })),
+        sprintf('%-28s %3d  %s', 'allocations touched', scalar(keys %{ $i->{allocs} }), join('; ', sort keys %{ $i->{allocs} })),
+        sprintf('%-28s %3d', 'hand edits to redo', scalar @{ $i->{edits} });
+    if ($i->{changes}) {
+        my @norat = grep { $_->{rationale} !~ /\S/ } @{ $i->{changes} };
+        my $loose = grep { !$_->{cr} } @{ $i->{items} };
+        splice @l, -1, 0, sprintf('%-28s %3d  %s', 'change requests', scalar @{ $i->{changes} }, join(' ', map { $_->{cr} } @{ $i->{changes} })),
+            sprintf('%-28s %3d  %s', 'without a rationale', scalar @norat, join(' ', map { $_->{cr} } @norat)),
+            sprintf('%-28s %3d', 'changes no CR names', $loose);
+    }
+    push @l, map { "  [ ] $_->{what}" . ($_->{at} ? " ($_->{at})" : '') } @{ $i->{edits} };
+    return join("\n", @l) . "\n";
+}
+sub impact_csv {
+    my ($i) = @_;
+    my $t = "change,xmi_id,v1_type,v1_qualified_name,category,v2_name,file,line,detail,cr_id\n";
+    my $row = sub { my ($x, $cat, $name, $at, $detail) = @_; my ($f, $ln) = ($at // '') =~ /^(.*):(\d+)$/ ? ($1, $2) : ('', '');
+        $t .= join(',', map { _csvf($_) } $x->{change}, $x->{item}{id}, "uml:$x->{item}{type}", $x->{item}{qname}, $cat, $name, $f, $ln, $detail // '', $x->{cr} ? $x->{cr}{cr} : '') . "\n" };
+    for my $x (@{ $i->{items} }) {
+        $row->($x, 'v2', $_->{q}, "$_->{file}:$_->{line}", $_->{kind}) for @{ $x->{v2} };
+        $row->($x, 'requirement', $_, $x->{reqs}{$_}) for sort keys %{ $x->{reqs} };
+        $row->($x, 'verification', $_, $x->{vers}{$_}) for sort keys %{ $x->{vers} };
+        $row->($x, 'interface', $_, $x->{conns}{$_}) for sort keys %{ $x->{conns} };
+        $row->($x, 'allocation', $_, $x->{allocs}{$_}) for sort keys %{ $x->{allocs} };
+        $row->($x, 'reference', $_->{what}, $_->{at}) for @{ $x->{refs} };
+        $row->($x, 'hand-edit', $_->{where}, $_->{at}, $_->{what}) for @{ $x->{edits} };
+    }
+    return $t;
+}
+
+sub _drop_label {                              # "v1.1" from the export's own comment, when it names a drop
+    my ($m) = @_;
+    open my $fh, '<', $m->{path} or return '';
+    my $head = ''; read $fh, $head, 512; close $fh;
+    return $head =~ /prime drop (v[\d.]+)/ ? $1 : '';
+}
 1;

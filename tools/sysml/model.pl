@@ -13,6 +13,12 @@
 #   control_types = TypeA, TypeB         flow types drawn as IDEF0 controls (orders, rules, authorizations)
 #   alloc_prefix  = defend               the feature path that stands for the verb root in
 #                                        'allocate defend.x.y to part.path;' (those become IDEF0 mechanisms)
+#   idef0_models  = auto                 steps: one IDEF0 model per top-level step (each step a team); root: one
+#                                        model whose boxes are the steps (A0) with its A-0 context; auto (default):
+#                                        root when every step is a leaf (a converted v1 activity), else steps.
+#                                        'allocate VerbDef to PartDef;' also gives mechanisms, and a step input
+#                                        with no 'in x = step.result' binding is fed by the nearest earlier step
+#                                        whose result has its type (converted activities carry no object flows)
 #   acronyms      = ABC, QoS             kept whole when names are split into words
 #   level_tags    = L1Enterprise, ...    the @L<n> metadata names 'new part' writes, level 1 first
 #   need_prefix   = N-                   requirement ids starting with it are needs (trace status 'need')
@@ -171,10 +177,14 @@ for my $f (@FILES) {
         if ($kind eq 'part') {
             while ($flat =~ /\bpart\s+(?::>>\s*)?(\w+)\s*(?::>\s*\w+\s*)?:\s*([\w:]+)/g) { my ($u, $ty) = ($1, $2); push @kids, [$u, last_seg($ty)] }
         } else {
-            while ($flat =~ /\b$kind\s+(\w+)\s*:\s*([\w:]+)/g) { my ($u, $ty) = ($1, $2); push @kids, [$u, last_seg($ty)] }
+            while ($flat =~ /\b$kind\s+(\w+|'[^']+')\s*:\s*([\w:]+)/g) { my ($u, $ty) = ($1, $2); $u =~ s/^'|'\z//g; push @kids, [$u, last_seg($ty)] }
         }
         my ($ret, $many) = ('', 0);
         if ($flat =~ /$RETURN\s*(?:\w+\s*)?:\s*([\w:]+)\s*(\[[^\]]*\])?/) {
+            $ret = last_seg($1);
+            $many = ($2 // '') =~ /\*|\.\.\s*[2-9]|\[\s*[2-9]/ ? 1 : 0;
+        }
+        elsif ($kind eq 'action' && $flat =~ /(?:^|[;{}]|\bdoc\b)\s*(?:out|inout)\s+(?:(?:item|attribute|part|ref)\s+)?\w+\s*:\s*([\w:]+)\s*(\[[^\]]*\])?/m) {   # named out parameter (converted v1 activities): it is the result
             $ret = last_seg($1);
             $many = ($2 // '') =~ /\*|\.\.\s*[2-9]|\[\s*[2-9]/ ? 1 : 0;
         }
@@ -409,7 +419,7 @@ sub cmd_docs {
         . "hands one result on (\x{2192}). A function is made of the functions indented beneath it, "
         . scalar(@$vlong) . " levels deep,\nwith 2 to 9 steps at each level. The top level: " . join(', ', @top) . '.',
         tree_lines($VERB_ROOT, 1));
-    cmd_idef0();
+    cmd_idef0(from_docs => 1);
 }
 
 # ------------------------------------------------------------------ IDEF0
@@ -434,13 +444,14 @@ sub parse_verbs {
             my ($kind, $name) = ($1, $2);
             my ($body, $flat) = block($t, pos($t) - 1);
             my @params;
-            while ($flat =~ /(?:^|[;}]|\bdoc\b)\s*in\s+(?:(?:item|attribute|part|ref)\s+)?(\w+)\s*:\s*([\w:]+)\s*(\[[^\]]*\])?\s*(default)?/mg) {   # one-line defs too
+            while ($flat =~ /(?:^|[;{}]|\bdoc\b)\s*(?:inout|in)\s+(?:(?:item|attribute|part|ref)\s+)?(\w+)\s*:\s*([\w:]+)\s*(\[[^\]]*\])?\s*(default)?/mg) {   # one-line defs too; inout is an input as well
                 my ($pn, $pt, $mult, $def) = ($1, $2, $3 // '', $4);
                 push @params, [$pn, last_seg($pt), ($mult =~ /\*|\.\.\s*[2-9]|\[\s*[2-9]/ ? 1 : 0), ($def ? 1 : 0)];
             }
             my @uses;
-            while ($body =~ /\b$kind\s+(\w+)\s*:\s*([\w:]+)\s*(\{|;)/g) {
+            while ($body =~ /\b$kind\s+(\w+|'[^']+')\s*:\s*([\w:]+)\s*(\{|;)/g) {
                 my ($u, $ty, $op) = ($1, last_seg($2), $3);
+                $u =~ s/^'|'\z//g;                    # a quoted name ('send': a keyword) is the same name
                 my %bind;
                 if ($op eq '{') {
                     my ($b) = block($body, pos($body) - 1);
@@ -498,13 +509,37 @@ sub target_name {    # plain name of the part at the end of an allocation path
     plain_name($type);
 }
 
-sub allocations {
-    my %m;
-    return \%m if $ALLOC_PREFIX eq '';
+sub allocations {    # usage path -> mechanisms ('allocate PREFIX.path to part.path'), and 'def:Verb' -> mechanisms
+    my %m;            # ('allocate VerbDef to PartDef', the form converted v1 allocations take)
+    parse_verbs();
     for my $f (@FILES) {
-        push @{ $m{$1} }, target_name($2) while $CODE{$f} =~ /\ballocate\s+\Q$ALLOC_PREFIX\E\.?([\w.]*)\s+to\s+([\w.]+)\s*;/g;
+        if ($ALLOC_PREFIX ne '') {
+            push @{ $m{$1} }, target_name($2) while $CODE{$f} =~ /\ballocate\s+\Q$ALLOC_PREFIX\E\.?([\w.]*)\s+to\s+([\w.]+)\s*;/g;
+        }
+        while ($CODE{$f} =~ /\ballocate\s+(\w+)\s+to\s+(\w+)\s*;/g) {
+            my ($v, $p) = ($1, $2);
+            push @{ $m{"def:$v"} }, ($DEF{$p} ? plain_name($p) : words($p)) if $VERB{$v};
+        }
     }
     \%m;
+}
+
+sub implicit_flows {    # usage -> { input param -> flow name } for uses with no 'in x = ...' bindings at all (converted
+    my ($type, $sib) = @_;   # v1 activities, whose object flows did not convert): each input is fed by the nearest earlier
+    my %imp;                 # sibling whose result has the input's type (declaration order = the activity's order)
+    my @done;
+    for my $u (@{ $VERB{$type}{uses} || [] }) {
+        my ($un, $ut, $b) = @$u;
+        if (!%$b) {
+            for my $p (@{ $VERB{$ut}{params} || [] }) {
+                next if $p->[3];
+                my ($src) = grep { ($DEF{ $_->[1] }{returns} // '') eq $p->[1] } reverse @done;
+                $imp{$un}{ $p->[0] } = $sib->{ $src->[0] } if $src && defined $sib->{ $src->[0] };
+            }
+        }
+        push @done, $u;
+    }
+    \%imp;
 }
 
 sub sibling_names {    # flow names produced by the child functions of a verb
@@ -542,7 +577,8 @@ sub step_letters {    # every top-level step gets a letter: from 'steps', else i
 }
 
 sub activity_ports {    # IDEF0 ports of one function instance, named in its parent's context
-    my ($type, $bind, $parent_flows, $siblings) = @_;
+    my ($type, $bind, $parent_flows, $siblings, $implicit) = @_;
+    $implicit //= {};
     my $v = $VERB{$type} or return ([], {});
     my (@ports, %seen, %flows);
     for my $p (@{ $v->{params} }) {
@@ -558,6 +594,8 @@ sub activity_ports {    # IDEF0 ports of one function instance, named in its par
                 my $pf = $parent_flows->{$id};
                 push @names, ref $pf ? ($pf->{ $field // '' } // ()) : $pf;
             }
+        } elsif (defined $implicit->{$pn}) {
+            push @names, $implicit->{$pn};
         } else {
             push @names, $def ? words($pn) : type_flow($pt, $many);
         }
@@ -584,20 +622,28 @@ sub doc_lines {
 }
 
 sub idef0_lines {    # one activity (usage) and its descendants, indented under its model
-    my ($usage, $type, $bind, $parent_flows, $siblings, $path, $mech, $indent, $links) = @_;
+    my ($usage, $type, $bind, $parent_flows, $siblings, $path, $mech, $indent, $links, $implicit) = @_;
     my $v = $VERB{$type} or return ();
     my $pad = '  ' x $indent;
-    my @mech = @{ allocations()->{$path} || $mech };
-    my ($ports, $flows) = activity_ports($type, $bind, $parent_flows, $siblings);
+    my $al = allocations();
+    my @mech = @{ $al->{$path} || $al->{"def:$type"} || $mech };
+    my ($ports, $flows) = activity_ports($type, $bind, $parent_flows, $siblings, $implicit);
     my @out = ("${pad}a# " . plain_name($type), doc_lines("$pad  ", $v),
                port_lines("$pad  ", $ports, $siblings->{$usage} // out_name($usage, $type), \@mech, $links));
     my %sib = sibling_names($type);
-    push @out, idef0_lines($_->[0], $_->[1], $_->[2], $flows, \%sib, "$path.$_->[0]", \@mech, $indent + 1) for @{ $v->{uses} };
+    my $imp = implicit_flows($type, \%sib);
+    push @out, idef0_lines($_->[0], $_->[1], $_->[2], $flows, \%sib, "$path.$_->[0]", \@mech, $indent + 1, undef, $imp->{ $_->[0] }) for @{ $v->{uses} };
     @out;
 }
 
 sub cmd_idef0 {
+    my %o = @_;
     parse_verbs();
+    if ($o{from_docs} && !defined $CONF{verb_root} && !($VERB{$VERB_ROOT} && @{ $VERB{$VERB_ROOT}{uses} || [] })) {
+        # a new model has no function tree yet: docs skips the IDEF0 plates until sysml.conf names the top action def
+        print "idef0: skipped: sysml.conf sets no verb_root (set it to the top action def to get docs/idef0/)\n";
+        return 0;
+    }
     step_letters();
     my $dir = File::Spec->catdir($ROOT, 'docs', 'idef0');
     mkdir File::Spec->catdir($ROOT, 'docs');
@@ -608,7 +654,7 @@ sub cmd_idef0 {
     # root context: the fields of the root's input record (an item def) are the external flows
     my ($in_type) = map { $_->[1] } @{ $root->{params} };
     my %rec;
-    for my $f (@FILES) {
+    for my $f (defined $in_type ? @FILES : ()) {    # a root with no inputs (converted v1 activities) has no record
         next unless $CODE{$f} =~ /\bitem\s+def\s+\Q$in_type\E\s*\{/g;
         my (undef, $flat) = block($CODE{$f}, pos($CODE{$f}) - 1);
         while ($flat =~ /\b(?:item|attribute)\s+(\w+)\s*:\s*([\w:]+)\s*(\[[^\]]*\])?/g) {
@@ -620,12 +666,17 @@ sub cmd_idef0 {
     my %root_sib = sibling_names($VERB_ROOT);
     my $alloc = allocations();
     my @steps = @{ $root->{uses} };
+    my $mode = $CONF{idef0_models} // 'auto';    # steps: one IDEF0 model per top-level step; root: one model, the steps are its boxes
+    if ($mode !~ /^(auto|steps|root)\z/) { print STDERR "idef0: idef0_models in sysml.conf is auto, steps or root, not '$mode'\n"; return 2 }
+    $mode = (grep { @{ $VERB{ $_->[1] }{uses} || [] } } @steps) ? 'steps' : 'root' if $mode eq 'auto';   # leaf steps: one-box models say nothing
+    if (!@steps) { print STDERR "idef0: $VERB_ROOT has no steps (action or calc usages) to draw; give it some, or set verb_root in sysml.conf\n"; return 1 }
+    my $rimp = implicit_flows($VERB_ROOT, \%root_sib);
 
     # model-level (A-0) ports of every step, and which step feeds each flow
     my (%ports, %flows, %producer_of);
     for my $u (@steps) {
         my ($un, $ut, $b) = @$u;
-        ($ports{$un}, $flows{$un}) = activity_ports($ut, $b, \%root_flows, \%root_sib);
+        ($ports{$un}, $flows{$un}) = activity_ports($ut, $b, \%root_flows, \%root_sib, $rimp->{$un});
         $producer_of{ $root_sib{$un} } = $un;
     }
     # hand-offs between steps are linked at level-1 activities (what idef0-backlog.pl turns into
@@ -662,8 +713,10 @@ sub cmd_idef0 {
         "             perl tools/idef0/idef0.pl html $IDEF0_NAME.md > plates.html",
         "             perl tools/idef0/idef0.pl links $IDEF0_NAME.md > INTERFACES -->", '',
         "# $TITLE " . words($IDEF0_NAME) . ' — IDEF0 model set', '',
-        "The $TITLE verbs drawn as IDEF0 plates: one model per top-level step of $VERB_ROOT, so each step",
-        'can be owned by one team. Every box is a function from `model/`; a box is decomposed',
+        ($mode eq 'steps' ? ("The $TITLE verbs drawn as IDEF0 plates: one model per top-level step of $VERB_ROOT, so each step",
+        'can be owned by one team. Every box is a function from `model/`; a box is decomposed')
+          : ("The $TITLE verbs drawn as IDEF0 plates: one model, $VERB_ROOT, whose top-level steps are the boxes of",
+             "plate ${MODEL_LETTER}0 (its context, the whole function as one box, is plate ${MODEL_LETTER}-0). Every box is a function from `model/`; a box is decomposed")),
         'on its own plate when the function is composed of smaller functions (2 to 9 per plate).', '',
         '- **Inputs** (left): the data a function transforms, named after the flow wired into it.',
         '- **Controls** (top): orders, authorizations and rules (the `control_types` of `sysml.conf`),',
@@ -673,13 +726,27 @@ sub cmd_idef0 {
         "  `allocate` statements; a function without its own allocation inherits its parent's.",
         '- **Model line** (`t`): the step\'s own inputs, controls and output (its A-0 context). Hand-offs',
         '  between steps are cross-model links (`<` comes from, `>` goes to), listed in `INTERFACES`.', '';
-    for my $u (@steps) {
+    if ($mode eq 'root') {    # one model: the root verb, its steps as boxes (flows the model does not bind are matched by type)
+        my ($L, $rv) = ($MODEL_LETTER, $root);
+        my $title = plain_name($VERB_ROOT);
+        my @mech = @{ $alloc->{"def:$VERB_ROOT"} || $alloc->{''} || [plain_name($NOUN_ROOT)] };
+        my ($rports) = activity_ports($VERB_ROOT, {}, {}, {});
+        my $rout = $DEF{$VERB_ROOT}{returns} ? type_flow($DEF{$VERB_ROOT}{returns}, $DEF{$VERB_ROOT}{many}) : words($VERB_ROOT);
+        push @md, "## Model $L — $title", '';
+        push @md, wrap_doc($rv->{doc}, '', 88), '' if $rv->{doc};
+        push @md, 'Performed by: ' . join(', ', @mech) . '. Inputs a step takes without an `in x = step.result` binding are fed by the nearest',
+            'earlier step whose result has their type (converted v1 activities carry no object flows).', '';
+        push @md, '```idef0', "t$L $title", doc_lines('', $rv), port_lines('  ', $rports, $rout, \@mech);
+        push @md, idef0_lines($_->[0], $_->[1], $_->[2], \%root_flows, \%root_sib, $_->[0], \@mech, 1, undef, $rimp->{ $_->[0] }) for @steps;
+        push @md, '```', '';
+    }
+    for my $u ($mode eq 'steps' ? @steps : ()) {
         my ($un, $ut, $b) = @$u;
         my $v = $VERB{$ut};
         my $L = $STEP_LETTER{$un} // uc substr($un, 0, 1);
         my $label = $STEP_LABEL{$un} // words($un);
         my $title = $label eq plain_name($ut) ? $label : "$label — " . plain_name($ut);
-        my @mech = @{ $alloc->{$un} || $alloc->{''} || [plain_name($NOUN_ROOT)] };
+        my @mech = @{ $alloc->{$un} || $alloc->{"def:$ut"} || $alloc->{''} || [plain_name($NOUN_ROOT)] };
         my @in  = map { my $f = $_->[1]; my ($src) = grep { $root_sib{$_} eq $f && $_ ne $un } map { $_->[0] } @steps;
                         $f . ($src ? " (from $STEP_LETTER{$src})" : '') } @{ $ports{$un} };
         my @to = sort grep { $_ ne $un && grep { $_->[1] eq $root_sib{$un} } @{ $ports{$_} } } map { $_->[0] } @steps;
@@ -719,9 +786,20 @@ sub cmd_idef0 {
     my $svg = File::Spec->catdir($dir, 'svg');
     mkdir $svg;
     unlink glob(File::Spec->catfile($svg, '*.svg'));
-    for my $u (@steps) {
-        my $L = $STEP_LETTER{ $u->[0] };
+    if ($mode eq 'root') {    # the A-0 context, the A0 plate of the steps, and a plate for each step that has steps of its own
+        my $L = $MODEL_LETTER;
+        $save->(File::Spec->catfile($svg, "plate-$L-0.svg"), $run->('svg', "$L-0", $md));
         $save->(File::Spec->catfile($svg, "plate-${L}0.svg"), $run->('svg', "${L}0", $md));
+        for my $i (1 .. @steps) {
+            next unless @{ $VERB{ $steps[$i - 1][1] }{uses} || [] };
+            $save->(File::Spec->catfile($svg, "plate-$L$i.svg"), $run->('svg', "$L$i", $md));
+        }
+    }
+    for my $u ($mode eq 'steps' ? @steps : ()) {
+        my $L = $STEP_LETTER{ $u->[0] };
+        my $plate = $run->('svg', "${L}0", $md);
+        $plate = $run->('svg', "$L-0", $md) if $plate eq '';    # a leaf step: its model is one box (A-0)
+        $save->(File::Spec->catfile($svg, "plate-${L}0.svg"), $plate);
     }
     unlink File::Spec->catfile($dir, "plate-${MODEL_LETTER}0.svg");
     $status;
@@ -1248,7 +1326,12 @@ sub cmd_draw {
     my $d = $DRAW{$kind} or do { print STDERR "usage: $ME draw tree|trace|ibd|pkg [-o FILE] [tool options]\n"; return 2 };
     my @a = @args;
     unshift @a, '-o', "$kind.svg" unless has_opt('-o|--o', @a);
-    unshift @a, '--title', "$TITLE: $d->[1]" unless has_opt('--title', @a);
+    if ($kind eq 'pkg' && !has_opt('--no-markings', @a) && !grep { $RAW{$_} =~ /\@Marking\b/ } @FILES) {   # nothing marked yet
+        unshift @a, '--no-markings';    # (a freshly converted v1 model): draw the dependencies and cycles, not 'NO MARKING' everywhere
+        print "draw pkg: no \@Marking in the model, so markings are not checked (the gate still checks them)\n";
+    }
+    unshift @a, '--title', "$TITLE: " . ($kind eq 'pkg' && has_opt('--no-markings', @a) ? 'packages and dependencies' : $d->[1])
+        unless has_opt('--title', @a);
     run_view($d->[0], @a, rel($MODEL));
 }
 sub cmd_plates {

@@ -1,0 +1,9 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y TW-113 Reviewed !23, !24. T TW-118 the twelve-week briefing and memo, by Thu; pairing with Bob after lunch. B none
+[9:02 AM] Bob
+Y TW-113 Fork, pin and object flow in: 4 TODOs closed, 5 left. Reviewed !24. T TW-112 write the BuoyModes state def; exhibit it on, by Thu. B none
+[9:03 AM] Tom
+Y TW-115 Data exchange table for the program: 4 TODOs closed, 5 left. T TW-115 generate the data exchange table, by Thu. B none

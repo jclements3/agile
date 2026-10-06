@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tidewater Run</title>
+<style>
+  :root { --fg:#1a1a1a; --bg:#ffffff; --muted:#555; --rule:#bbb; --head:#e8e8e8; --zebra:#fafafa; --code:#f4f4f4; --bar:#1f4e79; --bar2:#2c7a3f; --bar3:#7a5a1f; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --fg:#e6e6e6; --bg:#16181c; --muted:#a0a0a0; --rule:#444; --head:#2a2d33; --zebra:#1d2026; --code:#23262c; --bar:#6fa8dc; --bar2:#7fc28f; --bar3:#d1a85a; } }
+  :root[data-theme="dark"] { --fg:#e6e6e6; --bg:#16181c; --muted:#a0a0a0; --rule:#444; --head:#2a2d33; --zebra:#1d2026; --code:#23262c; --bar:#6fa8dc; --bar2:#7fc28f; --bar3:#d1a85a; }
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: var(--fg); background: var(--bg);
+         max-width: 1100px; margin: 2em auto; padding: 0 16px; line-height: 1.5; }
+  h1 { font-size: 20pt; border-bottom: 2px solid var(--rule); padding-bottom: 0.2em; }
+  h2 { font-size: 15pt; margin-top: 2em; border-bottom: 1px solid var(--rule); padding-bottom: 0.15em; }
+  code, pre { font-family: Consolas, "Courier New", monospace; font-size: 10pt; background: var(--code); }
+  pre { padding: 0.8em 1em; overflow-x: auto; }
+  .wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 10pt; }
+  th, td { border: 1px solid var(--rule); padding: 0.35em 0.5em; text-align: left; vertical-align: top; }
+  th { background: var(--head); } td.n, th.n { text-align: right; white-space: nowrap; }
+  tr:nth-child(even) td { background: var(--zebra); }
+  .note { color: var(--muted); font-size: 10pt; }
+  details { margin: 0.3em 0 0.3em 1em; } summary { cursor: pointer; }
+  svg text { fill: var(--fg); } svg .bar { fill: var(--bar); } svg .bar2 { fill: var(--bar2); } svg .bar3 { fill: var(--bar3); }
+  @media print { details { display: block; } details > * { display: block; } }
+</style>
+</head>
+<body>
+<h1>Tidewater: MBSE in GitLab, sprint by sprint</h1>
+<p><strong>Tidewater is fictional, civilian and notional, and so is every number here.</strong> Three government systems engineers, Jim, Bob and Tom, port a prime contractor's SysML v1 model of a coastal weather-observation network to SysML v2 text in GitLab, then keep it current with the prime's drops. This page covers sprints 1&ndash;6 (from 5 October 2026). Every number on it is read from the evidence in <code>docs/tidewater/</code>, which a run of the kit produced: the GitLab emulator, the pipeline, gitflow, the converters, the journal. The book <a href="mbse-devsecops-primer.html">MBSE-DEVSECOPS Primer</a> tells these weeks; <a href="tidewater/README.md">docs/tidewater/README.md</a> lists every evidence file.</p>
+<pre>perl sim/tidewater-sim.pl --dir RUN/data/tidewater --sprints 6 --no-docs   # the run
+perl sim/tidewater-evidence.pl RUN/data/tidewater                           # its evidence into docs/tidewater/
+perl sim/tidewater-render.pl                                                # this page</pre>
+<h2>Sprints</h2>
+<div class="wrap"><table><tr><th class=n>Sprint</th><th>Goal</th><th class=n>Capacity</th><th class=n>Committed</th><th class=n>Done</th><th class=n>Engineering</th><th class=n>Platform</th><th class=n>Learning</th><th class=n>Merges</th><th class=n>TODO lines</th><th class=n>MR lead (h)</th><th class=n>Morale</th></tr>
+<tr><td class=n><a href="tidewater/sprints/01/kickoff.txt">1</a></td><td>A GitLab project the team can work in; drop 1 received and assessed</td><td class=n>18.9</td><td class=n>16.5</td><td class=n>16.5</td><td class=n>4.5</td><td class=n>8.0</td><td class=n>4.0</td><td class=n>1</td><td class=n>0</td><td class=n>2.2</td><td class=n>1.9</td></tr>
+<tr><td class=n><a href="tidewater/sprints/02/kickoff.txt">2</a></td><td>Drop 1 on develop through the vendor branch; every change gated</td><td class=n>21.0</td><td class=n>19.0</td><td class=n>19</td><td class=n>6.0</td><td class=n>10.0</td><td class=n>3.0</td><td class=n>6</td><td class=n>52</td><td class=n>3.6</td><td class=n>2.4</td></tr>
+<tr><td class=n><a href="tidewater/sprints/03/kickoff.txt">3</a></td><td>Network closed; DOORS in the model; the trace report on every change</td><td class=n>18.9</td><td class=n>15.0</td><td class=n>15</td><td class=n>8.0</td><td class=n>4.5</td><td class=n>2.5</td><td class=n>4</td><td class=n>50</td><td class=n>4.2</td><td class=n>2.2</td></tr>
+<tr><td class=n><a href="tidewater/sprints/04/kickoff.txt">4</a></td><td>Stations levels and Types closed, one cycle broken, gaps reported; the model site for management</td><td class=n>18.4</td><td class=n>17.0</td><td class=n>12</td><td class=n>12.5</td><td class=n>3.0</td><td class=n>1.5</td><td class=n>4</td><td class=n>22</td><td class=n>3.5</td><td class=n>3</td></tr>
+<tr><td class=n><a href="tidewater/sprints/05/kickoff.txt">5</a></td><td>Procured parts and DataCenter closed; Legacy Import untangled; trace becomes a gate</td><td class=n>21.0</td><td class=n>18.5</td><td class=n>18.5</td><td class=n>12.5</td><td class=n>5.0</td><td class=n>1.0</td><td class=n>5</td><td class=n>14</td><td class=n>3.5</td><td class=n>3.8</td></tr>
+<tr><td class=n><a href="tidewater/sprints/06/kickoff.txt">6</a></td><td>Behavior started; Operations closed; the data exchange table; interim baseline-0 for the program review</td><td class=n>15.7</td><td class=n>14.0</td><td class=n>11</td><td class=n>11.5</td><td class=n>2.0</td><td class=n>0.5</td><td class=n>7</td><td class=n>5</td><td class=n>3.5</td><td class=n>4.1</td></tr>
+</table></div>
+<p class=note>Points are ideal person-days. Capacity is the three people's points less holidays and leave; learning is budgeted as stories (<code>work::learning</code>), so it is visible and shrinks as the team gains skill. A blank cell: the sprint's scorecard is not in the evidence yet.</p>
+<h2>The port burn-down</h2>
+<p>TODO lines the converter left, on <code>develop</code> at the end of each sprint (decision D-7: the port's progress measure).</p>
+<svg viewBox="0 0 640 190" width="640" height="190" role="img" aria-label="TODO lines on develop" style="max-width:100%;height:auto">
+<rect x="50.0" y="160.0" width="77.3" height="0.0" fill="#1f4e79"/>
+<text x="88.7" y="176" font-size="9" text-anchor="middle">1</text>
+<rect x="146.7" y="10.0" width="77.3" height="150.0" fill="#1f4e79"/>
+<text x="185.3" y="176" font-size="9" text-anchor="middle">2</text>
+<rect x="243.3" y="15.8" width="77.3" height="144.2" fill="#1f4e79"/>
+<text x="282.0" y="176" font-size="9" text-anchor="middle">3</text>
+<rect x="340.0" y="96.5" width="77.3" height="63.5" fill="#1f4e79"/>
+<text x="378.7" y="176" font-size="9" text-anchor="middle">4</text>
+<rect x="436.7" y="119.6" width="77.3" height="40.4" fill="#1f4e79"/>
+<text x="475.3" y="176" font-size="9" text-anchor="middle">5</text>
+<rect x="533.3" y="145.6" width="77.3" height="14.4" fill="#1f4e79"/>
+<text x="572.0" y="176" font-size="9" text-anchor="middle">6</text>
+<text x="4" y="12" font-size="10">TODO lines on develop (max 52)</text>
+</svg>
+<h2>Work mix</h2>
+<p>Committed points by kind of work. The platform and learning share falls as the team gets its tools and skills in place.</p>
+<table><tr><th class=n>Sprint</th><th class=n>Engineering %</th><th class=n>Platform %</th><th class=n>Learning %</th></tr>
+<tr><td class=n>1</td><td class=n>27</td><td class=n>48</td><td class=n>24</td></tr>
+<tr><td class=n>2</td><td class=n>32</td><td class=n>53</td><td class=n>16</td></tr>
+<tr><td class=n>3</td><td class=n>53</td><td class=n>30</td><td class=n>17</td></tr>
+<tr><td class=n>4</td><td class=n>74</td><td class=n>18</td><td class=n>9</td></tr>
+<tr><td class=n>5</td><td class=n>68</td><td class=n>27</td><td class=n>5</td></tr>
+<tr><td class=n>6</td><td class=n>82</td><td class=n>14</td><td class=n>4</td></tr>
+</table>
+<h2>Trace and verification</h2>
+<p>DOORS against the model at the end of each sprint: C requirements linked, F orphans (nothing satisfies), G unverified, I traced end to end, drift (text differs).</p>
+<table><tr><th class=n>Sprint</th><th class=n>C linked</th><th class=n>F orphans</th><th class=n>G unverified</th><th class=n>I complete</th><th class=n>Drift</th><th class=n>DRs opened</th><th class=n>DRs closed</th></tr>
+<tr><td class=n>1</td><td class=n>&ndash;</td><td class=n>&ndash;</td><td class=n>&ndash;</td><td class=n>&ndash;</td><td class=n>&ndash;</td><td class=n>0</td><td class=n>0</td></tr>
+<tr><td class=n>2</td><td class=n>29 of 30</td><td class=n>2</td><td class=n>9</td><td class=n>66.7%</td><td class=n>1</td><td class=n>0</td><td class=n>0</td></tr>
+<tr><td class=n>3</td><td class=n>29 of 30</td><td class=n>2</td><td class=n>9</td><td class=n>66.7%</td><td class=n>1</td><td class=n>0</td><td class=n>0</td></tr>
+<tr><td class=n>4</td><td class=n>29 of 30</td><td class=n>2</td><td class=n>9</td><td class=n>66.7%</td><td class=n>1</td><td class=n>5</td><td class=n>0</td></tr>
+<tr><td class=n>5</td><td class=n>29 of 30</td><td class=n>2</td><td class=n>9</td><td class=n>66.7%</td><td class=n>1</td><td class=n>7</td><td class=n>0</td></tr>
+<tr><td class=n>6</td><td class=n>29 of 30</td><td class=n>2</td><td class=n>9</td><td class=n>66.7%</td><td class=n>1</td><td class=n>7</td><td class=n>0</td></tr>
+</table>
+<h2>Pipelines and merge requests</h2>
+<table><tr><th class=n>Sprint</th><th class=n>Merges</th><th class=n>First pipeline passed</th><th class=n>develop pipelines</th><th class=n>passing</th><th class=n>Worst restore (h)</th><th class=n>MR lead (h)</th><th class=n>Review turnaround (h)</th><th class=n>Gated</th></tr>
+<tr><td class=n>1</td><td class=n>1</td><td class=n>0 of 1</td><td class=n>0</td><td class=n>0</td><td class=n>&ndash;</td><td class=n>2.2</td><td class=n>2</td><td class=n>0 of 1</td></tr>
+<tr><td class=n>2</td><td class=n>6</td><td class=n>5 of 6</td><td class=n>6</td><td class=n>6</td><td class=n>&ndash;</td><td class=n>3.6</td><td class=n>3.3</td><td class=n>6 of 6</td></tr>
+<tr><td class=n>3</td><td class=n>4</td><td class=n>3 of 4</td><td class=n>4</td><td class=n>4</td><td class=n>&ndash;</td><td class=n>4.2</td><td class=n>4.1</td><td class=n>4 of 4</td></tr>
+<tr><td class=n>4</td><td class=n>4</td><td class=n>3 of 4</td><td class=n>7</td><td class=n>7</td><td class=n>&ndash;</td><td class=n>3.5</td><td class=n>3.3</td><td class=n>4 of 4</td></tr>
+<tr><td class=n>5</td><td class=n>5</td><td class=n>4 of 5</td><td class=n>15</td><td class=n>15</td><td class=n>&ndash;</td><td class=n>3.5</td><td class=n>3.3</td><td class=n>5 of 5</td></tr>
+<tr><td class=n>6</td><td class=n>7</td><td class=n>4 of 6</td><td class=n>17</td><td class=n>16</td><td class=n>8.5</td><td class=n>3.5</td><td class=n>3.3</td><td class=n>7 of 7</td></tr>
+</table>
+<h2>Morale</h2>
+<p>The five-question pulse survey (1 to 5) at each retrospective, mean of the three.</p>
+<svg viewBox="0 0 640 190" width="640" height="190" role="img" aria-label="pulse survey mean" style="max-width:100%;height:auto">
+<rect x="50.0" y="90.5" width="77.3" height="69.5" fill="#7a5a1f"/>
+<text x="88.7" y="176" font-size="9" text-anchor="middle">1</text>
+<rect x="146.7" y="72.2" width="77.3" height="87.8" fill="#7a5a1f"/>
+<text x="185.3" y="176" font-size="9" text-anchor="middle">2</text>
+<rect x="243.3" y="79.5" width="77.3" height="80.5" fill="#7a5a1f"/>
+<text x="282.0" y="176" font-size="9" text-anchor="middle">3</text>
+<rect x="340.0" y="50.2" width="77.3" height="109.8" fill="#7a5a1f"/>
+<text x="378.7" y="176" font-size="9" text-anchor="middle">4</text>
+<rect x="436.7" y="21.0" width="77.3" height="139.0" fill="#7a5a1f"/>
+<text x="475.3" y="176" font-size="9" text-anchor="middle">5</text>
+<rect x="533.3" y="10.0" width="77.3" height="150.0" fill="#7a5a1f"/>
+<text x="572.0" y="176" font-size="9" text-anchor="middle">6</text>
+<text x="4" y="12" font-size="10">pulse survey mean (max 4.1)</text>
+</svg>
+<table><tr><th>Question</th><th class=n>S1</th><th class=n>S2</th><th class=n>S3</th><th class=n>S4</th><th class=n>S5</th><th class=n>S6</th></tr>
+<tr><td>I understand why we are working this way.</td><td class=n>1.7</td><td class=n>2.3</td><td class=n>2.0</td><td class=n>3.3</td><td class=n>3.7</td><td class=n>4.3</td></tr>
+<tr><td>I can do my work in the new tools without help.</td><td class=n>2.0</td><td class=n>2.0</td><td class=n>2.0</td><td class=n>3.0</td><td class=n>4.0</td><td class=n>4.0</td></tr>
+<tr><td>The checks catch problems I would have missed.</td><td class=n>2.0</td><td class=n>2.3</td><td class=n>2.0</td><td class=n>3.0</td><td class=n>4.0</td><td class=n>4.0</td></tr>
+<tr><td>I can see our progress.</td><td class=n>2.0</td><td class=n>2.7</td><td class=n>2.3</td><td class=n>3.0</td><td class=n>3.7</td><td class=n>4.0</td></tr>
+<tr><td>I would choose to keep working this way.</td><td class=n>1.7</td><td class=n>2.7</td><td class=n>2.7</td><td class=n>2.7</td><td class=n>3.7</td><td class=n>4.3</td></tr>
+</table>
+<h2>The scorecard at sprint 6</h2>
+<table><tr><th>Measure</th><th>Value</th></tr>
+<tr><td>todo lines</td><td>5</td></tr>
+<tr><td>lead time hours</td><td>3.5</td></tr>
+<tr><td>gated changes</td><td>7 of 7</td></tr>
+<tr><td>trace answer seconds</td><td>22</td></tr>
+<tr><td>trace</td><td>C 29 of 30, F 2, G 9, I 66.7%, drift 1</td></tr>
+<tr><td>drs</td><td>closed 0, opened 7</td></tr>
+<tr><td>spider web</td><td>cycles 1, duplicates 29, max_fan_out 3, max_relationships_per_part 8</td></tr>
+<tr><td>pipeline health</td><td>develop_pipelines 17, passing 16, worst_restore_hours 8.5</td></tr>
+<tr><td>baselines</td><td>reproducible 1, tagged 1</td></tr>
+<tr><td>review turnaround hours</td><td>3.3</td></tr>
+<tr><td>delivery</td><td>committed 14, done 11, pct 79</td></tr>
+<tr><td>morale</td><td>4.1</td></tr>
+</table>
+<p class=note>Document-era baselines (notional, reconstructed): a requirement change through the CCB took 23 working days; "which requirements are unverified?" took 2 days of spreadsheet work; a model review took 3 weeks of screenshots; drift between DOORS and the model was found never systematically.</p>
+<h2>The backlog: tome &gt; epic &gt; story &gt; task</h2>
+<p class=note>Sizes: a task is at most 5 points; a story fits one sprint; an epic fits a semester (13 sprints); a tome fits a year. Stories are the journal's items; tasks live in GitLab.</p>
+<details open><summary><b>T1 Stand up MBSE DevSecOps</b> <span class=note>22 stories, 48.5 points</span></summary>
+<details><summary>E1 GitLab project and gitflow <span class=note>4 stories, 12.5 points, sprints 1&ndash;6</span></summary>
+<ul>
+<li><a href="tidewater/sprints/01/samples/story-TW-3.md">TW-3</a>, sprint 1, 3.0 points, platform: Create the GitLab group and model project<ul><li><a href="tidewater/sprints/01/samples/task-14.md">#14</a> 1.0 pt, tom, 2026-10-08&ndash;2026-10-09: Apply project.conf with gitlab.pl setup; request the runner</li><li><a href="tidewater/sprints/01/samples/task-15.md">#15</a> 1.0 pt, tom, 2026-10-09&ndash;2026-10-13: Prove a direct push to develop is refused</li><li><a href="tidewater/sprints/01/samples/task-16.md">#16</a> 1.0 pt, tom, 2026-10-13&ndash;2026-10-14: Commit CODEOWNERS, the templates and .gitignore</li></ul></li>
+<li><a href="tidewater/sprints/02/samples/story-TW-31.md">TW-31</a>, sprint 2, 4.5 points, platform: Enablers, decisions and conventions on record<ul><li><a href="tidewater/sprints/02/samples/task-45.md">#45</a> 1.0 pt, jim, 2026-10-20&ndash;2026-10-21: Memo: request for enablers</li><li><a href="tidewater/sprints/02/samples/task-46.md">#46</a> 1.5 pt, jim, 2026-10-22&ndash;2026-10-26: Write docs/adr/0001..0010</li><li><a href="tidewater/sprints/02/samples/task-47.md">#47</a> 1.0 pt, jim, 2026-10-27&ndash;2026-10-28: Conventions and onboarding docs into docs/</li><li><a href="tidewater/sprints/02/samples/task-48.md">#48</a> 1.0 pt, jim, 2026-10-29&ndash;2026-10-30: Toolchain security kickoff with the ISSM</li></ul></li>
+<li><a href="tidewater/sprints/05/samples/story-TW-95.md">TW-95</a>, sprint 5, 3.0 points, platform: Release rehearsal and a spillage tabletop<ul><li><a href="tidewater/sprints/05/samples/task-107.md">#107</a> 2.0 pt, tom, 2026-12-07&ndash;2026-12-09: Rehearse release and hotfix in tidewater/sandbox</li><li><a href="tidewater/sprints/05/samples/task-108.md">#108</a> 1.0 pt, tom, 2026-12-09&ndash;2026-12-10: Spillage tabletop: a marked file pushed by mistake</li></ul></li>
+<li><a href="tidewater/sprints/06/samples/story-TW-117.md">TW-117</a>, sprint 6, 2.0 points, platform: Interim baseline-0 for the program review<ul><li><a href="tidewater/sprints/06/samples/task-127.md">#127</a> 2.0 pt, tom, 2026-12-21&ndash;2026-12-24: Release branch, CCB concurrence, tag baseline-0, back-merge</li></ul></li>
+</ul>
+</details>
+<details><summary>E2 Pipeline and quality gates <span class=note>6 stories, 14.0 points, sprints 1&ndash;5</span></summary>
+<ul>
+<li><a href="tidewater/sprints/01/samples/story-TW-4.md">TW-4</a>, sprint 1, 1.5 points, platform: Draft the first pipeline and run it locally<ul><li><a href="tidewater/sprints/01/samples/task-17.md">#17</a> 0.5 pt, tom, 2026-10-14&ndash;2026-10-15: Draft .gitlab-ci.yml: grammar, lint, outline</li><li><a href="tidewater/sprints/01/samples/task-18.md">#18</a> 1.0 pt, tom, 2026-10-15&ndash;2026-10-16: Run the draft locally on drop 1 with gitlab.pl ci</li></ul></li>
+<li><a href="tidewater/sprints/02/samples/story-TW-27.md">TW-27</a>, sprint 2, 3.0 points, platform: Runner online; the first pipeline gates every MR<ul><li><a href="tidewater/sprints/02/samples/task-36.md">#36</a> 0.5 pt, tom, 2026-10-20&ndash;2026-10-20: Check the runner registration and tags</li><li><a href="tidewater/sprints/02/samples/task-37.md">#37</a> 2.0 pt, tom, 2026-10-20&ndash;2026-10-23: Commit the pipeline; fix it for the PowerShell runner with ci/job.pl</li><li><a href="tidewater/sprints/02/samples/task-38.md">#38</a> 0.5 pt, tom, 2026-10-23&ndash;2026-10-23: Turn on &quot;pipelines must succeed&quot; and the MR report widgets</li></ul></li>
+<li><a href="tidewater/sprints/02/samples/story-TW-29.md">TW-29</a>, sprint 2, 2.0 points, platform: TODO burn-down and generated docs in the pipeline<ul><li><a href="tidewater/sprints/02/samples/task-42.md">#42</a> 2.0 pt, tom, 2026-10-27&ndash;2026-10-29: Add the todo and docs jobs; commit docs/</li></ul></li>
+<li><a href="tidewater/sprints/03/samples/story-TW-53.md">TW-53</a>, sprint 3, 2.5 points, platform: Trace report and secret detection in the pipeline<ul><li><a href="tidewater/sprints/03/samples/task-63.md">#63</a> 2.5 pt, tom, 2026-11-03&ndash;2026-11-06: Add the trace job (report only) and the secrets job</li></ul></li>
+<li><a href="tidewater/sprints/04/samples/story-TW-71.md">TW-71</a>, sprint 4, 3.0 points, platform: The model site on GitLab Pages, rebuilt nightly<ul><li><a href="tidewater/sprints/04/samples/task-81.md">#81</a> 3.0 pt, tom, 2026-11-19&ndash;2026-11-24: Add the pages job and the nightly schedule</li></ul></li>
+<li><a href="tidewater/sprints/05/samples/story-TW-93.md">TW-93</a>, sprint 5, 2.0 points, platform: The trace job becomes a gate<ul><li><a href="tidewater/sprints/05/samples/task-104.md">#104</a> 2.0 pt, tom, 2026-12-02&ndash;2026-12-04: Trace ratchet: fail only on new gaps</li></ul></li>
+</ul>
+</details>
+<details><summary>E3 Team practices and onboarding <span class=note>11 stories, 20.0 points, sprints 1&ndash;6</span></summary>
+<ul>
+<li><a href="tidewater/sprints/01/samples/story-TW-1.md">TW-1</a>, sprint 1, 4.0 points, learning: Learn the tools: survival kit, git, Vim, the operating model<ul><li><a href="tidewater/sprints/01/samples/task-8.md">#8</a> 1.0 pt, jim, 2026-10-05&ndash;2026-10-06: Practice lessons 10-11; the operating model chapter</li><li><a href="tidewater/sprints/01/samples/task-9.md">#9</a> 1.5 pt, bob, 2026-10-05&ndash;2026-10-06: Practice lessons 10-11; the survival kit, git and Vim chapters</li><li><a href="tidewater/sprints/01/samples/task-10.md">#10</a> 1.5 pt, tom, 2026-10-05&ndash;2026-10-06: Practice lessons 10-11; the survival kit, git and Vim chapters</li></ul></li>
+<li><a href="tidewater/sprints/01/samples/story-TW-2.md">TW-2</a>, sprint 1, 3.0 points, platform: Laptops ready: Git for Windows, Vim, the kit<ul><li><a href="tidewater/sprints/01/samples/task-11.md">#11</a> 1.0 pt, jim, 2026-10-07&ndash;2026-10-08: Set up Jim's laptop; kickoff.pl doctor</li><li><a href="tidewater/sprints/01/samples/task-12.md">#12</a> 1.0 pt, bob, 2026-10-06&ndash;2026-10-08: Set up Bob's laptop; kickoff.pl doctor</li><li><a href="tidewater/sprints/01/samples/task-13.md">#13</a> 1.0 pt, tom, 2026-10-06&ndash;2026-10-08: Set up Tom's laptop; kickoff.pl doctor</li></ul></li>
+<li><a href="tidewater/sprints/01/samples/story-TW-7.md">TW-7</a>, sprint 1, 0.5 points, platform: Working agreements: Definition of Ready and Done<ul><li><a href="tidewater/sprints/01/samples/task-24.md">#24</a> 0.5 pt, jim, 2026-10-15&ndash;2026-10-15: Write the Definition of Ready and Done in the wiki</li></ul></li>
+<li><a href="tidewater/sprints/02/samples/story-TW-26.md">TW-26</a>, sprint 2, 3.0 points, learning: Learn: practice lessons 12-13, Vim for models, the SysML v2 workbook (first half)<ul><li><a href="tidewater/sprints/02/samples/task-33.md">#33</a> 0.5 pt, jim, 2026-10-19&ndash;2026-10-19: Practice lessons 12-13; the diagrams chapter</li><li><a href="tidewater/sprints/02/samples/task-34.md">#34</a> 1.5 pt, bob, 2026-10-19&ndash;2026-10-20: Lessons 12-13; Vim for models; workbook first half</li><li><a href="tidewater/sprints/02/samples/task-35.md">#35</a> 1.0 pt, tom, 2026-10-19&ndash;2026-10-20: Lessons 12-13; Vim for models; workbook first half</li></ul></li>
+<li><a href="tidewater/sprints/02/samples/story-TW-32.md">TW-32</a>, sprint 2, 0.5 points, platform: Sprint 2 demo: the pipeline and the drop on develop<ul><li><a href="tidewater/sprints/02/samples/task-49.md">#49</a> 0.5 pt, tom, 2026-10-29&ndash;2026-10-30: Prepare and give the sprint 2 demo</li></ul></li>
+<li><a href="tidewater/sprints/03/samples/story-TW-50.md">TW-50</a>, sprint 3, 2.5 points, learning: Learn: the workbook second half; talking about progress<ul><li><a href="tidewater/sprints/03/samples/task-56.md">#56</a> 0.5 pt, jim, 2026-11-02&ndash;2026-11-02: talk.pl: draft, then edit, the stand-up</li><li><a href="tidewater/sprints/03/samples/task-57.md">#57</a> 1.0 pt, bob, 2026-11-02&ndash;2026-11-03: Workbook second half; talk.pl</li><li><a href="tidewater/sprints/03/samples/task-58.md">#58</a> 1.0 pt, tom, 2026-11-10&ndash;2026-11-12: talk.pl; the Day-9 demo rehearsal</li></ul></li>
+<li><a href="tidewater/sprints/04/samples/story-TW-66.md">TW-66</a>, sprint 4, 1.5 points, learning: Learn: reviewing a model change; the rehearsed demo<ul><li><a href="tidewater/sprints/04/samples/task-73.md">#73</a> 0.5 pt, jim, 2026-11-16&ndash;2026-11-16: Reviewing a model change: the checklist</li><li><a href="tidewater/sprints/04/samples/task-74.md">#74</a> 0.5 pt, bob, 2026-11-16&ndash;2026-11-16: Reviewing a model change: line comments</li><li><a href="tidewater/sprints/04/samples/task-75.md">#75</a> 0.5 pt, tom, 2026-11-25&ndash;2026-11-25: The Day-9 demo rehearsal</li></ul></li>
+<li><a href="tidewater/sprints/04/samples/story-TW-72.md">TW-72</a>, sprint 4, 1.5 points, engineering: First sprint review with the program office; the delivery interface with the prime<ul><li><a href="tidewater/sprints/04/samples/task-82.md">#82</a> 1.0 pt, jim, 2026-11-23&ndash;2026-11-24: Sprint review with the program office</li><li><a href="tidewater/sprints/04/samples/task-83.md">#83</a> 0.5 pt, jim, 2026-11-25&ndash;2026-11-25: Agree the delivery interface with the prime (meeting)</li></ul></li>
+<li><a href="tidewater/sprints/05/samples/story-TW-89.md">TW-89</a>, sprint 5, 1.0 points, learning: Learn: the requirement recipe; writing memos from the model<ul><li><a href="tidewater/sprints/05/samples/task-97.md">#97</a> 0.5 pt, jim, 2026-11-30&ndash;2026-11-30: The recipe chapter; a memo from pipeline numbers</li><li><a href="tidewater/sprints/05/samples/task-98.md">#98</a> 0.5 pt, bob, 2026-12-02&ndash;2026-12-03: The recipe chapter</li></ul></li>
+<li><a href="tidewater/sprints/06/samples/story-TW-111.md">TW-111</a>, sprint 6, 0.5 points, learning: Learn: memos and briefings from the model<ul><li><a href="tidewater/sprints/06/samples/task-119.md">#119</a> 0.5 pt, jim, 2026-12-14&ndash;2026-12-14: The memo and briefing chapters</li></ul></li>
+<li><a href="tidewater/sprints/06/samples/story-TW-118.md">TW-118</a>, sprint 6, 2.0 points, engineering: Retrospective, the management briefing and the plan for next semester<ul><li><a href="tidewater/sprints/06/samples/task-128.md">#128</a> 2.0 pt, jim, 2026-12-17&ndash;2026-12-22: The twelve-week briefing and memo</li></ul></li>
+</ul>
+</details>
+<details><summary>E4 Toolchain security and authorization to use <span class=note>1 stories, 2.0 points, sprints 3&ndash;3</span></summary>
+<ul>
+<li><a href="tidewater/sprints/03/samples/story-TW-54.md">TW-54</a>, sprint 3, 2.0 points, platform: Runner hardening with the ISSM<ul><li><a href="tidewater/sprints/03/samples/task-64.md">#64</a> 2.0 pt, tom, 2026-11-06&ndash;2026-11-12: Runner service account and hardening checklist</li></ul></li>
+</ul>
+</details>
+</details>
+<details open><summary><b>T2 Port Tidewater v1 to SysML v2</b> <span class=note>21 stories, 51.5 points</span></summary>
+<details><summary>E5 Drop 1 intake and first import <span class=note>3 stories, 8.5 points, sprints 1&ndash;2</span></summary>
+<ul>
+<li><a href="tidewater/sprints/01/samples/story-TW-5.md">TW-5</a>, sprint 1, 1.5 points, engineering: Receive drop 1 and record it<ul><li><a href="tidewater/sprints/01/samples/task-19.md">#19</a> 1.0 pt, jim, 2026-10-09&ndash;2026-10-13: Log the CDRL delivery and check the sha256 of every file</li><li><a href="tidewater/sprints/01/samples/task-20.md">#20</a> 0.5 pt, jim, 2026-10-14&ndash;2026-10-14: Open the Prime Drop issue with its checklist</li></ul></li>
+<li><a href="tidewater/sprints/01/samples/story-TW-6.md">TW-6</a>, sprint 1, 3.0 points, engineering: Convert drop 1 and assess it<ul><li><a href="tidewater/sprints/01/samples/task-21.md">#21</a> 1.0 pt, bob, 2026-10-08&ndash;2026-10-09: Run both converters with --report on drop 1</li><li><a href="tidewater/sprints/01/samples/task-22.md">#22</a> 1.0 pt, bob, 2026-10-09&ndash;2026-10-13: Write the TODO inventory by package</li><li><a href="tidewater/sprints/01/samples/task-23.md">#23</a> 1.0 pt, bob, 2026-10-13&ndash;2026-10-14: Estimate the port backlog with the team</li></ul></li>
+<li><a href="tidewater/sprints/02/samples/story-TW-28.md">TW-28</a>, sprint 2, 4.0 points, engineering: Import drop 1 through the vendor branch, in layers<ul><li><a href="tidewater/sprints/02/samples/task-39.md">#39</a> 1.0 pt, bob, 2026-10-20&ndash;2026-10-22: Decide the layered layout; the layout map</li><li><a href="tidewater/sprints/02/samples/task-40.md">#40</a> 1.0 pt, tom, 2026-10-26&ndash;2026-10-27: Import drop 1 onto vendor/prime</li><li><a href="tidewater/sprints/02/samples/task-41.md">#41</a> 2.0 pt, bob, 2026-10-27&ndash;2026-10-29: Review and merge the drop-1 MR; record the outline count</li></ul></li>
+</ul>
+</details>
+<details><summary>E6 Structure: close the structure TODOs <span class=note>9 stories, 24.0 points, sprints 2&ndash;6</span></summary>
+<ul>
+<li><a href="tidewater/sprints/02/samples/story-TW-30.md">TW-30</a>, sprint 2, 2.0 points, engineering: Level conventions for the part tree<ul><li><a href="tidewater/sprints/02/samples/task-43.md">#43</a> 1.5 pt, bob, 2026-10-22&ndash;2026-10-23: Write the conventions package</li><li><a href="tidewater/sprints/02/samples/task-44.md">#44</a> 0.5 pt, bob, 2026-10-26&ndash;2026-10-26: Name the level tags in sysml.conf</li></ul></li>
+<li><a href="tidewater/sprints/03/samples/story-TW-51.md">TW-51</a>, sprint 3, 3.0 points, engineering: Close the Network TODO lines<ul><li><a href="tidewater/sprints/03/samples/task-59.md">#59</a> 1.0 pt, bob, 2026-11-03&ndash;2026-11-04: Level tags in Network</li><li><a href="tidewater/sprints/03/samples/task-60.md">#60</a> 2.0 pt, bob, 2026-11-04&ndash;2026-11-06: The include use case in ReviewObservations</li></ul></li>
+<li><a href="tidewater/sprints/04/samples/story-TW-67.md">TW-67</a>, sprint 4, 5.0 points, engineering: Close the Stations level tags<ul><li><a href="tidewater/sprints/04/samples/task-76.md">#76</a> 3.0 pt, bob, 2026-11-16&ndash;2026-11-20: Level tags in Stations</li><li><a href="tidewater/sprints/04/samples/task-77.md">#77</a> 2.0 pt, bob, 2026-11-27&ndash;2026-12-01: Walk the Stations tree with the prime's modeler; record what they confirmed</li></ul></li>
+<li><a href="tidewater/sprints/04/samples/story-TW-68.md">TW-68</a>, sprint 4, 2.0 points, engineering: Units and value types<ul><li><a href="tidewater/sprints/04/samples/task-78.md">#78</a> 2.0 pt, bob, 2026-11-24&ndash;2026-11-27: Value types specialize ISQ quantities</li></ul></li>
+<li><a href="tidewater/sprints/04/samples/story-TW-69.md">TW-69</a>, sprint 4, 2.0 points, engineering: Break the Network &lt;-&gt; Operations cycle<ul><li><a href="tidewater/sprints/04/samples/task-79.md">#79</a> 2.0 pt, tom, 2026-11-16&ndash;2026-11-19: Remove the ServiceVessel -&gt; Technician dependency</li></ul></li>
+<li>TW-67, sprint 5, 2.0 points, engineering: Close the Stations level tags<ul><li>#76 3.0 pt, bob, 2026-11-16&ndash;2026-11-20: Level tags in Stations</li><li>#96 2.0 pt, bob, 2026-11-30&ndash;2026-12-02: Walk the Stations tree with the prime's modeler; record what they confirmed</li></ul></li>
+<li><a href="tidewater/sprints/05/samples/story-TW-90.md">TW-90</a>, sprint 5, 3.5 points, engineering: Procured parts as metadata; DataCenter level tags<ul><li><a href="tidewater/sprints/05/samples/task-99.md">#99</a> 2.0 pt, bob, 2026-12-03&ndash;2026-12-07: Procured parts as metadata</li><li><a href="tidewater/sprints/05/samples/task-100.md">#100</a> 1.5 pt, bob, 2026-12-07&ndash;2026-12-09: Level tags in DataCenter</li></ul></li>
+<li><a href="tidewater/sprints/05/samples/story-TW-92.md">TW-92</a>, sprint 5, 3.0 points, engineering: Untangle the Legacy Import package<ul><li><a href="tidewater/sprints/05/samples/task-102.md">#102</a> 2.0 pt, tom, 2026-11-30&ndash;2026-12-02: Remove the Legacy Import package from the v2 model</li><li><a href="tidewater/sprints/05/samples/task-103.md">#103</a> 1.0 pt, jim, 2026-12-01&ndash;2026-12-02: DR-5: ask the prime to delete Legacy Import</li></ul></li>
+<li><a href="tidewater/sprints/06/samples/story-TW-114.md">TW-114</a>, sprint 6, 1.5 points, engineering: Level tags in Operations<ul><li><a href="tidewater/sprints/06/samples/task-122.md">#122</a> 1.5 pt, tom, 2026-12-14&ndash;2026-12-15: Level tags in Operations</li></ul></li>
+</ul>
+</details>
+<details><summary>E7 Requirements and trace <span class=note>6 stories, 13.0 points, sprints 3&ndash;6</span></summary>
+<ul>
+<li><a href="tidewater/sprints/03/samples/story-TW-52.md">TW-52</a>, sprint 3, 3.0 points, engineering: DOORS modules into the model<ul><li><a href="tidewater/sprints/03/samples/task-61.md">#61</a> 2.0 pt, jim, 2026-11-03&ndash;2026-11-06: Re-import drop 1 with the DOORS modules on vendor/prime</li><li><a href="tidewater/sprints/03/samples/task-62.md">#62</a> 1.0 pt, bob, 2026-11-09&ndash;2026-11-10: Merge the DOORS modules to develop</li></ul></li>
+<li><a href="tidewater/sprints/03/samples/story-TW-55.md">TW-55</a>, sprint 3, 2.0 points, engineering: First drift and gap analysis from the trace<ul><li><a href="tidewater/sprints/03/samples/task-65.md">#65</a> 2.0 pt, jim, 2026-11-09&ndash;2026-11-13: Write up the drift and the trace gaps</li></ul></li>
+<li><a href="tidewater/sprints/04/samples/story-TW-70.md">TW-70</a>, sprint 4, 2.0 points, engineering: Discrepancy reports DR-1 to DR-4 to the prime<ul><li><a href="tidewater/sprints/04/samples/task-80.md">#80</a> 2.0 pt, jim, 2026-11-17&ndash;2026-11-20: Open DR-1 to DR-4</li></ul></li>
+<li><a href="tidewater/sprints/05/samples/story-TW-91.md">TW-91</a>, sprint 5, 2.0 points, engineering: Prune ObservingStation's trace spaghetti<ul><li><a href="tidewater/sprints/05/samples/task-101.md">#101</a> 2.0 pt, bob, 2026-12-09&ndash;2026-12-11: Remove the duplicate trace links</li></ul></li>
+<li><a href="tidewater/sprints/05/samples/story-TW-94.md">TW-94</a>, sprint 5, 2.0 points, engineering: Grade our requirements with the recipe<ul><li><a href="tidewater/sprints/05/samples/task-105.md">#105</a> 1.0 pt, jim, 2026-12-03&ndash;2026-12-04: Read the recipe findings for the DOORS modules</li><li><a href="tidewater/sprints/05/samples/task-106.md">#106</a> 1.0 pt, jim, 2026-12-07&ndash;2026-12-08: DR-6: weak verbs and missing parts in the DOORS text</li></ul></li>
+<li><a href="tidewater/sprints/06/samples/story-TW-116.md">TW-116</a>, sprint 6, 2.0 points, engineering: VCRM: which requirements are verified, and how<ul><li><a href="tidewater/sprints/06/samples/task-125.md">#125</a> 1.0 pt, tom, 2026-12-18&ndash;2026-12-21: Add the vcrm job</li><li><a href="tidewater/sprints/06/samples/task-126.md">#126</a> 1.0 pt, jim, 2026-12-15&ndash;2026-12-16: Enter and sign the inspection verdicts</li></ul></li>
+</ul>
+</details>
+<details><summary>E8 Behavior and analysis <span class=note>3 stories, 6.0 points, sprints 6&ndash;6</span></summary>
+<ul>
+<li><a href="tidewater/sprints/06/samples/story-TW-112.md">TW-112</a>, sprint 6, 3.0 points, engineering: BuoyModes state machine by hand<ul><li><a href="tidewater/sprints/06/samples/task-120.md">#120</a> 3.0 pt, bob, 2026-12-18&ndash;2026-12-29: Write the BuoyModes state def; exhibit it on MooredBuoy</li></ul></li>
+<li><a href="tidewater/sprints/06/samples/story-TW-113.md">TW-113</a>, sprint 6, 1.0 points, engineering: Fork, pin and object flow in ObserveCoast<ul><li><a href="tidewater/sprints/06/samples/task-121.md">#121</a> 1.0 pt, bob, 2026-12-17&ndash;2026-12-17: Fork, pin, object and control flow by hand</li></ul></li>
+<li><a href="tidewater/sprints/06/samples/story-TW-115.md">TW-115</a>, sprint 6, 2.0 points, engineering: Data exchange table for the program review<ul><li><a href="tidewater/sprints/06/samples/task-123.md">#123</a> 1.0 pt, tom, 2026-12-16&ndash;2026-12-17: Document the flow properties in Interfaces</li><li><a href="tidewater/sprints/06/samples/task-124.md">#124</a> 1.0 pt, tom, 2026-12-17&ndash;2026-12-18: Generate the data exchange table</li></ul></li>
+</ul>
+</details>
+</details>
+<h2>The evidence, sprint by sprint</h2>
+<ul>
+<li><b>Week zero</b>: <a href="tidewater/sprints/00/week-zero.txt">week zero</a></li>
+<li><b>Sprint 1</b> (A GitLab project the team can work in; drop 1 received and assessed): <a href="tidewater/sprints/01/kickoff.txt">kickoff</a>, <a href="tidewater/sprints/01/plan.txt">plan</a>, <a href="tidewater/sprints/01/day-log.txt">day by day</a>, <a href="tidewater/sprints/01/refinement.txt">refinement</a>, <a href="tidewater/sprints/01/review.txt">review</a>, <a href="tidewater/sprints/01/retro.txt">retrospective</a>, <a href="tidewater/sprints/01/analytics.txt">analytics</a>, <a href="tidewater/sprints/01/scorecard.json">scorecard</a>, <a href="tidewater/sprints/01/morale.json">pulse survey</a>, <a href="tidewater/sprints/01/quad-2026-10-09.txt">quad 2026-10-09</a>, <a href="tidewater/sprints/01/quad-2026-10-16.txt">quad 2026-10-16</a>; 9 stand-ups, 0 pipeline logs, 31 GitLab samples in <code>tidewater/sprints/01/</code></li>
+<li><b>Sprint 2</b> (Drop 1 on develop through the vendor branch; every change gated): <a href="tidewater/sprints/02/kickoff.txt">kickoff</a>, <a href="tidewater/sprints/02/plan.txt">plan</a>, <a href="tidewater/sprints/02/day-log.txt">day by day</a>, <a href="tidewater/sprints/02/refinement.txt">refinement</a>, <a href="tidewater/sprints/02/review.txt">review</a>, <a href="tidewater/sprints/02/retro.txt">retrospective</a>, <a href="tidewater/sprints/02/analytics.txt">analytics</a>, <a href="tidewater/sprints/02/scorecard.json">scorecard</a>, <a href="tidewater/sprints/02/morale.json">pulse survey</a>, <a href="tidewater/sprints/02/quad-2026-10-23.txt">quad 2026-10-23</a>, <a href="tidewater/sprints/02/quad-2026-10-30.txt">quad 2026-10-30</a>; 10 stand-ups, 7 pipeline logs, 31 GitLab samples in <code>tidewater/sprints/02/</code></li>
+<li><b>Sprint 3</b> (Network closed; DOORS in the model; the trace report on every change): <a href="tidewater/sprints/03/kickoff.txt">kickoff</a>, <a href="tidewater/sprints/03/plan.txt">plan</a>, <a href="tidewater/sprints/03/day-log.txt">day by day</a>, <a href="tidewater/sprints/03/refinement.txt">refinement</a>, <a href="tidewater/sprints/03/review.txt">review</a>, <a href="tidewater/sprints/03/review-script.md">demo script</a>, <a href="tidewater/sprints/03/retro.txt">retrospective</a>, <a href="tidewater/sprints/03/analytics.txt">analytics</a>, <a href="tidewater/sprints/03/scorecard.json">scorecard</a>, <a href="tidewater/sprints/03/morale.json">pulse survey</a>, <a href="tidewater/sprints/03/quad-2026-11-06.txt">quad 2026-11-06</a>, <a href="tidewater/sprints/03/quad-2026-11-13.txt">quad 2026-11-13</a>; 9 stand-ups, 5 pipeline logs, 22 GitLab samples in <code>tidewater/sprints/03/</code></li>
+<li><b>Sprint 4</b> (Stations levels and Types closed, one cycle broken, gaps reported; the model site for management): <a href="tidewater/sprints/04/kickoff.txt">kickoff</a>, <a href="tidewater/sprints/04/plan.txt">plan</a>, <a href="tidewater/sprints/04/day-log.txt">day by day</a>, <a href="tidewater/sprints/04/refinement.txt">refinement</a>, <a href="tidewater/sprints/04/review.txt">review</a>, <a href="tidewater/sprints/04/review-script.md">demo script</a>, <a href="tidewater/sprints/04/retro.txt">retrospective</a>, <a href="tidewater/sprints/04/analytics.txt">analytics</a>, <a href="tidewater/sprints/04/scorecard.json">scorecard</a>, <a href="tidewater/sprints/04/morale.json">pulse survey</a>, <a href="tidewater/sprints/04/quad-2026-11-20.txt">quad 2026-11-20</a>, <a href="tidewater/sprints/04/quad-2026-11-27.txt">quad 2026-11-27</a>; 9 stand-ups, 5 pipeline logs, 28 GitLab samples in <code>tidewater/sprints/04/</code></li>
+<li><b>Sprint 5</b> (Procured parts and DataCenter closed; Legacy Import untangled; trace becomes a gate): <a href="tidewater/sprints/05/kickoff.txt">kickoff</a>, <a href="tidewater/sprints/05/plan.txt">plan</a>, <a href="tidewater/sprints/05/day-log.txt">day by day</a>, <a href="tidewater/sprints/05/refinement.txt">refinement</a>, <a href="tidewater/sprints/05/review.txt">review</a>, <a href="tidewater/sprints/05/review-script.md">demo script</a>, <a href="tidewater/sprints/05/retro.txt">retrospective</a>, <a href="tidewater/sprints/05/analytics.txt">analytics</a>, <a href="tidewater/sprints/05/scorecard.json">scorecard</a>, <a href="tidewater/sprints/05/morale.json">pulse survey</a>, <a href="tidewater/sprints/05/quad-2026-12-04.txt">quad 2026-12-04</a>, <a href="tidewater/sprints/05/quad-2026-12-11.txt">quad 2026-12-11</a>; 10 stand-ups, 6 pipeline logs, 27 GitLab samples in <code>tidewater/sprints/05/</code></li>
+<li><b>Sprint 6</b> (Behavior started; Operations closed; the data exchange table; interim baseline-0 for the program review): <a href="tidewater/sprints/06/kickoff.txt">kickoff</a>, <a href="tidewater/sprints/06/plan.txt">plan</a>, <a href="tidewater/sprints/06/day-log.txt">day by day</a>, <a href="tidewater/sprints/06/refinement.txt">refinement</a>, <a href="tidewater/sprints/06/review.txt">review</a>, <a href="tidewater/sprints/06/review-script.md">demo script</a>, <a href="tidewater/sprints/06/retro.txt">retrospective</a>, <a href="tidewater/sprints/06/analytics.txt">analytics</a>, <a href="tidewater/sprints/06/scorecard.json">scorecard</a>, <a href="tidewater/sprints/06/morale.json">pulse survey</a>, <a href="tidewater/sprints/06/quad-2026-12-18.txt">quad 2026-12-18</a>; 9 stand-ups, 12 pipeline logs, 27 GitLab samples in <code>tidewater/sprints/06/</code></li>
+</ul>
+<p>One real example of each GitLab Markdown field: <a href="tidewater/samples/discrepancy-report.md">discrepancy-report.md</a>, <a href="tidewater/samples/merge-request.md">merge-request.md</a>, <a href="tidewater/samples/milestone.md">milestone.md</a>, <a href="tidewater/samples/mr-review-thread.md">mr-review-thread.md</a>, <a href="tidewater/samples/prime-drop-issue.md">prime-drop-issue.md</a>, <a href="tidewater/samples/release-notes.md">release-notes.md</a>, <a href="tidewater/samples/story-issue.md">story-issue.md</a>, <a href="tidewater/samples/task-issue.md">task-issue.md</a>, <a href="tidewater/samples/wiki-definition-of-done.md">wiki-definition-of-done.md</a>, <a href="tidewater/samples/wiki-glossary.md">wiki-glossary.md</a>, <a href="tidewater/samples/wiki-home.md">wiki-home.md</a>.</p>
+</body>
+</html>

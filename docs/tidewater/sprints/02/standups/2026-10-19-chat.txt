@@ -1,0 +1,15 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y: meetings, reviews
+T: TW-26 practice lessons 12-13; the diagrams chapter
+B: none
+[9:02 AM] Bob
+Y: meetings, reviews
+T: TW-26 lessons 12-13; Vim for models; workbook first
+B: none
+[9:03 AM] Tom
+Y: TW-4 draft locally on drop 1 with gitlab.pl ci
+T: TW-26 lessons 12-13; Vim for models; workbook first
+B: none

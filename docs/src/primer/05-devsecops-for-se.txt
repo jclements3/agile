@@ -1,0 +1,382 @@
+== DevSecOps in systems-engineering words {#devsecops}
+
+::: note What you have, what you need
+**What you have:** a working knowledge of configuration management, change control, reviews, audits and
+verification, built over a career.
+
+**What you need from this chapter:** the realization that DevSecOps is mostly those same disciplines, made cheap by
+keeping everything as text and letting machines do the repetitive checking. You will finish with a translation
+table you can keep beside you for the rest of the book.
+:::
+
+=== Tom's Saturday {#devsecops-saturday}
+
+Tom spent the Saturday after the team meeting reading. The enterprise DevSecOps office's recorded webinar was
+ninety minutes long, and Tom watched all of it with a notepad, writing down every word that sounded like jargon.
+The list filled two pages: *pipeline, CI/CD, merge request, branch, commit, shift left, artifact, runner, YAML,
+SAST, secret detection, protected branch, code owner, tag, release, infrastructure as code, GitOps, trunk,
+feature flag, observability.*
+
+On Sunday Tom tried something that turned out to be the key to the whole twelve weeks. Next to each word, Tom wrote
+the configuration management or systems engineering term that seemed closest. Some were easy: a *tag* was obviously
+a baseline label. Some took a while: a *pipeline* turned out to be something like a configuration audit, run
+automatically every time anything changed. Some had no equivalent at all, and those went on a separate list of
+things to ask about. By Sunday evening the second list had six words on it and the first had thirty.
+
+On Monday Tom showed the list to Jim and Bob. Bob read it twice and said, "So it's CM. It's just CM that runs
+itself." That was not quite right, but it was close enough to start, and it was the first time anyone on the team
+had said something about DevSecOps that was not a complaint.
+
+This chapter is Tom's list, cleaned up and explained.
+
+=== What the word means {#devsecops-word}
+
+*DevSecOps* is a compound of three words from the software world:
+
+- **Dev**, development: making changes to the thing being built. For this team, the thing being built is the
+  system model, so "development" means changing the model.
+- **Sec**, security: protecting the thing and the process that builds it. For a model, this means controlling who
+  can change what, keeping secrets (passwords, tokens) out of files, checking that what the contractor delivered is
+  what arrived, and recording who did what.
+- **Ops**, operations: running the thing and keeping it running. For a model, this means publishing it so people can
+  use it, keeping it current with each contractor delivery, and keeping the tools that check it working.
+
+The word was coined because software organizations used to separate those three jobs into different teams with
+different goals, and the hand-offs between them were slow and error-prone. Developers threw code "over the wall" to
+operations; security reviewed it at the end, if at all. DevSecOps means doing all three continuously, as one
+activity, with the checks built into the process instead of bolted on at the end.
+
+Systems engineers will recognize the problem immediately, because the document era had the same walls. Engineers
+wrote documents; CM controlled them; reviews happened at milestones; security looked at the system at the end. The
+fix is the same too: build the checks into every change, so nothing has to wait for a milestone to be found.
+
+::: definition The one-sentence version
+DevSecOps for a system model: every change to the model is made as text, recorded, reviewed by a person, checked by
+a machine and published, every time, with security controls applied throughout instead of at the end.
+:::
+
+=== Eight ideas, in systems engineering terms {#devsecops-ideas}
+
+The DevSecOps literature is large and full of slogans. For a team maintaining a system model, eight ideas carry
+almost all the value. Each one is explained below in systems engineering terms, with what it costs and what it
+saves.
+
+==== 1. Everything is text, and the text is under version control
+
+In the document era, the authoritative record was a set of Word files, spreadsheets and a Cameo project. None of
+them could be compared reliably, because they were binary files whose contents only their own tools could read.
+In DevSecOps, the authoritative record is plain text: the SysML v2 model, the pipeline configuration, the issue
+templates, even the project settings. Plain text can be read by any editor (Vim, in this team's case), compared
+line by line by a program, and stored in a *version control system* that records every change.
+
+The version control system this book uses is **git**. Think of git as a configuration management database that
+records, for every change: exactly which lines changed, who changed them, when, and the reason they gave. Unlike
+the CM database Tom ran for a decade, git records the change itself, not a description of it, and it does so
+automatically every time someone saves their work into it. [[git]] teaches git from zero.
+
+*What it costs:* the model has to be text. That is why the memo says SysML v2 *textual notation*, and why
+[[sysmlv2]] matters.
+
+*What it saves:* every comparison question ("what changed since the last baseline?", "who changed this
+requirement and why?", "what did the model look like on 1 November?") becomes a command that answers in seconds.
+
+==== 2. Small batches
+
+The document era batched changes: a month of change requests went to one CCB, a quarter of approved changes went
+into one revision. Batching was rational when each revision cost weeks of editing and distribution. With text under
+version control, a change costs almost nothing to record and distribute, so batching only adds waiting.
+
+DevSecOps works in small batches: a change is proposed, reviewed and incorporated on its own, often the same day.
+The team's size rules in [[operating-model]] (a task is less than a week of work) exist to keep batches small.
+
+*What it costs:* discipline about splitting work into small pieces, and the habit of reviewing small things often
+instead of large things rarely.
+
+*What it saves:* waiting, which [[documents]] showed was most of the 23 days of a requirement change. Small changes
+are also easier to review well, because a reviewer can actually read all of a ten-line change.
+
+==== 3. Every change is reviewed and approved, by a named person
+
+This is the CCB, made continuous. In GitLab, a proposed change is a **merge request**: a request to merge (combine)
+a set of changes into the shared model. The merge request shows the exact lines changed, carries a description of
+why, and cannot be merged until the people responsible for that part of the model approve it. Those people are
+named in a file called `CODEOWNERS`, so the approval rule is itself under configuration control.
+
+*What it costs:* every change needs a second person's attention. On a three-person team this matters, and
+[[operating-model]] sets the rules so nobody approves their own work and nobody waits long.
+
+*What it saves:* the monthly CCB queue for routine changes. The board still decides what needs a board (interface
+changes with the prime, requirement changes in DOORS); it no longer has to see a corrected typo.
+
+==== 4. Machines check what machines can check, on every change
+
+Before a merge request can be merged, a **pipeline** runs: a fixed list of automated checks, defined in a text file
+in the repository, executed by a server every time the model changes. If any required check fails, the merge is
+blocked.
+
+This is the idea that converted Tom. A pipeline is a configuration audit that runs on every change instead of once
+a year. It asks questions like: does every file follow the SysML v2 grammar? Does every assembly carry its level
+tag? Is every requirement satisfied by something and verified by something? Does the requirement text in the model
+match the text in DOORS? Are the generated documents up to date with the model? Has anyone pasted a password into a
+file? Each question is a short program, written once and run forever. [[pipeline]] walks through every check.
+
+The software world calls this "shifting left": moving checks earlier in the process (to the left on a timeline),
+where problems are cheap to fix. A grammar error found by the pipeline ten minutes after Bob typed it costs Bob ten
+minutes. The same error found at a design review costs a review comment, an action item and a re-review.
+
+*What it costs:* someone has to set up the pipeline (Tom, in this story) and keep it working.
+
+*What it saves:* almost all of the manual checking that was done before reviews, and all of the problems that
+manual checking missed.
+
+==== 5. Security is built in, not added at the end
+
+For a model, "security" mostly means controlling access and protecting the integrity of the record:
+
+- **who can change what**: members, roles and *protected branches*, which make it impossible (not just against the
+  rules) to change the integrated model without a merge request;
+- **integrity of what arrives**: every contractor drop carries a checksum, and the intake process checks it before
+  anything else happens;
+- **no secrets in files**: an automated scan rejects passwords and access tokens pasted into the repository;
+- **a complete audit record**: every change, approval and pipeline result is kept, and cannot be quietly edited;
+- **least privilege for tools**: the server that runs the pipeline has only the access it needs.
+
+In the document era, security for engineering data meant marking the documents correctly and storing them in the
+right place. Those obligations remain (and [[gitlab-setup]] covers marking), but DevSecOps adds controls on the
+process itself, enforced by the platform rather than by procedure.
+
+==== 6. The model is published continuously
+
+Every time the integrated model changes, the pipeline regenerates the human-readable products (documents, diagrams,
+trace reports) and publishes them as a website. Nobody pastes screenshots; nobody wonders which picture is current.
+This is what software people call *continuous delivery*, and for a model it means the review package is always
+ready.
+
+This idea answers the strongest document-era virtue: *everybody could read the documents.* With a published site,
+everybody can still read them, in a browser, without a license, and what they read is generated from the current
+model.
+
+==== 7. Measure, and use the measures
+
+Because every change, review and check is recorded by machines, the process measures itself. Lead time, review
+turnaround, pipeline pass rate and the number of problems found are byproducts, not extra work. The team's
+scorecard in [[directive]] is built entirely from such byproducts.
+
+==== 8. Improve in small steps, without blame
+
+Each sprint ends with a retrospective: what worked, what did not, what to change next sprint. When something breaks
+(a pipeline fails, a merge goes wrong), the question is "what in the process let this happen?", not "who did this?".
+Systems engineers know this as lessons learned; the difference is that it happens every two weeks instead of at the
+end of a program, when nobody can use the lessons.
+
+=== The translation table {#devsecops-table}
+
+Here is Tom's list, cleaned up. Keep it nearby. The glossary in [[glossary]] has the complete version, including
+SysML v2 terms.
+
+|| Systems engineering / CM term | DevSecOps / GitLab term | What is the same | What is different ||
+| configuration item | repository (or a folder in one) | a controlled body of content | everything in it is versioned automatically |
+| configuration status accounting | git history; GitLab activity | who changed what, when, why | recorded automatically, for every line |
+| baseline (revision C) | tag (`baseline-1`) | a fixed, named state | exact and reproducible; created in seconds |
+| change request, ECP | merge request | a proposed change, reviewed before incorporation | contains the change itself, not a description |
+| redline | diff | what changed | precise, line by line, generated |
+| CCB approval | code owner approval; approval rule | named authority approves | per change, per area, recorded |
+| CCB chair's rules | protected branch settings | nobody bypasses the process | enforced by the platform |
+| configuration audit (FCA/PCA) | pipeline | checks the configuration against rules | runs on every change |
+| verification procedure | pipeline job | a defined check with pass/fail | automated, repeatable |
+| test report | job log; test report in the merge request | evidence of the check | kept with the change |
+| action item | issue | a tracked piece of work with an owner | linked to the changes that close it |
+| IMS milestone | milestone | a date by which work is due | holds the issues due then |
+| work package | epic, story, task (labels and issues) | a decomposition of work | see [[operating-model]] |
+| CDRL delivery | prime drop on the vendor branch | the contractor's deliverable | converted and merged like any change |
+| deficiency report to the contractor | discrepancy report issue (owner::prime) | a problem the contractor must fix | tracked to the drop that fixes it |
+| design review package | published model site (GitLab Pages) | the current design for reviewers | generated, always current |
+| document revision letter | release (with release notes) | a published, approved version | built from a tag |
+| CM library, shared drive | GitLab project | where controlled items live | access controlled, audited |
+| marking and handling | protected project, members, labels, banners | handling rules | enforced by roles |
+| lessons learned | retrospective | improve the process | every sprint |
+Table: Systems engineering to DevSecOps, the translation table
+
+And the six words that had no equivalent on Tom's Sunday list, with what the team decided they meant:
+
+- **branch**: a separate line of work, where changes can be made without affecting the integrated model until they
+  are reviewed and merged. Closest equivalent: a working copy of a document with tracked changes, except that any
+  number of people can have one at once and git combines them afterwards. [[git]].
+- **commit**: one recorded change, with a message saying why. Closest equivalent: one entry in the change history
+  page of a document, except that it holds the change itself.
+- **runner**: the computer that executes the pipeline's checks. Closest equivalent: the person who used to run the
+  checks before a review, except that it is a machine and never gets tired. [[tools]].
+- **YAML**: the text format the pipeline is written in. It is a way of writing lists and key-value pairs in plain
+  text. [[pipeline]] shows the whole file.
+- **artifact**: a file produced by a pipeline job and kept with its results (a report, a generated document).
+  Closest equivalent: an attachment to a test report.
+- **merge conflict**: what happens when two changes touch the same lines and git cannot combine them automatically.
+  Closest equivalent: two people redlining the same paragraph differently. A person has to decide. [[vim]] shows how.
+
+::: sidebar What DevSecOps is not
+DevSecOps is not "agile" by another name, although it is usually practiced together with short iterations. It is
+not about writing software; this team writes none. It is not a product you buy: GitLab is a platform that makes the
+practices easy, but the practices work with other platforms. And it is not about moving fast and breaking things.
+For a system model, the point is to move *safely*, with every change checked and approved, at a pace set by the work
+instead of by the meeting calendar.
+:::
+
+=== One change, end to end {#devsecops-change}
+
+To make the ideas concrete, here is one small change of the kind the team made in [[sprint-3]], followed from start
+to finish. It is shown in outline here, with an illustrative issue number; Part III shows the real issues, commands
+and output.
+
+The converter left a TODO line in the `Network` package where the v1 model had a custom "level" stereotype on the
+top block:
+
+```sysml
+    part def ObservationNetwork {
+        // TODO stereotype Tidewater_Profile:L1Network on this element (xmi:id ...) not converted
+        doc /* Every station, the data center and the field crew that keeps them running. */
+```
+
+The government's convention (set up in [[sprint-2]]) is to write the level as a metadata annotation, `@L1Network;`.
+
+1. **The work is an issue.** A task issue in GitLab says "Close the level-tag TODOs in Network", is linked to its
+   story, assigned to Bob, and estimated at one day. (Action item, with an owner and an estimate.)
+2. **Bob starts a branch.** One command creates a separate line of work named after the issue. (A working copy.)
+3. **Bob edits the file in Vim**, replacing the TODO line with `@L1Network;` and adding the import of the
+   conventions package at the top. (The edit.)
+4. **Bob checks locally**, running the same grammar and lint checks the pipeline will run, from inside Vim. (Self-check
+   before submitting.)
+5. **Bob commits** with a message: "Close the L1Network level TODO in Network (#14)". (Change history entry.)
+6. **Bob pushes** the branch to GitLab and opens a **merge request** whose description says what changed, why, and
+   "Closes #14". (Change request.)
+7. **The pipeline runs** on the merge request: grammar, lint, outline, TODO count, trace, docs, secrets. All pass.
+   The TODO count shows one fewer than the integrated model. (Configuration audit.)
+8. **Jim reviews**: reads the two-line diff and the pipeline results, and approves. Jim is the code owner for the
+   `model/physical/network/` folder. (CCB approval, by the responsible person.)
+9. **Bob merges.** The change joins the integrated model on the `develop` branch; the issue closes automatically.
+   (Incorporation.)
+10. **The pipeline runs again** on `develop`, regenerates the docs and diagrams, and publishes the model site.
+    (Distribution of the new revision.)
+
+Elapsed time for a change like this is typically an hour or two, most of it waiting for the reviewer to finish a
+meeting; engineering time is about fifteen minutes. [[sprint-3]] has the real timestamps. Every step left a record: the issue, the branch, the commit, the merge request, the pipeline
+log, the approval, the merge. If the deputy program manager asks in six months who changed the Network package's
+level tag, and why, and who approved it, the answer takes one click.
+
+Compare that with the 23 working days in [[documents]]. The engineering content is the same. What vanished is the
+waiting and the copying.
+
+::: objection "Fifteen minutes for a one-line change is still slower than just typing it into Cameo."
+Bob, on reading an early draft of this example.
+
+Answer: True for the typing. But the Cameo edit had no review, no check, no record anyone could find, and no
+published result. The comparison that matters is with the *controlled* change: the change request, the CCB, the
+revision. Against that, fifteen minutes and two hours elapsed is a different world. And for a truly trivial change,
+[[pitfalls]] discusses batching several into one merge request.
+:::
+
+=== Security for a model team, in practice {#devsecops-security}
+
+"Sec" was the part of DevSecOps that worried Tom most, because Tom had spent years on the receiving end of security
+audits and knew how much paperwork they produced. It helped to make the threats concrete. For a team maintaining a
+system model, the realistic threats are not exotic. Here are the ones the team listed in [[sprint-2]], with the
+control for each.
+
+|| What could go wrong | Example | Control in the new way ||
+| an unauthorized change to the model | someone edits the integrated model directly, without review | protected branches: nobody can push to `main` or `develop`; changes arrive only through approved merge requests |
+| a change approved by the wrong person | the author approves their own change | approval rules and CODEOWNERS; GitLab blocks self-approval |
+| a tampered or corrupted delivery | a drop altered in transit or storage | SHA-256 checksums in the prime's manifest, checked before import; drops stored in the package registry |
+| a secret leaked into the repository | a password or access token pasted into a file or commit message | secret detection in the pipeline; tokens kept in masked CI/CD variables, never in files |
+| the history rewritten to hide a change | someone force-pushes over the record | force push disabled on protected branches; protected tags cannot be moved or deleted |
+| access outlives need | a departed engineer keeps access | quarterly access review of project members ([[admin]]) |
+| the pipeline's machine is compromised | the runner is used to reach other systems | a dedicated runner with only the access it needs, patched on a schedule ([[admin]]) |
+| marked information in the wrong place | content above the repository's approved level | marking rules, banners, and the project kept on approved infrastructure ([[gitlab-setup]]) |
+Table: Threats to a model repository and the controls the team used
+
+Most of these controls are *settings* rather than procedures. That is the important difference from the document
+era. A procedure says "do not change the baseline without approval," and depends on everyone following it. A
+protected branch makes the unapproved change impossible. Tom, who had spent years writing CM procedures that people
+ignored, found this the most persuasive thing in DevSecOps: "I can stop writing rules and start setting them."
+
+::: note Security reviews still happen
+Settings do not replace the ISSM. The ISSM still has to approve the toolchain, the data flows and the controls, and
+the team still owes the ISSM documentation. What changes is that the documentation describes settings that can be
+inspected, rather than procedures that have to be trusted. [[sprint-3]] and [[sprint-5]] show the ISSM review.
+:::
+
+=== Reading a pipeline log, before you ever see one {#devsecops-log}
+
+The first time a pipeline fails on your change, you will be looking at a log: the text output of the job that
+failed. Logs look intimidating, but they have a simple structure, and knowing it in advance removes most of the
+fear. Here is the shape of a failed grammar job, of the kind Bob saw in [[sprint-3]]. The error line is the grammar
+checker's real output for a level tag written without its closing semicolon; the runner lines around it are
+abbreviated:
+
+```text
+Running with gitlab-runner (shell executor) on tidewater-runner-1
+Fetching changes...
+Checking out 3f1a9c2e as detached HEAD (ref is refs/merge-requests/12/head)...
+Executing "step_script" stage of the job script
+$ perl ci/job.pl grammar
+$ perl "$KIT/tools/sysml/sysml.pl" check model/analysis/Analysis.sysml ... model/verification/Verification.sysml
+model/physical/network/Network.sysml:5:9: error: unexpected 'doc'; expected '.', ':', '::', ';', 'about', 'typed', '{'
+sysml: 17 file(s), 1 error(s)
+$ perl "$KIT/tools/gitlab/ci-reports.pl" grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt ...
+ci-reports grammar: 17 check(s), 1 failed, 1 finding(s); grammar_files=17 grammar_errors=1
+ERROR: Job failed: exit status 1
+```
+
+Read it from the bottom up:
+
+1. **The last line** says the job failed and that the command returned a non-zero exit status. Every command
+   reports success (zero) or failure (anything else); the pipeline stops a job at the first failing command.
+2. **The lines above it** are the output of the commands the job ran. The last of them (`ci-reports.pl`) only turns
+   the result into the report GitLab shows on the merge request; the check itself is the `sysml.pl` line, and its
+   output is where the problem is. Here: one error, in
+   `model/physical/network/Network.sysml`, line 5, column 9. The checker met the word `doc` where it expected the semicolon
+   that should have ended the line above (`@L1Network` written without its `;`). Errors are reported where the
+   checker noticed them, which is often just after the real mistake.
+3. **The lines starting with `$`** are the commands the job ran. The first, `perl ci/job.pl grammar`, is the whole
+   job: the one line in the pipeline file. Run exactly that in your clone and you get the same check on your own
+   laptop, which is how you fix the problem without guessing ([[pipeline]], [[vim]]).
+4. **The lines at the top** say which machine ran the job and which version of the model it checked. You will rarely
+   need them, except when a job works on your laptop and fails on the runner.
+
+That is all. A pipeline log is a record of a check that someone wrote down so the machine could run it. The skill
+of reading one is the skill of reading a test report, which every systems engineer already has.
+
+=== What changes for each person {#devsecops-roles}
+
+The translation table maps practices; it is also worth mapping people. On a three-person team, each person's job
+changes in a different way.
+
+**Jim, the MBSE lead,** stops assembling status by hand and starts reading it from the system. Jim's main new
+activities are reviewing and approving merge requests in the areas Jim owns, keeping the backlog of stories in order,
+deciding what goes to the prime as a discrepancy, and presenting the scorecard. Jim's main lost activity is the
+quarterly briefing build.
+
+**Bob, the MBSE engineer,** stops drawing and starts writing. Bob's main new activities are editing the model as
+text, closing TODOs, writing what the converter could not, and resolving merge conflicts when a new drop touches
+something the government changed. Bob's lost activity is the side-by-side diagram comparison.
+
+**Tom, the CM engineer turned DevSecOps engineer,** stops maintaining the CM database by hand and starts maintaining
+the system that maintains it. Tom's main new activities are the GitLab project settings, the pipeline, the runner,
+the drop intake and the baselines. Tom's lost activity is the change log, which git now keeps.
+
+All three still do systems engineering. None of them writes software.
+
+=== Exercises {#devsecops-exercises}
+
+::: exercise Make your own list
+Do what Tom did. Write down every DevSecOps term you have heard on your program. Next to each, write the closest
+systems engineering or CM term. Mark the ones with no equivalent. Compare your list with the translation table.
+:::
+
+::: exercise Which idea first?
+Of the eight ideas in this chapter, which one would save your team the most time in the next month? Which one would
+meet the most resistance? Are they the same idea?
+:::
+
+::: exercise Follow a change
+Take a real change your team made recently. Write it out as the ten steps of "One change, end to end." Which steps
+existed in your current process? Which were missing? Where did the time go?
+:::

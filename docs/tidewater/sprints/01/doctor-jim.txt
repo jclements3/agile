@@ -1,0 +1,18 @@
+$ perl $KIT/tools/gitlab/kickoff.pl doctor --quick
+PASS  perl (version as installed)
+PASS  perl core modules the kit uses (18)
+PASS  git version (version as installed)
+PASS  git user.name = Jim
+PASS  git user.email = jim@example.invalid
+PASS  git init.defaultBranch = main
+PASS  git core.autocrlf = false
+PASS  git pull.ff = only
+PASS  git merge.conflictstyle = diff3
+PASS  VIM - Vi IMproved (version as installed)
+PASS  the kit's Vim setup is sourced (~/.vimrc)
+PASS  curl (version as installed)
+SKIP  the kit's self-test (--quick)
+PASS  GitLab: the local emulator (data/tidewater/gitlab is created on first use)
+WARN  no SSH key (HTTPS with a token works too)
+      fix: ssh-keygen -t ed25519 -C "you@agency.gov"   then paste ~/.ssh/id_ed25519.pub into GitLab > Preferences > SSH Keys
+doctor: 13 pass, 1 warn, 0 fail, 1 skipped

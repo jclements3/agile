@@ -1,0 +1,178 @@
+== Proving the port is complete and correct {#proving}
+
+::: survival Before you start
+What you have: the prime's drop 1 (the v1 model and the DOORS export), the converted v2 model on `develop`, and the
+pipeline's reports.
+
+What you need: an answer to the first question management asks about any port, in a form an independent reviewer
+can check: *is the new model complete, and does it say the same thing as the old one?*
+:::
+
+The deputy program manager put the question plainly at the sprint 4 review: "How do I know nothing fell on the floor
+between the Cameo model and the new one?" In the document era the answer would have been a person's signature on a
+comparison spreadsheet. The team's answer was a set of evidence a reviewer can regenerate: counts the converter
+produces, a burn-down the pipeline keeps, a trace a program computes, a sample a person checks, and a baseline anyone
+can rebuild. This chapter lays out that evidence, shows where Tidewater stood at the end of the twelve weeks, and
+says what is still missing before the port can be accepted at baseline-1.
+
+=== Complete, and correct {#proving-two}
+
+The question has two halves, and they need different evidence.
+
+- **Complete**: every element of the v1 model that matters is either in the v2 text or accounted for. Nothing was
+  silently dropped. This is mostly counting.
+- **Correct**: what the v2 model says matches what the v1 model and DOORS say. Names, structure, relationships and
+  requirement text agree. This is counting plus comparison plus a human look.
+
+A port is acceptable when both halves are evidenced and someone with the authority to accept it has signed. For
+Tidewater that someone is the deputy program manager, through a concurrence comment on the `baseline-1` release merge
+request ([[maintenance]]).
+
+=== Evidence 1: the converter accounts for every element {#proving-converter}
+
+The converter's report lists every v1 element type it read, how many it mapped to v2 text, how many it folded into a
+parent, and how many it left as a TODO line. Nothing is dropped without a line in that table. Run it on drop 1 in
+the Tidewater sandbox:
+
+```sh run sandbox=tidewater expect="206 of 206 ported"
+perl "$KIT/bin/xmi2sysml.pl" --report --layout-map "$KIT/examples/tidewater-v1/layout.map" --map map.csv --out v1check drops/v1.0/tidewater.xmi
+```
+
+Read the totals row and the line below it: every in-scope element (classes, ports, properties, connectors and
+activities, the filter the status metrics use) was ported. The `--map` option also wrote `map.csv`, one row per v1
+element with the v2 name, kind, file and line it became. That map is the backbone of the rest of the evidence:
+
+```sh run expect="requirement"
+awk -F, 'NR > 1 { print $5 }' map.csv | sort | uniq -c | sort -rn
+```
+
+Each v2 kind is a count a reviewer can compare with the v1 side of the report: requirements in, requirements out;
+part definitions in, part definitions out. A difference must be explained by a fold (a v1 element that became part
+of another v2 element) or a TODO line.
+
+=== Evidence 2: the TODO burn-down reaches zero {#proving-todo}
+
+Every TODO line is a v1 construct the converter could not carry, waiting for a person. A complete port has none.
+Tidewater's count, from the pipeline's `todo` job at the end of each sprint, stood at
+{{value: docs/tidewater/sprints/06/scorecard.json 1_todo_lines}} at the end of sprint 6. Count it on the integration
+branch:
+
+```sh run expect="TODO lines remaining"
+git clone -q -b develop gitlab/repos/tidewater/model.git port
+cd port && perl ci/job.pl todo
+```
+
+The remaining lines are behavior and analysis: the BuoyModes state machine (carried into sprint 7) and the
+energy-balance expression, both written by hand. Acceptance waits for zero.
+
+=== Evidence 3: the trace agrees with DOORS {#proving-trace}
+
+DOORS is authoritative for requirement text. The trace job compares the prime's DOORS export with the requirements in
+the model on every change, leaving out the DOORS-generated packages so the model is not compared with itself:
+
+```sh run cwd=port expect="trace_linked="
+perl ci/job.pl trace
+```
+
+Four numbers and two lists come out. *Linked* says how many DOORS requirements the model carries
+({{value: docs/tidewater/sprints/06/scorecard.json 5_trace.C}} at the end of sprint 6: the missing one exists only
+in DOORS and is a discrepancy report). *Orphans* and *unverified* are gaps in the prime's model, also reported. The
+*drift* list names requirements whose text differs between DOORS and the model, with both versions printed. For the
+port, the rule is simple: every number must be either identical to the v1 model's own trace, or explained by a
+discrepancy report. A port that changed the trace has changed the meaning.
+
+=== Evidence 4: a sampled side-by-side review {#proving-sample}
+
+Counts prove nothing was lost; they do not prove nothing was garbled. For that, a person compares a sample of
+elements in both forms. The team picked every twenty-fifth row of the map, which is reproducible (anyone running the
+same command gets the same sample) and spreads across packages:
+
+```sh run cwd=. expect="part def"
+perl -ne 'next if $. == 1; my @f = split /,/; print if $f[4] =~ /^(part def|requirement|port|connection|action def)/ && $. % 25 == 0' map.csv
+```
+
+For each sampled row the reviewer opens the v1 element in the XMI and the v2 text at the file and line the map gives,
+and records "same", "same, reworded", or "different" in the review issue. One of the sample, side by side:
+
+```sh run expect="part def WaveSensor"
+grep -n 'name="WaveSensor"' drops/v1.0/tidewater.xmi | head -3
+grep -n -A2 "part def WaveSensor" port/model/physical/stations/Stations.sysml
+```
+
+At the end of sprint 6 the sample had been drawn but not reviewed: it is a story for the semester that ends with
+baseline-1, done by Jim and the prime's modeler together, so the prime agrees with the result.
+
+=== Evidence 5: the views say the same thing {#proving-views}
+
+The v1 model was mostly diagrams. The v2 model regenerates its views on every change ([[diagrams]]): the part tree,
+the requirements trace, the interconnection view and the package view. A reviewer who knows the old diagrams compares
+them with the generated ones for the same packages. This is a quick check that catches a wrong parent or a missing
+connection that the counts would not. It is also the check that convinces people who learned the system from
+diagrams.
+
+=== Evidence 6: the baseline rebuilds {#proving-baseline}
+
+The accepted port is a baseline, and a baseline is only evidence if it can be rebuilt. The interim baseline-0 of
+sprint 6 records the checksum of its generated documents in the tag:
+
+```sh run expect="sha256="
+git -C port tag -n3 baseline-0
+```
+
+The pipeline's `baseline` job regenerates the documents from the tagged model and compares the checksum, and writes
+the toolchain inventory beside it ([[pipeline]]). The baseline-0 audit passed: the scorecard shows
+{{value: docs/tidewater/sprints/06/scorecard.json 9_baselines.reproducible}} reproducible of
+{{value: docs/tidewater/sprints/06/scorecard.json 9_baselines.tagged}} tagged.
+
+=== Where Tidewater stood at twelve weeks {#proving-status}
+
+|| Evidence | Status at the end of sprint 6 | Needed for acceptance ||
+| Converter accounts for every element | in-scope elements all ported; every fold and TODO listed | done |
+| TODO burn-down | {{value: docs/tidewater/sprints/06/scorecard.json 1_todo_lines}} lines left (behavior, analysis) | zero |
+| Trace against DOORS | computed on every change; gaps are discrepancy reports to the prime | unchanged, or explained |
+| Drift list | one requirement, reported | reported and dispositioned |
+| Sampled review | sample drawn, review not yet done | recorded in an issue, with the prime's modeler |
+| Views compared | views generated on every change | reviewer's note in the same issue |
+| Baseline rebuilds | baseline-0 reproducible | baseline-1 reproducible |
+| Sign-off | not yet | deputy PM's concurrence on the `baseline-1` release merge request |
+Table: Port acceptance evidence, interim status after twelve weeks.
+
+The completeness report that ties these together, with every count and the sign-off in one document, is produced at
+`baseline-1` in sprint {{n: 20}}, when the TODO count reaches zero and the sampled review is done. That is beyond the twelve
+weeks this part covers; [[maintenance]] describes it.
+
+::: checklist Port acceptance
+[ ] The converter report shows every in-scope element ported, and every fold and TODO accounted for
+[ ] The TODO count on the integration branch is zero
+[ ] The trace numbers equal the v1 model's own trace, or each difference has a discrepancy report
+[ ] The drift list is empty, or each drifted requirement has a disposition
+[ ] A reproducible sample of elements has been compared side by side, and the result recorded
+[ ] The generated views have been compared with the v1 diagrams of the same packages
+[ ] The baseline tag rebuilds to its recorded checksum, with the toolchain inventory kept
+[ ] The accepting authority has concurred, in writing, on the release merge request
+:::
+
+::: exercise Draw your own sample
+In the Tidewater sandbox, change the sampling rule to every fifteenth row and include `satisfy` rows. Pick two
+sampled elements and compare them side by side as the chapter does. Which are "same", and which "same, reworded"?
+:::
+
+::: exercise Explain a difference
+The converter report shows elements that were *folded*. Find two in `map.csv` (kind `folded`) and write one sentence
+each on why folding them is not a loss.
+:::
+
+=== You can now {#proving-can-now}
+
+- produce the counts that show a port lost nothing, from the converter's report and its map;
+- show that the port did not change the meaning of the requirements, with the trace and the drift list;
+- draw a reproducible sample for a side-by-side review and record the result;
+- list what is still missing before a port can be accepted, and who signs.
+
+=== Applying this to your project {#proving-applying}
+
+Agree the acceptance evidence with whoever will accept the port before you start converting, and write it into the
+scorecard or the definition of done for the port epic. Keep the converter's report and map for every drop in the
+repository, so the counts can be regenerated. Make the sample reproducible, and do the review with someone from the
+organization that owns the old model. Do not call the port done until the TODO count is zero and someone with
+authority has said so in writing.

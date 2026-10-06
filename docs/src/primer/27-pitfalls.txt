@@ -1,0 +1,415 @@
+== Pitfalls and anti-patterns {#pitfalls}
+
+::: survival Knowing the ditches
+What you have: a working process and, by now, some habits, good and bad.
+
+What you need: a way to recognize the bad habits early, from the first symptom you would actually notice, before
+they cost a sprint. Every team moving from documents and Cameo to a text model in GitLab falls into some of these.
+Tidewater fell into more than half of them.
+:::
+
+=== How to read this chapter {#pitfalls-reading}
+
+Each pitfall has the same four parts:
+
+- **Symptom**: what you will see first. Usually it is small: a number that stops moving, a conversation that keeps
+  recurring, a pipeline colour nobody comments on any more.
+- **Why it happens**: the reason a sensible team ends up there. None of these pitfalls is stupidity. Most of them are
+  an old habit, correct in the document era, applied in a place where it no longer fits.
+- **Fix**: what to do, as concretely as possible.
+- **At Tidewater**: where the team met it, and what happened.
+
+The pitfalls are grouped by where they bite: the model, the change process, the pipeline, the measures, and the
+people. A checklist version, for a monthly look in the mirror, closes the chapter.
+
+=== Pitfalls in the model {#pitfalls-model}
+
+==== Porting the spider web {#pitfall-spider-web}
+
+**Symptom.** The v2 model has the same duplicated blocks, stale packages and dependency cycles as the v1 model.
+Someone finds `Battery_old` in the part tree and asks whether it is real.
+
+**Why it happens.** The converter is faithful: it carries what is in the XMI, clutter included, because it cannot know
+which blocks are clutter. A team under schedule pressure measures progress by TODO lines closed and treats
+everything the converter did not flag as done.
+
+**Fix.** Treat untangling as its own work, with its own stories, measured by scorecard measure 7 (cycles, duplicates,
+the most-connected block). Do not delete clutter silently: raise a discrepancy report so the prime removes it upstream,
+and remove it in the government model in an MR that cites the report. Until the prime's drop removes it, the next
+vendor import will bring it back as a conflict, which is the reminder you want.
+
+**At Tidewater.** The drop-1 conversion carried the `Legacy Import` package with its copied blocks, and the two
+package cycles from [[cameo]]. Bob's first instinct was to delete the package in one commit. Jim stopped it: the
+deletion would conflict with every future drop until the prime removed it too. The team raised discrepancy reports,
+removed the clutter in the government model with the report numbers in the MR, and watched the prime's later drops
+remove it upstream (the `Copy of SensorSuite` block went in drop 3, the whole `Legacy Import` package in drop 6).
+
+==== Reformatting the converter's output {#pitfall-reformat}
+
+**Symptom.** Every prime drop produces dozens of merge conflicts, in files where nobody changed anything that matters.
+
+**Why it happens.** Converter output is not how a person would lay the text out, and a tidy engineer reformats it:
+reorders members alphabetically, re-indents, splits long lines, moves the `doc` comment above the tag. Each change is
+harmless alone. Together they mean that the next vendor import, which writes the converter's layout again, differs from
+the government file on nearly every line, and git's three-way merge can no longer tell the prime's changes from the
+government's.
+
+**Fix.** Edit converter output *in place* and *minimally*: replace a `// TODO` line with the line that closes it, add
+a line where one is needed, and leave every other line exactly as the converter wrote it. Put government-only content
+(new packages, the conventions library, views) in separate files the converter never writes (on Tidewater, `model/library/conventions/` and its neighbours), which the vendor branch never
+touches. Write the rule into the Definition of Done.
+
+**At Tidewater.** Tom reformatted `Interfaces.sysml` in sprint 2 to make it "readable" and the change sailed through
+review because the diff looked like pure layout. Drop 2's import then conflicted on forty lines of that file. Resolving
+them took Tom most of a day, after which the team wrote the in-place rule into the Definition of Done and reverted the
+reformatting.
+
+==== Hand-editing the vendor branch {#pitfall-vendor-edit}
+
+**Symptom.** A delta report shows changes the prime says it never made, or a vendor import does not reproduce when run
+again from the same drop.
+
+**Why it happens.** The vendor branch looks like any other branch, and a quick fix there (a converter glitch, a typo in
+the prime's requirement text) seems faster than a discrepancy report.
+
+**Fix.** The vendor branch holds exactly what the converters produce from the drop, nothing else. Protect it so only
+maintainers can push and nobody can merge into it. Fixes go on `develop` (government edits) or to the prime (a
+discrepancy report). If a converter is wrong, fix the converter, re-import, and record the converter version in the
+import commit.
+
+**At Tidewater.** Never happened, because `vendor/prime` was protected from week zero with merge set to no one. Tom
+tested the protection in sprint 2 by trying to push a one-line change to it and kept the rejection message as evidence.
+
+==== Changing requirement text in the model {#pitfall-req-text}
+
+**Symptom.** The trace job's drift count goes up after a government MR, not after a drop.
+
+**Why it happens.** An engineer sees a badly worded requirement in the model, knows what it should say, and fixes the
+`doc` text. It feels like the obvious improvement.
+
+**Fix.** DOORS is the authority for requirement text, and the prime owns DOORS. The model's requirement text is a copy.
+A wording problem is a discrepancy report to the prime; the fix arrives in a later drop, through both the ReqIF and the
+XMI. The government model may add notes or analysis around a requirement, never different words in it.
+
+**At Tidewater.** TW-SYS-006 drifted from the start ([[sysmlv2]]). Bob wanted to align the model text by hand in sprint
+3. Jim raised a discrepancy report instead, and drop 2 fixed both sides. The drift count fell to zero through the
+process rather than around it, which is what the scorecard needed to show.
+
+==== Trusting the TODO count alone {#pitfall-todo-only}
+
+**Symptom.** The TODO count is zero, the pipeline is green, and a reviewer finds that the government's hand-written
+state machine is missing a state the prime added months ago.
+
+**Why it happens.** The converter writes a TODO line for each construct it does not carry. When the prime changes
+something *inside* such a construct (a new state inside a state machine, a new message in an interaction), the TODO line
+in the converted output is unchanged, so the vendor import shows no difference at all. The TODO count cannot see it.
+
+**Fix.** Run the v1 delta on every drop: `xmi2sysml.pl --delta OLD.xmi NEW.xmi`. It compares the two drops element by
+element by `xmi:id` and marks every change the converter does not carry as *manual*. Each manual line becomes a task.
+
+**At Tidewater.** Drop 3 added a `Storm` state to `BuoyModes`. The converted v2 output did not change at all. The delta
+listed five manual changes inside the state machine, and Bob's drop-3 story carried a task to add the state by hand
+([[maintenance]]).
+
+=== Pitfalls in the change process {#pitfalls-change}
+
+==== The big-bang merge request {#pitfall-big-mr}
+
+**Symptom.** An MR has thirty files and two thousand changed lines, it stays open for a week, and the review is a
+single comment saying "looks fine".
+
+**Why it happens.** The document era trained people to batch: a document revision collected months of changes because
+each revision cost a CCB meeting. The instinct carries over: finish everything, then ask for review.
+
+**Fix.** One task, one MR; one task, less than a week. If an MR touches more than one package or takes more than
+fifteen minutes to review, split it. Small MRs are reviewed properly, merge without conflicts, and keep lead time
+(scorecard measure 2) low.
+
+**At Tidewater.** Bob's first structure MR in sprint 3 closed every TODO in two packages at once. Jim's review took two
+sessions and missed a wrong level tag, which a later MR had to fix. From sprint 4 on the team cut stories into
+package-sized tasks, and median review turnaround fell below a working day.
+
+==== Long-lived branches {#pitfall-long-branch}
+
+**Symptom.** A feature branch is two weeks old, and merging `develop` into it produces conflicts in files the branch's
+author never touched.
+
+**Why it happens.** The engineer is "nearly done" for days, and keeping the branch private feels safer than showing an
+unfinished change.
+
+**Fix.** Branches live days, not weeks. Merge `develop` into your branch daily if it must live longer, and push it so
+the MR pipeline checks the integration. If a task will take longer than a week, it is two tasks.
+
+**At Tidewater.** The only branch older than a week was the behavior work in sprint 6, which straddled Bob's leave.
+Its merge needed a manual conflict resolution in `Behavior.sysml`. The retrospective added a rule: before leave, merge
+or hand over.
+
+==== Rewriting shared history {#pitfall-rewrite}
+
+**Symptom.** A colleague's `git pull` fails with "diverged" messages, or a merge request suddenly shows commits that
+were already merged.
+
+**Why it happens.** Tutorials teach `git rebase` and `git push --force` as tidy ways to clean up a branch, and they are,
+on a branch only you use. On a shared branch they rewrite history other people have.
+
+**Fix.** Protected branches forbid force push; keep it that way. On your own feature branch, tidy before you push for
+the first time, not after. The project uses merge commits and no squash, because the merge history is part of the
+record (who merged what, when, after which review) and feeds the status metrics.
+
+**At Tidewater.** Tom followed a tutorial's advice to squash commits in sprint 2, on a test project. When the team saw
+that squashing would make the merge history unable to show which engineer made which change, they set squash to
+*never* in `project.conf` and wrote the reason beside it.
+
+==== Silent conflict resolution {#pitfall-take-ours}
+
+**Symptom.** After a vendor merge, a change the prime announced in its manifest is not in the government model.
+
+**Why it happens.** Conflicts are uncomfortable, and git offers one-word ways out: take our side, or take theirs, for a
+whole file. Taking ours drops the prime's change; taking theirs drops the government's edits.
+
+**Fix.** Resolve conflicts hunk by hunk in Vim ([[vim]]), or take the vendor side and re-apply the government's edits
+deliberately, which is the method the Drop Intake Runbook prescribes. Either way, the MR description lists each
+conflicted file and how it was resolved, and the reviewer checks the manifest's changes against the merged result.
+
+**At Tidewater.** Drop 5 changed the `EnergyBalance` constraint expression in a TODO line the government had already
+replaced by hand. The conflict was real: both sides changed the same line. Tom took the vendor side and re-applied the
+hand-written constraint with the new expression, and listed the file in the MR. `gitlab.pl flow take` exists for the
+wholesale case, but the runbook uses it only on files the government never edits.
+
+==== Old reviews in new clothes {#pitfall-old-review}
+
+**Symptom.** Every merge request is approved, and then a monthly meeting reviews the same changes again from slides.
+
+**Why it happens.** The organization does not yet trust the MR approval as the review of record, so it keeps the old
+board as a safety net. Nobody says out loud that the MR review is now redundant or that the board is.
+
+**Fix.** Decide which review is the review of record, write it into the configuration management plan, and make the
+other one a summary. For Tidewater, the MR approval by a code owner is the change approval; the CCB meets monthly to
+look at the *outcomes* (baselines, discrepancy reports, metrics), not at individual changes.
+
+**At Tidewater.** The deputy program manager, who chairs the CCB, asked in sprint 4 for "the list of model changes
+for the board". Jim answered with the merged MR list from `gitlab.pl export` and offered to replace the change-by-change
+review with a fifteen-minute review of the export. The board agreed after seeing two months of it.
+
+=== Pitfalls in the pipeline {#pitfalls-pipeline}
+
+==== Red is normal {#pitfall-red-normal}
+
+**Symptom.** The pipeline on `develop` has been red for three days, and the stand-up no longer mentions it.
+
+**Why it happens.** A failing check that blocks nothing becomes background. Usually it started with a job that failed
+for a reason outside the team's control (a runner problem, a server outage), and when the reason went away nobody
+re-ran it.
+
+**Fix.** A red pipeline on `develop` or `main` is the team's first priority, above any story, until it is green. The
+stand-up asks one question first: "is develop green?" Scorecard measure 8 measures the time from a failure to the
+next pass so that the habit is visible.
+
+**At Tidewater.** The runner's disk filled in sprint 6 and every job failed. The fix took Tom an hour once noticed, but
+it was noticed only the next morning. The team added "is develop green?" as the first line of the stand-up and a
+disk-space check to the weekly runner look ([[admin]]).
+
+==== Allowed to fail, forever {#pitfall-allow-failure}
+
+**Symptom.** Half the jobs are yellow (allowed to fail) and nobody can remember why.
+
+**Why it happens.** `allow_failure: true` is the easy way to add a check that does not pass yet. It is meant to be
+temporary and almost never is.
+
+**Fix.** Every `allow_failure` has a comment in `.gitlab-ci.yml` saying why and until when, and an issue to remove it.
+Tidewater's `trace` job is allowed to fail by design (the planted requirement gaps are the prime's to fix, and the
+discrepancy reports track them); that reason is written beside the job.
+
+**At Tidewater.** The `outline` check started as allowed to fail during the port because the converter's layout broke
+the outline rule. It had an issue, a waiver in the wiki, and a removal date tied to the end of the structure epic. When
+the date came the waiver was removed in an MR, and the job went back to blocking.
+
+==== Bypassing the gate {#pitfall-bypass}
+
+**Symptom.** A protected branch was unprotected "for five minutes" to push a fix directly, and the audit shows it.
+
+**Why it happens.** Urgency, and a maintainer's role that permits it. In the document era, the equivalent was walking
+a change past the CCB because the review was next month.
+
+**Fix.** The gate has no bypass that leaves no trace. Urgent fixes go through a hotfix branch and a merge request like
+everything else; a small MR with a green pipeline merges in minutes. The monthly protection audit ([[admin]]) checks
+that nothing was unprotected, and the audit events (Premium) show who did it.
+
+**At Tidewater.** Nobody unprotected a branch, which Jim attributes to the sprint 1 exercise: the team deliberately
+opened an MR with a lint error and watched the merge button refuse ([[sprint-1]]). Seeing the gate work made it
+feel like protection rather than obstruction.
+
+==== Unpinned tools {#pitfall-unpinned}
+
+**Symptom.** The pipeline fails on `develop` with no model change, and the failure is in a check's behavior.
+
+**Why it happens.** The runner uses whatever version of the kit or the converters is newest, and someone updated it.
+
+**Fix.** The runner and the laptops use the same pinned version of every tool. Upgrading a tool is a story with its
+own MR and its own pipeline run ([[admin-upgrades]]).
+
+**At Tidewater.** The runner and laptops ran the same tagged kit from week zero, after Tom saw what a moving dependency
+did in the vendor import rehearsal: re-running the drop-1 import with a newer converter produced a different
+`Stations.sysml`, which would have shown up as a phantom prime change.
+
+==== Tools before habits {#pitfall-tools-first}
+
+**Symptom.** In week two the project has a board with nine columns, forty labels, epics, iterations, value stream
+analytics and a security dashboard, and the team still cannot say what the next task is.
+
+**Why it happens.** GitLab has a feature for everything, and the enthusiastic member of the team turns them all on.
+
+**Fix.** Adopt one tool when it pays for itself, and say what it pays for. Tidewater's adoption timeline ([[tools]])
+added one or two features per sprint, each when a problem made it worth the cost of learning it.
+
+**At Tidewater.** Tom proposed a full security scanning suite in week zero. Jim asked what it would scan: the model
+had no code, so SAST and dependency scanning had nothing to look at. Secret detection, which did have something to
+look at, went in at sprint 3.
+
+=== Pitfalls in the measures {#pitfalls-measures}
+
+==== Measuring by hand {#pitfall-hand-measure}
+
+**Symptom.** The status chart is assembled on Thursday night from three spreadsheets, and the numbers on it cannot be
+reproduced the following week.
+
+**Why it happens.** It is how status was always done, and the automated numbers are not yet trusted.
+
+**Fix.** Every number in a status report comes from the repository, GitLab's records or the journal, produced by a
+script or the pipeline. If a number cannot be produced that way, it is not on the scorecard. The rule was set in
+[[directive]] and it is the one that made the sprint 6 briefing believable.
+
+**At Tidewater.** In sprint 2 Jim was tempted to report "percent of model ported" from a judgment. The TODO count was
+not yet automated, so Jim reported nothing for that measure and said why. The `todo` job came in that sprint.
+
+==== Gaming the TODO count {#pitfall-gaming}
+
+**Symptom.** The TODO count falls faster than the work could possibly have been done, and some MRs delete TODO lines
+without replacing them.
+
+**Why it happens.** Any measure that becomes a target invites shortcuts. Deleting a TODO line is a one-keystroke
+"closure".
+
+**Fix.** The Definition of Done says a TODO line is closed only by the construct that replaces it, and the reviewer
+checks the replacement. The v1 delta and the trace job catch missing content later, but review catches it first.
+Report the TODO count together with measures that would move if it were gamed (trace completeness, lint warnings).
+
+**At Tidewater.** It did not happen, partly because Bob, the strongest skeptic, was also the one closing most TODO
+lines and saw the count as proof of work rather than a target set by others.
+
+==== Reporting only the good numbers {#pitfall-good-numbers}
+
+**Symptom.** The sprint report shows four measures; last sprint it showed six.
+
+**Why it happens.** Two measures looked bad, and leaving them out felt kinder than explaining them.
+
+**Fix.** Report every agreed measure, every sprint. A bad number with a reason and a plan is credible; a missing number
+is noticed and remembered.
+
+**At Tidewater.** Sprint 3 was bad: the pipeline caught Bob's grammar error, the ISSM blocked the security story for
+three days, and morale dipped ([[sprint-3]]). Jim reported all of it. At the sprint 6 briefing the program manager
+said that the sprint 3 report was the reason the sprint 6 numbers were believed.
+
+=== Pitfalls with people {#pitfalls-people}
+
+==== The hero {#pitfall-hero}
+
+**Symptom.** Only one person can fix the pipeline, run a vendor import or cut a baseline, and that person's leave is
+planned around.
+
+**Why it happens.** The person who set it up knows it best, and it is faster for them to do it than to teach it.
+
+**Fix.** Rotate the chores. Every procedure has a wiki runbook, and every runbook has been followed at least once by
+someone other than its author. Pair on the first instance of anything.
+
+**At Tidewater.** Tom built the pipeline and could have stayed its only mechanic. From sprint 4 on, Bob did one
+pipeline change per sprint with Tom reviewing, and Jim ran the drop-2 vendor import with Tom watching. When Tom was on
+leave in sprint 9 nothing stopped.
+
+==== Forcing it on the skeptic {#pitfall-force}
+
+**Symptom.** The skeptic complies, silently, does the minimum, and the old way continues in a spreadsheet on the side.
+
+**Why it happens.** Management directed the change, so arguing feels pointless; the skeptic's objections are treated
+as resistance instead of requirements.
+
+**Fix.** Write the objections down and answer each one with evidence, as [[directive]] did and [[minds]] revisits.
+Give the skeptic the measure they would believe and let them run it. Never ask anyone to pretend to be enthusiastic.
+
+**At Tidewater.** Bob's objections were the most specific, and so the most useful. Bob's question "how will I know the
+model is right?" became the lint and trace jobs. Bob's quote from sprint 1 ("I found the drift in two minutes, it used
+to take a week") came from running one of them.
+
+==== Stand-up as a status meeting {#pitfall-standup}
+
+**Symptom.** The stand-up takes forty minutes, each person reports to Jim, and problems are solved in the meeting.
+
+**Why it happens.** The team's last daily meeting format was a status meeting with a manager, and that is what a daily
+meeting feels like.
+
+**Fix.** Terse statuses: yesterday, today, blockers, with story ids, posted in the meeting chat and checked by the
+kit's lint ([[ceremonies]]). Problems get named in the stand-up and solved after it, by the people involved.
+
+**At Tidewater.** The first stand-up ran twenty-five minutes. By sprint 3, statuses were one line each, the lint found
+nothing to complain about, and the meeting took ten minutes.
+
+==== Tasks too big to finish {#pitfall-big-tasks}
+
+**Symptom.** Stories carry over sprint after sprint, and tasks sit in the "in progress" column for more than a week.
+
+**Why it happens.** Estimates in the document era were in weeks or months, and a five-point ceiling feels artificial.
+
+**Fix.** Enforce the sizes: a task is at most five points (five ideal days) and is cut further if it might not finish
+in a week; a story fits in a sprint. A carried-over story is discussed at the retrospective, not just moved.
+
+**At Tidewater.** The Stations story in sprint 4 carried two points into sprint 5 ([[sprint-4]]). The retrospective
+found that its level-tag task was really two tasks. Carryovers were rare after that.
+
+=== A monthly look in the mirror {#pitfalls-checklist}
+
+::: checklist Pitfall check, once a month at the retrospective
+[ ] The v2 model has no duplicate blocks, no package cycles, and no clutter without a discrepancy report
+[ ] Converter output is edited in place only; government-only content is in files the converter never writes (`model/library/conventions/` and the like)
+[ ] Nobody pushed to `vendor/prime` except imports
+[ ] Requirement text changes came only from drops
+[ ] Every drop had a v1 delta, and its manual items became tasks
+[ ] No MR this month was larger than a task; no branch lived longer than a week
+[ ] No force push, no squash, no unprotected branch
+[ ] Every conflicted file in a vendor merge is listed in its MR with how it was resolved
+[ ] `develop` was never red for more than a working day
+[ ] Every `allow_failure` has a reason and an issue
+[ ] Tools are pinned; upgrades were stories
+[ ] Every reported number came from a script; every agreed measure was reported
+[ ] Each runbook was followed by someone other than its author at least once
+[ ] Stand-ups took fifteen minutes or less
+[ ] No story carried over twice
+:::
+
+=== Applying this to your project {#pitfalls-applying}
+
+- **Copy** the monthly checklist into your retrospective template. It costs five minutes.
+- **Adapt** the pitfalls to your sources. If your v1 model has no prime contractor and no vendor branch, the vendor
+  pitfalls become pitfalls about your own Cameo exports, but reformatting and in-place editing matter just as much.
+- **Decide locally** which pitfalls your organization is most prone to. A team with a strong CCB culture will fall
+  into old reviews in new clothes; a team with an enthusiastic tool-builder will fall into tools before habits.
+  Watch for your own two.
+
+=== Exercises {#pitfalls-exercises}
+
+::: exercise {#ex-pitfall-diagnose} Diagnose the symptom
+For each symptom, name the pitfall and the first thing you would do: (a) a vendor merge conflicts on 60 lines of a
+file the government only added level tags to; (b) the drift count rose after a government MR; (c) the TODO count is
+zero but the prime's manifest mentions a new state; (d) `develop` has been red since Tuesday.
+:::
+
+::: exercise {#ex-pitfall-yours} Your two pitfalls
+Pick the two pitfalls your own organization is most likely to fall into. For each, write the symptom you would expect
+to see first in your environment, and one rule that would prevent it.
+:::
+
+::: exercise {#ex-pitfall-delta} Prove the TODO count blind spot
+Generate drops 2 and 3 with `perl sim/tidewater-v1.pl --drop 2 /tmp/d2` and `--drop 3 /tmp/d3`. Convert both with
+`xmi2sysml.pl --out` and compare the two `stations/Stations.sysml` files. Then run
+`xmi2sysml.pl --delta /tmp/d2/tidewater.xmi /tmp/d3/tidewater.xmi`. Which change appears in the delta and not in the
+converted files, and why?
+:::

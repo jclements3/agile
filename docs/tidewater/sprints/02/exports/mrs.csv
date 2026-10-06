@@ -1,0 +1,8 @@
+iid,title,author,source,target,created_at,merged_at,lead_hours,labels,state
+1,"CODEOWNERS, issue and MR templates, .gitignore",tom,feature/16-codeowners-and-templates,develop,2026-10-14T15:00:00Z,2026-10-14T17:10:00Z,2.2,workflow::review,merged
+2,"The first pipeline: grammar, lint, outline",tom,feature/37-first-pipeline,develop,2026-10-23T15:00:00Z,2026-10-23T20:10:00Z,5.2,workflow::review,merged
+3,Add the government conventions package,bob,feature/43-add-the-government-conventions-package,develop,2026-10-23T16:30:00Z,2026-10-23T20:00:00Z,3.5,workflow::review,merged
+4,Name the level tags in sysml.conf,bob,feature/44-name-the-level-tags-in-sysml-conf,develop,2026-10-26T15:00:00Z,2026-10-26T18:40:00Z,3.7,workflow::review,merged
+5,Decision records: ADRs 0001-0014,jim,feature/46-decision-records-adrs-0001-0014,develop,2026-10-26T15:45:00Z,2026-10-26T19:15:00Z,3.5,workflow::review,merged
+6,Prime drop v1.0,tom,feature/drop-v1.0,develop,2026-10-27T15:00:00Z,2026-10-29T15:00:00Z,48.0,workflow::review;type::drop;prime-change,merged
+7,"Pipeline: Adds the todo (port burn-down) and docs (generated docs current) jobs, and commits docs/",tom,feature/42-pipeline-adds-the-todo-port-burn-down-an,develop,2026-10-29T15:45:00Z,2026-10-29T19:15:00Z,3.5,workflow::review,merged

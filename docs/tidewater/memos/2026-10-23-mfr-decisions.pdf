@@ -1,0 +1,95 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [6 0 R 8 0 R] /Count 2 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 3283 >>
+stream
+2 J
+BT /F1 12.00 Tf 1 0 0 1 166.84 711.00 Tm (TIDEWATER COASTAL OBSERVATION PROGRAM) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 683.40 Tm (TW-SE) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 655.80 Tm (23 OCTOBER 2026) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 628.20 Tm (MEMORANDUM FOR RECORD) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 600.60 Tm (FROM: TIDEWATER MBSE LEAD) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 573.00 Tm (SUBJECT: TEN DECISIONS ON HOW THE TIDEWATER SYSML V2 MODEL IS) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 559.20 Tm (MANAGED) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 531.60 Tm (REFERENCES: \(A\) PROGRAM MEMORANDUM, ADOPTION OF DEVSECOPS) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 517.80 Tm (PRACTICES FOR SYSTEMS ENGINEERING ARTIFACTS, 24 SEPTEMBER 2026; \(B\)) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 504.00 Tm (DECISION RECORDS IN THE MODEL REPOSITORY, DOCS/ADR/) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 476.40 Tm (1.  On 23 October 2026 the MBSE lead confirmed the ten decisions below. Each has a decision) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 462.60 Tm (record with its context and consequences in reference \(b\).) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 435.00 Tm (2.  The decisions and their reasons are:) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 407.40 Tm (a.  D-1. The v2 model is SysML v2 textual notation in a git repository, because text can be) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 393.60 Tm (compared, merged, checked and reviewed line by line.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 366.00 Tm (b.  D-2. Gitflow branching: develop is the default integration branch and main holds) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 352.20 Tm (baselines only, because day-to-day work must never wait on a release.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 324.60 Tm (c.  D-3. Every merge is a merge commit, with no squash and no fast-forward, because the) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 310.80 Tm (history of who changed what feeds the metrics and the audit trail.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 283.20 Tm (d.  D-4. DOORS stays authoritative for requirement text and the model holds a converted) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 269.40 Tm (copy, because the prime and the program manage requirements in DOORS; the pipeline reports) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 255.60 Tm (any drift.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 228.00 Tm (e.  D-5. Prime drops land on a vendor branch, converted and never edited by hand, and are) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 214.20 Tm (merged into develop, so that git merges the prime's changes with the team's own.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 186.60 Tm (f.  D-6. The team never edits the v1 model; problems in it go to the prime as discrepancy) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 172.80 Tm (reports, because the prime owns the v1 model under the contract.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 145.20 Tm (g.  D-7. Conversion debt, the TODO lines the converter leaves, is the primary measure of) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 131.40 Tm (port progress, because it is computed, countable and indisputable.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 103.80 Tm (h.  D-8. Tasks are at most 5 points and stories fit one sprint; tasks live in GitLab and stories) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 90.00 Tm (in the journal, because small changes are reviewed properly.) Tj ET
+
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 1218 >>
+stream
+2 J
+BT /F1 12.00 Tf 1 0 0 1 90.00 711.00 Tm (i.  D-9. The pipeline runs on a Windows shell runner with Git for Windows' Perl, because it) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 697.20 Tm (uses the same tools as the laptops and needs nothing new approved.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 90.00 669.60 Tm (j.  D-10. Everything that can be a file is a file under version control, because then it can be) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 655.80 Tm (reviewed, rebuilt and audited.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 628.20 Tm (3.  Each decision will be revisited when the condition in its decision record occurs, for example) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 614.40 Tm (D-5 when the prime delivers SysML v2 directly.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 586.80 Tm (4.  Effective immediately, changes to these decisions are made by merge request to the decision) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 573.00 Tm (records, approved by the MBSE lead.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 545.40 Tm (5.  The point of contact is the undersigned.) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 517.80 Tm (JIM) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 72.00 490.20 Tm (TIDEWATER MBSE LEAD) Tj ET
+BT /F1 12.00 Tf 1 0 0 1 296.00 36.00 Tm (- 2 -) Tj ET
+
+endstream
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000121 00000 n 
+0000000220 00000 n 
+0000000318 00000 n 
+0000000413 00000 n 
+0000000559 00000 n 
+0000003894 00000 n 
+0000004040 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+5310
+%%EOF

@@ -133,6 +133,36 @@ check_('cli --report --model', $crn, $rep . $tt);
 my $cc = qx("$^X" "$root/bin/reqif2sysml.pl" --req-style def --col "id=Object Identifier" --col "level=Object Level" --stdout "$dir/courier.csv" 2>/dev/null);
 has 'cli csv --col --stdout', $cc, qr{^// file: courier/courier\.sysml$}m, qr/requirement def CD_103 \{/;
 
+# ---- drift: the model's text for a doorsId against DOORS (Tidewater drop 1 plants TW-SYS-006; drop 2 aligns it)
+for my $k (1, 2) {
+    my $gd = "$dir/tw$k";
+    qx("$^X" "$root/sim/tidewater-v1.pl" --drop $k "$gd" 2>&1);
+    my $xo = Xmi::convert(Xmi::load("$gd/tidewater.xmi"));
+    spew("$gd/model/$_", $xo->{files}{$_}) for keys %{ $xo->{files} };
+    my $td = Reqif::load_reqif("$gd/tidewater.reqif");
+    my $tt = Reqif::trace($td, Reqif::convert($td), "$gd/model");
+    check_("tidewater drop $k: drift", join(' ', map { $_->{id} } @{ $tt->{drift} }), $k == 1 ? 'TW-SYS-006' : '');
+    has("tidewater drop $k: trace_text drift lines", Reqif::trace_text($tt), $k == 1
+        ? (qr/^text differs from DOORS\s+1$/m, qr/^  TW-SYS-006 DOORS: The data center shall publish a marine bulletin twice a day, on a fixed schedule\.$/m,
+           qr/^  TW-SYS-006 model: The data center shall publish a marine bulletin on a fixed schedule\.$/m)
+        : (qr/^text differs from DOORS\s+0$/m));
+}
+
+# ---- --layout-map: DOORS modules -> folders, and the unlisted ones reported
+{
+    my $lm = "$root/examples/tidewater-v1/layout.map";
+    my $r = qx("$^X" "$root/bin/reqif2sysml.pl" --report --layout-map "$lm" "$root/examples/tidewater-v1/tidewater.reqif" 2>&1);
+    has('layout map: DOORS modules', $r, qr/^files: requirements\/segment\/Segment_Requirements\.sysml requirements\/stakeholder\/Stakeholder_Needs\.sysml requirements\/system\/System_Requirements\.sysml$/m);
+    check_('layout map: no report line when every module is listed', ($r =~ /^layout map:/m ? 1 : 0), 0);
+    spew("$dir/one.map", "System Requirements = reqs/sys/SYS.sysml\n");
+    my $p = qx("$^X" "$root/bin/reqif2sysml.pl" --report --layout-map "$dir/one.map" "$root/examples/tidewater-v1/tidewater.reqif" 2>&1);
+    has('layout map: an exact file, and the rest reported', $p, qr/\breqs\/sys\/SYS\.sysml\b/,
+        qr/^layout map: Stakeholder Needs is not listed; written to stakeholder-needs\/Stakeholder_Needs\.sysml \(the converter's own layout\)$/m);
+    spew("$dir/bad.map", "System Requirements\n");
+    my $b = qx("$^X" "$root/bin/reqif2sysml.pl" --report --layout-map "$dir/bad.map" "$root/examples/tidewater-v1/tidewater.reqif" 2>&1);
+    check_('layout map error exits 2', ($? >> 8) . ' ' . ($b =~ /^reqif2sysml: --layout-map \S*bad\.map:1: expected PACKAGE = folder\// ? 1 : 0), '2 1');
+}
+
 # ---- the SysML v2 grammar checker, when the repo has it
 my $chk = "$root/tools/sysml/sysml.pl";
 if (-f $chk) {

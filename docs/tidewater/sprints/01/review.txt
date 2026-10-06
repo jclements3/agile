@@ -1,0 +1,18 @@
+Sprint 1 review, 2026-10-16 10:00
+
+Goal: A GitLab project the team can work in; drop 1 received and assessed
+
+Demonstrated:
+  TW-1 Learn the tools: survival kit, git, Vim, the operating model
+  TW-2 Laptops ready: Git for Windows, Vim, the kit
+  TW-3 Create the GitLab group and model project
+  TW-4 Draft the first pipeline and run it locally
+  TW-5 Receive drop 1 and record it
+  TW-6 Convert drop 1 and assess it
+  TW-7 Working agreements: Definition of Ready and Done
+
+Artifacts shown: the merge requests and pipelines of the sprint.
+
+Feedback (Deputy PM): "You received the drop and checked every file. When does the model itself move?" Jim: drop 1 goes onto develop through the vendor branch in sprint 2, and every change after that is checked by the pipeline.
+
+The four headline numbers: TODO lines left 0; verify coverage -; open DRs 0; blocked items 0.

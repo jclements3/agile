@@ -1,0 +1,472 @@
+== Talking about progress: helps for engineers who would rather not {#talking}
+
+::: survival
+What you have: a stand-up every morning ([[ceremonies]]), a demo every second Friday, a weekly note to management,
+and a GitLab project that already knows almost everything you did.
+
+What you need: words. Short ones, in an order management can follow, said out loud by people who have spent a
+career letting the documents speak for them. This chapter gives you a pattern, a ladder, a stakeholder map, a few
+scripts for bad news, and a tool that drafts the first version of every sentence from GitLab so you only have to
+correct it.
+:::
+
+=== Why engineers go quiet {#talking-quiet}
+
+The first two weeks of Tidewater stand-ups produced statuses like these, copied from the meeting chat:
+
+```text
+Y fixed lint warnings on the connector ends in PowerSystem T more of the same B none
+Y rebased my branch after the vendor merge T trace job B waiting on the runner
+Y stuff on TW-4 T TW-4 B none
+```
+
+Each one is true. None of them tells the program manager, who started coming to the sprint reviews in sprint 2, whether
+the port is on schedule. And in the sprint 2 demo, Tom spent eleven minutes showing the pipeline file line by line, while the
+program manager checked e-mail and the deputy program manager said, at the end, "I did not follow the demo. What did
+we get for the two weeks?" Nobody answered for a long moment.
+
+It is worth understanding why this happens, because the fix is different for each cause.
+
+- **The precision instinct.** Systems engineers are trained not to claim more than they can show. "On track" feels
+  like a claim; "fixed lint warnings on the connector ends" feels like a fact. So the fact is said and the claim is
+  left for the listener to infer, which the listener cannot do.
+- **Fear of being wrong in front of managers.** For thirty years the team's statements to management were reviewed,
+  edited and signed before anyone said them. A live sentence with a number in it, said without a document behind it,
+  feels exposed.
+- **Not knowing what the audience needs.** The program manager needs a different sentence from the ISSM, and both
+  need a different one from Bob. Engineers default to the sentence *they* would want to hear: the mechanism.
+- **Talking in mechanism.** Mechanism is what the engineer spent the day on, so it is what is in their head. "Rebased
+  my branch" is the most recent memory, not the most important news.
+- **No practice.** Nobody on the team had ever rehearsed a status. Documents were drafted, reviewed and redlined;
+  spoken updates were improvised. Improvisation under mild stress produces mechanism or silence.
+
+None of these is a character flaw, and none is fixed by telling people to "communicate better". Each is fixed by a
+structure: a pattern that puts the claim first, a number that backs it, a tool that drafts it, and a rehearsal.
+
+> I wasn't hiding anything. I just didn't know which of the forty things I did was the one they wanted.
+> -- Bob, sprint 2 retrospective
+
+=== The pattern: outcome, evidence, next or ask {#talking-pattern}
+
+Every status the team says to anyone outside the team follows one shape:
+
+1. **Outcome**: what is now true that was not true before, in the listener's words.
+2. **Evidence**: one number that proves it.
+3. **Next step or ask**: what happens next, by when; or what you need, from whom, by when.
+
+The mechanism, the *how*, is kept in reserve. If someone asks, you have it; if nobody asks, nobody needed it.
+
+|| Instead of | Say ||
+| "Y fixed lint warnings on the connector ends in PowerSystem" | "Y TW-12 Stations structure done: nine TODO lines closed, forty-three left. T TW-15 decide who owns the observation record, by Thursday. B none" |
+| "B waiting on the runner" | "B TW-3 checks can't run on every change until IT approves the runner machine. Need: Jim to escalate today" |
+| "T rebasing my branch after the vendor merge" | "T TW-31 the prime's January update: a list of what it changes for us by Wednesday" |
+| "Y trace job is red" | "Y TW-22 the check found two requirements nothing satisfies. They're the prime's to fix; the report goes to them Friday" |
+| "Refactoring the library package" | "Cleaning up shared definitions so the next change takes one edit instead of ten" |
+Table: Stand-up statuses, before and after
+
+Notice three things about the right-hand column. Every line still fits the kit's terse format (Y, T and B, each
+naming a story), so the lint in [[ceremonies-standup]] still passes. Every line has exactly one number; two numbers
+make the listener choose, and they choose wrong. And every blocker is an *ask with a name and a day*, because
+management can act on "Jim to escalate today" and cannot act on "waiting".
+
+Three sentence shapes cover most days. Copy them onto a card ([[qrg-talking]]) and keep it beside the keyboard:
+
+- "**[X] of [Y] [things] are [done / covered / passing], up from [Z].**" Forty-three of fifty-two TODO lines left,
+  down from fifty-two.
+- "**We caught [problem] at [early stage] instead of [late stage].**" The check caught a broken interface at
+  merge, the same day, instead of at integration.
+- "**Blocked by [thing]. Need [specific help] from [person] by [day].**"
+
+::: tip The "so what?" test
+Read your sentence and ask "so what?" as the program manager would. If the honest answer is "so nothing, I just did
+it", the sentence is mechanism: replace it with the outcome it served, or leave it out. If the answer is "so we're
+one step closer", say how close, with the number.
+:::
+
+=== The ladder: one sentence, thirty seconds, five minutes {#talking-ladder}
+
+Management will give you one of three slots, and you rarely know in advance which. Prepare all three for anything
+you will talk about this week.
+
+|| Rung | Length | What it holds | When you use it ||
+| One sentence | about 10 seconds | the outcome and the number | the hallway, the elevator, the start of every longer version |
+| Thirty seconds | three or four sentences | outcome, number, what it means for the next milestone, the ask | the stand-up, a question in a meeting, the opening of the demo |
+| Five minutes | the thirty seconds plus one piece of evidence shown and one before-and-after | the demo, a briefing slot | the sprint review |
+Table: The ladder
+
+Write the one-sentence version first. If you cannot, you do not yet know what the outcome is, and no amount of
+detail in the five-minute version will hide that. Then say each rung out loud, once, to a colleague or to the wall.
+Saying it is different from reading it: you will hear the word you trip over, and that word is usually jargon.
+
+Here is Tidewater's sprint 4 review, on all three rungs, as Tom (the narrator that sprint) rehearsed it on Day 9:
+
+> One sentence: The model site management asked for is live, and the check now shows only
+> {{value: docs/tidewater/sprints/04/scorecard.json 1_todo_lines}} of the {{value: docs/tidewater/sprints/02/scorecard.json 1_todo_lines}} conversion items left.
+>
+> Thirty seconds: The model site is live and rebuilt every night, so anyone on the program can see the current model
+> without asking us. The conversion is more than half done, and the checks found four gaps in the prime's
+> requirements that we have reported to them. For the January drop, that means we can tell you what it changes for
+> us within a day. We need the second runner approved by the 15th.
+> -- Tom, sprint 4 review, rehearsed version
+
+The five-minute version was the thirty seconds, then the live site on the screen, then one before-and-after, then the
+ask again. Nothing else.
+
+=== Tools that draft the words {#talking-tools}
+
+Writing the outcome-first sentence is the hard part, and it is hardest at 8:55 in the morning. Most of what it needs
+is already in GitLab: which tasks you closed, which merge requests merged, which issue is blocked and why. The kit's
+`talk.pl` reads that and drafts the sentence. It never posts anything; it prints a draft for you to correct.
+
+`talk.pl` has four commands:
+
+|| Command | Drafts | From ||
+| `standup --as USER` | one Y/T/B line, outcome first, one number, a blocker as an ask | your closed tasks and merged merge requests since the last working day; the task in progress; issues labelled `workflow::blocked` |
+| `review --sprint N` | a demo script: the question, the four headline numbers, what to show, a before-and-after, a safe live change, the ask, and the ladder | the sprint's milestone, issues, merge requests, pipelines and their metrics |
+| `weekly` | a plain-language note for management: a headline that is a conclusion, three numbers, risks, asks | the same, for the week |
+| `translate FILE` | a list of jargon in your text with plain alternatives, and the sentences that fail the "so what?" test | your draft |
+Table: talk.pl
+
+The kit also has `daily.pl propose`, which drafts each person's status from yesterday's answers in the journal (a
+"+1" in the chat accepts it). `propose` is good for days when nothing changed; `talk.pl` is good for days when
+something did, because it reads GitLab, where the change is recorded.
+
+==== Try it on a practice project
+
+The examples in this section run against the offline GitLab of practice lesson 11 (see [[git-practice]]). First,
+give it a small sprint to talk about: a story with three tasks for Bob, a blocked task for Tom with the reason in a
+comment, and two of Bob's tasks closed on Wednesday. Each `gl` command is an ordinary GitLab action; `--now` stamps it
+with a date, so the example reads the same whatever day you run it. Run everything in this section from the
+sandbox's `work` folder (`cd work` first).
+
+```sh run sandbox=practice-11 cwd=work timeout=300 expect="#4 closed"
+. ../env.sh > /dev/null
+at() { d=$1; shift; gl --now "$d" "$@"; }
+at 2026-10-05T09:00 --as jim issue new "Close the Stations level tags" --type issue --label type::story --milestone "Sprint 1" --assign bob
+at 2026-10-05T09:10 --as jim issue new "Level tags in StationSegment and ObservingStation" --type task --label type::task --milestone "Sprint 1" --assign bob --description "Part of #2"
+at 2026-10-05T09:11 --as jim issue new "Level tags in the station parts" --type task --label type::task --milestone "Sprint 1" --assign bob --description "Part of #2"
+at 2026-10-05T09:12 --as jim issue new "Decide who owns ObservationRecord" --type task --label type::task --label workflow::in-progress --milestone "Sprint 1" --assign bob --description "Part of #2"
+at 2026-10-05T09:20 --as jim issue new "Register the second runner" --type task --label type::task --label workflow::blocked --milestone "Sprint 1" --assign tom
+at 2026-10-06T15:00 --as tom issue note 6 "Blocked by: IT approval of the runner machine -- need: Jim to escalate to the IT lead today"
+at 2026-10-07T16:00 --as bob issue close 3
+at 2026-10-07T16:30 --as bob issue close 4
+```
+
+You are now in the sandbox's `work` folder; the examples below stay there. (Each one sources `../env.sh` again so it also works in a new window.) Now draft Thursday's stand-up for Bob. `--prefix TW-` makes the story ids look like the journal's; `--why` adds the
+line that says where each part of the draft came from.
+
+```sh run expect="^Y TW-2 Close the Stations level tags: 2 of 3 tasks done\. T TW-2 decide who owns ObservationRecord"
+. ../env.sh > /dev/null
+perl $KIT/tools/gitlab/talk.pl standup --as bob --prefix TW- --date 2026-10-08 --why
+```
+
+```text
+Y TW-2 Close the Stations level tags: 2 of 3 tasks done. T TW-2 decide who owns ObservationRecord, by Oct 16. B none
+# draft for bob on Thu Oct 8 (since Wed Oct 7): edit it, then post it yourself
+# from: #3 closed, #4 closed, today: #5 (story #2)
+# lint: ok
+```
+
+The draft already has the shape: the outcome (the story's tasks), one number (two of three), the next step with a
+day (the end of the sprint, which is a default worth correcting to "by Thursday" if you know better), and a lint
+check, so the line will not bounce in the meeting. What Bob actually posted that morning was:
+
+```text
+Y TW-2 Stations level tags: 2 of 3 done, the part tree now shows every station's level. T TW-2 decide who owns ObservationRecord, by Thu. B none
+```
+
+Bob kept the number, added what it means ("the part tree now shows every station's level"), and tightened the date.
+That is the intended use: the tool does the remembering, the engineer does the meaning.
+
+Tom's draft turns the blocked task into an ask, using the reason Tom wrote in the issue's comment:
+
+```sh run expect="B TW-6 register the second runner blocked: IT approval of the runner machine -- need: Jim to escalate"
+. ../env.sh > /dev/null
+perl $KIT/tools/gitlab/talk.pl standup --as tom --prefix TW- --date 2026-10-08
+```
+
+```text
+Y none T none B TW-6 register the second runner blocked: IT approval of the runner machine -- need: Jim to escalate to the IT lead today
+```
+
+"Y none T none" is honest, and it is also the moment to say something out loud: what *did* Tom do on Wednesday?
+GitLab only knows what was recorded. If you spent the day on a meeting with the ISSM, the tool cannot know it, and
+you should write it in.
+
+::: warning Read every number before you say it
+A draft is a draft. In this practice project every change was made by a script in the same second, so `talk.pl`'s
+timing figures come out as zero minutes; on a real project they are real. On every project, check each number against
+what you know before you say it in a meeting. The tool counts what GitLab recorded; you know what actually happened.
+:::
+
+==== The weekly note
+
+On Friday, the weekly note drafts the headline and the asks. Add an open discrepancy report so there is something to
+count, and a small file of document-era numbers (the "baseline") so the review can make its before-and-after:
+
+```sh run expect="Weekly note, week of Oct 5"
+. ../env.sh > /dev/null
+gl --now 2026-10-08T10:00 --as jim issue new "DR-1: TW-SYS-006 text differs between DOORS and the model" --label type::discrepancy --label owner::prime --milestone "Sprint 1" > /dev/null
+printf 'review_hours = 360 | a document review cycle: 3 weeks of comments on a Word file\nlead_hours = 552 | a change through the CCB: 23 working days\n' > ../baseline.txt
+perl $KIT/tools/gitlab/talk.pl weekly --date 2026-10-09 --baseline ../baseline.txt
+```
+
+```text
+Weekly note, week of Oct 5 -- On track
+
+On track: 0 stories finished this week.
+
+The numbers:
+- 0 stories finished this week (2 changes accepted into the model)
+- 1 open discrepancy reports and prime changes
+
+Risks:
+- #6 Register the second runner is blocked: IT approval of the runner machine.
+
+Asks:
+- Jim to escalate to the IT lead today (#6)
+
+(The weekly quad -- daily.pl quad -- has the detail; this note is the headline.)
+```
+
+Two edits make this sendable. "On track: 0 stories finished" will alarm a reader in week one of a sprint, so Jim adds
+the context the tool does not have ("two of three tasks in the first story are done; stories finish at the end of the
+sprint"). And the risk deserves a date: "if the runner is not approved by the 15th, changes wait for one machine".
+The note pairs with the kit's weekly quad ([[ceremonies-weekly]]), which carries the detail.
+
+==== The review script
+
+Before each sprint review, the person who will narrate drafts the demo script:
+
+```sh run expect="THE SAME FOUR NUMBERS AS EVERY REVIEW"
+. ../env.sh > /dev/null
+perl $KIT/tools/gitlab/talk.pl review --sprint 1 --baseline ../baseline.txt
+```
+
+```text
+Sprint 1 review -- demo script (draft: edit before the meeting)
+
+1. THE QUESTION THIS SPRINT ANSWERED
+"What did Sprint 1 change for the model, and how do we know?"
+Answer in one line: 0 of 1 stories done.
+
+2. THE SAME FOUR NUMBERS AS EVERY REVIEW
+- TODO lines left: n/a (no todo metrics yet)
+- Verify coverage: n/a (no trace or VCRM metrics yet)
+- Open discrepancy reports and prime changes: 1 (up 1 from 0)
+- Blocked items: 1
+...
+7. THE ASK
+- Need: Jim to escalate to the IT lead today (#6 Register the second runner is blocked: IT approval of the runner machine)
+
+30-SECOND VERSION
+Sprint 1: 0 of 1 stories done. We need help with 1 blocked item.
+
+1-SENTENCE VERSION
+Sprint 1 moved the model forward by 0 stories.
+```
+
+The script has seven parts, which are the seven moves of a demo in [[talking-demo]]. On the practice project the
+numbers are thin: "n/a" for TODO lines and verify coverage, because practice lesson 11's pipeline has no TODO or trace
+job. On the Tidewater project those come from the pipeline's metrics, and Part III shows the real drafts for every
+sprint review next to what the team actually said.
+
+==== Translating your own draft
+
+The fourth command is for text you wrote yourself: a status, a demo opening, a paragraph for the weekly note. It does
+*not* rewrite your sentences. It lists the jargon it found with a plain alternative and a hint, and it flags the
+sentences that fail the "so what?" test, with a fill-in suggestion in the outcome, evidence, ask shape.
+
+```sh run sandbox=scratch expect="So what\? -- sentences to rework"
+printf 'Rebased my feature branch and fixed the lint errors so the pipeline is green.\nWorking on the VCRM.\n' > draft.txt
+perl $KIT/tools/gitlab/talk.pl translate draft.txt
+```
+
+```text
+Jargon to replace:
+  "the pipeline is green" -> all automated checks passed. Hint: say what that proves (e.g. "no grammar or lint errors").
+  "lint errors" -> errors the automated checks found. Hint: say how many, and that they were caught before review.
+  "Rebased" -> brought my change up to date. Hint: say what it achieved, or leave it out: nobody needs to hear it.
+  "feature branch" -> private working copy of the model. Hint: usually leave it out: say what the change does.
+  "VCRM" -> verification matrix. Hint: say how many requirements are verified.
+
+So what? -- sentences to rework:
+  1. "Rebased my feature branch and fixed the lint errors so the pipeline is green." -- no number
+     SUGGESTION: Done: [what is now true] ([one number: how many, how much]). Next: [outcome, by a day]. Need: [an ask, or none].
+  2. "Working on the VCRM." -- no number; no outcome (done, caught, ready, decided ... or an ask)
+     SUGGESTION: Done: [what is now true -- topic: verification matrix] ([one number: how many, how much]). Next: [outcome, by a day]. Need: [an ask, or none].
+```
+
+The rework of those two sentences, by Tom, became: "Done: my change to the power system is checked and accepted, with
+no errors found. Next: the verification matrix shows which requirements are verified, by Friday. Need: none." Longer
+than the original, and something a manager can repeat to *their* manager, which is the real test.
+
+You can give `translate` your own glossary with `--glossary FILE` (lines `term = plain alternative | hint`), so the
+team's words, the prime's acronyms and your program's jargon get the same treatment.
+
+=== Know your audience: the Tidewater stakeholder map {#talking-audience}
+
+The same week sounds different to different people. Before a meeting, ask who is in the room and what one number each
+of them wants. The Tidewater team kept this table on the wiki and updated it after every review:
+
+|| Who | Cares about | The one number they want | Say it as ||
+| Program manager | Is the money producing measurable results? Will the December review go well? | TODO lines left, and the trend | "{{value: docs/tidewater/sprints/04/scorecard.json 1_todo_lines}} of {{value: docs/tidewater/sprints/02/scorecard.json 1_todo_lines}} left after sprint 4; about two sprints to go at this pace." |
+| Deputy program manager (chairs the CCB) | Can a change be traced from request to approval to implementation? | changes accepted with a green pipeline and a code-owner approval | "Every change this quarter is traceable from its issue to its merge." |
+| ISSM | Is the toolchain approved, and is anything leaking? | open security findings, last secret-detection result | "Secret detection ran on every change; zero findings since the runner was hardened." |
+| The prime's modeler | Which of our discrepancy reports are open, and what do we need from the next drop? | open DRs, oldest first | "{{value: docs/tidewater/sprints/06/scorecard.json 6_drs.opened}} open, none closed yet; the oldest is the TW-SYS-006 wording, open since sprint 4." |
+| The test organization | Which requirements have a verification case and a result? | verify coverage | "{{value: docs/tidewater/sprints/06/scorecard.json 5_trace.G}} requirements still have no verification case, and all of them are the prime's to close." |
+| The team itself | Are we getting better at this? | the pulse survey, the share of stand-up lines with an outcome and a number | "Morale up from 1.9 in sprint 1; most statuses now have a number." |
+Table: Who wants which number
+
+The numbers in this table are Tidewater's at the end of sprint 4 or 6, from the evidence; in Part III every sprint chapter
+shows them sprint by sprint.
+
+=== Demos that land {#talking-demo}
+
+The demo is where the quiet engineer is most exposed: a live screen, managers in the room, and no document to hide
+behind. Tidewater's sprint 2 demo went badly (Tom's eleven minutes on the pipeline file). The sprint 4 demo, after one
+retro change and a rehearsal, went well. The change was not "Tom should present better". It was a structure.
+
+==== Three roles
+
+|| Role | Does | Says ||
+| Driver | runs the keyboard: opens the merge request, the site, the board | nothing, or "here" |
+| Narrator | tells the story in the listener's words | the question, the outcome, the before-and-after, the meaning |
+| Note-taker | writes down every question, comment and request | nothing during; reads them back at the end |
+Table: Demo roles
+
+Splitting driving from narrating is the single most useful change. An engineer who is typing cannot also be choosing
+words for a manager; an engineer who is only talking can look at the audience. The note-taker turns the room's
+reactions into issues afterwards, so nothing said in the demo is lost.
+
+The team **rotates** the roles every sprint. In sprint 4 Bob drove and Tom narrated and closed with the ask, because Jim was on
+leave that Friday (the meeting record, `docs/tidewater/sprints/04/meetings.csv`, lists Bob, Tom, the deputy program
+manager and the program manager); in sprint 5 Tom drove and Bob narrated. Rotation means everyone speaks to management at least once a month, and nobody becomes
+"the presenter" by default while the others stay quiet.
+
+==== The Day 9 dry run
+
+On Day 9 (Thursday of week 2), after refinement, the team spends thirty minutes running the demo once, out loud, with
+the roles they will have on Friday. Nothing is polished; the point is to hear it. The dry run catches:
+
+- The demo step that needs a password nobody has typed this sprint.
+- The jargon the narrator trips over ("so the MR's pipeline, I mean the merged-results pipeline...").
+- The number nobody can explain ("why did the TODO count go *up* on Tuesday?" Because the drop-2 preview added three).
+- The ask nobody has written down.
+
+==== The six moves
+
+A demo script, whoever drafts it, has six moves. `talk.pl review` drafts them; you edit them.
+
+1. **Open with the question this sprint answered.** "Can we show every station requirement has a verification? Yes,
+   twenty-three of twenty-six. Here are the other three."
+2. **Show the output, not the tool.** The model site, the verification matrix, a merge request going from red to
+   green, the data exchange table. Keep the `.sysml` text and the pipeline file ready in case someone asks.
+3. **One before-and-after, with a number.** "Finding where DOORS and the model disagree used to be done never, or
+   once before a review. Now it takes two minutes, on every change."
+4. **One safe live change.** On a scratch branch, never on `develop`: remove one satisfy link and open a draft merge
+   request; in about four minutes the trace check names the requirement that lost its design. Cause and effect, live,
+   lands better than any slide. Close the merge request afterwards.
+5. **What it means for the next milestone.** "For the January drop, we'll know what it changes for us within a day."
+6. **The ask, with a date.** "We need the deputy program manager's decision on the delivery agreement by Friday."
+
+And close the loop: the note-taker reads back the questions, and each becomes an issue before the end of the day.
+
+==== The same four numbers, every time
+
+Management learns to read a trend only if it sees the same numbers, in the same order, every review. Tidewater's four:
+
+1. **TODO lines left**: how much of the conversion is still to do.
+2. **Verify coverage**: how many requirements have a verification case.
+3. **Open discrepancy reports and prime changes**: what is waiting on the prime, or on us.
+4. **Blocked items**: what needs management's help.
+
+They open every review, every weekly note and every memo. A headline states the conclusion of the numbers ("Trace: 29
+of 30 linked, green"), not the topic ("Trace analysis").
+
+=== Bad news, said so it builds trust {#talking-bad-news}
+
+Engineers dread bad news more than managers do. Managers expect it; what they cannot forgive is hearing it late.
+These are the phrases the Tidewater team used, each tied to a real moment.
+
+|| Situation | Say ||
+| A check found a problem | "Found early. That's the system working. Here is the impact and the fix." |
+| A number got worse because you can now see it | "It's not new, it's newly visible. The checks show twelve requirements without a test; here is the date each closes." |
+| You are behind | "This is behind by a week because the ISSM review moved. To recover we need the review slot on the 6th, or we can drop the second runner from this sprint." |
+| You do not know | "I don't know yet. I'll know by Thursday, after the impact report." |
+| Something broke on your watch | "The develop pipeline was red for a day after my merge. It's green now; the cause was X; the check that would have caught it is in this sprint." |
+Table: Bad-news scripts
+
+Every row has the same skeleton: the fact, the cause in one clause, and what happens next with a date. None of them
+apologizes at length, and none of them blames.
+
+==== Jim models "I don't know yet"
+
+The hardest of these for the team was "I don't know yet", because for thirty years not knowing was something you
+fixed before the meeting. In sprint 3 the deputy program manager asked, in the review, whether the prime's January drop would
+be "a big one". Jim did not know, and said so:
+
+> I don't know yet. The prime's modeler said "a few sensor changes". I'll know by the Tuesday after it lands, because
+> the delta report lists every change and what it touches in our model. I'll send you the count that day.
+> -- Jim, sprint 3 review
+
+Two things happened. The program manager wrote "Tue after drop: count" on a pad and moved on, which surprised the team.
+And in the next stand-up, Bob said "I don't know yet, I'll know by tomorrow" about the ObservationRecord ownership
+question, for the first time. The lead going first is what makes it safe for everyone else.
+
+=== Measuring whether it is working {#talking-measure}
+
+Like everything else in this book, the team measured its own talking. Each sprint, Jim counted the share of stand-up
+lines that had both an outcome and a number. In sprint 1 it was low: most lines were mechanism. By sprint 6 most lines
+had both. Part III gives the real counts per sprint ([[sprint-6]]), and the scorecard in Part IV includes it.
+
+The pulse survey's question "I can explain our progress to management in one sentence" moved too. That question was
+the one Jim watched most closely, because it is the one that tells you whether the engineers will speak up when the
+lead is on leave.
+
+=== Exercises {#talking-exercises}
+
+::: exercise {#ex-talk-rewrite} Rewrite five statuses
+Take your last five spoken or written statuses (or the three at the start of this chapter). Rewrite each in the
+outcome, evidence, next-or-ask shape, keeping the Y/T/B format and a story id. Run them through `talk.pl translate` and
+fix what it flags. Which one was hardest, and why?
+:::
+
+::: exercise {#ex-talk-ladder} Climb the ladder
+Pick one thing your team finished this week. Write the one-sentence, thirty-second and five-minute versions. Say each
+out loud to a colleague and ask them to repeat the one-sentence version back to you. If they can't, rewrite it.
+:::
+
+::: exercise {#ex-talk-map} Your stakeholder map
+Make the table in [[talking-audience]] for your own program: every person who hears your status, what they care about,
+the one number they want, and the sentence. Which of those numbers can your pipeline produce today?
+:::
+
+::: exercise {#ex-talk-draft} Draft from GitLab
+In the practice-lesson-11 sandbox, close one more of Bob's tasks with a `--now` date, then draft Friday's stand-up with
+`talk.pl standup`. Edit the draft so it says what the change *means*, not only what was closed.
+:::
+
+::: exercise {#ex-talk-demo} Run a dry run
+Plan next sprint's demo with three roles and the six moves. Hold a thirty-minute dry run on Day 9. Write down every
+place the narrator stumbled, and change the script, not the narrator.
+:::
+
+=== Applying this to your project {#talking-apply}
+
+- **Copy**: the outcome, evidence, ask pattern; the ladder; the demo roles and their rotation; the Day 9 dry run;
+  the four headline numbers; the bad-news skeleton (fact, cause, next with a date).
+- **Adapt**: the stakeholder map (your program's people and their numbers); the four headline numbers (pick the ones
+  that say whether *your* project is on track: for a new model rather than a port, "requirements with a design" might
+  replace "TODO lines left"); the glossary for `talk.pl translate`.
+- **Decide locally**: whether drafts from `talk.pl` or `daily.pl propose` are the default; who keeps the stakeholder
+  map current; how often the lead reviews the share of statuses with a number (Tidewater: once a sprint, in the retro).
+
+::: note You can now...
+- say a status as outcome, one number, and next step or ask, in the stand-up format the kit lints;
+- prepare one-sentence, thirty-second and five-minute versions of anything you report;
+- draft stand-ups, weekly notes and review scripts from GitLab with `talk.pl`, and correct them;
+- find the jargon and the "so what?" sentences in your own text;
+- run a demo with three roles, six moves and a dry run;
+- say "I don't know yet" with a date, and deliver bad news in a way that builds trust.
+:::

@@ -1,0 +1,24 @@
+Sprint 4 kickoff, 2026-11-16 09:00 (90 minutes)
+
+Goal: Stations levels and Types closed, one cycle broken, gaps reported; the model site for management
+Capacity: 18.4 points (Jim 5, Bob 8, Tom 8 per full sprint, less holidays and leave)
+Committed: 17.0 points in 7 stories (92% of capacity): engineering 12.5, platform 3.0 (17%), learning 1.5 (8%)
+
+TW-66    E3    1.5 pts  learning     Learn: reviewing a model change; the rehearsed demo
+           #73   0.5 pt  jim  2026-11-16 .. 2026-11-16  Reviewing a model change: the checklist
+           #74   0.5 pt  bob  2026-11-16 .. 2026-11-16  Reviewing a model change: line comments
+           #75   0.5 pt  tom  2026-11-25 .. 2026-11-25  The Day-9 demo rehearsal
+TW-67    E6    5.0 pts  engineering  Close the Stations level tags
+           #76   3.0 pt  bob  2026-11-16 .. 2026-11-20  Level tags in Stations
+           #77   2.0 pt  bob  2026-11-27 .. 2026-12-01  Walk the Stations tree with the prime's modeler; record what they confirmed
+TW-68    E6    2.0 pts  engineering  Units and value types
+           #78   2.0 pt  bob  2026-11-24 .. 2026-11-27  Value types specialize ISQ quantities
+TW-69    E6    2.0 pts  engineering  Break the Network <-> Operations cycle
+           #79   2.0 pt  tom  2026-11-16 .. 2026-11-19  Remove the ServiceVessel -> Technician dependency
+TW-70    E7    2.0 pts  engineering  Discrepancy reports DR-1 to DR-4 to the prime
+           #80   2.0 pt  jim  2026-11-17 .. 2026-11-20  Open DR-1 to DR-4
+TW-71    E2    3.0 pts  platform     The model site on GitLab Pages, rebuilt nightly
+           #81   3.0 pt  tom  2026-11-19 .. 2026-11-24  Add the pages job and the nightly schedule
+TW-72    E3    1.5 pts  engineering  First sprint review with the program office; the delivery interface with the prime
+           #82   1.0 pt  jim  2026-11-23 .. 2026-11-24  Sprint review with the program office
+           #83   0.5 pt  jim  2026-11-25 .. 2026-11-25  Agree the delivery interface with the prime (meeting)

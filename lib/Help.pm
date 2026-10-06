@@ -517,7 +517,9 @@ sub required_tags {                                              # -> ( [tag, wh
 }
 
 our @MESSAGE_FILES = (qw(agile.pl tools/idef0/idef0.pl tools/memo/md2memo.pl tools/sysml/sysml.pl tools/sysml/model.pl drills/drill.pl
-                         tools/sysml/v1v2.pl tools/sysml/doors2v2.pl), map { "tools/sysml/views/$_" } qw(sysml-check.pl sysml-diff.pl
+                         tools/sysml/v1v2.pl tools/sysml/doors2v2.pl
+                         tools/memo/memo-build.pl tools/sysml/req-recipe.pl tools/gitlab/kickoff.pl tools/gitlab/talk.pl
+                         tools/gitlab/ci-reports.pl tools/gitlab/pages-index.pl tools/gitlab/mkguide.pl tools/gitlab/templates/ci/job.pl), map { "tools/sysml/views/$_" } qw(sysml-check.pl sysml-diff.pl
                          sysml-ibd-svg.pl sysml-pkg-svg.pl sysml-plates.pl sysml-threats.pl sysml-trace-svg.pl sysml-tree-svg.pl svg2tk.pl));
 our %PENDING_FILES = ();                                         # files whose catalog sections are still placeholders: none
 sub message_files {

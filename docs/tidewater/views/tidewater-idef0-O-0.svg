@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="616" height="436" viewBox="0 0 616 436" font-family="IBM Plex Mono,monospace">
+<rect width="616" height="436" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<rect x="92" y="56" width="180" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="182.0" y="80" font-size="12" text-anchor="middle">Observe Coast<title>One cycle of the network: sample, send, ingest, check, archive, publish.</title></text>
+<text x="266" y="138" font-size="10" text-anchor="end" fill="#555">O*</text>
+<path d="M272,83 H312" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="316" y="80" font-size="9">Bulletin</text>
+<path d="M182,176 V146" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="186" y="174" font-size="9"><tspan>Observation Network</tspan></text>
+<rect x="0" y="382" width="616" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="382" x2="99" y2="436" stroke="#222"/>
+<line x1="517" y1="382" x2="517" y2="436" stroke="#222"/>
+<text x="10" y="398" font-size="10">NODE</text>
+<text x="10" y="418" font-size="12">O-0</text>
+<text x="110" y="398" font-size="10">TITLE</text>
+<text x="110" y="418" font-size="12">Observe Coast<title>One cycle of the network: sample, send, ingest, check, archive, publish.</title></text>
+<text x="527" y="398" font-size="10">NUMBER</text>
+<text x="527" y="418" font-size="12">p.1</text>
+</svg>

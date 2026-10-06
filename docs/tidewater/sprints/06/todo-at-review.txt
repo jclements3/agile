@@ -1,0 +1,22 @@
+GitLab To-Do lists at the review (2026-12-24 10:00)
+
+  Jim: 0 review(s) requested, 9 open issue(s) assigned
+    #84 DR-1: TW-SYS-006 text differs between DOORS and the model
+    #85 DR-2: TW-SYS-012 has no satisfy
+    #86 DR-3: TW-SYS-016 is in DOORS but not in the model
+    #87 DR-4: TW-SYS-011 has no verification case
+    #88 DR-7: WaveSensor is tagged L5 but is a direct part of MooredBuoy (L4)
+    #109 DR-5: The Legacy Import package is clutter from the document port
+    #110 DR-6: Weak verbs and missing parts in the DOORS requirement text
+    #131 TBD: the hygrometer reaches the data center on the observation interface (assumed for drop 2)
+    #135 The EnergyBalance constraint expression
+
+  Bob: 0 review(s) requested, 4 open issue(s) assigned
+    #112 BuoyModes state machine by hand
+    #120 Write the BuoyModes state def; exhibit it on MooredBuoy
+    #133 Break the Stations <-> DataCenter cycle
+    #134 The DailyUpload interaction by hand
+
+  Tom: 0 review(s) requested, 2 open issue(s) assigned
+    #136 Retire the Tidewater Profile TODO
+    #137 Pin the kit version

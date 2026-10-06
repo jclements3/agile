@@ -1,0 +1,37 @@
+Weekly status Model -- as of 2026-12-11 (sprint 5)
+Sprint progress 100% (18/18 SP) improving (was 43%)   On-time delivery: 4/4 this week, 7/8 this sprint
+
+TECHNICAL PRIORITIES
+  DONE  TW-67        2  "Close the Stations level tags Bob
+  DONE  TW-91        2  "Prune ObservingStation's trac Bob
+  DONE  TW-92        3  "Untangle the Legacy Import pa Tom
+  DONE  TW-93        2  "The trace job becomes a gate" Tom
+  DONE  TW-94        2  "Grade our requirements with t Jim
+  DONE  TW-95        3  "Release rehearsal and a spill Tom
+  DONE  TW-89        1  "Learn: the requirement recipe Jim
+  DONE  TW-90      3.5  "Procured parts as metadata    Bob
+
+WATCH ITEMS / PM HELP NEEDED
+  none
+
+SCHEDULE MILESTONES
+  30 days out
+    -
+  60 days out
+    -
+  90 days out
+    -
+
+ACCOMPLISHMENTS (since 2026-12-04)
+  v TW-91        2  "Prune ObservingStation's trac Bob
+  v TW-94        2  "Grade our requirements with t Jim
+  v TW-95        3  "Release rehearsal and a spill Tom
+  v TW-90      3.5  "Procured parts as metadata    Bob
+
+PUNT RATE (tasks punted back to TODO / tasks committed, last 4 sprints)
+  sprint 2    Model          0 / 7     0%
+  sprint 3    Model          0 / 6     0%
+  sprint 4    Model          0 / 7     0%
+  sprint 5    Model          0 / 8     0%
+
+Legend: v on time  x late (carried over, or rework after the demo)  ! slipped   -> pushed right  <- pulled left  = no change  + new

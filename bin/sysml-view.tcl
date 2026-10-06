@@ -79,12 +79,21 @@ array set titles {}
 set mono [expr {[lsearch -exact [font families] Consolas] >= 0 ? "Consolas" : "Courier"}]
 
 # ---------------------------------------------------------------- render: Perl drawer -> SVG -> primitives
+proc marked {dir} {    ;# does any .sysml file under dir carry @Marking? (an unmarked, freshly converted model: no)
+    foreach f [glob -nocomplain -directory $dir -types f *.sysml] {
+        set h [open $f r]; set t [read $h]; close $h
+        if {[string first "@Marking" $t] >= 0} { return 1 }
+    }
+    foreach d [glob -nocomplain -directory $dir -types d *] { if {[marked $d]} { return 1 } }
+    return 0
+}
 proc render {} {
     global perl kit model tmp opt prims size titles
     set tool [file join $kit tools sysml views sysml-$opt(view)-svg.pl]
     set args [list -o $tmp]
     if {$opt(root) ne "" && $opt(view) in {tree ibd}} { lappend args --root $opt(root) }
     if {$opt(root) ne "" && $opt(view) eq "trace"} { lappend args --match $opt(root) }
+    if {$opt(view) eq "pkg" && ![marked $model]} { lappend args --no-markings }   ;# as model.pl draw pkg: dependencies and cycles
     if {[catch {exec $perl $tool {*}$args $model 2>@1} out]} {
         if {![file exists $tmp]} { .status configure -text "drawer failed: [string range $out 0 300]"; return 0 }
     }

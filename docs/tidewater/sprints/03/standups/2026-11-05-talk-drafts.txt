@@ -1,0 +1,6 @@
+jim draft:  Y TW-51 Reviewed !8. T TW-52 re-import drop 1 with the DOORS modules on..., by Nov 13. B none
+jim posted: Y TW-51 Reviewed !8. T TW-52 re-import drop 1 with the DOORS modules on, by Nov 13. B none
+bob draft:  Y TW-51 Close the Network TODO lines: 1 TODOs closed, 51 left. T TW-51 the include use case in ReviewObservations, by Nov 13. B none
+bob posted: Y TW-51 Close the Network TODO lines: 1 TODOs closed, 51 left. T TW-51 the include use case in ReviewObservations, by Nov 13. B none
+tom draft:  Y none T TW-53 add the trace job (report only) and the secrets..., by Nov 13. B none
+tom posted: Y none T TW-53 (first thing: read the review comments) add the trace job (report only) and the secrets, by Nov 13. B none

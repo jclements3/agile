@@ -1,0 +1,425 @@
+== The Cameo years {#cameo}
+
+::: note What you have, what you need
+**What you have:** a SysML v1 model in Cameo that you built by hand, that the prime contractor now maintains, and
+that nobody on the team enjoys opening.
+
+**What you need from this chapter:** an honest, measured picture of that model, and an understanding of why SysML v1
+in a diagram tool did not scale for this team. You will run two commands to measure it yourself.
+:::
+
+=== "Go MBSE" {#cameo-go}
+
+The first directive came in the spring of 2022, and it was shorter than the one in [[directive]]. The program's
+leadership had attended a conference, seen a demonstration of model-based systems engineering, and decided that
+Tidewater would "transition to MBSE." Licenses for Cameo Systems Modeler arrived in June. Jim, Bob and Tom attended
+a three-day vendor training course in July. The course taught them which buttons to press to create a block, a
+port, a requirement and a diagram. It did not teach them what to put in the model, how to organize it, how to
+review it, or how it would stay consistent with the documents and DOORS. Those questions were left, as the course
+instructor put it, "to your organization's modeling guidelines." The organization did not have modeling
+guidelines.
+
+So the team did the only thing that made sense to them: they ported the documents. Every block diagram in the SSDD
+became a block definition diagram. Every interface table in the ICDs became an internal block diagram with ports
+and connectors. Every "shall" in the SRS became a requirement element. Every row in the VCRM became a verify
+relationship. The work took most of two years, done between other duties, by clicking.
+
+> I drew the PowerSystem IBD four times. Once from the SSDD figure, once when the ICD changed, once when Cameo
+> crashed and I lost the layout, and once for the CDR briefing because the real one didn't fit on a slide.
+> -- Bob, recalling 2023
+
+In 2025 the program changed the contract. The prime contractor, Northwind Marine Systems, took over maintenance of
+the Cameo model under a new contract data requirement, CDRL A003 "System Model." From then on the prime made the
+changes and delivered the model to the government every few months; the government reviewed it. The team's role
+shifted from building the model to checking it, which in practice meant opening Cameo, clicking through diagrams,
+taking screenshots and pasting them into review comments.
+
+=== What the team built {#cameo-built}
+
+The prime's first delivery under this book's timeline, drop 1 (version 1.0, delivered Friday 2 October 2026), is the
+model as the team built it and the prime inherited it. It is an XMI file: Cameo's export format, an XML file in
+which every model element is a tagged record with a long, unique identifier. You can generate the drop yourself:
+
+```sh run expect="drop 1 \(v1\.0, 2026-10-02\)" timeout=120
+mkdir -p ~/w2s
+cd ~/w2s
+perl "$KIT/sim/tidewater-v1.pl" --drop 1 drop1
+```
+
+(`$KIT` is the folder the kit is in; [[survival]] sets it up, and `~/w2s` is the practice folder the book uses.)
+The command writes four files into `~/w2s/drop1`, exactly as the prime delivers them:
+
+|| File | What it is ||
+| `tidewater.xmi` | the Cameo model, exported as Eclipse UML2 XMI (what Cameo calls "Export To > Eclipse UML2 (v5.x) XMI File") |
+| `tidewater.reqif` | the DOORS requirement modules, exported in the standard ReqIF exchange format |
+| `tidewater.csv` | the same requirements as a DOORS CSV export, for people who want a spreadsheet |
+| `MANIFEST.txt` | the delivery record: version, date, CDRL, the prime's build (Jenkins job and commit) and tools, and a SHA-256 checksum for each file |
+Table: What a prime drop contains
+
+Here is one block, the solar panel on a buoy, as it appears in the XMI. You do not need to read XML fluently; just
+notice the shape.
+
+```text
+<packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_a89dbce342d7" name="SolarPanel">
+  <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_fd71123c374d" body="Generates power.">
+    <annotatedElement xmi:idref="_22_1_7f3a0c1_a89dbce342d7"/>
+  </ownedComment>
+  <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_8190460a888e" name="ratedPower"
+                  type="_22_1_7f3a0c1_dd4fe0cc913f">
+    <defaultValue xmi:type="uml:LiteralReal" xmi:id="_22_1_7f3a0c1_06d6ee446155" value="40"/>
+  </ownedAttribute>
+  <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_911b930881e1" name="out"
+                  aggregation="composite" type="_22_1_7f3a0c1_dba6f2e0627e"/>
+</packagedElement>
+...
+<sysml:Block xmi:id="_22_1_7f3a0c1_2629e9a46496" base_Class="_22_1_7f3a0c1_a89dbce342d7"/>
+<Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_0efc9f0503d9" base_Class="_22_1_7f3a0c1_a89dbce342d7"/>
+<Tidewater_Profile:Procured xmi:id="_22_1_7f3a0c1_6f592009da70" base_Class="_22_1_7f3a0c1_a89dbce342d7"
+                           partNumber="SP-40" supplier="Notional Solar Ltd."/>
+```
+
+Three things are worth noticing, because each one comes back later.
+
+First, the solar panel is not one record but several, scattered across the file. The block itself is a UML class
+near the middle. The fact that it *is* a SysML block is a separate record near the end (`sysml:Block`), pointing
+back at the class by its identifier. The team's own "assembly level" tag and the supplier data are two more records
+from the team's custom profile. To know everything about the solar panel you have to collect all four.
+
+Second, the type of the `ratedPower` property is not written as a name. It is an identifier,
+`_22_1_7f3a0c1_dd4fe0cc913f`, that you have to look up elsewhere in the file to discover it means `Power`. The same
+is true of the port's type. The file is written for machines, not for people.
+
+Third, the diagrams are not here at all. The XMI holds the model's elements and relationships; the diagrams that
+people actually looked at, with their boxes, lines and layout, live in Cameo's own project file and appear in the
+export only as a list of names. When the team "reviewed the model," they reviewed the diagrams, and the diagrams are
+precisely the part that cannot be exported, compared or checked.
+
+=== Measuring the spider web {#cameo-spider}
+
+"The model looks like a giant spider web" is Bob's phrase, and it was meant as a complaint, not a measurement.
+Jim's first act as the person responsible for the model was to turn the complaint into numbers, because numbers can
+be tracked and complaints cannot. The measures are simple counts from the drop-1 XMI:
+
+|| Measure | Drop 1 | What it tells you ||
+| Model elements (records with an identifier) | 819 | the size of the export, including comments and stereotype applications |
+| Packages | 20 | how the model is organized |
+| Blocks / requirements | 40 / 30 | the parts of the system and the "shall" statements |
+| Diagrams | 47 | the pictures people review; 11 of them are stale copies or briefing snapshots |
+| Relationships | 124 | satisfy, verify, trace, derive, allocate, connectors, generalizations, associations |
+| Relationship ends per block, maximum | 17 (ObservingStation) | how tangled the most-connected block is |
+| Relationship ends per block, mean | 1.4 | how tangled a typical block is |
+| Package dependency cycles | 2 | pairs of packages that each depend on the other |
+| Unused blocks | 4 (three clutter blocks, plus the context block, unused by design) | blocks nothing refers to |
+| Duplicate or stale blocks | 2 | copies left behind by the document port |
+Table: The spider web, measured from drop 1
+
+**Two ways of counting elements.** The 819 above counts every record in the XMI file that carries an identifier,
+including comments and stereotype applications, because that is what makes the file big. The converter counts
+differently: it counts the model elements it walks, and its own report on drop 1 ends with this line (columns: in,
+mapped, folded, TODO):
+
+{{include: docs/tidewater/sprints/01/drop1-xmi2sysml-report.txt | lines 54-54}}
+
+Both numbers are right; they answer different questions. Elsewhere in this book, "elements" means the converter's
+count unless a table says otherwise. The relationship and per-block counts in the table are Jim's own counts of
+relationship ends in the XMI; the converter's report and the generator's spider-web summary count only the
+relationship kinds they handle, so their numbers are a little lower.
+
+A few of these deserve explanation.
+
+**Diagrams.** The model has 47 diagrams for 40 blocks. Some of that is legitimate: a block definition
+diagram per segment, an internal block diagram per assembly that has connections, an activity diagram, a state
+machine, a sequence diagram, use cases, a requirements diagram and two matrices. The rest is what happens when
+diagrams are the main way to look at a model and nobody is allowed to delete one in case someone needs it. Their
+names tell the story:
+
+```text
+bdd Network                       ibd ObservationNetwork          act ObserveCoast
+bdd Stations                      ibd ObservationNetwork v2       act ObserveCoast - swimlanes
+bdd Stations OLD                  ibd ObservingStation            stm BuoyModes
+bdd Stations (Jim edits)          ibd PowerSystem                 stm BuoyModes OLD
+bdd Everything                    ibd PowerSystem (copy)          sd DailyUpload
+bdd Legacy Import                 ibd Copy of SensorSuite         sd DailyUpload (as briefed)
+par PowerSystem                   Trace matrix (all)              Briefing chart 2024-03 - do not edit
+par PowerSystem draft             Package overview                PDR backup slide 12
+... and 23 more (47 in all)
+```
+
+**Package dependency cycles.** A package depends on another when something in it refers to something in the other:
+a part typed by a block over there, a trace relationship pointing over there. A cycle means two packages each
+depend on the other, so neither can be understood, reviewed or changed alone. In drop 1 the cycles are:
+Stations with DataCenter, and Network with Operations. Each one began as a reasonable shortcut during the document port (a trace link drawn from a station
+block straight to a data center requirement, because that was where the ICD paragraph pointed) and nobody
+untangled it afterwards. (The SysML v2 tools count the same tangle in their own ways; [[diagrams-read]] explains why
+the numbers differ.)
+
+**The most-connected block.** ObservingStation carries 17 relationship ends. Most of them are trace
+relationships the team drew from the block to every requirement that mentioned it in any document. Some of those
+are real satisfy relationships under another name; some duplicate a satisfy that already exists; some are simply
+wrong. In a diagram, those links are the strands of the web.
+
+**The Legacy Import package.** When the team first ported the documents, they imported a spreadsheet of
+requirements and blocks with Cameo's Excel import. The import created elements the team later rebuilt by hand, and
+the originals were never deleted. They sit in a package called "Legacy Import": a `Battery_old`, a
+`Copy of SensorSuite`, a `TBD Component` that nothing uses, and a requirement-like class called
+"Requirement from slide 14" with no identifier. Every review since 2023 has had a comment saying "clean up Legacy
+Import." It is still there.
+
+You can measure the spider web yourself. The converter's report lists every element type and what happens to it:
+
+```sh run cwd=~/w2s expect="(?s)total\s+560\s+444\s+65\s+51\n.*206 of 206 ported, 0 remaining.*stereotypes not converted: L1Network 1, L2Segment 3, L3Station 10, L4Subsystem 8, L5Assembly 13, L6Component 1, Procured 3.*unmapped \(TODO in the output\): 12\n.*self-check: ok" timeout=120
+perl "$KIT/bin/xmi2sysml.pl" --report --out drop1-v2 drop1/tidewater.xmi
+```
+
+These lines from the report summarize the conversion:
+
+```text
+total                           560     444      65     51
+ported vs remaining (metric A filter uml:Class|Port|Property|Connector|Activity): 206 of 206 ported, 0 remaining
+stereotypes not converted: L1Network 1, L2Segment 3, L3Station 10, L4Subsystem 8, L5Assembly 13, L6Component 1, Procured 3
+unmapped (TODO in the output): 12
+self-check: ok
+```
+
+Read the `total` line as four counts: 560 elements came in; 444 were mapped to SysML v2; 65 were folded into
+something else (a connector end becomes part of its connector, a multiplicity becomes part of its property); and 51
+fall under a TODO. The 51 are fewer things than they sound: the three lifelines, three messages and six message
+events of one sequence diagram, for instance, all sit under a single TODO for that diagram. The `unmapped` line
+says they produce 12 TODO lines. Add one TODO line for each of the 39 custom stereotypes listed above it, and one
+note about the constraint expression, and the converted files contain 52 TODO lines.
+
+[[sysmlv2]] explains the rest of the report. For now, the TODO lines are what matter. They are the places where
+the model contains something the converter could not carry into SysML v2. They are the conversion debt, and
+counting them will become the team's main measure of progress. Notice also the `ported vs remaining` line: every
+block, port, property, connector and activity in the model, 206 of 206, came across. The debt is real but bounded.
+
+=== A tour of drop 1, package by package {#cameo-tour}
+
+The converter writes one file per top-level package of the Cameo model, so the converted drop doubles as a map of
+the model's organization. Counting what is in each file gives a first look at where the size, the debt and the
+tangles are. These are real counts from the converted drop 1.
+
+|| File | Lines | Holds | TODO lines | Imports ||
+| `stations/Stations.sysml` | 190 | 25 part defs: segment, stations, power, sensors, telemetry, hull, mooring, components | 29 | Analysis, DataCenter, Interfaces, Requirements, Types |
+| `requirements/Requirements.sysml` | 188 | 30 requirements, 29 satisfy, the derivations and traces | 0 | DataCenter, Network, Stations, RequirementDerivation |
+| `verification/Verification.sysml` | 60 | 6 verification defs (the v1 test cases) | 0 | Requirements |
+| `behavior/Behavior.sysml` | 55 | 8 action defs: the observation cycle | 4 | Interfaces |
+| `datacenter/DataCenter.sysml` | 51 | 5 part defs: ingest, quality control, archive, publisher | 5 | Interfaces, Stations |
+| `network/Network.sysml` | 47 | 5 part defs, actors, 4 use cases, the context | 3 | DataCenter, Operations, Stations |
+| `interfaces/Interfaces.sysml` | 40 | 4 port defs, 3 item defs | 0 | Types |
+| `operations/Operations.sysml` | 30 | 5 part defs: depot, vessel, crane, spares | 5 | Network |
+| `legacy-import/Legacy_Import.sysml` | 27 | 4 part defs left from the document port | 0 | Interfaces, Stations, Types |
+| `types/Types.sysml` | 22 | value types, units, an enumeration | 3 | none |
+| `allocations/Allocations.sysml` | 14 | 7 allocations of activities to blocks | 0 | Behavior, DataCenter, Stations |
+| `analysis/Analysis.sysml` | 13 | the energy balance constraint | 2 | Types |
+| `tidewater/Tidewater.sysml` | 4 | the custom profile's placeholder | 1 | none |
+Table: Drop 1 converted, file by file
+
+Three things jump out of that table, and the team noticed all of them in the first week.
+
+**The size is small.** The whole model is about 740 lines of text. Bob had spent two years building it, and it
+fits in a long afternoon's reading. The point is not that two years were wasted; the content took that long to
+decide. The point is that once decided, the content is compact, and the work of keeping it current should be
+proportionate.
+
+**The debt is concentrated.** Twenty-nine of the 52 TODO lines are in one file, `Stations.sysml`, and almost all of
+them are level stereotypes. That told Jim where the first weeks' effort would go, and that it would go quickly.
+
+**The tangles are written down.** Look at the last column. `Stations` imports `DataCenter`, and `DataCenter`
+imports `Stations`. `Network` imports `Operations`, and `Operations` imports `Network`. Those are the two package
+dependency cycles from the spider-web table, and in the text they are not hidden in a model browser: they are two
+pairs of `import` lines, at the top of four files, that anyone can read. `Stations` also imports `Requirements`,
+because a dozen trace links were drawn from station blocks straight to requirements. In Cameo, finding these took a
+dependency matrix and an afternoon. In text, they are on the first screen of each file.
+
+Bob's reaction to that last point is worth recording:
+
+> I always knew the stations and the data center were tangled. I could never show anyone. Now it's four lines.
+> -- Bob, sprint 1
+
+=== Why it did not scale {#cameo-scale}
+
+The team's experience with Cameo is common, and it is worth being precise about why, because "we hate the tool" is
+not an argument that management will accept, and it is not quite true either. Cameo is a capable tool. The problems
+the team ran into come from the combination of SysML v1, a diagram-first way of working and a team that was never
+given the practices that make a shared model work.
+
+==== The diagram is not the model, but everyone treats it as if it were
+
+In SysML v1 tools, the model and the diagrams are separate things: a block exists once in the model and can appear
+on many diagrams. That separation is correct and powerful. In practice it confused everyone. Reviewers looked at
+diagrams, so a relationship that existed in the model but not on any diagram was invisible, and a stale diagram
+that nobody had opened since 2023 still looked like part of the design to anyone who found it. When Bob
+redrew the PowerSystem IBD for a briefing, the briefing version had a different layout and fewer ports, and for the
+people in the room it was the PowerSystem.
+
+==== Nothing could be compared
+
+The question a reviewer most needs answered is: *what changed since last time?* In the document era the answer was
+the redline. In Cameo there was no good answer. Cameo has a model-comparison feature, but it compares two projects
+element by element in a tree that runs to thousands of rows, and the team could not turn its output into anything a
+reviewer could read. The XMI export changes in ways unrelated to the model (element order, generated identifiers on
+some exports, tool-version headers), so comparing two XMI files with a text comparison tool shows thousands of
+meaningless differences. When drop 2 arrived, the team's review consisted of opening both versions side by side and
+clicking through the diagrams looking for differences by eye.
+
+==== Nothing could be merged
+
+A shared model needs a way for two people to work at once and combine their work. Cameo's answer is a server
+(Teamwork Cloud) that locks elements while someone edits them. The program never bought the server, so the team
+passed the project file around by email, and only one person could edit at a time. Bob owned the model in practice
+because Bob had the file. When the prime took over, the file moved to the prime, and the government lost the
+ability to change it at all.
+
+==== Nothing was checked automatically
+
+Cameo has a validation feature with rules, and the team ran it once, during the training course. It produced eight
+hundred warnings, most of them about diagram formatting, and nobody ran it again. The questions the team cared about
+(is every requirement satisfied, is every requirement verified, does the requirement text in the model match DOORS,
+does every assembly carry its level tag) were never encoded anywhere. They were answered, when they were answered,
+by Bob clicking through matrices before a review.
+
+==== Seats, licenses and one machine
+
+Cameo is licensed per seat. The program bought three. A fourth engineer who wanted to look at the model had to ask
+for screenshots. The model lived on the machines where Cameo was installed. The data center's engineers, the test
+engineers and the program office never saw the model, only pictures of it.
+
+==== The team never had a workflow, only a tool
+
+This is the deepest reason, and it is not Cameo's fault. The team was given a tool and told to use it. Nobody gave
+them a way of working with it: how changes are proposed, reviewed, approved and recorded; how the model is
+baselined; how it is checked; how it is kept consistent with DOORS. Without those practices, the model behaved
+exactly like the documents had, except that it was harder to read and nobody outside the team could open it. It
+inherited the document era's costs and added new ones.
+
+::: sidebar The scaling problem, stated plainly
+SysML v1 in a diagram tool scales with the number of people who can click. Changes are made one at a time, by one
+person, in one tool, and reviewed by looking at pictures. A team of three can keep up with a small model that way. It
+cannot keep up with a model that changes every few months from a contractor, has to stay consistent with a
+requirements database, and has to be reviewed by people who do not own a license.
+:::
+
+=== What the team believed, and what was true {#cameo-belief}
+
+By 2026 the team had drawn a conclusion from the Cameo years: *modeling does not work for us.* It is worth
+separating that conclusion into its parts, because some parts are true and some are not.
+
+|| What the team believed | What was actually true ||
+| "Modeling is slower than documents." | Point-and-click modeling of content that already existed in documents is slower than the documents. Modeling as the primary record, with automated checks, is a different activity. |
+| "The model is a spider web." | Measurably true: duplicates, stale diagrams, package cycles and tangled trace links. The web was built by the port, and can be untangled. |
+| "Nobody uses the model." | True: nobody outside the team could open it. That is a distribution problem, not a modeling problem. |
+| "We can't tell what changed in a drop." | True with XMI and screenshots. Not true with a text model in version control (see [[sysmlv2]] and [[git]]). |
+| "The contractor owns the model now; we just review it." | True contractually. The government can still keep its own derived copy, check it, and report discrepancies; that is the plan in [[operating-model]]. |
+| "We are engineers, not programmers." | True, and this book does not ask anyone to become a programmer. Text files, reviews and checklists are engineering tools. |
+Table: The Cameo years: belief and fact
+
+::: objection "We already tried modeling. It took two years and gave us a spider web."
+Bob, at the first team meeting about the directive in [[directive]].
+
+Answer: The two years went into porting documents by hand into a tool with no workflow. The spider web is measured
+above, and the measures are the starting point of the twelve weeks. [[sprint-2]] through [[sprint-5]] show the web
+being untangled package by package, with each tangle reported to the prime as a discrepancy, and [[scorecard]] shows
+the same measures at the end.
+:::
+
+::: objection "If we couldn't make Cameo work, why would SysML v2 be different?"
+Tom, same meeting.
+
+Answer: Because the problems in this chapter are about comparison, merging, automated checking and distribution,
+and those are exactly what a text model in version control does well. The language matters less than the fact that
+SysML v2 has a standard text notation. [[sysmlv2]] shows the same Tidewater elements in both forms; [[git]] shows
+what comparison and merging look like for text.
+:::
+
+=== Reviewing a drop by screenshot {#cameo-review}
+
+The clearest picture of why the Cameo years were painful is the government's review of a prime delivery in 2025,
+the first year the prime maintained the model. It is worth walking through, because [[sprint-2]] repeats the same
+job the new way and the contrast is the core of the case.
+
+The prime delivered the Cameo project file and a delivery letter listing "significant changes" in prose: "Updated
+PowerSystem to reflect ECP-0117. Added maintenance states. Updated requirement allocations per CDR action items."
+The government had thirty days to accept or reject the delivery.
+
+Bob opened the new project in Cameo next to the previous one, on two monitors. For two weeks, Bob clicked through
+every diagram in both versions, looking for differences by eye. Each difference went into a comment matrix, a
+spreadsheet with columns for the diagram, the element, the change observed, whether it matched the delivery letter,
+and the government's comment. To make the comments understandable to the prime, Bob took screenshots of both
+versions and pasted them into a slide deck, one slide per finding.
+
+|| Review activity, 2025 delivery | Effort (notional) ||
+| comparing diagrams by eye, two versions side by side | 7 working days |
+| screenshots and the comment slides (61 slides) | 3 working days |
+| comment matrix (48 comments) | 2 working days |
+| review meeting with the prime | 1 day |
+| following up the prime's responses | 2 working days over the next month |
+Table: The government's review of one Cameo delivery (notional)
+
+Three things about this review deserve attention.
+
+**It could not be complete.** Bob compared diagrams, not the model. A change to an element that appeared on no
+diagram, or a relationship added in the model browser, was invisible. Bob knew this and said so in the review memo:
+"Review limited to changes visible on diagrams."
+
+**It could not be repeated.** The comparison lived in Bob's head and in screenshots. When the prime delivered
+again three months later, the review started from zero.
+
+**It produced no record the model could use.** The 48 comments lived in a spreadsheet. Whether each was resolved
+in the next delivery was checked, again, by eye.
+
+In [[sprint-2]], the same job, reviewing what changed in a drop, is a report generated in seconds from the two XMI
+files, element by element, including changes that no diagram shows. [[maintenance]] repeats it for six more drops.
+
+=== Who owns what, after the contract change {#cameo-ownership}
+
+The 2025 contract change matters to everything in this book, so it is worth stating precisely.
+
+|| Item | Owner | What the government can do ||
+| the SysML v1 model in Cameo | the prime (CDRL A003) | receive each drop, review it, accept or reject it, report discrepancies |
+| the DOORS requirements database | the prime, with government approval of changes through the CCB | receive exports, review, approve changes through the CCB |
+| the government's derived SysML v2 model | the government team (this book) | everything: edit, check, baseline, publish |
+| discrepancy reports against the prime's model | the government raises; the prime resolves | track each to the drop that fixes it |
+Table: Ownership after the 2025 contract change
+
+The directive in [[directive]] keeps this split: the prime's v1 model "remains the contractual baseline," and the
+government maintains a *derived* v2 model. That word, derived, shapes every technical decision in Part II. The
+government cannot fix a problem in the prime's model; it can only report it and wait for a later drop. But it can
+fix the problem in its own v2 model immediately, record that it did, and check, when the next drop arrives, whether
+the prime fixed it too. [[operating-model]] shows how a vendor branch makes that possible without the government's
+fixes being overwritten by each new drop.
+
+=== What a model is, and what a diagram is {#cameo-modeldiagram}
+
+One last idea from the Cameo years, because the team confused it for three years and it matters for everything
+after. A *model* is a set of elements and relationships: a block named `PowerSystem` that has a part `solar` typed
+by the block `SolarPanel`, a satisfy relationship from `PowerSystem` to requirement TW-SYS-011, and so on. A
+*diagram* is a picture of some of those elements and relationships, chosen and laid out by a person for a purpose.
+
+Diagrams are views. They are excellent for explaining, for seeing shape, for spotting a missing connection at a
+glance. They are poor as a record, because a picture shows only what someone chose to draw, and because the layout
+(where the boxes are, how the lines bend) carries no engineering meaning but takes most of the effort.
+
+In the Cameo years, the team treated diagrams as the record. In the new way of working, the text is the record, and
+diagrams are generated from it whenever someone needs a picture. The kit draws part trees, trace diagrams, interface
+diagrams and package diagrams from the text ([[tools]]), and a viewer redraws them live beside Vim as the text
+changes ([[vim]]). The diagrams still exist. They have just stopped being the thing that has to be kept consistent
+by hand.
+
+=== Exercises {#cameo-exercises}
+
+::: exercise Measure it yourself
+Generate drop 1 with `perl sim/tidewater-v1.pl --drop 1 /tmp/drop1`. Open `/tmp/drop1/tidewater.xmi` in Vim. Use
+`/name="Battery` and `n` to find every element whose name starts with "Battery". How many are there? Which one is the
+real battery? How did you decide?
+:::
+
+::: exercise Read the manifest
+Open `/tmp/drop1/MANIFEST.txt`. Then, in the terminal, run `sha256sum /tmp/drop1/tidewater.xmi`. Does the checksum
+match the manifest? What would it mean if it did not, and who should you call?
+:::
+
+::: exercise Belief and fact
+Write your own version of the table "The Cameo years: belief and fact" for a model on your program. Which of the
+beliefs are about the language, which about the tool, and which about the way the team was asked to work?
+:::

@@ -1,0 +1,35 @@
+Weekly status Model -- as of 2026-10-23 (sprint 2)
+Sprint progress 32% (6/19 SP) new   On-time delivery: 2/2 this week, 2/2 this sprint
+
+TECHNICAL PRIORITIES
+  OPEN  TW-28        4  "Import drop 1 through the ven Bob
+  DONE  TW-26        3  "Learn: practice lessons 12-13 Bob
+  OPEN  TW-29        2  "TODO burn-down and generated  Tom
+  OPEN  TW-30        2  "Level conventions for the par Bob
+  OPEN  TW-31      4.5  "Enablers, decisions and conve Jim
+  OPEN  TW-32      0.5  "Sprint 2 demo: the pipeline a Tom
+  DONE  TW-27        3  "Runner online                 Tom
+
+WATCH ITEMS / PM HELP NEEDED
+  none
+
+SCHEDULE MILESTONES
+  30 days out
+    1. T1 Stand up MBSE DevSecOps > E1 GitLab project and gitflow ->  40%  ETA 2026-11-15
+    2. T2 Port Tidewater v1 to SysML v2 > E5 Drop 1 intake and first import ->  53%  ETA 2026-11-15
+    3. T1 Stand up MBSE DevSecOps > E2 Pipeline and quality gates ->  43%  ETA 2026-11-15
+    (+2 more)
+  60 days out
+    -
+  90 days out
+    -
+
+ACCOMPLISHMENTS (since 2026-10-16)
+  v TW-26        3  "Learn: practice lessons 12-13 Bob
+  v TW-27        3  "Runner online                 Tom
+
+PUNT RATE (tasks punted back to TODO / tasks committed, last 4 sprints)
+  sprint 1    Model          0 / 7     0%
+  sprint 2    Model          0 / 7     0%
+
+Legend: v on time  x late (carried over, or rework after the demo)  ! slipped   -> pushed right  <- pulled left  = no change  + new

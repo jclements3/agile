@@ -1,0 +1,11 @@
+Sprint 4 retrospective, 2026-11-27 11:00
+
+Start:
+  - Showing the model site at every review
+Stop:
+  - Estimating procured parts as if they were simple
+Continue:
+  - Discrepancy reports instead of fixing the prime's model
+  - The rehearsed demo: it landed
+
+Pulse survey (1-5, anonymous): mean 3

@@ -1,0 +1,2 @@
+iid,title,author,source,target,created_at,merged_at,lead_hours,labels,state
+1,"CODEOWNERS, issue and MR templates, .gitignore",tom,feature/16-codeowners-and-templates,develop,2026-10-14T15:00:00Z,2026-10-14T17:10:00Z,2.2,workflow::review,merged

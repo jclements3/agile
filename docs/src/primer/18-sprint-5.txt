@@ -1,0 +1,568 @@
+== Sprint 5: Grading the requirements, and a trace that defends itself {#sprint-5}
+
+::: survival
+What you have: a model whose structure is nearly closed, a pipeline that checks every change, a model site the
+program office has seen once, and a team that has started to trust the checks ([[sprint-4]]).
+
+What you need from this chapter: how the team turned two questions into machinery -- *are the requirements we
+inherited good enough to verify?* and *can we stop a change that quietly breaks the trace?* -- and how a mistake
+that used to survive until the next milestone review was caught in four minutes on a Friday morning.
+:::
+
+=== The question this sprint answered {#sprint-5-question}
+
+Every sprint chapter in this part starts with the systems-engineering question the team answered, because that is
+how the team learned to start every sprint. Sprint 5's question was one Jim kept coming back to after the sprint 4 review, where the program manager had
+opened the model site on a phone and said they had never seen the model without a briefing: *if the model is
+checked, what is it checked against? If the requirements are weak, a checked model is a well-organized mistake.*
+
+The question was fair, and it split into two questions the team could work on:
+
+1. **Are the requirements good enough to be verified?** Not "are they right" -- that is the stakeholders' call -- but
+   are they written so that someone could design to them and test them? That is what the requirement recipe
+   ([[recipe]]) measures.
+2. **Can the model defend its own trace?** By now the pipeline *reported* trace gaps on every merge request:
+   requirements nothing satisfies, requirements nothing verifies, text that differs from DOORS. Reporting is not
+   the same as preventing. Nothing stopped an engineer from deleting a `satisfy` line by accident.
+
+The mood had turned. The pulse survey at the sprint 4 retrospective came in at
+{{value: docs/tidewater/sprints/04/morale.json mean}} out of 5, up from the sprint 3 dip; Bob, who had asked in
+week one why they could not just send the Word document, now opened merge requests without being asked. The team
+was not yet enthusiastic. It was, in Jim's words at the kickoff, "past the point of wanting to go back."
+
+=== Kickoff: a carried story, a small learning budget, mostly engineering {#sprint-5-kickoff}
+
+The kickoff ran on Monday 30 November, 09:00 to 10:30, and stood in for that day's stand-up. The record the kit
+wrote:
+
+{{include: docs/tidewater/sprints/05/kickoff.txt}}
+
+Three things in that record are worth reading slowly.
+
+**The first story is a carryover.** TW-67, *Close the Stations level tags*, was committed in sprint 4. Its first task
+(#76, the level tags themselves) finished in sprint 4; its second task -- walking the Stations part tree with the
+prime's modeler and recording what they confirmed -- did not happen in sprint 4. The story carried into sprint 5 with its remaining points. Nobody hid it: the sprint 4
+review said so, the journal recorded a `carry`, and the weekly quad marked the story late. A carried story is not a
+failure. A carried story nobody mentions is.
+
+**The learning budget is small now.** Learning was {{value: docs/tidewater/work-split.json sprints.1.learning}}% of
+sprint 1's task points done ([[om-done]]). In sprint 5 it is {{value: docs/tidewater/work-split.json sprints.5.learning}}%: one story, TW-89,
+in which Jim and Bob read the recipe chapter of this book and Jim drafted a memo from pipeline numbers. The budget
+fell because the team needed it less, not because the plan squeezed it out. That distinction matters when you
+explain the curve to management ([[bluf]]).
+
+**Engineering dominates.** {{value: docs/tidewater/work-split.json sprints.5.engineering}}% of the task points done
+are engineering work -- requirements, structure, trace -- and
+{{value: docs/tidewater/work-split.json sprints.5.platform}}% is platform work (the trace gate and the release
+rehearsal). In sprint 2 those shares were almost reversed.
+
+The goal Jim wrote on the board was three clauses long: *Procured parts and DataCenter closed; Legacy Import
+untangled; trace becomes a gate.* Two of the three are engineering. The third is the one this chapter is mostly
+about.
+
+=== Week 1: clutter out, a ratchet in {#sprint-5-week-1}
+
+==== Monday 30 November: the recipe, read before it is run {#sprint-5-mon}
+
+Jim spent the morning on task #97, half a point from the learning story: read [[recipe]] and draft a memo from the
+pipeline's numbers. The order was deliberate. The team had learned in sprint 2 that running a new checker before
+anyone understands what it checks produces a list of findings nobody trusts. Jim wanted to be able to explain every
+finding to the prime before the prime saw a single one.
+
+==== Tuesday and Wednesday: the Legacy Import package {#sprint-5-legacy}
+
+The drop-1 model carries a package called *Legacy Import*: the residue of the document port years ago. It holds a
+duplicated block (`Battery_old`), a copy of a subsystem (`Copy of SensorSuite`), an unused placeholder
+(`TBD Component`) and a "requirement" that is really a slide title. [[cameo]] measured it as part of the spider
+web.
+
+Tom's task (#102) was to remove it from the government's v2 model. Jim's task (#103) was to ask the prime to remove
+it from the v1 model, as discrepancy report DR-5.
+
+The thought process behind doing both is worth spelling out, because it is the pattern for every piece of clutter
+the team inherits:
+
+- **Deleting it in v2 alone is not enough.** The Legacy Import file is converter output. It lives on the vendor
+  branch ([[pipeline]]), and every future prime drop will bring it back. Git will see the government's deletion on
+  `develop` and the prime's unchanged copy on `vendor/prime`, and every drop merge will raise a delete/modify
+  question until the prime deletes it upstream.
+- **Waiting for the prime alone is not enough either.** The clutter inflates the spider-web measures, confuses
+  every new reader, and the prime's next drop is weeks away.
+- **So: delete it now, and file the DR.** The deletion makes the government's model clean today. The DR makes the
+  problem the prime's to fix, with an id both sides can cite. When the prime's drop finally removes the package,
+  the conflict disappears on its own.
+
+Tom's merge request, !16, removed the package. Its pipeline went green on the first run. Jim sent DR-5 the same
+morning:
+
+{{include-md: docs/tidewater/sprints/05/samples/discrepancy-report-DR-5.md}}
+
+Notice what the DR does not say. It does not say *you made a mess*. It names the elements, says why they are a
+problem, and asks for one concrete action. A discrepancy report is an engineering request between two teams that
+will work together for years; write it the way you would want to receive it.
+
+You can see the deletion in the team's history. In the Tidewater sandbox, from Tom's clone:
+
+```sh run sandbox=tidewater cwd=work/tom expect="Remove the Legacy Import clutter"
+git checkout -q develop
+git log --oneline -3 -- model/legacy
+```
+
+The second line of the output is the drop-1 import that created the file; the first is Tom's removal. That is the
+whole history of the package in the government's model: arrived with the prime's drop, left by a reviewed merge
+request. Compare that with the Cameo years, when a package like this could be deleted from a shared model by anyone
+with a license and nobody would know who or why.
+
+==== Wednesday: Bob and the prime's modeler {#sprint-5-walkthrough}
+
+Bob closed the carried task the same day: a walk through the Stations part tree with the prime's modeler, on a
+shared screen, with the generated part tree from the model site ([[diagrams]]) instead of a Cameo diagram. It also
+gave both sides a second look at DR-7, opened in sprint 4: `WaveSensor` is tagged as a level-5 assembly in the v1
+model while being a direct part of the level-4 `MooredBuoy`. DR-7 is still open at the end of the sprint --
+correctly, because only the prime can say which of the two is wrong.
+
+The walk-through is the first time the team used the model site *with the prime*. It will not be the last. A
+generated, read-only view that both sides can look at removes the oldest argument in a model review: "that's not
+what my diagram shows."
+
+==== Thursday: stand-ups that say something {#sprint-5-standups}
+
+By sprint 5 the stand-up statuses had changed character. Here is Thursday's, pasted from the meeting chat as the kit
+stores it:
+
+{{include: docs/tidewater/sprints/05/standups/2026-12-03-chat.txt}}
+
+and the kit's lint of it:
+
+{{include: docs/tidewater/sprints/05/standups/2026-12-03-lint.txt}}
+
+Compare that with sprint 1 ([[sprint-1]]), when the lint flagged missing story ids and statuses that described
+keystrokes ("rebased my branch"). Every line now names a story, says what is *true* (a story done, with its tasks counted), and names a
+date for what is next. The share of stand-up lines with an outcome and a number -- one of the twelve-week measures
+from [[directive]] -- was {{value: docs/tidewater/sprints/05/scorecard.json standup_outcome_share}} for the
+sprint, as a fraction of lines.
+
+Each line was drafted by `talk.pl standup` ([[talking]]) from the previous day's GitLab activity, and each person
+edited or posted the draft. The evidence keeps both:
+
+{{include: docs/tidewater/sprints/05/standups/2026-12-03-talk-drafts.txt}}
+
+The drafts and the posted lines are identical, every day of the sprint. That can mean two things. The good
+reading: the drafts were already in the form the team wanted, so there was nothing to fix. The worrying reading:
+people had stopped reading their own statuses. You cannot tell which from the record, and that is the point. The
+rule worth adopting is simple -- read the draft before you post it; if it would not make sense to the deputy PM,
+change it. A drafting tool is a starting point, not a substitute for knowing what you did yesterday.
+
+==== Friday 4 December: the trace becomes a ratchet {#sprint-5-ratchet}
+
+One job in the pipeline changed this week, in Tom's story TW-93. Until then, the `trace` job reported gaps and was allowed to fail:
+red in the job list, green for the merge. The reason was sound. The model inherited gaps that only the prime can
+close -- requirements the v1 model never satisfied, never verified, or worded differently from DOORS -- and a gate
+that failed on every one of them would have blocked every merge request the team ever opened.
+
+The ratchet keeps that reason and adds a rule: **a merge request may not make the trace worse.** The job runs the
+trace twice -- once on the merge result, once on the target branch -- and compares the *sets* of orphan, unverified
+and drifted requirement ids. A gap that is already on `develop` is old news and is reported. A gap that this change
+adds fails the job, names the requirement, and blocks the merge.
+
+!17 put the ratchet in. Its own pipeline was green. The interesting part came a week later.
+
+::: sidebar The decision: gate, ratchet, or report
+The team considered three designs before Tom wrote a line, and the reasoning is the part to copy.
+
+**Make the trace a hard gate.** Every orphan, every unverified requirement, every drifted text fails the merge
+request. Clean, simple, and unusable: the inherited gaps would fail every merge request until the prime fixed its
+model, which could take months. Within a week someone would set the job to `allow_failure`, and the gate would be a
+decoration.
+
+**Keep reporting.** Leave the job allowed to fail and trust people to read it. That is what the team had been doing
+since sprint 3 ([[sprint-3]]). It works until the day someone is in a hurry, and a reporting job that is always red
+trains everyone to ignore red.
+
+**Ratchet.** Fail only on what this change makes worse. The inherited gaps stay visible in every report and on the
+model site; a new gap blocks the merge and names the requirement. The cost is complexity in the job -- it has to
+check out the target branch and run the trace twice -- and one subtle requirement: the comparison must be between
+*sets of requirement ids*, not counts. A change that fixes one orphan and creates another leaves the count the same
+and the model worse; a ratchet that compared counts would let it through. Test your ratchet with exactly that case.
+
+The same pattern -- report everything, block only what gets worse -- is how the team handles every inherited
+problem: outline violations, complexity, recipe findings. It is the single most useful idea in this sprint.
+:::
+
+Jim closed #105 the same Friday, having read the recipe findings for the DOORS modules and decided which ones to
+send to the prime. That is the next section.
+
+The week ended with the first of two weekly quads for management ([[communicating]]):
+
+{{include: docs/tidewater/sprints/05/quad-2026-12-04.txt}}
+
+=== The recipe: grading the requirements {#sprint-5-recipe}
+
+The story *Grade our requirements with the recipe* (TW-94) is the engineering heart of the sprint. The recipe
+([[recipe]]) describes a requirement as a single sentence with up to eighteen parts, six of them required, and lists
+the target verbs that are rarely verifiable ("provide", "have", "be", "be able to"). `req-recipe.pl` reads each
+requirement, decomposes it into those parts, and reports what is missing or weak.
+
+Jim ran it on the three DOORS modules -- the stakeholder needs, the system requirements and the segment
+requirements -- in the government's model, where the DOORS text lands unchanged. You can run the same command in the
+Tidewater sandbox:
+
+```sh run sandbox=tidewater cwd=work/jim expect="requirements=30 findings=15 missing=0"
+perl "$KIT/tools/sysml/req-recipe.pl" model/requirements/stakeholder model/requirements/system model/requirements/segment | tail -1
+```
+
+The summary line says the DOORS text holds {{count: docs/tidewater/sprints/05/recipe-doors.txt ^TW-}} graded
+requirements and that none of them is missing a required part. The findings are about *quality*, not
+completeness. Here is the first one in the full report the pipeline kept:
+
+{{include: docs/tidewater/sprints/05/recipe-doors.txt | lines 1-10}}
+
+The network "shall provide marine weather observations." *Provide* how? To whom, how often, within what? A test
+engineer cannot write a pass criterion for *provide*. That is not pedantry: it is the difference between a
+requirement that can be verified at acceptance and one that will be argued about.
+
+==== Why a discrepancy report, and not an edit {#sprint-5-dr6}
+
+The obvious next step would have been to fix the wording in the model. Jim did not, and the reason is ADR 0008
+(*DOORS stays authoritative for requirement text*), recorded in sprint 2 ([[sprint-2]]). The DOORS text is the
+prime's, under the contract. If the government rewrites it in the v2 model, the model and DOORS disagree -- which is
+exactly the *drift* the trace job exists to catch -- and the next drop will undo the edit anyway.
+
+So the findings went to the prime as DR-6, sent on Tuesday 8 December:
+
+{{include-md: docs/tidewater/sprints/05/samples/discrepancy-report-DR-6.md}}
+
+The DR quotes the tool's summary and four representative findings, and asks for one action. It does not list every
+finding: the prime can run the same tool on the same text (it is in the kit) and get the same answer. Making the
+check reproducible on the other side is worth more than a long attachment.
+
+You can open the DR in the sandbox's GitLab, as Jim did:
+
+```sh run sandbox=tidewater cwd=. expect="DR-6: Weak verbs"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model issue show 110 | head -3
+```
+
+Its labels say a lot in a small space: `type::discrepancy`, `owner::prime`, `severity::2`, `area::requirements`,
+`phase::port`. Anyone in the program can filter the board for *everything the prime owes us* without a spreadsheet.
+
+==== Why the recipe is not a gate yet {#sprint-5-recipe-gate}
+
+The obvious question once Jim's findings came in was: *should the recipe fail the pipeline?* Not yet, and the reason is ownership. Every finding in the DOORS text is the prime's to fix; a gate on
+it would block the government's merge requests for the prime's wording. What the team did instead was add the recipe
+to the pipeline as a *report* -- its findings show up in the merge request's code quality widget and as metrics on
+the model site -- so that a merge request which *adds* a requirement in the government's own packages can be held
+to the recipe in review, and so that the count is visible when the prime's next drop arrives. When the government
+writes its own requirements, later in the program, a recipe ratchet on its own packages is the natural next step.
+
+==== The stand-ups that week {#sprint-5-standups-week}
+
+Monday 7 December shows the lint doing a small, useful thing:
+
+{{include: docs/tidewater/sprints/05/standups/2026-12-07-chat.txt}}
+
+{{include: docs/tidewater/sprints/05/standups/2026-12-07-lint.txt}}
+
+The lint warns that *DR-6 is not in the journal*. It is right: DR-6 is a GitLab issue, not a story in the
+journal, and the lint matches anything that looks like an id. The warning costs Jim nothing -- warnings do not stop
+the compile -- and it is a reminder of the boundary the kit keeps on purpose ([[journal]]): the journal holds the
+team's stories; discrepancy reports, tasks and everything else live in GitLab. Jim could have written the status around
+the story id (TW-94) alone; naming the DR is still worth the warning, because *DR-6* is what anyone outside the team
+would ask about.
+
+Two other things in the week's statuses are worth a second look. Bob's line on Tuesday 1 December says *Y none*:
+the drafting tool found nothing of Bob's in GitLab from Monday, because Monday was the kickoff and a learning task Bob
+had not started. *None* is honest. It is also the line most likely to make a manager wonder what Bob did all day.
+When the truthful answer is "meetings and reading", say so -- *Y kickoff; read the recipe chapter* -- rather than
+letting the tool's *none* stand. And several lines end in an ellipsis, where the tool shortened a long story title.
+Nobody minded. A stand-up line is for the people in the meeting, who know the stories; it does not need to be a
+complete sentence.
+
+::: objection "This is just more paperwork for the prime."
+It is less. Before, requirement quality came up at a milestone review, as red ink on a PDF, months after the text
+was written, with no way for the prime to check the reviewer's opinion. Now it arrives as a reproducible check with
+named findings, early enough to fix before anyone designs to the weak text.
+:::
+
+=== Week 2: metadata, a dry run, a tabletop and a catch {#sprint-5-week-2}
+
+==== Monday 7 December: procured parts as metadata {#sprint-5-procured}
+
+Bob's !18 replaced the converter's TODO lines for the v1 `Procured` stereotype with SysML v2 metadata: each
+procured part now carries `@Procured { supplier = "..."; partNumber = "..."; }` from the government's Conventions
+package. It is a small change with a long tail. Supply-chain questions -- *which parts come from which supplier?* --
+become a search over the model instead of a call to the prime ([[security]] returns to this).
+
+The design choice behind it is worth a paragraph, because every v1 profile a team inherits raises the same
+question. The v1 model expressed "procured" as a stereotype from a project profile, with the supplier and part number
+as tagged values. SysML v2 offers three ways to carry the same information: plain attributes on each part
+definition, a specialization of a `ProcuredPart` part definition, or metadata. Bob chose metadata, for two reasons.
+Procurement is a fact *about* the part, not a property *of* the system -- the buoy does not behave differently
+because its modem came from a particular vendor -- and metadata is the v2 construct for facts about elements. And
+metadata is what the kit's checks and views read: the same pattern the level tags use ([[workbook]]). One rule for
+all the metadata keeps the model's conventions few enough to remember.
+
+Sprint 4's retrospective had already said *stop estimating procured parts as if they were simple*. Procured parts
+carry more than they show: every one needs a look before its metadata can be written, because a v1 profile enforces
+that the stereotype is applied, not that its tagged values are consistent or complete.
+
+==== Wednesday 9 December: refinement and planning poker {#sprint-5-refinement}
+
+Refinement for sprint 6 took the second half hour of Wednesday morning. The stories had been written during the
+week; refinement applied the Definition of Ready to each and estimated it with planning poker in the meeting chat
+([[ceremonies]]). The record:
+
+{{include: docs/tidewater/sprints/05/refinement.txt}}
+
+Three of the eight stories took two rounds. The tally the kit printed for one of them shows how the conversation
+went:
+
+{{include: docs/tidewater/sprints/05/poker-2026-12-09.txt | lines 142-152}}
+
+In the first round for the VCRM story, Jim voted low and Bob and Tom voted high. Jim asked the question the
+facilitation prompt in the chat suggests -- *what does the high vote know?* The answer was the inspection verdicts:
+someone has to enter and sign a verdict for every requirement verified by inspection, and both high votes had
+counted that work. The plan already gave it to Jim, as Jim's own task (#126), because a signed verdict needs the lead's
+authority. With that settled, the second round agreed. That is what planning poker is for: not the number, but the
+minute in which the team finds out it was imagining two different stories.
+
+==== Wednesday 9 December: DataCenter closed; the release rehearsal {#sprint-5-rehearsal}
+
+Bob's !19 closed the level-tag TODO lines in DataCenter. Tom spent two days on #107: rehearsing the release and
+hotfix flows in a sandbox project, `tidewater/sandbox`, before doing either for real. The release path is the gitflow
+path ([[git]], [[pipeline]]): a `release/` branch from `develop`, a merge request into `main` with the CCB's
+concurrence, a tag, and a back-merge into `develop`. The hotfix path starts from `main` and ends in both branches.
+
+Rehearsing in a sandbox is cheap insurance. The first real baseline -- baseline-0, three weeks later -- went to the
+program office with the CCB watching. Tom wanted to have made the mistakes already, in a project nobody else could
+see.
+
+==== Thursday 10 December: the spillage tabletop {#sprint-5-tabletop}
+
+Tom, as the team's part-time security owner, ran a tabletop with the ISSM (#108): *a marked file has been pushed to
+the model repository by mistake. What do you do?* The steps the team walked through are the ones in
+[[security]]: stop pushing, tell the ISSM before doing anything else, do not "fix" history yourself (a rewritten
+branch on a server does not remove the data from clones, caches and backups), and let the security office decide
+the containment.
+
+The issue's record of the tabletop is one line: *Done: Spillage tabletop: a marked file pushed by mistake.* That
+is not good enough, and it is worth saying plainly because it is the most common way a tabletop is wasted. Its value
+is in what you learned -- who to call, how long the first hour took, what you did not know -- and a closed issue with
+no notes preserves none of it. A tabletop's record should hold three bullets: what we did, what surprised us, what we
+change.
+
+==== Friday 11 December: the ratchet catches a real mistake {#sprint-5-catch}
+
+Bob's last story of the sprint was TW-91, *Prune ObservingStation's trace spaghetti*: the v1 model gives
+`ObservingStation` more relationship ends than any other block, many of them duplicate `trace` links made during
+the document port. Bob's task was to remove the duplicates and keep the real ones.
+
+Bob opened !20 at 10:00. Its first pipeline failed. Here is the end of the `trace` job's log, from the evidence:
+
+{{include: docs/tidewater/sprints/05/pipelines/mr20-first-71.log | lines 95-99}}
+
+The second-to-last line is the target branch -- `develop` -- with the gaps it already had. The last line is the
+verdict: *this change adds trace gaps: orphans 2 -> 3 (new: TW-SYS-002)*. Among the links Bob had judged duplicates
+was a `satisfy` that was not a duplicate at all: it was the only link from the design to TW-SYS-002, *Scheduled
+transmission*. Without it, nothing in the model satisfied the requirement.
+
+> The ratchet stopped me. I deleted a satisfy I thought was a duplicate. It was not.
+> -- Bob
+
+In the document era this mistake would have survived until someone built a traceability matrix by hand for a
+milestone review -- weeks or months later, by which time nobody would remember which edit removed the link. Here it
+was caught on the merge request that made it, before review, with the requirement named. Bob restored the line,
+pushed, and the second pipeline passed:
+
+{{include: docs/tidewater/sprints/05/pipelines/mr20-fixed-72.log | lines 95-99}}
+
+You can find both verdicts in the sandbox's pipeline records:
+
+```sh run sandbox=tidewater cwd=. expect="orphans 2 -> 3 \(new: TW-SYS-002\)"
+grep -h "this change adds\|no new trace" gitlab/pipelines/tidewater-model/71/trace.log gitlab/pipelines/tidewater-model/72/trace.log
+```
+
+Open !20 in the sandbox's GitLab and look at its test report:
+
+```sh run sandbox=tidewater cwd=. expect="pipeline: #72 success"
+perl "$KIT/bin/gitlab.pl" --local gitlab --project tidewater/model mr show 20 | head -6
+```
+
+::: warning A green merge request with "failed" tests
+The pipeline is green, yet the test widget lists the inherited trace gaps as failed tests. They are the old gaps --
+TW-SYS-012, TW-SYS-016 and the rest -- that belong to the prime and that the ratchet deliberately lets through.
+Teach your reviewers to read the job's last line (*no new trace gaps*), not the widget's count. (The outline job
+already reports its inherited findings as *skipped*; the trace job's JUnit report should do the same, and this is on
+the team's list for the tooling.)
+:::
+
+=== Reading the sprint's own numbers {#sprint-5-analytics}
+
+At every sprint end the pipeline's records go through `gitlab.pl analytics` ([[analytics]]). Sprint 5's report
+starts like this:
+
+{{include: docs/tidewater/sprints/05/analytics.txt | lines 1-20}}
+
+Three readings matter, and one of them is a trap.
+
+**The trap: "issue created -> first commit".** The median is the longest stage in the value stream by far. Read
+naively, it says the team let issues sit for a week before touching them. Read correctly, it says the team filed
+sprint 5's stories and tasks at the sprint 4 refinement and the sprint 5 kickoff, and started each task on its
+planned day. That is a queue by design, not a delay. A value stream measures *waiting*; whether the waiting is a
+problem depends on whether anybody needed the work sooner.
+
+**The real signal: "MR opened -> first review" and "first review -> merged".** A merge request waited a few hours
+for its first review and was merged within minutes of approval. In the document era, a model change waited for a
+review board measured in weeks ([[directive]] has the notional baseline). The scorecard's review turnaround,
+{{value: docs/tidewater/sprints/05/scorecard.json 10_review_turnaround_hours}} hours, is the same fact.
+
+**Change failure rate: zero.** No merge to `develop` needed a revert or a fix-forward. The one failed pipeline of the
+sprint was !20's first run -- a merge request pipeline, which is where failures *should* happen. A failure on a
+merge request is the system working; a failure on `develop` is the system missing something. Keep the two apart
+when you talk about pipeline health, or a good sprint will sound like a bad one.
+
+=== What went wrong, and what the team did about it {#sprint-5-wrong}
+
+A case study that only reports successes teaches nothing. Sprint 5's problems were small, and each one taught
+something.
+
+- **A real `satisfy` was deleted as a duplicate.** Caught by the ratchet on the merge request, fixed in the same
+  merge request ([[sprint-5-catch]]). The retrospective turned it into practice: prune trace links from the
+  generated trace report, never by eye.
+- **The spillage tabletop left no lesson behind.** One closed issue and a one-line comment ([[sprint-5-tabletop]]).
+  The fix is a three-bullet record, and it costs five minutes.
+- **The intake issue for the first drop is still open.** Tom's stand-up on Friday 11 December still lists *TW-25 intake prime
+  drop v1.0 (2026-10-02), by Oct 16* as today's work -- a task due two months earlier. The drop was imported and merged
+  in sprint 2; nobody closed the intake issue, so the drafting tool keeps offering it. The analytics for sprint 6
+  will list it as the oldest open issue. An issue that is really done but not closed pollutes every report built on
+  issues; close what you finish, or the tools will keep reminding you of things that are not true.
+- **On-time delivery was seven of eight, not eight of eight.** The quad counts TW-67 as late because it carried over
+  from sprint 4 ([[sprint-5-management]]). That is correct. A story that crosses a sprint boundary is late, even
+  when nobody did anything wrong. Do not argue with the measure; explain it once.
+
+=== The review: numbers someone asked for {#sprint-5-review}
+
+Two days before the review, on Wednesday 9 December, the deputy program manager asked Jim for the trace numbers.
+Jim did not build a slide.
+
+> The deputy PM asked for the trace numbers. I sent a link.
+> -- Jim
+
+The link was the model site's trace page ([[tools]]), regenerated by the pipeline on every merge to `develop`. In
+the document era the same question meant two days of spreadsheet work, notionally ([[directive]]). That small
+exchange is the whole argument of this book in two sentences.
+
+The review itself ran on Friday 11 December, 10:00 to 11:00, in the rehearsed format the team adopted in sprint 4
+([[sprint-4]], [[talking]]): lead with the question, show the output, one before-and-after, one safe live change, the
+ask. The demo script started as a `talk.pl review` draft:
+
+{{include: docs/tidewater/sprints/05/review-script.md | lines 1-16}}
+
+The draft's title says *edit before the meeting*, and the team did: the live change -- delete a `satisfy` on a
+scratch branch, watch the trace job name the requirement -- had just happened for real to Bob that morning, so the
+demo could point at !20 instead of staging it.
+
+The review record shows what was accepted and the four numbers:
+
+{{include: docs/tidewater/sprints/05/review.txt}}
+
+Every committed story was demonstrated: delivery was {{value: docs/tidewater/sprints/05/scorecard.json 11_delivery.done}}
+of {{value: docs/tidewater/sprints/05/scorecard.json 11_delivery.committed}} story points
+({{value: docs/tidewater/sprints/05/scorecard.json 11_delivery.pct}}%), the first full sprint since sprint 3. The
+TODO burn-down went from {{value: docs/tidewater/sprints/04/scorecard.json 1_todo_lines}} to
+{{value: docs/tidewater/sprints/05/scorecard.json 1_todo_lines}} lines of conversion debt. Verify coverage did not move
+-- and should not have: the unverified requirements are gaps in the prime's model, and the way to close them is
+through the discrepancy reports, not by the government inventing verification cases.
+
+At the review, GitLab's own To-Do lists ([[tools]]) showed who owned what next:
+
+{{include: docs/tidewater/sprints/05/todo-at-review.txt | lines 1-12}}
+
+Jim's list is long, and it is mostly discrepancy reports waiting on the prime. That is the shape of the job for a
+government lead on a program like this one: the government's model work is done in the team; the prime's is
+tracked in the team.
+
+=== The retrospective {#sprint-5-retro}
+
+{{include: docs/tidewater/sprints/05/retro.txt}}
+
+Two of the three actions came straight from the week. *Stop cleaning up trace links by eye* is Bob's lesson from
+!20; the ratchet will catch a bad deletion, but a pruning task should start from the generated trace report, not
+from memory. *Start lowering `.ci/outline-max` in the same merge request that fixes a violation* closes a gap the
+outline ratchet left open: an engineer who fixes an outline violation and does not lower the allowance leaves room
+for someone else to add one back.
+
+The pulse rose to {{value: docs/tidewater/sprints/05/morale.json mean}}. The survey is anonymous in the meeting, but
+the evidence keeps each person's answers ([[directive]] lists the five questions), and the lowest are Bob's: on
+*I understand why we are working this way*, on *I can see our progress*, and on *I would choose to keep working this
+way*. On *the checks catch problems I would have missed* Bob answered higher -- in the week the ratchet caught Bob's
+mistake. A lead reading those answers should not try to argue the low ones up. They are a prompt for a
+conversation, one to one, about what would make the *why* and the progress visible to the person doing the work.
+
+=== What Jim told management {#sprint-5-management}
+
+The weekly status on Friday 11 December was the quad, as the kit printed it:
+
+{{include: docs/tidewater/sprints/05/quad-2026-12-11.txt | lines 1-24}}
+
+The covering note on top of a quad like this one needs only two sentences, for example: *Sprint 5 delivered
+everything it committed. The pipeline now refuses a change that breaks the requirement trace; it caught one this
+morning, before review.* It does not need to explain how the ratchet works. If management wants to know, they will
+ask, and the answer is a link ([[communicating]]).
+
+=== Tools adopted this sprint, and the pain each removed {#sprint-5-tools}
+
+|| Tool | The pain it removed | Where it is explained ||
+| The trace ratchet | a `satisfy` deleted by accident survived until the next manual matrix | [[pipeline]] |
+| The requirements recipe check | weak requirement text found at review, as red ink, months late | [[recipe]] |
+| `@Procured` metadata | "which parts come from which supplier?" needed a call to the prime | [[workbook]] |
+| A sandbox project for rehearsals | the first real release would also have been the first try | [[pipeline]] |
+Table: Sprint 5's tools
+
+=== You can now... {#sprint-5-can}
+
+::: note You can now...
+- Run the requirements recipe on DOORS text and decide which findings to send to the prime, and how.
+- Explain why the government does not edit the prime's requirement text, and what it does instead.
+- Read a trace ratchet verdict: tell the target branch's old gaps from the gaps a change adds.
+- Remove inherited clutter from the v2 model and file the discrepancy report that removes it upstream.
+- Run a planning-poker round where the second vote matters more than the first.
+:::
+
+=== Exercises {#sprint-5-exercises}
+
+::: exercise {#ex-s5-recipe} Grade a module
+In the Tidewater sandbox, run `req-recipe.pl` on `model/requirements/segment` alone. Pick the two lowest-scoring
+requirements and rewrite them to the recipe, as a reply to DR-6 would ([[recipe]] has the pattern). Check your
+rewrites with `req-recipe.pl --strict` on a text file.
+:::
+
+::: exercise {#ex-s5-ratchet} Break the trace on purpose
+Do practice lesson 11 (`perl agile.pl practice 11`) if you have not. Then, on a branch in the Tidewater sandbox's
+`work/bob` clone, delete one `satisfy` line, commit, and run `perl ci/job.pl trace` with both `CI_PIPELINE_SOURCE=merge_request_event` and
+`CI_MERGE_REQUEST_TARGET_BRANCH_NAME=develop` in the environment (with only the target branch set, the job treats the
+run as a branch pipeline and says "not a merge request: reported only"). Find the line that names the requirement
+you orphaned.
+:::
+
+::: exercise {#ex-s5-dr} Write a discrepancy report
+Choose one finding from `recipe-doors.txt` that DR-6 does not quote. Write a DR for it from the Discrepancy Report
+template ([[templates]]): what we found, why it matters to verification, what we ask the prime to do. Keep it under
+a hundred words.
+:::
+
+::: exercise {#ex-s5-retro} Read the record of a tabletop
+Read issue #108 in the sandbox (`gitlab.pl issue show 108`). Write the three bullets the team's new template asks
+for, as if you had run the tabletop: what you did, what surprised you, what you would change.
+:::
+
+=== Applying this to your project {#sprint-5-apply}
+
+- **Grade the requirements before you design to them.** Run a recipe-style check on the inherited text in your first
+  month, not before your first review. Send the findings to whoever owns the text.
+- **Make the trace a ratchet, not a gate.** If you inherit gaps you cannot close, a gate that fails on every gap
+  will be turned off within a week. A gate that fails only on *new* gaps will stay on for the life of the program.
+- **Delete inherited clutter in your model and upstream at the same time.** One without the other leaves you
+  fighting the same file at every delivery.
+- **Rehearse your first release where nobody can see it.** A sandbox project costs nothing and turns the first real
+  baseline into the second attempt.
+- **Record what a tabletop taught you.** A closed issue with no notes is a meeting nobody can learn from.

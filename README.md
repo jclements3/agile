@@ -9,6 +9,8 @@ derived from it.
 install, no CPAN, no network). Provisions for Teams (chat paste parsing, 1:1 read-backs) and
 classic Outlook (calendar via COM) are optional.
 
+**MBSE DevSecOps (SysML v1 or documents to SysML v2 in GitLab)?** Start with `START-MBSE.md`.
+
 **Start here:** the documentation is HTML, written for a Windows / Office desktop.
 
 - `docs/README.html` — commands and the daily workflow

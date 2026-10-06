@@ -1,0 +1,15 @@
+Meeting started
+[9:00 AM] Jim
+Morning. Y/T/B in chat, please.
+[9:01 AM] Jim
+Y: TW-5 CDRL delivery and check the sha256 of every
+T: TW-5 CDRL delivery and check the sha256 of every
+B: none
+[9:02 AM] Bob
+Y: TW-6 both converters with --report on drop 1; TW-6 TODO inventory by package
+T: TW-6 TODO inventory by package; TW-6 estimate the port backlog with the team
+B: none
+[9:03 AM] Tom
+Y: TW-3 project.conf with gitlab.pl setup; request; TW-3 a direct push to develop is refused
+T: TW-3 a direct push to develop is refused; TW-3 CODEOWNERS, the templates and .gitignore
+B: none

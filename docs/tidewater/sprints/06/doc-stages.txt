@@ -1,0 +1,20 @@
+Document review stages (doc:: labels), as the label changes were recorded
+
+#129 Doc: Twelve-week progress memo to program management
+  2026-12-14  doc::grey
+  2026-12-16  doc::blue
+  2026-12-17  doc::pink
+  2026-12-18  doc::red
+  2026-12-21  doc::gold
+  2026-12-22  doc::white
+  2026-12-24  doc::green
+
+#130 Doc: Data exchange table for the program review
+  2026-12-14  doc::grey
+  2026-12-16  doc::blue
+  2026-12-17  doc::pink
+  2026-12-18  doc::red
+  2026-12-21  doc::gold
+  2026-12-22  doc::white
+  2026-12-24  doc::green
+

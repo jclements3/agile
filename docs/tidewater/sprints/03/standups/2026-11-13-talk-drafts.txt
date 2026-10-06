@@ -1,0 +1,6 @@
+jim draft:  Y none T TW-55 write up the drift and the trace gaps, by Fri. B none
+jim posted: Y none T TW-55 write up the drift and the trace gaps, by Fri; pairing with Bob after lunch. B none
+bob draft:  Y none T none B none
+bob posted: Y none T the sprint 3 review: demo ready by 10 am. B none
+tom draft:  Y TW-50 Learn: the workbook second half;...: done (3 tasks). T none B none
+tom posted: Y TW-50 Learn: the workbook second half;: done (3 tasks). T the sprint 3 review: demo ready by 10 am. B none

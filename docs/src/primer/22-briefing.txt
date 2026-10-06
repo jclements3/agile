@@ -1,0 +1,196 @@
+== The briefing {#briefing}
+
+::: survival Before you start
+What you have: six sprints of evidence, the scorecard ([[scorecard]]), and twenty minutes on the program management
+review agenda on 24 December.
+
+What you need: a briefing that a program manager who has never opened GitLab can follow, that leads with conclusions,
+shows the real thing working, admits what did not work, and ends with an ask.
+:::
+
+The directive of September promised management a briefing "at the December PMR." For twelve weeks that line hung
+over the team. Bob's fear, said out loud in week one, was that the briefing would be judged on how polished the
+slides were, the way briefings always had been. Jim's answer was to build the briefing the same way the team now
+built everything else: from the evidence, rehearsed, reviewed, with as few slides as possible and one live
+demonstration. This chapter is that briefing, slide by slide, with the reasoning behind each choice.
+
+=== Preparing it {#briefing-prep}
+
+The preparation took one story in sprint 6 ("Retrospective, the management briefing and the plan for next
+semester," two points, Jim) and used the same rhythm as every sprint review since sprint 4 ([[talking]]):
+
+1. **Draft from the system.** `talk.pl review` drafts a demo script from GitLab and the journal: the question the
+   sprint answered, the four headline numbers with their change, what to show, a before-and-after, a safe live
+   change and a place for the ask.
+2. **Edit for the audience.** The draft is a starting point. Jim cut it to what the program manager asks about and
+   added the document-era comparison.
+3. **Rehearse on Day 9.** Bob and Tom played the program manager and the deputy and interrupted with the questions
+   they expected. The rehearsal caught the one mistake that would have hurt most (below).
+4. **Write the twin.** The briefing has a written twin, the twelve-week progress memo ([[memos]]), so the numbers
+   survive after the meeting.
+
+Here is the draft the system produced for sprint 6, run in the Tidewater sandbox:
+
+```sh run sandbox=tidewater expect="30-SECOND VERSION"
+perl "$KIT/tools/gitlab/talk.pl" --local gitlab --project tidewater/model review --sprint 6
+```
+
+::: warning The number that nearly went to management
+The draft's second section says verify coverage fell by more than sixty points. It did not. The draft took
+"coverage" from the new verification matrix, which counts requirements with a *passing recorded result*, while
+every earlier review had used the trace's count of requirements with a *verification case*. On the trace's
+definition coverage was unchanged at seventy percent. Tom spotted it in the rehearsal because the number looked too
+dramatic to be true. The final script ([[scorecard]] explains both measures) used the trace's number and said which
+definition it was. Read every drafted number before you say it.
+:::
+
+=== The briefing, as given {#briefing-text}
+
+Jim's outline, as filed with the sprint 6 evidence:
+
+{{include: docs/tidewater/sprints/06/briefing.txt}}
+
+Six points, one demonstration, one ask. The sections below take them in order.
+
+=== Slide 1: where we started {#briefing-1}
+
+**Headline: "We started with documents, then a Cameo model nobody could merge or review."**
+
+One slide, two numbers from the drop-1 assessment of [[cameo]]: the diagram count and the package cycles. Jim did
+not criticize the Cameo work; the people in the room had paid for it, and Bob and Tom had built it. Jim said what it
+could not do: two people could not change it at the same time and merge the result, a review meant screenshots in a
+briefing, and nobody could say which version of a diagram was current. The point of the slide is to name the
+problem the next five slides solve.
+
+=== Slide 2: what we built {#briefing-2}
+
+**Headline: "Every change to the model is now checked and reviewed before it is accepted."**
+
+A picture, not a list: the flow from a proposed change through the pipeline's checks and a code owner's review to
+the model site. Jim named four things and no tool names: a project where the model lives, a set of automatic checks,
+the model itself in SysML v2 text, and a web site that management can open on a phone. The vocabulary on the slide
+was systems engineering vocabulary ([[devsecops]]): "configuration control," "peer review," "audit," "baseline."
+
+=== Slide 3: the scorecard, sprint by sprint {#briefing-3}
+
+**Headline: "The measures you signed in October, computed by the system."**
+
+The table on the slide is the one in the outline above: TODO lines, lead time, gated changes and morale for each of
+the six sprints. Jim chose four columns because each one answers a question the program manager had asked during the
+twelve weeks:
+
+- *TODO lines*: "How much of the port is left?" From {{value: docs/tidewater/sprints/02/scorecard.json 1_todo_lines}}
+  after drop 1 to {{value: docs/tidewater/sprints/06/scorecard.json 1_todo_lines}}.
+- *Lead time*: "How long does a change take now?" A median of
+  {{value: docs/tidewater/sprints/06/scorecard.json 2_lead_time_hours}} hours in sprint 6.
+- *Gated*: "Is anything getting in unchecked?" Every change since sprint 2:
+  {{value: docs/tidewater/sprints/06/scorecard.json 3_gated_changes}} in sprint 6.
+- *Morale*: "Is the team going to quit?" The program manager had not asked this out loud. Jim put it on the slide
+  anyway, dip and all, because the dip in sprint 3 was the most believable number in the table.
+
+The full twelve-measure scorecard went in the handout, with the one measure that missed
+([[scorecard-spider]]) explained in a sentence: "We broke one of the two package cycles; the other is still there,
+and finding its last edge is in the January backlog."
+
+=== Slide 4: before and after {#briefing-4}
+
+**Headline: "A requirement change took weeks. A model change takes hours, reviewed and checked."**
+
+The comparison management had asked for, with its honesty built in. The document-era number,
+{{value: docs/tidewater/sprints/06/scorecard.json document_era_baseline_notional.ccb_change_working_days}} working
+days through the CCB, is labelled notional on the slide, and Jim said why: it is the program's memory of its last
+document-era cycle, not a measurement. Jim also said what the comparison does not prove: a CCB change crossed several
+organizations, a merge request crosses one team. The claim Jim made was narrower and true: the government team's part
+of a change is now measured in hours, and every one is reviewed and checked.
+
+=== Slide 5: the demonstration {#briefing-5}
+
+**Headline: "Watch the model catch a mistake."**
+
+The demonstration followed the review moves the team had practised since sprint 4: start from the question, show the
+output and not the tool, make one safe live change, and say what it means. The live change was the same one in every
+rehearsal: on a scratch branch, never on `develop`, delete one line that says a part satisfies a requirement, and let
+the trace check name the requirement that lost its design.
+
+Rehearse it yourself in the sandbox. First, a scratch copy of the integration branch and the deletion:
+
+```sh run expect="satisfy TW_SYS_003 by IngestService"
+git clone -q -b develop gitlab/repos/tidewater/model.git demo
+cd demo && git checkout -q -b scratch/demo-satisfy
+grep -n "satisfy TW_SYS_003" model/requirements/model/Requirements.sysml
+```
+
+Then remove the line, commit, and run the trace check the way a merge request pipeline runs it:
+
+```sh run cwd=demo expect="new: TW-SYS-003"
+sed -i '/satisfy TW_SYS_003/d' model/requirements/model/Requirements.sysml
+git commit -qam "demo: drop one satisfy"
+CI_PIPELINE_SOURCE=merge_request_event CI_MERGE_REQUEST_TARGET_BRANCH_NAME=develop perl ci/job.pl trace || echo "exit status $?"
+```
+
+The last line of the output is the whole demonstration: "this change adds trace gaps," naming the requirement. In
+the meeting Jim opened the draft merge request on the projector, the pipeline turned red in about two minutes, and
+clicked through to the line, then closed the merge request. The program manager's question was the one Jim had
+hoped for: "And that runs on every change?" It does.
+
+The model site came second: the part tree, the trace report and the data exchange table Tom had generated in sprint
+6, all from the same model, all current as of that morning's nightly pipeline.
+
+=== Slide 6: next semester, and the ask {#briefing-6}
+
+**Headline: "January: the prime's first new drop. We will show what it changes within a day."**
+
+The next milestones in one line each: the prime's drops of January and April, the behavior modeling the converter
+cannot carry, and the first full baseline in sprint {{n: 20}}. Then the ask, with dates, carried over from the request
+for enablers of October: approval of a second runner machine, and the GitLab tier decision, both by 15 January. An
+ask without a date is a hope; an ask with a date is a decision management can make in the room.
+
+=== What management asked, and how the numbers answered {#briefing-questions}
+
+The questions came in the order the team had predicted in the rehearsal, with one surprise.
+
+|| Question | Who asked | The answer, and its source ||
+| "How do I know nothing fell on the floor in the port?" | deputy PM | the converter's counts and the trace, every change; the sampled review is next semester ([[proving]]) |
+| "What happens when the prime sends the next version?" | program manager | a vendor branch, a change report, an impact report, and one issue per change for the CCB ([[prime-changes]]) |
+| "Is this approved to hold program data?" | ISSM | the runner and repository were reviewed in sprints 2 to 5; markings are decided before real content ([[security]]) |
+| "Can I see this without asking you?" | program manager | the model site, rebuilt nightly, and the weekly note ([[communicating]]) |
+Table: Questions at the December briefing.
+
+The surprise was the last comment, recorded in the sprint 6 quotes: the program manager's "Keep doing this. Show me
+the same numbers in March." Jim's reading of it, at the retrospective an hour later, was that the scorecard had
+become the program's, not the team's.
+
+=== What the briefing left out {#briefing-left-out}
+
+It left out the tools. Nobody on the slides said "GitLab," "pipeline," "YAML" or "merge request" without a plain
+translation beside it. It left out the per-person numbers, which read as a ranking. It left out DORA measures and
+value stream stages, which are for the team's own review ([[analytics]]). And it left out the parts of the story that
+belonged to the team: the night the runner's disk filled up was one line on the scorecard, not a slide.
+
+::: exercise Rewrite a slide headline
+Slide 2's first draft headline was "Our DevSecOps toolchain." Write three alternatives that state a conclusion, and
+pick the one a program manager would remember.
+:::
+
+::: exercise Rehearse the demo
+Run the two demo blocks above in the sandbox, then change the deletion to a `verify` line instead of a `satisfy`
+line. What does the trace check say now, and how would you say it in one sentence to the program manager?
+:::
+
+::: exercise Find your ask
+Write the ask for your own first management briefing: one decision, one date, and what happens if it is not made.
+:::
+
+=== You can now {#briefing-can-now}
+
+- build a management briefing from evidence, with a conclusion as every headline;
+- draft a review script with `talk.pl review`, then check every number it drafted before you say it;
+- run a safe live demonstration on a scratch branch that shows the checks catching a real mistake;
+- answer the predictable questions with a source for each answer, and close with a dated ask.
+
+=== Applying this to your project {#briefing-applying}
+
+Agree the date of the first management briefing before sprint 1, and work backwards: the scorecard it will show, the
+evidence each number comes from, the demonstration you will rehearse. Keep it to a handful of slides with conclusions
+as headlines, put the full scorecard in a handout, and rehearse with someone playing the skeptic. Show one thing
+working live. Say what did not work. End with an ask that has a date.

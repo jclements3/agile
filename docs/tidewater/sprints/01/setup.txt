@@ -1,0 +1,126 @@
+perl $KIT/bin/gitlab.pl --as tom setup tools/gitlab/templates/project.conf
+  created project tidewater/model
+  settings: default_branch=develop, merge_method=merge, only_allow_merge_if_all_discussions_are_resolved=true, only_allow_merge_if_pipeline_succeeds=false, remove_source_branch_after_merge=true, squash_option=never
+  member jim maintainer
+  member bob developer
+  member tom maintainer
+  variable KIT
+  variable DOCKER_RUNNER
+  label type::epic
+  label type::story
+  label type::task
+  label type::defect
+  label type::discrepancy
+  label type::drop
+  label type::spike
+  label tome::T1-stand-up
+  label tome::T2-port
+  label tome::T3-maintain
+  label epic::E1-gitlab
+  label epic::E2-pipeline
+  label epic::E3-practices
+  label epic::E4-toolchain-security
+  label epic::E5-drop-1
+  label epic::E6-structure
+  label epic::E7-requirements
+  label epic::E8-behavior
+  label epic::E9-drops-2-3
+  label epic::E10-baseline-1
+  label epic::E11-intake-automation
+  label epic::E12-drops-4-5
+  label epic::E13-drops-6-7
+  label epic::E14-sustainment
+  label workflow::ready
+  label workflow::in-progress
+  label workflow::review
+  label workflow::blocked
+  label workflow::done
+  label priority::1
+  label priority::2
+  label priority::3
+  label severity::1
+  label severity::2
+  label severity::3
+  label owner::gov
+  label owner::prime
+  label phase::port
+  label phase::maintenance
+  label phase::integration
+  label area::network
+  label area::stations
+  label area::datacenter
+  label area::operations
+  label area::interfaces
+  label area::interface
+  label area::types
+  label area::analysis
+  label area::behavior
+  label area::allocations
+  label area::requirements
+  label area::verification
+  label area::legacy
+  label area::pipeline
+  label area::gov
+  label doc::grey
+  label doc::blue
+  label doc::pink
+  label doc::red
+  label doc::gold
+  label doc::white
+  label doc::green
+  label prime-change
+  label prime-tbd
+  label disposition::accept
+  label disposition::accept-with-impact
+  label disposition::reject-clarify
+  label disposition::no-impact
+  label work::engineering
+  label work::platform
+  label work::learning
+  label ai::assisted
+  milestone Sprint 1
+  milestone Sprint 2
+  milestone Sprint 3
+  milestone Sprint 4
+  milestone Sprint 5
+  milestone Sprint 6
+  milestone Sprint 7
+  milestone Sprint 8
+  milestone Sprint 9
+  milestone Sprint 10
+  milestone Sprint 11
+  milestone Sprint 12
+  milestone Sprint 13
+  milestone Sprint 14
+  milestone Sprint 15
+  milestone Sprint 16
+  milestone Sprint 17
+  milestone Sprint 18
+  milestone Sprint 19
+  milestone Sprint 20
+  milestone Sprint 21
+  milestone Sprint 22
+  milestone Sprint 23
+  milestone Sprint 24
+  milestone Sprint 25
+  milestone Sprint 26
+  milestone Sprint 27
+  milestone Sprint 28
+  milestone Sprint 29
+  milestone Sprint 30
+  milestone Sprint 31
+  milestone Sprint 32
+  milestone Sprint 33
+  milestone Sprint 34
+  milestone Sprint 35
+  milestone Sprint 36
+  milestone Sprint 37
+  milestone Sprint 38
+  milestone Sprint 39
+  protected branch main (push:none merge:maintainer force:no codeowners:yes)
+  protected branch develop (push:none merge:developer force:no codeowners:yes)
+  protected branch release/* (push:maintainer merge:maintainer force:no)
+  protected branch hotfix/* (push:maintainer merge:maintainer force:no)
+  protected branch vendor/prime (push:maintainer merge:none force:no)
+  protected tag baseline-*
+  approval rule Model review (1)

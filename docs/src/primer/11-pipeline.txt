@@ -1,0 +1,873 @@
+== The pipeline, job by job {#pipeline}
+
+::: survival
+What you have: the idea of a pipeline ([[cicd]]): stages, jobs, rules, artifacts, reports, a runner.
+
+What you need: to be able to read, change and defend every line of the team's real pipeline file. This chapter
+takes `.gitlab-ci.yml` from the top, explains the few YAML rules you need, then goes job by job: what each job
+checks, the systems engineering question it answers, when it runs, what it keeps, what its output looks like on
+Tidewater's drop 1, and how it fails. The complete file is reproduced at the end.
+:::
+
+=== Reading YAML in ten minutes {#pipeline-yaml}
+
+The pipeline file is written in **YAML**, a text format for nested lists and named values. You need six rules.
+
+1. **Indentation is structure.** Two spaces deeper means "inside". Never use a tab in a YAML file; in Vim,
+   `:setlocal expandtab` makes the Tab key insert spaces.
+2. **`name: value` is a named value.** `stage: check` gives the job's `stage` the value `check`.
+3. **A line starting with `- ` is a list item.** Under `script:`, each `- ` line is one command.
+4. **A `#` starts a comment** (to the end of the line). The team's file is about half comments, on purpose.
+5. **Quote a value that contains `: ` (colon, space).** Otherwise YAML reads it as another `name: value`. The kit's
+   local runner refuses such lines with a message that says to quote them; GitLab refuses them too.
+6. **`&name` marks a block to reuse; `*name` reuses it; `<<: *name` copies its contents in.** The file uses this
+   once, for the rules every model job shares.
+
+That is all. There are no loops and no variables in YAML itself; anything that needs logic lives in a script the job
+runs.
+
+=== The shape of the file {#pipeline-shape}
+
+The file has two kinds of top-level entries: a few reserved names that configure the whole pipeline (`stages`,
+`variables`, `workflow`, `include`, `default`), and everything else, which is a job. A name that starts with a dot
+(`.check`) is a **hidden job**: a template other jobs copy, never run on its own.
+
+The team settled on one principle after a lesson described in [[runners]]: **the YAML says when and where; the
+script says what.** Every job's `script:` is a single line,
+
+```yaml
+  script:
+    - perl ci/job.pl lint
+```
+
+and the commands that job runs live in `ci/job.pl`, a short Perl script kept in the repository next to the pipeline
+file. The reason is portability: the Windows runner's default shell is PowerShell, where the shell commands in a
+typical pipeline (`if [ ... ]`, `$(find ...)`, `$KIT`) do not work, while `perl ci/job.pl lint` means the same thing
+in PowerShell, in Git Bash, on Linux and in a Docker container. A second benefit is that a person can run any job
+by hand with the same line, and see exactly what the pipeline sees.
+
+So when this chapter says "the job runs the linter", it means: the YAML entry for `lint` says when the job runs and
+what files it keeps; `ci/job.pl lint` runs the linter, writes the report files and decides pass or fail. The log of
+each job starts with the `perl ci/job.pl NAME` line and then shows the commands `job.pl` runs and their output, in
+the same transcript form as [[cicd]].
+
+=== The header: stages, variables, workflow {#pipeline-header}
+
+```yaml
+stages:
+  - check
+  - trace
+  - docs
+  - delta
+  - release
+  - publish
+  - report
+
+variables:
+  GIT_DEPTH: "0"
+```
+
+The seven stages run in that order. `check` is the gate; `trace` reports requirement gaps; `docs` checks that the
+generated documents are current; `delta` runs only when a prime drop arrives; `release` only on baseline tags;
+`publish` only on the default branch; `report` only on the weekly schedule.
+
+`GIT_DEPTH: "0"` asks the runner for the full history of the repository. By default GitLab fetches only the most
+recent commits to save time. The team's jobs read history: `trace` and `delta` compare imported drops, the burn-down
+counts TODO lines across merges, the baseline check reads the tag message. A shallow copy would make them wrong
+in confusing ways.
+
+```yaml
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+```
+
+`workflow: rules:` decides whether a pipeline starts at all. GitLab reads the rules top to bottom and stops at the
+first that matches:
+
+1. a merge request event: yes, run (the gate);
+2. a push to a branch that already has an open merge request: no (the merge request pipeline covers it; without this
+   rule every push would produce two pipelines);
+3. any other push to a branch (`develop`, `main`, `vendor/prime`, a draft branch with no MR yet): yes;
+4. a tag: yes;
+5. a schedule: yes.
+
+The `$CI_...` names are **predefined variables** GitLab sets for every pipeline: `CI_PIPELINE_SOURCE` says what
+started it, `CI_COMMIT_BRANCH` is the branch (empty for tags and merge requests), `CI_COMMIT_TAG` the tag,
+`CI_OPEN_MERGE_REQUESTS` lists open merge requests for the branch. A bare `$NAME` in a rule is true when the variable
+is set and not empty.
+
+=== The conditional include and the defaults {#pipeline-include}
+
+```yaml
+include:
+  - template: Security/Secret-Detection.gitlab-ci.yml
+    rules:
+      - if: '$DOCKER_RUNNER == "true"'
+```
+
+`include:` pulls in YAML from elsewhere, here one of GitLab's built-in templates: its secret scanner. The scanner
+runs in a Docker container, so it can only work on a runner that has Docker. The team's runner does not
+([[runners]] explains why), and a job waiting for a runner that never comes stays "pending" forever, which with
+"pipelines must succeed" would block every merge request. So the include is conditional on a project variable,
+`DOCKER_RUNNER`, set to `false` in `project.conf`. The pipeline's own `secrets` job (below) is the always-on check.
+The kit's local runner lists the include as "runs on GitLab only".
+
+```yaml
+default:
+  tags:
+    - windows
+    - mbse
+```
+
+`default:` sets things every job inherits. The team's default is the runner tags: every job asks for a runner tagged
+`windows` and `mbse`, which is the team's Windows shell runner ([[runners]]). On a Docker runner these tags change,
+and nothing else does. The check that `KIT` is set and points at the kit lives in `ci/job.pl`, so a misconfigured
+runner fails with a sentence that says what to fix rather than with a "file not found" deep in a job.
+
+```yaml
+.model_rules: &model_rules
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $FULL != "1"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "trigger"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "vendor/prime"'
+      when: never
+    - when: on_success
+
+.check:
+  stage: check
+  <<: *model_rules
+```
+
+`.model_rules` is the rule shared by every job that checks the model, read top to bottom:
+
+1. never on a schedule unless that schedule sets the variable `FULL` to `1` (the nightly schedule does, and runs every
+   check; the weekly status schedule does not, so it only exports reports);
+2. never in a pipeline the prime's delivery system starts (a *trigger*, [[prime-changes]]): that pipeline only takes
+   in the files;
+3. never on `vendor/prime`, the branch that holds each drop exactly as delivered and converted. The checks run where
+   the drop is *merged*, on its merge request into `develop`; on the raw branch they would stay red for structure
+   only the prime can change;
+4. otherwise, always.
+
+`&model_rules` names the block; `<<: *model_rules` copies it into `.check`, the hidden job the six check-stage jobs
+`extend`. Writing the rule once means changing it once.
+
+All the job commands in this chapter can be typed in the sandbox of practice lesson 11, which holds the drop 1 import
+in the team's layout (`perl $KIT/agile.pl practice 11` builds it):
+
+```sh run sandbox=practice-11 cwd=work expect="KIT"
+. ../env.sh > /dev/null
+echo "KIT is $KIT"
+```
+
+=== Stage check: the gate {#pipeline-check}
+
+The six `check` jobs are the configuration audit. Each must pass (except where noted) for a merge request to merge.
+
+==== grammar: is every file valid SysML v2?
+
+```yaml
+grammar:
+  extends: .check
+  script:
+    - perl ci/job.pl grammar
+  artifacts:
+    when: always
+    paths: [grammar.txt]
+    reports:
+      junit: grammar.xml
+      codequality: grammar-cq.json
+```
+
+**The question it answers**: is every `.sysml` file in `model/` a valid sentence in the SysML v2 language? The
+document-era equivalent is the editor's first read: is the thing even well-formed?
+
+**What it runs**: the kit's grammar checker over every model file, which is built from the official SysML v2 grammar
+([[sysmlv2]]), then `ci-reports.pl grammar` to write one JUnit test case per file and a Code Quality finding per error.
+
+```sh run expect="sysml: 17 file\(s\), 0 error\(s\)"
+perl ci/job.pl grammar
+```
+
+**On drop 1**: `sysml: 17 file(s), 0 error(s)`, in about two seconds. The converter's output is always grammatical;
+this job earns its keep on hand edits, where a missing semicolon is the classic mistake ([[cicd]] shows the
+"one line up" error).
+
+**`artifacts: when: always`** keeps the reports even when the job fails, which is exactly when you need them.
+
+==== lint: does every name resolve?
+
+```yaml
+lint:
+  extends: .check
+  script:
+    - perl ci/job.pl lint
+  artifacts:
+    when: always
+    paths: [lint.txt]
+    reports:
+      junit: lint.xml
+      codequality: lint-cq.json
+      metrics: lint.metrics
+```
+
+**The question it answers**: is the model internally consistent? Does every part's type exist, does every import
+point at a real package, is anything declared twice? The document-era equivalent is the cross-reference check: does
+every "see section 3.2.1" point at a section that exists?
+
+**What it runs**: `model.pl lint`, which ends with one summary line, then the report writer, then the gate: the last
+line must end `errors=0 warnings=0`. The team called it "zero over zero to merge", and it is the single most important
+rule in the file.
+
+**On drop 1**:
+
+```sh run expect="elements=148 errors=0 warnings=0"
+perl ci/job.pl lint
+```
+
+```text
+lint: 17 file(s), 0 error(s), 0 warning(s)
+elements=148 errors=0 warnings=0
+```
+
+`elements=148` counts the model elements the linter understood. [[cicd]] shows the failing case (`unresolved type
+'Hul'`), and [[tools]] shows the JUnit and Code Quality files it produced.
+
+==== outline: is the model's structure readable?
+
+**The question it answers**: does every level of the part tree have between 2 and 9 children, and does every part
+definition carry the level tag (`@L1Network` down to `@L6Component`) that says where it sits? This is the kit's
+version of a rule every systems engineer knows from specification trees: fewer than two children is not a breakdown,
+more than nine is not readable, and every item knows its level.
+
+**What it runs**: `model.pl check`, which reports level-tag mismatches and outline violations. On the drop 1 import,
+in the team's layered layout ([[repo-layout]]):
+
+```sh run expect="violations +[0-9]+"
+perl $KIT/tools/sysml/model.pl check | head -14
+```
+
+```text
+== Level tags ==
+@L tag mismatches         0
+
+== Outline (2..9 children per parent) ==
+violations                20
+    1  directory entries  (model/analysis/)
+    1  package Analysis: members  (model/analysis/Analysis.sysml)
+    1  directory entries  (model/legacy/)
+    1  part def Battery_old: parts  (model/legacy/Legacy_Import.sysml)
+    1  directory entries  (model/library/conventions/)
+    1  directory entries  (model/logical/)
+    1  directory entries  (model/physical/allocation/)
+   25  package Stations: members  (model/physical/stations/Stations.sysml)
+    1  part def Battery: parts  (model/physical/stations/Stations.sysml)
+   32  package Requirements: members  (model/requirements/model/Requirements.sysml)
+```
+
+(an excerpt; there are 20 lines). Each line is a count and the place it was counted: the Stations package has 25
+members, the requirements copy 32, `Battery` one part, and many layer folders hold a single file.
+
+Two kinds of violation are mixed here. The folder lines are an artifact of the layout: a layer with one file in it
+today (`model/logical/` holds only Behavior) will fill as the model grows, or the team can decide one file is right
+for it. The package lines are about the model itself: the 25-member Stations package, the one-part `Battery`, the
+duplicate in the legacy package. The first kind is cheap to accept; the second is the prime's structure, which the
+government should not silently rearrange.
+
+The level tags show zero mismatches only because there are no level tags yet: the converter turned every v1
+stereotype into a TODO line. They appear as the team closes those TODOs ([[sprint-3]], [[sprint-4]]).
+
+==== The ratchet: why outline does not fail on day one
+
+Twenty violations on the first day posed a real dilemma, and the team's resolution is one of the most
+transferable ideas in this book.
+
+Option one: make the job fail on any violation. Then every merge request fails until all 20 are fixed, including the
+ones only the prime can fix (a 25-member package is the prime's structure; the government's copy should not silently
+diverge from it). Nobody could merge anything. The gate would be switched off within a week.
+
+Option two: make the job allowed to fail. Then it is yellow forever, everybody learns to ignore it, and new
+violations creep in unnoticed.
+
+Option three, which the team chose: a **ratchet**. A file in the repository, `.ci/outline-max`, holds the number of
+violations currently allowed: 20 on the day drop 1 was imported into the lesson's copy (the team's own count,
+with its own conventions file, is in [[sprint-2]]). The job fails if a change *raises* the count above
+that number, and tells the author to *lower* the number if the change fixed some. The number can only go down, one
+reviewed merge request at a time, until it reaches zero and the rule is absolute.
+
+```sh run expect="outline violations: [0-9]+ \(allowed: [0-9]+\)"
+cat .ci/outline-max
+perl ci/job.pl outline | tail -1
+```
+
+```text
+20
+outline violations: 20 (allowed: 20)
+```
+
+A ratchet turns an inherited problem into a measured, shrinking one without blocking the work, and it works for any
+rule you cannot satisfy on day one: unverified requirements, missing documentation, lint warnings in legacy content.
+The violations that only the prime can fix become discrepancy reports ([[sprint-4]]); the ones the government can fix
+become tasks.
+
+::: tip Lowering the ratchet is part of the change
+When your merge request fixes outline violations, the job says `fewer violations than allowed: lower .ci/outline-max
+to N in this MR`. Do it in the same merge request. The reviewer checks that the number went down; Tom's rule was
+that nobody ever raises it without a written reason in the merge request and Jim's approval.
+:::
+
+==== todo: the port burn-down
+
+**The question it answers**: how much conversion debt is left? Every `// TODO` line the converter wrote is a v1
+construct it could not carry into SysML v2 ([[sysmlv2]]), and closing them is the port.
+
+**What it runs**: a search for `// TODO` in `model/`, a count, and the report writer, which emits each TODO line as an
+informational Code Quality finding (so merge requests show the TODOs they closed as "fixed") and a metrics file. It
+never fails: the burn-down is information, not a gate.
+
+**On drop 1**:
+
+```sh run expect="TODO lines remaining: 52"
+perl ci/job.pl todo
+```
+
+```text
+TODO lines remaining: 52
+ci-reports todo: 1 check(s), 0 failed, 52 finding(s); todo_lines=52 todo_lines_analysis=2 todo_lines_library=4 todo_lines_logical=4 todo_lines_physical=42
+```
+
+Fifty-two lines, forty-two of them in the physical layer and twenty-nine of those in Stations
+(`grep -c "// TODO" model/physical/stations/Stations.sysml`). That number is the first row of the scorecard
+([[directive]]) and the spine of the sprint plans in Part III.
+
+==== secrets: no credentials in the repository
+
+**The question it answers**: did this change commit a token, a cloud key or a private key?
+
+**What it runs**: a search of every tracked file for three patterns: GitLab personal tokens (`glpat-` followed by
+twenty characters), cloud access keys, and the header line of a private key file. If it finds one, it fails with the
+instruction "remove it, rotate it, then rewrite the branch before it merges". The order matters: a committed secret
+must be revoked first, because it is already in the history of the branch and in every clone of it.
+
+The pattern list is short on purpose. It catches the common accidents with almost no false alarms. GitLab's own
+scanner, when a Docker runner is available, catches many more.
+
+```sh run expect="no secrets found"
+perl ci/job.pl secrets
+```
+
+==== complexity: is the spider web growing back?
+
+**The question it answers**: are the packages getting more tangled? The v1 model became a spider web one unreviewed
+link at a time ([[cameo]]); this job measures the web on every change so it cannot grow back unnoticed
+([[no-spider-web]]).
+
+**What it runs**: for every package, its **fan-in** (how many other packages depend on it) and **fan-out** (how many it
+depends on), the package dependency **cycles**, any dependency that goes up the layer order set in `sysml.conf`, and
+the number of relationship ends on each part definition. On a merge request it is a ratchet like `outline`: it fails
+only when the change makes a measure worse than on the target branch; elsewhere it reports.
+
+```sh run expect="cycles: DataCenter <-> Stations; Network <-> Operations"
+perl ci/job.pl complexity | grep -A8 "^cycles:"
+```
+
+```text
+cycles: DataCenter <-> Stations; Network <-> Operations
+upward-layer dependencies: none
+
+relationship ends per part def (top 5):
+  ObservingStation           19
+  ObservationNetwork         8
+  BulletinPublisher          6
+  IngestService              5
+```
+
+The cycles are the spider web's, inherited from the prime's model; `ObservingStation`, with its trace spaghetti,
+tops the relationship list. (This sandbox shows two tangled pairs; on the real project the job counted
+{{value: docs/tidewater/sprints/03/scorecard.json 7_spider_web.cycles}} tangled groups after the sprint 3 DOORS import.)
+Breaking the cycles is engineering work, not pipeline work: the team broke the Network and Operations loop in sprint 4
+([[sprint-4]]), and the Stations and DataCenter loop was still open at the end of sprint 6
+({{value: docs/tidewater/sprints/06/scorecard.json 7_spider_web.cycles}} group left).
+
+=== Stage trace: DOORS against the model {#pipeline-trace}
+
+```yaml
+trace:
+  stage: trace
+  <<: *model_rules
+  script:
+    - perl ci/job.pl trace
+  artifacts:
+    when: always
+    paths: [trace.txt]
+    reports:
+      junit: trace.xml
+      metrics: trace.metrics
+```
+
+**The question it answers**: for the requirements in the newest imported DOORS export, which are linked to the model
+(metric C), which have nothing satisfying them (orphans, F), which have nothing verifying them (G), what share is
+complete (I), and which have different text in DOORS and in the model (drift)? In the document era this was two days
+of spreadsheet work before each review ([[documents]]). Here it takes a fraction of a second, on every change.
+
+**What it runs**: `reqif2sysml.pl --report --model` against the latest `imports/*/tidewater.reqif`, then the report
+writer (one JUnit case per gap, so the merge request's test widget lists them). The model side of the comparison
+leaves out the requirement packages the job's own DOORS import generated (they carry a header saying so); otherwise
+DOORS would be compared with a copy of itself.
+
+**On drop 1**, against the converted model (before the DOORS modules themselves were imported, see the warning below):
+
+```text
+C requirements linked (doorsId in the model)     29 of 30
+F orphan requirements (nothing satisfies)               2
+G unverified requirements (no verify)                   9
+I trace completeness (satisfied and verified)        66.7%
+doorsIds in the model but not in this export            1
+text differs from DOORS                                 1
+not in the model: TW-SYS-016
+orphans: TW-SYS-012 TW-SYS-016
+unverified: TW-STK-001 TW-STK-002 TW-STK-003 TW-STK-004 TW-STK-005 TW-STK-006 TW-SYS-011 TW-SYS-016 TW-SEG-002
+drift: TW-SYS-006
+  TW-SYS-006 DOORS: The data center shall publish a marine bulletin twice a day, on a fixed schedule.
+  TW-SYS-006 model: The data center shall publish a marine bulletin on a fixed schedule.
+```
+
+The command took 0.17 seconds. Bob's reaction to the drift line is in [[sprint-1]].
+
+```sh run expect="trace gaps: 2 orphan\(s\), 9 unverified, 1 drifted"
+perl ci/job.pl trace | tail -2
+```
+
+==== Gate or warning? The trace ratchet
+
+Gaps like these posed the same dilemma as the outline violations, with a twist: most of them are the *prime's* to
+fix. TW-SYS-012 has nothing satisfying it because the prime's v1 model has no satisfy relationship for it; the
+government's copy should not invent one. Blocking the government's merge requests on the prime's gaps would punish
+the wrong people.
+
+The first version of the job was therefore `allow_failure: true`: it failed when there were gaps, showed yellow, and
+blocked nothing. The team soon noticed the cost of a permanent yellow light: nobody looks at it, so a
+merge request that *removed* a satisfy relationship by mistake would also show yellow, exactly as before, and pass.
+
+The job became a **ratchet**, like `outline`. On a merge request it traces the model twice: once as the change leaves
+it, once as it was where the branch left the target branch (the merge base). It fails only if the change *adds* a
+gap: an orphan, an unverified requirement or a drifted text that was not there before. On `develop` and on schedules it
+reports and passes. The end of its log on the practice repository:
+
+```text
+trace gaps: 2 orphan(s), 9 unverified, 1 drifted
+not a merge request: reported only
+```
+
+and, on a merge request that changes nothing in the trace, by `no new trace gaps`, and on one that makes things worse by `this change adds trace gaps: ...` naming the measure
+and its before and after. The prime's gaps stay visible in the widget, with a discrepancy report each ([[sprint-4]]);
+the government's own mistakes cannot get in.
+
+::: tip Two kinds of ratchet
+The outline ratchet keeps the allowed number in a file someone lowers by hand. The trace ratchet compares with the
+target branch automatically, so it needs no file. Use the first when the number should only ever go down by a
+deliberate decision; use the second when "no worse than before" is the whole rule.
+:::
+
+==== vcrm: the verification cross-reference matrix
+
+The second job in the stage builds the **VCRM**, the verification cross-reference matrix every systems engineer has
+maintained in a spreadsheet: for each requirement, its verification method, the verification cases that verify it,
+and their latest results. The model supplies the first three (the `verify` relationships, [[sysmlv2]]); results come
+from files under `verification/` in a fixed format (requirement, case, verdict, commit, environment, timestamp, signed
+by), filled by the prime's test results in later drops and by people for analysis and inspection verdicts.
+
+On drop 1 there are no results yet, and the job says so:
+
+```sh run expect="VCRM: 30 requirements"
+perl ci/job.pl vcrm
+```
+
+```text
+VCRM: 30 requirements, 0 verified, 0 failed, 21 not run, 9 without a case (vcrm.html, vcrm.csv)
+```
+
+It writes the matrix as a web page and a CSV for Excel, never fails (missing cases are the trace ratchet's job), and
+its page joins the model site. In the document era the VCRM was a spreadsheet edited by hand before each review; here
+it is regenerated on every change, from the model, and nobody edits it.
+
+
+==== recipe: are the requirement statements well written?
+
+The third job in the stage grades every requirement statement against the requirement recipe ([[recipe]]): a
+classification, a subject, one operative verb, a verifiable target verb, a threshold, an ID. It never fails: the
+DOORS text is the prime's, so its findings become a discrepancy report, not a blocked merge request. They show in the
+merge request's Code Quality widget, and the summary line feeds the scorecard.
+
+```sh run expect="requirements=30 findings=[0-9]+ missing=0"
+perl ci/job.pl recipe | tail -1
+```
+
+::: warning Watch what you compare
+The trace compares DOORS with *the model*. When the team imported the DOORS modules themselves into the repository
+as SysML ([[sprint-3]]), the first trace run over all of `model/` found every DOORS id in the DOORS-generated
+packages and reported `C 30 of 30` and `text differs from DOORS 0`: DOORS agreeing with itself. The job now leaves
+those packages out, by the header the import writes into them. The lesson stands for any measure: if your trace
+suddenly looks perfect, check what it is comparing before you brief it.
+:::
+
+=== Stage docs: generated documents are current {#pipeline-docs}
+
+**The question it answers**: are the documents generated from the model (the part tree, the function tree, the IDEF0
+plates, the traceability report, all under `docs/`) the ones this version of the model produces?
+
+**What it runs**: `model.pl docs`, then a check that git sees no difference in `docs/`. If the author changed the model
+and forgot to regenerate the documents, they differ, and the job fails with `docs/ is stale: run model.pl docs and
+commit`. The fix is two commands and a commit.
+
+Why commit generated files at all? Because the baseline check below hashes them, and because a reviewer reading a
+merge request sees the effect of the model change on the documents (a part moved in the tree, a requirement newly
+traced) in the same diff. Committed, generated, checked: never edited by hand.
+
+=== Stage delta: what the prime changed {#pipeline-delta}
+
+```yaml
+delta:
+  stage: delta
+  rules:
+    - if: '$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^feature\/drop-/'
+    - if: '$CI_COMMIT_BRANCH == "vendor/prime"'
+  script:
+    - perl ci/job.pl delta
+  artifacts:
+    paths: [delta.txt]
+```
+
+**The question it answers**: between the two newest prime drops, which v1 elements were added, removed or changed,
+and which of those changes can the converter carry into v2 automatically, and which must be reworked by hand?
+
+**When it runs**: on the `vendor/prime` branch (where each drop's converted output is committed) and on the merge
+request that brings a drop into `develop` (branches named `feature/drop-...`). The `=~ /^feature\/drop-/` is a
+pattern match: "the branch name starts with `feature/drop-`".
+
+**What it runs**: `xmi2sysml.pl --delta OLD NEW` on the two newest `imports/*/tidewater.xmi`, with the project's layout
+map so the paths are the repository's. On drop 1 alone it says "first drop: nothing to compare". With drop 2
+(delivered 8 January 2027, [[maintenance]]) it printed what you get by generating drop 2 yourself and comparing:
+
+```sh run expect="7 added, 0 removed, 1 changed"
+perl $KIT/sim/tidewater-v1.pl --drop 2 ../drops/v1.1 > /dev/null
+perl $KIT/bin/xmi2sysml.pl --layout-map $KIT/examples/tidewater-v1/layout.map \
+     --delta ../drops/v1.0/tidewater.xmi ../drops/v1.1/tidewater.xmi | head -24
+```
+
+```text
+xmi delta: tidewater.xmi (v1.0) -> tidewater.xmi (v1.1)
+elements 560 -> 567: 7 added, 0 removed, 1 changed
+carried by the converter (re-convert the drop and merge it): 8
+manual (the converter does not carry these; rework the v2 text by hand): 0
+
+added:
+  + uml:Property           Stations::SensorSuite::hygrometer
+      carried: physical/stations/Stations.sysml
+  + uml:Class              Stations::Hygrometer
+      carried: physical/stations/Stations.sysml
+  + uml:Class              Requirements::System Requirements::Functions::Humidity
+      carried: requirements/model/Requirements.sysml
+  + uml:Abstraction        Verification::(Verify TestStationObservations -> Humidity)
+      carried: verification/Verification.sysml
+
+changed:
+  ~ uml:Class              Requirements::System Requirements::Functions::Bulletin -- stereotype functionalRequirement: Text changed
+      carried: requirements/model/Requirements.sysml
+```
+
+(an excerpt). Everything in drop 2 is carried; the "changed" line is the prime fixing the drift the team reported.
+Later drops have manual items (a new state in a state machine, which the converter does not carry), and those become
+tasks. This job is the reason the team rehearsed drop intake in sprint 6, before drop 2 arrived.
+
+==== drop-package: keeping the delivery
+
+On `vendor/prime` only, this job uploads each file of the newest drop to the project's generic package registry
+under `prime-drop/<version>/`, authenticated by the job's own token (`CI_JOB_TOKEN`, valid only while the job runs).
+On a laptop there is no registry, and the job says so and passes:
+
+```sh run expect="no package registry here"
+perl ci/job.pl drop-package
+```
+
+==== intake: a delivery from the prime's build system
+
+The one job a *trigger* pipeline runs. When the prime's own build system (a Jenkins server, [[prime-changes]])
+uploads a drop to the package registry and starts a pipeline with the variable `DROP_VERSION`, this job fetches the
+files, checks every checksum against the drop's manifest, keeps the drop as received (it never expires) and opens the
+Prime Drop issue that starts the vendor import. Tidewater used it from drop 4; until then drops arrived by file
+transfer and Tom ran the import by hand.
+
+=== Stage release: the baseline audit {#pipeline-release}
+
+==== baseline: does the tagged model rebuild its documents?
+
+**The question it answers**: is this baseline what it claims to be? This is the physical configuration audit,
+automated.
+
+**When it runs**: only when a tag starting `baseline-` is created.
+
+**What it runs**: regenerate `docs/` from the tagged model and check nothing changed; compute a SHA-256 checksum over
+the list of every file under `docs/` with its content hash; and compare it with the `sha256=` line written into the
+tag's message when the tag was created. If the documents do not rebuild, or the checksum differs, the job fails and
+the release is never published.
+
+The job also writes `toolchain.txt`, an inventory of what produced the baseline, and keeps it, with the baseline's
+VCRM, as an artifact that never expires (`expire_in: never`): formal evidence for the life of the program.
+
+A rehearsal tag, in the lesson's sandbox (the tag stays local; delete it after):
+
+```sh run expect="pipeline: success \(13 jobs\)" timeout=240
+H=$(git ls-tree -r HEAD -- docs | sha256sum | cut -d' ' -f1)
+git tag -a baseline-0 -m "Interim baseline 0
+sha256=$H"
+perl $KIT/bin/gitlab.pl ci --event tag --tag baseline-0 --var KIT=$KIT --var CI_DEFAULT_BRANCH=develop --logs ../tag-logs
+grep "rebuilds identically" ../tag-logs/baseline.log
+head -8 toolchain.txt
+```
+
+The `baseline` job's last line, and the start of the inventory:
+
+```text
+baseline-0 rebuilds identically (sha256=1de3d676b74905a085651b79e158b084dbb622ca4c18c97794eba5a0a819dbcd)
+baseline: baseline-0
+commit: 130765dec690b480bf2dc6b9b157729137a03608
+kit: 0e059c7
+perl 5.34.0
+git version 2.34.1
+os: linux
+runner: unknown
+image: none (shell runner)
+```
+
+(`kit:` names the kit version that ran the checks; on the runner it is a released kit version, which is exactly what
+the inventory is there to prove. The checksum and commit differ on your machine.)
+
+==== publish-package: the baseline as a package
+
+Also on `baseline-*` tags, this job files the baseline itself in the package registry for downstream users (other
+programs, the test range, the prime): `tidewater-model/<tag>/` holding the model and its generated docs as one
+archive, the VCRM, the toolchain inventory and a `SHA256SUMS` list. On a laptop it leaves the files in a folder
+instead:
+
+```text
+tidewater-model baseline-0: tidewater-model-baseline-0.tar.gz vcrm.csv toolchain.txt SHA256SUMS
+no package registry here: the files are in package-upload/tidewater-model/baseline-0 (a local run)
+```
+
+You never type the tag command by hand on the real project: `gitlab.pl flow released` creates the tag with the
+checksum after the release merge request merges ([[sprint-6]], [[maintenance]]).
+
+==== publish-release: the release page
+
+Once `baseline` passes, this job copies the baseline's section from `CHANGELOG.md` into release notes, adds the
+verification summary, and GitLab's `release:` keyword creates the release page for the tag with those notes, links to
+the package files as the release's assets, and the sprint milestones it closes. The rehearsal had no CHANGELOG
+section for `baseline-0`, and the notes said so honestly:
+
+```sh run expect="No CHANGELOG section for baseline-0"
+cat release-notes.md
+git tag -d baseline-0
+```
+
+`needs: [baseline]` makes the release wait for the audit; if the audit fails, there is no release.
+
+=== Stage publish: the model site {#pipeline-pages}
+
+```yaml
+pages:
+  stage: publish
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $FULL != "1"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "trigger"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  environment:
+    name: model-site
+    url: $CI_PAGES_URL
+  script:
+    - perl ci/job.pl pages
+  artifacts:
+    paths: [public]
+```
+
+**The question it answers**: what does the model look like today, for someone who will never open the repository?
+
+**When it runs**: on every push to the default branch (`develop`), which in practice means after every merge, and on
+the nightly schedule; never on the weekly export or a delivery trigger.
+
+**What it runs**: copies the generated documents into `public/docs/`, draws the four views (part tree, trace,
+interconnection and packages) into `public/views/`, copies the IDEF0 plates into `public/idef0/`, writes the trace
+report, the VCRM, the complexity trend and a TODO burn-down table (one row per merge, computed from the history), and
+writes an index page. GitLab publishes the `public/` folder because the job is named `pages`; that name is the whole
+configuration. The `environment:` lines record each publication as a deployment of `model-site`.
+
+```sh run expect="wrote public/index.html" timeout=180
+perl ci/job.pl pages | tail -1
+ls public public/views
+```
+
+The package view deserves a note. The kit's package drawer normally checks a security marking on every package
+([[security]]); the converted Tidewater model has none yet, so the drawer draws packages, dependencies and cycles
+only, and says it did not check markings. Its count of cycles (four on drop 1 in the layered layout, six in the converter's flat
+layout) is higher than the `complexity` job's, because the drawer counts each arrow that closes a loop, in the order
+it visits the folders, while the job counts groups of packages tangled together. Both are the spider web, seen at two
+levels of detail ([[diagrams-read]]).
+
+=== Stage report: the weekly export {#pipeline-status}
+
+```yaml
+status:
+  stage: report
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $FULL != "1"'
+  script:
+    - perl ci/job.pl status
+  artifacts:
+    paths: [exports/]
+```
+
+**The question it answers**: what does GitLab know this week, in a form the status metrics can read?
+
+**When it runs**: only from the weekly pipeline schedule (the one without `FULL=1`): every Friday at 06:00 Eastern,
+cron expression `0 6 * * 5`, on `develop`, set in `project.conf` under `[schedules]` ([[gitlab-setup]]). A schedule runs the pipeline as the person who owns the schedule, with that person's
+permissions; if the owner leaves the project, the schedule stops ([[admin]] has the hand-over step).
+
+**What it runs**: `gitlab.pl export`, authenticated with `STATUS_TOKEN`, a read-only project access token stored as a
+masked, protected CI/CD variable, which writes `ci_jobs.csv`, `mrs.csv`, `issues.csv`, `defects.csv` and one tracker
+file per sprint into `exports/`. If the repository holds a `metrics.json`, it also runs the status metrics collector.
+On the lesson's emulator the same export, by hand:
+
+```sh run expect="ci_jobs [0-9]+, defects [0-9]+, issues [0-9]+, mrs [0-9]+"
+. ../env.sh > /dev/null           # gl is a shell function: each new shell (or test block) needs it again
+gl export ../exp
+head -3 ../exp/ci_jobs.csv
+```
+
+```text
+ci_jobs 54, defects 0, issues 2, mrs 1, tracker 1 -> ../exp
+ts,job,branch,result,minutes
+2026-10-06T15:46:53Z,grammar,main,pass,0.02
+2026-10-06T15:46:54Z,lint,main,pass,0.01
+```
+
+(the counts and times depend on how far you went in the lesson). [[communicating]] shows how the weekly export turns into the Friday status.
+
+The second schedule, **nightly** (`0 2 * * 1-5`, weekdays at 02:00, on `develop`), runs the ordinary push pipeline,
+so a problem caused by something outside the repository (a kit update on the runner, an expired certificate) shows
+up in the morning.
+
+=== The whole run, and what it costs {#pipeline-run}
+
+The merge request pipeline on the drop 1 import, run with the kit's local runner on a laptop:
+
+```sh run expect="pipeline: success \(10 jobs\)" timeout=240
+perl $KIT/bin/gitlab.pl ci --event merge_request_event --target develop --var KIT=$KIT --logs ../mr-logs
+```
+
+```text
+grammar                  check      success             2.8s
+lint                     check      success             2.3s
+outline                  check      success             0.4s
+todo                     check      success             0.1s
+secrets                  check      success             0.1s
+complexity               check      success             0.1s
+trace                    trace      success             0.6s
+vcrm                     trace      success             0.1s
+recipe                   trace      success             0.4s
+docs                     docs       success             0.8s
+pipeline: success (10 jobs)
+```
+
+About eight seconds of checks. On the GitLab server, each job also pays the runner's start-up cost (fetching
+the repository, preparing the shell), typically a few seconds to half a minute per job depending on the runner, so a
+merge request pipeline takes a minute or two from push to result. In the document era the same audit was a review
+meeting.
+
+|| Event | Jobs that run | Purpose ||
+| Merge request | grammar, lint, outline, todo, secrets, complexity, trace, vcrm, recipe, docs | the gate |
+| Push to develop (after a merge) | the same ten, plus pages | integration check and the model site |
+| Push to vendor/prime | delta and drop-package only | drop intake: the raw drop is filed, not judged |
+| Merge request from feature/drop-... | the ten, plus delta | reviewing a drop's merge |
+| Tag baseline-* | the ten, plus baseline, publish-package and publish-release | the baseline audit and release |
+| Trigger from the prime's build (DROP_VERSION set) | intake | taking in a delivery |
+| Weekly schedule | status | the export for the status metrics |
+| Nightly schedule (FULL=1, on develop) | the ten, plus pages | early warning |
+Table: Which jobs run for which event (checked with `gitlab.pl ci --list` for each event)
+
+::: warning Local runs leave files behind
+When you run the pipeline on your laptop, the jobs write their reports (`lint.txt`, `lint.xml`, `lint-cq.json`,
+`lint.metrics` and the rest) into your working copy, because that is where they run. On the server they are thrown
+away with the job's environment. Without care, the next `git add -A` commits them. The model repository's
+`.gitignore` lists them; the template the team started from (`tools/gitlab/templates/.gitignore`) already does:
+`*.xml`, `*-cq.json`, `*.metrics`, the jobs' `.txt` outputs, `public/` and the package and log folders, with an
+exception for the manifests under `imports/`. Check with `git status` after a local run: it should show nothing new.
+:::
+
+=== Changing the pipeline {#pipeline-change}
+
+The pipeline file is protected like everything else: CODEOWNERS makes Tom its owner, so every change to it is a merge
+request Tom approves, and the pipeline runs on the merge request *with the changed file*. That last point is a trap
+and a help. A change that breaks the pipeline file fails on its own merge request and never reaches `develop`. But a
+change that weakens a check (a deleted line, an added `allow_failure`) passes its own pipeline easily. The reviewer of
+a pipeline change must read the diff of the YAML as carefully as a reviewer of a requirement change reads the
+"shall".
+
+Before pushing a change to the pipeline, check it locally (`gitlab.pl ci --list` for every event in the table above)
+and in GitLab's pipeline editor (Build > Pipeline editor > Validate).
+
+=== The complete file {#pipeline-file}
+
+{{include: tools/gitlab/templates/gitlab-ci.yml}}
+
+And the script every job calls, `ci/job.pl` (copied into the model repository from
+`tools/gitlab/templates/ci/job.pl`):
+
+{{include: tools/gitlab/templates/ci/job.pl}}
+
+=== Exercises {#pipeline-exercises}
+
+::: exercise {#ex-pipeline-events} Which jobs, which event
+For each event in the "which jobs run" table, run `gitlab.pl ci --list` with the matching `--event`, `--branch`,
+`--tag` options in your practice repository and compare the result with the table. Which job's rule surprised you?
+:::
+
+::: exercise {#ex-pipeline-ratchet} Turn the ratchet
+Fix one outline violation in your practice model (give a one-child part a second child, or split a package). Run the
+`outline` job. What does it tell you? Make the change it asks for and run it again.
+:::
+
+::: exercise {#ex-pipeline-ratchet-yours} Find your ratchet
+Name a rule in your own organization that everyone agrees with and nobody meets today. Write the ratchet for it:
+what is counted, where the allowed number lives, who may lower it, who may raise it.
+:::
+
+::: exercise {#ex-pipeline-stale} Stale documents
+Change a part's documentation comment in your practice model, commit without running `model.pl docs`, and run the
+`docs` job. Then fix it. Why does the team commit generated files at all?
+:::
+
+::: exercise {#ex-pipeline-weaken} Review a pipeline change
+A merge request adds `allow_failure: true` to the `lint` job with the description "lint is noisy this week". Write the
+review comment Tom should leave, and the alternative you would propose.
+:::
+
+=== Applying this to your project {#pipeline-apply}
+
+- **Copy**: one-line job scripts that call a script in the repository (`perl ci/job.pl NAME`); `GIT_DEPTH: "0"` if
+  any job reads history; a `workflow:` that gives one pipeline per change; a shared rule block; `artifacts: when:
+  always` for reports; the zero-over-zero lint gate; the ratchet for inherited problems; a trace job that is allowed to
+  fail; committed, checked generated documents; a baseline job that rebuilds and checks a checksum.
+- **Adapt**: the checks to your modeling rules; which jobs block and which warn; the schedules to your reporting
+  rhythm; the site to your audience.
+- **Decide locally**: where the kit lives on the runner (the `KIT` variable); whether you have a Docker runner for
+  GitLab's scanners; who owns the pipeline file; who owns the schedules.

@@ -1,0 +1,4 @@
+# name | email | team | role | org
+Jim | jim@example.invalid | Model | MBSE lead (government): owns the model, approves | Government
+Bob | bob@example.invalid | Model | MBSE engineer (government) | Government
+Tom | tom@example.invalid | Model | DevSecOps and configuration management engineer (government); security owner | Government

@@ -1,0 +1,18 @@
+reqif2sysml report: tidewater.reqif
+
+DOORS objects (C total: <SPEC-OBJECT> count)     35
+requirements (objects with text)                 30
+  bare objects (an identifier, no attributes)      0
+  with a verification method                     24
+  without a verification method                   6
+headings (section packages)                       5
+  orphan headings (no requirement below)          0
+empty objects (no text, no heading)               0
+objects in no specification                       0
+hierarchy entries naming a missing object         0
+links                                            24
+  derive 24, satisfy 0, verify 0, trace 0, not between requirements 0
+verification methods: Analysis 2, Demonstration 4, Inspection 5, Test 13
+
+files: segment-requirements/Segment_Requirements.sysml stakeholder-needs/Stakeholder_Needs.sysml system-requirements/System_Requirements.sysml
+self-check: ok

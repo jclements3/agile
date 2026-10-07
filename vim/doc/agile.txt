@@ -2712,7 +2712,9 @@ gitlab.pl                                                     *agile-gitlab-pl*
 setup FILE              apply a project file (tools/gitlab/templates/project.conf):
                         settings, members, labels, sprints, protected branches
                         and tags, approval rules, variables, schedules,
-                        boards (|agile-gitlab-boards|); safe to run again
+                        boards (|agile-gitlab-boards|), the iteration cadence
+                        (|agile-gitlab-iterations|) and .gitlab/insights.yml
+                        (|agile-gitlab-insights|); safe to run again
 setup --diff FILE       compare the project file with the live project, read
                         only; prints each difference; exit 1 on drift
 sprints START COUNT     "Sprint N" milestones, two weeks each (--weeks, --prefix)
@@ -2743,6 +2745,10 @@ board list              the issue boards setup made from [boards]: each one's
                         label lists in order and its milestone scope
 windchill intake|status requests from Windchill in, progress back out:
                         |agile-gitlab-windchill|
+iteration list          the group's iteration cadence and its iterations, and
+                        whether sprints come from milestones or iterations
+insights [FILE]         the .gitlab/insights.yml setup generates, to stdout
+                        (no server needed): |agile-gitlab-insights|
 user USERNAME          create a user (emulator, or an admin token)
 ci                      run the pipeline locally: |agile-gitlab-ci|
 flow                    gitflow in a clone: |agile-gitlab-flow|
@@ -2752,17 +2758,48 @@ nothing; reads still answer (both backends; flow refuses it). Environment:
 GITLAB_URL, GITLAB_LOCAL, GITLAB_PROJECT, GITLAB_USER, GITLAB_TOKEN.
 
 [boards] in the project file                                *agile-gitlab-boards*
-    Sprint = workflow::ready workflow::in-progress workflow::review workflow::blocked workflow::done | milestone=started
+    Sprint = workflow::ready workflow::in-progress workflow::review workflow::blocked workflow::done | sprint=current
     Backlog = priority::1 priority::2 priority::3 | milestone=none
-One line per issue board: its label lists, left to right, then the milestone
-scope: started (the sprint that is running; the board follows the sprints by
-itself), upcoming, none (issues without a milestone), any (unscoped), or a
-milestone title. setup creates a missing board, adds missing lists, puts them
+One line per issue board: its label lists, left to right, then the scope.
+milestone=started (the sprint that is running; the board follows the sprints
+by itself), upcoming, none (issues without a milestone), any (unscoped), or a
+milestone title; iteration=current|any|none; sprint=current is the started
+milestone or the current iteration, as [iterations] use says. setup creates a missing board, adds missing lists, puts them
 in the file's order and sets the scope; setup --diff reports a missing board,
 lists in another order and another scope. Boards not in the file are left
 alone. Scoping is Premium/Ultimate (GitLab Dedicated has it); on Free setup
 warns and the board shows every milestone. Any section may appear twice; a
 second [labels] adds labels.
+
+[iterations] in the project file                        *agile-gitlab-iterations*
+    group = tidewater
+    use = iterations
+    Sprints = 2026-10-05 2 4 | automatic
+GitLab's own sprints (Premium/Ultimate): an iteration cadence on the group
+makes one iteration after another by itself (2 weeks from 2026-10-05, 4
+scheduled ahead). Cadences live on the GROUP, not the project, and GitLab
+changes them only through GraphQL; setup needs the group path (group =,
+default the project's namespace) and Maintainer on that group. [milestones]
+stay the fallback: use = milestones (the default) or iterations decides what
+sprint=current on a board and gitlab.pl analytics --by sprint mean (Sprint N
+is then the iteration's sequence; --sprints-from overrides). setup --diff
+reports a missing cadence or one whose dates, length, advance or flags
+differ. Flags: automatic (default), manual, roll-over.
+
+[insights] in the project file                            *agile-gitlab-insights*
+    file = .gitlab/insights.yml
+    weeks = 12
+Analyze > Insights (Ultimate) draws the charts of .gitlab/insights.yml on the
+default branch. setup generates the file from [labels] and [windchill]:
+open issues by workflow:: column, issues created and closed, merge requests
+merged, defects by severity::, Windchill requests received, closed and open,
+closed issues by work::, each weekly over the last `weeks` weeks (Insights
+cannot group by sprint). setup writes it into the repository when it runs on
+the repository's .gitlab/project.conf (or --repo DIR) and never commits it:
+commit it through a merge request, or setup --commit puts it on a
+feature/insights-DATE branch with the merge request. setup --diff reports
+when the default branch's copy is missing or differs. gitlab.pl insights
+prints it. Sample: tools/gitlab/samples/17-insights.yml.
 
 gitlab.pl windchill                                      *agile-gitlab-windchill*
 Requests arrive in Windchill; the team works them in GitLab. With no API

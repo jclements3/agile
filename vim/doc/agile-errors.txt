@@ -1966,17 +1966,39 @@ GitLab: no user given / cannot save STDOUT (a script or the kit itself)
 FILE:LINE: a board needs its lists / board options are milestone=...
 
   Pattern: *: a board needs its lists: LABEL LABEL ... [| milestone=started]
-  Pattern: *: board options are milestone=any|none|upcoming|started|TITLE, not '*'
+  Pattern: *: board options are milestone=any|none|upcoming|started|TITLE, iteration=current|any|none or sprint=current, not '*'
   From:    gitlab.pl setup, setup --diff (the [boards] section)
   Means:   A [boards] line is NAME = LABEL LABEL ... | milestone=WORD. The
-	   line names no labels, or has an option other than milestone=.
+	   line names no labels, or has an option other than milestone=,
+	   iteration= or sprint=current.
   Fix:	   Write the lists as label names, in board order, separated by
 	   spaces (or commas when a label has a space), then optionally
 	   "| milestone=started" (or upcoming, none, any, or a milestone
-	   title). Example in tools/gitlab/templates/project.conf.
+	   title), "| iteration=current" or "| sprint=current" (the started
+	   milestone or the current iteration, as [iterations] use says).
+	   Example in tools/gitlab/templates/project.conf.
 	   When setup warns "milestone scope ... not set", the server is on
 	   GitLab Free: scoped boards need Premium or Ultimate. The board
-	   still works and shows every milestone.
+	   still works and shows every milestone. "iteration scope ... not
+	   set" is the same for iterations, or the group has no cadence.
+
+------------------------------------------------------------------------------
+                                                  *agile-err-gitlab-iterations*
+FILE:LINE: a cadence is TITLE = START WEEKS ... / [iterations] use is ...
+
+  Pattern: *:*: a cadence is TITLE = START WEEKS [IN_ADVANCE] [| automatic roll-over manual] (START a date, WEEKS 1 to 4)
+  Pattern: *:*: cadence flags are automatic, manual and roll-over, not '*'
+  Pattern: *:*: [iterations] use is milestones or iterations, not '*'
+  Pattern: *: [insights] weeks is a number of weeks, not '*'
+  From:    gitlab.pl setup, setup --diff, gitlab.pl insights, iteration list,
+	   analytics (they read [iterations] and [insights])
+  Means:   An [iterations] line is group = PATH, use = milestones|iterations,
+	   or a cadence: TITLE = START WEEKS IN_ADVANCE | flags, such as
+	   "Sprints = 2026-10-05 2 4 | automatic". GitLab allows 1 to 4 weeks.
+	   [insights] weeks is how many weeks each chart shows.
+  Fix:	   Correct the line as the message shows. If setup then says "you
+	   need Maintainer on group G": cadences live on the group, not the
+	   project; ask a group owner for Maintainer, or let them run setup.
 
 ------------------------------------------------------------------------------
                                                    *agile-err-windchill-config*

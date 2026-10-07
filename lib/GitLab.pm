@@ -144,7 +144,7 @@ sub _api {                                    # _api(METHOD, PATH, BODY|undef, q
 }
 sub _api1 {
     my ($self, $method, $path, $body, $q) = @_;
-    my $rel = "/api/v4$path" . _q(%$q);
+    my $rel = ($path =~ m{^/api/graphql} ? $path : "/api/v4$path") . _q(%$q);
     if ($self->{dry_run}) {
         my $fh = $self->{out};
         print $fh "$method $rel" . (defined $body ? ' ' . $JSON->encode($body) : '') . "\n";
@@ -354,18 +354,49 @@ sub move_board_list {                         # move_board_list(p, BOARD ID, LIS
     }
     $self->_api('PUT', '/projects/' . $self->_pid($p) . "/boards/$id/lists/$list", { position => 0 + $pos });
 }
-sub parse_board_line {                        # 'L1 L2 ... | milestone=started' -> { labels => [..], milestone => WORD|TITLE }
-    my ($v, $where) = @_;
+sub parse_board_line {                        # 'L1 L2 ... | milestone=started' -> { labels => [..], milestone => WORD|TITLE, iteration => WORD }
+    my ($v, $where, $use) = @_;               # $use: what sprint=current means (milestones: milestone started; iterations: iteration current)
     my ($ls, @opt) = split /\s*\|\s*/, $v;
     my @labels = ($ls // '') =~ /,/ ? grep { length } map { s/^\s+|\s+$//gr } split /,/, $ls : split ' ', $ls // '';
     @labels or die "$where: a board needs its lists: LABEL LABEL ... [| milestone=started]\n";
     my %o;
-    for (@opt) { /^\s*(\w[\w-]*)\s*=\s*(.*?)\s*$/ && $1 eq 'milestone' or die "$where: board options are milestone=any|none|upcoming|started|TITLE, not '$_'\n"; $o{milestone} = $2 }
+    for (@opt) {
+        my ($k, $x) = /^\s*(\w[\w-]*)\s*=\s*(.*?)\s*$/ or die "$where: board options are milestone=any|none|upcoming|started|TITLE, iteration=current|any|none or sprint=current, not '$_'\n";
+        if ($k eq 'milestone') { $o{milestone} = $x }
+        elsif ($k eq 'iteration' && $x =~ /^(current|any|none)$/i) { $o{iteration} = lc $x }
+        elsif ($k eq 'sprint' && lc $x eq 'current') { if (($use // 'milestones') eq 'iterations') { $o{iteration} = 'current' } else { $o{milestone} = 'started' } }
+        else { die "$where: board options are milestone=any|none|upcoming|started|TITLE, iteration=current|any|none or sprint=current, not '$_'\n" }
+    }
     my $ms = $o{milestone} // 'any';
-    { labels => \@labels, milestone => exists $BOARD_MS{ lc $ms } ? lc $ms : $ms };
+    { labels => \@labels, milestone => exists $BOARD_MS{ lc $ms } ? lc $ms : $ms, iteration => $o{iteration} // 'any' };
+}
+my %BOARD_IT = (none => 0, any => -1, current => -4);   # Iteration::Predefined (ee/app/models/iteration.rb): None 0, Any -1, Current -4
+my %BOARD_IT_NAME = reverse %BOARD_IT;
+sub iteration_scope { my $i = shift; return 'any' unless ref $i && (defined $i->{id} || defined $i->{title});
+    my ($id) = ($i->{id} // '') =~ /(-?\d+)$/; return $BOARD_IT_NAME{$id} if defined $id && exists $BOARD_IT_NAME{$id}; lc($i->{title} // '') =~ /^(current|any|none)$/ ? lc $1 : $i->{title} // 'any' }
+sub board_iterations {                        # -> { board name => its iteration scope }; GitLab exposes it through GraphQL only
+    my ($self, $p) = @_;
+    return +{ map { ($_->{name} => iteration_scope($_->{iteration})) } @{ $self->_p($p)->{boards} // [] } } if $self->{local};
+    return {} if $self->{dry_run};
+    my $d = $self->_gql('query($p: ID!) { project(fullPath: $p) { boards { nodes { name iteration { id title } } } } }', { p => $p });
+    +{ map { ($_->{name} => iteration_scope($_->{iteration})) } @{ ((($d->{project} // {})->{boards} // {})->{nodes}) // [] } };
+}
+sub update_board_iteration {                  # update_board_iteration(p, ID, current|any|none, cadence => CADENCE GID) -- GraphQL updateBoard
+    my ($self, $p, $id, $want, %o) = @_;
+    exists $BOARD_IT{$want} or die "GitLab: a board's iteration scope is current, any or none, not '$want'\n";
+    if ($self->{local}) {
+        my $b = $self->_board($self->_p($p), $id);
+        $b->{iteration} = $want eq 'any' ? undef : { id => $BOARD_IT{$want}, title => ucfirst $want };
+        return { iteration => $b->{iteration} };
+    }
+    my $d = $self->_gql('mutation($in: UpdateBoardInput!) { updateBoard(input: $in) { board { id iteration { id title } } errors } }',
+        { in => { id => "gid://gitlab/Board/$id", iterationId => "gid://gitlab/Iteration/$BOARD_IT{$want}", ($o{cadence} ? (iterationCadenceId => $o{cadence}) : ()) } });
+    my $r = $d->{updateBoard} // {};
+    die "GitLab: updateBoard: @{ $r->{errors} }\n" if @{ $r->{errors} // [] };
+    $r->{board} // {};
 }
 sub _setup_board {                            # create the board, add missing lists, put them in the file's order, scope it -> log lines
-    my ($self, $p, $name, $want) = @_;
+    my ($self, $p, $name, $want, %o) = @_;
     my @log;
     my ($bo) = $self->{dry_run} && !$self->{local} ? () : grep { $_->{name} eq $name } @{ $self->boards($p) };
     if (!$bo) { $bo = $self->create_board($p, $name); push @log, "board $name created" }
@@ -390,7 +421,276 @@ sub _setup_board {                            # create the board, add missing li
             push @log, "board $name: milestone scope not set (needs Premium or Ultimate)";
         } else { push @log, "board $name: milestone $want->{milestone}" }
     }
-    push @log, "board $name (" . scalar(@{ $want->{labels} }) . " lists, milestone $want->{milestone})";
+    my $wi = $want->{iteration} // 'any';
+    my $li = $bo->{iteration} || !$o{iterations} ? iteration_scope($bo->{iteration}) : ($o{iterations}{$name} // 'any');
+    if ($wi ne $li) {
+        my $r = eval { $self->update_board_iteration($p, $bid, $wi, cadence => $o{cadence}) };
+        my $got = $r && !$self->{dry_run} ? iteration_scope($r->{iteration}) : $wi;
+        if ($got ne $wi) {
+            my $why = $@ ? ($@ =~ s/^GitLab: //r =~ s/\n$//r) : 'the scope did not take';
+            warn "GitLab: board $name: iteration scope '$wi' not set ($why); iterations need Premium or Ultimate and a cadence on the group\n";
+            push @log, "board $name: iteration scope not set (needs Premium or Ultimate and a cadence)";
+        } else { push @log, "board $name: iteration $wi" }
+    }
+    push @log, "board $name (" . scalar(@{ $want->{labels} }) . " lists, milestone $want->{milestone}" . ($wi ne 'any' ? ", iteration $wi" : '') . ')';
+    @log;
+}
+
+# ---------------------------------------------------------------- iterations: a cadence on the group (Premium and Ultimate)
+# GitLab keeps iteration cadences on a GROUP, not on the project, and only GraphQL creates or changes them
+# (iterationCadenceCreate / iterationCadenceUpdate in ee/app/graphql/mutations/iterations/cadences/; REST only lists
+# iterations, GET /groups/:id/iterations). So [iterations] names the group (group = PATH; default the project's
+# namespace) and the user who runs setup needs Maintainer on that group. An automatic cadence makes its iterations
+# itself: one per DURATION weeks from the start date, ITERATIONS_IN_ADVANCE of them ahead of today.
+sub _gql {                                    # _gql(QUERY, \%variables) -> data; dies on GraphQL errors
+    my ($self, $q, $v) = @_;
+    (my $one = $q) =~ s/\s+/ /g;
+    my ($r) = $self->_api1('POST', '/api/graphql', { query => $one, variables => $v // {} }, {});
+    return {} if $self->{dry_run};
+    die "GitLab: GraphQL: " . join('; ', map { $_->{message} // $JSON->encode($_) } @{ $r->{errors} }) . "\n" if ref $r eq 'HASH' && @{ $r->{errors} // [] };
+    ref $r eq 'HASH' ? $r->{data} // {} : {};
+}
+my %CAD_GQL = (title => 'title', start_date => 'startDate', duration_in_weeks => 'durationInWeeks', iterations_in_advance => 'iterationsInAdvance',
+               automatic => 'automatic', active => 'active', roll_over => 'rollOver', description => 'description');
+sub _cad_from_gql { my $n = shift; +{ id => $n->{id}, map { ($_ => $n->{ $CAD_GQL{$_} }) } keys %CAD_GQL } }
+sub cadences {                                # cadences(GROUP) -> [ { id, title, start_date, duration_in_weeks, iterations_in_advance, automatic, active, roll_over } ]
+    my ($self, $g) = @_;
+    if ($self->{local}) { my $G = $self->{st}{groups}{$g} // die "GitLab: no group '$g' (404 Group Not Found)\n"; return [ map { +{ %$_ } } @{ $G->{cadences} // [] } ] }
+    return [] if $self->{dry_run};
+    my $d = $self->_gql('query($g: ID!) { group(fullPath: $g) { iterationCadences { nodes { id ' . join(' ', sort values %CAD_GQL) . ' } } } }', { g => $g });
+    $d->{group} or die "GitLab: no group '$g' (or no access to it)\n";
+    [ map { my $c = _cad_from_gql($_); $c->{start_date} = substr($c->{start_date} // '', 0, 10); $c } @{ ($d->{group}{iterationCadences} // {})->{nodes} // [] } ];
+}
+sub _cad_in { my %o = @_; +{ map { ($CAD_GQL{$_} => ($_ =~ /^(automatic|active|roll_over)$/ ? ($o{$_} ? JSON::PP::true : JSON::PP::false) : $_ =~ /weeks|advance/ ? 0 + $o{$_} : $o{$_})) } grep { defined $o{$_} } keys %CAD_GQL } }
+sub create_cadence {                          # create_cadence(GROUP, title, start_date, duration_in_weeks, iterations_in_advance, automatic, roll_over)
+    my ($self, $g, %o) = @_;
+    $o{active} //= 1; $o{automatic} //= 1;
+    if ($self->{local}) {
+        my $G = $self->{st}{groups}{$g} // die "GitLab: no group '$g' (404 Group Not Found)\n";
+        die "GitLab: you need Maintainer on group $g to manage its iteration cadences (403 Forbidden)\n" if $self->_glevel($g) < 40;
+        push @{ $G->{cadences} }, my $c = { id => 'gid://gitlab/Iterations::Cadence/' . $self->_id, map { ($_ => $o{$_}) } grep { exists $o{$_} } keys %CAD_GQL };
+        $c->{$_} = $c->{$_} ? 1 : 0 for qw(automatic active roll_over);
+        return { %$c };
+    }
+    my $d = $self->_gql('mutation($in: IterationCadenceCreateInput!) { iterationCadenceCreate(input: $in) { iterationCadence { id } errors } }', { in => { groupPath => $g, %{ _cad_in(%o) } } });
+    my $r = $d->{iterationCadenceCreate} // {};
+    die "GitLab: iterationCadenceCreate: @{ $r->{errors} }\n" if @{ $r->{errors} // [] };
+    +{ %o, %{ $r->{iterationCadence} // {} } };
+}
+sub update_cadence {
+    my ($self, $g, $id, %o) = @_;
+    if ($self->{local}) {
+        die "GitLab: you need Maintainer on group $g to manage its iteration cadences (403 Forbidden)\n" if $self->_glevel($g) < 40;
+        my ($c) = grep { $_->{id} eq $id } @{ ($self->{st}{groups}{$g} // {})->{cadences} // [] } or die "GitLab: no iteration cadence $id in $g\n";
+        for (grep { exists $o{$_} } keys %CAD_GQL) { $c->{$_} = /^(automatic|active|roll_over)$/ ? ($o{$_} ? 1 : 0) : $o{$_} }
+        return { %$c };
+    }
+    my $d = $self->_gql('mutation($in: IterationCadenceUpdateInput!) { iterationCadenceUpdate(input: $in) { iterationCadence { id } errors } }', { in => { id => $id, %{ _cad_in(%o) } } });
+    my $r = $d->{iterationCadenceUpdate} // {};
+    die "GitLab: iterationCadenceUpdate: @{ $r->{errors} }\n" if @{ $r->{errors} // [] };
+    +{ %o, id => $id };
+}
+sub _glevel { my ($self, $g) = @_; return 60 if ($self->{st}{users}{ $self->{as} } // {})->{admin}; my $l = 0;
+    for (my $ns = $g; defined $ns && length $ns; $ns =~ s{/?[^/]*$}{}) { my $x = (($self->{st}{groups}{$ns} // {})->{members} // {})->{ $self->{as} } // 0; $l = $x if $x > $l } $l }
+my %IT_STATE = (1 => 'upcoming', 2 => 'current', 3 => 'closed', 4 => 'closed');
+sub iterations {                              # iterations(GROUP) -> [ { id, sequence, title, state upcoming|current|closed, start_date, due_date, cadence } ]
+    my ($self, $g) = @_;
+    if ($self->{local}) {                     # an automatic cadence's iterations, as GitLab schedules them on the emulator's clock
+        my $G = $self->{st}{groups}{$g} // die "GitLab: no group '$g' (404 Group Not Found)\n";
+        my $today = _date($self->epoch);
+        my @it;
+        for my $c (grep { $_->{automatic} && $_->{active} } @{ $G->{cadences} // [] }) {
+            my $t0 = _epoch($c->{start_date}); my $w = $c->{duration_in_weeks} || 2; my $ahead = 0;
+            for (my $k = 1; $k <= 500; $k++) {
+                my $s = $t0 + ($k - 1) * $w * 7 * 86400; my $e = $s + ($w * 7 - 1) * 86400;
+                my $st = _date($e) lt $today ? 'closed' : _date($s) gt $today ? 'upcoming' : 'current';
+                last if $st eq 'upcoming' && ++$ahead > ($c->{iterations_in_advance} // 1);
+                (my $cid = $c->{id}) =~ s/.*\///;
+                push @it, { id => "gid://gitlab/Iteration/$cid$k", sequence => $k, title => undef, state => $st, start_date => _date($s), due_date => _date($e), cadence => $c->{title} };
+            }
+        }
+        return \@it;
+    }
+    return [] if $self->{dry_run};
+    [ map { +{ %$_, state => $IT_STATE{ $_->{state} } // $_->{state} } } @{ $self->_api('GET', '/groups/' . _enc($g) . '/iterations', undef, query => { state => 'all', include_ancestors => 'true' }, all => 1) } ];
+}
+sub parse_iterations {                        # [iterations] lines -> { group, use, cadences => [ { title, start_date, duration_in_weeks, iterations_in_advance, automatic, roll_over, line } ] }
+    my ($lines, $where, $project) = @_;
+    my %r = (group => undef, use => 'milestones', cadences => []);
+    for (@{ $lines // [] }) {
+        my ($k, $v, $n) = @$_;
+        if ($k eq 'group') { $r{group} = $v; next }
+        if ($k eq 'use') { $v =~ /^(milestones|iterations)$/ or die "$where:$n: [iterations] use is milestones or iterations, not '$v'\n"; $r{use} = $v; next }
+        my ($when, $flags) = split /\s*\|\s*/, $v, 2;
+        my ($start, $weeks, $ahead) = split ' ', $when // '';
+        defined $weeks && $start =~ /^\d{4}-\d\d-\d\d$/ && $weeks =~ /^\d+$/ && $weeks >= 1 && $weeks <= 4 && (!defined $ahead || $ahead =~ /^\d+$/)
+            or die "$where:$n: a cadence is TITLE = START WEEKS [IN_ADVANCE] [| automatic roll-over manual] (START a date, WEEKS 1 to 4)\n";
+        my %f = map { (lc $_ => 1) } split ' ', $flags // '';
+        for (keys %f) { /^(automatic|manual|roll-over)$/ or die "$where:$n: cadence flags are automatic, manual and roll-over, not '$_'\n" }
+        push @{ $r{cadences} }, { title => $k, start_date => $start, duration_in_weeks => 0 + $weeks, iterations_in_advance => 0 + ($ahead // 4),
+                                  automatic => $f{manual} ? 0 : 1, roll_over => $f{'roll-over'} ? 1 : 0, line => $n };
+    }
+    ($r{group}) = ($project // '') =~ m{^(.*)/} unless defined $r{group};
+    \%r;
+}
+sub _setup_iterations {                       # create or update each cadence on the group -> (log lines, { title => cadence })
+    my ($self, $it) = @_;
+    my (@log, %by);
+    return (\@log, \%by) unless @{ $it->{cadences} };
+    my $g = $it->{group} // die "GitLab: [iterations] needs group = PATH (the group the cadence lives on)\n";
+    my %live = map { ($_->{title} => $_) } @{ $self->cadences($g) };
+    for my $c (@{ $it->{cadences} }) {
+        my %want = map { ($_ => $c->{$_}) } qw(title start_date duration_in_weeks iterations_in_advance automatic roll_over);
+        my $l = $live{ $c->{title} };
+        if (!$l) { $by{ $c->{title} } = $self->create_cadence($g, %want, active => 1); push @log, "iteration cadence $c->{title} on $g ($c->{duration_in_weeks} weeks from $c->{start_date})"; next }
+        my %ch = map { ($_ => $want{$_}) } grep { ($l->{$_} // '') ne ($want{$_} // '') && !(/^(automatic|roll_over)$/ && ($l->{$_} ? 1 : 0) == $want{$_}) } keys %want;
+        $by{ $c->{title} } = %ch ? $self->update_cadence($g, $l->{id}, %ch) : $l;
+        push @log, %ch ? "iteration cadence $c->{title} on $g updated (" . join(', ', sort keys %ch) . ')' : "iteration cadence $c->{title} on $g";
+    }
+    (\@log, \%by);
+}
+
+# ---------------------------------------------------------------- files in the repository: read one, commit some (REST: Commits API)
+sub file_raw {                                # file_raw(p, PATH, REF) -> content or undef when the file is not there
+    my ($self, $p, $path, $ref) = @_;
+    if ($self->{local}) {                     # ls-tree + cat-file, not show REF:PATH (Git for Windows' argument conversion mangles the colon form)
+        my $bare = $self->_bare($self->_p($p));
+        my ($l, $rc) = $self->_git_rc($bare, {}, 'ls-tree', $ref, '--', $path);
+        my ($blob) = !$rc && $l =~ /^\d+ blob ([0-9a-f]{40,64})\t/m or return undef;
+        my ($o, $rc2) = $self->_git_rc($bare, {}, 'cat-file', 'blob', $blob);
+        return $rc2 ? undef : $o;
+    }
+    return undef if $self->{dry_run};
+    my $r = eval { ($self->_api1('GET', '/projects/' . $self->_pid($p) . '/repository/files/' . _enc($path) . '/raw', undef, { ref => $ref }))[0] };
+    return undef unless defined $r;
+    ref $r ? $JSON->encode($r) : $r;
+}
+sub commit_files {                            # commit_files(p, branch => B, start_branch => S, message => M, actions => [ { action create|update, file_path, content } ])
+    my ($self, $p, %o) = @_;
+    my $acts = $o{actions} // [];
+    if ($self->{local}) {
+        my $P = $self->_p($p);
+        my $from = $self->_sha($P, "refs/heads/" . ($o{start_branch} // $o{branch})) // die "GitLab: no branch '" . ($o{start_branch} // $o{branch}) . "' in $p\n";
+        die "GitLab: branch '$o{branch}' already exists in $p (400 A branch called '$o{branch}' already exists)\n" if $o{start_branch} && $o{start_branch} ne $o{branch} && $self->_sha($P, "refs/heads/$o{branch}");
+        my $r = $self->_protected_branch($P, $o{branch});
+        die "GitLab: you are not allowed to push into branch '$o{branch}' (403 Forbidden)\n" if $r && $self->_level($P, $self->{as}) < ($r->{push_access_level} || 99);
+        my $bare = $self->_bare($P);
+        my $tmp = tempdir(CLEANUP => 1);
+        my $idx = "commit-index-$$";            # relative to the bare repository (git's cwd): Git for Windows does not translate a /tmp path in the environment
+        unlink "$bare/$idx";
+        my %env = (GIT_INDEX_FILE => $idx, $self->_git_env);
+        $self->_git($bare, \%env, 'read-tree', $from);
+        my $k = 0;
+        for my $a (@$acts) {
+            my $f = "$tmp/blob" . $k++;
+            open my $fh, '>:raw', $f or die "GitLab: cannot write $f: $!\n"; my $c = $a->{content} // ''; utf8::encode($c) if utf8::is_utf8($c); print $fh $c; close $fh;
+            (my $blob = $self->_git($bare, \%env, 'hash-object', '-w', $f)) =~ s/\s+//g;
+            $self->_git($bare, \%env, 'update-index', '--add', '--cacheinfo', "100644,$blob,$a->{file_path}");
+        }
+        (my $tree = $self->_git($bare, \%env, 'write-tree')) =~ s/\s+//g;
+        (my $sha = $self->_git($bare, \%env, 'commit-tree', $tree, '-p', $from, '-m', $o{message} // 'Update files')) =~ s/\s+//g;
+        unlink "$bare/$idx";
+        $self->_git($bare, {}, 'update-ref', "refs/heads/$o{branch}", $sha);
+        $self->_pushed($p, "refs/heads/$o{branch}");
+        return { id => $sha, short_id => substr($sha, 0, 8), title => (split /\n/, $o{message} // '')[0] };
+    }
+    $self->_api('POST', '/projects/' . $self->_pid($p) . '/repository/commits',
+        { branch => $o{branch}, ($o{start_branch} ? (start_branch => $o{start_branch}) : ()), commit_message => $o{message} // 'Update files',
+          actions => [ map { +{ action => $_->{action} // 'update', file_path => $_->{file_path}, content => $_->{content} } } @$acts ] });
+}
+
+
+# ---------------------------------------------------------------- the Insights dashboard (.gitlab/insights.yml), from the project file
+# GitLab Ultimate draws Analyze > Insights from .gitlab/insights.yml on the default branch: reports of charts, each a
+# query over issuables (issuable_type issue|merge_request, issuable_state, filter_labels, collection_labels, group_by
+# day|week|month, period_limit, period_field created_at|closed_at|merged_at). Insights cannot group by sprint, so the
+# charts are weekly; the board and `gitlab.pl analytics --by sprint` give the per-sprint view. The file is generated
+# from [labels], [windchill] and [insights] so it never drifts from the labels the team actually uses.
+sub _yq { my $s = shift // ''; $s =~ s/\\/\\\\/g; $s =~ s/"/\\"/g; qq("$s") }
+sub insights_yml {                            # insights_yml(parsed project file, FILE) -> (YAML text, number of charts)
+    my ($c, $file) = @_;
+    my %ins = map { ($_->[0] => $_->[1]) } @{ $c->{insights} // [] };
+    my $weeks = $ins{weeks} // 12;
+    $weeks =~ /^\d+$/ && $weeks >= 1 or die "$file: [insights] weeks is a number of weeks, not '$weeks'\n";
+    my @labels = map { $_->[0] } @{ $c->{labels} // [] };
+    my $fam = sub { my $p = shift; [ grep { index($_, $p) == 0 } @labels ] };
+    my ($wf, $sev, $work) = map { $fam->($_) } 'workflow::', 'severity::', 'work::';
+    my ($defect) = grep { $_ eq 'type::defect' } @labels;
+    my %wc = map { ($_->[0] => $_->[1]) } @{ $c->{windchill} // [] };
+    my ($source) = grep { /^source::/ } map { s/^\s+|\s+$//gr } split /,/, $wc{labels} // '';
+    $source //= (grep { /^source::windchill$/ } @labels)[0] if $c->{windchill};
+    my $n = 0;
+    my $chart = sub {
+        my (%a) = @_; $n++;
+        my $y = "    - title: " . _yq($a{title}) . "\n      description: " . _yq($a{description}) . "\n      type: $a{type}\n      query:\n        data_source: issuables\n        params:\n";
+        $y .= "          issuable_type: $a{kind}\n          issuable_state: $a{state}\n";
+        for my $k (qw(filter_labels collection_labels)) { next unless $a{$k} && @{ $a{$k} }; $y .= "          $k:\n" . join('', map { "            - " . _yq($_) . "\n" } @{ $a{$k} }) }
+        $y .= "          group_by: week\n          period_limit: $weeks\n" . ($a{field} ? "          period_field: $a{field}\n" : '');
+        $y;
+    };
+    my $y = "# .gitlab/insights.yml -- generated by gitlab.pl setup from .gitlab/project.conf ([labels], [windchill], [insights]).\n"
+          . "# Edit project.conf and re-run setup, not this file. GitLab reads it from the default branch (Analyze > Insights,\n"
+          . "# Ultimate). Insights groups by day, week or month, not by sprint: the charts are weekly, the last $weeks weeks.\n";
+    $y .= "flow:\n  title: \"Flow of work\"\n  charts:\n";
+    $y .= $chart->(title => 'Open issues by board column', description => 'Open issues created each week, split by their workflow:: label (the board columns)',
+                   type => 'stacked-bar', kind => 'issue', state => 'opened', collection_labels => $wf) if @$wf;
+    $y .= $chart->(title => 'Issues created per week', description => 'Every issue created each week, open or closed', type => 'bar', kind => 'issue', state => 'all', field => 'created_at');
+    $y .= $chart->(title => 'Issues closed per week', description => 'Issues closed each week (compare with created: is the backlog growing?)', type => 'bar', kind => 'issue', state => 'closed', field => 'closed_at');
+    $y .= $chart->(title => 'Merge requests merged per week', description => 'Changes that reached the target branch each week', type => 'bar', kind => 'merge_request', state => 'merged', field => 'merged_at');
+    if ($defect || @$sev) {
+        $y .= "quality:\n  title: \"Defects\"\n  charts:\n";
+        $y .= $chart->(title => 'Open defects by severity', description => 'Open defects created each week, split by severity::', type => 'stacked-bar', kind => 'issue', state => 'opened',
+                       ($defect ? (filter_labels => [$defect]) : ()), collection_labels => $sev);
+        $y .= $chart->(title => 'Defects closed per week', description => 'Defects closed each week', type => 'bar', kind => 'issue', state => 'closed', field => 'closed_at', filter_labels => [$defect]) if $defect;
+    }
+    if ($source) {
+        $y .= "requests:\n  title: \"Requests from Windchill\"\n  charts:\n";
+        $y .= $chart->(title => 'Requests received per week', description => "Issues made from Windchill requests ($source), by the week they arrived", type => 'bar', kind => 'issue', state => 'all', field => 'created_at', filter_labels => [$source]);
+        $y .= $chart->(title => 'Requests closed per week', description => 'Windchill requests the team finished each week (gitlab.pl windchill status sends them back)', type => 'bar', kind => 'issue', state => 'closed', field => 'closed_at', filter_labels => [$source]);
+        $y .= $chart->(title => 'Open requests', description => 'Windchill requests still open, by the week they arrived', type => 'bar', kind => 'issue', state => 'opened', filter_labels => [$source]);
+    }
+    if (@$work) {
+        $y .= "work:\n  title: \"Where the time goes\"\n  charts:\n";
+        $y .= $chart->(title => 'Issues closed by kind of work', description => 'Closed issues each week, split by work:: (engineering, platform, learning)', type => 'stacked-bar', kind => 'issue', state => 'closed', field => 'closed_at', collection_labels => $work);
+    }
+    ($y, $n);
+}
+sub _insights_target {                        # where setup writes the file: --repo DIR, else the repository whose .gitlab/ holds the project file
+    my ($path, $c, %o) = @_;
+    my %ins = map { ($_->[0] => $_->[1]) } @{ $c->{insights} // [] };
+    my $rel = $ins{file} // '.gitlab/insights.yml';
+    return "$o{repo}/$rel" if defined $o{repo};
+    my $dir = File::Spec->rel2abs($path) =~ s{[/\\][^/\\]*$}{}r;
+    return $dir =~ m{[/\\]\.gitlab$} ? ($dir =~ s{[/\\]\.gitlab$}{}r) . "/$rel" : undef;
+}
+sub _setup_insights {                         # write the generated file into the working tree (never committed silently) -> log lines
+    my ($self, $p, $path, $c, %o) = @_;
+    my ($yml, $n) = insights_yml($c, $path);
+    my %ins = map { ($_->[0] => $_->[1]) } @{ $c->{insights} // [] };
+    my $rel = $ins{file} // '.gitlab/insights.yml';
+    my $target = _insights_target($path, $c, %o);
+    my @log;
+    if ($o{commit}) {                         # a branch and a merge request with the file, through the Commits API
+        my $def = ($self->project($p) // {})->{default_branch} // 'main';
+        my $live = $self->file_raw($p, $rel, $def);
+        if (defined $live && $live eq $yml) { push @log, "insights: $rel on $def is current ($n charts)"; return @log }
+        my $br = 'feature/insights-' . _date($self->epoch) =~ s/-//gr;
+        $self->commit_files($p, branch => $br, start_branch => $def, message => "Insights dashboard from project.conf ($n charts)",
+                            actions => [ { action => defined $live ? 'update' : 'create', file_path => $rel, content => $yml } ]);
+        my $mr = $self->create_mr($p, source_branch => $br, target_branch => $def, title => "Insights dashboard from project.conf",
+                                  description => "Generated by `gitlab.pl setup --commit` from .gitlab/project.conf: $n charts. Review the charts, then merge;\nGitLab reads `$rel` from the default branch (Analyze > Insights).\n");
+        push @log, "insights: $rel ($n charts) on $br, merge request !" . ($mr->{iid} // '?');
+    }
+    if (!defined $target) {
+        push @log, "insights: $rel not written ($n charts generated): run setup on the repository's .gitlab/project.conf, or setup --repo DIR" unless $o{commit};
+        return @log;
+    }
+    my $old = -f $target ? do { open my $fh, '<:raw', $target or die "GitLab: cannot read $target: $!\n"; local $/; <$fh> } : undef;
+    if (defined $old && $old eq $yml) { push @log, "insights: $rel is current ($n charts)" unless $o{commit}; return @log }
+    if ($self->{dry_run}) { push @log, "insights: would write $rel ($n charts)"; return @log }
+    (my $d = $target) =~ s{[/\\][^/\\]*$}{}; make_path($d);
+    open my $fh, '>:raw', $target or die "GitLab: cannot write $target: $!\n"; print $fh $yml; close $fh;
+    push @log, "insights: wrote $rel ($n charts)" . ($o{commit} ? '' : " -- commit it through a merge request (or run setup --commit)");
     @log;
 }
 
@@ -849,7 +1149,7 @@ sub _period {                                 # epoch -> period label for by => 
     for my $s (@$sprints) { return $s->[0] if $t >= $s->[1] && $t < $s->[2] }
     return 'no sprint';
 }
-sub analytics {                               # analytics(p, since => D, until => D, by => sprint|week|month) -> report hash
+sub analytics {                               # analytics(p, since => D, until => D, by => sprint|week|month, sprints_from => milestones|iterations, group => G) -> report hash
     my ($self, $p, %o) = @_;
     my $by = $o{by} // 'sprint';
     $by =~ /^(sprint|week|month)$/ or die "GitLab: analytics --by is sprint, week or month, not '$by'\n";
@@ -858,8 +1158,11 @@ sub analytics {                               # analytics(p, since => D, until =
     my $in = sub { my $t = shift; defined $t && $t >= $since && $t <= $until };
     my $proj = $self->project($p);
     my $dev = $proj->{default_branch} // 'main';
-    my @sprints = sort { $a->[1] <=> $b->[1] } map { [ $_->{title}, _t($_->{start_date}), _t($_->{due_date}) + 3 * 86400 ] }
-                  grep { ($_->{title} // '') =~ /sprint/i && $_->{start_date} && $_->{due_date} } @{ $self->milestones($p) };
+    my @sprints = ($o{sprints_from} // 'milestones') eq 'iterations'     # an iteration runs to its last day (a Sunday), inclusive
+        ? sort { $a->[1] <=> $b->[1] } map { [ 'Sprint ' . ($_->{sequence} // '?'), _t($_->{start_date}), _t($_->{due_date}) + 86400 ] }
+          grep { $_->{start_date} && $_->{due_date} } @{ $self->iterations($o{group} // ($p =~ m{^(.*)/})[0]) }
+        : sort { $a->[1] <=> $b->[1] } map { [ $_->{title}, _t($_->{start_date}), _t($_->{due_date}) + 3 * 86400 ] }
+          grep { ($_->{title} // '') =~ /sprint/i && $_->{start_date} && $_->{due_date} } @{ $self->milestones($p) };
     my $per = sub { _period(shift, $by, \@sprints) };
     my %periods;
     my %R = (project => $p, by => $by, since => $since ? _iso($since) : undef, until => _iso($until), default_branch => $dev);
@@ -1142,8 +1445,13 @@ sub apply_project_file {                      # apply_project_file(path) -> [ li
             $self->_upsert_milestone($p, $_->[0], start_date => $s, due_date => $d, description => $desc // ''); push @log, "milestone $_->[0]";
         }
     }
+    my $it = parse_iterations($c->{iterations}, $path, $p);   # the group's cadence, before the boards that may scope to it
+    my ($ilog, $cads) = $self->_setup_iterations($it);
+    push @log, @$ilog;
+    my ($cad) = map { $_->{id} } grep { defined $_->{id} } values %$cads;
+    my $bit = $c->{boards} && !$self->{local} && grep({ / iteration=| sprint=/ } map { $_->[1] } @{ $c->{boards} }) ? eval { $self->board_iterations($p) } : undef;
     for (@{ $c->{boards} // [] }) {                  # after the labels and milestones the boards are made of
-        push @log, $self->_setup_board($p, $_->[0], parse_board_line($_->[1], "$path:$_->[2]"));
+        push @log, $self->_setup_board($p, $_->[0], parse_board_line($_->[1], "$path:$_->[2]", $it->{use}), iterations => $bit, cadence => $cad);
     }
     for (@{ $c->{branches} // [] }) {
         my %a = map { /^(\w+):(\S+)$/ ? (lc $1 => lc $2) : die "$path:$_->[2]: branch rule words are push:LEVEL merge:LEVEL force:yes|no codeowners:yes|no\n" } split ' ', $_->[1];
@@ -1177,6 +1485,7 @@ sub apply_project_file {                      # apply_project_file(path) -> [ li
         else { $self->create_schedule($p, %o) }
         push @log, "schedule $name ($cron, $o{cron_timezone}, $ref)";
     }
+    push @log, $self->_setup_insights($p, $path, $c, repo => $o{repo}, commit => $o{commit}) if $c->{insights};
     return \@log;
 }
 sub _upsert_milestone {                       # create, or bring an existing milestone of that title up to date (setup re-runs)
@@ -2204,7 +2513,8 @@ sub _create_tag {
 for my $m (qw(create_user create_group create_project update_project add_member set_variable create_label create_milestone update_milestone
               protect_branch protect_tag create_approval_rule create_issue update_issue add_note resolve_discussions link_issues create_mr approve_mr
               merge_mr run_pipeline create_tag create_branch create_release wiki_put package_put create_schedule update_schedule delete_schedule
-              play_schedule pushed create_board update_board create_board_list move_board_list)) {
+              play_schedule pushed create_board update_board create_board_list move_board_list
+              update_board_iteration create_cadence update_cadence commit_files)) {
     no strict 'refs';
     no warnings 'redefine';
     my $orig = defined &{"GitLab::$m"} ? \&{"GitLab::$m"} : next;
@@ -2297,17 +2607,42 @@ sub diff_project_file {                       # diff_project_file(path) -> [ "[s
                 if ($w->[1] // '') ne ($m->{start_date} // '') || ($w->[2] // '') ne ($m->{due_date} // '');
         }
     }
+    my $it = parse_iterations($c->{iterations}, $path, $p);
+    if (@{ $it->{cadences} }) {
+        my %lc = map { ($_->{title} => $_) } @{ (eval { $self->cadences($it->{group}) }) // [] };
+        for my $w (@{ $it->{cadences} }) {
+            my $l = $lc{ $w->{title} };
+            if (!$l) { push @d, "[iterations] $w->{title}: missing on group $it->{group}"; next }
+            for my $k (qw(start_date duration_in_weeks iterations_in_advance automatic roll_over)) {
+                my ($f, $v) = ($w->{$k}, $l->{$k});
+                ($f, $v) = ($f ? 'yes' : 'no', $v ? 'yes' : 'no') if $k =~ /^(automatic|roll_over)$/;
+                push @d, "[iterations] $w->{title}: $k file $f, live " . ($v // '(unset)') if ($v // '') ne $f;
+            }
+        }
+    }
     if ($c->{boards}) {                              # boards not in the file are left alone (GitLab makes a "Development" board itself)
         my %bd = map { ($_->{name} => $_) } @{ $self->boards($p) };
+        my $bit = grep({ / iteration=| sprint=/ } map { $_->[1] } @{ $c->{boards} }) ? eval { $self->board_iterations($p) } // {} : {};
         for (@{ $c->{boards} }) {
-            my $w = parse_board_line($_->[1], "$path:$_->[2]");
+            my $w = parse_board_line($_->[1], "$path:$_->[2]", $it->{use});
             my $bo = $bd{ $_->[0] };
             if (!$bo) { push @d, "[boards] $_->[0]: missing"; next }
             my @live = map { $_->{label}{name} } sort { ($a->{position} // 0) <=> ($b->{position} // 0) } grep { $_->{label} } @{ $bo->{lists} // [] };
             push @d, "[boards] $_->[0]: lists file @{ $w->{labels} }, live " . (@live ? "@live" : '(none)') if "@live" ne "@{ $w->{labels} }";
             my $ms = board_scope($bo->{milestone});
             push @d, "[boards] $_->[0]: milestone file $w->{milestone}, live $ms" if $ms ne $w->{milestone};
+            my $li = $self->{local} ? iteration_scope($bo->{iteration}) : $bit->{ $_->[0] } // 'any';
+            push @d, "[boards] $_->[0]: iteration file $w->{iteration}, live $li" if $li ne $w->{iteration};
         }
+    }
+    if ($c->{insights}) {                            # GitLab reads the file from the default branch: compare that copy
+        my ($yml) = insights_yml($c, $path);
+        my %ins = map { ($_->[0] => $_->[1]) } @{ $c->{insights} };
+        my $rel = $ins{file} // '.gitlab/insights.yml';
+        my $def = $self->{local} ? $proj->{default_branch} : $proj->{default_branch} // 'main';
+        my $live = $self->file_raw($p, $rel, $def // 'main');
+        push @d, !defined $live ? "[insights] $rel: missing on " . ($def // 'main') . " (setup writes it; commit it through a merge request)"
+               : $live ne $yml ? "[insights] $rel: on " . ($def // 'main') . " differs from what the project file generates (re-run setup, commit through a merge request)" : ();
     }
     my %pb = map { ($_->{name} => $_) } @{ $self->protected_branches($p) };
     for (@{ $c->{branches} // [] }) {

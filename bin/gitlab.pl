@@ -41,6 +41,8 @@ usage: gitlab.pl [--url URL [--token-env VAR] [--sudo] | --local DIR] [--project
   schedule new|list|run|delete|due|next ...                   cron pipeline schedules (gitlab.pl help schedule)
   analytics [--since D] [--until D] [--by sprint|week|month] [--csv DIR]   value stream, DORA, CI/CD, MRs, issues
   board list                     the issue boards: lists in order and the milestone scope ([boards] in setup)
+  iteration list [--group G]     the group's iteration cadence and its iterations ([iterations] in setup)
+  insights [FILE]                the .gitlab/insights.yml setup generates from the project file (no server needed)
   windchill intake FILE.csv | status [--csv FILE]            Windchill requests -> issues; progress back (help windchill)
   trigger new|list|run ...       pipeline trigger tokens: another system starts a pipeline (gitlab.pl help trigger)
   token deploy new|list ...      deploy tokens: a scoped credential for a machine (gitlab.pl help token)
@@ -69,17 +71,29 @@ gitlab.pl setup FILE
     [approvals]  RULE NAME = N user user ...
     [variables]  KEY = VALUE [| protected] [| masked]
     [schedules]  DESCRIPTION = CRON | REF | TZ | K=V ...
-    [boards]     NAME = LABEL LABEL ... [| milestone=started|upcoming|none|any|TITLE]
+    [boards]     NAME = LABEL LABEL ... [| milestone=started|upcoming|none|any|TITLE] [| iteration=current]
+                 [| sprint=current]  (sprint=current: milestone started, or iteration current when
+                 [iterations] use = iterations)
+    [iterations] group = PATH   use = milestones|iterations   TITLE = START WEEKS [IN_ADVANCE] [| automatic roll-over]
+    [insights]   file = .gitlab/insights.yml   weeks = 12   (the Insights dashboard, generated)
     [windchill]  the Windchill intake mapping (read by gitlab.pl windchill, not by setup)
   A section may appear more than once; its lines add up (a second [labels] adds labels).
   Boards: setup creates a missing board, adds the missing label lists, puts them in the file's order and
   scopes the board to the milestone (Premium/Ultimate; on Free it warns and the board shows every milestone).
+  Iterations: GitLab keeps iteration cadences on the GROUP and changes them only through GraphQL; setup needs
+  the group path (group =, default the project's namespace) and Maintainer on it. [milestones] stay the
+  fallback: use = milestones (default) or iterations decides what sprint=current and analytics --by sprint use.
+  Insights: setup writes .gitlab/insights.yml when FILE is the repository's .gitlab/project.conf (or --repo
+  DIR); it never commits it: commit it through a merge request, or --commit makes a branch and the MR.
   Creates the project if it does not exist. Safe to re-run: labels and protections are updated in place.
 gitlab.pl setup --diff FILE
   Read only: compare the project file with the live project and print each difference, as
   "[section] name: file X, live Y", "missing" or "live only". Exit 1 when anything differs (drift).
+gitlab.pl setup FILE [--repo DIR] [--commit]
+  --repo DIR writes .gitlab/insights.yml into that clone; --commit puts it on a feature/insights-DATE
+  branch with a merge request to the default branch (the file still needs a review and a merge).
 gitlab.pl --dry-run setup FILE
-  Print the requests setup would send (METHOD /api/v4/... {json}) and change nothing.
+  Print the requests setup would send (METHOD /api/v4/... or /api/graphql {json}) and change nothing.
 EOF
     sprints => "gitlab.pl sprints START COUNT [--weeks 2] [--prefix \"Sprint \"]\n  COUNT milestones of WEEKS weeks from START (a Monday); each is due on the Friday of its last week.\n",
     issue => <<'EOF',
@@ -142,6 +156,7 @@ gitlab.pl schedule next "CRON" [--tz ZONE] [--from ISO] [-n N]   the next N run 
 EOF
     analytics => <<'EOF',
 gitlab.pl analytics [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--by sprint|week|month] [--csv DIR]
+                    [--sprints-from milestones|iterations] [--group PATH]
   From the REST data every tier has (MRs with commits and notes, pipelines and jobs, issues, deployments,
   releases, milestones):
   1. value stream: issue created -> first commit -> MR opened -> first review -> merged -> issue closed
@@ -152,8 +167,12 @@ gitlab.pl analytics [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--by sprint|week|
   3. CI/CD: success rate, median and p85 duration, failures per job, the trend per period
   4. merge requests: merged per period, time to merge, review turnaround, per author
   5. issues: opened and closed per period by type:: label; open-issue age
-  --by sprint uses the "Sprint N" milestones' dates. --csv DIR also writes one CSV per table.
+  --by sprint uses the "Sprint N" milestones' dates, or the group's iterations (Sprint N = the sequence) when
+  --sprints-from iterations or [iterations] use = iterations in .gitlab/project.conf. --csv DIR also writes
+  one CSV per table.
 EOF
+    insights => "gitlab.pl insights [PROJECT FILE]\n  Print the .gitlab/insights.yml that setup generates from the project file's [labels], [windchill] and\n  [insights] (default: .gitlab/project.conf here or above). Needs no GitLab. Analyze > Insights (Ultimate)\n  reads the file from the default branch: setup writes it into the repository, you commit it by merge request\n  (or setup --commit opens one).\n",
+    iteration => "gitlab.pl iteration list [--group PATH] [--conf FILE]\n  The group's iteration cadences and their iterations (Sprint N = the iteration's sequence), and whether the\n  kit's sprints come from milestones or iterations ([iterations] use). Cadences live on the group, not the\n  project: setup makes them from [iterations] and needs Maintainer on that group.\n",
     board => "gitlab.pl board list\n  Each issue board: its label lists in order and its milestone scope (any, none, upcoming, started or a\n  milestone title). Boards are made by setup from the [boards] section of the project file.\n",
     windchill => <<'EOF',
 gitlab.pl windchill intake FILE.csv [--conf FILE] [--note] [--dry-run]
@@ -219,7 +238,17 @@ if ($cmd eq 'help') { my $c = shift @ARGV // ''; print $HELP{$c} // $HELP{''}; e
 if ($cmd eq 'ci') { require GitLabCI; exit GitLabCI::cli(@ARGV) }
 exists $HELP{$cmd} or do { print STDERR "gitlab.pl: unknown command '$cmd' (gitlab.pl help)\n"; exit 2 };
 
-if ($cmd eq 'schedule' && ($ARGV[0] // '') eq 'next' && !(defined $G{local} && length $G{local}) && !$G{url}) {   # no backend needed
+if ($cmd eq 'insights') {                    # no backend: the file setup would write, to stdout
+    my $r = eval {
+        my $f = $ARGV[0] // find_conf() // die "gitlab.pl: insights needs a project file (or run it inside a repository with .gitlab/project.conf)\n";
+        my $c = GitLab::parse_project_file(slurp($f), $f);
+        print +(GitLab::insights_yml($c, $f))[0];
+        1;
+    };
+    if (!$r) { (my $e = $@) =~ s/^(?:gitlab\.pl|GitLab): //; print STDERR "gitlab.pl: $e"; exit 1 }
+    exit 0;
+}
+if ($cmd eq 'schedule' && ($ARGV[0] // '') eq 'next' &&!(defined $G{local} && length $G{local}) && !$G{url}) {   # no backend needed
     my @a = map { $_ eq '-n' ? '--n' : $_ } @ARGV[1 .. $#ARGV];
     my $r = eval { my %o = opts(\@a, 'tz=s', 'from=s', 'n=s'); schedule_next(\@a, \%o, defined $G{now} ? GitLab::_epoch($G{now}) : time); 1 };
     if (!$r) { (my $e = $@) =~ s/^(?:gitlab\.pl|GitLab): //; print STDERR "gitlab.pl: $e"; exit 1 }
@@ -261,6 +290,12 @@ sub find_conf {                               # .gitlab/project.conf here or in 
     while (1) { return "$d/.gitlab/project.conf" if -f "$d/.gitlab/project.conf"; my $up = $d =~ s{/[^/]*$}{}r; last if $up eq $d || !length $up; $d = $up }
     undef;
 }
+sub iteration_conf {                          # [iterations] of --conf FILE or .gitlab/project.conf, else the defaults (sprints are milestones)
+    my $f = shift // find_conf();
+    return { use => 'milestones', group => undef } unless defined $f && -f $f;
+    my $c = GitLab::parse_project_file(slurp($f), $f);
+    GitLab::parse_iterations($c->{iterations}, $f, $G{project} // (map { $_->[1] } grep { $_->[0] eq 'path' } @{ $c->{project} // [] })[0]);
+}
 sub P { $G{project} // die "gitlab.pl: give --project GROUP/NAME (or GITLAB_PROJECT)\n" }
 sub need { my ($n, $what, @a) = @_; @a >= $n or die "gitlab.pl: $what\n" }
 sub show_issue {
@@ -275,14 +310,14 @@ sub show_issue {
 sub main_cmd {
     my ($cmd, @a) = @_;
     if ($cmd eq 'setup') {
-        my %o = opts(\@a, 'diff');
+        my %o = opts(\@a, 'diff', 'repo=s', 'commit');
         need(1, 'setup needs a project file (tools/gitlab/templates/project.conf)', @a);
         if ($o{diff}) {                       # the drift check: read only
             my $d = $gl->diff_project_file($a[0], ($G{project} ? (project => $G{project}) : ()));
             print @$d ? join('', map { "$_\n" } @$d) : "no differences: the project matches $a[0]\n";
             return @$d ? 1 : 0;
         }
-        my $log = $gl->apply_project_file($a[0], ($G{project} ? (project => $G{project}) : ()));
+        my $log = $gl->apply_project_file($a[0], ($G{project} ? (project => $G{project}) : ()), repo => $o{repo}, commit => $o{commit});
         print "$_\n" for @$log;
         return 0;
     }
@@ -495,9 +530,26 @@ sub main_cmd {
         else { usage('schedule') }
         return 0;
     }
+    if ($cmd eq 'iteration') {
+        my $sub = shift @a // 'list';
+        usage('iteration') unless $sub eq 'list';
+        my %o = opts(\@a, 'group=s', 'conf=s');
+        my $it = iteration_conf($o{conf});
+        my $g = $o{group} // $it->{group} // (P() =~ m{^(.*)/})[0] // die "gitlab.pl: iteration list needs --group PATH\n";
+        my $cs = $gl->cadences($g);
+        print "no iteration cadence on group $g (add one to [iterations] and run setup)\n" unless @$cs;
+        printf "%s: every %d week%s from %s, %d in advance, %s%s\n", $_->{title}, $_->{duration_in_weeks}, $_->{duration_in_weeks} == 1 ? '' : 's', $_->{start_date} // '?',
+            $_->{iterations_in_advance} // 0, $_->{automatic} ? 'automatic' : 'manual', $_->{roll_over} ? ', roll-over' : '' for @$cs;
+        printf "  Sprint %-3s %s .. %s  %s\n", $_->{sequence} // '?', $_->{start_date}, $_->{due_date}, $_->{state} for @{ $gl->iterations($g) };
+        print "sprints come from: $it->{use} ([iterations] use)\n";
+        return 0;
+    }
     if ($cmd eq 'analytics') {
-        my %o = opts(\@a, 'since=s', 'until=s', 'by=s', 'csv=s');
-        my $A = $gl->analytics(P(), since => $o{since}, until => $o{until}, by => $o{by} // 'sprint');
+        my %o = opts(\@a, 'since=s', 'until=s', 'by=s', 'csv=s', 'sprints-from=s', 'group=s');
+        my $it = iteration_conf();
+        my $from = $o{'sprints-from'} // $it->{use};
+        $from =~ /^(milestones|iterations)$/ or die "gitlab.pl: --sprints-from is milestones or iterations, not '$from'\n";
+        my $A = $gl->analytics(P(), since => $o{since}, until => $o{until}, by => $o{by} // 'sprint', sprints_from => $from, group => $o{group} // $it->{group});
         print GitLab::analytics_text($A);
         if (defined $o{csv}) { my $n = GitLab::analytics_csv($A, $o{csv}); print "\nCSV: " . join(', ', map { "$_ ($n->{$_})" } sort keys %$n) . " -> $o{csv}\n" }
         return 0;

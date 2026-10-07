@@ -78,6 +78,7 @@ perl $KIT/bin/gitlab.pl --as tom setup tools/gitlab/templates/project.conf
   label work::platform
   label work::learning
   label ai::assisted
+  label source::windchill
   milestone Sprint 1
   milestone Sprint 2
   milestone Sprint 3
@@ -117,6 +118,20 @@ perl $KIT/bin/gitlab.pl --as tom setup tools/gitlab/templates/project.conf
   milestone Sprint 37
   milestone Sprint 38
   milestone Sprint 39
+  board Sprint created
+  board Sprint: list workflow::ready added
+  board Sprint: list workflow::in-progress added
+  board Sprint: list workflow::review added
+  board Sprint: list workflow::blocked added
+  board Sprint: list workflow::done added
+  board Sprint: milestone started
+  board Sprint (5 lists, milestone started)
+  board Backlog created
+  board Backlog: list priority::1 added
+  board Backlog: list priority::2 added
+  board Backlog: list priority::3 added
+  board Backlog: milestone none
+  board Backlog (3 lists, milestone none)
   protected branch main (push:none merge:maintainer force:no codeowners:yes)
   protected branch develop (push:none merge:developer force:no codeowners:yes)
   protected branch release/* (push:maintainer merge:maintainer force:no)

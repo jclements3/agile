@@ -1,0 +1,41 @@
+% cover.tex -- the kit's book cover (the same design as docs/HALBERD.pdf and the MBSE-DEVSECOPS Primer) as a
+% standalone one-page PDF. Change the four lines below, put cover-art.jpg next to this file (the kit's copy is
+% docs/img/cover-art.jpg), and build:   xelatex cover.tex  (run it twice)  ->  cover.pdf
+% Put it in front of another PDF:       pdfunite cover.pdf book.pdf book-with-cover.pdf
+% Or inside a LaTeX document:           \usepackage{pdfpages} ... \includepdf{cover.pdf}   (first thing after \begin{document})
+\newcommand{\CoverTitle}{Your Title Here}                      % two lines? use \\ where it should break
+\newcommand{\CoverLine}{A Case Study}                          % the small-caps line under the title
+\newcommand{\CoverSubtitle}{One sentence that says what the book is about, in plain words}
+\newcommand{\CoverDate}{October 2026}                          % empty {} to leave the date out
+\newcommand{\BandTop}{2.55in}  % the band's height: 2.55in for a one-line subtitle, 2.95in for two lines
+\newcommand{\TitleY}{1.85in}   % where the title sits:   1.85in for a one-line subtitle, 2.30in for two lines
+
+\documentclass{article}
+\usepackage[letterpaper,margin=0pt]{geometry}
+\usepackage{fontspec}
+\usepackage{xcolor,graphicx,tikz}
+\IfFontExistsTF{LibertinusSans-Regular.otf}
+  {\newfontfamily\coverfont{LibertinusSans}[Extension=.otf, UprightFont=*-Regular, BoldFont=*-Bold]}
+  {\newfontfamily\coverfont{TeX Gyre Heros}}
+\graphicspath{{./}{../../docs/img/}}
+\pagestyle{empty}
+\begin{document}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[white] (current page.south west) rectangle (current page.north east);
+  \begin{scope}
+    \clip (current page.south west) rectangle (current page.north east);
+    \node[inner sep=0pt,anchor=center] at (current page.center) {\includegraphics[width=\paperwidth]{cover-art.jpg}};
+  \end{scope}
+  \fill[black,opacity=0.85] ([yshift=0.45in]current page.south west) rectangle ([yshift=\BandTop]current page.south east);
+  \draw[white!78!black,line width=1.2pt] ([yshift=\BandTop]current page.south west) -- ([yshift=\BandTop]current page.south east);
+  \draw[white!78!black,line width=1.2pt] ([yshift=0.45in]current page.south west) -- ([yshift=0.45in]current page.south east);
+  \draw[white!55!black,line width=0.4pt] ([yshift=\BandTop-0.06in]current page.south west) -- ([yshift=\BandTop-0.06in]current page.south east);
+  \draw[white!55!black,line width=0.4pt] ([yshift=0.51in]current page.south west) -- ([yshift=0.51in]current page.south east);
+  \node[white,font=\coverfont\bfseries,align=center] (t) at ([yshift=\TitleY]current page.south)
+    {\fontsize{28}{33}\selectfont \CoverTitle};
+  \node[white,font=\coverfont,anchor=north] (s) at ([yshift=-0.10in]t.south) {\Large\scshape \CoverLine};
+  \node[white,font=\coverfont,anchor=north,align=center,text width=0.8\paperwidth] at ([yshift=-0.10in]s.south)
+    {\large \CoverSubtitle\ifx\CoverDate\empty\else\quad{\normalsize\color{white!75!black}\textbullet\ \CoverDate}\fi};
+\end{tikzpicture}
+\null
+\end{document}

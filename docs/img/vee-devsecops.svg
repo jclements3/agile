@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="555" viewBox="0 55 900 555" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="12.5">
+<!-- The systems-engineering Vee in MBSE DevSecOps (docs/src/primer/05a-vee.txt). Black and white, hand-drawn. -->
+<defs>
+  <marker id="vee-ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#000"/></marker>
+</defs>
+<rect x="0" y="0" width="900" height="610" fill="#fff"/>
+<!-- the Vee -->
+<polyline points="140,105 200,205 260,305 320,405 450,485 580,405 640,305 700,205 760,105" fill="none" stroke="#888" stroke-width="10" stroke-linejoin="round"/>
+<text x="60" y="250" font-size="13" font-style="italic" transform="rotate(54 60 250)">decompose and define</text>
+<text x="760" y="330" font-size="13" font-style="italic" transform="rotate(-54 750 330)">integrate, verify, validate</text>
+<!-- horizontal verification links -->
+<g stroke="#000" stroke-width="1.2" stroke-dasharray="6 4" fill="none">
+  <line x1="240" y1="105" x2="660" y2="105"/>
+  <line x1="300" y1="205" x2="600" y2="205"/>
+  <line x1="360" y1="305" x2="540" y2="305"/>
+  <line x1="420" y1="405" x2="480" y2="405"/>
+</g>
+<g font-size="12" text-anchor="middle" font-style="italic">
+  <text x="450" y="99">validates</text>
+  <text x="450" y="199">verifies: verify links in the same MR</text>
+  <text x="450" y="299">integrates</text>
+</g>
+<!-- boxes: left arm -->
+<g stroke="#000" stroke-width="1.5" fill="#fff">
+  <rect x="40" y="74" width="200" height="62" rx="6"/>
+  <rect x="100" y="174" width="200" height="62" rx="6"/>
+  <rect x="160" y="274" width="200" height="62" rx="6"/>
+  <rect x="220" y="374" width="200" height="62" rx="6"/>
+  <rect x="350" y="456" width="200" height="62" rx="6" stroke-width="2.5"/>
+  <rect x="480" y="374" width="200" height="62" rx="6"/>
+  <rect x="540" y="274" width="200" height="62" rx="6"/>
+  <rect x="600" y="174" width="200" height="62" rx="6"/>
+  <rect x="660" y="74" width="200" height="62" rx="6"/>
+</g>
+<g text-anchor="middle">
+  <text x="140" y="94" font-weight="bold" font-size="14.5">Stakeholder needs</text>
+  <text x="140" y="111">issues, DOORS needs module</text>
+  <text x="140" y="126">stakeholder requirements</text>
+
+  <text x="200" y="194" font-weight="bold" font-size="14.5">System requirements</text>
+  <text x="200" y="211">requirement defs, doorsId</text>
+  <text x="200" y="226">recipe check on each MR</text>
+
+  <text x="260" y="294" font-weight="bold" font-size="14.5">Architecture</text>
+  <text x="260" y="311">parts, ports, interfaces</text>
+  <text x="260" y="326">layers + complexity gate</text>
+
+  <text x="320" y="394" font-weight="bold" font-size="14.5">Design</text>
+  <text x="320" y="411">detail in model/physical</text>
+  <text x="320" y="426">by merge request</text>
+
+  <text x="450" y="476" font-weight="bold" font-size="14.5">A change to the model</text>
+  <text x="450" y="493">branch, commit, merge request</text>
+  <text x="450" y="508">pipeline runs in minutes</text>
+
+  <text x="580" y="394" font-weight="bold" font-size="14.5">Model checks (MIL)</text>
+  <text x="580" y="411">grammar, lint, outline</text>
+  <text x="580" y="426">on every merge request</text>
+
+  <text x="640" y="294" font-weight="bold" font-size="14.5">Integration</text>
+  <text x="640" y="311">interface tables, ibd view</text>
+  <text x="640" y="326">SIL nightly, when enabled</text>
+
+  <text x="700" y="194" font-weight="bold" font-size="14.5">System verification</text>
+  <text x="700" y="211">trace ratchet, VCRM</text>
+  <text x="700" y="226">HIL by hand, results ingested</text>
+
+  <text x="760" y="94" font-weight="bold" font-size="14.5">Validation, acceptance</text>
+  <text x="760" y="111">test events, customer review</text>
+  <text x="760" y="126">signed verdicts in the VCRM</text>
+</g>
+<!-- review gates -->
+<g fill="#000">
+  <path d="M170 148 l8 8 l-8 8 l-8 -8 z"/>
+  <path d="M230 248 l8 8 l-8 8 l-8 -8 z"/>
+  <path d="M290 348 l8 8 l-8 8 l-8 -8 z"/>
+  <path d="M670 248 l8 8 l-8 8 l-8 -8 z"/>
+  <path d="M730 148 l8 8 l-8 8 l-8 -8 z"/>
+</g>
+<g font-weight="bold" font-size="13">
+  <text x="181" y="161">SRR</text>
+  <text x="241" y="261">SDR/PDR</text>
+  <text x="301" y="361">CDR</text>
+  <text x="659" y="261" text-anchor="end">TRR</text>
+  <text x="719" y="161" text-anchor="end">PRR, FCA/PCA</text>
+</g>
+<!-- legend and footer -->
+<g font-size="12">
+  <path d="M40 545 l7 7 l-7 7 l-7 -7 z" fill="#000"/>
+  <text x="55" y="557">technical review = a baseline: release branch, protected tag baseline-N, a review package the pipeline
+  </text>
+  <text x="55" y="573">generates, the baseline job's rebuild and checksum (the configuration audit), and the people who approve it</text>
+  <line x1="33" y1="592" x2="58" y2="592" stroke="#000" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <text x="66" y="596">verification link: the requirement and its verification case change in the same merge request</text>
+</g>
+</svg>

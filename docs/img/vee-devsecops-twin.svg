@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="720" viewBox="0 0 960 720" font-family="DejaVu Sans, Helvetica, Arial, sans-serif" font-size="13">
+<!-- One picture: the systems-engineering Vee, two-week sprints, the DevSecOps loop, the SysML v2 model in GitLab as the
+     spine, the digital thread and the digital twin (docs/src/primer/04a-vee.txt). Black and white, hand-drawn. -->
+<defs>
+  <marker id="twin-ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#000"/></marker>
+  <marker id="twin-ars" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#000"/></marker>
+</defs>
+<rect x="0" y="0" width="960" height="720" fill="#fff"/>
+
+<!-- the digital twin, and the operations data it sends back to the left arm -->
+<rect x="700" y="14" width="246" height="96" rx="8" fill="#fff" stroke="#000" stroke-width="2.5"/>
+<text x="823" y="40" text-anchor="middle" font-weight="bold" font-size="15">Digital twin</text>
+<text x="823" y="60" text-anchor="middle">the live buoys and shore stations,</text>
+<text x="823" y="77" text-anchor="middle">mirrored from the fielded model,</text>
+<text x="823" y="94" text-anchor="middle">fed by real observations</text>
+<path d="M700 62 L175 62 Q132 62 130 158" fill="none" stroke="#000" stroke-width="1.8" marker-end="url(#twin-ar)"/>
+<text x="425" y="52" text-anchor="middle" font-style="italic">operations data flows back: new needs, discrepancy reports, change requests</text>
+
+<!-- the Vee frame -->
+<polyline points="130,170 420,560 540,560 830,170" fill="none" stroke="#999" stroke-width="12" stroke-linejoin="round"/>
+
+<!-- what each level is -->
+<g font-size="13.5" font-weight="bold">
+  <text x="116" y="186" text-anchor="end">Needs</text>
+  <text x="200" y="306" text-anchor="end">Requirements</text>
+  <text x="290" y="426" text-anchor="end">Architecture</text>
+  <text x="380" y="532" text-anchor="end">Design</text>
+  <text x="580" y="532">Model checks</text>
+  <text x="670" y="426">Integration</text>
+  <text x="760" y="306">Verification</text>
+  <text x="846" y="186">Validation,</text>
+</g>
+<g font-size="12">
+  <text x="846" y="202">the fielded</text>
+  <text x="846" y="217">configuration</text>
+</g>
+
+<!-- technical reviews: the gates -->
+<g fill="#000">
+  <path d="M182 230 l9 10 l-9 10 l-9 -10 z"/>
+  <path d="M271 350 l9 10 l-9 10 l-9 -10 z"/>
+  <path d="M361 470 l9 10 l-9 10 l-9 -10 z"/>
+  <path d="M607 460 l9 10 l-9 10 l-9 -10 z"/>
+  <path d="M778 230 l9 10 l-9 10 l-9 -10 z"/>
+</g>
+<g font-weight="bold" font-size="12.5">
+  <text x="168" y="245" text-anchor="end">SRR</text>
+  <text x="257" y="365" text-anchor="end">PDR</text>
+  <text x="347" y="485" text-anchor="end">CDR</text>
+  <text x="621" y="475">TRR</text>
+  <text x="792" y="245">PRR</text>
+</g>
+
+<!-- two-week sprints: beads along both arms and at the bottom -->
+<g fill="#fff" stroke="#000" stroke-width="1.6">
+  <circle cx="227" cy="300" r="15"/>
+  <circle cx="316" cy="420" r="15"/>
+  <circle cx="480" cy="560" r="15"/>
+  <circle cx="644" cy="420" r="15"/>
+  <circle cx="733" cy="300" r="15"/>
+</g>
+<g fill="none" stroke="#000" stroke-width="1.6" marker-end="url(#twin-ars)">
+  <path d="M218 292 A9 9 0 1 1 220 307"/>
+  <path d="M307 412 A9 9 0 1 1 309 427"/>
+  <path d="M471 552 A9 9 0 1 1 473 567"/>
+  <path d="M635 412 A9 9 0 1 1 637 427"/>
+  <path d="M724 292 A9 9 0 1 1 726 307"/>
+</g>
+
+<!-- the DevSecOps loop at the center -->
+<text x="480" y="252" text-anchor="middle" font-style="italic">the DevSecOps loop, on every merge request</text>
+<path d="M480 330 C432 274 315 274 315 330 C315 386 432 386 480 330 C528 274 645 274 645 330 C645 386 528 386 480 330 Z" fill="none" stroke="#000" stroke-width="2.2"/>
+<g fill="#000">
+  <path d="M375 288 l10 -5 l0 10 z"/>
+  <path d="M385 372 l-10 -5 l0 10 z"/>
+  <path d="M585 288 l-10 -5 l0 10 z"/>
+  <path d="M575 372 l10 -5 l0 10 z"/>
+</g>
+<g text-anchor="middle">
+  <text x="392" y="316" font-weight="bold">plan · code</text>
+  <text x="392" y="335" font-weight="bold">build · test</text>
+  <text x="392" y="353" font-size="11.5">build = validate</text>
+  <text x="392" y="367" font-size="11.5">and generate</text>
+  <text x="568" y="316" font-weight="bold">release · deploy</text>
+  <text x="568" y="335" font-weight="bold">operate · monitor</text>
+  <text x="568" y="353" font-size="11.5">deploy = publish the</text>
+  <text x="568" y="367" font-size="11.5">site and baselines</text>
+</g>
+
+<!-- the digital thread, inside the Vee -->
+<polyline points="241,290 375,470 420,530 540,530 585,470 719,290 793,190 823,112" fill="none" stroke="#000" stroke-width="3.2" stroke-dasharray="11 6" stroke-linejoin="round"/>
+
+<!-- the spine: the SysML v2 model in GitLab -->
+<rect x="90" y="598" width="780" height="46" rx="6" fill="#e6e6e6" stroke="#000" stroke-width="1.5"/>
+<text x="480" y="617" text-anchor="middle" font-weight="bold" font-size="14">SysML v2 model in GitLab: the spine both arms read and write</text>
+<text x="480" y="635" text-anchor="middle" font-size="12">model/ text, develop, merge requests, protected tags baseline-N</text>
+<g stroke="#000" stroke-width="1.6" marker-start="url(#twin-ar)" marker-end="url(#twin-ar)">
+  <line x1="440" y1="595" x2="440" y2="572"/>
+  <line x1="520" y1="595" x2="520" y2="572"/>
+</g>
+
+<!-- legend -->
+<g font-size="12">
+  <path d="M28 662 l7 8 l-7 8 l-7 -8 z" fill="#000"/>
+  <text x="42" y="675">technical review: a baseline and its approvers</text>
+  <circle cx="352" cy="670" r="9" fill="#fff" stroke="#000" stroke-width="1.4"/>
+  <text x="368" y="675">two-week sprint: plan, build, check, release</text>
+  <line x1="670" y1="670" x2="712" y2="670" stroke="#000" stroke-width="3" stroke-dasharray="11 6"/>
+  <text x="720" y="675">digital thread</text>
+  <text x="28" y="702">Requirement, design, verification, fielded configuration: the same ids in every baseline; the twin's data comes back as new work.</text>
+</g>
+</svg>

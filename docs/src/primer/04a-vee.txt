@@ -1,0 +1,409 @@
+== The Vee, kept: the systems-engineering V in MBSE DevSecOps {#vee}
+
+::: bridge
+You know: the Vee. Decompose on the left arm, from stakeholder needs to design; integrate, verify and validate on the
+right arm; tie each level on the left to its check on the right; hold a technical review at each gate.
+
+Here it is called: still the Vee. The left arm is the model's layers, changed by merge requests. The right arm is
+the pipeline's checks plus the test events. The horizontal lines are `verify` relationships. The reviews are
+baselines: protected tags with a review package the pipeline generates.
+
+What is new: the cadence. The program still walks one big Vee across its reviews, but every merge request now
+walks a small one in minutes, and every baseline walks a medium one. Nothing on the right arm waits for a milestone.
+:::
+
+This chapter is CORE: it is the frame for everything that follows. Read it before [[devsecops]], which translates
+the vocabulary; this chapter explains the shape.
+
+=== Jim's whiteboard {#vee-whiteboard}
+
+The second time the team met about the directive ([[directive]]), Bob walked to the whiteboard, drew a large V and
+put the marker down.
+
+> Every program I've been on runs on this. Requirements down the left, test up the right, a review at every corner.
+> The memo says "continuous delivery". Where does the V go? Do we throw it away?
+> -- Bob, the week before sprint 1
+
+It was the right question, and the honest answer took Jim most of the afternoon to work out: the V stays. What
+changes is how often you walk it, and who does the walking on the right-hand side. In the document era the team
+walked the right arm by hand, a few times a year, in the weeks before a review. In the new way a machine walks the
+lowest rungs of the right arm on every change, and people spend their time on the rungs only people can climb.
+
+This chapter is that afternoon, written down.
+
+=== The Vee in one paragraph {#vee-recap}
+
+The systems-engineering Vee draws the life of a system as a letter V. Down the **left arm** the team decomposes:
+stakeholder needs become system requirements, requirements become an architecture, the architecture becomes a
+detailed design. At the **bottom** something gets built. Up the **right arm** the team integrates the pieces and
+checks them, level by level, against what the left arm said: the design against its specification, the integrated
+system against its requirements, the delivered system against the stakeholders' needs. The **horizontal lines**
+across the V are the promise that every statement on the left has a check on the right. The **gates** on the arms
+are the technical reviews -- SRR, SDR or PDR, CDR, TRR, PRR, and the configuration audits -- where a board looks at
+the evidence and decides whether the program moves on.
+
+Nothing in that paragraph mentions documents, tools or a calendar. That is why the Vee survives the move.
+
+=== What DevSecOps changes: three Vees, not one {#vee-three}
+
+{{figure: docs/img/vee-devsecops.svg | The Vee in MBSE DevSecOps: each element and the GitLab mechanism that carries it}}
+
+In the document era there was one Vee per program, walked once, with reviews months apart. In MBSE DevSecOps the
+same shape repeats at three time scales:
+
+- **The program's Vee**, across the technical reviews. It is the one you already know, and it still takes years. The
+  reviews still happen and a board still decides; what arrives at each review is different ([[vee-reviews]]).
+- **A baseline's Vee**, release by release. Between reviews the team cuts baselines (Tidewater's are
+  `baseline-0`, `baseline-1` ...). Each one goes down the left arm (what changed), through the build (the release
+  branch), and up the right arm (the baseline audit, the verification matrix, the people who approve it).
+- **A merge request's Vee**, in minutes. One change goes down the left arm (Bob edits a requirement and its
+  satisfy relationship), is built (the merge request), and comes up the right arm (grammar, lint, the trace check,
+  the verification matrix, a code owner's review) before it lands. The lowest rungs of the right arm are walked
+  hundreds of times between two reviews instead of once.
+
+The middle of the figure is where the shift happens: *a change to the model* sits at the bottom of the V, and the
+model checks are its first rung up. Bob's worry was that continuous delivery would flatten the V into a line. It
+does the opposite: it makes the V small enough to walk every day.
+
+=== The left arm: the model's layers {#vee-left}
+
+On the left arm the document era had a specification tree: the SRS, the SSDD, the ICDs, the design documents, each
+with its own revision letter. In the new way the same content lives in one model, arranged in layers that mirror
+the left arm ([[repo-layout]]):
+
+|| Left arm level | Where it lives in the model | How it changes ||
+| Stakeholder needs | `model/requirements/stakeholder/` (from the DOORS needs module) | DOORS export, imported by the vendor branch |
+| System requirements | `model/requirements/system/`, each with its `doorsId` | merge request; the recipe check grades the wording ([[recipe]]) |
+| Architecture | `model/logical/` and the parts, ports and interfaces of `model/physical/` | merge request; the layers and complexity checks guard the structure |
+| Design | detail inside `model/physical/` | merge request, by the package's code owner |
+Table: The left arm of the Vee as folders in the model.
+
+The arm is still walked top to bottom: a stakeholder need is still decomposed into requirements before anyone
+designs. What changed is the unit of work. A decomposition step is a story, its pieces are tasks of under a week, and
+each lands as a merge request that a second engineer reviews ([[operating-model]], [[reviewing]]).
+
+=== The right arm: checks at every level {#vee-right}
+
+The right arm is where DevSecOps changes the most. In the document era every rung was a manual event: a desk check,
+an integration test, a review of a verification matrix someone had assembled by hand. Now each rung has an owner,
+and the lowest rungs are machines.
+
+- **Model checks, the first rung (MIL, model in the loop).** On every merge request the pipeline checks the
+  grammar, resolves every name, checks the outline, the layers and the complexity, compares the trace with DOORS,
+  regenerates the verification matrix and grades the requirement wording. Minutes, not weeks.
+- **Integration.** Interfaces are checked when they change: the interface tables and the connection view are
+  generated from the model ([[diagrams]]), and an interface change needs the systems lead's approval through
+  CODEOWNERS. Where a program has a simulation, a nightly software-in-the-loop job runs it (SIL).
+- **System verification.** The trace ratchet keeps every requirement's verification case in place, the verification
+  matrix (VCRM) shows each requirement's latest verdict, and a lab bench runs hardware-in-the-loop tests (HIL) when a
+  person starts them ([[verification]]).
+- **Validation and acceptance.** Test events and the customer's review: people and real conditions. The pipeline's
+  job here is evidence, not judgement: the signed verdicts and the matrix go into the baseline's release.
+
+You can see the rungs the pipeline walks for each kind of event. Start the practice project from lesson 11 (a copy of
+the team's model repository on an offline GitLab), then ask the pipeline what it would run for a merge request:
+
+```sh run sandbox=practice-11 cwd=work expect="pipeline: 10 jobs"
+. ../env.sh > /dev/null
+perl "$KIT/bin/gitlab.pl" ci --list --event merge_request_event --target develop | grep -v skipped
+```
+
+Ten jobs: the first rung of the right arm, on every change. Now the same question for a baseline tag:
+
+```sh run expect="baseline +release"
+perl "$KIT/bin/gitlab.pl" ci --list --event tag --tag baseline-1 | grep -v skipped
+```
+
+The same ten checks run again, and three more join them: `baseline` (the configuration audit), `publish-package`
+and `publish-release` (the review package). That is the baseline's Vee coming up the right arm. Finally, the
+nightly schedule with a simulation and a lab bench switched on:
+
+```sh run expect="hil-test +trace +manual"
+perl "$KIT/bin/gitlab.pl" ci --list --event schedule --branch develop --var SIL_ENABLED=true --var HIL_ENABLED=true | grep -v skipped
+```
+
+`sil-regression` runs by itself every night; `hil-test` waits, `manual`, for a person who has checked the bench.
+Tidewater has neither switched on, because the government team owns no simulation and no lab; the template carries
+them for the day a program does ([[verification]]).
+
+=== The horizontal lines: verify, in the same merge request {#vee-links}
+
+The horizontal lines are the Vee's most important promise and its most neglected one. In the document era the
+promise was a verification cross-reference matrix, assembled in a spreadsheet before each review, out of date the day
+after. Here a horizontal line is a `verify` relationship in the model: a verification case that names the requirement
+it verifies. Two rules keep the line from breaking:
+
+1. A requirement and its verification case change in **the same merge request**. The reviewer sees both.
+2. The **trace check** compares the model with DOORS on every merge request and fails when a change *adds* a gap: a
+   requirement that loses its satisfy (an orphan) or its verify (unverified). Gaps that were already there are
+   reported, not blocked: they are someone else's to fix, often the prime's ([[pipeline]]).
+
+Break a horizontal line on purpose and watch the check catch it. On a scratch branch, delete one `verify` and run the
+trace job as a merge request into `develop` would:
+
+```sh run expect="unverified 9 -> 10 \(new: TW-SYS-003\)"
+git switch -q -c try-vee origin/develop
+sed -i '/verify TW_SYS_003;/d' model/verification/Verification.sysml
+git commit -qam "drop one verify"
+CI_PIPELINE_SOURCE=merge_request_event CI_MERGE_REQUEST_TARGET_BRANCH_NAME=develop perl ci/job.pl trace 2>&1 | tail -1
+git switch -q develop && git branch -q -D try-vee
+```
+
+The nine unverified requirements that were already there did not block anyone. The tenth, the one this change
+created, does, and the message names it. In the document era that line would have broken silently, and the review
+in three months' time would have found it, if anyone looked.
+
+=== The gates: technical reviews as baselines {#vee-reviews}
+
+The technical reviews keep their names, their boards and their decisions. Three things about them change.
+
+- **What a review looks at.** A review used to look at a document set assembled for it. Now it looks at a
+  **baseline**: a protected tag, `baseline-N`, on a commit of the model. Everything the board reads -- the generated
+  documents, the verification matrix, the trace report, the toolchain list -- is produced from that tag by the
+  pipeline, so it describes exactly what was tagged.
+- **How the baseline is audited.** The configuration audit used to be a person comparing a document list with a
+  library. Now the `baseline` job rebuilds the generated documents from the tagged model and compares a checksum
+  with the one recorded in the tag. If the tag's documents were edited by hand, or the model changed without its
+  documents, the audit fails.
+- **Who decides.** Nobody new. The board still decides; in GitLab its decision is an approval on the release merge
+  request, by the people CODEOWNERS names, with the change-board concurrence written as a comment ([[sprint-6]]).
+
+Cut a baseline by hand and audit it. The tag records the checksum of the generated documents; the `baseline` job
+rebuilds them and checks:
+
+```sh run expect="baseline-try rebuilds identically"
+h=$(git ls-tree -r HEAD -- docs | sha256sum | cut -c1-64)
+git tag -a baseline-try -m "baseline-try" -m "sha256=$h"
+CI_COMMIT_TAG=baseline-try perl ci/job.pl baseline | grep "rebuilds identically"
+git tag -d baseline-try > /dev/null
+```
+
+Now tag a commit whose model changed without its generated documents, the way a hurried hand edit would:
+
+```sh run expect="the tagged tree does not rebuild its docs"
+git switch -q -c try-audit
+sed -i 's/part def Thermometer\b/part def AirThermometer/' model/physical/stations/Stations.sysml
+git commit -qam "rename a part without regenerating the documents"
+h=$(git ls-tree -r HEAD -- docs | sha256sum | cut -c1-64)
+git tag -a baseline-bad -m "baseline-bad" -m "sha256=$h"
+CI_COMMIT_TAG=baseline-bad perl ci/job.pl baseline 2>&1 | tail -1 || echo "exit status $?"
+git checkout -q -- . && git switch -q develop && git branch -q -D try-audit && git tag -d baseline-bad > /dev/null
+```
+
+The audit refuses the baseline. A board looking at that tag would have been reading documents that no longer
+described the model; the machine noticed before the board met.
+
+=== Change control between the reviews {#vee-change}
+
+Between two reviews the document era ran change control through engineering change proposals, a change board
+meeting every few weeks, and a revision letter on each document. In the new way:
+
+- A **change proposal** is a merge request. Its description says what and why, cites the requirement or the prime's
+  change request, and links its issue ([[tools]]).
+- **Board approval** is a code owner's approval, enforced by GitLab: an interface change cannot merge without the
+  systems lead, a requirement change without its owner ([[reviewing]]).
+- The **revision letter** is the commit, and the release of record is the baseline tag.
+- Changes the government does not own -- the prime's -- arrive as drops, are assessed by element id and dispositioned
+  by the board before anyone edits the model ([[prime-changes]]).
+
+The board meets less often for routine changes and more productively for the ones that matter, because the routine
+ones have been checked and approved in the merge request.
+
+=== The Vee, then and now {#vee-table}
+
+|| Vee element | Document era | MBSE DevSecOps ||
+| Stakeholder needs | a needs document, a DOORS module | the DOORS module, imported into `model/requirements/stakeholder/` |
+| System requirements | the SRS, revised before each review | requirement definitions in the model, changed by merge request, wording graded on each change |
+| Architecture and design | block diagrams in Cameo, SSDD, ICDs | parts, ports and interfaces as text; the diagrams and interface tables generated from them |
+| Build | the design is drawn and documented | a change is made to the model on a branch |
+| Unit and model checks | desk checks before a review | grammar, lint, outline, layers on every merge request |
+| Integration | interface review meetings | generated interface tables; the systems lead approves interface changes; SIL where it exists |
+| System verification | a VCRM assembled by hand before TRR | the trace ratchet and a VCRM regenerated on every change; HIL results ingested |
+| Validation, acceptance | test events, customer acceptance | the same, with the evidence attached to the baseline's release |
+| Horizontal lines | a spreadsheet cross-reference | `verify` relationships, changed in the same merge request as the requirement |
+| Technical review | a document set assembled for the review | a baseline tag and the review package the pipeline generates from it |
+| Configuration audit | a person compares lists | the baseline job rebuilds and checks the checksum |
+| Change control | ECP, CCB meeting, revision letters | merge request, code-owner approval, commit and tag |
+Table: Each Vee element in the document era and in MBSE DevSecOps.
+
+=== What stays the same, and what changes {#vee-same}
+
+What stays the same:
+
+- The shape: decompose, build, integrate and check, and the promise that every statement has a check.
+- The reviews, their names, their entry and exit criteria, and the board that decides.
+- The roles: who owns the requirements, who owns each part of the design, who approves.
+- Validation by people, in real conditions. No pipeline validates a system.
+
+What changes:
+
+- **Cadence.** The right arm's lowest rungs run on every change, not once before a review.
+- **Evidence.** What a review reads is generated from a tag, so it cannot drift from the model.
+- **Who walks which rung.** Machines walk the repetitive checks; people spend their time on design, judgement and
+  the tests only people can run.
+- **When a problem is found.** A broken horizontal line is found the day it breaks, by the person who broke it.
+
+=== Where Tidewater sits on the Vee {#vee-tidewater}
+
+Tidewater is not a new program. Its buoys and shore stations are fielded, and the program is in production and
+sustainment, long past CDR: on the program's Vee it sits near the top of the right arm, with the prime maintaining
+the design. That shapes the team's whole twelve weeks:
+
+- **The port is a small Vee of its own, on the model.** On the left, the team planned the port: what the v2 model
+  must hold, in what layers, with what conventions ([[sprint-1]], [[sprint-2]]). At the bottom, the conversion and
+  the hand work that closed the TODO lines. On the right, the checks that prove the port is complete and correct
+  ([[proving]]), the interim baseline, and the management briefing, which is the port's validation: did it give the
+  program what it needed ([[sprint-6]])?
+- **Each prime drop is a change Vee.** The prime's change requests come down the left arm (what changed, by element
+  id), the impact report finds where the change lands in the government's model, the vendor merge builds it, and
+  the checks and the board's disposition take it up the right arm ([[prime-changes]], [[maintenance]]).
+- **The government's role is mostly the right arm.** The prime designs; the government verifies, accepts and keeps
+  the authoritative view of verification. That is why the trace ratchet and the verification matrix matter more to
+  Jim's team than any design tool.
+
+A team at the start of a program sits at the top of the left arm instead. Everything in this chapter still applies;
+the stories are about decomposition rather than conversion.
+
+=== Variants you may meet {#vee-variants}
+
+- **Incremental Vee.** The system is delivered in increments, each walking its own Vee, often sharing the upper
+  left arm. In GitLab each increment is a release line: a release branch per delivered configuration, fixes landing
+  on `develop` first ([[maintenance]]).
+- **Iterative or spiral.** The upper left arm is walked several times as the requirements mature. Each pass is a
+  set of sprints ending in a baseline; the baselines are the spiral's turns.
+- **Dual Vee.** An architecture Vee for the system and an entity Vee for each element, walked by different teams. In
+  GitLab the entity Vees are separate projects (one per subsystem) feeding the system project through tagged,
+  published interface packages; this is the federation described in [[repo-layout]].
+
+=== Digital thread and digital twin {#twin}
+
+Two more terms travel with MBSE, and management will use both. This section is CORE for understanding and LATER for
+the twelve weeks: the team builds the thread from the first sprint, and nobody builds a twin in the first year.
+
+{{figure: docs/img/vee-devsecops-twin.svg | One picture: the Vee and its reviews, two-week sprints, the DevSecOps loop, the model in GitLab as the spine, the digital thread and the digital twin}}
+
+::: definition
+digital thread: the unbroken chain of identifiers that connects a need to the requirements derived from it, to the
+  design elements that satisfy them, to the verification cases and their verdicts, to the configuration that was
+  fielded, so that anyone can follow any element forward or backward through the life cycle.
+digital twin: a live digital counterpart of a fielded system, built from the model and kept in step with the real
+  thing by its operational data, used to predict, diagnose and decide.
+:::
+
+In plain words: the **thread** is a promise about the *records* -- every element has one id that every later record
+uses, and every baseline keeps the ids. The **twin** is a *working copy of the system* that runs beside the real one.
+
+The figure puts them together. The model in GitLab is the spine; both arms of the Vee read and write it. The thread
+runs through it from requirement to design to verification to the fielded configuration, kept in every baseline. The
+twin sits beyond the top of the right arm, built from the fielded configuration and fed by real data. Its findings
+come back along the top to the left arm as new needs, discrepancy reports and change requests, which start the next
+small Vee.
+
+**What Tidewater's twin would be.** A model of the live observation network: each buoy and shore station from the
+v2 model's part tree, with its power system and sensors, fed by the real observation and health streams the stations
+already send. It could predict when a buoy's battery will not last the winter, show which stations a storm will take
+offline, or test a new transmission schedule before the prime changes it.
+
+**What the kit builds: the thread.**
+
+- One stable id per element, carried from the prime's Cameo model through every drop (the prime agreed to stable
+  ids in week zero) and into the v2 text, with a map from each v1 id to its v2 element ([[prime-changes]]).
+- `doorsId` on every requirement, so DOORS and the model meet on one key.
+- `satisfy` and `verify` relationships, checked on every merge request by the trace ratchet.
+- A verification matrix that ties each requirement to its cases and their latest verdicts.
+- Baselines that freeze all of it under one tag, audited by checksum.
+
+**What the kit does not build: the twin.** A twin needs live data feeds from the fielded system, a simulation that
+runs the model's behavior, and a synchronization layer that keeps the copy in step with the real configuration. None
+of that is in this kit, and none of it is a twelve-week job.
+
+**What a team needs before a twin is worth building.**
+
+1. A thread that holds: stable ids, baselines that rebuild, a trace with no unexplained gaps. A twin built on a
+   broken thread mirrors the wrong system.
+2. Behavior and parameters in the model, not only structure: states, flows, the energy balance with real values
+   ([[workbook]]).
+3. Access to operational data, approved for the purpose, with its own data rights and markings.
+4. A question worth the cost: one decision the twin would change, with a number attached.
+
+Tidewater's team has the first by sprint 6 and part of the second; the third and fourth are a program decision. When
+management asks "are we building a digital twin?", the honest answer is: "We are building the thread a twin would
+need, and here is what it would take after that."
+
+=== Pitfalls {#vee-pitfalls}
+
+- **Calling sprints "phases".** A sprint is a timebox, not a stage of the Vee. A sprint can hold work from both arms:
+  one story decomposes a requirement while another closes a verification gap. Teams that map sprints to Vee phases
+  rebuild the waterfall at a two-week scale.
+- **Skipping the right arm because the pipeline is green.** The pipeline walks the lowest rungs. A green pipeline
+  says the model is well formed and its trace is intact; it does not say the system works. Integration, test events
+  and validation still need people, plans and dates ([[verification]]).
+- **Reviews with nothing to review.** If the review package is not generated from the tag, the board reads something
+  the model has already moved past. Generate it, tag it, audit it.
+- **Treating the twin as the goal.** A twin is the last step of a long chain. Start with the thread.
+
+::: exercise {#ex-vee-map} Map your program's Vee
+Draw your program's Vee and mark where it is today. For each rung of the right arm, write who walks it now (a
+machine, a person, nobody) and how often. Circle the rung where a machine would save the most time.
+:::
+
+::: exercise {#ex-vee-three} Find the three Vees
+In the practice project, name one example of each Vee: a merge request's (which change, which checks), a
+baseline's (which tag, which jobs), the program's (which review would read that baseline). Use `gitlab.pl ci --list`
+with the right `--event` to show the checks.
+:::
+
+::: exercise {#ex-vee-link} Break and mend a horizontal line
+On a scratch branch, remove one `satisfy` relationship instead of a `verify`, run the trace job as a merge request,
+and read the message. Then explain to a program manager, in two sentences, why the check blocked this change but not
+the nine unverified requirements already in the model.
+:::
+
+::: exercise {#ex-vee-twin} The thread before the twin
+Using the four prerequisites in [[twin]], write five lines for your own program: which you have, which you lack,
+and one decision a twin would change.
+:::
+
+=== You can now {#vee-you-can}
+
+- Show where each element of the systems-engineering Vee lives in an MBSE DevSecOps project, and say what changed and
+  what did not.
+- Explain the three Vees -- the merge request's, the baseline's and the program's -- and show each with the pipeline.
+- Demonstrate that a broken horizontal line is caught on the day it breaks, and that a baseline's documents are
+  audited before a board reads them.
+- Tell a digital thread from a digital twin, and say what has to exist before a twin is worth building.
+
+=== Applying this to your project {#vee-applying}
+
+Copy the mapping in [[vee-table]] and fill in your own program's names for each element: your review names, your
+requirement modules, your test events. Keep the shape and the reviews; change the cadence of the right arm first,
+starting with the rung where checks are most repetitive. Decide locally which reviews read baselines from the first
+day and which keep their current package until a pilot proves the generated one. Build the thread before anyone
+mentions a twin: stable ids from your prime, `doorsId` on every requirement, the trace check on every merge request.
+
+=== Answers to this chapter's exercises {#vee-answers}
+
+::: answer [[ex-vee-map]]: Map your program's Vee
+A good answer names every rung on the right arm, puts "nobody" or "a person, before each review" against at least
+one of them, and circles a rung below system verification: those are the repetitive ones. Tidewater's answer
+circles the verification matrix, which used to take two people a week before each review.
+:::
+
+::: answer [[ex-vee-three]]: Find the three Vees
+A merge request's Vee: any change into `develop`, with the ten jobs `gitlab.pl ci --list --event
+merge_request_event --target develop` shows. A baseline's Vee: a `baseline-N` tag, with the thirteen jobs `--event
+tag --tag baseline-N` shows, three of them the release jobs. The program's Vee: the next technical review, which
+reads the latest baseline's release package.
+:::
+
+::: answer [[ex-vee-link]]: Break and mend a horizontal line
+The job reports `orphans 2 -> 3 (new: ...)` and fails. Two sentences for the program manager: "The check stops a
+change that breaks a link between a requirement and the design that meets it. The nine gaps already in the model are
+the prime's, reported to the prime, and they are counted every day instead of blocking our work."
+:::
+
+::: answer [[ex-vee-twin]]: The thread before the twin
+Most programs moving from documents have none of the four on day one; a good answer says so and names the first
+step, usually stable ids from the prime and `doorsId` on every requirement. The decision a twin would change must
+come with a number, for example "how many buoys to recover before winter, worth one vessel day each".
+:::

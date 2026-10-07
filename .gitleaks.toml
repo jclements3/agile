@@ -10,4 +10,5 @@ regexes = [
   '''AKIAABCDEFGHIJKLMNOP''',
   '''Zx9Kq2Lm8Rt4Vw6Y''',
   '''hunter2hunter2''',
+  '''glrt-x{20}''',
 ]

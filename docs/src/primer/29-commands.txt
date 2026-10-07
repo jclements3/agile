@@ -362,6 +362,7 @@ perl tools/gitlab/talk.pl [--local DIR | --url URL] [--project GROUP/NAME] stand
 perl tools/gitlab/talk.pl ... review --sprint N [--md] | weekly [--date D] [--md] | translate FILE|- [--glossary FILE]
 perl tools/memo/memo-build.pl [--check] [--out DIR] [--pdf-only|--text-only] FILE.md... [-- md2memo options]
 perl tools/sysml/req-recipe.pl [--format text|csv|junit|codequality] [--require classification] [--strict] [-o FILE] INPUT...
+perl tools/sysml/req-recipe.pl --links [--baseline] [--top REGEX] MODEL-DIR   # parts 19-23: parent, rationale, method, case, satisfied by
 ```
 
 || Command | What it does ||

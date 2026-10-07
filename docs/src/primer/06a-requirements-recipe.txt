@@ -26,7 +26,8 @@ first meet. A pipeline cannot judge an architecture. It can judge a sentence.
 === Jim's red pen {#recipe-story}
 
 Jim kept a one-page sheet pinned above the desk for most of the document era. It was a requirements recipe: one
-sentence pattern, eighteen numbered parts, six of them required, and a list of verbs nobody could verify. Jim had
+sentence pattern, eighteen numbered parts, six of them required, and a list of verbs nobody could verify. (The
+current recipe adds five more, the links of [[recipe-links]].) Jim had
 used it for years to review specifications by hand. A review meant printing the SRS, reading every paragraph with
 the sheet beside it, and marking up the margins. A careful review of a 300-requirement specification took Jim about
 three days.
@@ -67,6 +68,9 @@ shall/will/should/may[7] ____[8]____ ________[9]________ with/such[10] that
 ________[11]________ in accordance with ________[12]________ (____[13]____)
 ____[14]____, except ________[15]________. Note:
 ________________[16]________________ (____[17]____) ____[18]____
+
+Parent: ____[19]____   Rationale: ________[20]________
+Verification: ____[21]____ by ____[22]____   Satisfied by: ____[23]____
 ```
 
 || Part | Name | Required ||
@@ -88,12 +92,23 @@ ________________[16]________________ (____[17]____) ____[18]____
 | 16 | Informational statement(s) | |
 | 17 | Requirement ID | Yes |
 | 18 | Requirement tags | |
-Table: The eighteen parts of the requirement recipe
+| 19 | Parent trace | Yes, except at the top level |
+| 20 | Rationale | Yes |
+| 21 | Verification method | Yes, for "shall" |
+| 22 | Verification case | Yes, by the baseline |
+| 23 | Satisfied by | Yes, by the baseline |
+Table: The twenty-three parts of the requirement recipe: eighteen in the sentence, five links
 
 Six parts are required: the classification, the specification target, the operative verb, the target verb, the
 precise objects and the requirement ID. Everything else appears when the requirement needs it. A short requirement is
 not a bad requirement: "(U) The data logger shall store 72 hours of observation records. (TW-SEG-011)" has all six
 required parts and nothing else, and it is a perfectly good requirement.
+
+Parts 19 to 23 are not words in the sentence. They are the requirement's **relationship attributes**: links to its
+parent, to its justification, to how it will be verified and to the design that meets it. In a document they are
+columns in the requirements database or the verification matrix; in the model they are relationships, and
+[[recipe-links]] shows how the checker reads them. Two of them, the verification case and the satisfied-by link,
+may be open early and must be filled by the baseline the systems engineering plan names (usually CDR).
 
 The pattern reads like a form with blanks. That is deliberate. The recipe is not prose style advice; it is a
 structure, and structures can be checked.
@@ -590,6 +605,81 @@ gives the converter, and because the DOORS text is the prime's. Adding subjects 
 requirements would be a government edit to the prime's deliverable. The pattern above is what the team does for
 requirements it owns, and what it proposed to the prime, in the model exchange agreement, as the target form for
 future drops. Treat it as the direction of travel, not week-one work.
+:::
+
+=== The links: parts 19 to 23 {#recipe-links}
+
+Parts 1 to 18 make a requirement well formed. Parts 19 to 23 make it traceable: up to why it exists, sideways to
+how it is justified, down to how it is met and proven. In the model each one is something a person can point at by
+its identifier, so the checker reads them from the whole model, not from one sentence. Give it a folder and
+`--links`:
+
+|| Part | Where it lives in SysML v2 | Missing means ||
+| 19 Parent trace | a `#derivation connection` with the requirement as its `#derive` end; for a derived requirement, `attribute derivedFrom = "TRADE-..."` naming the decision | an orphan: a derived requirement without its decision, or gold plating |
+| 20 Rationale | `attribute rationale = "..."` (or `@Rationale` metadata) | a number nobody can defend at a review or change safely |
+| 21 Verification method | `attribute verificationMethod = "Test"` (Test, Analysis, Demonstration or Inspection) | a "shall" nobody knows how to verify: rewrite it |
+| 22 Verification case | a `verify` in a verification definition | not in the VCRM yet |
+| 23 Satisfied by | `satisfy REQ by ELEMENT` | not designed yet |
+Table: The recipe's links in SysML v2
+
+Requirements in a package named like "Stakeholder Needs" count as top level and need no parent; `--top REGEX` sets a
+different rule. Convert drop 1's Cameo model and read the links:
+
+```sh run expect="links: orphan=0 childless=0 unjustified=0 unverified=9 unsatisfied=1 unmitigated=0" timeout=120
+perl "$KIT/bin/xmi2sysml.pl" --out v2 drop1/tidewater.xmi > /dev/null
+perl "$KIT/tools/sysml/req-recipe.pl" --links v2 > recipe-links.txt
+tail -2 recipe-links.txt
+```
+
+```text
+links: orphan=0 childless=0 unjustified=0 unverified=9 unsatisfied=1 unmitigated=0
+requirements=30 findings=27 missing=36
+```
+
+The prime's trace holds: no orphans, every need has children. Nine requirements are not verified yet (the six needs
+have no method, and three requirements no case), one has nothing that satisfies it, and none has a rationale, which
+is most of the thirty-six missing parts. Look at one requirement:
+
+```sh run expect="Parent Trace\s+TW_STK_002"
+awk '/^TW-SYS-002 /{p=1} p&&/^$/{exit} p' recipe-links.txt
+```
+
+```text
+TW-SYS-002  score 72  v2/requirements/Requirements.sysml:25  (Scheduled transmission)
+  Each station shall transmit its observations to the data center on a fixed schedule.
+    ...
+    Parent Trace                TW_STK_002
+    Verification Method         Test
+    Verification Case           TestStationObservations
+    Satisfied By                ObservingStation
+    missing: Rationale
+```
+
+The missing rationale is the finding worth taking to the prime: a rationale is not decoration. Where a requirement
+has a number, the rationale must say where the number came from, an allocation from a budget, an analysis, a trade
+study, a standard or a customer direction, and the checker flags a number whose rationale names none of these as an
+*unjustified threshold*. TW-SYS-002 has no number yet, which is a finding of its own (the "no measurable threshold"
+line). Written to the recipe it would read:
+
+```text
+Each station shall transmit its observations to the data center every 10 minutes. (TW-SYS-002)
+Parent: TW-STK-002. Rationale: 10 minutes allocated from the 30-minute observation latency budget (TB-LAT-01).
+Verification: Test by TestStationObservations. Satisfied by: ObservingStation.
+```
+
+Before the baseline, an open verification case or satisfier is an *info* finding: the work is planned, not late.
+On the baseline's merge request, add `--baseline`, and the same gaps become missing parts:
+
+```sh run expect="requirements=30 findings=17 missing=46"
+perl "$KIT/tools/sysml/req-recipe.pl" --links --baseline v2 | tail -1
+```
+
+::: note The other checks
+The links line counts six checks: *orphan* (no parent), *childless* (a top-level requirement with no children and
+nothing satisfying it), *unjustified* threshold, *unverified* (no method, or no case), *unsatisfied*, and
+*unmitigated* safety tag: an SC or SR requirement must name the hazard it mitigates (`attribute hazard = "HAZ-..."`).
+The checker also flags a `Note:` that carries a rationale or the verification approach: those have their own
+fields, so they can be queried and reported.
 :::
 
 === The recipe in the pipeline {#recipe-pipeline}

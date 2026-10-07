@@ -282,6 +282,118 @@ sub update_milestone {
     }
     $self->_api('PUT', '/projects/' . $self->_pid($p) . '/milestones/' . $self->_mid($p, $title), \%o);
 }
+# ---------------------------------------------------------------- issue boards: one list per label, scoped to a milestone
+# A board's milestone scope (Premium and Ultimate) is a milestone id, or one of GitLab's special timebox ids
+# (app/models/concerns/timebox.rb): 0 No milestone, -1 Any milestone (unscoped), -2 Upcoming, -3 Started. A board
+# without a scope reads back with no milestone. Lists are label lists, ordered by position from 0.
+my %BOARD_MS = (none => 0, any => -1, upcoming => -2, started => -3);
+my %BOARD_MS_NAME = reverse %BOARD_MS;
+sub board_scope {                             # a board as read back -> its scope word: any, none, upcoming, started or a title
+    my $m = shift;
+    return 'any' unless ref $m && (defined $m->{id} || defined $m->{title});
+    return $BOARD_MS_NAME{ $m->{id} } if defined $m->{id} && exists $BOARD_MS_NAME{ $m->{id} };
+    my $t = $m->{title} // '';
+    return lc $t if $t =~ /^(upcoming|started)$/i;
+    return 'any' if $t =~ /^any milestone$/i;
+    return 'none' if $t =~ /^no milestone$/i;
+    $t;
+}
+sub boards {                                  # -> [ { id, name, milestone, lists => [ { id, label { id, name }, position } ] } ]
+    my ($self, $p) = @_;
+    return [ map { +{ %$_, lists => [ map { +{ %$_ } } @{ $_->{lists} } ] } } @{ $self->_p($p)->{boards} // [] } ] if $self->{local};
+    $self->_api('GET', '/projects/' . $self->_pid($p) . '/boards', undef, all => 1);
+}
+sub create_board {
+    my ($self, $p, $name) = @_;
+    if ($self->{local}) {
+        my $P = $self->_p($p);
+        push @{ $P->{boards} }, my $b = { id => $self->_id, name => $name, milestone => undef, lists => [] };
+        return $b;
+    }
+    $self->_api('POST', '/projects/' . $self->_pid($p) . '/boards', { name => $name });
+}
+sub _board { my ($self, $P, $id) = @_; (grep { $_->{id} == $id } @{ $P->{boards} // [] })[0] // die "GitLab: no board $id in $P->{path_with_namespace} (404 Not found)\n" }
+sub update_board {                            # update_board(p, ID, milestone => any|none|upcoming|started|TITLE)
+    my ($self, $p, $id, %o) = @_;
+    my $want = $o{milestone} // 'any';
+    if ($self->{local}) {
+        my $P = $self->_p($p);
+        my $b = $self->_board($P, $id);
+        if (exists $BOARD_MS{ lc $want }) { my $k = lc $want; $b->{milestone} = $k eq 'any' ? undef : { id => $BOARD_MS{$k}, title => $k eq 'none' ? 'No Milestone' : ucfirst $k } }
+        else { my $m = $self->_milestone($P, $want); $b->{milestone} = { id => $m->{id}, iid => $m->{iid}, title => $m->{title} } }
+        return $b;
+    }
+    my $mid = exists $BOARD_MS{ lc $want } ? $BOARD_MS{ lc $want } : $self->_mid($p, $want);
+    $self->_api('PUT', '/projects/' . $self->_pid($p) . "/boards/$id", { milestone_id => $mid });
+}
+sub create_board_list {                       # create_board_list(p, BOARD ID, LABEL NAME) -> the list (added at the end)
+    my ($self, $p, $id, $label) = @_;
+    if ($self->{local}) {
+        my $P = $self->_p($p);
+        my $b = $self->_board($P, $id);
+        my ($l) = grep { $_->{name} eq $label } @{ $P->{labels} } or die "GitLab: no label '$label' in $P->{path_with_namespace} (add it to [labels])\n";
+        die "GitLab: board $b->{name} already has a list for '$label' (400 Bad request)\n" if grep { $_->{label}{name} eq $label } @{ $b->{lists} };
+        push @{ $b->{lists} }, my $x = { id => $self->_id, label => { id => $l->{id}, name => $l->{name}, color => $l->{color} }, position => scalar @{ $b->{lists} } };
+        return $x;
+    }
+    my $lid = $self->{dry_run} ? "{id of label $label}" : do {
+        my ($l) = grep { $_->{name} eq $label } @{ $self->labels($p) } or die "GitLab: no label '$label' in $p (add it to [labels])\n"; $l->{id} };
+    $self->_api('POST', '/projects/' . $self->_pid($p) . "/boards/$id/lists", { label_id => $lid });
+}
+sub move_board_list {                         # move_board_list(p, BOARD ID, LIST ID, POSITION): the others shift, as in GitLab
+    my ($self, $p, $id, $list, $pos) = @_;
+    if ($self->{local}) {
+        my $b = $self->_board($self->_p($p), $id);
+        my ($i) = grep { $b->{lists}[$_]{id} == $list } 0 .. $#{ $b->{lists} };
+        defined $i or die "GitLab: no list $list on board $b->{name} (404 Not found)\n";
+        my ($x) = splice @{ $b->{lists} }, $i, 1;
+        $pos = @{ $b->{lists} } if $pos > @{ $b->{lists} };
+        splice @{ $b->{lists} }, $pos, 0, $x;
+        $b->{lists}[$_]{position} = $_ for 0 .. $#{ $b->{lists} };
+        return $x;
+    }
+    $self->_api('PUT', '/projects/' . $self->_pid($p) . "/boards/$id/lists/$list", { position => 0 + $pos });
+}
+sub parse_board_line {                        # 'L1 L2 ... | milestone=started' -> { labels => [..], milestone => WORD|TITLE }
+    my ($v, $where) = @_;
+    my ($ls, @opt) = split /\s*\|\s*/, $v;
+    my @labels = ($ls // '') =~ /,/ ? grep { length } map { s/^\s+|\s+$//gr } split /,/, $ls : split ' ', $ls // '';
+    @labels or die "$where: a board needs its lists: LABEL LABEL ... [| milestone=started]\n";
+    my %o;
+    for (@opt) { /^\s*(\w[\w-]*)\s*=\s*(.*?)\s*$/ && $1 eq 'milestone' or die "$where: board options are milestone=any|none|upcoming|started|TITLE, not '$_'\n"; $o{milestone} = $2 }
+    my $ms = $o{milestone} // 'any';
+    { labels => \@labels, milestone => exists $BOARD_MS{ lc $ms } ? lc $ms : $ms };
+}
+sub _setup_board {                            # create the board, add missing lists, put them in the file's order, scope it -> log lines
+    my ($self, $p, $name, $want) = @_;
+    my @log;
+    my ($bo) = $self->{dry_run} && !$self->{local} ? () : grep { $_->{name} eq $name } @{ $self->boards($p) };
+    if (!$bo) { $bo = $self->create_board($p, $name); push @log, "board $name created" }
+    my $bid = $bo->{id} // 0;
+    my %have = map { (($_->{label} // {})->{name} // '' => $_) } @{ $bo->{lists} // [] };
+    my @order = map { $_->{label}{name} } sort { ($a->{position} // 0) <=> ($b->{position} // 0) } grep { $_->{label} } @{ $bo->{lists} // [] };
+    for my $l (@{ $want->{labels} }) { next if $have{$l}; $have{$l} = $self->create_board_list($p, $bid, $l); push @order, $l; push @log, "board $name: list $l added" }
+    for my $k (0 .. $#{ $want->{labels} }) {   # order: move each list that is out of place (GitLab shifts the others, as here)
+        my $l = $want->{labels}[$k];
+        next if ($order[$k] // '') eq $l;
+        my ($i) = grep { $order[$_] eq $l } 0 .. $#order;
+        splice @order, $k, 0, splice(@order, $i, 1);
+        $self->move_board_list($p, $bid, $have{$l}{id} // 0, $k); push @log, "board $name: list $l moved to position $k";
+    }
+    my $live = board_scope($bo->{milestone});
+    if ($live ne $want->{milestone}) {
+        my $r = eval { $self->update_board($p, $bid, milestone => $want->{milestone}) };
+        my $got = $r && !$self->{dry_run} ? board_scope($r->{milestone}) : $want->{milestone};
+        if ($got ne $want->{milestone}) {      # GitLab Free ignores the scope (or refuses it): the board still works, unscoped
+            my $why = $@ ? ($@ =~ s/^GitLab: //r =~ s/\n$//r) : 'the scope did not take';
+            warn "GitLab: board $name: milestone scope '$want->{milestone}' not set ($why); scoped boards need Premium or Ultimate, the board shows every milestone\n";
+            push @log, "board $name: milestone scope not set (needs Premium or Ultimate)";
+        } else { push @log, "board $name: milestone $want->{milestone}" }
+    }
+    push @log, "board $name (" . scalar(@{ $want->{labels} }) . " lists, milestone $want->{milestone})";
+    @log;
+}
+
 sub protect_branch {
     my ($self, $p, $name, %o) = @_;
     my %r = (name => $name, push_access_level => level_of($o{push_access_level} // 'maintainer'), merge_access_level => level_of($o{merge_access_level} // 'maintainer'),
@@ -517,6 +629,11 @@ sub create_release {
     }
     $self->_api('POST', '/projects/' . $self->_pid($p) . '/releases', { tag_name => $o{tag_name}, name => $o{name} // $o{tag_name}, description => $o{description} // '',
                                                                        ($o{milestones} ? (milestones => _arr($o{milestones})) : ()) });
+}
+sub tags_containing {                         # tags_containing(p, SHA) -> [ tag names whose history holds the commit ]
+    my ($self, $p, $sha) = @_;
+    if ($self->{local}) { my ($o, $rc) = $self->_git_rc($self->_bare($self->_p($p)), {}, 'tag', '--contains', $sha); return $rc ? [] : [ grep { length } split /\n/, $o ] }
+    [ map { $_->{name} } grep { ($_->{type} // 'tag') eq 'tag' } @{ $self->_api('GET', '/projects/' . $self->_pid($p) . "/repository/commits/$sha/refs", undef, query => { type => 'tag' }, all => 1) } ];
 }
 sub releases { my ($self, $p) = @_; $self->{local} ? [ reverse @{ $self->_p($p)->{releases} } ] : $self->_api('GET', '/projects/' . $self->_pid($p) . '/releases', undef, all => 1) }
 sub wiki_put {
@@ -1024,6 +1141,9 @@ sub apply_project_file {                      # apply_project_file(path) -> [ li
             my ($s, $d) = split ' ', $dates // '';
             $self->_upsert_milestone($p, $_->[0], start_date => $s, due_date => $d, description => $desc // ''); push @log, "milestone $_->[0]";
         }
+    }
+    for (@{ $c->{boards} // [] }) {                  # after the labels and milestones the boards are made of
+        push @log, $self->_setup_board($p, $_->[0], parse_board_line($_->[1], "$path:$_->[2]"));
     }
     for (@{ $c->{branches} // [] }) {
         my %a = map { /^(\w+):(\S+)$/ ? (lc $1 => lc $2) : die "$path:$_->[2]: branch rule words are push:LEVEL merge:LEVEL force:yes|no codeowners:yes|no\n" } split ' ', $_->[1];
@@ -2084,7 +2204,7 @@ sub _create_tag {
 for my $m (qw(create_user create_group create_project update_project add_member set_variable create_label create_milestone update_milestone
               protect_branch protect_tag create_approval_rule create_issue update_issue add_note resolve_discussions link_issues create_mr approve_mr
               merge_mr run_pipeline create_tag create_branch create_release wiki_put package_put create_schedule update_schedule delete_schedule
-              play_schedule pushed)) {
+              play_schedule pushed create_board update_board create_board_list move_board_list)) {
     no strict 'refs';
     no warnings 'redefine';
     my $orig = defined &{"GitLab::$m"} ? \&{"GitLab::$m"} : next;
@@ -2175,6 +2295,18 @@ sub diff_project_file {                       # diff_project_file(path) -> [ "[s
             if (!$m) { push @d, "[milestones] $w->[0]: missing"; next }
             push @d, "[milestones] $w->[0]: dates file " . ($w->[1] // '') . '..' . ($w->[2] // '') . ", live " . ($m->{start_date} // '') . '..' . ($m->{due_date} // '')
                 if ($w->[1] // '') ne ($m->{start_date} // '') || ($w->[2] // '') ne ($m->{due_date} // '');
+        }
+    }
+    if ($c->{boards}) {                              # boards not in the file are left alone (GitLab makes a "Development" board itself)
+        my %bd = map { ($_->{name} => $_) } @{ $self->boards($p) };
+        for (@{ $c->{boards} }) {
+            my $w = parse_board_line($_->[1], "$path:$_->[2]");
+            my $bo = $bd{ $_->[0] };
+            if (!$bo) { push @d, "[boards] $_->[0]: missing"; next }
+            my @live = map { $_->{label}{name} } sort { ($a->{position} // 0) <=> ($b->{position} // 0) } grep { $_->{label} } @{ $bo->{lists} // [] };
+            push @d, "[boards] $_->[0]: lists file @{ $w->{labels} }, live " . (@live ? "@live" : '(none)') if "@live" ne "@{ $w->{labels} }";
+            my $ms = board_scope($bo->{milestone});
+            push @d, "[boards] $_->[0]: milestone file $w->{milestone}, live $ms" if $ms ne $w->{milestone};
         }
     }
     my %pb = map { ($_->{name} => $_) } @{ $self->protected_branches($p) };

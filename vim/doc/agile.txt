@@ -2711,8 +2711,8 @@ gitlab.pl                                                     *agile-gitlab-pl*
                        [--project GROUP/NAME] [--as USER] [--now ISO] [--dry-run] COMMAND
 setup FILE              apply a project file (tools/gitlab/templates/project.conf):
                         settings, members, labels, sprints, protected branches
-                        and tags, approval rules, variables, schedules; safe to
-                        run again
+                        and tags, approval rules, variables, schedules,
+                        boards (|agile-gitlab-boards|); safe to run again
 setup --diff FILE       compare the project file with the live project, read
                         only; prints each difference; exit 1 on drift
 sprints START COUNT     "Sprint N" milestones, two weeks each (--weeks, --prefix)
@@ -2739,7 +2739,11 @@ analytics               value stream, DORA in model terms, CI/CD, merge request
 trigger new|list|run    pipeline trigger tokens (the prime's Jenkins starts the
                         intake pipeline with DROP_VERSION)
 token deploy new|list   deploy tokens limited to scopes, with an expiry date
-user USERNAME           create a user (emulator, or an admin token)
+board list              the issue boards setup made from [boards]: each one's
+                        label lists in order and its milestone scope
+windchill intake|status requests from Windchill in, progress back out:
+                        |agile-gitlab-windchill|
+user USERNAME          create a user (emulator, or an admin token)
 ci                      run the pipeline locally: |agile-gitlab-ci|
 flow                    gitflow in a clone: |agile-gitlab-flow|
 help [COMMAND]          the full option list of one command
@@ -2747,7 +2751,53 @@ help [COMMAND]          the full option list of one command
 nothing; reads still answer (both backends; flow refuses it). Environment:
 GITLAB_URL, GITLAB_LOCAL, GITLAB_PROJECT, GITLAB_USER, GITLAB_TOKEN.
 
-gitlab.pl flow                                              *agile-gitlab-flow*
+[boards] in the project file                                *agile-gitlab-boards*
+    Sprint = workflow::ready workflow::in-progress workflow::review workflow::blocked workflow::done | milestone=started
+    Backlog = priority::1 priority::2 priority::3 | milestone=none
+One line per issue board: its label lists, left to right, then the milestone
+scope: started (the sprint that is running; the board follows the sprints by
+itself), upcoming, none (issues without a milestone), any (unscoped), or a
+milestone title. setup creates a missing board, adds missing lists, puts them
+in the file's order and sets the scope; setup --diff reports a missing board,
+lists in another order and another scope. Boards not in the file are left
+alone. Scoping is Premium/Ultimate (GitLab Dedicated has it); on Free setup
+warns and the board shows every milestone. Any section may appear twice; a
+second [labels] adds labels.
+
+gitlab.pl windchill                                      *agile-gitlab-windchill*
+Requests arrive in Windchill; the team works them in GitLab. With no API
+between the two, the bridge is a file each way.
+windchill intake FILE.csv [--note]   one issue per new Windchill number in a
+                        report or search result exported as CSV (comma, tab
+                        or semicolon; UTF-8, UTF-16 or Windows-1252). Title
+                        "NUMBER: title", the link, requester, need date (also
+                        the due date), type, state and priority in a table,
+                        the description, the labels of [windchill] labels and
+                        priority-map. States not in accept are skipped. Safe
+                        to re-run: a known number is skipped; if Windchill
+                        changed its title, state or priority, that is printed
+                        as drift, and --note adds it to the issue as a
+                        comment. Ends: windchill: N rows, C created, S
+                        skipped, D drift
+windchill status [--csv FILE|-] [--since DATE]   one row per Windchill-sourced
+                        issue: number, issue, open/closed, workflow:: column,
+                        milestone, closed date, the merge requests that close
+                        or name it, the first release holding the merge, URL;
+                        --csv is the sheet to import or paste into Windchill
+--conf FILE             the project file with [windchill] (default:
+                        .gitlab/project.conf here or above); --dry-run shows
+                        the issues intake would create
+[windchill] keys: number, title, state, type, requester, priority, need-date,
+description (the export's column names; defaults Number, Name, State, Type,
+Created By, Priority, Need Date, Description), url (with {number}), labels,
+accept (state list, or *), priority-map (High=priority::1, ...). Each issue
+ends with a hidden marker of what Windchill said; drift is measured against
+it, so retitling or relabelling the issue in GitLab is not drift. Sample
+export: tools/gitlab/samples/windchill-export.csv; the round trip:
+tools/gitlab/samples/16-windchill-round-trip.md. Messages:
+|agile-err-windchill-config|, |agile-err-windchill-export|.
+
+gitlab.pl flow                                             *agile-gitlab-flow*
 Gitflow for the model repository: main holds released baselines, develop is
 the integration branch (GitLab's default branch), work happens on feature/
 branches, baselines on release/ branches, fixes to a baseline on hotfix/

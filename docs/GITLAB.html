@@ -331,7 +331,35 @@ DOCKER_RUNNER = false                                     ; "true" only on a Doc
 ; Cron is minute hour day-of-month month day-of-week, read in the time zone given (US daylight saving included).
 ; The schedule's owner is whoever runs setup: it runs as them, so use a maintainer who will stay on the project.
 Nightly full check = 0 2 * * 1-5 | develop | America/New_York | FULL=1   ; weeknights 02:00 Eastern: every job, uncached
-Weekly status = 0 6 * * 5 | develop | America/New_York                  ; Friday 06:00 Eastern: export + status metrics for the weekly report</code></pre>
+Weekly status = 0 6 * * 5 | develop | America/New_York                  ; Friday 06:00 Eastern: export + status metrics for the weekly report
+
+[labels]
+; where a request came from (scoped); a second [labels] section adds to the first
+source::windchill = #3E6E8E | A request submitted in Windchill; the Windchill number starts the title (gitlab.pl windchill intake)
+
+[boards]
+; NAME = LABEL LABEL ... | milestone=started|upcoming|none|any|TITLE   (Plan &gt; Issue boards; one list per label, in order)
+; Scoping a board to a milestone is Premium/Ultimate (the norm on GitLab Dedicated); on Free setup warns and the board
+; shows every milestone. "started" follows the sprint that is running, so the board never needs editing at a sprint change.
+Sprint = workflow::ready workflow::in-progress workflow::review workflow::blocked workflow::done | milestone=started
+Backlog = priority::1 priority::2 priority::3 | milestone=none          ; refinement: what no sprint holds yet, by priority
+
+[windchill]
+; Requests arrive in Windchill; the team works them in GitLab. gitlab.pl windchill intake EXPORT.csv makes one issue per
+; new Windchill number from a report exported as CSV; gitlab.pl windchill status --csv FILE is the progress to send back.
+; Column names as the export's header has them (Windchill report or search-result export; adjust to yours):
+number = Number
+title = Name
+state = State
+type = Type
+requester = Created By
+priority = Priority
+need-date = Need Date
+description = Description
+url = https://windchill.example.invalid/Windchill/app/#ptc1/search?keyword={number}   ; the link in each issue
+labels = source::windchill, type::story                   ; added to every issue made from a request
+accept = Open, Under Review, Approved                     ; states imported; the others are reported as skipped (* = all)
+priority-map = Critical=priority::1, High=priority::1, Medium=priority::2, Low=priority::3</code></pre>
 <h3>The order, the first time</h3>
 <p>Protecting <code>main</code> with <code>push:none</code> also stops the very first push, so the skeleton goes in before
 the protections:</p>
@@ -923,7 +951,9 @@ lint:
 # 25-member package, parts with one child), and most can only be fixed upstream, by a discrepancy report to the prime.
 # So the gate is "no new violations": .ci/outline-max holds the highest count allowed; a change that adds a violation
 # fails, a change that removes one is told to lower the number (and the reviewer checks that it did). When the count
-# reaches 0 the file reads 0 and the rule is absolute.
+# reaches 0 the file reads 0 and the rule is absolute. A new project (kickoff.pl scaffold) starts with room: its
+# skeleton's one-file folders plus one for each layer folder still to come, with comment lines saying when to tighten
+# it (every layer folder holds two files, or the first baseline at the latest); the job reads only the first line.
 outline:
   extends: .check
   script:
@@ -1342,8 +1372,8 @@ $run{outline} = sub {                         # the 2..9 rule and level tags, as
     my ($v) = $t =~ /^violations\s+(\d+)/m;
     my ($m) = $t =~ /^\@L tag mismatches\s+(\d+)/m;
     my $n = ($v // 0) + ($m // 0);
-    my $max = slurp('.ci/outline-max');
-    $max = defined $max &amp;&amp; $max =~ /(\d+)/ ? $1 : 0;
+    my $file = slurp('.ci/outline-max') // '';
+    my $max = $file =~ /^\s*(\d+)/ ? $1 : 0;   # the first line; comment lines after it (a new scaffold's room) are for people
     print "outline violations: $n (allowed: $max)\n";
     # vendor/prime holds the prime's structure as delivered, and a drop branch merges it: measured, not ratcheted (the
     # drop's merge request records the new count in .ci/outline-max; Discrepancy Reports ask the prime to fix the rest)
@@ -1358,7 +1388,10 @@ $run{outline} = sub {                         # the 2..9 rule and level tags, as
         return 0;
     }
     if ($n &gt; $max) { print "this change adds outline violations ($n &gt; $max): fix them, do not raise .ci/outline-max\n"; return 1 }
-    print "fewer violations than allowed: lower .ci/outline-max to $n in this MR\n" if $n &lt; $max;
+    if ($n &lt; $max) {                       # a scaffold's allowance keeps room for new one-file folders until its comment says to tighten it
+        print $file =~ /^#/m ? "fewer violations than allowed: room left for new folders (see the comment in .ci/outline-max for when to tighten it to $n)\n"
+                             : "fewer violations than allowed: lower .ci/outline-max to $n in this MR\n";
+    }
     outline_junit_inherited();
     0;
 };
@@ -1700,6 +1733,16 @@ sub complexity_of {                           # (\%files, \%conf) -&gt; measures
     push @v, map { [ 'major', $_-&gt;[2], "wildcard import $_-&gt;[1]::* in government file (name what you use)" ] } @gw;
     { metrics =&gt; \%m, fan_in =&gt; \%fi, fan_out =&gt; \%fo, cycles =&gt; $cyc, upward =&gt; \@up, rel =&gt; $g-&gt;{rel}, rel_order =&gt; \@rel, violations =&gt; \@v, packages =&gt; \@p };
 }
+sub complexity_worse {                        # (\%old, \%new metrics, \%conf) -&gt; the measures this change made worse
+    # fan-out and relationships per part are sizes, not faults: a model grows, and its first part with a sub-part takes
+    # the maximum from 0 to 1. They ratchet only above their limits (sysml.conf max_package_fan_out,
+    # max_relationships_per_part): once past the limit, a change may not make them worse. Cycles, upward-layer imports
+    # and duplicates are faults: any new one fails.
+    my ($old, $new, $conf) = @_;
+    my %limit = (max_fan_out =&gt; $conf-&gt;{max_package_fan_out} // 7, max_relationships_per_part =&gt; $conf-&gt;{max_relationships_per_part} // 10);
+    grep { ($new-&gt;{$_} // 0) &gt; ($old-&gt;{$_} // 0) &amp;&amp; (!exists $limit{$_} || $new-&gt;{$_} &gt; $limit{$_}) }
+        qw(max_fan_out max_relationships_per_part cycles upward_imports duplicates);
+}
 sub model_files { my $root = shift // 'model'; my %f; File::Find::find({ no_chdir =&gt; 1, wanted =&gt; sub { $f{$File::Find::name} = slurp($File::Find::name) if /\.sysml$/ &amp;&amp; -f } }, $root) if -d $root; \%f }
 $run{complexity} = sub {
     my $conf = sysml_conf();
@@ -1735,7 +1778,7 @@ $run{complexity} = sub {
     run(undef, 'git', 'worktree', 'add', '-q', '--detach', $wt, $base) and return 0;
     my $old = complexity_of(model_files("$wt/model"), $conf);
     run(undef, 'git', 'worktree', 'remove', '--force', $wt);
-    my @worse = grep { $c-&gt;{metrics}{$_} &gt; $old-&gt;{metrics}{$_} } qw(max_fan_out max_relationships_per_part cycles upward_imports duplicates);
+    my @worse = complexity_worse($old-&gt;{metrics}, $c-&gt;{metrics}, $conf);
     if (@worse) { print "this change makes the model more tangled: " . join(', ', map { "$_ $old-&gt;{metrics}{$_} -&gt; $c-&gt;{metrics}{$_}" } @worse) . "\n"; return 1 }
     print "no measure got worse than on the target branch\n";
     0;
@@ -2726,6 +2769,69 @@ Scope: label ~"owner::prime". Lists: ~"severity::1", ~"severity::2", ~"severity:
 | ~"area::interface" | a defect between packages (status metric H) |
 | ~"phase::port" | found during the port |
 | ~"priority::1" | do first |</code></pre>
+<p>The boards themselves are in the project file: a <code>[boards]</code> line per board, its label lists in order and its
+milestone scope (<code>milestone=started</code> follows the running sprint). <code>gitlab.pl setup</code> makes them,
+<code>setup --diff</code> reports when someone rearranged one, and <code>gitlab.pl board list</code> shows them.</p>
+
+<h3>Requests from Windchill</h3>
+<p>When users submit work in Windchill, <code>gitlab.pl windchill intake EXPORT.csv</code> turns a Windchill report export into
+one issue per new request number, and <code>gitlab.pl windchill status --csv FILE</code> is the progress sheet sent back. The
+column mapping is the <code>[windchill]</code> section of the project file.</p>
+<pre class="src" title="tools/gitlab/samples/16-windchill-round-trip.md"><code># Windchill requests, round trip
+
+Users ask for DevSecOps work in Windchill. The team plans and does it in GitLab. On a managed network there is no API
+between the two, so the bridge is one file in and one file out, run at backlog refinement.
+
+## In: a Windchill export becomes issues
+
+1. In Windchill, run the saved report (or search) of open requests and export it as CSV. The sample is
+   `windchill-export.csv` here: Number, Name, Type, State, Created By, Priority, Need Date, Created On, Description.
+2. Check that `[windchill]` in `.gitlab/project.conf` names those columns (the defaults match the sample).
+3. Look first, then create:
+
+```sh
+perl $KIT/bin/gitlab.pl --dry-run windchill intake windchill-export.csv     # the issues it would create
+perl $KIT/bin/gitlab.pl windchill intake windchill-export.csv
+```
+
+```text
+created #41 WC-000123: Nightly model check report for the station leads
+created #42 WC-000124: Add the buoy station variant to the part tree
+created #43 WC-000125: Export the requirements trace as CSV, for the CCB
+skipped WC-000126: state 'Canceled' is not accepted (accept = approved, open, under review)
+created #44 WC-000127: Read access to the model for the data center contractor
+windchill: 5 rows, 4 created, 1 skipped, 0 drift
+```
+
+Each issue is titled `WC-000123: ...`, labelled ~"source::windchill" ~"type::story" and the priority label, due on the
+need date, and its description is the request with a link back to Windchill. Refine it like any story: split it,
+estimate it, put it in a sprint. Retitle it if you like; keep the number at the front.
+
+Run the same export again next week: known numbers are skipped. When Windchill changed a request since (its state,
+priority or title), intake prints it as drift; `--note` records the change on the issue for the team to act on:
+
+```text
+drift   #42 WC-000124: state 'Under Review' -&gt; 'Approved'; priority 'Medium' -&gt; 'High'
+```
+
+## Out: progress for Windchill
+
+```sh
+perl $KIT/bin/gitlab.pl windchill status                          # a table, to read at the review
+perl $KIT/bin/gitlab.pl windchill status --csv windchill-status.csv   # the sheet to import or paste into Windchill
+```
+
+```text
+windchill  issue  state   workflow     milestone  closed      merge_requests  release
+WC-000123  #41    closed  done         Sprint 3   2026-11-13  !52 merged      baseline-1
+WC-000124  #42    open    in-progress  Sprint 4   -           !57 opened      -
+WC-000125  #43    open    ready        -          -           -               -
+WC-000127  #44    closed  done         Sprint 3   2026-10-23  -               -
+```
+
+A merge request counts for a request when it says `Closes #41` (or Fixes, Resolves, Implements, Related to) or its
+branch is `feature/41-...`. The release is the first release whose tag holds the merge. The person who owns the
+request in Windchill updates its state from this sheet; the team does not edit Windchill from GitLab.</code></pre>
 
 <h2 id="templates">The templates</h2>
 <p>Templates make the fields above the default. GitLab offers every file in <code>.gitlab/issue_templates/</code> and

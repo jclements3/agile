@@ -1961,6 +1961,57 @@ GitLab: no user given / cannot save STDOUT (a script or the kit itself)
 	   header comment names. If the kit's own commands print it with
 	   nothing wrong on disk, report it with the command you ran.
 
+------------------------------------------------------------------------------
+                                                       *agile-err-gitlab-board*
+FILE:LINE: a board needs its lists / board options are milestone=...
+
+  Pattern: *: a board needs its lists: LABEL LABEL ... [| milestone=started]
+  Pattern: *: board options are milestone=any|none|upcoming|started|TITLE, not '*'
+  From:    gitlab.pl setup, setup --diff (the [boards] section)
+  Means:   A [boards] line is NAME = LABEL LABEL ... | milestone=WORD. The
+	   line names no labels, or has an option other than milestone=.
+  Fix:	   Write the lists as label names, in board order, separated by
+	   spaces (or commas when a label has a space), then optionally
+	   "| milestone=started" (or upcoming, none, any, or a milestone
+	   title). Example in tools/gitlab/templates/project.conf.
+	   When setup warns "milestone scope ... not set", the server is on
+	   GitLab Free: scoped boards need Premium or Ultimate. The board
+	   still works and shows every milestone.
+
+------------------------------------------------------------------------------
+                                                   *agile-err-windchill-config*
+FILE:LINE: unknown [windchill] key / priority-map entries are WINDCHILL=LABEL
+
+  Pattern: *:*: unknown [windchill] key '*' (*)
+  Pattern: *: [windchill] priority-map entries are WINDCHILL=LABEL, not '*'
+  From:    gitlab.pl windchill intake, gitlab.pl windchill status
+  Means:   The [windchill] section of the project file has a key the
+	   intake does not know (the message lists the ones it does), or a
+	   priority-map entry without "=".
+  Fix:	   Use the keys number, title, state, type, requester, priority,
+	   need-date, description (column names), url, labels, accept and
+	   priority-map. priority-map is a comma list such as
+	   "High=priority::1, Low=priority::3".
+
+------------------------------------------------------------------------------
+                                                   *agile-err-windchill-export*
+Windchill: FILE has no 'Number' column for the number (its columns: ...)
+
+  Pattern: Windchill: * has no '*' column for the * (its columns: *); set * = COLUMN in [windchill]
+  Pattern: row *: no Windchill number; skipped
+  Pattern: row *: * appears again; the first row is used
+  From:    gitlab.pl windchill intake FILE.csv
+  Means:   The export's header line has no column of the name [windchill]
+	   maps the number or the title to; the message lists the columns
+	   the file has. The two "row" warnings: a row with an empty number
+	   cell, and a number that appears twice (the first row is used).
+  Fix:	   Set number = and title = in [windchill] to the column names your
+	   Windchill report exports (the header line, as spelled there), or
+	   add the columns to the report. Check the export opened in Excel:
+	   a report exported with a title row above the header needs that row
+	   deleted. A repeated number usually means the report joins another
+	   object (affected items): export the request objects only.
+
 ==============================================================================
 11. INTERNAL INVARIANTS                                 *agile-err-internal*
 

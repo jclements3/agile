@@ -1,0 +1,7 @@
+Number,Name,Type,State,Created By,Priority,Need Date,Created On,Description
+WC-000123,Nightly model check report for the station leads,DevSecOps Request,Open,Pat Lee,High,11/02/2026,10/06/2026 09:14 AM EDT,"The station leads want the nightly pipeline result (lint, outline, trace) as one page they can open without a GitLab account, every weekday morning."
+WC-000124,Add the buoy station variant to the part tree,DevSecOps Request,Under Review,Sam Ortiz,Medium,12/15/2026,10/07/2026 02:40 PM EDT,"Ocean buoys report the same observations as coastal stations, with a different power and comms package.
+Please model them as a variant, not a copy."
+WC-000125,"Export the requirements trace as CSV, for the CCB",DevSecOps Request,Approved,Chris Moore,Low,01/08/2027,10/08/2026 11:02 AM EDT,"The CCB reviews trace in Excel; one CSV of requirement, satisfied by, verified by."
+WC-000126,Retire the legacy fax bulletin interface,DevSecOps Request,Canceled,Pat Lee,Low,,10/08/2026 03:30 PM EDT,Withdrawn: the fax bulletin was shut down in September.
+WC-000127,Read access to the model for the data center contractor,DevSecOps Request,Open,Robin Park,Critical,10/23/2026,10/09/2026 08:05 AM EDT,"Reporter access to tidewater/model for two contractor engineers; the ISSM has approved the request."

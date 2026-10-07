@@ -40,6 +40,8 @@ usage: gitlab.pl [--url URL [--token-env VAR] [--sudo] | --local DIR] [--project
   env list | env deployments [NAME]                           environments and their deployments
   schedule new|list|run|delete|due|next ...                   cron pipeline schedules (gitlab.pl help schedule)
   analytics [--since D] [--until D] [--by sprint|week|month] [--csv DIR]   value stream, DORA, CI/CD, MRs, issues
+  board list                     the issue boards: lists in order and the milestone scope ([boards] in setup)
+  windchill intake FILE.csv | status [--csv FILE]            Windchill requests -> issues; progress back (help windchill)
   trigger new|list|run ...       pipeline trigger tokens: another system starts a pipeline (gitlab.pl help trigger)
   token deploy new|list ...      deploy tokens: a scoped credential for a machine (gitlab.pl help token)
   ci [OPTIONS]                   run .gitlab-ci.yml here, offline (gitlab.pl help ci)
@@ -67,6 +69,11 @@ gitlab.pl setup FILE
     [approvals]  RULE NAME = N user user ...
     [variables]  KEY = VALUE [| protected] [| masked]
     [schedules]  DESCRIPTION = CRON | REF | TZ | K=V ...
+    [boards]     NAME = LABEL LABEL ... [| milestone=started|upcoming|none|any|TITLE]
+    [windchill]  the Windchill intake mapping (read by gitlab.pl windchill, not by setup)
+  A section may appear more than once; its lines add up (a second [labels] adds labels).
+  Boards: setup creates a missing board, adds the missing label lists, puts them in the file's order and
+  scopes the board to the milestone (Premium/Ultimate; on Free it warns and the board shows every milestone).
   Creates the project if it does not exist. Safe to re-run: labels and protections are updated in place.
 gitlab.pl setup --diff FILE
   Read only: compare the project file with the live project and print each difference, as
@@ -147,6 +154,24 @@ gitlab.pl analytics [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--by sprint|week|
   5. issues: opened and closed per period by type:: label; open-issue age
   --by sprint uses the "Sprint N" milestones' dates. --csv DIR also writes one CSV per table.
 EOF
+    board => "gitlab.pl board list\n  Each issue board: its label lists in order and its milestone scope (any, none, upcoming, started or a\n  milestone title). Boards are made by setup from the [boards] section of the project file.\n",
+    windchill => <<'EOF',
+gitlab.pl windchill intake FILE.csv [--conf FILE] [--note] [--dry-run]
+  One issue per new Windchill number in a Windchill report exported as CSV (comma, tab or semicolon; UTF-8,
+  UTF-16 or Windows-1252; quoted cells may hold commas and line breaks). The issue is titled "NUMBER: title",
+  carries the link, requester, need date (also the due date), type, state, priority and description, and the
+  labels of [windchill] labels plus the priority-map label. Rows whose state is not in `accept` are skipped.
+  Safe to re-run: a number that already has an issue is skipped; if Windchill changed its title, state or
+  priority since, the change is printed as drift, and --note adds it to the issue as a comment.
+  Ends with: windchill: N rows, C created, S skipped, D drift
+gitlab.pl windchill status [--conf FILE] [--csv FILE|-] [--since YYYY-MM-DD]
+  One row per Windchill-sourced issue: number, issue, open/closed, workflow:: column, milestone, closed date,
+  merge requests that close or name it, the first release (or tag) holding the merge, and the issue URL.
+  --csv writes it as CSV (CRLF, UTF-8 with BOM for Excel) to paste or import into Windchill; --since keeps
+  issues updated since DATE.
+  --conf defaults to .gitlab/project.conf in this directory or above; the project comes from --project or its
+  [project] path. The [windchill] section maps the export's column names (tools/gitlab/templates/project.conf).
+EOF
     env => "gitlab.pl env list | env deployments [NAME]\n  Environments come from jobs with `environment:`; every successful run of one is a deployment.\n",
 );
 
@@ -225,12 +250,17 @@ my $rc = eval {
 if (!defined $rc) {
     my $e = $@ || "failed\n";
     eval { $gl->save if $gl };
-    $e =~ s/^(?:gitlab\.pl|GitLab|GitFlow): //;
+    $e =~ s/^(?:gitlab\.pl|GitLab|GitFlow|Windchill): //;
     print STDERR "gitlab.pl: $e";
     exit 1;
 }
 exit $rc;
 
+sub find_conf {                               # .gitlab/project.conf here or in a directory above
+    my $d = getcwd();
+    while (1) { return "$d/.gitlab/project.conf" if -f "$d/.gitlab/project.conf"; my $up = $d =~ s{/[^/]*$}{}r; last if $up eq $d || !length $up; $d = $up }
+    undef;
+}
 sub P { $G{project} // die "gitlab.pl: give --project GROUP/NAME (or GITLAB_PROJECT)\n" }
 sub need { my ($n, $what, @a) = @_; @a >= $n or die "gitlab.pl: $what\n" }
 sub show_issue {
@@ -471,6 +501,43 @@ sub main_cmd {
         print GitLab::analytics_text($A);
         if (defined $o{csv}) { my $n = GitLab::analytics_csv($A, $o{csv}); print "\nCSV: " . join(', ', map { "$_ ($n->{$_})" } sort keys %$n) . " -> $o{csv}\n" }
         return 0;
+    }
+    if ($cmd eq 'board') {
+        my $sub = shift @a // 'list';
+        usage('board') unless $sub eq 'list';
+        my $bs = $gl->boards(P());
+        print "no issue boards (add a [boards] section to the project file and run setup)\n" unless @$bs;
+        for my $bo (@$bs) {
+            my @l = map { $_->{label}{name} } sort { ($a->{position} // 0) <=> ($b->{position} // 0) } grep { $_->{label} } @{ $bo->{lists} // [] };
+            printf "%s  (milestone %s)\n  %s\n", $bo->{name}, GitLab::board_scope($bo->{milestone}), @l ? join(' | ', @l) : '(no lists)';
+        }
+        return 0;
+    }
+    if ($cmd eq 'windchill') {
+        require Windchill;
+        my $sub = shift @a // usage('windchill');
+        my %o = opts(\@a, 'conf=s', 'note', 'csv=s', 'since=s');
+        my $conf = $o{conf} // find_conf() // die "gitlab.pl: no project file: give --conf FILE (one with a [windchill] section) or run inside a repository with .gitlab/project.conf\n";
+        my ($cfg, $path) = Windchill::config_file($conf);
+        $G{project} //= $path;
+        if ($sub eq 'intake') {
+            need(1, 'windchill intake needs the exported CSV FILE', @a);
+            my $s = Windchill::intake($gl, P(), $a[0], $cfg, note => $o{note});
+            binmode STDOUT, ':encoding(UTF-8)';
+            print "$_\n" for @{ $s->{lines} };
+            return 0;
+        }
+        if ($sub eq 'status') {
+            my $rows = Windchill::status($gl, P(), $cfg, since => $o{since});
+            if (defined $o{csv}) {
+                my $csv = Windchill::status_csv($rows);
+                if ($o{csv} eq '-') { binmode STDOUT, ':raw:encoding(UTF-8)'; print $csv }
+                else { open my $fh, '>:raw:encoding(UTF-8)', $o{csv} or die "gitlab.pl: cannot write $o{csv}: $!\n"; print $fh "\x{FEFF}$csv"; close $fh;
+                       print scalar(@$rows) . ' Windchill request' . (@$rows == 1 ? '' : 's') . " -> $o{csv}\n" }
+            } else { binmode STDOUT, ':encoding(UTF-8)'; print Windchill::status_text($rows) }
+            return 0;
+        }
+        usage('windchill');
     }
     if ($cmd eq 'env') {
         my $sub = shift @a // 'list';

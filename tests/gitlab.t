@@ -10,6 +10,7 @@ use lib "$FindBin::Bin/../lib";
 use File::Temp qw(tempdir);
 use File::Path qw(make_path);
 use JSON::PP;
+use Encode ();
 use GitLab;
 use GitFlow;
 
@@ -679,6 +680,148 @@ like('cli: help per command', "$rc $out", qr/^0 gitlab\.pl flow init/);
 like('cli: no project is a clear error', "$rc $out", qr/^1 gitlab\.pl: give --project GROUP\/NAME/);
 ($out, $rc) = $cli->('--url', 'https://gitlab.example.com', '--dry-run', '--project', 'g/p', 'sprints', '2026-10-05', 1);
 like('cli: --dry-run with a server', "$rc $out", qr!^0 POST /api/v4/projects/g%2Fp/milestones \{"description":"Two-week sprint 1[^}]*","due_date":"2026-10-16","start_date":"2026-10-05","title":"Sprint 1"\}!);
+
+# ================================================================ issue boards: [boards] in setup, the drift check, dry runs
+{
+    my $bg = GitLab->new(local => "$T/gl-boards", now => '2026-10-05T09:00:00Z');
+    $bg->as('tom');
+    my $bconf = "[project]\npath = acme/boards\n[labels]\nworkflow::ready = #A8D695\nworkflow::doing = #F0AD4E\nworkflow::done = #5CB85C\npriority::1 = #CC0033\npriority::2 = #FC9403\n"
+              . "[milestones]\nsprints = 2026-10-05 2 2\n[boards]\nSprint = workflow::ready workflow::doing workflow::done | milestone=started\nBacklog = priority::1, priority::2 | milestone=none\n";
+    spew("$T/boards.conf", $bconf);
+    my $log = join "\n", @{ $bg->apply_project_file("$T/boards.conf") };
+    like('boards: setup creates the board, its lists and its scope', $log, qr/^board Sprint created\nboard Sprint: list workflow::ready added\n(?:.*\n)*board Sprint: milestone started\nboard Sprint \(3 lists, milestone started\)$/m);
+    my %b = map { ($_->{name} => $_) } @{ $bg->boards('acme/boards') };
+    check('boards: lists in the file\'s order', join(' ', map { "$_->{position}:$_->{label}{name}" } @{ $b{Sprint}{lists} }), '0:workflow::ready 1:workflow::doing 2:workflow::done');
+    check('boards: comma-separated lists and the "No milestone" scope', join(' ', (map { $_->{label}{name} } @{ $b{Backlog}{lists} }), GitLab::board_scope($b{Backlog}{milestone})), 'priority::1 priority::2 none');
+    check('boards: the scope words map to GitLab\'s timebox ids', join(' ', map { GitLab::board_scope($_) } undef, { id => -3, title => 'Started' }, { id => -2 }, { id => 0 }, { id => -1 }, { id => 9, title => 'Sprint 2' }),
+          'any started upcoming none any Sprint 2');
+    check('boards: re-running setup changes nothing', join(' | ', grep { /^board/ } @{ $bg->apply_project_file("$T/boards.conf") }),
+          'board Sprint (3 lists, milestone started) | board Backlog (2 lists, milestone none)');
+    check('boards: diff is clean', join(' | ', grep { /boards/ } @{ $bg->diff_project_file("$T/boards.conf") }), '');
+    (my $drift = $bconf) =~ s/workflow::ready workflow::doing workflow::done \| milestone=started/workflow::doing workflow::ready workflow::done | milestone=Sprint 2/;
+    $drift .= "Review = workflow::done\n";
+    spew("$T/boards-drift.conf", $drift);
+    check('boards: diff reports order, scope and a missing board', join(' | ', @{ $bg->diff_project_file("$T/boards-drift.conf") }),
+          '[boards] Sprint: lists file workflow::doing workflow::ready workflow::done, live workflow::ready workflow::doing workflow::done | [boards] Sprint: milestone file Sprint 2, live started | [boards] Review: missing');
+    $bg->save;
+    my $before = slurp("$T/gl-boards/gitlab.json");
+    my $out = '';
+    open my $oh, '>', \$out;
+    my $dr = GitLab->new(local => "$T/gl-boards", dry_run => 1, out => $oh);
+    $dr->apply_project_file("$T/boards-drift.conf");
+    close $oh;
+    like('boards: dry run prints the move, the scope and the new board', $out,
+         qr{PUT /api/v4/projects/acme%2Fboards/boards/\d+/lists/\d+ \{"position":0\}\nPUT /api/v4/projects/acme%2Fboards/boards/\d+ \{"milestone_id":"\{id of milestone Sprint 2\}"\}\nPOST /api/v4/projects/acme%2Fboards/boards \{"name":"Review"\}\nPOST /api/v4/projects/acme%2Fboards/boards/0/lists \{"label_id":"\{id of label workflow::done\}"\}\n});
+    check('boards: the dry run changed nothing', slurp("$T/gl-boards/gitlab.json") eq $before ? 'unchanged' : 'CHANGED', 'unchanged');
+    $bg = GitLab->new(local => "$T/gl-boards");
+    $bg->as('tom');
+    my @l = grep { /^board/ } @{ $bg->apply_project_file("$T/boards-drift.conf") };
+    check('boards: setup moves a list and rescopes', join(' | ', @l[0 .. 1]), 'board Sprint: list workflow::doing moved to position 0 | board Sprint: milestone Sprint 2');
+    check('boards: then the diff is clean', scalar @{ $bg->diff_project_file("$T/boards-drift.conf") }, 0);
+    dies('boards: a list needs a label that exists', sub { $bg->create_board_list('acme/boards', $b{Sprint}{id}, 'nope') }, qr/no label 'nope' in acme\/boards \(add it to \[labels\]\)/);
+    dies('boards: a board line needs lists', sub { GitLab::parse_board_line('| milestone=started', 'f:3') }, qr/^f:3: a board needs its lists/);
+    dies('boards: only milestone= is an option', sub { GitLab::parse_board_line('a b | assignee=bob', 'f:4') }, qr/^f:4: board options are milestone=/);
+    $bg->save;
+    my ($o, $rc2) = $cli->(qq{--local "$T/gl-boards" --project acme/boards board list});
+    check('cli: board list', "$rc2 $o", "0 Sprint  (milestone Sprint 2)\n  workflow::doing | workflow::ready | workflow::done\nBacklog  (milestone none)\n  priority::1 | priority::2\nReview  (milestone any)\n  workflow::done\n");
+}
+{   # a server that ignores the scope (GitLab Free): setup warns and goes on
+    my $log = "$T/curl-boards.log";
+    spew("$T/responses-boards.txt", join "----\n",
+        "GET /projects/acme%2Fmodel/boards\\?\n200\n\n[]\n",
+        "POST /projects/acme%2Fmodel/boards\$\n201\n\n{\"id\":5,\"name\":\"Sprint\",\"lists\":[]}\n",
+        "GET /projects/acme%2Fmodel/labels\\?\n200\n\n[{\"id\":11,\"name\":\"workflow::ready\"},{\"id\":12,\"name\":\"workflow::done\"}]\n",
+        "POST /projects/acme%2Fmodel/boards/5/lists\$\n201\n\n{\"id\":21,\"position\":0}\n",
+        "PUT /projects/acme%2Fmodel/boards/5\$\n200\n\n{\"id\":5,\"name\":\"Sprint\",\"milestone\":null}\n");
+    local $ENV{FAKE_CURL_LOG} = $log;
+    local $ENV{FAKE_CURL_RESPONSES} = "$T/responses-boards.txt";
+    local $ENV{GL_TEST_TOKEN} = 'glpat-test';
+    my $r = GitLab->new(url => 'https://gitlab.example.com', token_env => 'GL_TEST_TOKEN', curl => [ $^X, "$FindBin::Bin/fake-curl.pl" ]);
+    my @w;
+    local $SIG{__WARN__} = sub { push @w, @_ };
+    my @log = $r->_setup_board('acme/model', 'Sprint', GitLab::parse_board_line('workflow::ready workflow::done | milestone=started', 't'));
+    like('rest boards: Free ignores the scope -> a warning, not a failure', join('', @w), qr/^GitLab: board Sprint: milestone scope 'started' not set \(the scope did not take\); scoped boards need Premium or Ultimate/);
+    check('rest boards: the lists were still added', join(' | ', @log[1, 2, 3]), 'board Sprint: list workflow::ready added | board Sprint: list workflow::done added | board Sprint: milestone scope not set (needs Premium or Ultimate)');
+    my @req = map { decode_json($_) } grep { length } split /\n/, slurp($log);
+    check('rest boards: lists by label id, the scope as Started (-3)', join(' ', map { $_->{body} // '' } grep { $_->{method} ne 'GET' } @req), '{"name":"Sprint"} {"label_id":11} {"label_id":12} {"milestone_id":-3}');
+}
+
+# ================================================================ Windchill: requests in, progress out
+use Windchill;
+{
+    check('windchill: UTF-16LE with a BOM', Windchill::decode_bytes("\xFF\xFE" . Encode::encode('UTF-16LE', "Number,Name\r\nWC-1,Caf\x{e9}\r\n")), "Number,Name\nWC-1,Caf\x{e9}\n");
+    check('windchill: UTF-16BE without a BOM', Windchill::decode_bytes(Encode::encode('UTF-16BE', "Number\nWC-2\n")), "Number\nWC-2\n");
+    check('windchill: Windows-1252 when it is not UTF-8', Windchill::decode_bytes("Name\r\nr\xE9sum\xE9 \x96 draft\r\n"), "Name\nr\x{e9}sum\x{e9} \x{2013} draft\n");
+    check('windchill: UTF-8 with a BOM', Windchill::decode_bytes("\xEF\xBB\xBFName\nCaf\xC3\xA9\n"), "Name\nCaf\x{e9}\n");
+    my $rows = Windchill::parse_csv(qq{Number,Name,Description\nWC-1,"Trace, as CSV","line one\nline ""two"""\n\nWC-2,Plain,\n});
+    check('windchill: quoted commas, newlines and quotes; blank lines skipped', join(' / ', map { join('|', @$_) } @$rows), qq{Number|Name|Description / WC-1|Trace, as CSV|line one\nline "two" / WC-2|Plain|});
+    check('windchill: tab-separated', join(' / ', map { join('|', @$_) } @{ Windchill::parse_csv("Number\tName\nWC-1\tA, B\n") }), 'Number|Name / WC-1|A, B');
+    check('windchill: semicolon-separated', join(' / ', map { join('|', @$_) } @{ Windchill::parse_csv("Number;Name\nWC-1;A, B\n") }), 'Number|Name / WC-1|A, B');
+    check('windchill: need dates', join(' ', map { Windchill::iso_date($_) // '-' } '2026-11-02', '11/2/2026', '02-Nov-2026', '2 November 2026 10:00', 'soon', ''),
+          '2026-11-02 2026-11-02 2026-11-02 2026-11-02 - -');
+    my $m = Windchill::read_marker('x <!-- windchill number="WC-1" state="Open" priority="" title="A &quot;b&quot; -&#45; c" --> y');
+    check('windchill: the marker round-trips quotes and --', "$m->{number}|$m->{state}|$m->{priority}|$m->{title}", 'WC-1|Open||A "b" -- c');
+    check('windchill: a marker never closes the HTML comment early', Windchill::marker({ number => 'WC-1', state => 'a-->b', priority => '', title => '' }) =~ /-->.*-->/ ? 'broken' : 'ok', 'ok');
+}
+{
+    my $wg = GitLab->new(local => "$T/gl", now => '2026-10-20T09:00:00Z');
+    $wg->as('jim');
+    my $conf = "$T/wc.conf";
+    spew($conf, "[project]\npath = $P\n[windchill]\nurl = https://wc.example.invalid/search?keyword={number}\nlabels = source::windchill, type::story\n"
+              . "accept = Open, Under Review, Approved\npriority-map = Critical=priority::1, High=priority::1, Medium=priority::2, Low=priority::3\n");
+    my ($cfg, $path) = Windchill::config_file($conf);
+    check('windchill: config defaults the column names and reads [project] path', join(' ', $cfg->{col}{number}, $cfg->{col}{requester}, $cfg->{col}{'need-date'}, $path), "Number Created By Need Date $P");
+    my $sample = "$ROOT/tools/gitlab/samples/windchill-export.csv";
+    my $s = Windchill::intake($wg, $P, $sample, $cfg);
+    check('windchill: intake summary', $s->{lines}[-1], 'windchill: 5 rows, 4 created, 1 skipped, 0 drift');
+    like('windchill: a state outside accept is skipped and said so', join("\n", @{ $s->{lines} }), qr/^skipped WC-000126: state 'Canceled' is not accepted/m);
+    my ($i) = grep { $_->{title} =~ /^WC-000124: / } @{ $wg->issues($P) };
+    check('windchill: title, labels, due date from the need date', join(' | ', $i->{title}, "@{ $i->{labels} }", $i->{due_date}),
+          'WC-000124: Add the buoy station variant to the part tree | source::windchill type::story priority::2 | 2026-12-15');
+    like('windchill: the body links the request and keeps the multi-line description', $i->{description},
+         qr/^Windchill request \[WC-000124\]\(https:\/\/wc\.example\.invalid\/search\?keyword=WC-000124\), submitted by Sam Ortiz\.\n(?s:.*)\| Requested by \| Sam Ortiz \|\n(?s:.*)with a different power and comms package\.\nPlease model them as a variant, not a copy\.\n\n/);
+    check('windchill: re-running is safe', Windchill::intake($wg, $P, $sample, $cfg)->{lines}[-1], 'windchill: 5 rows, 0 created, 5 skipped, 0 drift');
+    $wg->update_issue($P, $i->{iid}, title => 'Buoy variant (WC-000124)');
+    (my $csv = slurp($sample)) =~ s/WC-000124,Add the buoy station variant to the part tree,DevSecOps Request,Under Review,Sam Ortiz,Medium/WC-000124,Add the buoy station variant to the part tree,DevSecOps Request,Approved,Sam Ortiz,High/;
+    spew("$T/wc-2.csv", $csv);
+    $s = Windchill::intake($wg, $P, "$T/wc-2.csv", $cfg);
+    like('windchill: Windchill-side changes are drift (a GitLab retitle is not)', join("\n", @{ $s->{lines} }),
+         qr/^drift   #$i->{iid} WC-000124: state 'Under Review' -> 'Approved'; priority 'Medium' -> 'High'\n(?s:.*)windchill: 5 rows, 0 created, 4 skipped, 1 drift$/m);
+    $s = Windchill::intake($wg, $P, "$T/wc-2.csv", $cfg, note => 1);
+    like('windchill: --note records the change on the issue', $wg->issue_notes($P, $i->{iid})->[-1]{body}, qr/^Windchill update \(from wc-2\.csv\): state 'Under Review' -> 'Approved'; priority 'Medium' -> 'High'\.\n\n<!-- windchill number="WC-000124" state="Approved"/);
+    check('windchill: after the note, the same export is no longer drift', Windchill::intake($wg, $P, "$T/wc-2.csv", $cfg)->{lines}[-1], 'windchill: 5 rows, 0 created, 5 skipped, 0 drift');
+    my ($cfg2) = Windchill::config(GitLab::parse_project_file("[windchill]\naccept = *\n"), 'f');
+    like('windchill: accept = * imports every state', Windchill::intake($wg, $P, $sample, $cfg2)->{lines}[-1], qr/, 1 created, 3 skipped, 1 drift$/);
+    spew("$T/wc-bad.csv", "Id,Summary\nWC-1,x\n");
+    dies('windchill: a missing column names the ones there are', sub { Windchill::intake($wg, $P, "$T/wc-bad.csv", $cfg) }, qr/has no 'Number' column for the number \(its columns: Id, Summary\); set number = COLUMN in \[windchill\]/);
+    dies('windchill: an unknown key', sub { Windchill::config(GitLab::parse_project_file("[windchill]\nnumbr = Number\n"), 'f.conf') }, qr/^f\.conf:2: unknown \[windchill\] key 'numbr'/);
+    spew("$T/wc-dup.csv", "Number,Name,State\nWC-9,a,Open\n,b,Open\nWC-9,c,Open\n");
+    like('windchill: blank and repeated numbers are warned about', join("\n", @{ Windchill::intake($wg, $P, "$T/wc-dup.csv", $cfg)->{lines} }),
+         qr/^warning: row 3: no Windchill number; skipped\nwarning: row 4: WC-9 appears again; the first row is used\ncreated #\d+ WC-9: a\nwindchill: 3 rows, 1 created, 2 skipped, 0 drift$/);
+    # status: the merged MR !1 (in baseline-1) is made to close the WC-000123 issue
+    my ($w1) = grep { $_->{title} =~ /^WC-000123:/ } @{ $wg->issues($P) };
+    $wg->{st}{projects}{$P}{mrs}[0]{description} .= "\nCloses #$w1->{iid}\n";
+    $wg->update_issue($P, $w1->{iid}, add_labels => ['workflow::done'], milestone => 'Sprint 1');
+    my $rows = Windchill::status($wg, $P, $cfg);
+    my ($r1) = grep { $_->{number} eq 'WC-000123' } @$rows;
+    check('windchill status: one row per request, the closing MR and its release', join(' | ', scalar(@$rows), @$r1{qw(iid state workflow milestone mrs release)}),
+          "6 | $w1->{iid} | open | done | Sprint 1 | !1 merged | baseline-1");
+    check('windchill status: issues that did not come from Windchill are left out', scalar(grep { $_->{iid} == 2 } @$rows), 0);
+    my $csvo = Windchill::status_csv($rows);
+    like('windchill status: CSV with a header, CRLF', $csvo, qr/^windchill,issue,state,workflow,milestone,closed,merge_requests,release,url\r\nWC-000123,$w1->{iid},open,done,Sprint 1,,!1 merged,baseline-1,https:\/\/gitlab\.local\/acme\/model\/-\/issues\/$w1->{iid}\r\n/);
+    check('windchill status: --since keeps recent ones', scalar @{ Windchill::status($wg, $P, $cfg, since => '2099-01-01') }, 0);
+    $wg->save;
+    my ($o, $rc2) = $cli->(qq{--local "$T/gl" windchill status --conf "$conf"});
+    like('cli: windchill status prints a table', "$rc2 $o", qr/^0 windchill +issue +state +workflow +milestone +closed +merge_requests +release\nWC-000123 +#$w1->{iid} +open +done +Sprint 1 +- +!1 merged +baseline-1\n/);
+    ($o, $rc2) = $cli->(qq{--local "$T/gl" windchill status --conf "$conf" --csv "$T/wc-status.csv"});
+    check('cli: windchill status --csv writes a UTF-8 file with a BOM', "$rc2 $o " . substr(slurp("$T/wc-status.csv"), 0, 12), "0 6 Windchill requests -> $T/wc-status.csv\n \xEF\xBB\xBFwindchill");
+    ($o, $rc2) = $cli->(qq{--local "$T/gl" --dry-run windchill intake "$ROOT/tools/gitlab/samples/windchill-export.csv" --conf "$T/wc-new.conf"});
+    like('cli: windchill needs a project file', "$rc2 $o", qr/^1 gitlab\.pl: /);
+    spew("$T/wc-new.conf", "[project]\npath = acme/fresh\n");
+    $wg->create_project('acme/fresh'); $wg->save;
+    ($o, $rc2) = $cli->(qq{--local "$T/gl" --dry-run windchill intake "$ROOT/tools/gitlab/samples/windchill-export.csv" --conf "$T/wc-new.conf"});
+    like('cli: windchill intake --dry-run prints the issues it would create', "$rc2 $o", qr{^0 POST /api/v4/projects/acme%2Ffresh/issues \{"description":"Windchill request (?s:.*)"title":"WC-000123: Nightly model check report for the station leads"\}\n(?s:.*)windchill: 5 rows, 5 created, 0 skipped, 0 drift\n$});
+}
 
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";

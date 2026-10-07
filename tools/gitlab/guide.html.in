@@ -805,6 +805,15 @@ CHANGELOG; <code>Issue:</code> and <code>Fixes:</code> link the issue.</p>
 
 <h3>Labels and boards</h3>
 <!--#include samples/14-board-and-labels.md-->
+<p>The boards themselves are in the project file: a <code>[boards]</code> line per board, its label lists in order and its
+milestone scope (<code>milestone=started</code> follows the running sprint). <code>gitlab.pl setup</code> makes them,
+<code>setup --diff</code> reports when someone rearranged one, and <code>gitlab.pl board list</code> shows them.</p>
+
+<h3>Requests from Windchill</h3>
+<p>When users submit work in Windchill, <code>gitlab.pl windchill intake EXPORT.csv</code> turns a Windchill report export into
+one issue per new request number, and <code>gitlab.pl windchill status --csv FILE</code> is the progress sheet sent back. The
+column mapping is the <code>[windchill]</code> section of the project file.</p>
+<!--#include samples/16-windchill-round-trip.md-->
 
 <h2 id="templates">The templates</h2>
 <p>Templates make the fields above the default. GitLab offers every file in <code>.gitlab/issue_templates/</code> and

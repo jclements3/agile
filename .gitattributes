@@ -10,3 +10,4 @@ tools/sysml/views/tests/fixtures/** -text
 examples/tidewater-v1/tidewater.csv -text
 examples/tidewater-v1/MANIFEST.txt -text
 examples/tidewater-v1/CHANGES.csv -text
+tools/gitlab/samples/windchill-export.csv -text

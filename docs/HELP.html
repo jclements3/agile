@@ -194,6 +194,9 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-err-talk">talk: standup needs --as USER / no milestone 'Sprint N'</a></li>
 <li><a href="#t-agile-err-ci-reports">ci-reports: no 'elements=N errors=E warnings=W' line in LOG</a></li>
 <li><a href="#t-agile-err-gitlab-internal">GitLab: no user given / cannot save STDOUT (a script or the kit itself)</a></li>
+<li><a href="#t-agile-err-gitlab-board">FILE:LINE: a board needs its lists / board options are milestone=...</a></li>
+<li><a href="#t-agile-err-windchill-config">FILE:LINE: unknown [windchill] key / priority-map entries are WINDCHILL=LABEL</a></li>
+<li><a href="#t-agile-err-windchill-export">Windchill: FILE has no 'Number' column for the number (its columns: ...)</a></li>
 <li><a href="#t-agile-err-internal">11. INTERNAL INVARIANTS</a></li>
 </ul></div>
 <hr>
@@ -1653,8 +1656,8 @@ WORKSPACE/trainer.txt             the Vim trainer's highest unlocked level</pre>
                        [--project GROUP/NAME] [--as USER] [--now ISO] [--dry-run] COMMAND
 setup FILE              apply a project file (tools/gitlab/templates/project.conf):
                         settings, members, labels, sprints, protected branches
-                        and tags, approval rules, variables, schedules; safe to
-                        run again
+                        and tags, approval rules, variables, schedules,
+                        boards (<a href="#t-agile-gitlab-boards">agile-gitlab-boards</a>); safe to run again
 setup --diff FILE       compare the project file with the live project, read
                         only; prints each difference; exit 1 on drift
 sprints START COUNT     &quot;Sprint N&quot; milestones, two weeks each (--weeks, --prefix)
@@ -1681,11 +1684,42 @@ analytics               value stream, DORA in model terms, CI/CD, merge request
 trigger new|list|run    pipeline trigger tokens (the prime's Jenkins starts the
                         intake pipeline with DROP_VERSION)
 token deploy new|list   deploy tokens limited to scopes, with an expiry date
-user USERNAME           create a user (emulator, or an admin token)
+board list              the issue boards setup made from [boards]: each one's
+                        label lists in order and its milestone scope</pre>
+<p>windchill intake|status requests from Windchill in, progress back out:</p>
+<pre>                        <a href="#t-agile-gitlab-windchill">agile-gitlab-windchill</a>
+user USERNAME          create a user (emulator, or an admin token)
 ci                      run the pipeline locally: <a href="#t-agile-gitlab-ci">agile-gitlab-ci</a>
 flow                    gitflow in a clone: <a href="#t-agile-gitlab-flow">agile-gitlab-flow</a>
 help [COMMAND]          the full option list of one command</pre>
 <p>--dry-run prints each request that would change something and changes nothing; reads still answer (both backends; flow refuses it). Environment: GITLAB_URL, GITLAB_LOCAL, GITLAB_PROJECT, GITLAB_USER, GITLAB_TOKEN.</p>
+<h4 id="t-agile-gitlab-boards">[boards] in the project file <span class=tag>agile-gitlab-boards</span></h4>
+<pre>Sprint = workflow::ready workflow::in-progress workflow::review workflow::blocked workflow::done | milestone=started
+Backlog = priority::1 priority::2 priority::3 | milestone=none</pre>
+<p>One line per issue board: its label lists, left to right, then the milestone scope: started (the sprint that is running; the board follows the sprints by itself), upcoming, none (issues without a milestone), any (unscoped), or a milestone title. setup creates a missing board, adds missing lists, puts them in the file's order and sets the scope; setup --diff reports a missing board, lists in another order and another scope. Boards not in the file are left alone. Scoping is Premium/Ultimate (GitLab Dedicated has it); on Free setup warns and the board shows every milestone. Any section may appear twice; a second [labels] adds labels.</p>
+<h4 id="t-agile-gitlab-windchill">gitlab.pl windchill <span class=tag>agile-gitlab-windchill</span></h4>
+<p>Requests arrive in Windchill; the team works them in GitLab. With no API between the two, the bridge is a file each way.</p>
+<pre>windchill intake FILE.csv [--note]   one issue per new Windchill number in a
+                        report or search result exported as CSV (comma, tab
+                        or semicolon; UTF-8, UTF-16 or Windows-1252). Title
+                        &quot;NUMBER: title&quot;, the link, requester, need date (also
+                        the due date), type, state and priority in a table,
+                        the description, the labels of [windchill] labels and
+                        priority-map. States not in accept are skipped. Safe
+                        to re-run: a known number is skipped; if Windchill
+                        changed its title, state or priority, that is printed
+                        as drift, and --note adds it to the issue as a
+                        comment. Ends: windchill: N rows, C created, S
+                        skipped, D drift
+windchill status [--csv FILE|-] [--since DATE]   one row per Windchill-sourced
+                        issue: number, issue, open/closed, workflow:: column,
+                        milestone, closed date, the merge requests that close
+                        or name it, the first release holding the merge, URL;
+                        --csv is the sheet to import or paste into Windchill
+--conf FILE             the project file with [windchill] (default:
+                        .gitlab/project.conf here or above); --dry-run shows
+                        the issues intake would create</pre>
+<p>[windchill] keys: number, title, state, type, requester, priority, need-date, description (the export's column names; defaults Number, Name, State, Type, Created By, Priority, Need Date, Description), url (with {number}), labels, accept (state list, or *), priority-map (High=priority::1, ...). Each issue ends with a hidden marker of what Windchill said; drift is measured against it, so retitling or relabelling the issue in GitLab is not drift. Sample export: tools/gitlab/samples/windchill-export.csv; the round trip: tools/gitlab/samples/16-windchill-round-trip.md. Messages: <a href="#t-agile-err-windchill-config">agile-err-windchill-config</a>, <a href="#t-agile-err-windchill-export">agile-err-windchill-export</a>.</p>
 <h4 id="t-agile-gitlab-flow">gitlab.pl flow <span class=tag>agile-gitlab-flow</span></h4>
 <p>Gitflow for the model repository: main holds released baselines, develop is the integration branch (GitLab's default branch), work happens on feature/ branches, baselines on release/ branches, fixes to a baseline on hotfix/ branches, and every prime drop lands on vendor/prime, never edited by hand.</p>
 <pre>flow init                     develop from main
@@ -2771,6 +2805,41 @@ Fix:     Read git's or the system's words at the end of the line. Check free
          are writable. In your own scripts, pass every argument the method's
          header comment names. If the kit's own commands print it with
          nothing wrong on disk, report it with the command you ran.</pre>
+<h3 id="t-agile-err-gitlab-board">FILE:LINE: a board needs its lists / board options are milestone=... <span class=tag>agile-err-gitlab-board</span></h3>
+<p>Pattern: *: a board needs its lists: LABEL LABEL ... [| milestone=started] Pattern: *: board options are milestone=any|none|upcoming|started|TITLE, not '*'</p>
+<pre>From:    gitlab.pl setup, setup --diff (the [boards] section)
+Means:   A [boards] line is NAME = LABEL LABEL ... | milestone=WORD. The
+         line names no labels, or has an option other than milestone=.
+Fix:     Write the lists as label names, in board order, separated by
+         spaces (or commas when a label has a space), then optionally
+         &quot;| milestone=started&quot; (or upcoming, none, any, or a milestone
+         title). Example in tools/gitlab/templates/project.conf.
+         When setup warns &quot;milestone scope ... not set&quot;, the server is on
+         GitLab Free: scoped boards need Premium or Ultimate. The board
+         still works and shows every milestone.</pre>
+<h3 id="t-agile-err-windchill-config">FILE:LINE: unknown [windchill] key / priority-map entries are WINDCHILL=LABEL <span class=tag>agile-err-windchill-config</span></h3>
+<p>Pattern: *:*: unknown [windchill] key '*' (*) Pattern: *: [windchill] priority-map entries are WINDCHILL=LABEL, not '*'</p>
+<pre>From:    gitlab.pl windchill intake, gitlab.pl windchill status
+Means:   The [windchill] section of the project file has a key the
+         intake does not know (the message lists the ones it does), or a
+         priority-map entry without &quot;=&quot;.
+Fix:     Use the keys number, title, state, type, requester, priority,
+         need-date, description (column names), url, labels, accept and
+         priority-map. priority-map is a comma list such as
+         &quot;High=priority::1, Low=priority::3&quot;.</pre>
+<h3 id="t-agile-err-windchill-export">Windchill: FILE has no 'Number' column for the number (its columns: ...) <span class=tag>agile-err-windchill-export</span></h3>
+<p>Pattern: Windchill: * has no '*' column for the * (its columns: *); set * = COLUMN in [windchill] Pattern: row *: no Windchill number; skipped Pattern: row *: * appears again; the first row is used</p>
+<pre>From:    gitlab.pl windchill intake FILE.csv
+Means:   The export's header line has no column of the name [windchill]
+         maps the number or the title to; the message lists the columns
+         the file has. The two &quot;row&quot; warnings: a row with an empty number
+         cell, and a number that appears twice (the first row is used).
+Fix:     Set number = and title = in [windchill] to the column names your
+         Windchill report exports (the header line, as spelled there), or
+         add the columns to the report. Check the export opened in Excel:
+         a report exported with a title row above the header needs that row
+         deleted. A repeated number usually means the report joins another
+         object (affected items): export the request objects only.</pre>
 <hr>
 <h2 id="t-agile-err-internal">11. INTERNAL INVARIANTS <span class=tag>agile-err-internal</span></h2>
 <p>These messages mean a bug in the kit or a broken copy of it, not something you did. Note the command you ran and the message, and get a fresh copy of the kit (git status shows local changes; git checkout -- FILE restores one).</p>

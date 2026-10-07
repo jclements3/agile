@@ -17,5 +17,6 @@ Friday 2026-12-18
 
   10:00 tom  opened !25 Generate the data exchange table (pipeline #95 failed)
   11:30 tom  secrets job failed on !25: token revoked, rotated to masked READ_TOKEN, branch rewritten
+  15:00 jim  closed WC-000109 (tidewater/requests#9): delivered by TW-115
   15:00 tom  closed #124 Generate the data exchange table
   15:00 tom  merged !25

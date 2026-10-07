@@ -1,0 +1,7 @@
+perl $KIT/bin/gitlab.pl --project tidewater/requests windchill status --conf requests.conf --csv windchill-status-2026-10-30.csv
+
+windchill  issue  state   workflow  milestone  closed      merge_requests  release
+WC-000101  #1     open    ready     -          -           -               -
+WC-000102  #2     closed  done      Sprint 2   2026-10-30  -               -
+WC-000103  #3     open    ready     Sprint 3   -           -               -
+WC-000104  #4     closed  done      -          2026-10-28  -               -

@@ -1,0 +1,3 @@
+windchill,issue,state,workflow,milestone,closed,merge_requests,release,url
+WC-000101,1,open,ready,,,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/1
+WC-000102,2,open,ready,Sprint 2,,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/2

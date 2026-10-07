@@ -1,0 +1,20 @@
+perl $KIT/bin/gitlab.pl --project tidewater/requests windchill intake --conf requests.conf --note export-2026-12-23.csv
+exists  #4 WC-000104
+exists  #6 WC-000106
+drift   #7 WC-000107: state 'Approved' -> 'Implemented'
+noted   #7 WC-000107
+exists  #8 WC-000108
+drift   #9 WC-000109: state 'Open' -> 'Approved'
+noted   #9 WC-000109
+drift   #10 WC-000110: state 'Open' -> 'Approved'
+noted   #10 WC-000110
+drift   #11 WC-000111: state 'Open' -> 'Approved'
+noted   #11 WC-000111
+created #12 WC-000112: DailyUpload sequence for the communications contractor
+created #13 WC-000113: Weekly progress in the program office spreadsheet
+windchill: 9 rows, 2 created, 3 skipped, 4 drift
+
+Dispositions and plans recorded on the requests:
+  WC-000112 #12  accept   Accepted: the DailyUpload interaction is a sprint 7 story.
+  WC-000112 #12  planned  tidewater/model#134 TW-134 in Sprint 7
+  WC-000113 #13  decline  Declined, with an alternative: the weekly note (every Friday) and the Insights dashboard in GitLab carry the same numbers, current; the program office has Reporter access to both.

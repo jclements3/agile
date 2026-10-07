@@ -28,6 +28,8 @@
   10:00 tom  opened !6 Prime drop v1.0 (pipeline #14 success)
 2026-10-28
   10:00 jim  closed #47 Conventions and onboarding docs into docs/
+  10:00 jim  dispositioned WC-000103 (accept) in tidewater/requests#3
+  10:00 jim  dispositioned WC-000104 (decline) in tidewater/requests#4
 2026-10-29
   10:00 bob  closed #41 Review and merge the drop-1 MR; record the outline count
   10:45 tom  opened !7 Pipeline: Adds the todo (port burn-down) and docs (generated docs current) jobs, and commits docs/ (pipeline #17 success)

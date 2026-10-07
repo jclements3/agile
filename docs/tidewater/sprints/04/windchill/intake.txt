@@ -1,0 +1,17 @@
+perl $KIT/bin/gitlab.pl --project tidewater/requests windchill intake --conf requests.conf --note export-2026-11-25.csv
+exists  #1 WC-000101
+drift   #3 WC-000103: state 'Approved' -> 'Implemented'
+noted   #3 WC-000103
+exists  #4 WC-000104
+drift   #5 WC-000105: state 'Open' -> 'Approved'
+noted   #5 WC-000105
+drift   #6 WC-000106: state 'Open' -> 'Approved'
+noted   #6 WC-000106
+created #7 WC-000107: Check our requirement wording before the prime's next review
+created #8 WC-000108: Write access to the government repository for the prime's modelers
+windchill: 7 rows, 2 created, 2 skipped, 3 drift
+
+Dispositions and plans recorded on the requests:
+  WC-000107 #7   accept   Accepted: grading requirements with the recipe is a sprint 5 story; operations' drafts are graded with the same tool.
+  WC-000107 #7   planned  tidewater/model#94 TW-94 in Sprint 5
+  WC-000108 #8   decline  Declined: the prime delivers through drops onto vendor/prime (ADR 0003); the government model is the government's configuration. The prime keeps Reporter access and files discrepancy responses as usual.

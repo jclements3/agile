@@ -1,0 +1,13 @@
+perl $KIT/bin/gitlab.pl --project tidewater/requests windchill intake --conf requests.conf --note export-2026-10-28.csv
+drift   #1 WC-000101: state 'Open' -> 'Approved'
+noted   #1 WC-000101
+drift   #2 WC-000102: state 'Open' -> 'Approved'
+noted   #2 WC-000102
+created #3 WC-000103: Which DOORS requirements are in the model, and which are verified
+created #4 WC-000104: Weekly PowerPoint export of the Cameo diagrams
+windchill: 4 rows, 2 created, 0 skipped, 2 drift
+
+Dispositions and plans recorded on the requests:
+  WC-000103 #3   accept   Accepted: the DOORS modules come into the model in sprint 3 and the trace report lists exactly this.
+  WC-000103 #3   planned  tidewater/model#52 TW-52 in Sprint 3
+  WC-000104 #4   decline  Declined: the government model is SysML v2 text; its diagrams are generated on every merge and the model site (sprint 4, WC-000101) shows the current ones. A weekly export would be a copy that is wrong by Monday.

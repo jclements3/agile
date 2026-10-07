@@ -1,0 +1,14 @@
+windchill,issue,state,workflow,milestone,closed,merge_requests,release,url
+WC-000101,1,closed,done,Sprint 4,2026-11-24,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/1
+WC-000102,2,closed,done,Sprint 2,2026-10-30,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/2
+WC-000103,3,closed,done,Sprint 3,2026-11-10,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/3
+WC-000104,4,closed,done,,2026-10-28,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/4
+WC-000105,5,closed,done,Sprint 4,2026-11-27,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/5
+WC-000106,6,open,ready,,,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/6
+WC-000107,7,closed,done,Sprint 5,2026-12-08,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/7
+WC-000108,8,closed,done,,2026-11-25,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/8
+WC-000109,9,closed,done,Sprint 6,2026-12-18,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/9
+WC-000110,10,open,ready,Sprint 6,,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/10
+WC-000111,11,open,ready,,,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/11
+WC-000112,12,open,ready,Sprint 7,,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/12
+WC-000113,13,closed,done,,2026-12-23,,,https://gitlab.gov.example.invalid/tidewater/requests/-/issues/13

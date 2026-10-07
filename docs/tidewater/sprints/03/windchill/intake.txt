@@ -1,0 +1,17 @@
+perl $KIT/bin/gitlab.pl --project tidewater/requests windchill intake --conf requests.conf --note export-2026-11-12.csv
+exists  #1 WC-000101
+drift   #2 WC-000102: state 'Approved' -> 'Implemented'
+noted   #2 WC-000102
+drift   #3 WC-000103: state 'Open' -> 'Approved'
+noted   #3 WC-000103
+drift   #4 WC-000104: state 'Open' -> 'Rejected'
+noted   #4 WC-000104
+created #5 WC-000105: Units on the sensor parameters (wind in knots or m/s?)
+created #6 WC-000106: Observation latency budget: station to published bulletin
+windchill: 6 rows, 2 created, 1 skipped, 3 drift
+
+Dispositions and plans recorded on the requests:
+  WC-000101 #1   planned  tidewater/model#71 TW-71 in Sprint 4
+  WC-000105 #5   accept   Accepted: units and value types are a sprint 4 story.
+  WC-000105 #5   planned  tidewater/model#68 TW-68 in Sprint 4
+  WC-000106 #6   defer    Deferred: a timing budget needs behavior and constraints in the model (planned for sprint 7 onward: the EnergyBalance constraint is the first). Revisit at the sprint 7 refinement.

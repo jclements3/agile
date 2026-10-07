@@ -1,0 +1,22 @@
+perl $KIT/bin/gitlab.pl --as jim setup tools/gitlab/templates/requests.conf
+  created project tidewater/requests
+  settings: default_branch=main
+  member jim maintainer
+  member bob developer
+  member tom developer
+  member dpm reporter
+  label source::windchill
+  label type::story
+  label disposition::accept
+  label disposition::defer
+  label disposition::decline
+  label workflow::ready
+  label workflow::done
+  label priority::1
+  label priority::2
+  label priority::3
+  board Requests created
+  board Requests: list disposition::accept added
+  board Requests: list disposition::defer added
+  board Requests: list disposition::decline added
+  board Requests (3 lists, milestone any)

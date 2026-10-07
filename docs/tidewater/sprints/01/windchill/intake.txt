@@ -1,0 +1,8 @@
+perl $KIT/bin/gitlab.pl --project tidewater/requests windchill intake --conf requests.conf --note export-2026-10-15.csv
+created #1 WC-000101: Nightly model check summary the station leads can open
+created #2 WC-000102: Read access to the model for the data center engineers
+windchill: 2 rows, 2 created, 0 skipped, 0 drift
+
+Dispositions and plans recorded on the requests:
+  WC-000101 #1   accept   Accepted: delivered by the model site on GitLab Pages, rebuilt nightly, planned for sprint 4.
+  WC-000102 #2   accept   Accepted: Reporter access once drop 1 is on develop (sprint 2); granted at the sprint 2 review.

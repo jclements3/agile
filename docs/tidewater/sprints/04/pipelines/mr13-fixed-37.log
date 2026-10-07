@@ -1,13 +1,13 @@
-pipeline #37 (merge_request_event, refs/merge-requests/13/merge) success, 7 jobs, 133.8 s
+pipeline #37 (merge_request_event, refs/merge-requests/13/merge) success, 7 jobs, 135.1 s
 
-==== grammar          check    success   44.9 s
+==== grammar          check    success   46.9 s
 $ perl ci/job.pl grammar
 $ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 sysml: 17 file(s), 0 error(s)
 $ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 ci-reports grammar: 17 check(s), 0 failed, 0 finding(s); grammar_files=17 grammar_errors=0
 
-==== lint             check    success   39.4 s
+==== lint             check    success   51.9 s
 $ perl ci/job.pl lint
 $ perl $KIT/tools/sysml/model.pl lint
 lint: 17 file(s), 0 error(s), 0 warning(s)
@@ -15,7 +15,7 @@ elements=148 errors=0 warnings=0
 $ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
 ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=148 lint_errors=0 lint_warnings=0
 
-==== outline          check    success   14.7 s
+==== outline          check    success     16 s
 $ perl ci/job.pl outline
 $ perl $KIT/tools/sysml/model.pl check
 
@@ -47,17 +47,17 @@ $ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality
 ci-reports outline: 2 check(s), 1 failed, 19 finding(s); level_tag_mismatches=0 outline_violations=19
 outline violations: 19 (allowed: 19)
 
-==== todo             check    success      6 s
+==== todo             check    success    6.9 s
 $ perl ci/job.pl todo
 TODO lines remaining: 25
 $ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model
 ci-reports todo: 1 check(s), 0 failed, 25 finding(s); todo_lines=25 todo_lines_analysis=2 todo_lines_library=4 todo_lines_logical=4 todo_lines_physical=15
 
-==== secrets          check    success    8.8 s
+==== secrets          check    success    8.6 s
 $ perl ci/job.pl secrets
-no secrets found in 65 tracked files
+no secrets found in 66 tracked files
 
-==== trace            trace    success   26.2 s
+==== trace            trace    success   23.1 s
 $ perl ci/job.pl trace
 $ perl $KIT/bin/reqif2sysml.pl --report --model model (without the DOORS modules) imports/v1.0/tidewater.reqif
 reqif2sysml report: tidewater.reqif
@@ -97,7 +97,7 @@ ci-reports trace: 14 check(s), 14 failed, 0 finding(s); trace_linked=29 trace_to
 trace gaps: 2 orphan(s), 9 unverified, 1 drifted
 TRACE_MODE=report: gaps are reported, never fatal
 
-==== docs             docs     success   37.7 s
+==== docs             docs     success   35.1 s
 $ perl ci/job.pl docs
 $ perl $KIT/tools/sysml/model.pl docs
 wrote docs/Nouns.md (38 lines)

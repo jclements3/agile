@@ -19,8 +19,12 @@
   13:30 bob  merged !18
 2026-12-08
   10:00 jim  closed #106 DR-6: weak verbs and missing parts in the DOORS text
+  10:00 jim  closed WC-000107 (tidewater/requests#7): delivered by TW-94
 2026-12-09
   10:00 bob  opened !19 Level tags in DataCenter (pipeline #66 success)
+  10:00 jim  dispositioned WC-000109 (accept) in tidewater/requests#9
+  10:00 jim  dispositioned WC-000110 (accept) in tidewater/requests#10
+  10:00 jim  dispositioned WC-000111 (defer) in tidewater/requests#11
   10:45 tom  closed #107 Rehearse release and hotfix in tidewater/sandbox
   13:30 bob  closed #100 Level tags in DataCenter
   13:30 bob  merged !19

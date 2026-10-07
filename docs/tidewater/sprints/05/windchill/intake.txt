@@ -1,0 +1,23 @@
+perl $KIT/bin/gitlab.pl --project tidewater/requests windchill intake --conf requests.conf --note export-2026-12-09.csv
+drift   #1 WC-000101: state 'Approved' -> 'Implemented'
+noted   #1 WC-000101
+exists  #4 WC-000104
+drift   #5 WC-000105: state 'Approved' -> 'Implemented'
+noted   #5 WC-000105
+drift   #6 WC-000106: priority 'Medium' -> 'High'
+noted   #6 WC-000106
+drift   #7 WC-000107: state 'Open' -> 'Approved'
+noted   #7 WC-000107
+drift   #8 WC-000108: state 'Open' -> 'Rejected'
+noted   #8 WC-000108
+created #9 WC-000109: Data exchange table for the program review
+created #10 WC-000110: Buoy operating modes diagram for the operations manual
+created #11 WC-000111: Add the new tide gauge vendor's sensor to the station
+windchill: 9 rows, 3 created, 1 skipped, 5 drift
+
+Dispositions and plans recorded on the requests:
+  WC-000109 #9   accept   Accepted: generated from the model in sprint 6, for the review on 12-24.
+  WC-000109 #9   planned  tidewater/model#115 TW-115 in Sprint 6
+  WC-000110 #10  accept   Accepted: the BuoyModes state machine is a sprint 6 story; the diagram is generated from it.
+  WC-000110 #10  planned  tidewater/model#112 TW-112 in Sprint 6
+  WC-000111 #11  defer    Deferred to the prime: the station design is the prime's; the change arrives in a drop (a prime change request) and is dispositioned then. Tracked as prime-tbd.

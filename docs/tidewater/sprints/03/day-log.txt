@@ -17,7 +17,10 @@
   15:00 tom  merged !11
 2026-11-10
   10:00 bob  closed #62 Merge the DOORS modules to develop
+  10:00 jim  closed WC-000103 (tidewater/requests#3): delivered by TW-52
 2026-11-12
+  10:00 jim  dispositioned WC-000105 (accept) in tidewater/requests#5
+  10:00 jim  dispositioned WC-000106 (defer) in tidewater/requests#6
   10:00 tom  closed #58 talk.pl; the Day-9 demo rehearsal
   10:45 tom  closed #64 Runner service account and hardening checklist
 2026-11-13

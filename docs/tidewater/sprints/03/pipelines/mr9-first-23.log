@@ -1,6 +1,6 @@
-pipeline #23 (merge_request_event, refs/merge-requests/9/merge) failed, 5 jobs, 57.2 s
+pipeline #23 (merge_request_event, refs/merge-requests/9/merge) failed, 5 jobs, 67.1 s
 
-==== grammar          check    failed      42 s
+==== grammar          check    failed    40.5 s
 $ perl ci/job.pl grammar
 $ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
 model/physical/network/Network.sysml:39:41: error: unexpected 'queryArchive'; expected ',', '.', ':', '::', '::>', ':=', ':>', ':>>', ...
@@ -8,7 +8,7 @@ sysml: 14 file(s), 1 error(s)
 $ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
 ci-reports grammar: 14 check(s), 1 failed, 1 finding(s); grammar_files=14 grammar_errors=1
 
-==== lint             check    failed    42.2 s
+==== lint             check    failed    52.1 s
 $ perl ci/job.pl lint
 $ perl $KIT/tools/sysml/model.pl lint
 model/physical/network/Network.sysml:39:41: error: syntax: unexpected 'queryArchive'; expected ',', '.', ':', '::', '::>', ':=', ...
@@ -18,7 +18,7 @@ $ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-
 ci-reports lint: 2 check(s), 2 failed, 1 finding(s); model_elements=148 lint_errors=1 lint_warnings=0
 lint is not 0/0 (elements=148 errors=1 warnings=0)
 
-==== outline          check    success   12.2 s
+==== outline          check    success   14.6 s
 $ perl ci/job.pl outline
 $ perl $KIT/tools/sysml/model.pl check
 
@@ -48,7 +48,7 @@ $ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality
 ci-reports outline: 2 check(s), 1 failed, 17 finding(s); level_tag_mismatches=0 outline_violations=17
 outline violations: 17 (allowed: 17)
 
-==== todo             check    success    6.6 s
+==== todo             check    success    7.7 s
 $ perl ci/job.pl todo
 TODO lines remaining: 50
 $ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model

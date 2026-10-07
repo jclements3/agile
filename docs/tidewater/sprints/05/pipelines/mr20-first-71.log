@@ -1,13 +1,13 @@
-pipeline #71 (merge_request_event, refs/merge-requests/20/merge) failed, 8 jobs, 87.2 s
+pipeline #71 (merge_request_event, refs/merge-requests/20/merge) failed, 8 jobs, 95.7 s
 
-==== grammar          check    success   46.7 s
+==== grammar          check    success   46.1 s
 $ perl ci/job.pl grammar
 $ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 sysml: 16 file(s), 0 error(s)
 $ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 ci-reports grammar: 16 check(s), 0 failed, 0 finding(s); grammar_files=16 grammar_errors=0
 
-==== lint             check    success     42 s
+==== lint             check    success   48.8 s
 $ perl ci/job.pl lint
 $ perl $KIT/tools/sysml/model.pl lint
 lint: 16 file(s), 0 error(s), 0 warning(s)
@@ -15,7 +15,7 @@ elements=138 errors=0 warnings=0
 $ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
 ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=138 lint_errors=0 lint_warnings=0
 
-==== outline          check    success   13.8 s
+==== outline          check    success   15.2 s
 $ perl ci/job.pl outline
 $ perl $KIT/tools/sysml/model.pl check
 
@@ -45,7 +45,7 @@ $ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality
 ci-reports outline: 2 check(s), 1 failed, 17 finding(s); level_tag_mismatches=0 outline_violations=17
 outline violations: 17 (allowed: 17)
 
-==== todo             check    success      7 s
+==== todo             check    success      6 s
 $ perl ci/job.pl todo
 TODO lines remaining: 14
 $ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model
@@ -53,9 +53,9 @@ ci-reports todo: 1 check(s), 0 failed, 14 finding(s); todo_lines=14 todo_lines_a
 
 ==== secrets          check    success    8.4 s
 $ perl ci/job.pl secrets
-no secrets found in 64 tracked files
+no secrets found in 65 tracked files
 
-==== trace            trace    failed    20.5 s
+==== trace            trace    failed    26.9 s
 $ perl ci/job.pl trace
 $ perl $KIT/bin/reqif2sysml.pl --report --model model (without the DOORS modules) imports/v1.0/tidewater.reqif
 reqif2sysml report: tidewater.reqif
@@ -93,12 +93,12 @@ drift: TW-SYS-006
 $ perl $KIT/tools/gitlab/ci-reports.pl trace --junit trace.xml --metrics trace.metrics trace.txt
 ci-reports trace: 15 check(s), 15 failed, 0 finding(s); trace_linked=29 trace_total=30 trace_orphans=3 trace_unverified=9 trace_completeness_pct=63.3 trace_drift=1 trace_not_in_model=1
 trace gaps: 3 orphan(s), 9 unverified, 1 drifted
-$ git worktree add -q --detach /tmp/ci-XXXXXX e9a045e31092a6168e07caa1da3048f44f5d2bb3
+$ git worktree add -q --detach /tmp/ci-XXXXXX 77670e86836ef76f2d5b3e578f8e59d329528b60
 $ git worktree remove --force /tmp/ci-XXXXXX
 target branch: 29 of 30 linked; 2 orphan(s), 9 unverified, 1 drifted (full report: trace-base.txt)
 this change adds trace gaps: orphans 2 -> 3 (new: TW-SYS-002) (see trace.txt)
 
-==== recipe           trace    success   14.4 s
+==== recipe           trace    success   14.7 s
 $ perl ci/job.pl recipe
 $ perl $KIT/tools/sysml/req-recipe.pl --format text model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
 TW-STK-001  score 85  model/requirements/model/Requirements.sysml:15  (Coastal coverage)

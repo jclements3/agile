@@ -24,6 +24,7 @@
 2026-12-18
   10:00 tom  opened !25 Generate the data exchange table (pipeline #95 failed)
   11:30 tom  secrets job failed on !25: token revoked, rotated to masked READ_TOKEN, branch rewritten
+  15:00 jim  closed WC-000109 (tidewater/requests#9): delivered by TW-115
   15:00 tom  closed #124 Generate the data exchange table
   15:00 tom  merged !25
 2026-12-21
@@ -32,6 +33,9 @@
   13:30 tom  merged !26
 2026-12-22
   10:00 jim  closed #128 The twelve-week briefing and memo
+2026-12-23
+  10:00 jim  dispositioned WC-000112 (accept) in tidewater/requests#12
+  10:00 jim  dispositioned WC-000113 (decline) in tidewater/requests#13
 2026-12-24
   11:30 tom  closed #127 Release branch, CCB concurrence, tag baseline-0, back-merge
   16:30 bob  carried #120 to #138 (sprint 7)

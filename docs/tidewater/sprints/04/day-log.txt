@@ -13,13 +13,17 @@
 2026-11-24
   10:00 tom  opened !14 Pipeline: Adds the pages job: the model site for management, rebuilt on every merge and nightly (pipeline #40 success)
   10:45 jim  closed #82 Sprint review with the program office
+  13:30 jim  closed WC-000101 (tidewater/requests#1): delivered by TW-71
   13:30 tom  closed #81 Add the pages job and the nightly schedule
   13:30 tom  merged !14
 2026-11-25
+  10:00 jim  dispositioned WC-000107 (accept) in tidewater/requests#7
+  10:00 jim  dispositioned WC-000108 (decline) in tidewater/requests#8
   10:00 tom  closed #75 The Day-9 demo rehearsal
   10:45 jim  closed #83 Agree the delivery interface with the prime (meeting)
 2026-11-27
   10:00 bob  opened !15 Units for Power and Energy (pipeline #46 success)
   13:30 bob  closed #78 Value types specialize ISQ quantities
   13:30 bob  merged !15
+  13:30 jim  closed WC-000105 (tidewater/requests#5): delivered by TW-68
   16:30 bob  carried #77 to #96 (sprint 5)

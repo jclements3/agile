@@ -81,6 +81,7 @@ Copied by `perl sim/tidewater-evidence.pl RUN_DIR` from a run of `perl sim/tidew
 | `sprints/01/samples/wiki-glossary.md` | the wiki page "glossary" |
 | `sprints/01/samples/wiki-home.md` | the wiki page "home" |
 | `sprints/01/scorecard.json` | the twelve-week scorecard measures at the end of the sprint |
+| `sprints/01/setup-requests.txt` | evidence |
 | `sprints/01/setup.txt` | gitlab.pl setup applying project.conf: labels, milestones, protections, schedules |
 | `sprints/01/standups/2026-10-05-chat.txt` | the stand-up statuses as pasted from the meeting chat, 2026-10-05 |
 | `sprints/01/standups/2026-10-05-lint.txt` | the kit's lint of that day's statuses, 2026-10-05 |
@@ -103,6 +104,10 @@ Copied by `perl sim/tidewater-evidence.pl RUN_DIR` from a run of `perl sim/tidew
 | `sprints/01/todo-at-review.txt` | evidence |
 | `sprints/01/weekly-note-2026-10-09.md` | the weekly note to management (drafted with talk.pl weekly), 2026-10-09 |
 | `sprints/01/weekly-note-2026-10-16.md` | the weekly note to management (drafted with talk.pl weekly), 2026-10-16 |
+| `sprints/01/windchill/export-2026-10-15.csv` | evidence |
+| `sprints/01/windchill/intake.txt` | evidence |
+| `sprints/01/windchill/status.csv` | evidence |
+| `sprints/01/windchill/status.txt` | evidence |
 | `sprints/02/analytics.txt` | gitlab.pl analytics for the sprint: value stream, DORA in model terms, pipelines, MRs, issues |
 | `sprints/02/day-log.txt` | day by day: what happened in GitLab and the journal |
 | `sprints/02/drop1-delta.txt` | the drop delta (xmi2sysml --delta) used in the vendor-branch merge |
@@ -186,6 +191,10 @@ Copied by `perl sim/tidewater-evidence.pl RUN_DIR` from a run of `perl sim/tidew
 | `sprints/02/todo-at-review.txt` | evidence |
 | `sprints/02/weekly-note-2026-10-23.md` | the weekly note to management (drafted with talk.pl weekly), 2026-10-23 |
 | `sprints/02/weekly-note-2026-10-30.md` | the weekly note to management (drafted with talk.pl weekly), 2026-10-30 |
+| `sprints/02/windchill/export-2026-10-28.csv` | evidence |
+| `sprints/02/windchill/intake.txt` | evidence |
+| `sprints/02/windchill/status.csv` | evidence |
+| `sprints/02/windchill/status.txt` | evidence |
 | `sprints/03/analytics.txt` | gitlab.pl analytics for the sprint: value stream, DORA in model terms, pipelines, MRs, issues |
 | `sprints/03/day-log.txt` | day by day: what happened in GitLab and the journal |
 | `sprints/03/drop1-delta.txt` | the drop delta (xmi2sysml --delta) used in the vendor-branch merge |
@@ -267,6 +276,10 @@ Copied by `perl sim/tidewater-evidence.pl RUN_DIR` from a run of `perl sim/tidew
 | `sprints/03/todo-at-review.txt` | evidence |
 | `sprints/03/weekly-note-2026-11-06.md` | the weekly note to management (drafted with talk.pl weekly), 2026-11-06 |
 | `sprints/03/weekly-note-2026-11-13.md` | the weekly note to management (drafted with talk.pl weekly), 2026-11-13 |
+| `sprints/03/windchill/export-2026-11-12.csv` | evidence |
+| `sprints/03/windchill/intake.txt` | evidence |
+| `sprints/03/windchill/status.csv` | evidence |
+| `sprints/03/windchill/status.txt` | evidence |
 | `sprints/04/analytics.txt` | gitlab.pl analytics for the sprint: value stream, DORA in model terms, pipelines, MRs, issues |
 | `sprints/04/day-log.txt` | day by day: what happened in GitLab and the journal |
 | `sprints/04/exports/ci_jobs.csv` | gitlab.pl export: every CI job (the status-metrics format) |
@@ -354,6 +367,10 @@ Copied by `perl sim/tidewater-evidence.pl RUN_DIR` from a run of `perl sim/tidew
 | `sprints/04/todo-at-review.txt` | evidence |
 | `sprints/04/weekly-note-2026-11-20.md` | the weekly note to management (drafted with talk.pl weekly), 2026-11-20 |
 | `sprints/04/weekly-note-2026-11-27.md` | the weekly note to management (drafted with talk.pl weekly), 2026-11-27 |
+| `sprints/04/windchill/export-2026-11-25.csv` | evidence |
+| `sprints/04/windchill/intake.txt` | evidence |
+| `sprints/04/windchill/status.csv` | evidence |
+| `sprints/04/windchill/status.txt` | evidence |
 | `sprints/05/analytics.txt` | gitlab.pl analytics for the sprint: value stream, DORA in model terms, pipelines, MRs, issues |
 | `sprints/05/day-log.txt` | day by day: what happened in GitLab and the journal |
 | `sprints/05/exports/ci_jobs.csv` | gitlab.pl export: every CI job (the status-metrics format) |
@@ -446,6 +463,10 @@ Copied by `perl sim/tidewater-evidence.pl RUN_DIR` from a run of `perl sim/tidew
 | `sprints/05/todo-at-review.txt` | evidence |
 | `sprints/05/weekly-note-2026-12-04.md` | the weekly note to management (drafted with talk.pl weekly), 2026-12-04 |
 | `sprints/05/weekly-note-2026-12-11.md` | the weekly note to management (drafted with talk.pl weekly), 2026-12-11 |
+| `sprints/05/windchill/export-2026-12-09.csv` | evidence |
+| `sprints/05/windchill/intake.txt` | evidence |
+| `sprints/05/windchill/status.csv` | evidence |
+| `sprints/05/windchill/status.txt` | evidence |
 | `sprints/06/analytics.txt` | gitlab.pl analytics for the sprint: value stream, DORA in model terms, pipelines, MRs, issues |
 | `sprints/06/briefing.txt` | the twelve-week management briefing |
 | `sprints/06/day-in-life/incident.md` | the failed nightly of 2026-12-17: the issue opened from it |
@@ -546,4 +567,8 @@ Copied by `perl sim/tidewater-evidence.pl RUN_DIR` from a run of `perl sim/tidew
 | `sprints/06/todo-at-review.txt` | evidence |
 | `sprints/06/weekly-note-2026-12-18.md` | the weekly note to management (drafted with talk.pl weekly), 2026-12-18 |
 | `sprints/06/weekly-note-2026-12-24.md` | the weekly note to management (drafted with talk.pl weekly), 2026-12-24 |
+| `sprints/06/windchill/export-2026-12-23.csv` | evidence |
+| `sprints/06/windchill/intake.txt` | evidence |
+| `sprints/06/windchill/status.csv` | evidence |
+| `sprints/06/windchill/status.txt` | evidence |
 | `sprints/checks-s1-s6.txt` | the simulation's consistency checks over sprints 1-6 |

@@ -14,3 +14,5 @@ tools/gitlab/samples/windchill-export.csv -text
 # the backlog sample is what sim/tidewater-backlog.pl writes, byte for byte (CRLF CSV for Excel; the workbook is a zip)
 tools/gitlab/samples/se-backlog-tidewater.csv -text
 *.xlsx binary
+# the Windchill exports and status sheets of the Tidewater run, byte for byte (Windchill writes CRLF)
+docs/tidewater/sprints/*/windchill/* -text

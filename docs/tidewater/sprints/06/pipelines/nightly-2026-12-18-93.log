@@ -1,13 +1,13 @@
-pipeline #93 (schedule, develop) success, 9 jobs, 228.1 s
+pipeline #93 (schedule, develop) success, 9 jobs, 202.2 s
 
-==== grammar          check    success   43.5 s
+==== grammar          check    success   47.1 s
 $ perl ci/job.pl grammar
 $ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 sysml: 16 file(s), 0 error(s)
 $ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 ci-reports grammar: 16 check(s), 0 failed, 0 finding(s); grammar_files=16 grammar_errors=0
 
-==== lint             check    success   52.4 s
+==== lint             check    success   48.2 s
 $ perl ci/job.pl lint
 $ perl $KIT/tools/sysml/model.pl lint
 lint: 16 file(s), 0 error(s), 0 warning(s)
@@ -15,7 +15,7 @@ elements=138 errors=0 warnings=0
 $ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
 ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=138 lint_errors=0 lint_warnings=0
 
-==== outline          check    success   14.8 s
+==== outline          check    success   13.2 s
 $ perl ci/job.pl outline
 $ perl $KIT/tools/sysml/model.pl check
 
@@ -45,17 +45,17 @@ $ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality
 ci-reports outline: 2 check(s), 1 failed, 17 finding(s); level_tag_mismatches=0 outline_violations=17
 outline violations: 17 (allowed: 17)
 
-==== todo             check    success    7.8 s
+==== todo             check    success    6.7 s
 $ perl ci/job.pl todo
 TODO lines remaining: 5
 $ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model
 ci-reports todo: 1 check(s), 0 failed, 5 finding(s); todo_lines=5 todo_lines_analysis=2 todo_lines_library=1 todo_lines_physical=2
 
-==== secrets          check    success    8.4 s
+==== secrets          check    success    9.8 s
 $ perl ci/job.pl secrets
-no secrets found in 65 tracked files
+no secrets found in 66 tracked files
 
-==== trace            trace    success   27.2 s
+==== trace            trace    success   23.4 s
 $ perl ci/job.pl trace
 $ perl $KIT/bin/reqif2sysml.pl --report --model model (without the DOORS modules) imports/v1.0/tidewater.reqif
 reqif2sysml report: tidewater.reqif
@@ -95,7 +95,7 @@ ci-reports trace: 14 check(s), 14 failed, 0 finding(s); trace_linked=29 trace_to
 trace gaps: 2 orphan(s), 9 unverified, 1 drifted
 not a merge request: reported only
 
-==== recipe           trace    success     13 s
+==== recipe           trace    success     17 s
 $ perl ci/job.pl recipe
 $ perl $KIT/tools/sysml/req-recipe.pl --format text model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
 TW-STK-001  score 85  model/requirements/model/Requirements.sysml:15  (Coastal coverage)
@@ -395,7 +395,7 @@ requirements=30 findings=17 missing=0
 $ perl $KIT/tools/sysml/req-recipe.pl --format codequality -o recipe-cq.json model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
 requirements=30 findings=17 missing=0
 
-==== docs             docs     success   33.4 s
+==== docs             docs     success   29.6 s
 $ perl ci/job.pl docs
 $ perl $KIT/tools/sysml/model.pl docs
 wrote docs/Nouns.md (38 lines)
@@ -439,7 +439,7 @@ trace: 60 requirements (60 leaf), 13 not satisfied, 17 not verified -> docs/Trac
   TW-SYS-016: not satisfied
 docs/ is current
 
-==== pages            publish  success   85.1 s
+==== pages            publish  success     71 s
 $ perl ci/job.pl pages
 $ perl $KIT/tools/sysml/model.pl draw tree -o public/views/tree.svg
 tree-svg: 16 file(s), 40 part def(s), 2 tree(s), 55 part node(s), 1 warning(s) -> public/views/tree.svg

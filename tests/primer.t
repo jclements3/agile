@@ -347,6 +347,27 @@ spew("$TMP/bl/02-c.txt", "== C {#c} \@before-contents\n\nx\n");
 main::load_book(src => "$TMP/bl", root => $ROOT);
 check_('@before-contents in a part is an error', join(' ', @main::ERR) =~ /02-c\.txt:1: \@before-contents is only for front-matter chapters/ ? 1 : 0, 1);
 
+# the bridge box: from what the reader knows to what is new, opening a chapter
+spew("$TMP/br/02-c.txt", "== Merge requests {#mr}\n\n::: bridge\nYou know: the engineering change proposal and the CCB.\n\nHere it is called: a merge request (MR).\n\nWhat is new: the review happens line by line, before the change lands.\n:::\n\nText.\n");
+@main::ERR = ();
+my $brd = main::load_book(src => "$TMP/br", root => $ROOT);
+my ($bb) = @{ (main::all_chapters($brd))[0]{blocks} };
+check_('bridge: first block, three sub-heads', join(' ', $bb->{kind}, map { $_->{k} eq 'subhead' ? "[$_->{text}]" : $_->{k} } @{ $bb->{blocks} }), 'bridge [You know] para [Here it is called] para [What is new] para');
+has('bridge HTML', main::render_html($brd), qr/<div class="box bridge"><div class="boxtitle">From what you know<\/div>/, qr/<p class="subhead">You know<\/p>/,
+    qr/<p class="subhead called">Here it is called<\/p>/, qr/<p class="subhead new">What is new<\/p>/, qr/\.box\.bridge \.boxtitle::after \{ content: "\\2192"/);
+has('bridge TeX', (main::render_tex($brd))[0], qr/\\newtcolorbox\{boxbridge\}/, qr/\\begin\{boxbridge\}\{From what you know\}\n\\boxsubhead\{You know\}\nthe engineering change proposal/,
+    qr/\\boxsubhead\{\{\\symfont\\char"2192\}\\ Here it is called\}/, qr/\\boxsubhead\{\{\\symfont\\char"2192\}\\ What is new\}/);
+
+# chapter order is the file-name order; anchors (and so [[slug]] references) do not depend on file names
+spew("$TMP/ord/05a-vee.txt", "== The Vee {#vee}\n\nSee [[later]].\n");
+spew("$TMP/ord/04-later.txt", "== Later {#later}\n\nSee [[vee]].\n");
+my $od = main::load_book(src => "$TMP/ord", root => $ROOT);
+my $o1 = join(',', map { $_->{slug} } main::all_chapters($od));
+rename "$TMP/ord/05a-vee.txt", "$TMP/ord/03a-vee.txt";
+@main::ERR = ();
+$od = main::load_book(src => "$TMP/ord", root => $ROOT);
+check_('order by file name; a rename moves the chapter and its references still resolve', "$o1 -> " . join(',', map { $_->{slug} } main::all_chapters($od)) . ' errors:' . scalar(@main::ERR), 'later,vee -> vee,later errors:0');
+
 # ---------------------------------------------------------------- the real book
 my $done = -f "$ROOT/docs/mbse-devsecops-primer.html";   # while the book is being written, forward references may name chapters not written yet
 ($rc, $out) = run($^X, "$ROOT/sim/primer.pl", '--check', $done ? () : '--draft');

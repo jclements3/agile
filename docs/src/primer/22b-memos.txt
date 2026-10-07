@@ -255,7 +255,7 @@ conclusion: *Twelve-week results: the Tidewater model is under configuration con
 second paragraph is the scorecard agreed in week zero ([[directive-scorecard]]), with the value at the start, the value
 now and the target, and the source of each number:
 
-{{include: docs/tidewater/memos/2026-12-18-twelve-week-progress.md | lines 18-34}}
+{{include: docs/tidewater/memos/2026-12-24-twelve-week-progress.md | lines 18-34}}
 
 The "Now" column is filled from the simulation's sprint 6 evidence (the scorecard and the analytics report), the same
 numbers the briefing in [[briefing]] shows. The rest of the memo follows the progress template: one before-and-after

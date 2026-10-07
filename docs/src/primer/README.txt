@@ -10,6 +10,9 @@ FILES
 -----
 One file per chapter, named NN-slug.txt (NN two digits, an optional letter: 08a,
 08b ...). Files are rendered in file-name order ('08-x' comes before '08a-x').
+Chapter order is the file-name order and nothing else: rename a file to move its chapter
+(05a-vee.txt -> 04a-vee.txt). Anchors come from {#slug}, not from the file name, so
+[[slug]] references survive a rename.
 A file named NN-part-*.txt starts a part: its first line is '= Part title'.
 Chapters that come before the first part are front matter (unnumbered).
 A part whose title starts with "Appendi" (= Appendices) letters its chapters
@@ -192,8 +195,19 @@ KIND is one of:
     scorecard   the measures box
     definition  lines "term: text" (indented lines continue the text)
     survival    the chapter-opening box; "What you have:" and "What you need:" lines start its two halves
+    bridge      opens a chapter, right after its heading: from what the reader knows to what is
+                new. "You know:", "Here it is called:" and "What is new:" start its three parts.
+                Printed with a thick left rule and an arrow (black and white). Example:
+                    ::: bridge
+                    You know: the engineering change proposal and the CCB that approves it.
+
+                    Here it is called: a merge request (MR), approved by a code owner.
+
+                    What is new: the review is line by line, before the change lands, and the
+                    pipeline has already checked it.
+                    :::
 Inside any box, a paragraph that starts with "Answer:", "What you have:", "What you
-need:", "Hint:" or "Solution:" gets that word as a small heading.
+need:", "You know:", "Here it is called:", "What is new:", "Hint:" or "Solution:" gets that word as a small heading.
 
 DIRECTIVES (each on a line of its own)
 --------------------------------------

@@ -32,11 +32,11 @@ my $KIT = abs_path("$FindBin::Bin/..");
 our @ERR;
 sub err { my ($where, $msg) = @_; push @ERR, "$where: $msg" }
 
-my %KINDS = map { $_ => 1 } qw(note tip warning sidebar objection exercise answer checklist scorecard definition survival);
+my %KINDS = map { $_ => 1 } qw(note tip warning sidebar objection exercise answer checklist scorecard definition survival bridge);
 my %LANGS = map { $_ => 1 } ('', qw(sysml sh yaml md text perl csv diff json html tex vim));
 my %BOXTITLE = (note => 'Note', tip => 'Tip', warning => 'Warning', sidebar => 'Case study', objection => 'Objection',
                 exercise => 'Exercise', answer => 'Answer', checklist => 'Checklist', scorecard => 'Scorecard',
-                definition => 'Definitions', survival => 'Survival kit');
+                definition => 'Definitions', survival => 'Survival kit', bridge => 'From what you know');
 my %EXT_LANG = (sysml => 'sysml', yml => 'yaml', yaml => 'yaml', md => 'md', pl => 'perl', pm => 'perl', t => 'perl',
                 csv => 'csv', sh => 'sh', diff => 'diff', patch => 'diff', json => 'json', html => 'html', tex => 'tex',
                 vim => 'vim', txt => 'text', log => 'text', conf => 'text');
@@ -198,7 +198,7 @@ sub parse_blocks {
         return unless @para;
         my $text = join ' ', map { my $t = $_->[0]; $t =~ s/^\s+|\s+$//g; $t } @para;
         local $ctx->{where} = $at->($para[0][1]);
-        if ($kind && $text =~ /^(Answer|What you have|What you need|Hint|Solution):\s*(.*)$/s) {
+        if ($kind && $text =~ /^(Answer|What you have|What you need|Hint|Solution|You know|Here it is called|What is new):\s*(.*)$/s) {
             push @b, { k => 'subhead', text => $1 };
             push @b, { k => 'para', inl => parse_inline($2, $ctx) } if length $2;
         } else { push @b, { k => 'para', inl => parse_inline($text, $ctx), no => $para[0][1] } }
@@ -532,7 +532,7 @@ sub html_blocks {
             my $tag = $b->{level} == 3 ? 'h3' : 'h4';
             $o .= qq(<$tag id=") . h($b->{slug}) . '">' . (defined $b->{num} ? qq(<span class="num">$b->{num}</span> ) : '') . html_inline($b->{inl}, $st) . "</$tag>\n";
         }
-        elsif ($k eq 'subhead') { $o .= '<p class="subhead">' . h($b->{text}) . "</p>\n" }
+        elsif ($k eq 'subhead') { $o .= '<p class="subhead' . ($b->{text} eq 'Here it is called' ? ' called' : $b->{text} eq 'What is new' ? ' new' : '') . '">' . h($b->{text}) . "</p>\n" }
         elsif ($k eq 'list') { $o .= html_list($b, $st) }
         elsif ($k eq 'quote') {
             $o .= '<blockquote>' . join('', map { '<p>' . html_inline($_, $st) . '</p>' } @{ $b->{paras} })
@@ -666,6 +666,10 @@ section.qrg td, section.qrg th { padding: .15em .4em; }
 .box.objection .boxtitle { background: var(--lgrey); color: #1a1a1a; }
 .box.survival { border: 1.5px solid var(--fg); }
 .box.survival .boxtitle { background: var(--fg); color: var(--bg); }
+.box.bridge { border: 0; border-left: 5px solid var(--fg); border-top: 1px solid var(--fg); border-bottom: 1px solid var(--fg); }
+.box.bridge .boxtitle { background: none; border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between; }
+.box.bridge .boxtitle::after { content: "\2192"; font-weight: 400; }
+.box.bridge .subhead.new::before, .box.bridge .subhead.called::before { content: "\2192\00a0"; }
 .box.scorecard { border: 1.5px solid var(--navy); }
 .box.exercise .boxtitle { background: none; border-bottom: 1px solid var(--rule); }
 .subhead { font-weight: 700; font-size: 10pt; margin: .8em 0 .2em; }
@@ -796,7 +800,7 @@ sub tex_blocks {
             $cmd .= '*' unless defined $b->{num};
             $o .= "\\$cmd\{" . tex_title($b->{inl}, $st) . "}\\label{$b->{slug}}\n\n";
         }
-        elsif ($k eq 'subhead') { $o .= "\\boxsubhead{" . tex_text($b->{text}) . "}\n" }
+        elsif ($k eq 'subhead') { $o .= "\\boxsubhead{" . ($b->{text} =~ /^(Here it is called|What is new)$/ ? '{\\symfont\\char"2192}\\ ' : '') . tex_text($b->{text}) . "}\n" }
         elsif ($k eq 'list') { $o .= tex_list($b, $st) }
         elsif ($k eq 'quote') {
             $o .= "\\begin{speech}\n" . join("\n\n", map { tex_inline($_, $st) } @{ $b->{paras} })
@@ -959,6 +963,8 @@ my $PREAMBLE = <<'TEX';
 \newtcolorbox{boxscorecard}[1]{pbox,colframe=black,boxrule=1pt,colbacktitle=black!15,title={#1}}
 \newtcolorbox{boxdefinition}[1]{pbox,colbacktitle=black!6,title={#1}}
 \newtcolorbox{boxsurvival}[1]{pbox,colframe=black,boxrule=1pt,colbacktitle=black,coltitle=white,title={#1}}
+\newtcolorbox{boxbridge}[1]{pbox,colback=white,colframe=black,boxrule=0pt,leftrule=4pt,toprule=0.8pt,bottomrule=0.8pt,rightrule=0pt,
+  colbacktitle=white,titlerule=0.4pt,title={#1\hfill{\symfont\char"2192}}}   % the bridge: from what they know to what is new
 \setpnumwidth{2.8em}\setrmarg{3.8em}                 % roman page numbers (xxxviii) fit the contents and lists
 \renewcommand{\cftpartfont}{\sffamily\bfseries}
 \renewcommand{\cftchapterfont}{\sffamily\bfseries}

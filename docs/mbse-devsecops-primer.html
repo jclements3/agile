@@ -3266,7 +3266,7 @@ alias model='perl ~/projects/agile/tools/sysml/model.pl'
 alias gitlab='perl ~/projects/agile/bin/gitlab.pl'</code></pre></figure>
 <p>Close Git Bash and open it again: <code>echo $KIT</code> prints the kit's folder, and <code>daily status</code> now means the long form. The book always shows the long form, so you can see what is being run; use the short form in your own work.</p>
 <h3 id="survival-web"><span class="num">9.11</span> GitLab in the browser</h3>
-<p>Most of the team's day happens in the terminal and in Vim, but GitLab's web pages are where the shared work is seen: issues, merge requests, pipelines, the board, the wiki. Log in to your organization's GitLab (for Tidewater, <a href="https://gitlab.example.com"><code>https://gitlab.example.com</code></a>) with your network account.</p>
+<p>Most of the team's day happens in the terminal and in Vim, but GitLab's web pages are where the shared work is seen: issues, merge requests, pipelines, the board, the wiki. Log in to your organization's GitLab (for Tidewater, <code>https://gitlab.example.com</code>) with your network account.</p>
 <p>On a project's page, the left sidebar holds everything this book uses. GitLab moves its menus around between versions, so look for the words rather than a position:</p>
 <div class="tbl"><table><caption>Table 9.6. Where things are in GitLab's web pages</caption><thead><tr><th>Look for</th><th>What is there</th><th>First used in</th></tr></thead><tbody><tr><td><em>Issues</em>, <em>Issue boards</em></td><td>stories, tasks, discrepancy reports; the board</td><td><a href="#gitlab-setup">Chapter 15, Setting up GitLab</a></td></tr>
 <tr><td><em>Merge requests</em></td><td>proposed changes, reviews, approvals</td><td><a href="#git">Chapter 12, Git from zero, for systems engineers</a></td></tr>
@@ -20827,7 +20827,7 @@ for u in jim bob tom; do gl user $u &gt; /dev/null; done
 gl --as tom setup &quot;$KIT/tools/gitlab/templates/project.conf&quot; &gt; setup.txt
 echo &quot;labels: $(grep -c '^label ' setup.txt)&quot;
 echo &quot;milestones: $(grep -c '^milestone ' setup.txt)&quot;</code></pre></figure>
-<p>Setup created seventy-two labels (the <code>[labels]</code> section, one line each) and thirty-nine milestones (the one <code>sprints = ...</code> line in <code>[milestones]</code>, which expands to a milestone per sprint).</p>
+<p>Setup created seventy-three labels (the <code>[labels]</code> section, one line each) and thirty-nine milestones (the one <code>sprints = ...</code> line in <code>[milestones]</code>, which expands to a milestone per sprint).</p>
 </div>
 <div class="box answer"><div class="boxtitle"><a href="#ex-setup-refuse">Exercise 15.2</a>: Make it refuse you</div>
 <figure class="code" data-run=""><pre data-lang="sh"><code>G=&quot;$PWD/gl&quot;

@@ -1232,7 +1232,7 @@ by `allocate CheckQuality to QualityControl;` in the allocations package.
 :::
 
 ::: answer [[ex-setup-emulator]]: Build the project
-```sh run expect="(?s)labels: 72.*milestones: 39"
+```sh run expect="(?s)labels: 73.*milestones: 39"
 gl() { perl "$KIT/bin/gitlab.pl" --local gl --project tidewater/model "$@"; }
 for u in jim bob tom; do gl user $u > /dev/null; done
 gl --as tom setup "$KIT/tools/gitlab/templates/project.conf" > setup.txt
@@ -1240,7 +1240,7 @@ echo "labels: $(grep -c '^label ' setup.txt)"
 echo "milestones: $(grep -c '^milestone ' setup.txt)"
 ```
 
-Setup created seventy-two labels (the `[labels]` section, one line each) and thirty-nine milestones (the one
+Setup created seventy-three labels (the `[labels]` section, one line each) and thirty-nine milestones (the one
 `sprints = ...` line in `[milestones]`, which expands to a milestone per sprint).
 :::
 

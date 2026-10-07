@@ -1,5 +1,13 @@
 == Systems engineering work, not pipeline work {#se-work}
 
+::: bridge
+You know: the engineering itself: requirements, architecture, interfaces, analyses and verification.
+
+Here it is called: work::engineering, as distinct from work::platform and work::learning.
+
+What is new: the board shows how much of the team's time goes to engineering, sprint by sprint.
+:::
+
 ::: survival The work is the engineering
 What you have: a backlog full of stories, and a nagging feeling that too many of them are about GitLab, runners and
 YAML, and too few are about the system.

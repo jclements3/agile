@@ -1,5 +1,13 @@
 == Preface {#preface}
 
+::: bridge
+You know: how a program document opens: purpose, scope, applicable documents, then the content.
+
+Here it is called: the preface: who the book is for, the cast, the calendar, and how to read and type along.
+
+What is new: every command in this book has been run, and you are expected to type it too.
+:::
+
 This book is a parachute drop.
 
 Picture three systems engineers standing at the door of an aircraft. They have spent their careers writing
@@ -53,22 +61,35 @@ do and when.
 The book has five parts.
 
 - **Part I, Where they start**, tells the team's history: decades of documents, then the Cameo years, then the
-  directive that started this story. It explains DevSecOps in systems engineering words and introduces SysML v2 to
-  people who know SysML v1. Read it first even if you are impatient. The objections raised in Part I are the
+  directive that started this story. It shows that the systems-engineering Vee stays ([[vee]]), explains DevSecOps
+  in systems engineering words, introduces SysML v2 to people who know SysML v1, and ends with a workbook you type. Read it first even if you are impatient. The objections raised in Part I are the
   objections you will hear (or raise) yourself, and the rest of the book answers them one at a time.
-- **Part II, Week zero**, sets everything up: the survival kit on the laptop, git from zero, Vim for models, the
-  operating model, GitLab, the DevSecOps tools worth turning on, the pipeline and the daily rhythm. Part II is the
+- **Part II, Week zero**, sets everything up, starting with what you already use: the survival kit on the laptop,
+  Vim for models, diagrams generated from the model, then git from zero, the operating model and stories, GitLab,
+  the DevSecOps tools worth turning on, CI/CD and the pipeline, and the daily rhythm. Part II is the
   part you type along with.
 - **Part III, Twelve weeks**, is the case study proper: six two-week sprints, one chapter each, with the real
   issues, merge requests, pipeline logs, stand-up notes and metrics from the run.
 - **Part IV, Making the case**, assembles the twelve-week scorecard, walks through the management briefing slide
   by slide, and revisits each objection from Part I against the evidence.
 - **Part V, Living with it**, covers what comes after the first twelve weeks: administration, maintenance through
-  the life cycle (every prime contractor delivery, every baseline, the remaining months of the project), and the
-  mistakes to avoid.
+  the life cycle (every prime contractor delivery, every baseline, the remaining months of the project), scaling up
+  to several segments and hardware blocks ([[scaling]]), and the mistakes to avoid.
 
 The appendices hold a command reference, every template, checklists, a glossary that translates between systems
 engineering, DevSecOps and SysML v2, and answers to the exercises.
+
+==== From what you know to what you do not {#preface-ladder}
+
+The order is deliberate. Each chapter starts from something you already do, says what it is called here, and only
+then shows what is new; a box headed "From what you know" opens every chapter to make that step explicit. The
+chapters climb the same ladder the team climbed: first the things you know, then the things that are quick to
+learn because they are your own work in a new form, and only then the things that are genuinely new.
+
+{{figure: docs/img/known-unknown-ladder.svg | From what you know to what you do not. The book climbs this ladder in order; each rung leans on the one below it.}}
+
+If a chapter feels too far up the ladder, go down one rung: the study plan ([[study-plan]]) lists the chapters in
+ladder order for each role.
 
 === Type along {#preface-type}
 

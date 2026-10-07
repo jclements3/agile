@@ -1,5 +1,14 @@
 == Security: protect the environment, engineer it into the system {#security}
 
+::: bridge
+You know: the ISSM, the security classification guide, marked documents and the authorization package.
+
+Here it is called: protecting the engineering environment, and engineering security into the system.
+
+What is new: markings, secret scanning and security requirements are checked in the pipeline, not only at
+accreditation.
+:::
+
 ::: survival Two kinds of security
 What you have: a GitLab project, a runner, a model, and an ISSM who has started asking questions. You also have a
 system to design, which will one day face people who want to misuse it.

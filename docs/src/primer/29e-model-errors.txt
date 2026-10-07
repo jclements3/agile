@@ -1,5 +1,13 @@
 == Model error catalog {#model-errors}
 
+::: bridge
+You know: Cameo's validation messages.
+
+Here it is called: the model error catalog: grammar, lint, outline and recipe messages.
+
+What is new: each message names a file and a line, and every one here was produced for real.
+:::
+
 ::: survival When a check says no
 What you have: a message from the grammar check, lint, the outline check, a pipeline job or the recipe checker. It is
 terse, and it was written by a program, not a person.

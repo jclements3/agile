@@ -1,5 +1,13 @@
 == Requirements a pipeline can check: the recipe {#recipe}
 
+::: bridge
+You know: how to write a "shall" statement, and the review comments that come back on weak ones.
+
+Here it is called: the requirement recipe and the recipe checker.
+
+What is new: a script grades every requirement on every change, so the comments arrive before the review.
+:::
+
 ::: note What you have, what you need
 **What you have:** decades of writing and reviewing requirements. You know a bad one when you see it: "the system
 shall provide adequate performance" makes every reviewer reach for a red pen. You also know that red pens run out

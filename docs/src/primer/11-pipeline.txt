@@ -1,5 +1,13 @@
 == The pipeline, job by job {#pipeline}
 
+::: bridge
+You know: the checklist a reviewer works through before signing off.
+
+Here it is called: the pipeline: jobs such as grammar, lint, trace and docs.
+
+What is new: each checklist item is a script, and a red job stops the change.
+:::
+
 ::: survival
 What you have: the idea of a pipeline ([[cicd]]): stages, jobs, rules, artifacts, reports, a runner.
 

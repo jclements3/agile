@@ -1,5 +1,13 @@
 == Setting up GitLab {#gitlab-setup}
 
+::: bridge
+You know: the CM plan, the CCB charter, and the list of who may approve what.
+
+Here it is called: the GitLab project: members, protected branches, CODEOWNERS, labels and milestones.
+
+What is new: the rules are settings GitLab enforces, written once in a project file.
+:::
+
 ::: survival
 What you have: a laptop with Git, Perl and Vim ([[survival]]), enough git to clone, branch and commit ([[git]]),
 and a directive that says "GitLab".

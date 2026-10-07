@@ -1,5 +1,13 @@
 == The briefing {#briefing}
 
+::: bridge
+You know: the program review briefing.
+
+Here it is called: the twelve-week briefing.
+
+What is new: every number on it traces to a file in the repository, and the demo is live.
+:::
+
 ::: survival Before you start
 What you have: six sprints of evidence, the scorecard ([[scorecard]]), and twenty minutes on the program management
 review agenda on 24 December.

@@ -1,5 +1,13 @@
 == Writing stories and tasks for model work {#stories}
 
+::: bridge
+You know: action items and work packages.
+
+Here it is called: stories and tasks, each with acceptance criteria.
+
+What is new: every story fits in two weeks and every task in one, and "done" is something a pipeline can check.
+:::
+
 ::: survival
 What you have: years of work breakdown structures, action item lists and IMS lines. You know how to break a
 program into deliverables, and you know how a schedule line that says "Model update -- 40% complete" can stay at

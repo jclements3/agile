@@ -1,5 +1,13 @@
 == For the lead: leading a reluctant team {#lead}
 
+::: bridge
+You know: leading engineers through a schedule crunch.
+
+Here it is called: leading a reluctant team through a change of method.
+
+What is new: learning time is protected explicitly, and small wins are made visible.
+:::
+
 ::: survival
 What you have: a directive you did not ask for, a deadline, two or more good engineers who did not ask for it either,
 and the same lack of experience they have.

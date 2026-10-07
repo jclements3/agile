@@ -1,5 +1,13 @@
 == Writing it down: DoD-style memos from Vim {#memos}
 
+::: bridge
+You know: the DoD memo: office symbol, MEMORANDUM FOR, numbered paragraphs, signature block.
+
+Here it is called: Markdown memos rendered with md2memo.
+
+What is new: you write the memo in Vim, render it with one command and review it like a model change.
+:::
+
 ::: survival
 What you have: Vim, a model repository, and a management chain that still runs on signed memoranda.
 

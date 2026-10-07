@@ -1,5 +1,13 @@
 == Rescue: when something goes wrong {#rescue}
 
+::: bridge
+You know: the restore-from-backup request to IT.
+
+Here it is called: rescue recipes for git and Vim.
+
+What is new: almost every mistake can be undone by you, in a minute, because nothing committed is ever really lost.
+:::
+
 ::: survival Before you panic
 What you have: a mistake. A commit on the wrong branch, a merge full of conflict markers, a red pipeline, a Vim
 window that says a swap file exists. Perhaps a sinking feeling.

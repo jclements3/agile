@@ -1,5 +1,14 @@
 == SysML v2 for SysML v1 modelers {#sysmlv2}
 
+::: bridge
+You know: SysML v1 in Cameo: blocks, ports, activities and requirement diagrams.
+
+Here it is called: SysML v2 textual notation: part defs, port defs, action defs and requirement defs.
+
+What is new: the model is plain text you can read, compare and review line by line, and the converter shows exactly
+what it carried and what it left as a TODO.
+:::
+
 ::: note What you have, what you need
 **What you have:** you know SysML v1: blocks, parts, ports, connectors, requirements, satisfy and verify, activities
 and state machines. You learned them as boxes and lines on diagrams.

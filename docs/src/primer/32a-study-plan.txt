@@ -1,5 +1,13 @@
 == A twelve-week study plan per role {#study-plan}
 
+::: bridge
+You know: a training plan with courses and dates.
+
+Here it is called: a twelve-week study plan per role.
+
+What is new: the learning time is budgeted on the team's board, not taken from evenings.
+:::
+
 This book is long because it is a reference as well as a story. Nobody should read it front to back before doing
 anything. This appendix is the order the Tidewater team read it in, week by week, with the practice lessons and
 the exercises that go with each week, and the learning time the plan budgeted for it. Use it as a starting point
@@ -43,10 +51,12 @@ laptop against the kit's GitLab stand-in, and take about forty-five minutes each
 
 === Week zero: everyone {#study-plan-week0}
 
-Before sprint 1, all three read the same short list, so the team starts with one vocabulary:
+Before sprint 1, all three read the same short list, so the team starts with one vocabulary. The list climbs the
+ladder in the preface ([[preface-ladder]]): what you know first, then what is new.
 
 - [[bluf]] and [[preface]]: what the twelve weeks are, and what they cost.
 - [[directive]]: what management asked for, and the scorecard that will measure it.
+- [[vee]]: the systems-engineering Vee you already know, and where each piece of it lives in GitLab.
 - [[devsecops]]: every DevSecOps term in systems-engineering words.
 - [[survival]], up to the end of the laptop checks; then `perl "$KIT/tools/gitlab/kickoff.pl" doctor` on each
   laptop.
@@ -68,14 +78,14 @@ agreement with the prime and the first meeting with the security officer happen.
 | 9 | [[memos]], [[se-work]] | Grade the requirements with the recipe; write the discrepancy report on the DOORS wording |
 | 10 | [[scorecard]] | Fill the scorecard from the evidence; check every number against its source |
 | 11 | [[briefing]], [[documents-stages]] | Rehearse the briefing on Day 9; move the briefing memo through the review stages |
-| 12 | [[minds]], [[maintenance]] | Give the briefing; plan the next drop's intake and the next baseline |
+| 12 | [[minds]], [[maintenance]], [[scaling]] (skim) | Give the briefing; plan the next drop's intake and the next baseline; note which scaling lessons apply to the next block |
 Table: The lead's twelve weeks
 
 === Bob, the modeler {#study-plan-bob}
 
 || Week | Read | Do ||
-| 1 | [[survival]], [[git]] | Practice lesson 10; every exercise in [[git]], typed |
-| 2 | [[vim]], [[sysmlv2]] | Practice lesson 11; set up Vim with the kit's SysML support; the exercises in [[vim]] |
+| 1 | [[survival]], [[vim]] | Practice lesson 10; set up Vim with the kit's SysML support; the exercises in [[vim]] |
+| 2 | [[sysmlv2]], [[git]] | Practice lesson 11; every exercise in [[git]], typed |
 | 3 | [[workbook]] (first half) | Practice lesson 12; the workbook's exercises up to verification cases |
 | 4 | [[workbook]] (second half), [[diagrams]] | Practice lesson 13; draw the four views of the drop-1 model |
 | 5 | [[reviewing]], [[repo-layout]] | Review one of Tom's merge requests with the checklist; the exercises in [[reviewing]] |
@@ -91,7 +101,7 @@ Table: The modeler's twelve weeks
 === Tom, the pipeline owner {#study-plan-tom}
 
 || Week | Read | Do ||
-| 1 | [[survival]], [[git]], [[gitlab-setup]] | Practice lesson 10; `kickoff.pl doctor --fix`; request the group and the runner |
+| 1 | [[survival]], [[vim]] (the checks and conflicts sections), [[git]], [[gitlab-setup]] | Practice lesson 10; `kickoff.pl doctor --fix`; request the group and the runner |
 | 2 | [[cicd]], [[runners]] | Practice lesson 11; register the runner; run the pipeline locally with `gitlab.pl ci` |
 | 3 | [[pipeline]] | Practice lesson 12; the exercises in [[pipeline]]; add one job and watch it in a merge request |
 | 4 | [[tools]], [[repo-layout]] | Practice lesson 13; the model site on Pages; the nightly schedule |

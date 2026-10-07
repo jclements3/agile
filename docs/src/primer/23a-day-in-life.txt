@@ -1,5 +1,13 @@
 == A day in the life, week twelve {#day-in-life}
 
+::: bridge
+You know: an ordinary day in the Cameo years: e-mail, meetings, screenshots, a briefing to update.
+
+Here it is called: Bob's day in week twelve.
+
+What is new: the day goes to engineering, and the machinery does the bookkeeping.
+:::
+
 ::: survival Where this chapter fits
 What you have: Bob's Thursday, 17 December 2026 -- the second-to-last week of the twelve -- exactly as GitLab and
 the stand-up chat recorded it.

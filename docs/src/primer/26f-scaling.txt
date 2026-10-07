@@ -314,34 +314,6 @@ drops one message in twenty; a buoy that loses power in a storm; a bulletin publ
 slow; a modem that resets when its firmware is updated over the air.
 :::
 
-=== Answers to this chapter's exercises {#scaling-answers}
-
-::: answer [[ex-scale-cadence]]: Name the cadences
-A good answer separates the segments by what limits them, not by who builds them. Hardware is limited by lead times,
-qualification and field access; software by the pipeline. The baselines fall where the slowest segment can freeze:
-for Tidewater, the station segment's field seasons set them, and the data center's sprints line up underneath.
-:::
-
-::: answer [[ex-scale-interface]]: One copy of the interface
-It is defined once in model/library/Interfaces.sysml and used in the stations, the data center and the observation
-cycle's behavior (model/physical/stations, model/physical/datacenter, model/logical). CODEOWNERS gives that file two
-sections, both of which must approve: the systems lead (Jim) and one of the people who build on both sides (Bob or
-Tom, whoever did not write the change). If a segment could change it alone, the other segments would find out at
-integration; with one copy and system-level owners, they find out in the merge request.
-:::
-
-::: answer [[ex-scale-blocks]]: Find the next block in the drops
-Drop 6 (v1.5): its CHANGES.csv carries NWM-CR-0026, "Add partner sharing TW-SYS-019", with the rationale of a
-data-sharing agreement with partner agencies; it adds TW-SYS-019, the data center sharing observations with partner
-agencies. It is Block 3 in the picture, starting while Block 2 is still in verification.
-:::
-
-::: answer [[ex-scale-ladder]]: Put a check on its rung
-The missing `verify` is a model check, on every merge request. The link model belongs to simulation. The storm power
-loss is a sea-trial finding that then calibrates the simulation. The late bulletin is a simulation result (load) that
-a harbor test should confirm end to end. The modem reset belongs on the bench, with the real modem and logger.
-:::
-
 === You can now {#scaling-can}
 
 - Explain why a system of systems needs several cadences and how integrated baselines line them up.

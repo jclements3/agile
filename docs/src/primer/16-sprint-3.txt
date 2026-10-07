@@ -1,5 +1,13 @@
 == Sprint 3: the first red X, DOORS in the model, and a wait nobody named {#sprint-3}
 
+::: bridge
+You know: the day a reviewer finds the mistake you missed.
+
+Here it is called: a red pipeline.
+
+What is new: the mistake is found minutes after you make it, by a machine, before anyone else sees it.
+:::
+
 ::: survival
 What you have: a pipeline that gates every change ([[sprint-2]]), drop 1 on `develop` through the vendor branch, the
 level conventions, and a team that has merged its first model changes but is still unsure it likes any of this.

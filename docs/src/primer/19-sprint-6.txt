@@ -1,5 +1,13 @@
 == Sprint 6: Behavior by hand, a table for the program, and baseline-0 {#sprint-6}
 
+::: bridge
+You know: the interim design review, and the baseline you freeze for it.
+
+Here it is called: baseline-0: a release branch, a protected tag and a briefing.
+
+What is new: the baseline rebuilds identically, on demand, with its evidence attached.
+:::
+
 ::: survival
 What you have: a model whose structure is almost closed, a trace that defends itself ([[sprint-5]]), a recipe-graded
 set of requirements, and a team that has rehearsed a release in a sandbox.

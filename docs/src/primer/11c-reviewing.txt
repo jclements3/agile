@@ -1,5 +1,13 @@
 == Reviewing a model change {#reviewing}
 
+::: bridge
+You know: red-lining a document and filling in the comment matrix.
+
+Here it is called: reviewing a merge request: line comments, threads, approve or request changes.
+
+What is new: you review only what changed, with the generated views and the pipeline results beside it.
+:::
+
 ::: survival
 What you have: decades of document reviews -- comment matrices, redlines, the review board where forty people
 looked at slide 37 -- and three years of Cameo reviews by screenshot, where nobody could tell exactly what had

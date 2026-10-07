@@ -1,5 +1,14 @@
 == The prime's model changes: receive, assess, disposition {#prime-changes}
 
+::: bridge
+You know: contractor deliverables under a CDRL, and the review cycle that follows each one.
+
+Here it is called: prime drops: receive, assess, disposition.
+
+What is new: each delivery is compared element by element, its impact on your model is computed, and every decision
+is an issue.
+:::
+
 ::: survival The prime keeps changing the model you just ported
 What you have: a SysML v2 model the team built from the prime's Cameo export, a contract that says the prime
 maintains the authoritative v1 model, and a calendar with a new drop on it every quarter.

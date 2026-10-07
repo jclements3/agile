@@ -1,5 +1,15 @@
 == Thirty years of documents {#documents}
 
+::: bridge
+You know: the SEMP, the SRS, the SSDD, the ICDs, the VCRM spreadsheet and the milestone briefing. Thirty years of
+them.
+
+Here it is called: the document era, described honestly, strengths included.
+
+What is new: nothing yet. This chapter names the costs you already pay, so later chapters can show what replaces
+them.
+:::
+
 ::: note What you have, what you need
 **What you have:** a career's worth of habits for controlling documents, reviewing changes and briefing decisions.
 

@@ -1,5 +1,14 @@
 == DevSecOps in systems-engineering words {#devsecops}
 
+::: bridge
+You know: configuration management, peer review, the CCB, configuration audits, baselines and CDRL deliveries.
+
+Here it is called: version control, merge requests, code-owner approval, the pipeline, protected tags and the
+vendor branch.
+
+What is new: all of it happens on every change, automatically, in minutes, instead of at milestones.
+:::
+
 ::: note What you have, what you need
 **What you have:** a working knowledge of configuration management, change control, reviews, audits and
 verification, built over a career.

@@ -1,5 +1,13 @@
 == Seeing the model: diagrams from text {#diagrams}
 
+::: bridge
+You know: Cameo diagrams you drew and laid out by hand.
+
+Here it is called: views generated from the text: part tree, trace, interconnection, packages and IDEF0 plates.
+
+What is new: nobody draws them. They are regenerated from the model on every change and never go stale.
+:::
+
 ::: survival
 What you have: three years of Cameo diagrams. You think in block definition diagrams and internal block diagrams;
 you know what a model looks like because you have drawn it, box by box, line by line, and moved the boxes so the
@@ -235,7 +243,7 @@ Bob kept it open on a second monitor from sprint 3 on. "It's the part of Cameo I
 A view of one version answers "what is it?" The question in a review is "what changed?" `model.pl diff` draws the
 views of two versions with the differences colored, and writes a plain change list beside them. Make a small change
 in the sandbox -- tag the station segment with its level, the first thing practice lesson 10 asks for -- commit it,
-and compare the commit with the one before:
+and compare the commit with the one before: (a commit is a recorded version of the files; [[git]], the next chapter, explains it -- here you only need the two commands below)
 
 ```sh run expect="1 change line"
 perl -0pi -e 's{// TODO stereotype Tidewater_Profile:L2Segment[^\n]*}{\@L2Segment;}; s{(package Stations \{\n)}{$1    private import Conventions::*;\n}' model/physical/stations/Stations.sysml

@@ -1,5 +1,13 @@
 == Modeling style guide {#style}
 
+::: bridge
+You know: the drafting standard and the document style guide.
+
+Here it is called: the modeling style guide.
+
+What is new: much of it is checked by the pipeline.
+:::
+
 A style guide exists so that three people write one model, not three. Every rule here is short, has a reason, and is
 the same rule the model repository's `docs/conventions/naming.md` states, which `kickoff.pl scaffold` puts in every
 new project. When the two disagree, the repository's copy wins: it is the one the team reviews and changes by merge

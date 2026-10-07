@@ -1,5 +1,13 @@
 == The operating model {#operating-model}
 
+::: bridge
+You know: the integrated master schedule, phases, milestones and the weekly status meeting.
+
+Here it is called: the operating model: project, tomes, epics, stories and tasks, in two-week sprints.
+
+What is new: work is cut into pieces small enough to finish in days, and progress is counted, not reported.
+:::
+
 ::: survival
 What you have: a directive, a signed scorecard, a twelve-week outline, three people and a contractor who delivers a
 model every quarter.

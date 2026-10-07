@@ -1,5 +1,13 @@
 == A local AI assistant on the laptop {#local-ai}
 
+::: bridge
+You know: asking a colleague to look over a draft.
+
+Here it is called: a local AI model on the laptop.
+
+What is new: a draft in seconds, never trusted, checked by the same gates as anything you write.
+:::
+
 ::: survival
 What you have: a model repository, a pipeline that checks every change ([[pipeline]]), Vim ([[vim]]), and a
 laptop with no discrete graphics card and somewhere between 16 and 32 GB of memory.

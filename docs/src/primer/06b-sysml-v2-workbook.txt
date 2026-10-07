@@ -1,5 +1,13 @@
 == SysML v2 by example: a workbook {#workbook}
 
+::: bridge
+You know: drawing blocks, ports and activities on Cameo diagrams.
+
+Here it is called: writing part, port, action and requirement definitions as text.
+
+What is new: you type the model, and the grammar check tells you within a second whether it is valid.
+:::
+
 ::: note What you have, what you need
 **What you have:** you can read SysML v2 text now ([[sysmlv2]]). You know what a part def, a port and a satisfy
 relationship are, because you drew them for years in SysML v1.

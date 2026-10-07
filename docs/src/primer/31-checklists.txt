@@ -1,5 +1,13 @@
 == Checklists {#checklists}
 
+::: bridge
+You know: entry and exit criteria for reviews.
+
+Here it is called: checklists for each step of the rhythm.
+
+What is new: many items are confirmed by the pipeline instead of by a signature.
+:::
+
 Every checklist in the book, in the order the work meets them. Print the ones you use; tick them in a GitLab issue
 comment (paste the lines as `- [ ]` items) when the record matters. Each names the chapter that explains it.
 

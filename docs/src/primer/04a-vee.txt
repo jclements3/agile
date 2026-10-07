@@ -380,30 +380,3 @@ requirement modules, your test events. Keep the shape and the reviews; change th
 starting with the rung where checks are most repetitive. Decide locally which reviews read baselines from the first
 day and which keep their current package until a pilot proves the generated one. Build the thread before anyone
 mentions a twin: stable ids from your prime, `doorsId` on every requirement, the trace check on every merge request.
-
-=== Answers to this chapter's exercises {#vee-answers}
-
-::: answer [[ex-vee-map]]: Map your program's Vee
-A good answer names every rung on the right arm, puts "nobody" or "a person, before each review" against at least
-one of them, and circles a rung below system verification: those are the repetitive ones. Tidewater's answer
-circles the verification matrix, which used to take two people a week before each review.
-:::
-
-::: answer [[ex-vee-three]]: Find the three Vees
-A merge request's Vee: any change into `develop`, with the ten jobs `gitlab.pl ci --list --event
-merge_request_event --target develop` shows. A baseline's Vee: a `baseline-N` tag, with the thirteen jobs `--event
-tag --tag baseline-N` shows, three of them the release jobs. The program's Vee: the next technical review, which
-reads the latest baseline's release package.
-:::
-
-::: answer [[ex-vee-link]]: Break and mend a horizontal line
-The job reports `orphans 2 -> 3 (new: ...)` and fails. Two sentences for the program manager: "The check stops a
-change that breaks a link between a requirement and the design that meets it. The nine gaps already in the model are
-the prime's, reported to the prime, and they are counted every day instead of blocking our work."
-:::
-
-::: answer [[ex-vee-twin]]: The thread before the twin
-Most programs moving from documents have none of the four on day one; a good answer says so and names the first
-step, usually stable ids from the prime and `doorsId` on every requirement. The decision a twin would change must
-come with a number, for example "how many buoys to recover before winter, worth one vessel day each".
-:::

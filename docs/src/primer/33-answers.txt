@@ -140,6 +140,31 @@ fix with a board decision"). Both objections are fair. Answer the first by keepi
 questions fixed; answer the second by comparing like with like, and by saying so on the slide.
 :::
 
+::: answer [[ex-vee-map]]: Map your program's Vee
+A good answer names every rung on the right arm, puts "nobody" or "a person, before each review" against at least
+one of them, and circles a rung below system verification: those are the repetitive ones. Tidewater's answer
+circles the verification matrix, which used to take two people a week before each review.
+:::
+
+::: answer [[ex-vee-three]]: Find the three Vees
+A merge request's Vee: any change into `develop`, with the ten jobs `gitlab.pl ci --list --event
+merge_request_event --target develop` shows. A baseline's Vee: a `baseline-N` tag, with the thirteen jobs `--event
+tag --tag baseline-N` shows, three of them the release jobs. The program's Vee: the next technical review, which
+reads the latest baseline's release package.
+:::
+
+::: answer [[ex-vee-link]]: Break and mend a horizontal line
+The job reports `orphans 2 -> 3 (new: ...)` and fails. Two sentences for the program manager: "The check stops a
+change that breaks a link between a requirement and the design that meets it. The nine gaps already in the model are
+the prime's, reported to the prime, and they are counted every day instead of blocking our work."
+:::
+
+::: answer [[ex-vee-twin]]: The thread before the twin
+Most programs moving from documents have none of the four on day one; a good answer says so and names the first
+step, usually stable ids from the prime and `doorsId` on every requirement. The decision a twin would change must
+come with a number, for example "how many buoys to recover before winter, worth one vessel day each".
+:::
+
 ::: answer [[devsecops--ex-1]]: Make your own list
 A starting list, with the systems engineering term beside each:
 
@@ -2365,6 +2390,32 @@ The answer is your table. Most ISSMs ask first about point 1 (what the model con
 (separating repositories by sensitivity) and point 9 (runners as privileged machines), because those decide whether
 the system can be authorized at all. Every LATER needs a story or epic name; "later" without one is the pattern the
 chapter warns about.
+:::
+
+::: answer [[ex-scale-cadence]]: Name the cadences
+A good answer separates the segments by what limits them, not by who builds them. Hardware is limited by lead times,
+qualification and field access; software by the pipeline. The baselines fall where the slowest segment can freeze:
+for Tidewater, the station segment's field seasons set them, and the data center's sprints line up underneath.
+:::
+
+::: answer [[ex-scale-interface]]: One copy of the interface
+It is defined once in model/library/Interfaces.sysml and used in the stations, the data center and the observation
+cycle's behavior (model/physical/stations, model/physical/datacenter, model/logical). CODEOWNERS gives that file two
+sections, both of which must approve: the systems lead (Jim) and one of the people who build on both sides (Bob or
+Tom, whoever did not write the change). If a segment could change it alone, the other segments would find out at
+integration; with one copy and system-level owners, they find out in the merge request.
+:::
+
+::: answer [[ex-scale-blocks]]: Find the next block in the drops
+Drop 6 (v1.5): its CHANGES.csv carries NWM-CR-0026, "Add partner sharing TW-SYS-019", with the rationale of a
+data-sharing agreement with partner agencies; it adds TW-SYS-019, the data center sharing observations with partner
+agencies. It is Block 3 in the picture, starting while Block 2 is still in verification.
+:::
+
+::: answer [[ex-scale-ladder]]: Put a check on its rung
+The missing `verify` is a model check, on every merge request. The link model belongs to simulation. The storm power
+loss is a sea-trial finding that then calibrates the simulation. The late bulletin is a simulation result (load) that
+a harbor test should confirm end to end. The modem reset belongs on the bench, with the real modem and logger.
 :::
 
 ::: answer [[ex-playbook-plan]]: Your twelve-week table

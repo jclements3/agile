@@ -1,5 +1,13 @@
 == Sprint 2: Drop 1 on develop, every change gated {#sprint-2}
 
+::: bridge
+You know: the first delivery from a contractor, and the argument about where it lives.
+
+Here it is called: the vendor branch and the first merge request into develop.
+
+What is new: the prime's model arrives through a gate, and every change after it is checked.
+:::
+
 ::: survival
 What you have: a GitLab project with its rules, three working laptops, drop 1 converted on a laptop and measured, a
 pipeline that runs only on Tom's machine, and a team still unconvinced.

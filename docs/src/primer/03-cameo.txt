@@ -1,5 +1,14 @@
 == The Cameo years {#cameo}
 
+::: bridge
+You know: Cameo: its diagrams, its containment tree, the XMI export and the DOORS link.
+
+Here it is called: SysML v1, and the spider web it became.
+
+What is new: measuring the spider web (diagrams, duplicates, cycles, relationships per block) instead of only
+feeling it.
+:::
+
 ::: note What you have, what you need
 **What you have:** a SysML v1 model in Cameo that you built by hand, that the prime contractor now maintains, and
 that nobody on the team enjoys opening.

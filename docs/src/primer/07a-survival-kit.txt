@@ -1,5 +1,13 @@
 == The survival kit {#survival}
 
+::: bridge
+You know: your laptop, Windows, the shared drive, and Vim.
+
+Here it is called: the survival kit: Git Bash, Perl, the kit and the doctor check.
+
+What is new: a terminal you type commands into, and a check that tells you exactly what is missing.
+:::
+
 ::: survival
 What you have: a government Windows 11 laptop with Git for Windows and Vim on it (both on the approved software
 list); a network account; a login to the enterprise GitLab server that the administrators created last week; and

@@ -1,5 +1,14 @@
 == Documents still matter: review stages for generated documents {#documents-stages}
 
+::: bridge
+You know: color-team reviews and document maturity grades.
+
+Here it is called: review stages for generated documents, as doc:: labels.
+
+What is new: some of the criteria are checked by the pipeline, so a grade means something before the reviewers open
+the document.
+:::
+
 ::: survival Where this chapter fits
 What you have: a model that generates most of what used to be hand-written -- the data exchange table, the trace
 report, the verification matrix -- and a handful of documents that are still written by people: the briefing memo,

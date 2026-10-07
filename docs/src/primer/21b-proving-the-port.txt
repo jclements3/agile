@@ -1,5 +1,13 @@
 == Proving the port is complete and correct {#proving}
 
+::: bridge
+You know: the configuration audit, and the sign-off on a data conversion.
+
+Here it is called: proving the port: counts, the TODO burn-down, the trace against DOORS and a sampled review.
+
+What is new: most of the evidence is produced by scripts anyone can rerun.
+:::
+
 ::: survival Before you start
 What you have: the prime's drop 1 (the v1 model and the DOORS export), the converted v2 model on `develop`, and the
 pipeline's reports.

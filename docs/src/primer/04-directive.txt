@@ -1,5 +1,14 @@
 == The directive {#directive}
 
+::: bridge
+You know: a directive that arrives with a date and no resources, and the meeting where the team works out what it
+really means.
+
+Here it is called: the DevSecOps directive and the twelve-week scorecard.
+
+What is new: agreeing in week zero on what will be measured, so success is a number, not an opinion.
+:::
+
 ::: note What you have, what you need
 **What you have:** a memo telling you to adopt something you have never done, a skeptical team and twelve weeks.
 

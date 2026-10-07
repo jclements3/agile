@@ -1,5 +1,13 @@
 == Sprint 1: A GitLab project the team can work in {#sprint-1}
 
+::: bridge
+You know: the first weeks of a new program: kickoffs, accounts, and a plan nobody believes yet.
+
+Here it is called: sprint 1: planning, stand-ups, the first drop and the first pipeline.
+
+What is new: by day ten, something real is finished and measured.
+:::
+
 ::: survival
 What you have: three laptops that have never run git, a prime drop that arrived the Friday before, a directive, and a
 team that would rather be writing documents.

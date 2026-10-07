@@ -1,5 +1,13 @@
 == Templates and GitLab Markdown, field by field {#templates}
 
+::: bridge
+You know: document templates and CDRL formats.
+
+Here it is called: GitLab templates for issues, merge requests and wiki pages, in Markdown.
+
+What is new: a template opens pre-filled every time, with checklists a reviewer can tick.
+:::
+
 This appendix prints every template the Tidewater project uses and every filled-in sample of a GitLab text field,
 with notes on the Markdown each one uses. The files are in the kit under `tools/gitlab/templates/` (copied into the
 model repository) and `tools/gitlab/samples/`. Read it with GitLab open in another window and try each feature in a

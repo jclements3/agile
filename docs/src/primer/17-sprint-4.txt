@@ -1,5 +1,13 @@
 == Sprint 4: the model site, a cycle broken, and the demo that landed {#sprint-4}
 
+::: bridge
+You know: the program review where the slides are the only evidence.
+
+Here it is called: the model site, and a demo.
+
+What is new: management looks at the live model, not at screenshots of it.
+:::
+
 ::: survival
 What you have: the DOORS requirements in the model, a trace report on every change that lists the prime's gaps
 ([[sprint-3]]), a team that has seen the pipeline say no and survived it, and a pulse survey that says morale is low.

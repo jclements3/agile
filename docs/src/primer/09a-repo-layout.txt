@@ -1,5 +1,13 @@
 == The model repository: what goes where {#repo-layout}
 
+::: bridge
+You know: a document tree and a numbering scheme for specifications and ICDs.
+
+Here it is called: the model repository and its layered folders.
+
+What is new: the layout itself says which layer may depend on which, and every prime drop lands in the same place.
+:::
+
 ::: survival
 What you have: a shared drive with folders named "SRS," "ICDs (current)," "ICDs (OLD - do not use)" and "Bob's
 working copy," and a Cameo project file that holds everything in one blob.

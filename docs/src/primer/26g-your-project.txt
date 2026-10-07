@@ -1,5 +1,13 @@
 == Your project in twelve weeks: a playbook {#playbook}
 
+::: bridge
+You know: the program plan you write at the start of a new effort.
+
+Here it is called: a twelve-week playbook for your own project.
+
+What is new: a plan you can copy, already tested on Tidewater, with the decisions you must make locally marked.
+:::
+
 ::: survival Your turn
 What you have: this book's account of what three engineers did with Tidewater, the kit, and a program of your own
 with a model in Cameo (or in documents), a supplier who keeps changing it, and a manager who wants to see progress.

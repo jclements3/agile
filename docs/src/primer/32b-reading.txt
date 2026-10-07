@@ -1,5 +1,13 @@
 == Further reading {#reading}
 
+::: bridge
+You know: the applicable documents list.
+
+Here it is called: further reading.
+
+What is new: nothing; this is where to go deeper.
+:::
+
 Titles only, deliberately: web addresses move, and an address printed in a book is wrong within a year. Every item
 below is easy to find by its title, and most are free. Check with your security office before downloading anything to
 a work laptop; several are available in the program's library.

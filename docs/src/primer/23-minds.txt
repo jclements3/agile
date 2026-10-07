@@ -1,5 +1,13 @@
 == How the team changed its mind {#minds}
 
+::: bridge
+You know: the objections people raise to any new process: some fair, some fear.
+
+Here it is called: the objections, revisited.
+
+What is new: each one is answered with evidence from the twelve weeks, not with a promise.
+:::
+
 ::: survival Where this chapter fits
 What you have: twelve weeks of evidence -- stand-up chat, retrospectives, a pulse survey every second Thursday,
 quotes people did not expect to have written down.

@@ -1,5 +1,13 @@
 == The rhythm: stand-ups, poker, refinement, kickoff, demo, retro {#ceremonies}
 
+::: bridge
+You know: the weekly status meeting, the technical interchange meeting and the program review.
+
+Here it is called: stand-up, planning poker, refinement, kickoff, demo and retrospective.
+
+What is new: short meetings of fixed length at a fixed rhythm, each with one job.
+:::
+
 ::: survival
 What you have: a journal of stories ([[journal]]), tasks in GitLab ([[tools]]), and two-week sprints.
 

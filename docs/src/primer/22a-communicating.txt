@@ -1,5 +1,13 @@
 == Telling management {#communicating}
 
+::: bridge
+You know: the weekly status report and the quad chart.
+
+Here it is called: the weekly quad, the sprint mail and the weekly note.
+
+What is new: they are drafted from the journal and GitLab, so writing them takes minutes.
+:::
+
 ::: survival Before you start
 What you have: a journal of stories, a GitLab project, and a program manager who will not open either.
 

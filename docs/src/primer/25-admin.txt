@@ -1,5 +1,13 @@
 == Administration {#admin}
 
+::: bridge
+You know: the CM manager's routine: accounts, access lists, audits and backups.
+
+Here it is called: administering GitLab, runners and tokens.
+
+What is new: most of the routine becomes a scheduled check that reports drift.
+:::
+
 ::: survival The upkeep
 What you have: a GitLab project that works, a runner that runs, three people who know their way around both, and
 a model that passed its first baseline.

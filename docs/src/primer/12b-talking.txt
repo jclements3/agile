@@ -1,5 +1,13 @@
 == Talking about progress: helps for engineers who would rather not {#talking}
 
+::: bridge
+You know: briefing a chief from a slide deck you rehearsed the night before.
+
+Here it is called: talking about progress: the stand-up line, the demo and the weekly note.
+
+What is new: one short sentence a day, outcome first, with one number, and tools that draft it for you.
+:::
+
 ::: survival
 What you have: a stand-up every morning ([[ceremonies]]), a demo every second Friday, a weekly note to management,
 and a GitLab project that already knows almost everything you did.

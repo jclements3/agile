@@ -1,5 +1,13 @@
 == Measuring with GitLab analytics {#analytics}
 
+::: bridge
+You know: the metrics slide assembled the night before a review.
+
+Here it is called: GitLab analytics, and gitlab.pl analytics.
+
+What is new: the numbers come from the work itself, every day, and nobody counts by hand.
+:::
+
 ::: survival Before you start
 What you have: twelve weeks of issues, merge requests and pipelines in one GitLab project, and the kit's journal of
 stories.

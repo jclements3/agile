@@ -1,5 +1,14 @@
 == The twelve-week scorecard {#scorecard}
 
+::: bridge
+You know: the stoplight chart.
+
+Here it is called: the twelve-week scorecard.
+
+What is new: every measure was agreed in week zero and is computed from the evidence, including the one that did
+not move.
+:::
+
 ::: survival Before you start
 What you have: the twelve measures the program manager signed on 1 October ([[directive-scorecard]]), and a
 scorecard file the pipeline and the journal filled in at the end of every sprint.

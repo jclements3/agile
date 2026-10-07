@@ -1,5 +1,13 @@
 == Vim for models {#vim}
 
+::: bridge
+You know: Vim: opening files, searching, substituting and saving.
+
+Here it is called: Vim for models: the kit's SysML keys, :make and the quickfix list.
+
+What is new: the editor runs the model checks and jumps you to each error.
+:::
+
 ::: survival
 What you have: years of Vim. You can move, search, change, yank and put without thinking; you have a `.vimrc` with
 a few lines you copied from someone in 2009; and the kit is now sourced from it ([[survival-vim]]).
@@ -348,7 +356,7 @@ correctly. Use `\mr` for a quick look while editing, and the pipeline's report a
 
 === Merge conflicts in Vim {#vim-conflicts}
 
-[[git-conflicts]] showed what a conflict looks like. Here is how to resolve one quickly.
+This section belongs with git, which the next chapters teach: [[git-conflicts]] explains what a merge conflict is and where one comes from. If you are reading in order, skim it now and come back after [[git]]; if you already know git, here is how to resolve a conflict quickly in Vim.
 
 **First, one setting.** Tell git to show the common ancestor in conflicts as well as the two sides:
 
@@ -356,7 +364,7 @@ correctly. Use `\mr` for a quick look while editing, and the pipeline's report a
 git config --global merge.conflictstyle diff3
 ```
 
-With it, the vendor-branch conflict from [[git-vendor]] looks like this:
+With it, the vendor-branch conflict that [[git-vendor]] walks through looks like this:
 
 ```text
 package Stations {
@@ -415,7 +423,7 @@ before anyone else sees it.
 
 === Commit messages, issues and merge requests in Vim {#vim-markdown}
 
-Everything you write for GitLab is plain text, and you can write all of it in Vim.
+Everything you write for GitLab is plain text, and you can write all of it in Vim. Commits arrive in [[git]] and merge requests in [[gitlab-setup]]; this section shows how Vim handles the text they need, so you have it ready when they come.
 
 **Commit messages.** With `core.editor` set to `vim` ([[survival-git-config]]), `git commit` opens Vim with Vim's
 built-in `gitcommit` file type: the subject line turns a warning color past 50 characters, and the second line is

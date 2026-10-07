@@ -1,5 +1,13 @@
 == Command reference {#commands}
 
+::: bridge
+You know: the cheat sheet taped to the monitor.
+
+Here it is called: the command reference.
+
+What is new: every command in it has been run.
+:::
+
 This appendix lists every command the book uses, grouped by tool, with the options that matter for the process. The
 syntax lines are taken from each tool's own help, which is always the final word: run the help command shown at the
 top of each section when in doubt. Commands are run from Git Bash on Windows (or any shell on Linux) at the root of

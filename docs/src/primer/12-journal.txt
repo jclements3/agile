@@ -1,5 +1,13 @@
 == Stand-ups, the journal and the board {#journal}
 
+::: bridge
+You know: the status spreadsheet and the action-item list.
+
+Here it is called: the journal of stories, and the GitLab board for tasks.
+
+What is new: status is recorded once, as it happens, and every report is derived from it.
+:::
+
 ::: survival
 What you have: a GitLab project where tasks live as issues ([[gitlab-setup]], [[tools]]), and an operating model that
 says work comes in tomes, epics, stories and tasks ([[operating-model]]).

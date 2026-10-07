@@ -1,5 +1,13 @@
 == Runners: where the pipeline runs {#runners}
 
+::: bridge
+You know: the lab machine that runs the analysis tools.
+
+Here it is called: a runner: the machine GitLab sends pipeline jobs to.
+
+What is new: it works unattended, and if it is offline, nothing merges.
+:::
+
 ::: survival
 What you have: a pipeline file ([[pipeline]]) and a GitLab project ([[gitlab-setup]]).
 

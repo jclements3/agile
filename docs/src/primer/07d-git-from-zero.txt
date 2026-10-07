@@ -1,5 +1,14 @@
 == Git from zero, for systems engineers {#git}
 
+::: bridge
+You know: configuration management: versions, baselines, change records, who changed what and when.
+
+Here it is called: git: commits, branches, merges, tags and the log.
+
+What is new: every change is recorded as you make it, a branch lets you work without disturbing anyone, and merging
+is routine, not a crisis.
+:::
+
 ::: survival
 What you have: a terminal you can use ([[survival]]), git configured with your name, and decades of configuration
 management experience: baselines, change requests, redlines, revision letters, the CM library.
@@ -505,12 +514,14 @@ no changes added to commit (use "git add" and/or "git commit -a")
 
 Git stopped half way and wrote both versions into the file, between **conflict markers**:
 
-```text run expect="(?s)<<<<<<< HEAD\n\s+doc /\* Stores solar power for night, cloud and storms\. \*/\n=======\n\s+doc /\* Stores solar power for the night\. \*/\n>>>>>>> feature/8-doc-bob"
+```text run expect="(?s)<<<<<<< HEAD\n\s+doc /\* Stores solar power for night, cloud and storms\. \*/\n(\|{7} [^\n]*\n[^\n]*\n)?=======\n\s+doc /\* Stores solar power for the night\. \*/\n>>>>>>> feature/8-doc-bob"
 $ cat model/stations/Battery.sysml
 package Battery {
     part def Battery {
 <<<<<<< HEAD
         doc /* Stores solar power for night, cloud and storms. */
+||||||| e65550b
+        doc /* Stores solar power for night and cloud. */
 =======
         doc /* Stores solar power for the night. */
 >>>>>>> feature/8-doc-bob
@@ -520,7 +531,9 @@ package Battery {
 ```
 
 Between `<<<<<<< HEAD` and `=======` is the version on the branch you are on (`main`); between `=======` and
-`>>>>>>> feature/8-doc-bob` is the incoming version. Everything outside the markers merged cleanly (notice that the
+`>>>>>>> feature/8-doc-bob` is the incoming version. The middle section, from `|||||||` (with the common ancestor's
+commit id) to `=======`, is the original line both sides started from; it appears because of the
+`merge.conflictstyle diff3` setting from [[vim-conflicts]], and without that setting it is simply absent. Everything outside the markers merged cleanly (notice that the
 typed capacity from the earlier merge is there). Resolve it by editing the file into what it should be, with the
 markers removed. Here the right answer combines both:
 
@@ -528,7 +541,7 @@ markers removed. Here the right answer combines both:
         doc /* Stores solar power for the night, cloud and storms. */
 ```
 
-In Vim, delete the five lines from `<<<<<<<` to `>>>>>>>` and type the combined line in their place; or let Vim's
+In Vim, delete the lines from `<<<<<<<` to `>>>>>>>` and type the combined line in their place; or let Vim's
 command line do it, which is also how this book's test of the chapter does it:
 
 ```vim run
@@ -566,7 +579,7 @@ If you start a merge and want to back out of it, `git merge --abort` returns eve
 Bob's first conflict produced a moment of panic, then a realization. In the Cameo years, two people changing the
 same element produced no warning at all: the second save silently won, and the first person's work vanished until
 someone noticed, sometimes months later. A conflict is git refusing to lose anyone's work. It is the system working.
-[[vim]] shows how to resolve conflicts quickly in Vim; [[maintenance]] shows how the team handled the conflicts
+The Vim chapter ([[vim-conflicts]]) showed how to resolve conflicts quickly in Vim; now that you know what a conflict is, go back to that section; [[maintenance]] shows how the team handled the conflicts
 that each prime drop produced.
 :::
 
@@ -1104,12 +1117,14 @@ CONFLICT (content): Merge conflict in model/Stations.sysml
 Automatic merge failed; fix conflicts and then commit the result.
 ```
 
-```text run expect="(?s)<<<<<<< HEAD\n\s+@L3Station;\n=======\n\s+// TODO stereotype Tidewater_Profile:L2Segment"
+```text run expect="(?s)<<<<<<< HEAD\n\s+@L3Station;\n(\|{7} [^\n]*\n[^\n]*\n)?=======\n\s+// TODO stereotype Tidewater_Profile:L2Segment"
 $ cat model/Stations.sysml
 package Stations {
     part def Buoy {
 <<<<<<< HEAD
         @L3Station;
+||||||| 6b3d303
+        // TODO stereotype Tidewater_Profile:L3Station on this element (xmi:id _22_1_7f3a0c1_0215) not converted
 =======
         // TODO stereotype Tidewater_Profile:L2Segment on this element (xmi:id _22_1_7f3a0c1_0215) not converted
 >>>>>>> vendor/prime

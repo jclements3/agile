@@ -1,5 +1,13 @@
 == The DevSecOps tools that earn their keep {#tools}
 
+::: bridge
+You know: the tools the program bought, and the ones nobody used.
+
+Here it is called: the DevSecOps tools in GitLab, each with its tier and its value.
+
+What is new: each tool is adopted only when the team feels the problem it removes.
+:::
+
 ::: survival
 What you have: a GitLab project with its protections, labels, sprints and templates ([[gitlab-setup]]).
 

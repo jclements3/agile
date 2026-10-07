@@ -1,5 +1,13 @@
 == Keeping SysML v2 from becoming a spider web {#no-spider-web}
 
+::: bridge
+You know: the Cameo model that grew into a spider web.
+
+Here it is called: layering, ownership, complexity metrics and gates.
+
+What is new: the pipeline measures the tangle on every change and refuses changes that make it worse.
+:::
+
 ::: survival Where this chapter fits
 What you have: a v2 model that started life as a converted v1 spider web ([[cameo]]), a pipeline, and a team that
 now changes the model every day.

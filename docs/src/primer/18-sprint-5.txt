@@ -1,5 +1,13 @@
 == Sprint 5: Grading the requirements, and a trace that defends itself {#sprint-5}
 
+::: bridge
+You know: requirement review comments, and the trace matrix you rebuild before each review.
+
+Here it is called: the recipe check and the trace gate.
+
+What is new: the trace defends itself: a change that breaks it cannot merge.
+:::
+
 ::: survival
 What you have: a model whose structure is nearly closed, a pipeline that checks every change, a model site the
 program office has seen once, and a team that has started to trust the checks ([[sprint-4]]).

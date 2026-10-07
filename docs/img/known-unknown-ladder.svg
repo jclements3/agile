@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" width="900" height="560" font-family="DejaVu Sans, Helvetica, Arial, sans-serif">
+  <title>From what you know to what you do not</title>
+  <rect x="0" y="0" width="900" height="560" fill="#ffffff"/>
+  <!-- the ladder's rails -->
+  <line x1="70" y1="30" x2="70" y2="520" stroke="#000" stroke-width="6"/>
+  <line x1="150" y1="30" x2="150" y2="520" stroke="#000" stroke-width="6"/>
+  <!-- rungs -->
+  <line x1="70" y1="470" x2="150" y2="470" stroke="#000" stroke-width="5"/>
+  <line x1="70" y1="300" x2="150" y2="300" stroke="#000" stroke-width="5"/>
+  <line x1="70" y1="130" x2="150" y2="130" stroke="#000" stroke-width="5"/>
+  <!-- climb arrow -->
+  <line x1="40" y1="510" x2="40" y2="60" stroke="#000" stroke-width="2" stroke-dasharray="7 5"/>
+  <polygon points="40,40 32,60 48,60" fill="#000"/>
+  <text x="26" y="300" font-size="15" transform="rotate(-90 26 300)" text-anchor="middle">climb in this order</text>
+
+  <!-- rung 1: what you know -->
+  <line x1="150" y1="470" x2="190" y2="470" stroke="#000" stroke-width="2"/>
+  <rect x="190" y="400" width="680" height="140" rx="6" fill="#ffffff" stroke="#000" stroke-width="2.5"/>
+  <text x="210" y="428" font-size="20" font-weight="bold">1. What you know</text>
+  <text x="210" y="456" font-size="15">documents (SEMP, SRS, ICDs), spreadsheets and the VCRM, briefings,</text>
+  <text x="210" y="478" font-size="15">the CCB and ECPs, baselines, Cameo, DOORS, Vim</text>
+  <text x="210" y="510" font-size="14" font-style="italic">Part I: the documents, the Cameo years, the directive, the Vee</text>
+
+  <!-- rung 2: quick to learn -->
+  <line x1="150" y1="300" x2="190" y2="300" stroke="#000" stroke-width="2"/>
+  <rect x="190" y="230" width="680" height="140" rx="6" fill="#e6e6e6" stroke="#000" stroke-width="2.5"/>
+  <text x="210" y="258" font-size="20" font-weight="bold">2. Quick to learn: your own work in a new form</text>
+  <text x="210" y="286" font-size="15">the Vee in GitLab, SysML v2 text, requirements a script can check,</text>
+  <text x="210" y="308" font-size="15">Vim for models, diagrams generated from the model</text>
+  <text x="210" y="340" font-size="14" font-style="italic">Part I: SysML v2, the recipe, the workbook; Part II: the survival kit, Vim, diagrams</text>
+
+  <!-- rung 3: new -->
+  <line x1="150" y1="130" x2="190" y2="130" stroke="#000" stroke-width="2"/>
+  <rect x="190" y="60" width="680" height="140" rx="6" fill="#bdbdbd" stroke="#000" stroke-width="2.5"/>
+  <text x="210" y="88" font-size="20" font-weight="bold">3. Genuinely new</text>
+  <text x="210" y="116" font-size="15">git, merge requests, pipelines and runners, agile ceremonies,</text>
+  <text x="210" y="138" font-size="15">GitLab: issues, boards, code owners, releases</text>
+  <text x="210" y="170" font-size="14" font-style="italic">Part II: git, the operating model, GitLab, CI/CD, the pipeline, the rhythm</text>
+
+  <text x="450" y="30" font-size="16" text-anchor="middle" font-style="italic">Each rung leans on the one below it.</text>
+</svg>

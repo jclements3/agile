@@ -1,5 +1,13 @@
 == Pitfalls and anti-patterns {#pitfalls}
 
+::: bridge
+You know: lessons-learned reports that nobody reads.
+
+Here it is called: pitfalls and anti-patterns.
+
+What is new: each pitfall has a symptom you can spot early in your own project.
+:::
+
 ::: survival Knowing the ditches
 What you have: a working process and, by now, some habits, good and bad.
 

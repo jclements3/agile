@@ -1,5 +1,13 @@
 == Maintenance through the life cycle {#maintenance}
 
+::: bridge
+You know: the long sustainment phase: ECPs, contractor deliveries and re-baselines.
+
+Here it is called: maintaining the model against prime drops, with baselines and hotfixes.
+
+What is new: each delivery is compared automatically, and its impact on your model is listed before anyone decides.
+:::
+
 ::: survival Staying current for eighteen months
 What you have: a SysML v2 model under configuration control, a pipeline that checks every change, an interim
 baseline, and a prime contractor who will keep delivering changes to the old SysML v1 model for as long as the

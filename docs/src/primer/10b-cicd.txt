@@ -1,5 +1,13 @@
 == CI/CD from zero {#cicd}
 
+::: bridge
+You know: the configuration audit and the peer-review checklist, run before a milestone.
+
+Here it is called: continuous integration and continuous delivery (CI/CD).
+
+What is new: the audit and the checklist run on every change, in minutes, and the products are rebuilt every time.
+:::
+
 ::: survival
 What you have: a GitLab project ([[gitlab-setup]]), git on your laptop ([[git]]), and a sense from [[tools]] that
 "the pipeline" is the most important tool in the box.

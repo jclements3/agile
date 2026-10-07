@@ -1,5 +1,13 @@
 == Glossary {#glossary}
 
+::: bridge
+You know: the acronym list at the back of every SEMP.
+
+Here it is called: the glossary: systems engineering, DevSecOps and SysML v2 side by side.
+
+What is new: each new term is mapped to the one you already use.
+:::
+
 Three vocabularies meet in this book: systems engineering and configuration management, which the reader already
 speaks; GitLab and DevSecOps, which Jim, Bob and Tom learned in twelve weeks; and SysML v2, which replaces the SysML
 v1 they knew from Cameo. The first table translates between the first two, the second defines the DevSecOps and

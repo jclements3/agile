@@ -1,0 +1,48 @@
+== References: DoD and Microsoft guidance {#references}
+
+::: bridge
+You know: the applicable documents list at the front of a SEMP, with each document's number and where to get it.
+
+Here it is called: references: the DoD's software and DevSecOps guidance and Microsoft's Azure Government pages.
+
+What is new: these documents are written for software teams; this appendix says which part a systems engineer needs.
+:::
+
+[[reading]] lists titles only, because web addresses move. This appendix makes one exception: the official DoD and
+Microsoft pages a program office will ask about, with the addresses as they stood on 7 October 2026. Start from the
+two index pages (the DoD CIO library and Microsoft's Azure Government documentation); when an address below has
+moved, the document is still listed there under the same title. Check with your security office before downloading
+anything to a work laptop.
+
+=== DoD software and DevSecOps guidance {#references-dod}
+
+The DoD Chief Information Officer (CIO) publishes the DevSecOps document set as a library: a fundamentals document
+for everyone, guidebooks and playbooks for practitioners, and reference designs for the teams that build a software
+factory. All of it is approved for public release.
+
+|| Document | What to read it for ||
+| **DoD CIO Library** (the index) `https://dodcio.defense.gov/library/` | the current versions of everything in this section; start here |
+| **DoD Enterprise DevSecOps Fundamentals** `https://dodcio.defense.gov/Portals/0/Documents/Library/DoD%20Enterprise%20DevSecOps%20Fundamentals_DoD-CIO_20211019.pdf` | the DoD's definitions: the lifecycle, the software factory, culture and metrics. The vocabulary management will use; compare it with [[devsecops]] |
+| **DevSecOps Fundamentals Guidebook: DevSecOps Tools and Activities** `https://dodcio.defense.gov/Portals/0/Documents/Library/DevSecOps%20Fundamentals%20Guidebook-DevSecOps%20Tools%20and%20Activities_DoD-CIO_20211019.pdf` | the activities and tools by phase. Map the team's pipeline jobs ([[pipeline]]) onto its tables when an assessor asks "which activities do you perform?" |
+| **DoD Enterprise DevSecOps: Pathway to a Reference Design** `https://dodcio.defense.gov/Portals/0/Documents/Library/DoD%20Enterprise%20DevSecOps-Pathway%20to%20a%20Reference%20Design_DoD-CIO_20211018.pdf` | how a reference design is built up; read before the Kubernetes reference design |
+| **DoD Enterprise DevSecOps Reference Design: CNCF Kubernetes** (in the library) | the design the platform team follows when the runners run on Kubernetes; what a job pod may and may not do ([[runners]]) |
+| **DoD Enterprise DevSecOps Strategy Guide** `https://dodcio.defense.gov/Portals/0/Documents/Library/DoDEnterpriseDevSecOpsStrategyGuide.pdf` | the why, for the program manager: the argument [[directive]] makes, in the DoD's words |
+
+=== Acquisition policy {#references-acquisition}
+
+|| Document | What to read it for ||
+| **DoD Software Modernization Strategy** (2022) `https://media.defense.gov/2022/Feb/03/2002932833/-1/-1/1/department-of-defense-software-modernization-strategy.pdf` | the department-level goals the directive cites: software factories, cloud, faster authorization |
+| **DoDI 5000.87, Operation of the Software Acquisition Pathway** `https://www.esd.whs.mil/Portals/54/Documents/DD/issuances/dodi/500087p.PDF` | how a software program is bought and reported: iterations, value assessments, metrics. Read it to understand why management asks for the measures in [[scorecard]] and [[analytics]]; the Directives Division site `https://www.esd.whs.mil/DD/` has the current version |
+
+=== Microsoft: Azure Government for DoD {#references-azure}
+
+|| Document | What to read it for ||
+| **Department of Defense (DoD) in Azure Government** `https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-overview-dod` | the DoD regions and which impact levels each supports; what "the runners are in Azure" means for where the model may live |
+| **Azure Government isolation guidelines for Impact Level 5 workloads** `https://learn.microsoft.com/en-us/azure/azure-government/documentation-government-impact-level-5` | how IL5 workloads are isolated; for the platform team, and for the ISSM conversation in [[security]] |
+| **DevSecOps puts security at the heart of program development** (Azure Government blog) `https://devblogs.microsoft.com/azuregov/devsecops-puts-security-at-the-heart-of-program-development/` | a short orientation to Microsoft's DevSecOps offerings for government |
+
+::: tip Which three to read first
+For a systems engineer starting the twelve weeks: the **DevSecOps Fundamentals** (the words), the **Tools and
+Activities guidebook** (to map your pipeline), and **DoDI 5000.87** (to understand what management will measure).
+Leave the reference designs and the Azure pages to the platform team unless you are asked.
+:::

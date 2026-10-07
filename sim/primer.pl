@@ -498,7 +498,7 @@ sub html_inline {
     for my $x (@$nodes) {
         my $t = $x->{t};
         if    ($t eq 'text')   { $o .= h($x->{v}) }
-        elsif ($t eq 'code')   { $o .= '<code>' . h($x->{v}) . '</code>' }
+        elsif ($t eq 'code')   { $o .= $x->{v} =~ m{^https://[^\s"<>]+$} ? '<a href="' . h($x->{v}) . '"><code>' . h($x->{v}) . '</code></a>' : '<code>' . h($x->{v}) . '</code>' }   # a web address in `code` is a link
         elsif ($t eq 'bold')   { $o .= '<strong>' . html_inline($x->{kids}, $st) . '</strong>' }
         elsif ($t eq 'italic') { $o .= '<em>' . html_inline($x->{kids}, $st) . '</em>' }
         elsif ($t eq 'ref') {

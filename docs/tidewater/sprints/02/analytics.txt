@@ -15,7 +15,7 @@ GitLab analytics: tidewater/model, 2026-10-19T00:00:00Z .. 2026-10-30T23:59:59Z,
    change failure rate                0% (0 fix-forward or revert MRs / 6 merges)
    time to restore (develop red -> green) median - h, p85 - h (0 restores)
 
-3. CI/CD: 18 pipelines, success rate 94.4%, duration median 1 min, p85 1.6 min
+3. CI/CD: 18 pipelines, success rate 94.4%, duration median 1 min, p85 1.7 min
    period                         runs   failed success%   median min
    Sprint 2                         18        1     94.4            1
    job failures: grammar 1/18, lint 1/18, outline 1/18

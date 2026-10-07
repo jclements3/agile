@@ -1,13 +1,13 @@
-pipeline #95 (merge_request_event, refs/merge-requests/25/merge) failed, 8 jobs, 67.7 s
+pipeline #95 (merge_request_event, refs/merge-requests/25/merge) failed, 8 jobs, 62.3 s
 
-==== grammar          check    success   35.2 s
+==== grammar          check    success   46.8 s
 $ perl ci/job.pl grammar
 $ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 sysml: 16 file(s), 0 error(s)
 $ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 ci-reports grammar: 16 check(s), 0 failed, 0 finding(s); grammar_files=16 grammar_errors=0
 
-==== lint             check    success   52.7 s
+==== lint             check    success   47.3 s
 $ perl ci/job.pl lint
 $ perl $KIT/tools/sysml/model.pl lint
 lint: 16 file(s), 0 error(s), 0 warning(s)
@@ -15,7 +15,7 @@ elements=138 errors=0 warnings=0
 $ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
 ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=138 lint_errors=0 lint_warnings=0
 
-==== outline          check    success   15.8 s
+==== outline          check    success   14.8 s
 $ perl ci/job.pl outline
 $ perl $KIT/tools/sysml/model.pl check
 
@@ -45,13 +45,13 @@ $ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality
 ci-reports outline: 2 check(s), 1 failed, 17 finding(s); level_tag_mismatches=0 outline_violations=17
 outline violations: 17 (allowed: 17)
 
-==== todo             check    success      7 s
+==== todo             check    success    7.2 s
 $ perl ci/job.pl todo
 TODO lines remaining: 5
 $ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model
 ci-reports todo: 1 check(s), 0 failed, 5 finding(s); todo_lines=5 todo_lines_analysis=2 todo_lines_library=1 todo_lines_physical=2
 
-==== secrets          check    failed    10.1 s
+==== secrets          check    failed     8.8 s
 $ perl ci/job.pl secrets
 ci/exchange-check.pl:3: matches (?^:glpat-[0-9A-Za-z_\-]{20})
 possible secret committed: remove it, rotate it, then rewrite the branch before it merges

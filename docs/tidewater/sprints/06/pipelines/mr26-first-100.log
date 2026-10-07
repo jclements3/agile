@@ -1,13 +1,13 @@
-pipeline #100 (merge_request_event, refs/merge-requests/26/merge) success, 9 jobs, 133.2 s
+pipeline #100 (merge_request_event, refs/merge-requests/26/merge) success, 9 jobs, 131.9 s
 
-==== grammar          check    success   36.2 s
+==== grammar          check    success   37.8 s
 $ perl ci/job.pl grammar
 $ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 sysml: 16 file(s), 0 error(s)
 $ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 ci-reports grammar: 16 check(s), 0 failed, 0 finding(s); grammar_files=16 grammar_errors=0
 
-==== lint             check    success   49.1 s
+==== lint             check    success     48 s
 $ perl ci/job.pl lint
 $ perl $KIT/tools/sysml/model.pl lint
 lint: 16 file(s), 0 error(s), 0 warning(s)
@@ -15,7 +15,7 @@ elements=138 errors=0 warnings=0
 $ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
 ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=138 lint_errors=0 lint_warnings=0
 
-==== outline          check    success   15.6 s
+==== outline          check    success   12.8 s
 $ perl ci/job.pl outline
 $ perl $KIT/tools/sysml/model.pl check
 
@@ -45,17 +45,17 @@ $ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality
 ci-reports outline: 2 check(s), 1 failed, 17 finding(s); level_tag_mismatches=0 outline_violations=17
 outline violations: 17 (allowed: 17)
 
-==== todo             check    success    7.7 s
+==== todo             check    success    7.5 s
 $ perl ci/job.pl todo
 TODO lines remaining: 5
 $ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model
 ci-reports todo: 1 check(s), 0 failed, 5 finding(s); todo_lines=5 todo_lines_analysis=2 todo_lines_library=1 todo_lines_physical=2
 
-==== secrets          check    success    7.7 s
+==== secrets          check    success    9.1 s
 $ perl ci/job.pl secrets
 no secrets found in 67 tracked files
 
-==== trace            trace    success   21.2 s
+==== trace            trace    success   22.7 s
 $ perl ci/job.pl trace
 $ perl $KIT/bin/reqif2sysml.pl --report --model model (without the DOORS modules) imports/v1.0/tidewater.reqif
 reqif2sysml report: tidewater.reqif
@@ -93,16 +93,16 @@ drift: TW-SYS-006
 $ perl $KIT/tools/gitlab/ci-reports.pl trace --junit trace.xml --metrics trace.metrics trace.txt
 ci-reports trace: 14 check(s), 14 failed, 0 finding(s); trace_linked=29 trace_total=30 trace_orphans=2 trace_unverified=9 trace_completeness_pct=66.7 trace_drift=1 trace_not_in_model=1
 trace gaps: 2 orphan(s), 9 unverified, 1 drifted
-$ git worktree add -q --detach /tmp/ci-XXXXXX 49d91c0e2badaf9dd4aacff0fe95de69482791d8
+$ git worktree add -q --detach /tmp/ci-XXXXXX 42c344872e58b08cf82f68c27165485afc3fa8d6
 $ git worktree remove --force /tmp/ci-XXXXXX
 target branch: 29 of 30 linked; 2 orphan(s), 9 unverified, 1 drifted (full report: trace-base.txt)
 no new trace gaps (target branch: orphans 2, unverified 9, drift 1)
 
-==== vcrm             trace    success   11.9 s
+==== vcrm             trace    success   13.1 s
 $ perl ci/job.pl vcrm
 VCRM: 30 requirements, 2 verified, 0 failed, 19 not run, 9 without a case (vcrm.html, vcrm.csv)
 
-==== recipe           trace    success   13.5 s
+==== recipe           trace    success   16.4 s
 $ perl ci/job.pl recipe
 $ perl $KIT/tools/sysml/req-recipe.pl --format text model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
 TW-STK-001  score 85  model/requirements/model/Requirements.sysml:15  (Coastal coverage)
@@ -402,7 +402,7 @@ requirements=30 findings=17 missing=0
 $ perl $KIT/tools/sysml/req-recipe.pl --format codequality -o recipe-cq.json model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
 requirements=30 findings=17 missing=0
 
-==== docs             docs     success   37.9 s
+==== docs             docs     success   36.2 s
 $ perl ci/job.pl docs
 $ perl $KIT/tools/sysml/model.pl docs
 wrote docs/Nouns.md (38 lines)

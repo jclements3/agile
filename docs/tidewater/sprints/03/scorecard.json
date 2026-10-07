@@ -9,7 +9,7 @@
    "1_todo_lines" : 50,
    "2_lead_time_hours" : 4.2,
    "3_gated_changes" : "4 of 4",
-   "4_trace_answer_seconds" : 24,
+   "4_trace_answer_seconds" : 26,
    "5_trace" : {
       "C" : "29 of 30",
       "F" : "2",

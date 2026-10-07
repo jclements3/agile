@@ -1,10 +1,10 @@
-pipeline #2 (merge_request_event, refs/merge-requests/2/merge) success, 3 jobs, 61.3 s
+pipeline #2 (merge_request_event, refs/merge-requests/2/merge) success, 3 jobs, 59.8 s
 
-==== grammar          check    success   46.3 s
+==== grammar          check    success   44.8 s
 $ perl ci/job.pl grammar
 no .sysml files under model/ yet
 
-==== lint             check    success   40.1 s
+==== lint             check    success   44.5 s
 $ perl ci/job.pl lint
 $ perl $KIT/tools/sysml/model.pl lint
 lint: 0 file(s), 0 error(s), 0 warning(s)
@@ -12,7 +12,7 @@ elements=0 errors=0 warnings=0
 $ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
 ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=0 lint_errors=0 lint_warnings=0
 
-==== outline          check    success   13.4 s
+==== outline          check    success   11.9 s
 $ perl ci/job.pl outline
 $ perl $KIT/tools/sysml/model.pl check
 

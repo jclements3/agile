@@ -1,13 +1,13 @@
-pipeline #52 (merge_request_event, refs/merge-requests/16/merge) success, 7 jobs, 125.6 s
+pipeline #52 (merge_request_event, refs/merge-requests/16/merge) success, 7 jobs, 127 s
 
-==== grammar          check    success     41 s
+==== grammar          check    success   35.7 s
 $ perl ci/job.pl grammar
 $ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 sysml: 16 file(s), 0 error(s)
 $ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/requirements/segment/Segment_Requirements.sysml model/requirements/stakeholder/Stakeholder_Needs.sysml model/requirements/system/System_Requirements.sysml model/verification/Verification.sysml
 ci-reports grammar: 16 check(s), 0 failed, 0 finding(s); grammar_files=16 grammar_errors=0
 
-==== lint             check    success   42.1 s
+==== lint             check    success   45.9 s
 $ perl ci/job.pl lint
 $ perl $KIT/tools/sysml/model.pl lint
 lint: 16 file(s), 0 error(s), 0 warning(s)
@@ -15,7 +15,7 @@ elements=138 errors=0 warnings=0
 $ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
 ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=138 lint_errors=0 lint_warnings=0
 
-==== outline          check    success   13.2 s
+==== outline          check    success   13.1 s
 $ perl ci/job.pl outline
 $ perl $KIT/tools/sysml/model.pl check
 
@@ -45,17 +45,17 @@ $ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality
 ci-reports outline: 2 check(s), 1 failed, 17 finding(s); level_tag_mismatches=0 outline_violations=17
 outline violations: 17 (allowed: 17)
 
-==== todo             check    success    6.9 s
+==== todo             check    success    7.1 s
 $ perl ci/job.pl todo
 TODO lines remaining: 22
 $ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model
 ci-reports todo: 1 check(s), 0 failed, 22 finding(s); todo_lines=22 todo_lines_analysis=2 todo_lines_library=1 todo_lines_logical=4 todo_lines_physical=15
 
-==== secrets          check    success    8.3 s
+==== secrets          check    success   10.3 s
 $ perl ci/job.pl secrets
 no secrets found in 64 tracked files
 
-==== trace            trace    success   23.3 s
+==== trace            trace    success   22.1 s
 $ perl ci/job.pl trace
 $ perl $KIT/bin/reqif2sysml.pl --report --model model (without the DOORS modules) imports/v1.0/tidewater.reqif
 reqif2sysml report: tidewater.reqif
@@ -95,7 +95,7 @@ ci-reports trace: 14 check(s), 14 failed, 0 finding(s); trace_linked=29 trace_to
 trace gaps: 2 orphan(s), 9 unverified, 1 drifted
 TRACE_MODE=report: gaps are reported, never fatal
 
-==== docs             docs     success   35.2 s
+==== docs             docs     success     34 s
 $ perl ci/job.pl docs
 $ perl $KIT/tools/sysml/model.pl docs
 wrote docs/Nouns.md (38 lines)

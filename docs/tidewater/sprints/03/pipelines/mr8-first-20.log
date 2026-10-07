@@ -1,13 +1,13 @@
-pipeline #20 (merge_request_event, refs/merge-requests/8/merge) success, 5 jobs, 100.6 s
+pipeline #20 (merge_request_event, refs/merge-requests/8/merge) success, 5 jobs, 92.6 s
 
-==== grammar          check    success   43.9 s
+==== grammar          check    success   35.1 s
 $ perl ci/job.pl grammar
 $ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
 sysml: 14 file(s), 0 error(s)
 $ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
 ci-reports grammar: 14 check(s), 0 failed, 0 finding(s); grammar_files=14 grammar_errors=0
 
-==== lint             check    success   49.4 s
+==== lint             check    success   43.5 s
 $ perl ci/job.pl lint
 $ perl $KIT/tools/sysml/model.pl lint
 lint: 14 file(s), 0 error(s), 0 warning(s)
@@ -15,7 +15,7 @@ elements=148 errors=0 warnings=0
 $ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
 ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=148 lint_errors=0 lint_warnings=0
 
-==== outline          check    success     12 s
+==== outline          check    success   14.5 s
 $ perl ci/job.pl outline
 $ perl $KIT/tools/sysml/model.pl check
 
@@ -45,13 +45,13 @@ $ perl $KIT/tools/gitlab/ci-reports.pl outline --junit outline.xml --codequality
 ci-reports outline: 2 check(s), 1 failed, 17 finding(s); level_tag_mismatches=0 outline_violations=17
 outline violations: 17 (allowed: 17)
 
-==== todo             check    success    7.8 s
+==== todo             check    success    6.2 s
 $ perl ci/job.pl todo
 TODO lines remaining: 51
 $ perl $KIT/tools/gitlab/ci-reports.pl todo --codequality todo-cq.json --metrics todo.metrics model
 ci-reports todo: 1 check(s), 0 failed, 51 finding(s); todo_lines=51 todo_lines_analysis=2 todo_lines_library=4 todo_lines_logical=4 todo_lines_physical=41
 
-==== docs             docs     success   31.2 s
+==== docs             docs     success   29.1 s
 $ perl ci/job.pl docs
 $ perl $KIT/tools/sysml/model.pl docs
 wrote docs/Nouns.md (38 lines)

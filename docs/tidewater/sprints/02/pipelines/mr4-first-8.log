@@ -1,13 +1,13 @@
-pipeline #8 (merge_request_event, refs/merge-requests/4/merge) success, 3 jobs, 67 s
+pipeline #8 (merge_request_event, refs/merge-requests/4/merge) success, 3 jobs, 57.7 s
 
-==== grammar          check    success   38.9 s
+==== grammar          check    success   42.7 s
 $ perl ci/job.pl grammar
 $ perl $KIT/tools/sysml/sysml.pl check model/library/conventions/Conventions.sysml
 sysml: 1 file(s), 0 error(s)
 $ perl $KIT/tools/gitlab/ci-reports.pl grammar --junit grammar.xml --codequality grammar-cq.json grammar.txt model/library/conventions/Conventions.sysml
 ci-reports grammar: 1 check(s), 0 failed, 0 finding(s); grammar_files=1 grammar_errors=0
 
-==== lint             check    success     52 s
+==== lint             check    success   42.7 s
 $ perl ci/job.pl lint
 $ perl $KIT/tools/sysml/model.pl lint
 lint: 1 file(s), 0 error(s), 0 warning(s)
@@ -15,7 +15,7 @@ elements=0 errors=0 warnings=0
 $ perl $KIT/tools/gitlab/ci-reports.pl lint --junit lint.xml --codequality lint-cq.json --metrics lint.metrics lint.txt
 ci-reports lint: 1 check(s), 0 failed, 0 finding(s); model_elements=0 lint_errors=0 lint_warnings=0
 
-==== outline          check    success   14.2 s
+==== outline          check    success   15.1 s
 $ perl ci/job.pl outline
 $ perl $KIT/tools/sysml/model.pl check
 

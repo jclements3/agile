@@ -1,111 +1,306 @@
 {
    "ceremony_hours" : {
       "kickoff" : 1.5,
-      "refinement" : 0.94,
-      "retro" : 0.89,
-      "review" : 0.89,
-      "share_of_sprint" : 8,
-      "standup" : 2.01,
-      "total" : 6.23
+      "refinement" : 1,
+      "retro" : 1,
+      "review" : 1,
+      "share_of_sprint" : 9,
+      "standup" : 2.5,
+      "total" : 7
    },
    "s1_39" : {
-      "engineering" : 53,
-      "learning" : 13,
-      "platform" : 34,
-      "points" : 95
+      "engineering" : 72,
+      "learning" : 4,
+      "platform" : 25,
+      "points" : 316
    },
    "s1_6" : {
-      "engineering" : 53,
+      "engineering" : 54,
       "learning" : 13,
-      "platform" : 34,
-      "points" : 95
+      "platform" : 33,
+      "points" : 98
    },
-   "source" : "the simulation run (sim/tidewater-sim.pl --sprints 6), read from the evidence in docs/tidewater by sim/tidewater-evidence.pl: points are DONE points (a task counts in the sprint whose day log closes it; points and work type from that sprint's plan); engineering/platform/learning/overhead are percent of those points; meetings from sprints/NN/meetings.csv, hours per person for Jim, Bob and Tom; time.* is percent of paid hours (3 people x 80 h per sprint). Only sprints 1-6 ran, so s1_39 covers sprints 1-6 until the later sprints are simulated.",
+   "source" : "sim/tidewater-plan.pl (the plan; replaced by the run when sim/tidewater-evidence.pl writes this file)",
    "sprints" : {
       "1" : {
-         "committed" : {
-            "engineering" : 4.5,
-            "learning" : 4,
-            "platform" : 8,
-            "points" : 16.5
-         },
          "engineering" : 27,
          "learning" : 24,
          "overhead" : 73,
          "platform" : 48,
          "points" : 16.5
       },
+      "10" : {
+         "engineering" : 71,
+         "learning" : 0,
+         "overhead" : 29,
+         "platform" : 29,
+         "points" : 7
+      },
+      "11" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 3
+      },
+      "12" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 5
+      },
+      "13" : {
+         "engineering" : 60,
+         "learning" : 0,
+         "overhead" : 40,
+         "platform" : 40,
+         "points" : 5
+      },
+      "14" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 13
+      },
+      "15" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 3
+      },
+      "16" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 5
+      },
+      "17" : {
+         "engineering" : 0,
+         "learning" : 0,
+         "overhead" : 100,
+         "platform" : 100,
+         "points" : 3
+      },
+      "18" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 2
+      },
+      "19" : {
+         "engineering" : 0,
+         "learning" : 0,
+         "overhead" : 100,
+         "platform" : 100,
+         "points" : 2
+      },
       "2" : {
-         "committed" : {
-            "engineering" : 6,
-            "learning" : 3,
-            "platform" : 10,
-            "points" : 19
-         },
          "engineering" : 32,
          "learning" : 16,
          "overhead" : 68,
          "platform" : 53,
          "points" : 19
       },
+      "20" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 12
+      },
+      "21" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 4
+      },
+      "22" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 4
+      },
+      "23" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 4
+      },
+      "24" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 7
+      },
+      "25" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 4
+      },
+      "26" : {
+         "engineering" : 100,
+         "learning" : 0,
+         "overhead" : 0,
+         "platform" : 0,
+         "points" : 5
+      },
+      "27" : {
+         "engineering" : 86,
+         "learning" : 0,
+         "overhead" : 14,
+         "platform" : 14,
+         "points" : 14
+      },
+      "28" : {
+         "engineering" : 75,
+         "learning" : 0,
+         "overhead" : 25,
+         "platform" : 25,
+         "points" : 8
+      },
+      "29" : {
+         "engineering" : 67,
+         "learning" : 0,
+         "overhead" : 33,
+         "platform" : 33,
+         "points" : 6
+      },
       "3" : {
-         "committed" : {
-            "engineering" : 8,
-            "learning" : 2.5,
-            "platform" : 4.5,
-            "points" : 15
-         },
          "engineering" : 53,
          "learning" : 17,
          "overhead" : 47,
          "platform" : 30,
          "points" : 15
       },
+      "30" : {
+         "engineering" : 78,
+         "learning" : 0,
+         "overhead" : 22,
+         "platform" : 22,
+         "points" : 9
+      },
+      "31" : {
+         "engineering" : 78,
+         "learning" : 0,
+         "overhead" : 22,
+         "platform" : 22,
+         "points" : 9
+      },
+      "32" : {
+         "engineering" : 71,
+         "learning" : 0,
+         "overhead" : 29,
+         "platform" : 29,
+         "points" : 7
+      },
+      "33" : {
+         "engineering" : 67,
+         "learning" : 0,
+         "overhead" : 33,
+         "platform" : 33,
+         "points" : 6
+      },
+      "34" : {
+         "engineering" : 83,
+         "learning" : 0,
+         "overhead" : 17,
+         "platform" : 17,
+         "points" : 12
+      },
+      "35" : {
+         "engineering" : 0,
+         "learning" : 0,
+         "overhead" : 100,
+         "platform" : 100,
+         "points" : 2
+      },
+      "36" : {
+         "engineering" : 50,
+         "learning" : 0,
+         "overhead" : 50,
+         "platform" : 50,
+         "points" : 4
+      },
+      "37" : {
+         "engineering" : 0,
+         "learning" : 0,
+         "overhead" : 100,
+         "platform" : 100,
+         "points" : 2
+      },
+      "38" : {
+         "engineering" : 83,
+         "learning" : 0,
+         "overhead" : 17,
+         "platform" : 17,
+         "points" : 12
+      },
+      "39" : {
+         "engineering" : 67,
+         "learning" : 0,
+         "overhead" : 33,
+         "platform" : 33,
+         "points" : 6
+      },
       "4" : {
-         "committed" : {
-            "engineering" : 12.5,
-            "learning" : 1.5,
-            "platform" : 3,
-            "points" : 17
-         },
-         "engineering" : 70,
-         "learning" : 10,
-         "overhead" : 30,
-         "platform" : 20,
-         "points" : 15
+         "engineering" : 74,
+         "learning" : 9,
+         "overhead" : 26,
+         "platform" : 18,
+         "points" : 17
       },
       "5" : {
-         "committed" : {
-            "engineering" : 12.5,
-            "learning" : 1,
-            "platform" : 5,
-            "points" : 18.5
-         },
-         "engineering" : 68,
-         "learning" : 5,
-         "overhead" : 32,
-         "platform" : 27,
-         "points" : 18.5
+         "engineering" : 64,
+         "learning" : 6,
+         "overhead" : 36,
+         "platform" : 30,
+         "points" : 16.5
       },
       "6" : {
-         "committed" : {
-            "engineering" : 11.5,
-            "learning" : 0.5,
-            "platform" : 2,
-            "points" : 14
-         },
-         "engineering" : 77,
-         "learning" : 5,
-         "overhead" : 23,
-         "platform" : 18,
-         "points" : 11
+         "engineering" : 82,
+         "learning" : 4,
+         "overhead" : 18,
+         "platform" : 14,
+         "points" : 14
+      },
+      "7" : {
+         "engineering" : 78,
+         "learning" : 0,
+         "overhead" : 22,
+         "platform" : 22,
+         "points" : 9
+      },
+      "8" : {
+         "engineering" : 87,
+         "learning" : 0,
+         "overhead" : 13,
+         "platform" : 13,
+         "points" : 15
+      },
+      "9" : {
+         "engineering" : 33,
+         "learning" : 0,
+         "overhead" : 67,
+         "platform" : 67,
+         "points" : 9
       }
    },
    "time" : {
-      "ceremonies" : 8,
-      "engineering" : 28,
+      "ceremonies" : 9,
+      "engineering" : 29,
       "learning" : 7,
-      "other" : 39,
+      "other" : 37,
       "platform" : 18
    }
 }

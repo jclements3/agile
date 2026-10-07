@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#6B7380"/></marker></defs>
+<path d="M275,110 L413,110" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="307" y="98" width="75" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="344" y="115" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">derives</text>
+<path d="M755,110 L627,110" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="645" y="98" width="92" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="691" y="115" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">justifies</text>
+<path d="M1200,80 C1200,30 560,30 540,78" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="838" y="30" width="83" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="880" y="47" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">verifies</text>
+<path d="M560,80 C580,8 1440,8 1450,78" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="964" y="10" width="92" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="1010" y="27" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">mitigates</text>
+<path d="M470,140 L255,268" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="316" y="192" width="92" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="362" y="209" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">allocates</text>
+<path d="M520,140 L520,268" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="474" y="192" width="92" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="520" y="209" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">satisfies</text>
+<path d="M415,300 L277,300" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="304" y="288" width="83" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="346" y="305" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">performs</text>
+<path d="M625,300 L753,300" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="647" y="288" width="83" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="689" y="305" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">connects</text>
+<path d="M965,300 L1093,300" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="992" y="288" width="75" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="1029" y="305" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">carries</text>
+<path d="M170,330 L170,458" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="124" y="382" width="92" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="170" y="399" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">active in</text>
+<path d="M600,140 C700,200 700,420 560,458" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="618" y="378" width="100" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="668" y="395" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">thresholds</text>
+<path d="M625,490 L753,490" fill="none" stroke="#6B7380" stroke-width="2" marker-end="url(#a)"/>
+<rect x="660" y="478" width="58" height="24" rx="12" fill="#ffffff" stroke="#D5DAE0"/>
+<text x="689" y="495" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#3A4452">binds</text>
+<rect x="65.0" y="80.0" width="210" height="60" rx="8" fill="#ECEEF1" stroke="#4B5563" stroke-width="2"/>
+<text x="170" y="117" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#4B5563">Need</text>
+<rect x="415.0" y="80.0" width="210" height="60" rx="8" fill="#ECEEF1" stroke="#4B5563" stroke-width="2"/>
+<text x="520" y="117" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#4B5563">Requirement</text>
+<rect x="755.0" y="80.0" width="210" height="60" rx="8" fill="#ECEEF1" stroke="#4B5563" stroke-width="2"/>
+<text x="860" y="117" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#4B5563">Decision</text>
+<rect x="1095.0" y="80.0" width="210" height="60" rx="8" fill="#DDF3F7" stroke="#127F93" stroke-width="2"/>
+<text x="1200" y="117" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#127F93">Verification case</text>
+<rect x="1345.0" y="80.0" width="210" height="60" rx="8" fill="#FBF0D2" stroke="#8A6508" stroke-width="2"/>
+<text x="1450" y="117" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#8A6508">Hazard</text>
+<rect x="65.0" y="270.0" width="210" height="60" rx="8" fill="#FAE6DE" stroke="#A2492E" stroke-width="2"/>
+<text x="170" y="307" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#A2492E">Function</text>
+<rect x="415.0" y="270.0" width="210" height="60" rx="8" fill="#E3ECF6" stroke="#2F5D8A" stroke-width="2"/>
+<text x="520" y="307" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#2F5D8A">Component</text>
+<rect x="755.0" y="270.0" width="210" height="60" rx="8" fill="#DDF3F7" stroke="#127F93" stroke-width="2"/>
+<text x="860" y="307" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#127F93">Interface</text>
+<rect x="1095.0" y="270.0" width="210" height="60" rx="8" fill="#ECE8FC" stroke="#5B40C8" stroke-width="2"/>
+<text x="1200" y="307" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#5B40C8">Item</text>
+<rect x="65.0" y="460.0" width="210" height="60" rx="8" fill="#FBF0D2" stroke="#8A6508" stroke-width="2"/>
+<text x="170" y="497" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#8A6508">State / mode</text>
+<rect x="415.0" y="460.0" width="210" height="60" rx="8" fill="#E0F2EA" stroke="#1F7A5A" stroke-width="2"/>
+<text x="520" y="497" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#1F7A5A">Parameter</text>
+<rect x="755.0" y="460.0" width="210" height="60" rx="8" fill="#E0F2EA" stroke="#1F7A5A" stroke-width="2"/>
+<text x="860" y="497" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#1F7A5A">Constraint</text>
+<rect x="1095.0" y="460.0" width="210" height="60" rx="8" fill="#ECEEF1" stroke="#4B5563" stroke-width="2"/>
+<text x="1200" y="497" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#4B5563">Baseline</text>
+<text x="1200" y="545" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-style="italic" fill="#55606C">versions any of the above</text>
+</svg>

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="430" viewBox="0 0 1600 430">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="40" y="60" width="166" height="58" rx="8" fill="#ECEEF1" stroke="#4B5563" stroke-width="2"/>
+<text x="123" y="97" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">(U//FOUO)</text>
+<text x="123" y="142" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#4B5563">1 Classification</text>
+<rect x="220.4" y="60" width="350" height="58" rx="8" fill="#FBF0D2" stroke="#8A6508" stroke-width="2"/>
+<text x="395" y="97" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">While in normal flight mode</text>
+<text x="395" y="142" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#8A6508">2–4 State</text>
+<rect x="583.9200000000001" y="60" width="573" height="58" rx="8" fill="#FBF0D2" stroke="#8A6508" stroke-width="2"/>
+<text x="870" y="97" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">except during the navigational upset condition</text>
+<text x="870" y="142" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#8A6508">15 Exception</text>
+<rect x="1170.88" y="60" width="302" height="58" rx="8" fill="#E3ECF6" stroke="#2F5D8A" stroke-width="2"/>
+<text x="1322" y="97" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">the navigation computer</text>
+<text x="1322" y="142" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#2F5D8A">5 Target</text>
+<rect x="40" y="164" width="166" height="58" rx="8" fill="#FFFFFF" stroke="#16202B" stroke-width="2"/>
+<text x="123" y="201" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">shall</text>
+<text x="123" y="246" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#16202B">7 Operative verb</text>
+<rect x="220.4" y="164" width="141" height="58" rx="8" fill="#FAE6DE" stroke="#A2492E" stroke-width="2"/>
+<text x="291" y="201" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">send</text>
+<text x="291" y="246" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#A2492E">8 Target verb</text>
+<rect x="375.6" y="164" width="373" height="58" rx="8" fill="#ECE8FC" stroke="#5B40C8" stroke-width="2"/>
+<text x="562" y="201" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">the guidance solution message</text>
+<text x="562" y="246" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#5B40C8">9 Object</text>
+<rect x="762.6400000000001" y="164" width="267" height="58" rx="8" fill="#DDF3F7" stroke="#127F93" stroke-width="2"/>
+<text x="896" y="201" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">to the main computer</text>
+<text x="896" y="246" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#127F93">10–11 Destination</text>
+<rect x="1043.8400000000001" y="164" width="197" height="58" rx="8" fill="#E0F2EA" stroke="#1F7A5A" stroke-width="2"/>
+<text x="1142" y="201" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">within 30 msec</text>
+<text x="1142" y="246" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#1F7A5A">11 Threshold</text>
+<rect x="40" y="268" width="326" height="58" rx="8" fill="#FBF0D2" stroke="#8A6508" stroke-width="2"/>
+<text x="203" y="305" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">of the 10 Hz clock signal</text>
+<text x="203" y="350" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#8A6508">3 Trigger</text>
+<rect x="380.0" y="268" width="749" height="58" rx="8" fill="#DDF3F7" stroke="#127F93" stroke-width="2"/>
+<text x="755" y="305" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">in accordance with Navigation Computer IRS (D12340000) §5.1.4</text>
+<text x="755" y="350" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#127F93">12–14 Specification</text>
+<rect x="1143.3600000000001" y="268" width="161" height="58" rx="8" fill="#ECEEF1" stroke="#4B5563" stroke-width="2"/>
+<text x="1224" y="305" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">(NC_112358)</text>
+<text x="1224" y="350" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#4B5563">17 ID</text>
+<rect x="1318.7200000000003" y="268" width="82" height="58" rx="8" fill="#ECEEF1" stroke="#4B5563" stroke-width="2"/>
+<text x="1360" y="305" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="21" font-weight="600" fill="#16202B">[MC]</text>
+<text x="1360" y="350" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#4B5563">18 Tag</text>
+<rect x="40" y="386" width="20" height="20" rx="4" fill="#ECEEF1" stroke="#4B5563" stroke-width="2"/>
+<text x="68" y="402" font-family="Inter, Helvetica, Arial, sans-serif" font-size="16" fill="#3A4452">Metadata / ID</text>
+<rect x="202.48000000000002" y="386" width="20" height="20" rx="4" fill="#FBF0D2" stroke="#8A6508" stroke-width="2"/>
+<text x="230.48000000000002" y="402" font-family="Inter, Helvetica, Arial, sans-serif" font-size="16" fill="#3A4452">State, trigger, exception</text>
+<rect x="472.48" y="386" width="20" height="20" rx="4" fill="#E3ECF6" stroke="#2F5D8A" stroke-width="2"/>
+<text x="500.48" y="402" font-family="Inter, Helvetica, Arial, sans-serif" font-size="16" fill="#3A4452">Component</text>
+<rect x="599.12" y="386" width="20" height="20" rx="4" fill="#FAE6DE" stroke="#A2492E" stroke-width="2"/>
+<text x="627.12" y="402" font-family="Inter, Helvetica, Arial, sans-serif" font-size="16" fill="#3A4452">Function</text>
+<rect x="716.8" y="386" width="20" height="20" rx="4" fill="#ECE8FC" stroke="#5B40C8" stroke-width="2"/>
+<text x="744.8" y="402" font-family="Inter, Helvetica, Arial, sans-serif" font-size="16" fill="#3A4452">Item</text>
+<rect x="798.64" y="386" width="20" height="20" rx="4" fill="#DDF3F7" stroke="#127F93" stroke-width="2"/>
+<text x="826.64" y="402" font-family="Inter, Helvetica, Arial, sans-serif" font-size="16" fill="#3A4452">Interface / spec</text>
+<rect x="988.0" y="386" width="20" height="20" rx="4" fill="#E0F2EA" stroke="#1F7A5A" stroke-width="2"/>
+<text x="1016.0" y="402" font-family="Inter, Helvetica, Arial, sans-serif" font-size="16" fill="#3A4452">Parameter</text>
+</svg>

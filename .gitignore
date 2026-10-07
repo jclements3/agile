@@ -12,3 +12,6 @@
 /release/
 /vim/doc/tags
 /examples/*/tags
+
+# reference documents the user downloads (DoD CIO library PDFs, 40 MB): read by docs/src/msp, never committed
+/refs/

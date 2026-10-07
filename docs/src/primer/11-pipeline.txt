@@ -380,8 +380,10 @@ link at a time ([[cameo]]); this job measures the web on every change so it cann
 
 **What it runs**: for every package, its **fan-in** (how many other packages depend on it) and **fan-out** (how many it
 depends on), the package dependency **cycles**, any dependency that goes up the layer order set in `sysml.conf`, and
-the number of relationship ends on each part definition. On a merge request it is a ratchet like `outline`: it fails
-only when the change makes a measure worse than on the target branch; elsewhere it reports.
+the number of relationship ends on each part definition. On a merge request it is a ratchet like `outline`: any new
+cycle or upward dependency fails, and fan-out or relationship ends fail when they get worse than on the target branch
+*and* are above the limits in `sysml.conf` (7 and 10 by default), so a new project's first parts and links pass;
+elsewhere it reports.
 
 ```sh run expect="cycles: DataCenter <-> Stations; Network <-> Operations"
 perl ci/job.pl complexity | grep -A8 "^cycles:"

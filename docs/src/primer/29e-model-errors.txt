@@ -228,7 +228,8 @@ perl ci/job.pl outline || echo "exit status $?"
 **Means.** The model has folders or packages with fewer than 2 or more than 9 entries. On a fresh conversion this is
 normal: the prime's packages were never shaped to the rule. The pipeline therefore treats the outline as a
 **ratchet**: `.ci/outline-max` records the number the team accepted, and the job fails only when a change makes it
-worse. This scaffold has no allowance yet, so every violation counts.
+worse. A new scaffold's allowance is its own few violations plus a little room for the first folders, so a whole
+converted drop goes far over it.
 **Fix.** On the first import, record the starting number in `.ci/outline-max` in the same merge request, with the
 reason in the description. After that, never raise it: split the folder or package that grew, and lower the number
 when it falls.

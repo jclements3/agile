@@ -275,7 +275,9 @@ is missing when it meets the closing brace. Grammar errors often point just past
 The outline check, `\mk`, reports something different: not errors in what is written, but shape. On the raw drop 1
 conversion it reports eighteen violations, such as `25  package Stations: members` (a package with 25 direct
 members, more than the nine the outline rule allows) and `1  part def Battery: parts` (a definition with only one
-part). These are not mistakes. They are the spider web of [[cameo]] measured in another way, and closing them is part
+part). Each violation goes into the quickfix list at the line of the part def or package it is about (a folder's at
+the first line of its first file), so `:cnext` walks the shape findings the same way it walks errors. These are not
+mistakes. They are the spider web of [[cameo]] measured in another way, and closing them is part
 of the port's later stories ([[sprint-5]]).
 
 === Tags: jumping by name and by DOORS id {#vim-tags}

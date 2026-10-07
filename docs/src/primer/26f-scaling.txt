@@ -1,0 +1,360 @@
+== Scaling up: segments, blocks and a ladder of fidelity {#scaling}
+
+::: bridge
+You know: big programs. Several major systems built by different organizations, each with its own schedule; interface
+control documents signed by both sides; hardware that takes a year to qualify; a test range booked months ahead; a
+program schedule that lines all of it up at the reviews.
+
+Here it is called: a system of systems, run as segments with their own cadences, synchronized at integrated
+baselines. Hardware moves in blocks, each a full Vee; software moves in sprints underneath; verification climbs a
+ladder of fidelity from model checks to sea trials; the model in GitLab holds every interface.
+
+What is new: one model and one pipeline tie the segments together, so an interface change on one side shows its
+effect on the other the same day, and the baselines that line the segments up are tags a machine can audit.
+:::
+
+This chapter is LATER. Jim, Bob and Tom are a three-person government team porting one system model; in their first
+twelve weeks nothing here is their job. Read it when the program around your model is larger than your team: several
+segments, hardware with long lead times, a test campaign, a simulation that has to earn credit. It explains how the
+practices of this book stretch to that size, and where they need help from other disciplines.
+
+::: note Where this chapter comes from
+Adapted from a reference sketch the author uses for a weapon-system program, rewritten for this book's civilian
+example. The process lessons carry over unchanged; the weapon-specific content does not, and none of it appears here.
+:::
+
+=== A system of systems {#scaling-sos}
+
+Tidewater is small enough to describe in a paragraph, and it is already a system of systems. Moored buoys and shore
+stations observe; telemetry units carry the observations ashore; the data center ingests, checks, archives and
+publishes the marine bulletin; the field crew keeps the stations running. Each of those is a major system in its own
+right, built and maintained by different people, and the places where they meet -- the observation interface, the
+health interface, the public interface -- are where integration problems show up.
+
+The three kinds of segment move at different speeds, and pretending otherwise forces one of them to work at the wrong
+pace.
+
+|| Segment | What it is mostly | Natural cadence | What sets the pace ||
+| Stations and buoys | hardware: hulls, moorings, sensors, power | months to a year per change | long-lead parts, environmental testing, a field season to install |
+| Telemetry | mixed: radios plus firmware | a few months per radio change, weeks per firmware change | radio approvals, field updates of firmware |
+| Data center | software: ingest, quality control, archive, publication | every sprint | the pipeline; nothing physical has to move |
+Table: Tidewater's segments and their cadences.
+
+{{figure: docs/img/tidewater-cadences.svg | Three segments, three cadences. The stations move in hardware blocks, telemetry in radio and firmware cycles, the data center in sprints. The dashed lines are the integrated baselines where all of them are frozen and tested together.}}
+
+==== Interfaces are owned at the system level
+
+Interface management is the systems-engineering job at this size. Each segment owns its own part of the model, under
+its own code owners ([[repo-layout]]); the interfaces between segments are owned at the system level, by the people
+who answer for the whole. In the model, an interface is a port definition and the items that flow through it. In
+Tidewater they live in the library layer, where every segment can use them and none can change them alone:
+
+```sh run sandbox=practice-11 cwd=work expect="port def ObservationIF"
+. ../env.sh > /dev/null
+grep -n "port def\|item def" model/library/Interfaces.sysml
+```
+
+Each line is a row of what the document era called an interface control document. The observation record, the
+health report and the bulletin are the messages; the port definitions are the connectors; the data exchange table the
+team generated in sprint 6 ([[sprint-6]]) is the ICD's table, produced from these lines rather than typed. When a
+segment changes its side of an interface, the change is a merge request against the library, the system-level code
+owners must approve it, and every segment that uses the interface sees the effect in its next pipeline.
+
+The rule that matters most: **one copy of each interface**. The most common failure at this size is two segments each
+keeping their own copy of an ICD and editing it separately. With the interface in the model, there is nothing to copy.
+
+==== An integration lab with stand-ins
+
+Segments should integrate long before real hardware meets in the field. A system integration lab does that with
+stand-ins: a buoy emulator that sends observation records over the real interface to the real ingest service, a
+telemetry emulator that drops and delays messages the way a bad link does, a test copy of the data center. The
+stand-ins are built from the interface definitions in the model, so they speak exactly what the real segments speak.
+Integration problems then appear on a bench in the first months, not on a pier in the second year.
+
+=== Integrated baselines {#scaling-baselines}
+
+The segments synchronize at **integrated baselines**: defined points where every segment's configuration is frozen,
+put together and tested end to end. Tidewater's baselines are exactly that, at the scale of one model; a larger
+program does the same across segments.
+
+1. **Freeze.** In the last sprint of the period, each segment tags its configuration: the hardware build state, the
+   software build, the firmware, and the model version. In GitLab each segment's repository gets its tag, and the
+   system model gets a release branch ([[maintenance]]).
+2. **Integrate.** The frozen configurations are loaded together in the integration lab, with stand-ins for anything not
+   yet built.
+3. **Test end to end.** Scripted scenarios run through the whole system: a buoy observes, the observation crosses the
+   link, the data center ingests it, checks it, archives it and publishes the bulletin.
+4. **Record.** Results go into the verification matrix ([[verification]]) and calibrate the simulation; every
+   discrepancy becomes a story in the next period.
+5. **Tag.** The combined configuration becomes one system baseline: a protected tag, audited by the pipeline, the
+   reference for the period's review ([[vee]]).
+
+=== The work plan, shared across segments {#scaling-plan}
+
+Every segment plans with the same four levels and the same timeboxes, so a station story and a data-center story mean
+the same size of commitment, and every segment's planning periods end on the same baseline.
+
+The reference this chapter is adapted from names the levels slightly differently from this book. It calls the
+thirteen-sprint planning period an *epoch* and the multi-year capability block a *tome*. This book uses **epic** for
+work that fits in a semester (thirteen sprints) and **tome** for work that fits in a year ([[operating-model]]). The
+mapping is simple:
+
+|| This book | The reference | Timebox | What "done" means at this size ||
+| Task | Task | under a week | merged, reviewed, the pipeline green |
+| Story | Story | one sprint | acceptance criteria met and demonstrated |
+| Epic | Epoch | up to thirteen sprints | every segment frozen, integrated and tested end to end: an integrated baseline |
+| Tome | (part of a block) | up to a year | a capability verified |
+| Project | Tome (a block) | years | a capability block fielded |
+Table: The levels of the work plan in this book and in the reference.
+
+Four habits make the shared plan work across hardware and software.
+
+- **Reviews land on epic boundaries.** A hardware Vee spans several epics, and each of its reviews is scheduled as the
+  closing event of an epic. Integration and the review become the same milestone.
+- **Waiting is a dependency, not a big task.** Long-lead parts and environmental tests still break into tasks under a
+  week: preparation, execution, data reduction, model calibration. The months of waiting for a hull or a test slot are
+  tracked as a dependency between stories, not hidden inside an oversized task.
+- **Field events close an epic.** Harbor tests and sea trials are scheduled as the closing stories of an epic, so their
+  results calibrate the simulation at the start of the next one.
+- **The last sprint hardens.** The thirteenth sprint of an epic is for integration fixes, the baseline freeze and the
+  documents generated from the model, not for new features.
+
+=== The spine: requirements, functions, logical, physical {#scaling-rflp}
+
+At this size the model is organized as a chain often called **RFLP**: requirements, functions, logical architecture,
+physical implementation. Each layer traces to the one before it, so a requirement change shows its downstream impact
+without anyone searching for it. Tidewater's layered folders follow the same chain: requirements, logical
+(behavior), physical (structure), with the library and the verification layer around them ([[repo-layout]]).
+
+The physical layer becomes the product tree, one branch per segment. Decompose each branch until every leaf is a
+**configuration item**: something procured, built or written as a unit, with its own specification, its own
+verification and its own place in configuration management. Deeper than that belongs in the segment's own design;
+higher than that leaves requirements with nobody clearly answerable for them. The tree for Tidewater's stations:
+
+```sh run expect="Charge Regulator"
+perl "$KIT/tools/sysml/model.pl" nouns --plain | head -22
+```
+
+Each leaf -- an anemometer, a modem, a charge regulator -- is a candidate configuration item. Whether it is one is a
+program decision (is it bought as a unit, specified and verified as a unit?), recorded in the model with the procured
+metadata the team added in sprint 4 ([[sprint-4]]).
+
+==== Views worth generating
+
+Programs that work under an architecture framework (DoDAF, or its successor the Unified Architecture Framework)
+review a standard set of views. Generate them from the model rather than drawing them; a drawn view is out of date at
+the next change ([[diagrams]]). For a civilian observation network the useful ones read like this:
+
+|| View | What it shows for Tidewater ||
+| OV-1 | the operational concept: buoys and shore stations along the coast, the link ashore, the data center, the forecasters and mariners who use the bulletin |
+| OV-2, SV-1 | who exchanges what with whom: station to data center (observations, health), data center to the public (bulletin, latest observations) |
+| OV-5b | the observation cycle as activities: sample, transmit, ingest, check, archive, publish |
+| SV-4 | which part performs which function: the allocations in the model |
+| SV-6 | each message's content, rate and latency budget: the data exchange table |
+| SV-7 | performance measures: observation latency, data availability, station uptime |
+Table: Architecture views generated from the model, with Tidewater's content.
+
+=== Hardware: blocks, not one big Vee {#scaling-blocks}
+
+Each hardware-dominant segment follows a formal Vee with real review gates ([[vee]]), and the system runs an
+overarching Vee above them. A single Vee that takes years delivers nothing until its end. Instead the program fields a
+first capability as **Block 1**, then runs overlapping Vees for the next blocks. Each block is a complete, verified,
+fieldable baseline; in the work plan, each block is a tome. Sprints run continuously underneath.
+
+{{figure: docs/img/tidewater-blocks.svg | Overlapping blocks. Block 2 (drifting buoys) starts its design while Block 1 (moored buoys and shore stations) is still in verification; Block 3 (partner data sharing) follows. Sprints run underneath all of them.}}
+
+Tidewater's blocks are not invented for this chapter: they are in the prime's drops. Drop 4 brings the drifting buoy as
+a change request, and the change report shows the new block arriving in the model:
+
+```sh run sandbox=scratch expect="Add drifting buoys"
+perl "$KIT/sim/tidewater-v1.pl" --drop 3 d3 > /dev/null
+perl "$KIT/sim/tidewater-v1.pl" --drop 4 d4 > /dev/null
+grep -i "drift" d4/CHANGES.csv | cut -d, -f1-3
+```
+
+```sh run expect="Stations::DriftingBuoy"
+perl "$KIT/bin/xmi2sysml.pl" --delta d3/tidewater.xmi d4/tidewater.xmi | grep "DriftingBuoy" | head -3
+```
+
+==== What each review must show
+
+Each step of a hardware Vee is gated by a review, and at this size the evidence for every review comes from the model
+and the pipeline, not from a document set assembled for the occasion.
+
+|| Review | The question it answers | Evidence from the model ||
+| SRR | Do we understand the need? | requirements baselined, traced to needs, a verification method on each |
+| SFR | Does the functional design meet the requirements? | functions allocated to segments; latency and availability budgets closed |
+| PDR | Can the preliminary design meet its allocations? | the allocated baseline, interface definitions at version 1, simulation predictions against the measures |
+| CDR | Is the design ready to build? | the product baseline, message-level interfaces, verification procedures |
+| TRR | Are we ready to test? | test cases, the lab configuration, simulations accredited for the event |
+| SVR, FCA | Does the system meet its requirements? | the verification matrix closed, deviations dispositioned |
+Table: Reviews and the evidence each takes from the model.
+
+=== Software: sprints with a pipeline {#scaling-software}
+
+The data center is software: ingest, quality control, archive, publication. So is the firmware in the loggers and
+telemetry units. All of it is developed in two-week sprints, rolled up into the same epics as the hardware.
+
+The pipeline is what makes sprinting safe on software that runs in the field. The practices that carry over from
+safety-critical programs, scaled to an observation network:
+
+- **A coding standard enforced by the pipeline,** with each deviation recorded and approved rather than silently
+  allowed.
+- **Structural test coverage scaled to criticality.** Firmware that can strand a buoy needs more than the archive's
+  reporting scripts.
+- **Reproducible builds.** The exact build that passed the tests, identified by its hash, is the one loaded in the
+  field -- the same idea as the baseline's checksum ([[vee]]).
+- **Tests tagged with requirement ids,** so pipeline results update the verification matrix automatically.
+- **Interface code generated from the model** where the toolchain allows, so message definitions cannot drift from
+  the interface definitions.
+- **Software loads under configuration control,** the same as hardware configuration items.
+
+Security belongs in the pipeline from the first sprint ([[security]]). The data center is networked and public-facing,
+so it carries the largest attack surface, and it is the strongest candidate for a **continuous authorization**: the
+pipeline's evidence keeps the authorization current instead of re-certifying each release.
+
+=== Verification: a ladder of fidelity {#scaling-ladder}
+
+Sea trials are expensive, rare and at the mercy of the weather; a storm cannot be scheduled. Most verification
+evidence therefore comes from lower rungs, with each rung anchoring the one below it.
+
+{{figure: docs/img/tidewater-ladder.svg | The ladder of fidelity. Model checks run on every change; sea trials happen a few times a year. Each rung's measured data calibrates the rung below.}}
+
+- **Model checks** run on every merge request: grammar, lint, trace, the verification matrix ([[pipeline]]).
+- **Simulation** models the network and its weather: station failures, link drop-outs, storms, the data center's
+  load. This is where availability and latency statistics come from, thousands of runs a night.
+- **The bench in the loop** runs real equipment against a simulated sea: a real data logger and modem fed by a
+  scripted sensor stream, the real ingest service fed by a buoy emulator.
+- **Harbor and shore tests** connect real stations, the real link and the real data center end to end, in sheltered
+  water.
+- **Sea trials** run a real buoy in real weather. They are the anchor points, and each is designed as much to
+  validate the simulation as to demonstrate the system.
+
+The pipeline template already carries the two middle rungs, switched off until a program has a simulation and a bench
+([[verification]]). Switch them on in the question and the nightly schedule shows them:
+
+```sh run sandbox=practice-11 cwd=work expect="sil-regression"
+. ../env.sh > /dev/null
+perl "$KIT/bin/gitlab.pl" ci --list --event schedule --branch develop --var SIL_ENABLED=true --var HIL_ENABLED=true | grep -v skipped
+```
+
+`sil-regression` runs every night on its own; `hil-test` waits, `manual`, for a person who has checked the bench.
+
+=== The digital twin is a calibrated simulation {#scaling-twin}
+
+For a system like Tidewater the digital twin ([[twin]]) is, in practice, the network simulation kept honest by field
+data. The station models are calibrated against recorded observations, the link model against measured drop-outs and
+delays, the data center model against measured processing times. Every test result flows back to calibrate the
+models, and the calibrated models flow back into the system model's budgets: the latency and availability numbers the
+requirements promise.
+
+::: warning Accredit the simulation from the start
+A simulation that has not been accredited for a specific use cannot earn verification credit, and accreditation late
+in a program is slow and painful. Plan the verification, validation and accreditation of the simulation itself from
+the first epic, as stories with owners. MIL-STD-3022 gives documentation templates for it.
+:::
+
+=== Standards to plan around {#scaling-standards}
+
+These are the general standards a program of this size usually has to plan around. Which ones apply, and which
+revision, is set by your contract: check the current revisions and the contract before you plan.
+
+|| Standard | Covers ||
+| ISO/IEC/IEEE 15288 | system life-cycle processes; the backbone of the Vee |
+| DoDI 5000.97 | digital engineering expectations on defense programs |
+| DoDAF, UAF | architecture views generated from the model |
+| MIL-STD-882E | system safety: hazard analysis and risk acceptance |
+| MIL-STD-810 | environmental testing: vibration, shock, thermal, salt fog |
+| MIL-STD-461, MIL-STD-464 | electromagnetic interference and compatibility, equipment and system level |
+| MIL-STD-1472 | human engineering for consoles and crew stations |
+| MIL-STD-3022 | documentation for model and simulation verification, validation and accreditation |
+| RMF (DoDI 8510.01) | cybersecurity authorization |
+Table: Standards to plan around. Check current revisions and your contract.
+
+A civilian program would swap some of these for its own sector's standards; the planning habit is the same: list
+them in the first epic, give each an owner, and trace the requirements they impose into the model like any other
+requirement.
+
+=== Where it breaks: the handoffs {#scaling-breaks}
+
+Large programs rarely fail inside a segment. They fail at the handoffs between segments, and each failure point is a
+schedule risk worth tracking explicitly.
+
+- **Interface copies drift.** Each segment edits its own copy of an ICD. Keep one copy, in the model, owned at the
+  system level.
+- **Software baselines out of step with hardware reviews.** The software that was reviewed is not the software that
+  was integrated. Freeze both at the same integrated baseline, by tag.
+- **Documents edited by hand.** Once someone edits a generated document, the model stops being authoritative. The
+  baseline audit catches it ([[vee]]); the habit prevents it.
+- **A simulation that never gets accredited.** All the verification credit it was supposed to earn evaporates at the
+  end. Start accreditation in the first epic.
+
+=== Exercises {#scaling-exercises}
+
+::: exercise {#ex-scale-cadence} Name the cadences
+List the segments of your own program (or of a program you know). For each, write its dominant kind (hardware,
+software, mixed), its natural change cadence, and what sets that pace. Then mark where the integrated baselines would
+have to fall for all of them to be frozen together at least twice a year.
+:::
+
+::: exercise {#ex-scale-interface} One copy of the interface
+In the practice project from lesson 11, find the observation record and every place that uses it (`grep -rn
+ObservationRecord model/`). Which code owners would have to approve a change to it, and why should a segment not be
+able to change it alone?
+:::
+
+::: exercise {#ex-scale-blocks} Find the next block in the drops
+Using the drops (`perl "$KIT/sim/tidewater-v1.pl" --drop N DIR`), find which drop introduces partner data sharing,
+its change-request id, and the requirement it adds. Where in the block picture does it fall?
+:::
+
+::: exercise {#ex-scale-ladder} Put a check on its rung
+For each of these, name the rung of the ladder where it belongs: a missing `verify` relationship; a link model that
+drops one message in twenty; a buoy that loses power in a storm; a bulletin published late because the archive was
+slow; a modem that resets when its firmware is updated over the air.
+:::
+
+=== Answers to this chapter's exercises {#scaling-answers}
+
+::: answer [[ex-scale-cadence]]: Name the cadences
+A good answer separates the segments by what limits them, not by who builds them. Hardware is limited by lead times,
+qualification and field access; software by the pipeline. The baselines fall where the slowest segment can freeze:
+for Tidewater, the station segment's field seasons set them, and the data center's sprints line up underneath.
+:::
+
+::: answer [[ex-scale-interface]]: One copy of the interface
+It is defined once in model/library/Interfaces.sysml and used in the stations, the data center and the observation
+cycle's behavior (model/physical/stations, model/physical/datacenter, model/logical). CODEOWNERS gives that file two
+sections, both of which must approve: the systems lead (Jim) and one of the people who build on both sides (Bob or
+Tom, whoever did not write the change). If a segment could change it alone, the other segments would find out at
+integration; with one copy and system-level owners, they find out in the merge request.
+:::
+
+::: answer [[ex-scale-blocks]]: Find the next block in the drops
+Drop 6 (v1.5): its CHANGES.csv carries NWM-CR-0026, "Add partner sharing TW-SYS-019", with the rationale of a
+data-sharing agreement with partner agencies; it adds TW-SYS-019, the data center sharing observations with partner
+agencies. It is Block 3 in the picture, starting while Block 2 is still in verification.
+:::
+
+::: answer [[ex-scale-ladder]]: Put a check on its rung
+The missing `verify` is a model check, on every merge request. The link model belongs to simulation. The storm power
+loss is a sea-trial finding that then calibrates the simulation. The late bulletin is a simulation result (load) that
+a harbor test should confirm end to end. The modem reset belongs on the bench, with the real modem and logger.
+:::
+
+=== You can now {#scaling-can}
+
+- Explain why a system of systems needs several cadences and how integrated baselines line them up.
+- Keep interfaces as one copy in the model, owned at the system level.
+- Map the reference's epochs and blocks onto this book's epics and tomes.
+- Decompose a product tree to configuration items and name the views worth generating.
+- Plan hardware as overlapping blocks and verification as a ladder whose rungs calibrate each other.
+- Name the handoffs where large programs break.
+
+=== Applying this to your project {#scaling-apply}
+
+Start with the inventory, not the tools: list your segments, their cadences and their interfaces, and put every
+interface in the model as one copy with system-level owners before anything else. Then pick the integrated baselines
+from the slowest segment's natural rhythm, map your planning periods onto epics that end on them, and switch on the
+pipeline's simulation and bench jobs only when there is a simulation and a bench to run. Plan the simulation's
+accreditation in the same first epic as the standards list.

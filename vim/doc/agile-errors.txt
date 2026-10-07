@@ -1304,6 +1304,8 @@ req-recipe: --format is text, csv, junit or codequality / cannot read FILE
   Pattern: usage: req-recipe.pl *
   Pattern: req-recipe: --format is text, csv, junit or codequality, not '*'
   Pattern: req-recipe: --require takes 'classification', not '*'
+  Pattern: req-recipe: --baseline and --top go with --links
+  Pattern: req-recipe: --top '*' is not a valid regular expression
   Pattern: req-recipe: *
   From:    tools/sysml/req-recipe.pl (the pipeline's recipe job)
   Means:   The requirement recipe checker grades requirement text from .sysml

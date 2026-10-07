@@ -2927,10 +2927,20 @@ checks it the way the meeting will.
 ci-reports.pl, req-recipe.pl, memo-build.pl                 *agile-team-tools*
     perl tools/gitlab/ci-reports.pl grammar|lint|outline|todo|trace [--junit F] [--codequality F] [--metrics F] LOG
     perl tools/sysml/req-recipe.pl [--format text|csv|junit|codequality] [--strict] INPUT...
+    perl tools/sysml/req-recipe.pl --links [--baseline] [--top REGEX] MODEL-DIR
     perl tools/memo/memo-build.pl [--check] FILE.md...
 ci-reports turns a checker's output into GitLab's merge-request reports.
 req-recipe grades requirement statements against the requirement recipe (the
-18-part single sentence) in .sysml, DOORS or text. memo-build renders a memo
+18-part single sentence) in .sysml, DOORS or text. With --links it also checks
+the recipe's relationship attributes, elements 19-23, across the whole model:
+Parent Trace (a #derivation end, or attribute derivedFrom for a derived
+requirement; top-level needs exempt), Rationale (attribute rationale; a number
+needs a rationale that names its source), Verification Method (attribute
+verificationMethod: Test, Analysis, Demonstration or Inspection), Verification
+Case (a verify relationship) and Satisfied By (satisfy ... by ...). Case and
+satisfier are required "by the baseline": an info finding until --baseline.
+The report then ends with "links: orphan= childless= unjustified= unverified=
+unsatisfied= unmitigated=" before the summary line. memo-build renders a memo
 written from the templates in tools/gitlab/templates/memos/ (through
 md2memo.pl, |agile-memo|) and reports blanks still to fill.
 

@@ -1781,8 +1781,9 @@ perl tools/gitlab/kickoff.pl start [--yes] [--local DIR | --url URL] [--drop DIR
 <h4 id="t-agile-team-tools">ci-reports.pl, req-recipe.pl, memo-build.pl <span class=tag>agile-team-tools</span></h4>
 <pre>perl tools/gitlab/ci-reports.pl grammar|lint|outline|todo|trace [--junit F] [--codequality F] [--metrics F] LOG
 perl tools/sysml/req-recipe.pl [--format text|csv|junit|codequality] [--strict] INPUT...
+perl tools/sysml/req-recipe.pl --links [--baseline] [--top REGEX] MODEL-DIR
 perl tools/memo/memo-build.pl [--check] FILE.md...</pre>
-<p>ci-reports turns a checker's output into GitLab's merge-request reports. req-recipe grades requirement statements against the requirement recipe (the 18-part single sentence) in .sysml, DOORS or text. memo-build renders a memo written from the templates in tools/gitlab/templates/memos/ (through md2memo.pl, <a href="#t-agile-memo">agile-memo</a>) and reports blanks still to fill.</p>
+<p>ci-reports turns a checker's output into GitLab's merge-request reports. req-recipe grades requirement statements against the requirement recipe (the 18-part single sentence) in .sysml, DOORS or text. With --links it also checks the recipe's relationship attributes, elements 19-23, across the whole model: Parent Trace (a #derivation end, or attribute derivedFrom for a derived requirement; top-level needs exempt), Rationale (attribute rationale; a number needs a rationale that names its source), Verification Method (attribute verificationMethod: Test, Analysis, Demonstration or Inspection), Verification Case (a verify relationship) and Satisfied By (satisfy ... by ...). Case and satisfier are required &quot;by the baseline&quot;: an info finding until --baseline. The report then ends with &quot;links: orphan= childless= unjustified= unverified= unsatisfied= unmitigated=&quot; before the summary line. memo-build renders a memo written from the templates in tools/gitlab/templates/memos/ (through md2memo.pl, <a href="#t-agile-memo">agile-memo</a>) and reports blanks still to fill.</p>
 <p>vim:tw=78:ts=8:ft=help:norl:</p>
 <hr>
 <h2 id="t-agile-errors">1. PROJECT AND FILES <span class=tag>agile-errors</span></h2>
@@ -2501,7 +2502,7 @@ Fix:     --impact takes the model folder, usually model/. Regenerate the map
          CHANGES.csv; the prime's has the header
          cr_id,title,rationale,kind,xmi_ids,requirements.</pre>
 <h3 id="t-agile-err-req-recipe">req-recipe: --format is text, csv, junit or codequality / cannot read FILE <span class=tag>agile-err-req-recipe</span></h3>
-<p>Pattern: usage: req-recipe.pl * Pattern: req-recipe: --format is text, csv, junit or codequality, not '*' Pattern: req-recipe: --require takes 'classification', not '*' Pattern: req-recipe: *</p>
+<p>Pattern: usage: req-recipe.pl * Pattern: req-recipe: --format is text, csv, junit or codequality, not '*' Pattern: req-recipe: --require takes 'classification', not '*' Pattern: req-recipe: --baseline and --top go with --links Pattern: req-recipe: --top '*' is not a valid regular expression Pattern: req-recipe: *</p>
 <pre>From:    tools/sysml/req-recipe.pl (the pipeline's recipe job)
 Means:   The requirement recipe checker grades requirement text from .sysml
          files, DOORS ReqIF or CSV, or plain text. An option has a value it

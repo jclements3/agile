@@ -114,6 +114,70 @@ like_('unreadable input', "$rc $out", qr/^2 req-recipe: cannot read .*missing\.r
 ($rc, $out) = run_tool('--require', 'id', "$tw/tidewater.reqif");
 like_('bad --require', "$rc $out", qr/^2 req-recipe: --require takes 'classification', not 'id'/);
 
+($rc, $out) = run_tool('--baseline', "$tw/tidewater.reqif");
+like_('--baseline without --links', "$rc $out", qr/^2 req-recipe: --baseline and --top go with --links/);
+($rc, $out) = run_tool('--links', '--top', '"["', "$tw/tidewater.reqif");
+like_('bad --top', "$rc $out", qr/^2 req-recipe: --top '\[' is not a valid regular expression/);
+
+# ---- --links: the relationship attributes, elements 19-23, from the whole input set
+mkdir "$tmp/m"; mkdir "$tmp/m/needs"; mkdir "$tmp/m/sys";
+tspew("$tmp/m/needs/Needs.sysml", <<'E');
+package 'Stakeholder Needs' {
+    requirement N_1 { doc /* Forecasters shall receive each observation within 15 minutes of its measurement. */ attribute doorsId = "N-1";
+        attribute rationale = "The bulletin cycle direction from the forecast office."; attribute verificationMethod = "Demonstration"; }
+    requirement N_2 { doc /* Mariners shall read the latest bulletin from a public service. */ attribute doorsId = "N-2";
+        attribute rationale = "Public access is the program's purpose."; attribute verificationMethod = "Inspection"; }
+}
+E
+tspew("$tmp/m/sys/Sys.sysml", <<'E');
+package 'System Requirements' {
+    requirement S_1 { doc /* The data center shall ingest each observation within 60 seconds of its arrival. */ attribute doorsId = "S-1";
+        attribute rationale = "60 s allocated from the 15 minute latency budget TB-LAT-01."; attribute verificationMethod = "Test"; }
+    requirement S_2 { doc /* The station shall send its observations every 10 minutes. */ attribute doorsId = "S-2";
+        attribute rationale = "Engineering judgement."; attribute verificationMethod = "Test"; }
+    requirement S_3 { doc /* The station shall log its operating mode. */ attribute doorsId = "S-3"; attribute verificationMethod = "Guess"; }
+    requirement S_4 { doc /* The station shall stop its transmitter while a crew is aboard. [SC] */ attribute doorsId = "S-4"; attribute tags = "SC";
+        attribute rationale = "Crew safety."; attribute verificationMethod = "Inspection"; attribute derivedFrom = "TRADE-007"; }
+    #derivation connection { end #original ::> 'Stakeholder Needs'::N_1; end #derive ::> S_1; end #derive ::> S_2; }
+    satisfy S_1 by IngestService;
+    verification def TestIngest { objective { verify S_1; verify requirement S_2; } }
+}
+E
+($rc, $out) = run_tool('--links', "$tmp/m");
+check_('links: exit 0 (reports only)', $rc, 0);
+like_('links: the counts line comes before the summary', $out,
+    qr/^links: orphan=1 childless=1 unjustified=1 unverified=4 unsatisfied=3 unmitigated=1\nrequirements=6 findings=\d+ missing=\d+\n\z/m);
+my %blk = map { /^(\S+)\s+score/ ? ($1 => $_) : () } split /\n\n/, $out;
+like_('links: parent from a #derivation end (qualified name)', $blk{'S-1'}, qr/^    Parent Trace\s+N_1$/m);
+like_('links: rationale, method, case and satisfier', $blk{'S-1'}, qr/Rationale\s+60 s allocated.*\n\s+Verification Method\s+Test\n\s+Verification Case\s+TestIngest\n\s+Satisfied By\s+IngestService/);
+unlike_ok('links: a budget id justifies the threshold', $blk{'S-1'}, qr/unjustified/);
+like_('links: a number with a sourceless rationale is unjustified', $blk{'S-2'}, qr/minor\s+unjustified threshold/);
+like_('links: open satisfier is info before the baseline', $blk{'S-2'}, qr/info\s+nothing satisfies it yet/);
+like_('links: orphan and missing rationale', $blk{'S-3'}, qr/missing: Parent Trace, Rationale/);
+like_('links: unknown method', $blk{'S-3'}, qr/major\s+verification method 'Guess': use Test, Analysis, Demonstration or Inspection/);
+like_('links: derived from a decision', $blk{'S-4'}, qr/Parent Trace\s+derived from TRADE-007[\s\S]*info\s+derived requirement \(from TRADE-007\)/);
+like_('links: SC without a hazard', $blk{'S-4'}, qr/major\s+unmitigated safety tag \(SC\)/);
+like_('links: needs are top level by package', $blk{'N-1'}, qr/Parent Trace\s+\(top level\)/);
+like_('links: a top-level need with no children is childless', $blk{'N-2'}, qr/minor\s+childless/);
+($rc, $out) = run_tool('--links', '--baseline', "$tmp/m");
+%blk = map { /^(\S+)\s+score/ ? ($1 => $_) : () } split /\n\n/, $out;
+like_('links --baseline: open case and satisfier are missing', $blk{'S-3'}, qr/missing: Parent Trace, Rationale, Verification Case, Satisfied By/);
+($rc, $out) = run_tool('--links', '--top', '^S-3$', "$tmp/m");
+%blk = map { /^(\S+)\s+score/ ? ($1 => $_) : () } split /\n\n/, $out;
+like_('links --top: replaces the package default', $blk{'S-3'} . "\n" . $blk{'N-1'}, qr/S-3[\s\S]*Parent Trace\s+\(top level\)[\s\S]*N-1[\s\S]*missing: Parent Trace/);
+($rc, $out) = run_tool("$tmp/m");
+unlike_ok('without --links: no link parts, no counts line', $out, qr/Parent Trace|^links:/m);
+($rc, $out) = run_tool('--links', '--format', 'csv', "$tmp/m");
+like_('links csv: the five columns', (split /\r\n/, $out)[0], qr/,Requirement Tags,Parent Trace,Rationale,Verification Method,Verification Case,Satisfied By$/);
+tspew("$tmp/t.txt", "The station shall send its observations every 10 minutes. (TW_S_9)\n\nParent: TW_N_1. Rationale: 10 minutes allocated from the latency budget TB-LAT-01. Verification: Test by VC-12. Satisfied by: DataLogger (the station logger).\n\nThe station shall log its mode. Note: verified by inspection of the log. (TW_S_10)\n");
+($rc, $out) = run_tool('--links', "$tmp/t.txt");
+%blk = map { /^(\S+)\s+score/ ? ($1 => $_) : () } split /\n\n/, $out;
+like_('links text: fields after the statement', $blk{'TW_S_9'}, qr/Parent Trace\s+TW_N_1\n\s+Rationale\s+10 minutes allocated from the latency budget TB-LAT-01\n\s+Verification Method\s+Test\n\s+Verification Case\s+VC-12\n\s+Satisfied By\s+DataLogger/);
+like_('links text: two requirements, not three', $out, qr/requirements=2 /);
+like_('links text: a Note: carrying the verification', $blk{'TW_S_10'}, qr/minor\s+the Note: carries a rationale or the verification approach/);
+
+sub unlike_ok { my ($name, $got, $re) = @_; check_($name, (($got // '') =~ $re ? 0 : 1), 1) }
+
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";
 exit($bad ? 1 : 0);

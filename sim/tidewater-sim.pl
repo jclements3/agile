@@ -13,10 +13,11 @@
 #     points, stand-ups from pasted Teams chat (Answers.pm lint and answers), planning poker (Chat.pm #est rounds),
 #     the weekly quad, the sprint report.
 #   - Every sprint leaves its evidence in data/tidewater/sprints/NN/ (plans, chat, lint, pipeline logs, the real
-#     Markdown of issues, MRs, reviews and releases, scorecard.json, morale.json); sprints 1-6 are copied to
-#     docs/tidewater/ for the book, and docs/TIDEWATER.html summarizes the whole run (sim/tidewater-render.pl).
+#     Markdown of issues, MRs, reviews and releases, scorecard.json, morale.json); sprints 1-6 go to
+#     docs/tidewater/ for the book through sim/tidewater-evidence.pl (or --docs-dir DIR here), and docs/TIDEWATER.html summarizes the whole run (sim/tidewater-render.pl).
 #
-#   perl sim/tidewater-sim.pl [--dir data/tidewater] [--sprints N] [--work DIR] [--no-docs] [--quiet] [--force]
+#   perl sim/tidewater-sim.pl [--dir data/tidewater] [--sprints N] [--work DIR] [--docs-dir DOCS] [--quiet] [--force]
+#   (docs are written only with --docs-dir; --no-docs is kept for old command lines and does nothing else)
 #
 # Deterministic: the emulator's clock is frozen and moved by the simulation; pipeline job times come from a model of
 # the team's Windows runner, not the wall clock; no randomness. Fictional, civilian and notional throughout. Runs on
@@ -1635,17 +1636,11 @@ print $chk;
 $gl->save;
 
 # ======================================================================== evidence for the docs, and the copy out of the work dir
-if (!$o{'no-docs'} && $o{sprints} >= 6) {
-    my $out = "$DOCS/tidewater";                                         # docs/tidewater/sprints only: memos/, views/ there belong to other tools
-    remove_tree("$out/sprints");
-    for my $n (0 .. 6) {
-        my $from = sprintf "$W/sprints/%02d", $n;
-        my @f; File::Find::find({ no_chdir => 1, wanted => sub { push @f, $File::Find::name if -f } }, $from) if -d $from;
-        for my $x (sort @f) { (my $r = $x) =~ s{^\Q$W\E/}{}; spew("$out/$r", slurp($x)) }
-    }
-    spew("$out/sprints/checks-s1-s6.txt", rel($chk)) if $o{sprints} == 6;
+if ($o{'docs-dir'} && !$o{'no-docs'} && $o{sprints} >= 6) {             # only when asked: a plain run never touches docs/ (tests and the book's runs share it)
+    my @ev = ($^X, "$ROOT/sim/tidewater-evidence.pl", $W, '--out', "$DOCS/tidewater", '--sprints', 6, '--quiet');   # the one evidence writer
+    system(@ev) == 0 or die "tidewater-sim: sim/tidewater-evidence.pl failed\n";
     require "$ROOT/sim/tidewater-render.pl";
-    tidewater_render("$DOCS/TIDEWATER.html", score => \%SCORE, drops => \@DROPLOG, stories => \@STORIES, plan => $PLAN, checks => rel($chk), sprints => $o{sprints}) if $o{sprints} == 39 || $o{'docs-dir'};
+    tidewater_render("$DOCS/TIDEWATER.html", score => \%SCORE, drops => \@DROPLOG, stories => \@STORIES, plan => $PLAN, checks => rel($chk), sprints => $o{sprints});
 }
 if ($W ne (abs_path($o{dir}) // $o{dir})) {                       # (abs_path: /tmp may resolve elsewhere, e.g. under Git for Windows)
     remove_tree($o{dir});

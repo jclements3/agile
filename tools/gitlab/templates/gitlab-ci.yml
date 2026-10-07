@@ -126,7 +126,9 @@ lint:
 # 25-member package, parts with one child), and most can only be fixed upstream, by a discrepancy report to the prime.
 # So the gate is "no new violations": .ci/outline-max holds the highest count allowed; a change that adds a violation
 # fails, a change that removes one is told to lower the number (and the reviewer checks that it did). When the count
-# reaches 0 the file reads 0 and the rule is absolute.
+# reaches 0 the file reads 0 and the rule is absolute. A new project (kickoff.pl scaffold) starts with room: its
+# skeleton's one-file folders plus one for each layer folder still to come, with comment lines saying when to tighten
+# it (every layer folder holds two files, or the first baseline at the latest); the job reads only the first line.
 outline:
   extends: .check
   script:

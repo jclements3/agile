@@ -28,7 +28,7 @@
 #   perl tools/sysml/model.pl nouns [--plain]  the noun tree (parts, L1..L9)
 #   perl tools/sysml/model.pl verbs [--plain]  the verb tree (functions)
 #   perl tools/sysml/model.pl docs             write docs/Nouns.md, Verbs.md, idef0/, Traceability.md
-#   perl tools/sysml/model.pl check            outline + level-tag check only (exit status)
+#   perl tools/sysml/model.pl check            outline + level-tag check only (exit status); --quickfix adds FILE:LINE: lines
 #   perl tools/sysml/model.pl draw tree|trace|ibd|pkg [-o F]   an SVG view (tools/sysml/views; also plates, diff,
 #                                              threats, gate: the standalone tools run on this model, options passed on)
 #
@@ -102,10 +102,10 @@ my $ALLOC_PREFIX = $CONF{alloc_prefix} // '';
 my ($MIN, $MAX) = (2, 9);
 my $ME = 'perl tools/sysml/model.pl';
 
-my %opt = (plain => 0, ascii => 0);
+my %opt = (plain => 0, ascii => 0, quickfix => 0);
 my ($pass_at) = grep { $argv[$_] !~ /^--/ && $PASS{ $argv[$_] } } 0 .. $#argv;
-my @args = defined $pass_at ? (grep({ !/^--(plain|ascii)$/ || !($opt{$1} = 1) } @argv[0 .. $pass_at - 1]), @argv[$pass_at .. $#argv])
-                            : grep { !/^--(plain|ascii)$/ || !($opt{$1} = 1) } @argv;
+my @args = defined $pass_at ? (grep({ !/^--(plain|ascii|quickfix)$/ || !($opt{$1} = 1) } @argv[0 .. $pass_at - 1]), @argv[$pass_at .. $#argv])
+                            : grep { !/^--(plain|ascii|quickfix)$/ || !($opt{$1} = 1) } @argv;
 my $cmd = shift(@args) // '';
 
 binmode STDOUT, ':encoding(UTF-8)';
@@ -163,7 +163,7 @@ sub last_seg { (split /::/, $_[0])[-1] }
 
 # ------------------------------------------------------------------ parse
 # %DEF{name} = { kind => part|calc|action, children => [[usage, type]...], super => [...],
-#                level => n, file => f, returns => type, many => 0|1 }
+#                level => n, file => f, line => n, returns => type, many => 0|1 }
 # A verb's result: 'return : T' (calc def) or 'out result : T' (action def).
 my $RETURN = qr/\b(?:return|out\s+(?:(?:item|attribute|part|ref)\s+)?result)\b/;
 my %DEF;
@@ -171,6 +171,7 @@ for my $f (@FILES) {
     my $t = $CODE{$f};
     while ($t =~ /\b(?:abstract\s+)?(part|calc|action)\s+def\s+(\w+)\s*(?::>\s*([\w:]+))?\s*([{;])/g) {
         my ($kind, $name, $sup, $op) = ($1, $2, $3, $4);
+        my $line = 1 + (substr($t, 0, $-[0]) =~ tr/\n//);
         my $flat = '';
         if ($op eq '{') { (undef, $flat) = block($t, pos($t) - 1) }
         my @kids;
@@ -190,7 +191,7 @@ for my $f (@FILES) {
         }
         my ($lvl) = $flat =~ /\@L(\d)/;
         $DEF{$name} = { kind => $kind, children => \@kids, super => [$sup ? last_seg($sup) : ()],
-                        level => $lvl, file => $f, returns => $ret, many => $many };
+                        level => $lvl, file => $f, line => $line, returns => $ret, many => $many };
     }
 }
 
@@ -295,10 +296,10 @@ my $MEMBER_KW = qr/^\s*(?:(?:abstract|individual|private|public|protected)\s+)*(
 
 sub outline {
     my @bad;
-    my $check = sub { my ($where, $what, $n) = @_; push @bad, [$where, $what, $n] if $n && ($n < $MIN || $n > $MAX) };
+    my $check = sub { my ($where, $what, $n, $file, $line) = @_; push @bad, [$where, $what, $n, $file, $line] if $n && ($n < $MIN || $n > $MAX) };   # file, line: where --quickfix points
     for my $n (sort keys %DEF) {
         my $what = $DEF{$n}{kind} eq 'part' ? "part def $n: parts" : "$DEF{$n}{kind} def $n: sub-functions";
-        $check->(rel($DEF{$n}{file}), $what, scalar(my @c = children($n)));
+        $check->(rel($DEF{$n}{file}), $what, scalar(my @c = children($n)), $DEF{$n}{file}, $DEF{$n}{line});
     }
     my @rules = (
         [qr/\bpackage\s+('[^']+'|\w+)\s*\{/, 'package %s: members', sub { scalar(() = $_[0] =~ /$MEMBER_KW/g) }],
@@ -311,9 +312,9 @@ sub outline {
         for my $r (@rules) {
             my ($re, $label, $count) = @$r;
             while ($t =~ /$re/g) {
-                my $name = $1;
+                my ($name, $line) = ($1, 1 + (substr($t, 0, $-[0]) =~ tr/\n//));
                 my (undef, $flat) = block($t, pos($t) - 1);
-                $check->(rel($f), sprintf($label, $name), $count->($flat));
+                $check->(rel($f), sprintf($label, $name), $count->($flat), $f, $line);
             }
         }
     }
@@ -323,7 +324,8 @@ sub outline {
         opendir my $dh, $d or next;
         my @e = grep { !/^\./ } readdir $dh;
         closedir $dh;
-        $check->(rel($d) . '/', 'directory entries', scalar @e);
+        my ($first) = ((grep { m{^\Q$d\E/[^/]+\z} } @FILES), (grep { index($_, "$d/") == 0 } @FILES));   # its own first file, else the first below
+        $check->(rel($d) . '/', 'directory entries', scalar @e, $first // $d, 1);
     }
     @bad;
 }
@@ -390,6 +392,11 @@ sub report {
     my @bad = outline();
     printf "\n== Outline (%d..%d children per parent) ==\nviolations                %d\n", $MIN, $MAX, scalar @bad;
     printf "  %3d  %s  (%s)\n", $_->[2], $_->[1], $_->[0] for sort { $a->[0] cmp $b->[0] || $a->[1] cmp $b->[1] } @bad;
+    if ($opt{quickfix} && (@mm || @bad)) {   # FILE:LINE: error: lines for Vim's :make (\mk); the sections above stay as other tools parse them
+        print "\n";
+        printf "%s:%d: error: %s tagged L%d, first reached at L%d\n", rel($DEF{ $_->[0] }{file}), $DEF{ $_->[0] }{line}, $_->[0], level_of($_->[0]), $_->[1] for @mm;
+        printf "%s:%d: error: %s%s: %d (outside %d..%d)\n", rel($_->[3]), $_->[4], ($_->[0] =~ m{/\z} ? "$_->[0] " : ''), $_->[1], $_->[2], $MIN, $MAX for sort { $a->[0] cmp $b->[0] || $a->[1] cmp $b->[1] } @bad;
+    }
     (@mm || @bad) ? 1 : 0;
 }
 
@@ -1354,7 +1361,7 @@ sub cmd_threats { run_view('sysml-threats.pl', @args, rel($MODEL)) }
 sub cmd_gate { run_view('sysml-check.pl', '--tools', File::Spec->catdir($VIEWS, 'binder'), @args, rel($MODEL)) }
 
 my @HELP = (
-    [check    => 'the 2..9 outline rule and @L level tags (exit 1 on any violation)'],
+    [check    => 'the 2..9 outline rule and @L level tags (exit 1 on any violation) [--quickfix: also FILE:LINE: error: lines]'],
     [lint     => 'SysML checks without Java: grammar-exact syntax (tools/sysml/sysml.pl), unresolved types, imports, duplicates, self-bindings'],
     [validate => 'full compile with the SysML v2 Pilot engine (needs Java + the Pilot jar; skipped otherwise)'],
     [stats    => 'size, nesting, noun and verb depth, outline check'],

@@ -32,7 +32,9 @@ and `TBD Component` are the v1 model's spider web; they do not come back.
 - Government-only additions go in the layer they belong to (`library/conventions/`, `logical/GovBehavior.sysml`) and
   begin with a `// Government-owned` comment that says why they exist.
 - The `outline` job counts folders with fewer than 2 or more than 9 entries; the layout keeps one folder per segment,
-  so some folders hold one file: those are in the ratchet's allowance (`.ci/outline-max`), not hidden.
+  so some folders hold one file: those are in the ratchet's allowance (`.ci/outline-max`), not hidden. A new
+  project's allowance has room for the layer folders still to come (each starts with one file); its comment lines
+  say when to tighten it to the count the job prints.
 
 ## Branches, merge requests, commits and tags
 

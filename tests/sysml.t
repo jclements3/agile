@@ -134,6 +134,33 @@ my $f2 = fresh('f-level');
 edit("$f2/model/interceptor/SeekerComponents.sysml", 'part def Cryocooler { @L6Component;', 'part def Cryocooler { @L5Assembly;');
 ($o, $rc) = run(undef, $MODEL, '--root', $f2, 'check');
 like 'fault: a wrong level tag', "$rc $o", qr/^1 .*\@L tag mismatches\s+1\n\s+Cryocooler: tagged L5, first reached at L6/s;
+{   # check --quickfix: every finding also as FILE:LINE: error: (Vim's \mk / :SysCheck fills the quickfix list from these)
+    my $lineof = sub { my ($f, $re) = @_; my $i = 0; for (split /\n/, slurp($f)) { $i++; return $i if /$re/ } 0 };
+    mkdir "$f1/model/extra"; spew("$f1/model/extra/Extra.sysml", "package Extra {\n  part def Lone;\n  part def Other;\n}\n");
+    ($o, $rc) = run(undef, $MODEL, '--root', $f1, '--quickfix', 'check');
+    my %qf = map { /^.*?\b(model\/\S*?):(\d+): error: (?:\S*?\b(model\/\S*\/) )?(.*)$/ ? ((($3 // '') . $4) => "$1:$2") : () } split /\n/, $o;   # paths from model/ on (/tmp may resolve elsewhere)
+    check 'check --quickfix: a part def at its own line', $qf{'part def CommunicationsNode: parts: 1 (outside 2..9)'} // $o,
+        "model/firecontrol/FireControl.sysml:" . $lineof->("$f1/model/firecontrol/FireControl.sysml", qr/part def CommunicationsNode\b/);
+    check '  ... a one-file folder at line 1 of its file', $qf{"model/extra/directory entries: 1 (outside 2..9)"} // $o, "model/extra/Extra.sysml:1";
+    like '  ... the summary lines other tools parse stay', $o, qr/^violations\s+2\n\s+1  directory entries  \(/m;
+    ($o, $rc) = run(undef, $MODEL, '--root', $f2, 'check', '--quickfix');
+    like '  ... a level tag at its part def', $o, qr/^\S*\/f-level\/model\/interceptor\/SeekerComponents\.sysml:\d+: error: Cryocooler tagged L5, first reached at L6$/m;
+    check '  ... the line holds the part def', ($o =~ /SeekerComponents\.sysml:(\d+): error: Cryocooler/)[0] // 0,
+        $lineof->("$f2/model/interceptor/SeekerComponents.sysml", qr/part def Cryocooler\b/);
+    ($o, $rc) = run(undef, $MODEL, '--root', $f2, 'check');
+    check '  ... and without --quickfix the output is as before', ($o =~ /: error: / ? 1 : 0), 0;
+    if (`vim --version 2>&1` =~ /VIM - Vi IMproved/) {   # :SysCheck in Vim itself: the compiler's errorformat reads those lines
+        my $q = "$f1/qf.out";
+        open my $keep, '>&', \*STDOUT or die; open STDOUT, '>', '/dev/null' or die;   # :make echoes the tool's output
+        system('vim', '-N', '-u', 'NONE', '-i', 'NONE', '-es', '-c', "set rtp^=$root/vim", '-c', 'filetype plugin on',
+               '-c', "edit $f1/model/extra/Extra.sysml", '-c', 'SysCheck', '-c', "redir! > $q",
+               '-c', 'for e in getqflist() | if e.valid | silent echo fnamemodify(bufname(e.bufnr), ":t") . ":" . e.lnum | endif | endfor',
+               '-c', 'redir END', '-c', 'qa!');
+        open STDOUT, '>&', $keep or die;
+        check ':SysCheck (\mk) fills the quickfix list with the outline findings', join(' ', sort grep { /\S/ } split /\n/, -f $q ? slurp($q) : ''),
+            'Extra.sysml:1 FireControl.sysml:' . $lineof->("$f1/model/firecontrol/FireControl.sysml", qr/part def CommunicationsNode\b/);
+    }
+}
 my $f3 = fresh('f-lint');
 edit("$f3/model/interceptor/Interceptor.sysml", 'part motor : RocketMotor;', 'part motor : RocketMotr;');
 edit("$f3/model/firecontrol/KillChain.sysml", 'in launchEvent = launch.result;', 'in launchEvent = launchEvent;');

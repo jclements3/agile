@@ -8,8 +8,11 @@
 # sentence in that shape so the person only has to correct it.
 #
 #   perl tools/gitlab/talk.pl [--local DIR | --url URL [--token-env VAR]] [--project GROUP/NAME] COMMAND ...
-#     standup --as USER [--date D] [--journal DIR] [--prefix TW-] [--why]
+#     standup --as USER [--date D] [--journal DIR] [--prefix TW-] [--why] [--chat [--name "First Last"]]
 #             one terse Y/T/B line in the kit's format (daily.pl lint passes it), outcome first, one number;
+#             --chat prints it as a Teams chat paste ("[9:05 AM] Name" header, the notes to stderr), so
+#             `talk.pl standup --as bob --chat | perl bin/daily.pl lint -` checks it as the meeting would; --name sets
+#             the speaker (default: the user's GitLab name) to match roster.txt;
 #             a blocked issue (label workflow::blocked) becomes an ask
 #     review  --sprint N [--baseline FILE] [--metrics FILE] [--journal DIR] [--md]
 #             a sprint-review demo script: the question, four headline numbers with change (TODO lines; requirements
@@ -279,12 +282,26 @@ sub cmd_standup {
     $t .= '.' unless $t eq 'none' || $t =~ /\.$/;
     my $line = "Y $y T $t B $b";
     my $lint = eval { require Answers; Answers::lint_message($line, example => "$o->{prefix}12") };
+    my $note = \*STDOUT;
+    if ($o->{chat}) {                       # the Teams chat paste format daily.pl lint reads: a "[9:05 AM] Name" header, then the line;
+        my @t = localtime;                   # the notes go to stderr, so `talk.pl standup --chat ... | daily.pl lint -` reads only the message
+        printf "[%d:%02d %s] %s\n", ($t[2] % 12) || 12, $t[1], $t[2] < 12 ? 'AM' : 'PM', $o->{name} // display_name($gl, $d, $u);
+        $note = \*STDERR;
+    }
     print "$line\n";
-    print "# draft for $u on " . nice_date($date) . " (since " . nice_date($since) . "): edit it, then post it yourself\n";
-    print "# from: " . join(', ', @why) . "\n" if $o->{why} && @why;
-    if ($lint) { print '# lint: ' . ($lint->{ok} && !@{ $lint->{warnings} } ? 'ok' : join('; ', @{ $lint->{errors} }, @{ $lint->{warnings} })) . "\n" }
-    print "# no number in Y: add one (how many, how much, by when)\n" if $y ne 'none' && $y !~ /\d.*\d|\d\D*$/ && ($y =~ s/\Q$o->{prefix}\E\d+//r) !~ /\d/;
+    print {$note} "# draft for $u on " . nice_date($date) . " (since " . nice_date($since) . "): edit it, then post it yourself\n";
+    print {$note} "# from: " . join(', ', @why) . "\n" if $o->{why} && @why;
+    if ($lint) { print {$note} '# lint: ' . ($lint->{ok} && !@{ $lint->{warnings} } ? 'ok' : join('; ', @{ $lint->{errors} }, @{ $lint->{warnings} })) . "\n" }
+    print {$note} "# no number in Y: add one (how many, how much, by when)\n" if $y ne 'none' && $y !~ /\d.*\d|\d\D*$/ && ($y =~ s/\Q$o->{prefix}\E\d+//r) !~ /\d/;
     0;
+}
+sub display_name {                            # (gl, data, username) -> the name Teams shows: from GitLab's user records, else Username
+    my ($gl, $d, $u) = @_;
+    for my $p (map { @{ $_->{assignees} // [] }, ($_->{author} // ()) } @{ $d->{issues} }, @{ $d->{mrs} }) {
+        return $p->{name} if lc($p->{username} // '') eq lc $u && ($p->{name} // '') =~ /\S/;
+    }
+    my ($n) = grep { defined } (map { $_->{name} } grep { $_ } eval { $gl->{st}{users}{$u} }), ucfirst $u;
+    $n;
 }
 sub blocker_reason {                          # (issue, data) -> (why, need): from "Blocked by: ..." / "need: ..." in its notes or description
     my ($x, $d) = @_;
@@ -558,7 +575,7 @@ my $cmd = shift @args // usage();
 help() if $cmd =~ /^(help|-h|--help)$/;
 Getopt::Long::Configure(qw(no_pass_through permute));
 my %c;
-GetOptionsFromArray(\@args, \%c, 'as=s', 'date=s', 'journal=s', 'prefix=s', 'why', 'sprint=s', 'baseline=s', 'metrics=s', 'md', 'glossary=s')
+GetOptionsFromArray(\@args, \%c, 'as=s', 'name=s', 'chat', 'date=s', 'journal=s', 'prefix=s', 'why', 'sprint=s', 'baseline=s', 'metrics=s', 'md', 'glossary=s')
     or usage();
 %o = (%o, %c);
 exit cmd_translate(\%o, $args[0]) if $cmd eq 'translate';

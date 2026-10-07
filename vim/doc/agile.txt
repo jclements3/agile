@@ -2046,7 +2046,8 @@ model.pl lint over the model; errors to the quickfix list (:cn, :cp).
 
 :SysCheck                                                          *:SysCheck*
 \mk                                                                      *\mk*
-model.pl check: the outline rule and level tags.
+model.pl check --quickfix: the outline rule and level tags; each finding to the quickfix
+list at its definition (a folder's at line 1 of its first file).
 
 :SysSyntax                                                        *:SysSyntax*
 \mx                                                                      *\mx*
@@ -2800,7 +2801,10 @@ talk.pl                                                         *agile-talk*
 Drafts words from GitLab and the journal, never posts: a terse Y/T/B line
 (outcome first, one number), a sprint-review demo script with the four
 headline numbers, a weekly note for management, or a jargon list with "so
-what?" flags for a draft you wrote.
+what?" flags for a draft you wrote. standup --chat prints the line as a Teams
+chat paste ("[9:05 AM] Name" header; --name sets the speaker), so
+    perl tools/gitlab/talk.pl standup --as bob --chat | perl bin/daily.pl lint -
+checks it the way the meeting will.
 
 ci-reports.pl, req-recipe.pl, memo-build.pl                 *agile-team-tools*
     perl tools/gitlab/ci-reports.pl grammar|lint|outline|todo|trace [--junit F] [--codequality F] [--metrics F] LOG

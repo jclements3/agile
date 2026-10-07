@@ -131,6 +131,25 @@ check_('one commit', scalar(split /\n/, $v), 1);
 check_('on main', $v, "main\n");
 ($v) = run('git', '-C', 'radar', 'status', '--porcelain');
 check_('nothing left uncommitted', $v, '');
+{   # a new project's first merge request: a new one-file layer folder and a part with a sub-part pass the gates
+    has('.ci/outline-max: the count first, room for the layer folders, when to tighten it', slurp('radar/.ci/outline-max') // '',
+        qr/\A9\n/, qr/^# .*The scaffold has 3 \(its one-file folders\) and adds\n# 6 of room/m, qr/at the latest in the merge request of the first baseline/);
+    run('git', 'clone', '-q', 'radar', 'radar-mr');
+    my $base = (run('git', '-C', 'radar-mr', 'rev-parse', 'HEAD'))[0] =~ s/\s+//gr;
+    mkdir 'radar-mr/model/logical';
+    open my $w, '>:raw', 'radar-mr/model/logical/Radar.sysml' or die;
+    print $w "package Radar {\n  part def RadarSystem { part antenna : Antenna; }\n  part def Antenna;\n}\n"; close $w;
+    run('git', '-C', 'radar-mr', 'add', '-A'); run('git', '-C', 'radar-mr', 'commit', '-q', '-m', 'First package');
+    my $kv = (slurp('radar/.kit-version') // '') =~ s/\s+//gr;
+    local $ENV{KIT} = $ROOT; local $ENV{KIT_VERSION} = $kv; local $ENV{CI_PIPELINE_SOURCE} = 'merge_request_event';
+    local $ENV{CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} = 'feature/1-first-package'; local $ENV{CI_MERGE_REQUEST_DIFF_BASE_SHA} = $base;
+    my $o = `cd radar-mr && "$^X" ci/job.pl outline 2>&1`;
+    check_('first MR: a new one-file folder is within the room', $? >> 8, 0);
+    has('first MR: the outline job says there is room, not to lower it', $o, qr/room left for new folders/);
+    $o = `cd radar-mr && "$^X" ci/job.pl complexity 2>&1`;
+    check_('first MR: the first part with a sub-part does not trip the complexity ratchet', $? >> 8, 0);
+    has('first MR: the complexity job compared with the base', $o, qr/no measure got worse than on the target branch/);
+}
 ($out, $rc) = run($^X, $K, 'scaffold', 'radar');
 check_('scaffold refuses a non-empty folder', ($rc != 0 && $out =~ /is not empty/) ? 1 : 0, 1);
 ($out, $rc) = run($^X, $K, 'scaffold', 'bad2', '--levels', 'L1 bad');

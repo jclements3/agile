@@ -94,6 +94,10 @@ check('outline: a feature branch is still ratcheted', $rc, 1);
 spew("$repo/.ci/outline-max", ($v + 3) . "\n");
 ($out, $rc) = job('outline');
 like('outline: below the allowed count it asks to lower the number', $out, qr/lower \.ci\/outline-max to $v/);
+spew("$repo/.ci/outline-max", ($v + 3) . "\n# room for new one-file folders: tighten it at the first baseline\n");
+($out, $rc) = job('outline');
+check('outline: a scaffold\'s commented allowance: the first line is the number, the room is not nagged',
+      "$rc " . ($out =~ /allowed: @{[$v + 3]}\)/ ? 'read' : 'unread') . ($out =~ /room left for new folders \(see the comment in \.ci\/outline-max for when to tighten it to $v\)/ ? ' room' : ' nag'), '0 read room');
 spew("$repo/.ci/outline-max", "$v\n");
 ($out, $rc) = job('grammar');
 check('grammar: drop 1 parses', $rc, 0);
@@ -269,6 +273,15 @@ my $cx = CIJob::complexity_of({ 'model/a.sysml' => "package A {\n  private impor
                          'model/gov/c.sysml' => "// Government-owned\npackage C {\n  private import B::*;\n}\n" }, { layers => 'A; B, C' });
 check('complexity: fan-in, fan-out, an upward dependency (A is below B)', join(' ', $cx->{fan_in}{B}, $cx->{fan_out}{A}, $cx->{metrics}{upward_imports}, $cx->{metrics}{cycles}), '2 1 1 0');
 check('complexity: a wildcard import in model/gov is a violation', scalar(grep { $_->[2] =~ /^wildcard import B::\* in government file/ } @{ $cx->{violations} }), 1);
+my %m0 = (max_fan_out => 0, max_relationships_per_part => 0, cycles => 0, upward_imports => 0, duplicates => 0);
+check('ratchet: a new project\'s first part with a sub-part (relationships 0 -> 1) passes',
+      join(' ', CIJob::complexity_worse(\%m0, { %m0, max_relationships_per_part => 1, max_fan_out => 3 }, {})), '');
+check('ratchet: sizes ratchet only above their limits (fan-out 7 -> 8, relationships 10 -> 11)',
+      join(' ', CIJob::complexity_worse({ %m0, max_fan_out => 7, max_relationships_per_part => 10 }, { %m0, max_fan_out => 8, max_relationships_per_part => 11 }, {})), 'max_fan_out max_relationships_per_part');
+check('ratchet: the limits come from sysml.conf',
+      join(' ', CIJob::complexity_worse({ %m0, max_fan_out => 2 }, { %m0, max_fan_out => 3 }, { max_package_fan_out => 2 })), 'max_fan_out');
+check('ratchet: a new cycle or upward import always fails',
+      join(' ', CIJob::complexity_worse(\%m0, { %m0, cycles => 1, upward_imports => 1 }, {})), 'cycles upward_imports');
 
 # ---- the template: every job's script is `perl ci/job.pl NAME`, and the YAML loads
 my $ci = GitLabCI::load("$ROOT/tools/gitlab/templates/gitlab-ci.yml");

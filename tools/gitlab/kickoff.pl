@@ -31,6 +31,7 @@ use File::Find ();
 use File::Temp qw(tempdir);
 use Cwd qw(abs_path getcwd);
 use Getopt::Long qw(GetOptionsFromArray);
+use constant OUTLINE_ROOM => 6;               # new one-file layer folders a fresh scaffold allows before its allowance is tightened
 
 my $KIT = abs_path("$FindBin::Bin/../..");
 my $TPL = "$KIT/tools/gitlab/templates";
@@ -350,11 +351,20 @@ EOF
     } else {
         $put->('.ci/layout.map.example', LAYOUT_EXAMPLE());
     }
-    {   # the outline ratchet starts at what the skeleton has (new folders hold one entry each); the port only lowers it
+    {   # the outline ratchet starts at what the skeleton has (its folders hold one entry each) plus room for the layer
+        # folders still to come: each starts with one file, so an exact count would fail the first MR that adds one
         my ($chk) = capture($^X, "$KIT/tools/sysml/model.pl", '--root', $dir, 'check');
         my ($v) = $chk =~ /^violations\s+(\d+)/m;
         my ($m) = $chk =~ /^\@L tag mismatches\s+(\d+)/m;
-        $put->('.ci/outline-max', (($v // 0) + ($m // 0)) . "\n");
+        my $have = ($v // 0) + ($m // 0);
+        my $room = OUTLINE_ROOM;
+        $put->('.ci/outline-max', ($have + $room) . "\n"
+            . "# .ci/outline-max -- the outline job's allowance: the number on the first line is the most outline violations\n"
+            . "# (2..9 rule and level tags) a merge request may leave. The scaffold has $have (its one-file folders) and adds\n"
+            . "# $room of room: requirements/, logical/, physical/, analysis/, verification/ and one more each start with one file.\n"
+            . "# Tighten it -- write the count the outline job prints and delete these comment lines -- once every layer folder\n"
+            . "# holds two or more files, and at the latest in the merge request of the first baseline. Never raise it by hand\n"
+            . "# (a prime drop's merge raises it, in its own commit). Written by kickoff.pl scaffold.\n");
         # the generated documents are committed with the model that made them (the docs job checks they are current)
         my ($d, $drc) = capture($^X, "$KIT/tools/sysml/model.pl", '--root', $dir, 'docs');
         die "kickoff: model.pl docs failed on the new repository: $d" if $drc;

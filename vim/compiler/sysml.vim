@@ -11,9 +11,10 @@ let s:tools = expand('<sfile>:p:h:h:h') . '/tools/sysml'
 let s:model = finddir('model', expand('%:p:h') . ';')
 if s:model !=# ''
   let s:root = fnamemodify(s:model, ':p:h:h')
-  execute 'CompilerSet makeprg=' . escape('perl ' . shellescape(s:tools . '/model.pl') . ' --root ' . shellescape(s:root), ' \|"')
+  execute 'CompilerSet makeprg=' . escape('perl ' . shellescape(s:tools . '/model.pl') . ' --root ' . shellescape(s:root) . ' --quickfix', ' \|"')
 else
   execute 'CompilerSet makeprg=' . escape('perl ' . shellescape(s:tools . '/sysml.pl') . ' check %', ' \|"')
 endif
+" --quickfix: check also prints each outline and level-tag finding as file:line: error: message
 " file:line:col: error: message (lint, validate, sysml.pl)   and   file:line: message
 CompilerSet errorformat=%f:%l:%c:\ %trror:\ %m,%f:%l:%c:\ %tarning:\ %m,%f:%l:\ %trror:\ %m,%f:%l:\ %tarning:\ %m,%-G%.%#

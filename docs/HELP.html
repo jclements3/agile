@@ -1299,7 +1299,7 @@ perl tools/sysml/doors2v2.pl -o DIR [--tests MODULE] EXPORT...</pre>
 <p>model.pl lint over the model; errors to the quickfix list (:cn, :cp).</p>
 <h4 id="t-_3ASysCheck"><span id="t-_5Cmk"></span>:SysCheck <span class=tag>:SysCheck \mk</span></h4>
 <pre>\mk                                                                      *\mk*</pre>
-<p>model.pl check: the outline rule and level tags.</p>
+<p>model.pl check --quickfix: the outline rule and level tags; each finding to the quickfix list at its definition (a folder's at line 1 of its first file).</p>
 <h4 id="t-_3ASysSyntax"><span id="t-_5Cmx"></span>:SysSyntax <span class=tag>:SysSyntax \mx</span></h4>
 <pre>\mx                                                                      *\mx*</pre>
 <p>sysml.pl check on this file.</p>
@@ -1716,7 +1716,9 @@ perl tools/gitlab/kickoff.pl start [--yes] [--local DIR | --url URL] [--drop DIR
 <p>Week zero for a model team. doctor checks the laptop (Perl, git and its settings, Vim, curl, a quick self-test, GitLab, an SSH key) and prints the fix for each problem; --fix sets only the recommended git settings. scaffold makes the model repository from tools/gitlab/templates in an empty folder. start runs the week-zero steps in order, each only with --yes.</p>
 <h4 id="t-agile-talk">talk.pl <span class=tag>agile-talk</span></h4>
 <pre>perl tools/gitlab/talk.pl standup --as USER | review --sprint N | weekly | translate FILE</pre>
-<p>Drafts words from GitLab and the journal, never posts: a terse Y/T/B line (outcome first, one number), a sprint-review demo script with the four headline numbers, a weekly note for management, or a jargon list with &quot;so what?&quot; flags for a draft you wrote.</p>
+<p>Drafts words from GitLab and the journal, never posts: a terse Y/T/B line (outcome first, one number), a sprint-review demo script with the four headline numbers, a weekly note for management, or a jargon list with &quot;so what?&quot; flags for a draft you wrote. standup --chat prints the line as a Teams chat paste (&quot;[9:05 AM] Name&quot; header; --name sets the speaker), so</p>
+<pre>perl tools/gitlab/talk.pl standup --as bob --chat | perl bin/daily.pl lint -</pre>
+<p>checks it the way the meeting will.</p>
 <h4 id="t-agile-team-tools">ci-reports.pl, req-recipe.pl, memo-build.pl <span class=tag>agile-team-tools</span></h4>
 <pre>perl tools/gitlab/ci-reports.pl grammar|lint|outline|todo|trace [--junit F] [--codequality F] [--metrics F] LOG
 perl tools/sysml/req-recipe.pl [--format text|csv|junit|codequality] [--strict] INPUT...

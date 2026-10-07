@@ -127,8 +127,8 @@ $run{outline} = sub {                         # the 2..9 rule and level tags, as
     my ($v) = $t =~ /^violations\s+(\d+)/m;
     my ($m) = $t =~ /^\@L tag mismatches\s+(\d+)/m;
     my $n = ($v // 0) + ($m // 0);
-    my $max = slurp('.ci/outline-max');
-    $max = defined $max && $max =~ /(\d+)/ ? $1 : 0;
+    my $file = slurp('.ci/outline-max') // '';
+    my $max = $file =~ /^\s*(\d+)/ ? $1 : 0;   # the first line; comment lines after it (a new scaffold's room) are for people
     print "outline violations: $n (allowed: $max)\n";
     # vendor/prime holds the prime's structure as delivered, and a drop branch merges it: measured, not ratcheted (the
     # drop's merge request records the new count in .ci/outline-max; Discrepancy Reports ask the prime to fix the rest)
@@ -143,7 +143,10 @@ $run{outline} = sub {                         # the 2..9 rule and level tags, as
         return 0;
     }
     if ($n > $max) { print "this change adds outline violations ($n > $max): fix them, do not raise .ci/outline-max\n"; return 1 }
-    print "fewer violations than allowed: lower .ci/outline-max to $n in this MR\n" if $n < $max;
+    if ($n < $max) {                       # a scaffold's allowance keeps room for new one-file folders until its comment says to tighten it
+        print $file =~ /^#/m ? "fewer violations than allowed: room left for new folders (see the comment in .ci/outline-max for when to tighten it to $n)\n"
+                             : "fewer violations than allowed: lower .ci/outline-max to $n in this MR\n";
+    }
     outline_junit_inherited();
     0;
 };
@@ -485,6 +488,16 @@ sub complexity_of {                           # (\%files, \%conf) -> measures an
     push @v, map { [ 'major', $_->[2], "wildcard import $_->[1]::* in government file (name what you use)" ] } @gw;
     { metrics => \%m, fan_in => \%fi, fan_out => \%fo, cycles => $cyc, upward => \@up, rel => $g->{rel}, rel_order => \@rel, violations => \@v, packages => \@p };
 }
+sub complexity_worse {                        # (\%old, \%new metrics, \%conf) -> the measures this change made worse
+    # fan-out and relationships per part are sizes, not faults: a model grows, and its first part with a sub-part takes
+    # the maximum from 0 to 1. They ratchet only above their limits (sysml.conf max_package_fan_out,
+    # max_relationships_per_part): once past the limit, a change may not make them worse. Cycles, upward-layer imports
+    # and duplicates are faults: any new one fails.
+    my ($old, $new, $conf) = @_;
+    my %limit = (max_fan_out => $conf->{max_package_fan_out} // 7, max_relationships_per_part => $conf->{max_relationships_per_part} // 10);
+    grep { ($new->{$_} // 0) > ($old->{$_} // 0) && (!exists $limit{$_} || $new->{$_} > $limit{$_}) }
+        qw(max_fan_out max_relationships_per_part cycles upward_imports duplicates);
+}
 sub model_files { my $root = shift // 'model'; my %f; File::Find::find({ no_chdir => 1, wanted => sub { $f{$File::Find::name} = slurp($File::Find::name) if /\.sysml$/ && -f } }, $root) if -d $root; \%f }
 $run{complexity} = sub {
     my $conf = sysml_conf();
@@ -520,7 +533,7 @@ $run{complexity} = sub {
     run(undef, 'git', 'worktree', 'add', '-q', '--detach', $wt, $base) and return 0;
     my $old = complexity_of(model_files("$wt/model"), $conf);
     run(undef, 'git', 'worktree', 'remove', '--force', $wt);
-    my @worse = grep { $c->{metrics}{$_} > $old->{metrics}{$_} } qw(max_fan_out max_relationships_per_part cycles upward_imports duplicates);
+    my @worse = complexity_worse($old->{metrics}, $c->{metrics}, $conf);
     if (@worse) { print "this change makes the model more tangled: " . join(', ', map { "$_ $old->{metrics}{$_} -> $c->{metrics}{$_}" } @worse) . "\n"; return 1 }
     print "no measure got worse than on the target branch\n";
     0;

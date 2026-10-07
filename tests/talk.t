@@ -126,6 +126,14 @@ like($out, qr/^Y TI-\d+ /m, 'without --prefix or a journal: a prefix from the gr
     unlike($lint, qr/\bERROR\b/, 'no ERROR lines');
     like($lint, qr/ok\s+Bob/, 'Bob ok');
     unlike($lint, qr/\bwarn\b/, 'no warnings either (ids in the journal, ids in Y and T)');
+    # --chat: the line as a Teams chat paste, piped straight into the lint (the notes go to stderr)
+    my $co = qx{"$^X" "$TALK" --local "$gldir" --project $P standup --as bob --date 2026-12-09 --prefix TW- --chat 2>/dev/null};
+    like($co, qr/\A\[\d{1,2}:\d\d [AP]M\] Bob\n\Q$line\E\n\z/, '--chat: a "[9:05 AM] Name" header, then the line, nothing else on stdout');
+    my $piped = qx{cd "$proj_dir" && "$^X" "$TALK" --local "$gldir" --project $P standup --as bob --date 2026-12-09 --prefix TW- --chat 2>/dev/null | "$^X" "$ROOT/bin/daily.pl" lint - 2>&1};
+    is($? >> 8, 0, '--chat | daily.pl lint -: no ERROR') or print map { "# $_\n" } split /\n/, $piped;
+    like($piped, qr/ok\s+Bob/, '--chat | daily.pl lint -: Bob ok');
+    ($co) = $run->('standup --as bob --date 2026-12-09 --prefix TW- --chat --name "Bob Rivera"');
+    like($co, qr/^\[\d{1,2}:\d\d [AP]M\] Bob Rivera\n/m, '--name sets the speaker (to match roster.txt)');
     my ($jo) = $run->("standup --as bob --date 2026-12-09 --journal \"$proj_dir\"");
     like($jo, qr/^Y TW-$s1->{iid} /m, "--journal: the story prefix comes from the journal's ids");
 }

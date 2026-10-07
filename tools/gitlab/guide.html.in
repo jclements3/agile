@@ -824,6 +824,15 @@ setup writes it into the repository and you commit it through a merge request (o
 Generated from the template:</p>
 <!--#include samples/17-insights.yml-->
 
+<h3>Runners on Kubernetes, and the project as Terraform</h3>
+<p>Where the runners live in Kubernetes (AKS), <code>tools/gitlab/k8s/</code> has the GitLab Runner Helm values for the
+Kubernetes executor (the token in a Kubernetes secret, the <code>mbse-ci</code> image, Linux nodes, non-root pods), the
+<code>default:</code> block that picks that runner by tag, an optional network policy and an optional GitLab agent for a test
+environment; its README says what the platform team owns and what the model team needs to know. Where the platform
+team runs GitLab as code, <code>gitlab.pl terraform .gitlab/project.conf --out DIR</code> writes the project file as
+Terraform/OpenTofu for the gitlab provider, with GitLab-managed state and an opt-in pipeline (the OpenTofu CI/CD
+component): <code>tools/gitlab/terraform/README.md</code>.</p>
+
 <h2 id="templates">The templates</h2>
 <p>Templates make the fields above the default. GitLab offers every file in <code>.gitlab/issue_templates/</code> and
 <code>.gitlab/merge_request_templates/</code> in a drop-down when an issue or MR is created; a template named

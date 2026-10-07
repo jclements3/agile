@@ -1,0 +1,16 @@
+# .gitlab/agents/sil-twin/config.yaml -- OPTIONAL. The GitLab agent for Kubernetes lets the model project's pipeline
+# deploy and drive a software-in-the-loop (SIL) or digital-twin test environment in a cluster, without a cluster
+# credential in GitLab. Use it only when the program has such an environment; the model pipeline does not need it.
+# (The runner in values.yaml is a different thing: it runs jobs; the agent gives jobs kubectl access to a cluster.)
+#
+# The platform team installs the agent in the cluster (Operate > Kubernetes clusters > Connect a cluster, which shows
+# the helm command with the agent token) and keeps this file in the project that owns the agent, at
+# .gitlab/agents/sil-twin/config.yaml. Authorizing projects and groups is in every tier, Dedicated included.
+#
+# A job then selects the cluster with:
+#   kubectl config use-context tidewater/model:sil-twin
+ci_access:
+  projects:
+    - id: tidewater/model
+      environments:
+        - sil/*                                       # only jobs deploying to sil/... environments get the context

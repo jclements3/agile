@@ -1,0 +1,32 @@
+# The GitLab project as code, in the project's own pipeline: plan in every merge request that touches the .tf files,
+# apply by hand on the default branch. OFF by default: it runs only when the CI/CD variable GITLAB_TF is "true".
+#
+# Add to .gitlab-ci.yml (include:rules may test project CI/CD variables; this keeps the whole file out until you opt in):
+#   include:
+#     - local: gitlab-ci.tofu.yml          # this file, copied into the repository
+#       rules:
+#         - if: $GITLAB_TF == "true"
+# and generate the .tf files into gitlab/terraform/ (the root_dir below):
+#   perl $KIT/bin/gitlab.pl terraform .gitlab/project.conf --out gitlab/terraform
+#
+# GitLab's recommendation is the OpenTofu CI/CD component (gitlab.com/components/opentofu); GitLab no longer
+# distributes the Terraform CI/CD templates (Terraform.gitlab-ci.yml) or the terraform-images. The component's
+# validate-plan-apply template validates and plans in merge requests and offers a manual apply on the default branch,
+# with the state in GitLab-managed Terraform state (state_name). Written against component 4.9.0 / OpenTofu 1.12.6
+# (checked 2026-10-07): pin the version your instance has.
+#
+# GitLab Dedicated and self-managed: components on gitlab.com are not distributed to your instance. Mirror
+# https://gitlab.com/components/opentofu into components/opentofu on your GitLab (a pull mirror, or a copy reviewed by
+# your security office), and its job image into your registry (input image_registry_base). $CI_SERVER_FQDN then points
+# the include at your own copy.
+#
+# The job needs a token that may change the project's settings: a project or group access token with scope api and
+# Maintainer, as a masked, protected CI/CD variable GITLAB_TOKEN (the gitlab provider reads it), and GITLAB_BASE_URL
+# = $CI_API_V4_URL/. The state itself uses the job token.
+include:
+  - component: $CI_SERVER_FQDN/components/opentofu/validate-plan-apply@4.9.0
+    inputs:
+      version: 4.9.0
+      opentofu_version: 1.12.6
+      root_dir: gitlab/terraform
+      state_name: gitlab-project

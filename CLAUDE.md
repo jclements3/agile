@@ -45,7 +45,7 @@ There is no build step and no package manager — everything is `use lib` agains
 
 Test suites map 1:1 to the libs: `tests/prelude.t`, `tests/ledger.t`, `tests/quad.t`,
 `tests/scrum.t`, `tests/standup.t`, `tests/calendar.t`, `tests/chat.t`, `tests/answers.t`,
-`tests/attendance.t`, `tests/quad.t`, `tests/roster.t`, `tests/gitlab.t`, `tests/gitlab-ci.t`, `tests/ci-job.t`, `tests/ci-reports.t`, `tests/kickoff.t`, `tests/talk.t`, `tests/practice.t`, `tests/req-recipe.t`, `tests/memo-templates.t`, `tests/tidewater.t`, `tests/primer.t`, `tests/primer-runs.t`, `tests/cockpit.t`, `tests/drill.t`, `tests/metrics.t`, `tests/status_metrics.t`,
+`tests/attendance.t`, `tests/quad.t`, `tests/roster.t`, `tests/gitlab.t`, `tests/gitlab-tf.t`, `tests/gitlab-ci.t`, `tests/ci-job.t`, `tests/ci-reports.t`, `tests/kickoff.t`, `tests/talk.t`, `tests/practice.t`, `tests/req-recipe.t`, `tests/memo-templates.t`, `tests/tidewater.t`, `tests/primer.t`, `tests/primer-runs.t`, `tests/cockpit.t`, `tests/drill.t`, `tests/metrics.t`, `tests/status_metrics.t`,
 `tests/xmi2sysml.t`, `tests/reqif2sysml.t`, `tests/sysml.t`, `tests/sysml-views.t`, `tests/halberd.t`, `tests/memo.t`, `tests/help.t`, `tests/drills.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
 `Calendar.pm`'s COM calls offline.
 
@@ -216,7 +216,7 @@ offline emulator: bare repos with a protection hook, MRs merged --no-ff, CODEOWN
 GitLabCI on the merged result, packages, pages, schedules with a cron engine, triggers, deploy tokens, analytics,
 `setup --diff`, `--dry-run`), `lib/GitLabCI.pm` (a `.gitlab-ci.yml` subset: parse, rules, local includes, run jobs
 locally; `parallel => N`), `lib/GitFlow.pm` (main/develop/feature/release/hotfix + `vendor/prime` drop imports that keep
-government files), `bin/gitlab.pl` (one CLI over them; `gitlab.pl help`; `[boards]` in project.conf makes the issue boards, `[iterations]` a group iteration cadence (GraphQL; `use = milestones|iterations` picks what a sprint is), `[insights]` the generated `.gitlab/insights.yml`, and `gitlab.pl windchill intake|status` (`lib/Windchill.pm`) turns a Windchill CSV export into issues and GitLab progress back into a CSV, for sites where requests arrive in Windchill). `tools/gitlab/`: `templates/` (project.conf,
+government files), `bin/gitlab.pl` (one CLI over them; `gitlab.pl help`; `[boards]` in project.conf makes the issue boards, `[iterations]` a group iteration cadence (GraphQL; `use = milestones|iterations` picks what a sprint is), `[insights]` the generated `.gitlab/insights.yml`, `gitlab.pl terraform` (`lib/GitLabTf.pm`) the same project file as Terraform/OpenTofu for the gitlab provider (`tools/gitlab/terraform/`), `tools/gitlab/k8s/` the GitLab Runner Kubernetes-executor setup for AKS, and `gitlab.pl windchill intake|status` (`lib/Windchill.pm`) turns a Windchill CSV export into issues and GitLab progress back into a CSV, for sites where requests arrive in Windchill). `tools/gitlab/`: `templates/` (project.conf,
 gitlab-ci.yml where every job is `perl ci/job.pl NAME` for PowerShell portability, ci/job.pl, CODEOWNERS, issue/MR
 templates, wiki, docs/, memos/, prime/Jenkinsfile), `kickoff.pl doctor|scaffold|start` (week zero), `talk.pl` (drafts
 stand-ups, review scripts, weekly notes), `ci-reports.pl`, `pages-index.pl`, `mkguide.pl` -> `docs/GITLAB.html`,

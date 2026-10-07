@@ -1,0 +1,53 @@
+# tools/gitlab/k8s/values.yaml -- GitLab Runner on AKS (Azure Kubernetes Service) with the Kubernetes executor, for the
+# model pipeline. Helm values for the gitlab/gitlab-runner chart (https://charts.gitlab.io). Written against chart 0.79
+# (Runner 18.x) and the Kubernetes executor's documented [runners.kubernetes] keys, checked 2026-10-07; the platform
+# team pins the chart version it supports (helm search repo -l gitlab/gitlab-runner).
+#
+#   helm repo add gitlab https://charts.gitlab.io
+#   kubectl create namespace gitlab-runner
+#   kubectl create namespace gitlab-runner-jobs
+#   kubectl -n gitlab-runner create secret generic gitlab-runner-mbse \
+#       --from-literal=runner-registration-token="" --from-literal=runner-token="$RUNNER_TOKEN"
+#   helm install --namespace gitlab-runner gitlab-runner-mbse -f values.yaml gitlab/gitlab-runner --version 0.79.x
+#
+# The runner authentication token (glrt-...) comes from GitLab when a runner is created (project or group > Settings >
+# CI/CD > Runners > New project runner); its TAGS are set there, in GitLab, not in this file: give this runner the tags
+# k8s-linux and mbse. The token lives only in the Kubernetes secret above, never in this file or in git.
+
+gitlabUrl: https://gitlab.example.gov/        # your GitLab Dedicated URL
+
+concurrent: 4                                 # jobs at a time across this runner: 3 people, one pipeline each, plus nightly
+checkInterval: 10                             # seconds between polls for new jobs
+
+rbac:
+  create: true                                # a Role and RoleBinding so the runner manager may create job pods
+
+runners:
+  secret: gitlab-runner-mbse                  # holds runner-token (and an empty runner-registration-token)
+  name: aks-mbse-linux
+  config: |
+    [[runners]]
+      [runners.kubernetes]
+        # one pod per job, in its own namespace: the build container (the job's script, in mbse-ci), the helper
+        # container (clone, cache, artifacts) and any services
+        namespace = "gitlab-runner-jobs"
+        image = "registry.example.gov/tidewater/model/mbse-ci:1.0"   # tools/gitlab/docker; a job's image: overrides it
+        pull_policy = ["if-not-present"]
+        privileged = false
+        allow_privilege_escalation = false
+        # the kit's checks are single-threaded Perl: half a core and a little memory each, capped
+        cpu_request = "500m"
+        cpu_limit = "2"
+        memory_request = "512Mi"
+        memory_limit = "2Gi"
+        helper_cpu_request = "100m"
+        helper_memory_request = "128Mi"
+        helper_memory_limit = "512Mi"
+        poll_timeout = 300                    # seconds to wait for the pod to start (a cold node pulls the image)
+        [runners.kubernetes.node_selector]
+          "kubernetes.io/os" = "linux"        # Linux node pool only (AKS system pools may also hold Windows nodes)
+        [runners.kubernetes.pod_security_context]
+          run_as_non_root = true              # mbse-ci runs as uid 1000 (numeric USER, so Kubernetes can verify it)
+          run_as_user = 1000
+          run_as_group = 1000
+          fs_group = 1000                     # the build volume is writable by the job

@@ -196,6 +196,7 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-err-gitlab-internal">GitLab: no user given / cannot save STDOUT (a script or the kit itself)</a></li>
 <li><a href="#t-agile-err-gitlab-board">FILE:LINE: a board needs its lists / board options are milestone=...</a></li>
 <li><a href="#t-agile-err-gitlab-iterations">FILE:LINE: a cadence is TITLE = START WEEKS ... / [iterations] use is ...</a></li>
+<li><a href="#t-agile-err-gitlab-terraform">FILE:LINE: 'X' is not an access level Terraform knows / board B lists label 'L'</a></li>
 <li><a href="#t-agile-err-windchill-config">FILE:LINE: unknown [windchill] key / priority-map entries are WINDCHILL=LABEL</a></li>
 <li><a href="#t-agile-err-windchill-export">Windchill: FILE has no 'Number' column for the number (its columns: ...)</a></li>
 <li><a href="#t-agile-err-internal">11. INTERNAL INVARIANTS</a></li>
@@ -1695,6 +1696,9 @@ iteration list          the group's iteration cadence and its iterations, and
                         whether sprints come from milestones or iterations
 insights [FILE]         the .gitlab/insights.yml setup generates, to stdout
                         (no server needed): <a href="#t-agile-gitlab-insights">agile-gitlab-insights</a>
+terraform [FILE] [--out DIR]   the project file as Terraform/OpenTofu for the
+                        gitlab provider, an alternative to setup:
+                        <a href="#t-agile-gitlab-terraform">agile-gitlab-terraform</a>
 user USERNAME          create a user (emulator, or an admin token)
 ci                      run the pipeline locally: <a href="#t-agile-gitlab-ci">agile-gitlab-ci</a>
 flow                    gitflow in a clone: <a href="#t-agile-gitlab-flow">agile-gitlab-flow</a>
@@ -1713,6 +1717,11 @@ Sprints = 2026-10-05 2 4 | automatic</pre>
 <pre>file = .gitlab/insights.yml
 weeks = 12</pre>
 <p>Analyze &gt; Insights (Ultimate) draws the charts of .gitlab/insights.yml on the default branch. setup generates the file from [labels] and [windchill]: open issues by workflow:: column, issues created and closed, merge requests merged, defects by severity::, Windchill requests received, closed and open, closed issues by work::, each weekly over the last <code>weeks</code> weeks (Insights cannot group by sprint). setup writes it into the repository when it runs on the repository's .gitlab/project.conf (or --repo DIR) and never commits it: commit it through a merge request, or setup --commit puts it on a feature/insights-DATE branch with the merge request. setup --diff reports when the default branch's copy is missing or differs. gitlab.pl insights prints it. Sample: tools/gitlab/samples/17-insights.yml.</p>
+<h4 id="t-agile-gitlab-terraform">gitlab.pl terraform <span class=tag>agile-gitlab-terraform</span></h4>
+<pre>perl bin/gitlab.pl terraform .gitlab/project.conf --out gitlab/terraform --url URL</pre>
+<p>The same settings setup applies, as .tf files for the gitlabhq/gitlab provider (~&gt; 19.4), for a platform team that runs GitLab as code: versions.tf (the provider pin and an empty backend &quot;http&quot; for GitLab-managed state), project.tf (the project, adopted with an import block; members, labels, the sprints as milestones, protected branches and tags, approval rules, CI/CD variables, schedules and boards), variables.tf (CI/CD variable values as Terraform variables, never in the files) and backend.hcl (tofu init -backend-config=backend.hcl). The iteration cadence and insights.yml are not in the provider and stay with setup. Do not run setup and an apply on the same project; setup --diff stays the drift check. CI: tools/gitlab/terraform/ gitlab-ci.tofu.yml, the OpenTofu CI/CD component (plan in the merge request, manual apply on the default branch), included only when GITLAB_TF is &quot;true&quot;; on GitLab Dedicated mirror the component first. Needs no GitLab and no terraform binary. Guide: tools/gitlab/terraform/README.md.</p>
+<h4 id="t-agile-gitlab-k8s">Kubernetes runners <span class=tag>agile-gitlab-k8s</span></h4>
+<p>tools/gitlab/k8s/ runs the model pipeline on GitLab Runner's Kubernetes executor (AKS): values.yaml (Helm values; the runner token stays in a Kubernetes secret; the mbse-ci image, CPU and memory, Linux nodes, non-root pods), gitlab-ci.k8s.yml (the default: block for the k8s-linux tag and KIT=/opt/agile-kit), networkpolicy.yaml (optional: GitLab and DNS only) and agents/sil-twin/config.yaml (optional: the GitLab agent for a SIL or digital-twin environment). The image (tools/gitlab/docker) runs as uid 1000 and needs no network at job time. README.md there splits what the platform team owns from what the MBSE team needs to know.</p>
 <h4 id="t-agile-gitlab-windchill">gitlab.pl windchill <span class=tag>agile-gitlab-windchill</span></h4>
 <p>Requests arrive in Windchill; the team works them in GitLab. With no API between the two, the bridge is a file each way.</p>
 <pre>windchill intake FILE.csv [--note]   one issue per new Windchill number in a
@@ -2848,6 +2857,18 @@ Means:   An [iterations] line is group = PATH, use = milestones|iterations,
 Fix:     Correct the line as the message shows. If setup then says &quot;you
          need Maintainer on group G&quot;: cadences live on the group, not the
          project; ask a group owner for Maintainer, or let them run setup.</pre>
+<h3 id="t-agile-err-gitlab-terraform">FILE:LINE: 'X' is not an access level Terraform knows / board B lists label 'L' <span class=tag>agile-err-gitlab-terraform</span></h3>
+<p>Pattern: *: '*' is not an access level Terraform knows (none, developer, maintainer, admin) Pattern: *: [project] path must be GROUP/NAME, not '*' Pattern: *:*: board * lists label '*', which [labels] does not define</p>
+<pre>From:    gitlab.pl terraform (lib/GitLabTf.pm)
+Means:   The project file cannot be written as Terraform: an access level
+         the gitlab provider does not have, a project path without a group
+         (the provider needs the group to place the project), or a board
+         list naming a label that [labels] does not define (Terraform
+         refers to the label resource, so it must be in the same file).
+Fix:     Use none, developer, maintainer or admin; write path = GROUP/NAME;
+         add the label to [labels] (a second [labels] section is fine) or
+         remove it from the board line. gitlab.pl setup --diff against the
+         live project shows what the server has.</pre>
 <h3 id="t-agile-err-windchill-config">FILE:LINE: unknown [windchill] key / priority-map entries are WINDCHILL=LABEL <span class=tag>agile-err-windchill-config</span></h3>
 <p>Pattern: *:*: unknown [windchill] key '*' (*) Pattern: *: [windchill] priority-map entries are WINDCHILL=LABEL, not '*'</p>
 <pre>From:    gitlab.pl windchill intake, gitlab.pl windchill status

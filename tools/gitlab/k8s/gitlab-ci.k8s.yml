@@ -1,0 +1,18 @@
+# The Kubernetes-runner variant of the model pipeline: REPLACE the template's `default:` block (tags windows, mbse) in
+# .gitlab-ci.yml with these keys, and add the variables. Keys in .gitlab-ci.yml win over an included file's, so an
+# include would not change the tags; edit the file. Everything else in the pipeline stays the same: every job is
+# `perl ci/job.pl NAME`, which runs the same in the mbse-ci image as on the Windows shell runner.
+default:
+  image: $CI_REGISTRY/tidewater/model/mbse-ci:1.0     # tools/gitlab/docker; pin a version, never :latest
+  tags:
+    - k8s-linux                                       # the tags the platform team gave the AKS runner in GitLab
+    - mbse
+
+variables:
+  KIT: /opt/agile-kit                                 # the kit inside the image (the project's KIT variable is for the shell runner)
+  DOCKER_RUNNER: "true"                               # the Kubernetes executor runs container images: GitLab's Secret Detection can run
+
+# Jobs that need Windows (a PowerShell-only script, a Windows tool) keep the shell runner's tags on the job itself:
+#   some-windows-job:
+#     tags: [windows, mbse]
+#     image: ""                                       # the shell runner ignores image:

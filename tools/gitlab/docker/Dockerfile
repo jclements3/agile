@@ -1,4 +1,4 @@
-# mbse-ci: the model pipeline's toolchain as a container image -- ONLY for teams whose GitLab offers Docker runners.
+# mbse-ci: the model pipeline's toolchain as a container image -- for Docker runners and Kubernetes runners (tools/gitlab/k8s).
 # The Tidewater team does not need it: their runner is a Windows shell executor with Git for Windows' Perl.
 #
 # Contents: Debian slim + Perl 5.40 (all core modules) + git + curl, and the agile kit's pipeline tools at /opt/agile-kit
@@ -30,9 +30,14 @@ ENV KIT=/opt/agile-kit \
 
 # GitLab checks the repository out as another user than the image's; let git work in it
 RUN git config --system --add safe.directory '*' \
- && useradd --create-home --shell /bin/bash ci \
+ && groupadd --gid 1000 ci \
+ && useradd --uid 1000 --gid 1000 --create-home --shell /bin/bash ci \
  && perl -I"$KIT/lib" -c "$KIT/tools/sysml/model.pl" \
  && perl "$KIT/tools/sysml/sysml.pl" grammar > /dev/null
 
-USER ci
+# A numeric user: Kubernetes can only verify runAsNonRoot for a numeric USER (tools/gitlab/k8s/values.yaml runs the
+# job pods as 1000:1000). The image needs no network at job time: the kit, Perl and git are all here, and only the
+# runner's helper container talks to GitLab.
+ENV HOME=/home/ci
+USER 1000:1000
 WORKDIR /home/ci

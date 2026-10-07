@@ -1,0 +1,31 @@
+# tools/gitlab/k8s/networkpolicy.yaml -- OPTIONAL: job pods talk to GitLab and DNS only. The kit's jobs need no
+# internet: Perl, git and the kit are in the mbse-ci image; the helper container still clones from and uploads
+# artifacts to GitLab. AKS enforces NetworkPolicy when the cluster has a network policy engine (Azure Network Policy
+# Manager, Calico or Cilium); ask the platform team which one, and replace the CIDR with your GitLab's address range.
+#   kubectl apply -n gitlab-runner-jobs -f networkpolicy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: mbse-jobs-egress
+  namespace: gitlab-runner-jobs
+spec:
+  podSelector: {}
+  policyTypes:
+    - Egress
+  egress:
+    - to:                                     # DNS
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53
+    - to:                                     # GitLab (HTTPS): clone, artifacts, the package registry, the API
+        - ipBlock:
+            cidr: 10.0.0.0/24                 # REPLACE: your GitLab Dedicated private endpoint range
+      ports:
+        - protocol: TCP
+          port: 443

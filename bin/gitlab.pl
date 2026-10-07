@@ -43,6 +43,7 @@ usage: gitlab.pl [--url URL [--token-env VAR] [--sudo] | --local DIR] [--project
   board list                     the issue boards: lists in order and the milestone scope ([boards] in setup)
   iteration list [--group G]     the group's iteration cadence and its iterations ([iterations] in setup)
   insights [FILE]                the .gitlab/insights.yml setup generates from the project file (no server needed)
+  terraform [FILE] [--out DIR]   the project file as Terraform/OpenTofu for the gitlab provider (no server needed)
   windchill intake FILE.csv | status [--csv FILE]            Windchill requests -> issues; progress back (help windchill)
   trigger new|list|run ...       pipeline trigger tokens: another system starts a pipeline (gitlab.pl help trigger)
   token deploy new|list ...      deploy tokens: a scoped credential for a machine (gitlab.pl help token)
@@ -171,6 +172,17 @@ gitlab.pl analytics [--since YYYY-MM-DD] [--until YYYY-MM-DD] [--by sprint|week|
   --sprints-from iterations or [iterations] use = iterations in .gitlab/project.conf. --csv DIR also writes
   one CSV per table.
 EOF
+    terraform => <<'EOF',
+gitlab.pl terraform [PROJECT FILE] [--out DIR] [--url URL] [--state NAME]
+  The project file as Terraform/OpenTofu for the gitlabhq/gitlab provider (~> 19.4): versions.tf (provider pin,
+  an empty backend "http" for GitLab-managed state), project.tf (the project, adopted by an import block; members,
+  labels, milestones, protected branches and tags, approval rules, CI/CD variables, schedules, boards),
+  variables.tf (CI/CD variable values as Terraform variables, never in the files) and backend.hcl (the state
+  URLs for `tofu init -backend-config=backend.hcl`). An alternative to setup for a platform team that runs
+  GitLab as code. Not in the provider, so left to setup: [iterations], [insights]. Needs no GitLab and no
+  terraform binary; without --out the files go to stdout. --url is the GitLab server (default GITLAB_URL).
+  CI: tools/gitlab/terraform/gitlab-ci.tofu.yml (plan in the MR, apply on the default branch; off by default).
+EOF
     insights => "gitlab.pl insights [PROJECT FILE]\n  Print the .gitlab/insights.yml that setup generates from the project file's [labels], [windchill] and\n  [insights] (default: .gitlab/project.conf here or above). Needs no GitLab. Analyze > Insights (Ultimate)\n  reads the file from the default branch: setup writes it into the repository, you commit it by merge request\n  (or setup --commit opens one).\n",
     iteration => "gitlab.pl iteration list [--group PATH] [--conf FILE]\n  The group's iteration cadences and their iterations (Sprint N = the iteration's sequence), and whether the\n  kit's sprints come from milestones or iterations ([iterations] use). Cadences live on the group, not the\n  project: setup makes them from [iterations] and needs Maintainer on that group.\n",
     board => "gitlab.pl board list\n  Each issue board: its label lists in order and its milestone scope (any, none, upcoming, started or a\n  milestone title). Boards are made by setup from the [boards] section of the project file.\n",
@@ -238,6 +250,24 @@ if ($cmd eq 'help') { my $c = shift @ARGV // ''; print $HELP{$c} // $HELP{''}; e
 if ($cmd eq 'ci') { require GitLabCI; exit GitLabCI::cli(@ARGV) }
 exists $HELP{$cmd} or do { print STDERR "gitlab.pl: unknown command '$cmd' (gitlab.pl help)\n"; exit 2 };
 
+if ($cmd eq 'terraform') {                   # no backend: project.conf -> .tf files (lib/GitLabTf.pm)
+    require GitLabTf;
+    my @a = @ARGV;
+    my $r = eval {
+        my %o = opts(\@a, 'out=s', 'url=s', 'state=s');
+        my $f = $a[0] // find_conf() // die "gitlab.pl: terraform needs a project file (or run it inside a repository with .gitlab/project.conf)\n";
+        my $files = GitLabTf::generate(slurp($f), file => $f, url => $o{url} // $G{url} // $ENV{GITLAB_URL}, state => $o{state});
+        if (defined $o{out}) {
+            require File::Path; File::Path::make_path($o{out});
+            for my $n (sort keys %$files) { open my $fh, '>:raw', "$o{out}/$n" or die "gitlab.pl: cannot write $o{out}/$n: $!\n"; print $fh $files->{$n}; close $fh }
+            my $nres = scalar @{ GitLabTf::resources($files->{'project.tf'}) };
+            print join(', ', sort keys %$files) . " -> $o{out} ($nres resources)\n";
+        } else { print map { "# ==== $_\n$files->{$_}\n" } sort keys %$files }
+        1;
+    };
+    if (!$r) { (my $e = $@) =~ s/^(?:gitlab\.pl|GitLab|GitLabTf): //; print STDERR "gitlab.pl: $e"; exit 1 }
+    exit 0;
+}
 if ($cmd eq 'insights') {                    # no backend: the file setup would write, to stdout
     my $r = eval {
         my $f = $ARGV[0] // find_conf() // die "gitlab.pl: insights needs a project file (or run it inside a repository with .gitlab/project.conf)\n";

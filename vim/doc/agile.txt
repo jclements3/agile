@@ -2749,6 +2749,9 @@ iteration list          the group's iteration cadence and its iterations, and
                         whether sprints come from milestones or iterations
 insights [FILE]         the .gitlab/insights.yml setup generates, to stdout
                         (no server needed): |agile-gitlab-insights|
+terraform [FILE] [--out DIR]   the project file as Terraform/OpenTofu for the
+                        gitlab provider, an alternative to setup:
+                        |agile-gitlab-terraform|
 user USERNAME          create a user (emulator, or an admin token)
 ci                      run the pipeline locally: |agile-gitlab-ci|
 flow                    gitflow in a clone: |agile-gitlab-flow|
@@ -2800,6 +2803,34 @@ commit it through a merge request, or setup --commit puts it on a
 feature/insights-DATE branch with the merge request. setup --diff reports
 when the default branch's copy is missing or differs. gitlab.pl insights
 prints it. Sample: tools/gitlab/samples/17-insights.yml.
+
+gitlab.pl terraform                                      *agile-gitlab-terraform*
+    perl bin/gitlab.pl terraform .gitlab/project.conf --out gitlab/terraform --url URL
+The same settings setup applies, as .tf files for the gitlabhq/gitlab
+provider (~> 19.4), for a platform team that runs GitLab as code:
+versions.tf (the provider pin and an empty backend "http" for GitLab-managed
+state), project.tf (the project, adopted with an import block; members,
+labels, the sprints as milestones, protected branches and tags, approval
+rules, CI/CD variables, schedules and boards), variables.tf (CI/CD variable
+values as Terraform variables, never in the files) and backend.hcl (tofu init
+-backend-config=backend.hcl). The iteration cadence and insights.yml are not
+in the provider and stay with setup. Do not run setup and an apply on the
+same project; setup --diff stays the drift check. CI: tools/gitlab/terraform/
+gitlab-ci.tofu.yml, the OpenTofu CI/CD component (plan in the merge request,
+manual apply on the default branch), included only when GITLAB_TF is "true";
+on GitLab Dedicated mirror the component first. Needs no GitLab and no
+terraform binary. Guide: tools/gitlab/terraform/README.md.
+
+Kubernetes runners                                             *agile-gitlab-k8s*
+tools/gitlab/k8s/ runs the model pipeline on GitLab Runner's Kubernetes
+executor (AKS): values.yaml (Helm values; the runner token stays in a
+Kubernetes secret; the mbse-ci image, CPU and memory, Linux nodes, non-root
+pods), gitlab-ci.k8s.yml (the default: block for the k8s-linux tag and
+KIT=/opt/agile-kit), networkpolicy.yaml (optional: GitLab and DNS only) and
+agents/sil-twin/config.yaml (optional: the GitLab agent for a SIL or
+digital-twin environment). The image (tools/gitlab/docker) runs as uid 1000
+and needs no network at job time. README.md there splits what the platform
+team owns from what the MBSE team needs to know.
 
 gitlab.pl windchill                                      *agile-gitlab-windchill*
 Requests arrive in Windchill; the team works them in GitLab. With no API

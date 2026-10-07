@@ -2001,6 +2001,24 @@ FILE:LINE: a cadence is TITLE = START WEEKS ... / [iterations] use is ...
 	   project; ask a group owner for Maintainer, or let them run setup.
 
 ------------------------------------------------------------------------------
+                                                   *agile-err-gitlab-terraform*
+FILE:LINE: 'X' is not an access level Terraform knows / board B lists label 'L'
+
+  Pattern: *: '*' is not an access level Terraform knows (none, developer, maintainer, admin)
+  Pattern: *: [project] path must be GROUP/NAME, not '*'
+  Pattern: *:*: board * lists label '*', which [labels] does not define
+  From:    gitlab.pl terraform (lib/GitLabTf.pm)
+  Means:   The project file cannot be written as Terraform: an access level
+	   the gitlab provider does not have, a project path without a group
+	   (the provider needs the group to place the project), or a board
+	   list naming a label that [labels] does not define (Terraform
+	   refers to the label resource, so it must be in the same file).
+  Fix:	   Use none, developer, maintainer or admin; write path = GROUP/NAME;
+	   add the label to [labels] (a second [labels] section is fine) or
+	   remove it from the board line. gitlab.pl setup --diff against the
+	   live project shows what the server has.
+
+------------------------------------------------------------------------------
                                                    *agile-err-windchill-config*
 FILE:LINE: unknown [windchill] key / priority-map entries are WINDCHILL=LABEL
 

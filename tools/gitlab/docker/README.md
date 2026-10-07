@@ -1,8 +1,8 @@
 # mbse-ci -- an optional Docker image for the model pipeline
 
 **You probably do not need this.** The Tidewater team's runner is a Windows shell executor that runs the kit with
-Git for Windows' Perl; the pipeline has no `image:`. Use this image only if your GitLab offers Docker runners and
-nothing else, or if you want GitLab's managed scanners (they need a Docker runner).
+Git for Windows' Perl; the pipeline has no `image:`. Use this image if your GitLab offers Docker or Kubernetes runners
+(`tools/gitlab/k8s` has the AKS runner setup), or if you want GitLab's managed scanners (they need a container runner).
 
 | File | What it is |
 |---|---|
@@ -43,5 +43,5 @@ Then add `gitlab-ci.docker.yml`'s keys to `.gitlab-ci.yml` and set `DOCKER_RUNNE
 
 - Pin the base image by digest. Rebuild monthly, or when Debian publishes a security update, and give each rebuild a new tag. Never use `:latest` in a pipeline.
 - Tag the image with the kit's tag. A pipeline that names `mbse-ci:1.0` always runs the same checks, so the toolchain is baselined along with the model.
-- The image runs as the unprivileged user `ci`. It contains no credentials, so pass tokens as masked CI/CD variables.
+- The image runs as the unprivileged user `ci`, uid and gid 1000 (numeric, so a Kubernetes `runAsNonRoot` pod can verify it). It contains no credentials, so pass tokens as masked CI/CD variables.
 - If your security office scans images, run that scan in the kit project's pipeline before you push.

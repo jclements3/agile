@@ -118,6 +118,16 @@ perl $KIT/bin/gitlab.pl --as tom setup tools/gitlab/templates/project.conf
   milestone Sprint 37
   milestone Sprint 38
   milestone Sprint 39
+  status TODO (to_do, default open) on tidewater
+  status OPEN (in_progress) on tidewater
+  status WAIT (in_progress) on tidewater
+  status HOLD (in_progress) on tidewater
+  status PUNT (triage) on tidewater
+  status DONE (done, default closed) on tidewater
+  status DROP (canceled, default duplicate) on tidewater
+  label REDO (mark)
+  label PASS (mark)
+  label SYNC (mark)
   board Sprint created
   board Sprint: list workflow::ready added
   board Sprint: list workflow::in-progress added

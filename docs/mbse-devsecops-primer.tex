@@ -2671,7 +2671,7 @@ This is a core chapter: read it in the first four weeks, and type the commands. 
 
 \section{Jim’s red pen}\label{recipe-story}
 
-Jim kept a one-page sheet pinned above the desk for most of the document era. It was a requirements recipe: one sentence pattern, eighteen numbered parts, six of them required, and a list of verbs nobody could verify. Jim had used it for years to review specifications by hand. A review meant printing the SRS, reading every paragraph with the sheet beside it, and marking up the margins. A careful review of a 300-requirement specification took Jim about three days.
+Jim kept a one-page sheet pinned above the desk for most of the document era. It was a requirements recipe: one sentence pattern, eighteen numbered parts, six of them required, and a list of verbs nobody could verify. (The current recipe adds five more, the links of \hyperref[recipe-links]{Section 7.10, The links: parts 19 to 23}~(p.\,\pageref*{recipe-links}).) Jim had used it for years to review specifications by hand. A review meant printing the SRS, reading every paragraph with the sheet beside it, and marking up the margins. A careful review of a 300-requirement specification took Jim about three days.
 
 In the Cameo years the sheet did not help much. The requirements were in DOORS, synchronized into the model, and the review happened on screen, one requirement at a time in a property panel. Jim stopped using the sheet; there was no margin to write in.
 
@@ -2698,11 +2698,14 @@ shall/will/should/may[7] ____[8]____ ________[9]________ with/such[10] that
 ________[11]________ in accordance with ________[12]________ (____[13]____)
 ____[14]____, except ________[15]________. Note:
 ________________[16]________________ (____[17]____) ____[18]____
+
+Parent: ____[19]____   Rationale: ________[20]________
+Verification: ____[21]____ by ____[22]____   Satisfied by: ____[23]____
 \end{Verbatim}
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedleft\arraybackslash}p{0.119\linewidth}>{\raggedright\arraybackslash}p{0.566\linewidth}>{\raggedright\arraybackslash}p{0.227\linewidth}@{}}
-\caption{The eighteen parts of the requirement recipe}\\
+\begin{longtable}{@{}>{\raggedleft\arraybackslash}p{0.099\linewidth}>{\raggedright\arraybackslash}p{0.437\linewidth}>{\raggedright\arraybackslash}p{0.377\linewidth}@{}}
+\caption{The twenty-three parts of the requirement recipe: eighteen in the sentence, five links}\\
 \toprule
 \bfseries Part & \bfseries Name & \bfseries Required \\
 \midrule
@@ -2731,9 +2734,16 @@ ________________[16]________________ (____[17]____) ____[18]____
 16 & Informational statement(s) &  \\
 17 & Requirement ID & Yes \\
 18 & Requirement tags &  \\
+19 & Parent trace & Yes, except at the top level \\
+20 & Rationale & Yes \\
+21 & Verification method & Yes, for “shall” \\
+22 & Verification case & Yes, by the baseline \\
+23 & Satisfied by & Yes, by the baseline \\
 \end{longtable}}
 
 Six parts are required: the classification, the specification target, the operative verb, the target verb, the precise objects and the requirement ID. Everything else appears when the requirement needs it. A short requirement is not a bad requirement: “(U) The data logger shall store 72 hours of observation records. (TW-SEG-011)” has all six required parts and nothing else, and it is a perfectly good requirement.
+
+Parts 19 to 23 are not words in the sentence. They are the requirement’s \textbf{relationship attributes}: links to its parent, to its justification, to how it will be verified and to the design that meets it. In a document they are columns in the requirements database or the verification matrix; in the model they are relationships, and \hyperref[recipe-links]{Section 7.10, The links: parts 19 to 23}~(p.\,\pageref*{recipe-links}) shows how the checker reads them. Two of them, the verification case and the satisfied-by link, may be open early and must be filled by the baseline the systems engineering plan names (usually CDR).
 
 The pattern reads like a form with blanks. That is deliberate. The recipe is not prose style advice; it is a structure, and structures can be checked.
 
@@ -2873,6 +2883,12 @@ either directly or indirectly sampled from the main CCA clock source. (NC_112358
 \end{Verbatim}
 
 Here it is taken apart, element by element.
+
+\begin{figure}[htbp]
+\centering
+\IfFileExists{fig-7-1.pdf}{\includegraphics[width=\linewidth,height=0.7\textheight,keepaspectratio]{fig-7-1.pdf}}{\fbox{\parbox{0.8\linewidth}{\centering\small (figure docs/img/recipe-anatomy.svg not converted: rsvg-convert was not found)}}}
+\caption{The worked example split into the recipe’s fields 1 to 18, one color per field}
+\end{figure}
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.234\linewidth}>{\raggedright\arraybackslash}p{0.311\linewidth}>{\raggedright\arraybackslash}p{0.367\linewidth}@{}}
@@ -3200,6 +3216,86 @@ Why bother with the constraint when the sentence already says “within 60 s”?
 
 \begin{boxnote}{Note: Tidewater does not do this yet, on purpose}
 Tidewater’s converted requirements carry only the sentence and the \code{doors\allowbreak{}Id}, because that is what the DOORS export gives the converter, and because the DOORS text is the prime’s. Adding subjects and constraints to the prime’s requirements would be a government edit to the prime’s deliverable. The pattern above is what the team does for requirements it owns, and what it proposed to the prime, in the model exchange agreement, as the target form for future drops. Treat it as the direction of travel, not week-one work.
+\end{boxnote}
+
+\section{The links: parts 19 to 23}\label{recipe-links}
+
+Parts 1 to 18 make a requirement well formed. Parts 19 to 23 make it traceable: up to why it exists, sideways to how it is justified, down to how it is met and proven. In the model each one is something a person can point at by its identifier, so the checker reads them from the whole model, not from one sentence.
+
+\begin{figure}[htbp]
+\centering
+\IfFileExists{fig-7-2.pdf}{\includegraphics[width=\linewidth,height=0.7\textheight,keepaspectratio]{fig-7-2.pdf}}{\fbox{\parbox{0.8\linewidth}{\centering\small (figure docs/img/building-blocks.svg not converted: rsvg-convert was not found)}}}
+\caption{The building blocks a requirement connects to: needs, functions, components, interfaces, verification cases, hazards, decisions and baselines}
+\end{figure}
+
+The links tie a requirement to the other building blocks of the model: its parent need or requirement (part 19), the decision or analysis behind its numbers (part 20), the verification case that proves it (parts 21 and 22), the component that meets it (part 23), and, for a safety tag, the hazard it mitigates. Give the checker a folder and \code{-\allowbreak{}-\allowbreak{}links}:
+
+{\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.219\linewidth}>{\raggedright\arraybackslash}p{0.358\linewidth}>{\raggedright\arraybackslash}p{0.336\linewidth}@{}}
+\caption{The recipe’s links in SysML v2}\\
+\toprule
+\bfseries Part & \bfseries Where it lives in SysML v2 & \bfseries Missing means \\
+\midrule
+\endfirsthead
+\toprule
+\bfseries Part & \bfseries Where it lives in SysML v2 & \bfseries Missing means \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+19 Parent trace & a \code{\#derivation connection} with the requirement as its \code{\#derive} end; for a derived requirement, \code{attribute derived\allowbreak{}From =\allowbreak{} \textquotedbl{}TRADE-\allowbreak{}\ldots{}\textquotedbl{}} naming the decision & an orphan: a derived requirement without its decision, or gold plating \\
+20 Rationale & \code{attribute rationale =\allowbreak{} \textquotedbl{}\ldots{}\textquotedbl{}} (or \code{@Rationale} metadata) & a number nobody can defend at a review or change safely \\
+21 Verification method & \code{attribute verification\allowbreak{}Method =\allowbreak{} \textquotedbl{}Test\textquotedbl{}} (Test, Analysis, Demonstration or Inspection) & a “shall” nobody knows how to verify: rewrite it \\
+22 Verification case & a \code{verify} in a verification definition & not in the VCRM yet \\
+23 Satisfied by & \code{satisfy REQ by ELEMENT} & not designed yet \\
+\end{longtable}}
+
+Requirements in a package named like “Stakeholder Needs” count as top level and need no parent; \code{-\allowbreak{}-\allowbreak{}top REGEX} sets a different rule. Convert drop 1’s Cameo model and read the links:
+
+\begin{Verbatim}
+perl "$KIT/bin/xmi2sysml.pl" --out v2 drop1/tidewater.xmi > /dev/null
+perl "$KIT/tools/sysml/req-recipe.pl" --links v2 > recipe-links.txt
+tail -2 recipe-links.txt
+\end{Verbatim}
+
+\begin{Verbatim}
+links: orphan=0 childless=0 unjustified=0 unverified=9 unsatisfied=1 unmitigated=0
+requirements=30 findings=27 missing=36
+\end{Verbatim}
+
+The prime’s trace holds: no orphans, every need has children. Nine requirements are not verified yet (the six needs have no method, and three requirements no case), one has nothing that satisfies it, and none has a rationale, which is most of the thirty-six missing parts. Look at one requirement:
+
+\begin{Verbatim}
+awk '/^TW-SYS-002 /{p=1} p&&/^$/{exit} p' recipe-links.txt
+\end{Verbatim}
+
+\begin{Verbatim}
+TW-SYS-002  score 72  v2/requirements/Requirements.sysml:25  (Scheduled transmission)
+  Each station shall transmit its observations to the data center on a fixed schedule.
+    ...
+    Parent Trace                TW_STK_002
+    Verification Method         Test
+    Verification Case           TestStationObservations
+    Satisfied By                ObservingStation
+    missing: Rationale
+\end{Verbatim}
+
+The missing rationale is the finding worth taking to the prime: a rationale is not decoration. Where a requirement has a number, the rationale must say where the number came from, an allocation from a budget, an analysis, a trade study, a standard or a customer direction, and the checker flags a number whose rationale names none of these as an \emph{unjustified threshold}. TW-SYS-002 has no number yet, which is a finding of its own (the “no measurable threshold” line). Written to the recipe it would read:
+
+\begin{Verbatim}
+Each station shall transmit its observations to the data center every 10 minutes. (TW-SYS-002)
+Parent: TW-STK-002. Rationale: 10 minutes allocated from the 30-minute observation latency budget (TB-LAT-01).
+Verification: Test by TestStationObservations. Satisfied by: ObservingStation.
+\end{Verbatim}
+
+Before the baseline, an open verification case or satisfier is an \emph{info} finding: the work is planned, not late. On the baseline’s merge request, add \code{-\allowbreak{}-\allowbreak{}baseline}, and the same gaps become missing parts:
+
+\begin{Verbatim}
+perl "$KIT/tools/sysml/req-recipe.pl" --links --baseline v2 | tail -1
+\end{Verbatim}
+
+\begin{boxnote}{Note: The other checks}
+The links line counts six checks: \emph{orphan} (no parent), \emph{childless} (a top-level requirement with no children and nothing satisfying it), \emph{unjustified} threshold, \emph{unverified} (no method, or no case), \emph{unsatisfied}, and \emph{unmitigated} safety tag: an SC or SR requirement must name the hazard it mitigates (\code{attribute hazard =\allowbreak{} \textquotedbl{}HAZ-\allowbreak{}\ldots{}\textquotedbl{}}). The checker also flags a \code{Note:\allowbreak{}} that carries a rationale or the verification approach: those have their own fields, so they can be queried and reported.
 \end{boxnote}
 
 \section{The recipe in the pipeline}\label{recipe-pipeline}
@@ -25513,6 +25609,7 @@ perl tools/gitlab/talk.pl [--local DIR | --url URL] [--project GROUP/NAME] stand
 perl tools/gitlab/talk.pl ... review --sprint N [--md] | weekly [--date D] [--md] | translate FILE|- [--glossary FILE]
 perl tools/memo/memo-build.pl [--check] [--out DIR] [--pdf-only|--text-only] FILE.md... [-- md2memo options]
 perl tools/sysml/req-recipe.pl [--format text|csv|junit|codequality] [--require classification] [--strict] [-o FILE] INPUT...
+perl tools/sysml/req-recipe.pl --links [--baseline] [--top REGEX] MODEL-DIR   # parts 19-23: parent, rationale, method, case, satisfied by
 \end{Verbatim}
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
@@ -28481,6 +28578,7 @@ from are in `../templates/`. Tidewater is fictional; Jim, Bob and Tom are the go
 | `15-snippet-and-mentions.md` | References and mentions anywhere | any Markdown field |
 | `16-windchill-round-trip.md` and `windchill-export.csv` | Issues made from a Windchill export; the status sheet sent back | `gitlab.pl windchill intake` / `status` |
 | `17-insights.yml` | `.gitlab/insights.yml`: the Insights dashboard (Ultimate), generated from project.conf | `gitlab.pl setup` writes it; commit it by MR |
+| `se-backlog-tidewater.xlsx` and `.csv` | A backlog workbook: Tidewater's tomes, epics and the stories and tasks of sprints 1-6 (`perl sim/tidewater-backlog.pl`) | `gitlab.pl backlog import` / `export` |
 \end{Verbatim}
 
 \subsection{Planning: epic, story, task}\label{templates-samples-planning}
@@ -31113,7 +31211,7 @@ echo "labels: $(grep -c '^label ' setup.txt)"
 echo "milestones: $(grep -c '^milestone ' setup.txt)"
 \end{Verbatim}
 
-Setup created seventy-three labels (the \code{[labels]} section, one line each) and thirty-nine milestones (the one \code{sprints =\allowbreak{} \ldots{}} line in \code{[milestones]}, which expands to a milestone per sprint).
+Setup created seventy-six labels (the \code{[labels]} sections, one line each, and the three marks REDO, PASS and SYNC of \code{[statuses]}) and thirty-nine milestones (the one \code{sprints =\allowbreak{} \ldots{}} line in \code{[milestones]}, which expands to a milestone per sprint).
 \end{boxanswer}
 
 \begin{boxanswer}{\hyperref[ex-setup-refuse]{Exercise 15.2}~(p.\,\pageref*{ex-setup-refuse}): Make it refuse you}

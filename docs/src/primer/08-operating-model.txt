@@ -243,17 +243,20 @@ team's own tool. Jim is accountable for stories finishing in the sprint they wer
 and should not manage, which of Bob's three tasks is done by Wednesday. GitLab already records that, in detail, for
 anyone who wants to look.
 
-The mapping to GitLab objects depends on which tier of GitLab the organization licenses. Tidewater's enterprise
-GitLab is the Free tier (GitLab's name for its unpaid edition, which in an enterprise installation is still
-supported by the administrators), so the team used labels and milestones for the upper levels:
+The mapping to GitLab objects depends on which tier of GitLab the organization licenses. Tidewater's GitLab is the
+program's **GitLab Dedicated** instance at the **Ultimate** tier: a single-tenant GitLab that GitLab runs for the
+organization, with every feature in the right-hand column. The team still began with labels and milestones in the
+first twelve weeks, and turned on epics and iterations in sprint 7 by importing the backlog workbook
+([[stories]]). One new hierarchy at a time: three people learning git and SysML v2 did not also need two
+trees (labels and epics) to keep in step, and the labels were what the journal and the quad already read.
 
-|| Level | GitLab Free (what Tidewater used) | GitLab Premium or Ultimate (if you have it) ||
+|| Level | Labels and milestones (Tidewater, weeks 1-12; any tier) | Epics and iterations (Ultimate, from sprint 7) ||
 | Project | a group (`tidewater`) holding the model project | the same |
-| Tome | a scoped label `tome::port` | a parent epic (Ultimate supports multi-level epics) |
+| Tome | a scoped label `tome::port` | a parent epic (multi-level epics) |
 | Epic | a scoped label `epic::structure` | a group epic, with child issues and a roadmap |
 | Sprint | a milestone "Sprint 3" with start and due dates | an iteration in an iteration cadence |
 | Story | an issue labeled `type::story` | the same, attached to its epic |
-| Task | an issue labeled `type::task`, related to its story | a child task (a GitLab "task" work item) or the same issue |
+| Task | an issue labeled `type::task`, related to its story | a child task (a GitLab "task" work item) |
 Table: The levels in GitLab, by tier
 
 A **scoped label** is a GitLab label whose name contains `::`. An issue can carry only one label from each scope, so
@@ -509,8 +512,9 @@ Adapt these to your situation:
   recognize, then check each against the size limits and split what does not fit.
 - **The RACI around the team.** Your CCB, security approver and contractor relationships will differ. The question
   to answer for each is: which of their decisions can be enforced by a GitLab setting, and which must be a story?
-- **The GitLab mapping.** If your organization licenses Premium or Ultimate, use epics and iterations; the
-  operating model does not change.
+- **The GitLab mapping.** On Premium or Ultimate, decide when epics and iterations replace the labels and milestones
+  (Tidewater: sprint 7, by importing the backlog workbook). On the Free tier, labels and milestones are the whole
+  mapping; the operating model does not change.
 
 Decide these locally, before sprint 1:
 

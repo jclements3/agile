@@ -55,6 +55,7 @@ Table: Systems engineering terms and their GitLab counterparts
 === DevSecOps and GitLab words {#glossary-devsecops}
 
 || Word | Meaning in this book ||
+| AKS | Azure Kubernetes Service: Azure's managed Kubernetes, where the program's container runners live |
 | Allow failure | a job setting: its failure shows yellow and does not block the merge |
 | Approval | a reviewer's recorded "yes" on an MR |
 | Artifact | a file a job keeps after it runs (a report, a log, a count) |
@@ -71,19 +72,25 @@ Table: Systems engineering terms and their GitLab counterparts
 | Deploy token | a read-only credential for cloning or downloading from outside |
 | DevSecOps | development, security and operations done together, in small changes with automated checks |
 | Environment | a named place a job publishes to (the model site); each successful publish is a deployment |
+| Epic (GitLab) | a group-level work item that holds issues and child epics (Premium; multi-level on Ultimate) |
 | Fast-forward | moving a branch to a newer commit without a merge commit |
 | Force push | overwriting a branch's history on the server; forbidden on protected branches |
 | Gitflow | the branching scheme used here: `main`, `develop`, feature, release, hotfix, plus `vendor/prime` |
+| GitLab Dedicated | a GitLab instance GitLab Inc. runs for one organization alone, at the Ultimate tier |
 | GitLab flow | a simpler alternative scheme: feature branches into `main`, promotion by environment or release branches |
+| Insights | an Ultimate page of charts defined by `.gitlab/insights.yml`; the dashboard management reads |
 | Issue | a work item: story, task, defect, discrepancy report, drop intake |
-| Job | one step of a pipeline, such as `lint` |
+| Iteration, iteration cadence | GitLab's own sprints; a cadence creates them on a schedule (Premium, Ultimate) |
 | Job token (`CI_JOB_TOKEN`) | a credential that exists only while a job runs |
+| Job | one step of a pipeline, such as `lint` |
+| Kubernetes, pod | a system that runs containers on a pool of machines; a pod is one running group of containers (one job, with the Kubernetes executor) |
 | Label, scoped label | a tag on an issue or MR; a scoped label `key::value` allows one value per key (Premium) |
 | Lint | an automatic structural check of the model |
 | Masked variable | a CI/CD variable hidden as `[MASKED]` in job logs |
 | Merge request (MR) | a request to merge a branch, with its changes, checks, discussion and approvals |
 | Merged-results pipeline | an MR pipeline run on the result of merging the branch into its target |
 | Milestone | a dated time box; here, one sprint |
+| OpenTofu | the open-source fork of Terraform: the same language and commands |
 | Package registry | storage for files with versions and checksums (the prime drops, baseline bundles) |
 | Pages | a static website published from a job's `public/` folder (the model site) |
 | Personal access token | a credential for one person's scripts |
@@ -103,9 +110,14 @@ Table: Systems engineering terms and their GitLab counterparts
 | Shift left | finding a problem earlier: at merge rather than at integration |
 | Squash | combining a branch's commits into one at merge; never used here |
 | Stage | a column of jobs; stages run in order |
+| Status (work item) | a work item's state from a list the group defines; here the seven work states, TODO to DROP (GitLab 18.2+) |
+| Switchboard | GitLab's portal for Dedicated customers: allowlists, single sign-on, logs, hosted runners |
 | Tag, annotated tag | a permanent name for one state of the repository; annotated tags carry a message |
+| Terraform, plan, apply, state | infrastructure described as text; `plan` lists the changes, `apply` makes them, the *state* records what exists |
+| Value streams dashboard | an Ultimate page of flow and DORA measures, with no set-up |
 | Vendor branch | `vendor/prime`: exactly what the converters make of each drop, never edited |
 | Wiki | the project's versioned pages of procedures and decisions |
+| Windchill | the program's product lifecycle system, where users submit requests; imported into GitLab at refinement |
 | YAML | the indented text format of `.gitlab-ci.yml` |
 Table: DevSecOps and GitLab words
 

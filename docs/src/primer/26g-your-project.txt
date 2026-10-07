@@ -171,8 +171,9 @@ Every decision below was made one way on Tidewater. The column on the right says
 | Boundary with the supplier | full mirror of the supplier's model | Full mirror if the model is your deliverable; interface surface if you consume theirs ([[prime-changes-strategies]]) |
 | Repository layout | layered folders through a layout map | The layers suit any system; the folder names should match your subsystems ([[repo-layout]]) |
 | Requirements source | DOORS authoritative, converted on every drop, never hand-edited | Whatever your contract says governs; never two editable copies |
-| Runner | a Windows shell runner on a dedicated VM with Git for Windows' Perl | What your enterprise can approve; a Docker runner works with the optional image ([[runners]]) |
-| GitLab tier | started on Free, Premium decided in sprint 2 | Approval rules and code-owner enforcement are the Premium features worth paying for first ([[tools]]) |
+| Runner | a Windows shell runner on a dedicated VM in Azure, with Git for Windows' Perl; the program's Kubernetes runners for container jobs | What your platform team can approve; Kubernetes or Docker runners work with the kit's image ([[runners]]) |
+| GitLab tier | GitLab Dedicated, Ultimate; features turned on as their pain was felt | On a lower tier, approval rules and code-owner enforcement are the Premium features worth paying for first ([[tools]]) |
+| Request intake | Windchill requests imported at refinement into an intake project; status back at review | Wherever your users already file requests; a file each way when there is no API ([[windchill]]) |
 | Generated documents | committed, with a "docs are current" gate | Commit them if reviewers read diffs of documents; regenerate in CI only if nobody does |
 | Primary progress measure | TODO lines left by the converter | Any count the strongest skeptic would accept, computed by a program |
 | Story size | tasks at most five ideal days, stories within a sprint | Keep the limits; the numbers are what make a sprint plannable |

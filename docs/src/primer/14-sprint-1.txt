@@ -220,7 +220,7 @@ thing the prime received from the new process to be improvised.
 
 ==== Friday 9: the project exists {#sprint-1-setup}
 
-Tom applied the project file to the GitLab group the enterprise administrators had created. The command is one line;
+Tom applied the project file to the GitLab group the platform team had created. The command is one line;
 its output is long, because it is the whole configuration of the project, read back:
 
 {{include: docs/tidewater/sprints/01/setup.txt | lines 1-8}}
@@ -307,6 +307,15 @@ Notice what the list says about the team's thinking at the end of its first week
 yet; the plan is to bring it in through the vendor branch, *in layers*, which means Bob had already decided the
 model's folder layout would follow the layered structure rather than the converter's default ([[repo-layout]]). That
 decision is cheap in sprint 2 and very expensive later, because every future drop must land in the same folders.
+
+The refinement also met the program's users for the first time, through Windchill. Jim exported the report of open
+DevSecOps requests that morning and imported it into the intake project ([[windchill]]):
+
+{{include: docs/tidewater/sprints/01/windchill/intake.txt}}
+
+Two requests, both accepted, and neither needed a new story: the station leads' nightly summary is what the model
+site of sprint 4 delivers, and the data center's read access is one setting once drop 1 is on `develop`. Jim's note
+for the retrospective: "Half of what users ask for is already in the plan. Say so, with the sprint."
 
 ==== Friday 16: a red pipeline on a laptop {#sprint-1-local-ci}
 

@@ -424,6 +424,16 @@ forgotten open issue shows up as somebody's "today". The analytics for the sprin
 it was still showing up in Tom's drafts at the end of sprint 4. The fix takes ten seconds: close it. The lesson is the one every tool on the team teaches sooner or later: the tools are only as good as
 the board you keep.
 
+The Windchill import that morning brought the first request from the systems engineering group itself, WC-000106:
+
+{{include: docs/tidewater/sprints/03/windchill/intake.txt}}
+
+A latency budget (the time from an observation at a station to the published bulletin, divided among station,
+network, data center and publication, and checked when the model changes) is exactly the kind of analysis the model
+should do. It was also not possible yet: the model had structure but no behavior or constraints. Jim deferred it to
+the sprint 7 refinement, when the EnergyBalance constraint would show how a budget is written in SysML v2, and said so
+on the request. Deferring with a condition is a decision; leaving a request unanswered is not.
+
 ==== Friday 13 November: review and retrospective {#sprint-3-review}
 
 Jim closed the last story of the sprint at 10:00, the write-up of the drift and the trace gaps. Then the review:

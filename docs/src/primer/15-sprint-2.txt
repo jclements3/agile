@@ -81,7 +81,7 @@ Nobody flagged it at the time. It surfaced at the review, in the worst possible 
 
 ==== Tuesday 20: the runner is online {#sprint-2-runner}
 
-The enterprise administrators registered the runner Tom had requested in sprint 1: a Windows virtual machine with Git
+The platform team registered the runner Tom had requested in sprint 1: a Windows virtual machine with Git
 for Windows, a shell executor, and the tags the pipeline asks for ([[runners]]). Tom's half-point task was to check
 the registration and the tags. It was the shortest task of the sprint and the one everything else waited on.
 
@@ -197,6 +197,15 @@ It was not quite on develop yet. It was on its way through review, which is the 
 The list turned toward engineering for the first time: closing the conversion debt in the Network package, bringing
 the DOORS modules into the model, and the first drift and gap analysis. The platform stories that remained were about
 making the checks report something useful: the trace report and secret detection.
+
+The Windchill import that morning brought two new requests and the first **drift**: Windchill's CM office had
+marked the first two "Approved" after the sprint 1 status sheet went back.
+
+{{include: docs/tidewater/sprints/02/windchill/intake.txt}}
+
+The first decline was the hardest for Jim, who had made those PowerPoint exports for years. The reason went on the
+request with an alternative (the model site, already accepted for the same station leads as WC-000101), so the
+answer the requester read in Windchill was "here is something better, and when", not "no".
 
 ==== Thursday 29: the drop is merged {#sprint-2-merge}
 

@@ -12,9 +12,10 @@ What is new: it works unattended, and if it is offline, nothing merges.
 What you have: a pipeline file ([[pipeline]]) and a GitLab project ([[gitlab-setup]]).
 
 What you need: a computer that actually runs the jobs. This chapter explains what a runner is, the kinds GitLab
-offers, why the Tidewater team chose a project runner with the Windows shell executor on a dedicated virtual machine,
-how it was registered and secured, what goes wrong ("pending", "stuck", offline), and how the team kept the same
-pipeline file working on Windows, on Linux, in Docker and on a laptop.
+offers, why the Tidewater team chose a project runner with the Windows shell executor on a dedicated virtual machine
+in Azure, how it was registered and secured, what goes wrong ("pending", "stuck", offline), what the program's
+Kubernetes runners on Azure do differently, how the platform team's Terraform fits in, and how the team kept the
+same pipeline file working on Windows, on Linux, in Kubernetes and on a laptop.
 :::
 
 === GitLab runs nothing {#runners-nothing}
@@ -29,8 +30,9 @@ runner is the auditor who shows up and does it. No auditor, no audit: a pipeline
 in the state GitLab calls **pending**, indefinitely. With "pipelines must succeed" switched on, that means no merge
 request can merge. An offline runner stops the whole team.
 
-That is why the request to the enterprise administrators in [[gitlab-setup]] asked for a runner on day one, and why
-Tom's stand-up said "blocked" until it existed.
+That is why the request to the platform team in [[gitlab-setup]] asked for a runner on day one, and why Tom's
+stand-up said "blocked" until it existed. On GitLab Dedicated the split is the same: GitLab runs the server (on AWS),
+and the runners are the program's own, here in the program's Azure subscription ([[admin-dedicated]]).
 
 === Who a runner serves: scopes {#runners-scopes}
 
@@ -38,24 +40,25 @@ Tom's stand-up said "blocked" until it existed.
 | Instance (shared) runner | the GitLab administrators | every project on the server | general-purpose jobs, usually Linux with Docker |
 | Group runner | a group owner | every project in the group | a team's projects with shared needs |
 | Project runner | a project maintainer | one project (or a few it is enabled for) | special tools, special security rules |
-| GitLab.com hosted runner | GitLab | GitLab.com projects | no machine to maintain; billed in compute minutes |
+| Hosted runner | GitLab | GitLab.com projects, or a Dedicated instance's (hosted runners for Dedicated) | no machine to maintain; billed by use |
 Table: Runner scopes
 
 The Tidewater team used a **project runner**, registered to `tidewater/model`. Three reasons:
 
-- **The tools.** The jobs need Perl and the agile kit. The organization's shared runners were Linux machines running
-  Docker containers built for software teams, with no kit and no way for the team to add one in the first quarter.
+- **The tools.** The jobs need Perl and the agile kit. The program's shared runners are the platform team's
+  Kubernetes runners on Azure ([[runners-k8s]]): Linux containers built for software teams, with no kit in them in
+  the first quarter, and an image of the team's own needed the ISSM's approval.
 - **The security conversation.** The ISSM wanted one machine, one service account, one purpose, a list of exactly
   what runs on it, and no other project's jobs on it. A project runner is that list.
-- **The cost.** On the organization's self-managed GitLab, a runner on the team's own virtual machine costs nothing
-  per minute; on GitLab.com, the hosted runners bill compute minutes after a free quota ([[tools-gates]]).
+- **The cost.** A runner on the program's own virtual machine costs nothing per minute; GitLab's hosted runners
+  bill by use ([[tools-gates]]).
 
 === Hosted or your own: the decision {#runners-decision}
 
 Many readers will not have a choice: the organization will have decided where pipelines may run. If you do have one,
 these are the questions that decided it for Tidewater.
 
-|| Question | Hosted runners (GitLab.com) | Your own runner ||
+|| Question | GitLab's hosted runners | Your own runner (Tidewater: in Azure) ||
 | May the model's data leave the organization's network? | only if the data is cleared for the vendor's cloud | stays where the runner is |
 | Who patches the machine? | GitLab | your administrators |
 | What does a minute cost? | compute minutes after a free quota | nothing per minute; the machine's cost |
@@ -70,7 +73,7 @@ exercises, hosted runners with the kit's Docker image are the quickest start.
 
 === What to put in the request {#runners-request}
 
-The enterprise administrators will need the same facts every time. Tom's request, which got the runner in about two
+The platform team will need the same facts every time. Tom's request, which got the runner in about two
 weeks, listed:
 
 - **Purpose**: run the automated checks of the Tidewater model project's pipeline; no other project.
@@ -97,7 +100,7 @@ The **executor** is how the runner runs each job's script.
 | shell | runs the script directly on the runner's machine, as the runner's account | simple jobs with tools installed on the machine | jobs share the machine; nothing is isolated |
 | docker | starts a fresh container from an image for each job | clean, repeatable environments | needs Docker on the runner; images must be built and maintained |
 | docker-windows | the same with Windows containers | Windows tools in containers | large images, slow starts |
-| kubernetes | runs each job as a pod in a cluster | large organizations | needs a cluster and its administrators |
+| kubernetes | runs each job as a pod in a cluster | organizations with a platform team (Tidewater's program: AKS) | needs a cluster and its administrators; jobs run in containers |
 | custom | your own scripts start and stop the environment | special cases | you maintain it |
 Table: Runner executors
 
@@ -105,9 +108,10 @@ The team chose the **shell executor on Windows**: the runner machine is a Window
 Windows installed (which brings Perl, Git and a POSIX shell), and the agile kit checked out at a fixed path. Every job
 runs as the runner's service account, in a work folder the runner creates per project.
 
-Why not Docker, which is cleaner? Because in the first quarter the organization had no Docker runners for the team's
-network, and the ISSM's approval for one would have taken longer than the twelve weeks. The kit does include an
-optional Docker image for later ([[runners-docker]]), and the pipeline was written so that switching costs one line.
+Why not the Kubernetes runners, which are cleaner? Because a job there runs in a container image, the team had no
+approved image with the kit in it, and the ISSM's approval for one (an image built, scanned and stored in the
+program's registry) took longer than the twelve weeks. The kit includes that image ([[runners-docker]]), and the
+pipeline was written so that switching costs a few lines ([[runners-k8s]]).
 
 === The lesson of the first week: PowerShell {#runners-pwsh}
 
@@ -178,7 +182,7 @@ program on the machine.
 
 GitLab shows the token once, starting `glrt-`. Treat it as a password.
 
-**Step 2, on the runner machine** (the enterprise administrator with Tom, in an elevated PowerShell window). These are
+**Step 2, on the runner machine** (a platform-team administrator with Tom, in an elevated PowerShell window). These are
 the commands they typed on the Windows virtual machine; the book's material has no server, so they are shown, not
 run:
 
@@ -302,6 +306,73 @@ committed kit version and tagged with it, so the toolchain is baselined along wi
 `tools/gitlab/docker/README.md` has the build, test and care instructions. With a Docker runner, GitLab's managed
 scanners (Secret Detection and others) can run too.
 
+=== The program's Kubernetes runners on Azure {#runners-k8s}
+
+The program's platform team runs GitLab Runner inside **Azure Kubernetes Service** (AKS), Azure's managed
+Kubernetes. Kubernetes is a system that runs containers on a pool of machines and starts or stops them on demand; a
+**pod** is one running group of containers. With the runner's **Kubernetes executor**, every job becomes a pod:
+
+1. A pipeline starts, and GitLab queues each job with its tags.
+2. The runner manager (itself a pod) asks GitLab for work and picks up a job whose tags it has.
+3. It creates a pod for the job: a *build* container from the job's image, which runs the script; a *helper*
+   container, which clones the repository and moves the cache and artifacts; and any services the job names.
+4. The script runs (`perl ci/job.pl lint`), the log streams back to GitLab, the artifacts are uploaded, and the pod
+   is deleted.
+
+Nothing is left behind between jobs, which is exactly what the shell runner cannot promise. Three rules make it
+work for a model pipeline, and all three are the platform team's to enforce:
+
+- **The image.** Every job runs in `mbse-ci`, the kit's image (Perl, Git and a pinned kit version), built from
+  `tools/gitlab/docker/`, scanned, and stored in the program's registry. The tag is a version, never `latest`.
+- **Not root.** The pod runs as an ordinary user (uid 1000), never as the administrator of the container.
+- **No network at job time.** The job needs GitLab and nothing else; the kit is already in the image, so nothing is
+  downloaded while a check runs. A network policy can enforce it (`tools/gitlab/k8s/networkpolicy.yaml`).
+
+Moving the model pipeline there changes one block of `.gitlab-ci.yml`: the image and the tags.
+
+{{include: tools/gitlab/k8s/gitlab-ci.k8s.yml}}
+
+What the MBSE team needs to know is short: the tags (`k8s-linux`, `mbse`), the image name and version, and that a
+pending job means "no runner with these tags is free", not a broken model. The team does not need `kubectl`, the
+Kubernetes command line. `tools/gitlab/k8s/README.md` is the hand-off to the platform team: the Helm values for the
+runner (`values.yaml`, with the token in a Kubernetes secret, never in a file) and the split of who owns what. GitLab's
+own scanners (Secret Detection and the rest) need container runners, so they run here and not on the Windows runner;
+the kit's jobs can run on either.
+
+=== Infrastructure as code: Terraform and OpenTofu {#terraform}
+
+The platform team builds the AKS cluster, its node pools, the runners and the network rules with **Terraform**: text
+files that describe infrastructure, which a tool compares with what exists and then changes to match. **OpenTofu**
+is its open-source fork, with the same language and commands. A systems engineer will meet it in three places.
+
+- **Reading a plan in a merge request.** A change to the platform's Terraform goes through a merge request like a
+  model change. Its pipeline runs `plan`, which lists what would be created, changed or destroyed, and GitLab shows
+  the summary on the merge request. Read it as you read a configuration change: does the plan touch only what the
+  description says? A plan that destroys something the description does not mention is a question for the author.
+  The change is made by `apply`, after approval, on the default branch.
+- **State in GitLab.** Terraform remembers what it built in a *state* file. GitLab can keep that state for a project
+  (Operate > Terraform states), locked while someone applies, versioned like everything else. It holds names and
+  addresses of real infrastructure, so access to it is a security decision: the platform team owns it.
+- **The project itself as code.** Some platform teams manage every GitLab project with Terraform and GitLab's
+  provider, instead of `gitlab.pl setup`. The kit writes the same project file as Terraform, so there is still one
+  source of truth:
+
+```sh run sandbox=scratch expect="(?s)versions.tf -> tf \(20 resources\).*push_access_level += .no one."
+sed "s#^KIT = /opt/agile#KIT = $KIT#" $KIT/tools/gitlab/templates/project.conf > project.conf
+perl $KIT/bin/gitlab.pl terraform project.conf --out tf --url https://gitlab.example.invalid
+grep -A6 'resource "gitlab_branch_protection" "develop"' tf/project.tf
+```
+
+The provider covers the project, members, labels, milestones, protections, approval rules, variables, schedules and
+boards. What it does not cover stays with `gitlab.pl setup`: the work-item statuses, the iteration cadence and the
+Insights file. Choose one tool per project; a `setup` and an `apply` against the same project would undo each other.
+The plan-in-the-merge-request pipeline is `tools/gitlab/terraform/gitlab-ci.tofu.yml`, which uses GitLab's OpenTofu
+CI/CD component; on GitLab Dedicated the component lives on GitLab.com and must first be mirrored to the program's
+instance, which is a platform-team task.
+
+Tidewater's team never ran `apply`. Tom read the platform team's plans when the runner's network rules changed, and
+kept `gitlab.pl setup --diff` as the monthly check that the project matched its file ([[admin]]).
+
 === The laptop is a runner too {#runners-laptop}
 
 `gitlab.pl ci` ([[cicd]]) is a runner that takes no orders from a server: it reads `.gitlab-ci.yml`, picks the jobs
@@ -332,7 +403,8 @@ credentials, what runs on it, who maintains it. Use [[runners-account]] as a mod
 - **Copy**: ask for the runner on day one; one purpose per runner; a least-privilege service account; shell-neutral job
   scripts (`perl ci/job.pl NAME` or the equivalent in your tool's language); a written "pending" checklist; disk
   monitoring; a plan for a second runner.
-- **Adapt**: the executor (Docker if your organization has it, shell if not); the scope (group runner if several model
-  projects share tools); protected runners for publishing jobs.
+- **Adapt**: the executor (Kubernetes or Docker if your organization has it, with the kit's image; shell if not); the
+  scope (group runner if several model projects share tools); protected runners for publishing jobs; Terraform for the
+  project if your platform team runs GitLab as code.
 - **Decide locally**: who owns the runner machine and its patches; which network it may reach; whether hosted runners
   and their compute minutes are allowed for your data at all.

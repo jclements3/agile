@@ -282,6 +282,17 @@ the twelve weeks: the team builds the thread from the first sprint, and nobody b
 
 {{figure: docs/img/vee-devsecops-twin.svg | One picture: the Vee and its reviews, two-week sprints, the DevSecOps loop, the model in GitLab as the spine, the digital thread and the digital twin}}
 
+The same idea as a poster, the one Jim pinned beside the team's whiteboard:
+
+{{figure: docs/img/mbse-devsecops-agile-v.svg | The integrated V: the MBSE model and its digital thread (purple) to every stage, the agile increments walked inside the V, the DevSecOps loop under the build, and the digital twin of the fielded observing network feeding back}}
+
+Read it from the model outward. The purple cables are the digital thread: every stage of the V reads and writes the
+one model. The gold Vs in the middle are the small Vees of [[vee-three]], walked every sprint. The track under the
+build is the DevSecOps loop, with its checks, security and releases. The twin, top right, is the fielded network
+beside its simulation; its dashed arrow comes back into the left arm. At Tidewater that arrow is concrete: what the
+twin (or, today, the stations' operators) learns arrives as a **Windchill request** or a change request, is imported
+at refinement ([[windchill]]) and becomes a need, a requirement change or a story, which starts the next small V.
+
 ::: definition
 digital thread: the unbroken chain of identifiers that connects a need to the requirements derived from it, to the
   design elements that satisfy them, to the verification cases and their verdicts, to the configuration that was

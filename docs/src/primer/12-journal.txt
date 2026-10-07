@@ -51,9 +51,9 @@ re-cut. A journal that tracked them would be noisy and always out of date. Stori
 and every change is a fact management cares about: committed, done, carried, blocked.
 
 ::: note Why not GitLab for everything?
-GitLab's Premium tier has epics and iterations with burndown charts, and with it a team could keep the whole hierarchy
-in GitLab. The team had the Free tier, and more importantly a need GitLab does not meet: a ledger in which points
-are never edited after the fact, only moved, so last month's numbers are exactly what they were last month. That
+Tidewater's GitLab is Ultimate: it has epics, iterations and burndown charts, and with them a team could keep the
+whole hierarchy in GitLab (the team turned them on in sprint 7). The journal stays anyway, for a need GitLab does not
+meet: a ledger in which points are never edited after the fact, only moved, so last month's numbers are exactly what they were last month. That
 property is what lets [[scorecard]] compare sprint 1 with sprint 6 without anyone asking "has this been restated?"
 :::
 

@@ -3,7 +3,8 @@
 ::: bridge
 You know: the CM plan, the CCB charter, and the list of who may approve what.
 
-Here it is called: the GitLab project: members, protected branches, CODEOWNERS, labels and milestones.
+Here it is called: the GitLab project: members, protected branches, CODEOWNERS, labels, milestones, boards and
+statuses, and an intake project for the requests that arrive in Windchill.
 
 What is new: the rules are settings GitLab enforces, written once in a project file.
 :::
@@ -14,24 +15,28 @@ and a directive that says "GitLab".
 
 What you need: a GitLab project that works the way your configuration management plan says it should, before
 the first model file goes into it. By the end of this chapter you will have the project, its members, its
-protected branches and tags, its labels, its sprints, its templates and its code owners, all written down in one
-text file that you can review, re-apply and audit.
+protected branches and tags, its labels, its sprints, its boards and work states, its templates and its code owners,
+all written down in one text file that you can review, re-apply and audit; and a second, small project where the
+requests users submit in Windchill arrive.
 :::
 
 === Tom's first request {#gitlab-setup-request}
 
-On Thursday 8 October, once the laptops were ready, Tom opened a ticket with the enterprise GitLab administrators
-(task #14 in the sprint 1 plan). It was Tom's first real task in the new way of working, and it was not technical at
+On Thursday 8 October, once the laptops were ready, Tom opened a ticket with the platform team, the people who
+administer the program's GitLab (task #14 in the sprint 1 plan). The program's GitLab is **GitLab Dedicated** at the
+**Ultimate** tier: a GitLab instance that GitLab Inc. runs for this one organization alone, so the platform team
+administers its users, groups and runners but never patches or upgrades the server ([[admin-dedicated]]). It was Tom's first real task in the new way of working, and it was not technical at
 all: it was a form. Tom had
 written hundreds of forms like it for the program's configuration management database. The request asked for three
 things:
 
 - a **group** named `tidewater`, with Jim as its owner;
 - the right for Jim and Tom to create **projects** inside the group;
-- a **runner** registered to the group, on a Windows machine the team could log into, with Git for Windows
-  installed (what a runner is, and why the team needed its own, is the subject of [[cicd]]).
+- a **runner** registered to the group, on a Windows virtual machine in the program's Azure subscription that the
+  team could log into, with Git for Windows installed (what a runner is, and why the team needed its own, is the
+  subject of [[cicd]]; the program's Kubernetes runners on Azure are in [[runners]]).
 
-The administrators answered on Thursday: the group existed, the runner would take another week. Tom's stand-up
+The platform team answered on Thursday: the group existed, the runner would take another week. Tom's stand-up
 status that Tuesday was the first one the team's lint flagged as blocked ([[ceremonies]] shows it). That delay is
 typical, and it is why week zero in [[directive]] put access requests first. Everything else in this chapter can
 be done by the team itself, in an afternoon, once the group exists.
@@ -199,9 +204,15 @@ A few notes on the format, which is deliberately plain:
   the order of the protected-branches table.
 - The file never holds a password or a token. Those belong in the variables GitLab protects ([[tools]]).
 
-The rest of the file defines labels, sprints, the approval rule, two CI/CD variables and the two pipeline schedules:
+The middle of the file defines labels, sprints, the approval rule, two CI/CD variables and the two pipeline
+schedules:
 
-{{include: tools/gitlab/templates/project.conf | lines 37-134}}
+{{include: tools/gitlab/templates/project.conf | lines 37-135}}
+
+The end of the file sets up what management will look at (the work states, the boards, the Insights dashboard) and
+how requests and the backlog workbook come in ([[windchill]], [[stories]]):
+
+{{include: tools/gitlab/templates/project.conf | lines 136-208}}
 
 ==== Labels: scoped, and few
 
@@ -229,15 +240,19 @@ long, starting on Monday 5 October 2026, each due on the Friday of its second we
 the milestone of the sprint that commits to it. A milestone in GitLab is then exactly a sprint backlog: open it and
 you see what the team promised, what is done and what is not.
 
-GitLab Premium has a separate feature, **iterations**, designed for sprints, with automatic cadences and burndown
-charts. The team's license was the Free tier for the first year, so milestones did the job. [[tools]] lists which
-features need which tier.
+Ultimate also has **iterations**, GitLab's own sprints: an iteration cadence creates one two-week iteration after
+another by itself and rolls unfinished work over. Tidewater kept milestones for the first year, on purpose. A
+milestone belongs to the project, which the team administers; a cadence belongs to the group and is changed only
+through GitLab's GraphQL interface, by a group maintainer. Milestones also carry a sprint's goal and review date in
+their description, and the journal, the Windchill status sheet and `gitlab.pl analytics --by sprint` all read them.
+The `[iterations]` section above is ready for the switch (`use = iterations`), and the boards follow whichever is in
+use (`sprint=current`). [[tools]] lists which features need which tier.
 
 ==== The approval rule and the variable
 
-`Model review = 1 jim bob` says that every merge request needs one approval from Jim or Bob. On GitLab Premium this
-becomes a real approval rule that blocks the merge; on Free, the code owner approval on the protected branches does
-most of the same work. The `KIT` variable tells every pipeline job where the agile kit is checked out on the runner;
+`Model review = 1 jim bob` says that every merge request needs one approval from Jim or Bob. On Ultimate (and
+Premium) this is a real approval rule that blocks the merge until Jim or Bob approves; on the Free tier, the code
+owner approval on the protected branches does most of the same work, by agreement rather than by the server. The `KIT` variable tells every pipeline job where the agile kit is checked out on the runner;
 [[pipeline]] uses it in every job. `DOCKER_RUNNER` says whether the runner can run Docker containers
 ([[runners]] explains why the team's cannot). The `[schedules]` section creates the nightly full check and the
 weekly status export as cron schedules, each run as the person who ran `setup` ([[tools]]).
@@ -285,10 +300,24 @@ label type::story
 label type::task
 ```
 
-and the last ones:
+and, after the labels and the thirty-nine milestones, the last ones:
 
 ```text
-milestone Sprint 39
+status TODO (to_do, default open) on tidewater
+status OPEN (in_progress) on tidewater
+status WAIT (in_progress) on tidewater
+status HOLD (in_progress) on tidewater
+status PUNT (triage) on tidewater
+status DONE (done, default closed) on tidewater
+status DROP (canceled, default duplicate) on tidewater
+label REDO (mark)
+label PASS (mark)
+label SYNC (mark)
+board Sprint created
+board Sprint: list workflow::ready added
+...
+board Sprint (5 lists, milestone started)
+board Backlog (3 lists, milestone none)
 protected branch main (push:none merge:maintainer force:no codeowners:yes)
 protected branch develop (push:none merge:developer force:no codeowners:yes)
 protected branch release/* (push:maintainer merge:maintainer force:no)
@@ -298,13 +327,15 @@ protected tag baseline-*
 approval rule Model review (1)
 schedule Nightly full check skipped (develop does not exist yet)
 schedule Weekly status skipped (develop does not exist yet)
+insights: .gitlab/insights.yml not written (10 charts generated): run setup on the repository's .gitlab/project.conf, or setup --repo DIR
 ```
 
 The whole run took about a quarter of a second. Clicking the same settings through the web pages took Tom most of
 an afternoon the first time, on a scratch project, and Tom missed two of them.
 
 The two schedules were skipped, not lost: a schedule runs the pipeline on a branch, and `develop` does not exist
-until the next section creates it. Setup is safe to re-run: it creates what is missing, updates what differs and
+until the next section creates it. The Insights file was generated but not written, for a similar reason: it lives
+in the repository, so it goes in by merge request with the repository's first files ([[gitlab-setup-templates]]). Setup is safe to re-run: it creates what is missing, updates what differs and
 leaves the rest alone, so the second run, after `develop` exists, adds the schedules.
 
 === The first commit and the two long-lived branches {#gitlab-setup-first}
@@ -320,8 +351,9 @@ cp $KIT/tools/gitlab/templates/gitlab-ci.yml .gitlab-ci.yml
 cp -r $KIT/tools/gitlab/templates/.gitlab $KIT/tools/gitlab/templates/ci .
 cp $KIT/tools/gitlab/templates/CODEOWNERS $KIT/tools/gitlab/templates/README.md \
    $KIT/tools/gitlab/templates/CHANGELOG.md $KIT/tools/gitlab/templates/.gitignore .
+perl $KIT/bin/gitlab.pl insights ../project.conf > .gitlab/insights.yml
 git add -A
-git commit -m "Project skeleton: pipeline, templates, CODEOWNERS"
+git commit -m "Project skeleton: pipeline, templates, CODEOWNERS, the Insights dashboard"
 perl $KIT/bin/gitlab.pl --local ../gl --project tidewater/model --as tom flow init
 perl $KIT/bin/gitlab.pl --local ../gl --as tom setup ../project.conf | grep schedule
 perl $KIT/bin/gitlab.pl --local ../gl --project tidewater/model setup --diff ../project.conf
@@ -435,9 +467,9 @@ approve it. A section whose only owner wrote the change could never be satisfied
 forever. Jim's requirement changes are approved by Bob; Tom's pipeline changes by Jim.
 
 With "code owner approval" switched on for `develop` and `main` (the `codeowners:yes` field in `project.conf`),
-GitLab enforces this file on every merge request. On the Free tier the file still works as a list of suggested
-reviewers; enforcement is a Premium feature. The emulator enforces it, so the team practiced the real rule from
-day one.
+GitLab enforces this file on every merge request: on Ultimate a merge that a code owner has not approved is blocked.
+(On the Free tier the file is only a list of suggested reviewers.) The emulator enforces it too, so the team
+practiced the real rule from day one.
 
 ::: tip Change the file, not the setting
 When someone joins, leaves or goes on long leave, do not loosen the protection: open a merge request that changes
@@ -494,6 +526,73 @@ open every new story once after saving it and check the sprint.
 
 [[templates]] reproduces every template, and [[tools]] has filled-in examples of each Markdown field.
 
+::: tip The Insights dashboard goes in with the forms
+The first merge request of the repository also carries `.gitlab/insights.yml`, the file that defines the charts on
+Analyze > Insights (an Ultimate feature): open and closed issues by week, the board's columns, defects by severity,
+merged MRs, the Windchill requests and the work split. `gitlab.pl insights .gitlab/project.conf` prints the file from
+the project file, so the dashboard is reviewed like any other change and never drifts from the labels it counts
+([[analytics]]).
+:::
+
+=== The front door: requests from Windchill {#windchill}
+
+Nobody outside the team files issues in the model project. The program's users (station leads, the data center,
+operations, the program office) submit **DevSecOps requests** in Windchill, the program's product lifecycle system,
+where they already file change requests. GitLab does not talk to Windchill on the program's network, so the bridge
+is a file in each direction:
+
+- **in**, at each refinement: Jim exports Windchill's "open DevSecOps requests" report as CSV and imports it with
+  `gitlab.pl windchill intake`, one issue per new request number;
+- **out**, at each review: `gitlab.pl windchill status --csv` writes one row per request (open or closed, its board
+  column, its sprint, when it closed), and the program's CM office updates the requests in Windchill from it.
+
+The requests live in their own small project, `tidewater/requests`, beside the model project. The model project's
+issues stay the team's own work (stories and tasks); the requests keep the requester's words, the decision, and a
+link to the story that delivers each one. Its project file is short:
+
+{{include: tools/gitlab/templates/requests.conf | lines 12-40}}
+
+and its `[windchill]` section maps the export's column names to what the intake needs (the number, the title, the
+state, the requester, the priority and the need date); change the names to match your site's report.
+
+A Windchill export, as Jim saved it before the first refinement:
+
+{{include: docs/tidewater/sprints/01/windchill/export-2026-10-15.csv}}
+
+Type it along in the practice folder: create the intake project, import the first two exports, and print what goes
+back.
+
+```sh run cwd=~/tw expect="(?s)created #1 WC-000101.*windchill: 2 rows, 2 created.*drift   #1 WC-000101: state 'Open' -> 'Approved'.*WC-000104"
+perl $KIT/bin/gitlab.pl --local gl user dpm > /dev/null
+perl $KIT/bin/gitlab.pl --local gl --as jim setup $KIT/tools/gitlab/templates/requests.conf | tail -1
+G="perl $KIT/bin/gitlab.pl --local gl --as jim --project tidewater/requests"
+$G windchill intake --conf $KIT/tools/gitlab/templates/requests.conf $KIT/docs/tidewater/sprints/01/windchill/export-2026-10-15.csv
+$G windchill intake --conf $KIT/tools/gitlab/templates/requests.conf $KIT/docs/tidewater/sprints/02/windchill/export-2026-10-28.csv
+$G windchill status --conf $KIT/tools/gitlab/templates/requests.conf
+```
+
+The second import found the two requests of the first one and reported **drift**: Windchill now says "Approved"
+where it said "Open". The intake never edits an issue silently. It reports what changed on the Windchill side, and
+with `--note` it records the change as a comment, so the request's history in GitLab shows what Windchill said and
+when. A re-import is always safe: a number that already has an issue is never created twice.
+
+Each new request is **dispositioned** at refinement by Jim, the product owner, with the deputy PM: *accept* (and
+link the story that will deliver it), *defer* (to a sprint, or until a condition is met), or *decline* (with the
+reason, and an alternative where there is one). The disposition is a comment with a quick action, so it is on the
+record and on the Requests board:
+
+```text
+Refinement 2026-10-28 (Jim, with the deputy PM): Declined: the government model is SysML v2 text; its diagrams
+are generated on every merge and the model site (sprint 4, WC-000101) shows the current ones.
+/label ~"disposition::decline" ~"workflow::done"
+/close
+```
+
+Tidewater's {{count: docs/tidewater/sprints/06/windchill/status.csv ^WC-}} requests of the first twelve weeks, their dispositions and the sheets that went back are in the
+evidence (`docs/tidewater/sprints/NN/windchill/`); the sprint chapters show them arriving. What the team learned:
+a declined request with a reason and an alternative ends the conversation; a declined request without one comes back
+next sprint with a higher priority.
+
 === Wiki, README and CHANGELOG {#gitlab-setup-wiki}
 
 Three more places hold text, each with a different job:
@@ -538,16 +637,18 @@ because sooner or later someone pastes one into a file. If it happens: revoke th
 it from the branch. Deleting the line is not enough; the token is in the history. [[admin]] covers rotation.
 :::
 
-=== What the enterprise administrators must do, and what the team does {#gitlab-setup-split}
+=== What the platform team does, and what the team does {#gitlab-setup-split}
 
 || Task | Who | When ||
-| Create the group; make the MBSE lead its owner | enterprise admins | week zero |
-| Register a runner for the group (Windows shell runner with Git for Windows) | enterprise admins with Tom | sprint 1 |
-| Allow the runner to reach the GitLab server and nothing else | network and ISSM | sprint 1 to 3 |
-| Create the project and apply `project.conf` | Tom | sprint 1 |
-| Commit the pipeline, templates, CODEOWNERS | Tom | sprint 1 |
+| Create the group; make the MBSE lead its owner | platform team | week zero |
+| Register a runner for the group (Windows shell runner with Git for Windows, on an Azure VM; Kubernetes runners on AKS) | platform team with Tom | sprint 1 |
+| Allow the runner to reach the GitLab server and nothing else | platform team, network and ISSM | sprint 1 to 3 |
+| Create the project and apply `project.conf` (statuses, boards) | Tom | sprint 1 |
+| Create the intake project and apply `requests.conf` | Jim | sprint 1 |
+| Commit the pipeline, templates, CODEOWNERS, `insights.yml` | Tom | sprint 1 |
 | Seed the wiki | Jim | sprint 1 |
 | Create epics and the first stories | Jim | sprint 1 planning |
+| Import Windchill requests; send the status sheet back | Jim | every refinement and review |
 | Keep `project.conf` and CODEOWNERS current | Tom, by merge request | always |
 | Review members and tokens | Jim and Tom | every quarter ([[admin]]) |
 Table: Who sets up what

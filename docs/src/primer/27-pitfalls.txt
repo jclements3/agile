@@ -241,7 +241,7 @@ a change past the CCB because the review was next month.
 
 **Fix.** The gate has no bypass that leaves no trace. Urgent fixes go through a hotfix branch and a merge request like
 everything else; a small MR with a green pipeline merges in minutes. The monthly protection audit ([[admin]]) checks
-that nothing was unprotected, and the audit events (Premium) show who did it.
+that nothing was unprotected, and the audit events (Premium and Ultimate) show who did it.
 
 **At Tidewater.** Nobody unprotected a branch, which Jim attributes to the sprint 1 exercise: the team deliberately
 opened an MR with a lint error and watched the merge button refuse ([[sprint-1]]). Seeing the gate work made it

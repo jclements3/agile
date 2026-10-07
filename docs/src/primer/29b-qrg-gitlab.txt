@@ -58,6 +58,12 @@ All `flow` commands are `perl "$KIT/bin/gitlab.pl" flow ...`, run inside a clone
 | Pipeline schedules | `gitlab.pl schedule list` / `schedule run ID` (defined in `project.conf` `[schedules]`) |
 | Check a cron line | `gitlab.pl schedule next "0 2 * * 1-5" --tz America/New_York -n 3` (needs no server) |
 | Numbers for a review | `gitlab.pl analytics --by sprint` (value stream, DORA, pipelines, MRs, issues) |
+| The boards and the work states | `gitlab.pl board list` / `gitlab.pl status list` / `gitlab.pl status set 12 WAIT` |
+| The Insights dashboard file | `gitlab.pl insights .gitlab/project.conf > .gitlab/insights.yml` (commit it by MR) |
+| Windchill requests in | `gitlab.pl --project tidewater/requests windchill intake --conf requests.conf --note export.csv` |
+| Windchill status out | `gitlab.pl --project tidewater/requests windchill status --conf requests.conf --csv status.csv` |
+| Backlog workbook in / out | `gitlab.pl backlog import se-backlog.xlsx` / `gitlab.pl backlog export backlog.xlsx` |
+| The project as Terraform | `gitlab.pl terraform .gitlab/project.conf --out gitlab/terraform` |
 | Practise offline | add `--local /tmp/gl` to any command |
 Table: gitlab.pl at a glance
 
@@ -74,7 +80,7 @@ text.
 | `/assign_reviewer @jim` | ask for a review | MR |
 | `/estimate 2d` | the task's size (1 point = 1 ideal day) | issue, MR |
 | `/spend 3h` | time spent (`/spend -1h` corrects) | issue, MR |
-| `/weight 3` | story points on an issue (Premium) | issue |
+| `/weight 3` | story points on an issue (Premium, Ultimate) | issue |
 | `/due 2026-11-20` | due date | issue |
 | `/relate #8 #11` | link related issues | issue |
 | `/close` `/reopen` | close / reopen | issue, MR |
@@ -163,10 +169,13 @@ Never put a token in a file in the repository. A leaked token: revoke first, the
 
 === Where things are in GitLab {#qrg-gitlab-ui}
 
-Menu names follow the left sidebar of GitLab 16 and 17; older versions differ slightly.
+Menu names follow the left sidebar of GitLab 17 and 18 (GitLab Dedicated runs a current release); older versions differ slightly.
 
 || You want | Go to ||
-| Issues, the board, sprints | Plan, Issues / Issue boards / Milestones |
+| Issues, the board, sprints | Plan, Issues / Issue boards / Milestones (Iterations, when used) |
+| Epics and the roadmap | Plan, Epics / Roadmap (group) |
+| The dashboard management reads | Analyze, Insights; Analyze, Analytics dashboards (value streams, DORA) |
+| Terraform state | Operate, Terraform states |
 | The wiki | Plan, Wiki |
 | Merge requests | Code, Merge requests |
 | Files, branches, tags, history | Code, Repository / Branches / Tags / Commits |
@@ -176,7 +185,7 @@ Menu names follow the left sidebar of GitLab 16 and 17; older versions differ sl
 | Releases, packages, the model site | Deploy, Releases / Package Registry / Pages |
 | Environments | Operate, Environments |
 | Members, labels | Manage, Members / Labels |
-| Audit events (Premium) | Secure, Audit events |
+| Audit events (Premium, Ultimate) | Secure, Audit events |
 | Merge method, squash, approvals | Settings, Merge requests |
 | Protected branches and tags | Settings, Repository |
 | Variables, runners | Settings, CI/CD |

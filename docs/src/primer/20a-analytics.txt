@@ -13,15 +13,16 @@ What you have: twelve weeks of issues, merge requests and pipelines in one GitLa
 stories.
 
 What you need: to know which of GitLab's analytics views answer a question a systems engineer or a program manager
-actually asks, which of them your license includes, and how to get the same numbers when it does not.
+actually asks, how to put the right ones on one dashboard, and how to get the same numbers offline, by sprint, for
+the briefing.
 :::
 
 Jim's first instinct, when the program manager asked for "the metrics," was to open GitLab's Analytics menu and
-screenshot whatever was there. Tom talked Jim out of it. Half the menu was greyed out on their license tier, and the
-other half answered questions nobody on the program had asked. "Deployment frequency" sounds impressive until
-someone asks what Tidewater deploys. This chapter is the sorting Jim and Tom did in sprint 6: what each view
-measures, what it means for a team whose product is a model, and how to get the numbers without buying a tier you
-do not need.
+screenshot whatever was there. Tom talked Jim out of it. On Ultimate nothing in the menu is greyed out, and that was
+the problem: two dozen views, most of them answering questions nobody on the program had asked. "Deployment
+frequency" sounds impressive until someone asks what Tidewater deploys. This chapter is the sorting Jim and Tom did
+in sprint 6: what each view measures, what it means for a team whose product is a model, which few go on the
+dashboard management opens, and how to get the same numbers by sprint for the briefing.
 
 === Two kinds of numbers {#analytics-two-kinds}
 
@@ -38,9 +39,9 @@ and the retrospectives, and its flow and quality measures from GitLab. This chap
 
 === The views GitLab offers {#analytics-views}
 
-GitLab's analytics are spread over several pages, and which ones you see depends on the license tier. Tiers and the
-features in them change from release to release, so treat the tier column below as a guide and check GitLab's
-current pricing page before you plan around a view.
+GitLab's analytics are spread over several pages. Tidewater's GitLab Dedicated instance is Ultimate, so all of them
+are there; the tier column says what a team on a lower tier would see. Tiers change from release to release, so
+treat the column as a guide and check GitLab's current pricing page.
 
 || View | Tier (check current pricing) | What it measures | The question it answers for a model team ||
 | Value stream analytics | Free (basic), Premium (custom stages) | time an issue spends in each stage, from created to closed | where do our changes wait: before work starts, in review, or after merge? |
@@ -55,17 +56,35 @@ current pricing page before you plan around a view.
 | Insights and analytics dashboards | Ultimate | charts you configure in YAML | anything above, on one page |
 Table: GitLab's analytics views, as a systems engineer reads them.
 
-The Tidewater project ran on the Free tier for the first twelve weeks; the tier decision was one of Jim's asks in the
-request for enablers ([[memos]]). That meant value stream, CI/CD and repository analytics in the web pages, and
-everything else from the API.
+=== The dashboard management opens: Insights {#analytics-insights}
 
-=== The Free-tier route: gitlab.pl analytics {#analytics-free}
+The program manager does not want two dozen pages. The team gave management one: **Analyze > Insights**, an
+Ultimate page that draws the charts listed in a file in the repository, `.gitlab/insights.yml`. The file is
+generated from `project.conf` by `gitlab.pl insights` and committed by merge request in sprint 1 ([[gitlab-setup]]),
+so the dashboard is reviewed like the model and always counts the labels the project really has:
 
-Every number in the paid views is computed from data that every tier exposes through GitLab's REST API: merge
-requests with their commits, notes and approvals; issues with their labels and dates; pipelines and their jobs;
-deployments and releases. The kit's `gitlab.pl analytics` reads that data and prints the same five sections a
-manager would want from the paid pages. It works the same way against a real GitLab server and against the offline
-stand-in the book uses.
+```sh run sandbox=scratch expect="(?s)Open issues by board column.*Requests received per week.*source::windchill"
+sed "s#^KIT = /opt/agile#KIT = $KIT#" $KIT/tools/gitlab/templates/project.conf > project.conf
+perl $KIT/bin/gitlab.pl insights project.conf | grep -E "title:|collection_labels|source::" | head -24
+```
+
+Ten charts in four groups, each chart answering one question. *Flow of work*: what sits in each board column, how
+many issues were created and closed each week, how many merge requests merged. *Defects*: open defects by severity,
+and how many closed each week. *Requests from Windchill*: received, closed and still open ([[windchill]]). *Where the
+time goes*: issues closed by kind of work, engineering, platform or learning ([[bluf]]). The Windchill requests live
+in their own project, so the team pointed the *group's* Insights (group Settings > Analytics) at the same file: at
+group level the charts count every project in `tidewater`, the requests included.
+Insights groups by week or month, not by sprint, which is the reason the briefing still uses the next section's
+report. Beside it, the **value streams dashboard** (Analyze > Analytics dashboards) shows the DORA measures and the
+value stream stages for the project, with no set-up.
+
+=== By sprint, offline, for the briefing: gitlab.pl analytics {#analytics-free}
+
+Every number in the views above is computed from data GitLab's REST API exposes on every tier: merge requests with
+their commits, notes and approvals; issues with their labels and dates; pipelines and their jobs; deployments and
+releases. The kit's `gitlab.pl analytics` reads that data and prints the same five sections, grouped by sprint, with
+CSV output for the briefing's spreadsheet. It works the same way against a real GitLab server, against the offline
+stand-in the book uses, and on a lower tier where the web views are missing.
 
 Here it is on the Tidewater project at the end of sprint 6. The sandbox is a copy of the simulated project, with its
 GitLab state in `gitlab/`:
@@ -201,14 +220,15 @@ read out?
 === You can now {#analytics-can-now}
 
 - name the GitLab analytics views, what each measures and roughly which tier it needs;
-- get the same numbers on the Free tier with `gitlab.pl analytics`, by sprint, with CSV output;
+- generate the Insights dashboard from the project file and commit it by merge request;
+- get the same numbers by sprint, offline and on any tier, with `gitlab.pl analytics`, with CSV output;
 - translate the DORA measures into model terms, and say which belong in front of management;
 - spot the traps of small numbers and mismatched definitions before management does.
 
 === Applying this to your project {#analytics-applying}
 
 Decide the three flow numbers you will report before the first sprint, write them into your scorecard, and run
-`gitlab.pl analytics --by sprint` at every sprint end into the sprint's evidence folder, as Tidewater did. Do not
-buy a tier for its dashboards until you have used the Free-tier report for a few sprints and know which questions
-you keep asking. If your license includes the paid views, use them for the team's own retrospectives and keep the
-briefing to the few numbers you defined in advance.
+`gitlab.pl analytics --by sprint` at every sprint end into the sprint's evidence folder, as Tidewater did. Give
+management one page (Insights, generated from your project file) rather than the Analytics menu, and keep the
+briefing to the few numbers you defined in advance. On a lower tier without Insights, the sprint report from
+`gitlab.pl analytics --csv` is the dashboard.

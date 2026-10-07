@@ -333,6 +333,14 @@ counted that work. The plan already gave it to Jim, as Jim's own task (#126), be
 authority. With that settled, the second round agreed. That is what planning poker is for: not the number, but the
 minute in which the team finds out it was imagining two different stories.
 
+The Windchill import showed a different kind of drift: not a state, a priority.
+
+{{include: docs/tidewater/sprints/05/windchill/intake.txt | lines 7-8}}
+
+The systems engineering group had raised its latency budget request to High in Windchill. Nothing in the plan
+changed that day (the condition for starting it still held), but the drift line put the change in front of the
+team instead of in an inbox, and the `--note` option recorded it on the request.
+
 ==== Wednesday 9 December: DataCenter closed; the release rehearsal {#sprint-5-rehearsal}
 
 Bob's !19 closed the level-tag TODO lines in DataCenter. Tom spent two days on #107: rehearsing the release and

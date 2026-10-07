@@ -397,6 +397,14 @@ way every sprint, and published even when they went down -- sprint 3's dip is in
 report when it is good is advertising. The other eleven measures on the scorecard do not depend on anyone's mood.
 :::
 
+After the review Jim sent the CM office the status sheet for Windchill, one row per request since October:
+
+{{include: docs/tidewater/sprints/06/windchill/status.txt}}
+
+{{count: docs/tidewater/sprints/06/windchill/status.csv ^WC-}} requests in twelve weeks: most delivered by stories already in the plan, the declined ones
+with a reason, the deferred ones with a condition, and the buoy modes diagram carried into January with its story. The program
+office stopped asking "what happened to my request?" in November, because the answer arrived every other Friday.
+
 === Twelve weeks, in the measures agreed on day one {#sprint-6-twelve}
 
 The scorecard was defined in [[directive]] before the first sprint. These are its values at the end of each sprint,

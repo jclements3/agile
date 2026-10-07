@@ -110,7 +110,7 @@ job: one check or one production step; it runs a short script and passes or fail
 script: the commands a job runs, the same commands you would type in a terminal. Example: `perl ci/job.pl lint`,
   which runs the linter and the report writer ([[runners]] explains why every job is one such line).
 runner: the computer that runs the jobs. Example: a Windows machine with Git for Windows and the agile kit
-  checked out, registered to the group by the enterprise administrators.
+  checked out, registered to the group by the platform team.
 rules: when a job runs. Example: `delta` runs only on the branch that merges a prime drop; `baseline` only when
   a `baseline-*` tag is created.
 artifact: a file a job keeps after it finishes, downloadable from the job page and passed to later jobs. Example:

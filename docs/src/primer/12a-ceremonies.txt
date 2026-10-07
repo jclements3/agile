@@ -218,7 +218,7 @@ these is applied automatically. The kit suggests, the lead confirms.
 ::: sidebar What the terse format did for the team
 By the end of sprint 2 Bob, who had complained loudest about "status theater", said the one-line status was the first
 status format that had ever told Bob anything about the other two's work. It also made the blockers impossible to
-bury: the enterprise administrators' slow runner request was red on the weekly report by its third day, and
+bury: the platform team's slow runner request was red on the weekly report by its third day, and
 management called the administrators before the team had to.
 :::
 
@@ -364,6 +364,15 @@ Story template ([[gitlab-setup]]):
 [ ] its tasks are cut, each at most 5 points (under a week)
 [ ] its dependencies on the prime or on another story are linked
 [ ] it has been estimated in poker, and the spread was explained
+:::
+
+::: note The first ten minutes: requests from Windchill
+Refinement opens with the outside world. Before the meeting Jim exports Windchill's report of open DevSecOps requests
+and imports it ([[windchill]]); the meeting then dispositions each new request in a minute or two: accept (it becomes
+a story, or joins one already planned), defer (to a sprint, or until a condition holds), or decline (with the reason
+and an alternative). The deputy PM attends this part. A request that is accepted is then refined like any other
+story; the disposition is a comment on the request, so the requester can read the decision in Windchill after the
+review's status sheet goes back.
 :::
 
 A ready story gets the `workflow::ready` label in GitLab. The refinement's journal file brings the new stories in with

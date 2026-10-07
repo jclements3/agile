@@ -348,7 +348,8 @@ Around the team:
 \item \textbf{The ISSM} (information system security manager) must approve any new tool or data flow on the program’s network. The ISSM is careful, busy and, for three days in week six, unreachable.
 \item \textbf{The prime contractor}, Northwind Marine Systems (fictional), builds Tidewater and maintains the authoritative SysML v1 model in Cameo under a contract data requirement (CDRL A003, “System Model”). The prime delivers the model to the government as “drops”: an XMI export of the model, a ReqIF export of the DOORS requirements, a CSV copy of the requirements and a manifest with checksums.
 \item \textbf{The prime’s modeler} is the contractor engineer the team talks to about the content of each drop.
-\item \textbf{The enterprise GitLab administrators} run the organization’s GitLab server. They create groups and projects on request, register runners and enforce the organization’s settings. They are helpful and slow.
+\item \textbf{The platform team} administers the program’s GitLab, a GitLab Dedicated instance at the Ultimate tier that GitLab itself runs and upgrades, and the program’s Azure infrastructure: the runners, the Kubernetes cluster and its Terraform. They create groups on request, register runners and enforce the organization’s settings. They are helpful and slow.
+\item \textbf{The program’s users} (station leads, the data center, operations, the program office) never open GitLab to ask for something: they submit requests in \textbf{Windchill}, the program’s product lifecycle system, and read the answers there.
 \end{itemize}
 \begin{boxnote}{Note: A note on pronouns}
 The book refers to every person by name or by role, and uses “they” when a pronoun is needed.
@@ -1367,7 +1368,7 @@ learn to use them, the way we learned DOORS.
 -- Jim
 \end{Verbatim}
 
-Bob replied the next morning with one line: “Twelve weeks. Then we talk.” Tom did not reply, but on Wednesday Tom had already requested a GitLab group from the enterprise administrators, three days before Jim had planned to.
+Bob replied the next morning with one line: “Twelve weeks. Then we talk.” Tom did not reply, but on Wednesday Tom had already requested a GitLab group from the platform team, three days before Jim had planned to.
 
 \begin{boxtip}{Tip: What the email does}
 The email does four things a change leader has to do: it admits what is not known, commits to specific behaviors, asks for specific behaviors in return, and sets an exit condition. It does not argue with the objections, and it does not promise that the new way will be better. It promises that the team will find out honestly.
@@ -1378,7 +1379,7 @@ The email does four things a change leader has to do: it admits what is not know
 The week between the memo and sprint 1 (29 September to 2 October 2026) was not part of any sprint, and Jim used it to prepare the ground. Nothing in it required DevSecOps knowledge; all of it was ordinary program work. The full checklist is in \hyperref[checklists]{Appendix J, Checklists}~(p.\,\pageref*{checklists}); the main items were:
 
 \begin{itemize}
-\item \textbf{Request access early.} Tom asked the enterprise GitLab administrators for a group (\code{tidewater}), a project (\code{tidewater/\allowbreak{}model}), three accounts with the right roles, and a runner, the machine that will execute the pipeline. The administrators’ standard turnaround was five working days, so the request had to go in before sprint 1, not during it.
+\item \textbf{Request access early.} Tom asked the platform team for a group (\code{tidewater}), a project (\code{tidewater/\allowbreak{}model}), three accounts with the right roles, and a runner, the machine that will execute the pipeline. The administrators’ standard turnaround was five working days, so the request had to go in before sprint 1, not during it.
 \item \textbf{Book the ISSM.} Jim asked for an hour with the ISSM in the second week of sprint 2 to present the toolchain, knowing that approvals take time and that sprint 3 would need them.
 \item \textbf{Confirm the laptops.} Git for Windows (which includes Git Bash and Perl), Vim and the kit were already on the program’s approved software list. Tom checked each laptop’s versions so nobody would discover a missing tool on day one.
 \item \textbf{Agree the scorecard.} The scorecard above was agreed by Thursday 1 October, signed by the program manager and the deputy program manager.
@@ -1386,7 +1387,7 @@ The week between the memo and sprint 1 (29 September to 2 October 2026) was not 
 \item \textbf{Set the calendar.} Fifteen-minute stand-ups at 09:00 every working day; sprint planning on the first Monday of each sprint; review and retrospective on the last Friday. Holidays and leave were entered before planning, so sprint capacities would be honest.
 \end{itemize}
 \begin{boxwarning}{Warning: Access requests are on the critical path}
-The longest lead time in the first two weeks was not learning git or writing a pipeline. It was waiting for accounts, a project and a runner from the enterprise administrators. Submit those requests before you do anything else, even before you are sure exactly what you need. You can adjust a project’s settings later; you cannot get back the week you spent waiting.
+The longest lead time in the first two weeks was not learning git or writing a pipeline. It was waiting for accounts, a project and a runner from the platform team. Submit those requests before you do anything else, even before you are sure exactly what you need. You can adjust a project’s settings later; you cannot get back the week you spent waiting.
 \end{boxwarning}
 
 \section{What management needed to hear, and when}\label{directive-management}
@@ -1672,6 +1673,16 @@ Two more terms travel with MBSE, and management will use both. This section is C
 \IfFileExists{fig-4-2.pdf}{\includegraphics[width=\linewidth,height=0.7\textheight,keepaspectratio]{fig-4-2.pdf}}{\fbox{\parbox{0.8\linewidth}{\centering\small (figure docs/img/vee-devsecops-twin.svg not converted: rsvg-convert was not found)}}}
 \caption{One picture: the Vee and its reviews, two-week sprints, the DevSecOps loop, the model in GitLab as the spine, the digital thread and the digital twin}
 \end{figure}
+
+The same idea as a poster, the one Jim pinned beside the team’s whiteboard:
+
+\begin{figure}[htbp]
+\centering
+\IfFileExists{fig-4-3.pdf}{\includegraphics[width=\linewidth,height=0.7\textheight,keepaspectratio]{fig-4-3.pdf}}{\fbox{\parbox{0.8\linewidth}{\centering\small (figure docs/img/mbse-devsecops-agile-v.svg not converted: rsvg-convert was not found)}}}
+\caption{The integrated V: the MBSE model and its digital thread (purple) to every stage, the agile increments walked inside the V, the DevSecOps loop under the build, and the digital twin of the fielded observing network feeding back}
+\end{figure}
+
+Read it from the model outward. The purple cables are the digital thread: every stage of the V reads and writes the one model. The gold Vs in the middle are the small Vees of \hyperref[vee-three]{Section 4.3, What DevSecOps changes: three Vees, not one}~(p.\,\pageref*{vee-three}), walked every sprint. The track under the build is the DevSecOps loop, with its checks, security and releases. The twin, top right, is the fielded network beside its simulation; its dashed arrow comes back into the left arm. At Tidewater that arrow is concrete: what the twin (or, today, the stations’ operators) learns arrives as a \textbf{Windchill request} or a change request, is imported at refinement (\hyperref[windchill]{Section 15.10, The front door: requests from Windchill}~(p.\,\pageref*{windchill})) and becomes a need, a requirement change or a story, which starts the next small V.
 
 \begin{boxdefinition}{Definitions}
 \begin{description}[style=nextline,leftmargin=1.5em,font=\normalfont\bfseries]
@@ -5240,7 +5251,7 @@ Git for Windows’ installer offers to convert line endings automatically, and m
 
 \section{Proving who you are to GitLab: SSH keys and tokens}\label{survival-ssh}
 
-When your laptop sends changes to GitLab (a \textbf{push}) or fetches them (a \textbf{pull} or \textbf{clone}), GitLab has to know who you are. There are two ways, and your enterprise administrators decide which you may use.
+When your laptop sends changes to GitLab (a \textbf{push}) or fetches them (a \textbf{pull} or \textbf{clone}), GitLab has to know who you are. There are two ways, and your platform team decides which you may use.
 
 \subsection{An SSH key}\label{survival--an-ssh-key}
 
@@ -7690,27 +7701,27 @@ Each level lives in the place where the people who use it already look.
 
 Why not put tasks in the journal too? Because the kit follows a rule that turned out to suit the team well: the architect’s record holds what the architect is accountable for, and the team’s day-to-day breakdown stays in the team’s own tool. Jim is accountable for stories finishing in the sprint they were committed to; Jim does not need, and should not manage, which of Bob’s three tasks is done by Wednesday. GitLab already records that, in detail, for anyone who wants to look.
 
-The mapping to GitLab objects depends on which tier of GitLab the organization licenses. Tidewater’s enterprise GitLab is the Free tier (GitLab’s name for its unpaid edition, which in an enterprise installation is still supported by the administrators), so the team used labels and milestones for the upper levels:
+The mapping to GitLab objects depends on which tier of GitLab the organization licenses. Tidewater’s GitLab is the program’s \textbf{GitLab Dedicated} instance at the \textbf{Ultimate} tier: a single-tenant GitLab that GitLab runs for the organization, with every feature in the right-hand column. The team still began with labels and milestones in the first twelve weeks, and turned on epics and iterations in sprint 7 by importing the backlog workbook (\hyperref[stories]{Chapter 14, Writing stories and tasks for model work}~(p.\,\pageref*{stories})). One new hierarchy at a time: three people learning git and SysML v2 did not also need two trees (labels and epics) to keep in step, and the labels were what the journal and the quad already read.
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.124\linewidth}>{\raggedright\arraybackslash}p{0.367\linewidth}>{\raggedright\arraybackslash}p{0.422\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.124\linewidth}>{\raggedright\arraybackslash}p{0.418\linewidth}>{\raggedright\arraybackslash}p{0.371\linewidth}@{}}
 \caption{The levels in GitLab, by tier}\\
 \toprule
-\bfseries Level & \bfseries GitLab Free (what Tidewater used) & \bfseries GitLab Premium or Ultimate (if you have it) \\
+\bfseries Level & \bfseries Labels and milestones (Tidewater, weeks 1-12; any tier) & \bfseries Epics and iterations (Ultimate, from sprint 7) \\
 \midrule
 \endfirsthead
 \toprule
-\bfseries Level & \bfseries GitLab Free (what Tidewater used) & \bfseries GitLab Premium or Ultimate (if you have it) \\
+\bfseries Level & \bfseries Labels and milestones (Tidewater, weeks 1-12; any tier) & \bfseries Epics and iterations (Ultimate, from sprint 7) \\
 \midrule
 \endhead
 \bottomrule
 \endlastfoot
 Project & a group (\code{tidewater}) holding the model project & the same \\
-Tome & a scoped label \code{tome:\allowbreak{}:\allowbreak{}port} & a parent epic (Ultimate supports multi-level epics) \\
+Tome & a scoped label \code{tome:\allowbreak{}:\allowbreak{}port} & a parent epic (multi-level epics) \\
 Epic & a scoped label \code{epic:\allowbreak{}:\allowbreak{}structure} & a group epic, with child issues and a roadmap \\
 Sprint & a milestone “Sprint 3” with start and due dates & an iteration in an iteration cadence \\
 Story & an issue labeled \code{type:\allowbreak{}:\allowbreak{}story} & the same, attached to its epic \\
-Task & an issue labeled \code{type:\allowbreak{}:\allowbreak{}task}, related to its story & a child task (a GitLab “task” work item) or the same issue \\
+Task & an issue labeled \code{type:\allowbreak{}:\allowbreak{}task}, related to its story & a child task (a GitLab “task” work item) \\
 \end{longtable}}
 
 A \textbf{scoped label} is a GitLab label whose name contains \code{:\allowbreak{}:\allowbreak{}}. An issue can carry only one label from each scope, so adding \code{workflow:\allowbreak{}:\allowbreak{}review} to an issue automatically removes \code{workflow:\allowbreak{}:\allowbreak{}in-\allowbreak{}progress}. That one feature is what makes labels usable as fields: an issue’s type, epic, tome and workflow state are each exactly one value. \hyperref[gitlab-setup]{Chapter 15, Setting up GitLab}~(p.\,\pageref*{gitlab-setup}) creates them from a file.
@@ -8022,7 +8033,7 @@ Adapt these to your situation:
 \begin{itemize}
 \item \textbf{The number of tomes and epics.} Draw your own tree. Start from the outcomes your program manager will recognize, then check each against the size limits and split what does not fit.
 \item \textbf{The RACI around the team.} Your CCB, security approver and contractor relationships will differ. The question to answer for each is: which of their decisions can be enforced by a GitLab setting, and which must be a story?
-\item \textbf{The GitLab mapping.} If your organization licenses Premium or Ultimate, use epics and iterations; the operating model does not change.
+\item \textbf{The GitLab mapping.} On Premium or Ultimate, decide when epics and iterations replace the labels and milestones (Tidewater: sprint 7, by importing the backlog workbook). On the Free tier, labels and milestones are the whole mapping; the operating model does not change.
 \end{itemize}
 Decide these locally, before sprint 1:
 
@@ -8287,7 +8298,7 @@ Sizes come from planning poker (\hyperref[ceremonies-poker]{Section 24.3, Planni
 
 \begin{itemize}
 \item \textbf{The first time is always bigger.} The first package with level tags took Bob three points; the third took one. Size the first of a kind generously and expect the next ones to shrink. Velocity in the first two sprints is not a forecast of anything.
-\item \textbf{Waiting is not effort.} A task blocked for three days on the enterprise GitLab administrators is not a five-point task. Size the effort, mark the wait (\code{/\allowbreak{}label \textasciitilde{}workflow:\allowbreak{}:\allowbreak{}blocked}), and say it at stand-up as an ask.
+\item \textbf{Waiting is not effort.} A task blocked for three days on the platform team is not a five-point task. Size the effort, mark the wait (\code{/\allowbreak{}label \textasciitilde{}workflow:\allowbreak{}:\allowbreak{}blocked}), and say it at stand-up as an ask.
 \item \textbf{Half points are fine, quarter points are not.} A half-day task exists (send the DR, hold the meeting). Anything smaller is part of another task.
 \item \textbf{Engineering, platform and learning are labelled, not hidden.} Every story carries \code{work:\allowbreak{}:\allowbreak{}engineering}, \code{work:\allowbreak{}:\allowbreak{}platform} or \code{work:\allowbreak{}:\allowbreak{}learning}. The scorecard shows the mix sprint by sprint, so management can see the platform work shrinking and the engineering growing.
 \end{itemize}
@@ -8465,6 +8476,32 @@ T1 Stand up MBSE DevSecOps,E1 GitLab project and gitflow,Record the decisions,Wr
 
 Load it into a spreadsheet, delete what does not apply, rename the epics for your system, and file the first two sprints as GitLab issues. It is a starting list, not a plan: the plan comes out of your own refinement sessions.
 
+\section{The backlog workbook: the plan as a spreadsheet, the tree in GitLab}\label{stories-workbook}
+
+Program offices plan in spreadsheets, and the planning workbook is often where a backlog starts: one row per tome, epic, story and task, with its parent, its team, its planned sprint and its size in days. The kit reads and writes that workbook, so the spreadsheet and GitLab hold the same tree. \code{tools/\allowbreak{}gitlab/\allowbreak{}samples/\allowbreak{}se-\allowbreak{}backlog-\allowbreak{}tidewater.\allowbreak{}xlsx} is Tidewater’s own plan for sprints 1 to 6 in that form; its first rows:
+
+\codecaption{tools/gitlab/samples/se-backlog-tidewater.csv}
+\begin{Verbatim}
+﻿ID,Level,Parent,Title,Team,Epic,Sprint,Days,Done when,Model link,Status,Marks,Iteration,Assignee,Spent (d),GitLab
+T1,Tome,,Stand up MBSE DevSecOps,,,,,,,OPEN,,,,,
+E1,Epic,T1,GitLab project and gitflow,,,,,,,OPEN,,,,,
+S1-project,Story,E1,Create the GitLab group and model project,MBSE,E1,1,3,The project exists with the settings in project.conf; A direct push to develop is refused; CODEOWNERS and the issue and MR templates are on develop,area::pipeline,DONE,,,tom,,
+S1-project.K1,Task,S1-project,Apply project.conf with gitlab.pl setup; request the runner,MBSE,E1,,1,,,DONE,,,tom,,
+\end{Verbatim}
+
+\code{gitlab.\allowbreak{}pl backlog import} loads it, parents first: each tome becomes an epic on the group, each epic a child epic, each story an issue under its epic (weight from the days, due at the end of its planned sprint, in that sprint’s milestone), and each task a task under its story, with its work state. Importing twice creates nothing the second time, and \code{backlog export} writes the tree back in the same columns, so a group can be rebuilt elsewhere from its export. In the practice folder:
+
+\begin{Verbatim}
+sed "s#^KIT = /opt/agile#KIT = $KIT#" $KIT/tools/gitlab/templates/project.conf > project.conf
+for u in jim bob tom; do perl $KIT/bin/gitlab.pl --local gl user $u > /dev/null; done
+perl $KIT/bin/gitlab.pl --local gl --as tom setup project.conf > /dev/null 2>&1
+perl $KIT/bin/gitlab.pl --local gl --as jim backlog import --conf project.conf $KIT/tools/gitlab/samples/se-backlog-tidewater.xlsx | tail -1
+perl $KIT/bin/gitlab.pl --local gl --as jim backlog import --conf project.conf $KIT/tools/gitlab/samples/se-backlog-tidewater.xlsx | tail -1
+perl $KIT/bin/gitlab.pl --local gl backlog export --conf project.conf back.csv
+\end{Verbatim}
+
+Epics are a Premium and Ultimate feature. Tidewater planned its first twelve weeks with labels and milestones (\hyperref[operating-model]{Chapter 13, The operating model}~(p.\,\pageref*{operating-model})) and imported the workbook in sprint 7, when the tree had proven itself; from then on the roadmap in GitLab (Plan \textgreater{} Roadmap) and the journal’s roadmap showed the same epics. The level names are set in \code{project.\allowbreak{}conf}‘s \code{[backlog]} section, so a workbook that says \emph{Epoch} instead of \emph{Epic} imports the same way.
+
 \section{Applying this to your project}\label{stories-apply}
 
 \begin{itemize}
@@ -8489,7 +8526,7 @@ You can now write a story issue with a title, a why and checkable criteria; writ
 the CM plan, the CCB charter, and the list of who may approve what.
 
 \boxsubhead{{\symfont\char"2192}\ Here it is called}
-the GitLab project: members, protected branches, CODEOWNERS, labels and milestones.
+the GitLab project: members, protected branches, CODEOWNERS, labels, milestones, boards and statuses, and an intake project for the requests that arrive in Windchill.
 
 \boxsubhead{{\symfont\char"2192}\ What is new}
 the rules are settings GitLab enforces, written once in a project file.
@@ -8500,19 +8537,19 @@ the rules are settings GitLab enforces, written once in a project file.
 a laptop with Git, Perl and Vim (\hyperref[survival]{Chapter 9, The survival kit}~(p.\,\pageref*{survival})), enough git to clone, branch and commit (\hyperref[git]{Chapter 12, Git from zero, for systems engineers}~(p.\,\pageref*{git})), and a directive that says “GitLab”.
 
 \boxsubhead{What you need}
-a GitLab project that works the way your configuration management plan says it should, before the first model file goes into it. By the end of this chapter you will have the project, its members, its protected branches and tags, its labels, its sprints, its templates and its code owners, all written down in one text file that you can review, re-apply and audit.
+a GitLab project that works the way your configuration management plan says it should, before the first model file goes into it. By the end of this chapter you will have the project, its members, its protected branches and tags, its labels, its sprints, its boards and work states, its templates and its code owners, all written down in one text file that you can review, re-apply and audit; and a second, small project where the requests users submit in Windchill arrive.
 \end{boxsurvival}
 
 \section{Tom’s first request}\label{gitlab-setup-request}
 
-On Thursday 8 October, once the laptops were ready, Tom opened a ticket with the enterprise GitLab administrators (task \#14 in the sprint 1 plan). It was Tom’s first real task in the new way of working, and it was not technical at all: it was a form. Tom had written hundreds of forms like it for the program’s configuration management database. The request asked for three things:
+On Thursday 8 October, once the laptops were ready, Tom opened a ticket with the platform team, the people who administer the program’s GitLab (task \#14 in the sprint 1 plan). The program’s GitLab is \textbf{GitLab Dedicated} at the \textbf{Ultimate} tier: a GitLab instance that GitLab Inc. runs for this one organization alone, so the platform team administers its users, groups and runners but never patches or upgrades the server (\hyperref[admin-dedicated]{Section 42.10, GitLab Dedicated: what GitLab runs and what the program runs}~(p.\,\pageref*{admin-dedicated})). It was Tom’s first real task in the new way of working, and it was not technical at all: it was a form. Tom had written hundreds of forms like it for the program’s configuration management database. The request asked for three things:
 
 \begin{itemize}
 \item a \textbf{group} named \code{tidewater}, with Jim as its owner;
 \item the right for Jim and Tom to create \textbf{projects} inside the group;
-\item a \textbf{runner} registered to the group, on a Windows machine the team could log into, with Git for Windows installed (what a runner is, and why the team needed its own, is the subject of \hyperref[cicd]{Chapter 19, CI/CD from zero}~(p.\,\pageref*{cicd})).
+\item a \textbf{runner} registered to the group, on a Windows virtual machine in the program’s Azure subscription that the team could log into, with Git for Windows installed (what a runner is, and why the team needed its own, is the subject of \hyperref[cicd]{Chapter 19, CI/CD from zero}~(p.\,\pageref*{cicd}); the program’s Kubernetes runners on Azure are in \hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners})).
 \end{itemize}
-The administrators answered on Thursday: the group existed, the runner would take another week. Tom’s stand-up status that Tuesday was the first one the team’s lint flagged as blocked (\hyperref[ceremonies]{Chapter 24, The rhythm: stand-ups, poker, refinement, kickoff, demo, retro}~(p.\,\pageref*{ceremonies}) shows it). That delay is typical, and it is why week zero in \hyperref[directive]{Chapter 3, The directive}~(p.\,\pageref*{directive}) put access requests first. Everything else in this chapter can be done by the team itself, in an afternoon, once the group exists.
+The platform team answered on Thursday: the group existed, the runner would take another week. Tom’s stand-up status that Tuesday was the first one the team’s lint flagged as blocked (\hyperref[ceremonies]{Chapter 24, The rhythm: stand-ups, poker, refinement, kickoff, demo, retro}~(p.\,\pageref*{ceremonies}) shows it). That delay is typical, and it is why week zero in \hyperref[directive]{Chapter 3, The directive}~(p.\,\pageref*{directive}) put access requests first. Everything else in this chapter can be done by the team itself, in an afternoon, once the group exists.
 
 \begin{boxwarning}{Warning: The administrators are on the critical path}
 In every organization the authors have seen, the slowest step of adopting GitLab is not learning it. It is getting the group, the runner and the network rules approved. Ask on day one, ask for everything at once, and put the request in your stand-up as a blocker until it is done, so management sees the wait.
@@ -8702,7 +8739,7 @@ A few notes on the format, which is deliberately plain:
 \item \code{[members]} uses GitLab’s role names. \code{[branches]} uses \code{push:\allowbreak{}}, \code{merge:\allowbreak{}}, \code{force:\allowbreak{}} and \code{codeowners:\allowbreak{}} fields in the order of the protected-branches table.
 \item The file never holds a password or a token. Those belong in the variables GitLab protects (\hyperref[tools]{Chapter 17, The DevSecOps tools that earn their keep}~(p.\,\pageref*{tools})).
 \end{itemize}
-The rest of the file defines labels, sprints, the approval rule, two CI/CD variables and the two pipeline schedules:
+The middle of the file defines labels, sprints, the approval rule, two CI/CD variables and the two pipeline schedules:
 
 \codecaption{tools/gitlab/templates/project.conf}
 \begin{Verbatim}
@@ -8806,6 +8843,85 @@ Nightly full check = 0 2 * * 1-5 | develop | America/New_York | FULL=1   ; weekn
 Weekly status = 0 6 * * 5 | develop | America/New_York                  ; Friday 06:00 Eastern: export + status metrics for the weekly report
 \end{Verbatim}
 
+The end of the file sets up what management will look at (the work states, the boards, the Insights dashboard) and how requests and the backlog workbook come in (\hyperref[windchill]{Section 15.10, The front door: requests from Windchill}~(p.\,\pageref*{windchill}), \hyperref[stories]{Chapter 14, Writing stories and tasks for model work}~(p.\,\pageref*{stories})):
+
+\codecaption{tools/gitlab/templates/project.conf}
+\begin{Verbatim}
+[labels]
+; where a request came from (scoped); a second [labels] section adds to the first
+source::windchill = #3E6E8E | A request submitted in Windchill; the Windchill number starts the title (gitlab.pl windchill intake)
+
+[statuses]
+; The team's seven work states as GitLab work-item statuses (Plan > work item > Status; GitLab 18.2+, generally available
+; in 18.4, Premium/Ultimate -- the norm on GitLab Dedicated). They live on a lifecycle of the TOP-LEVEL group and only
+; GraphQL changes them, so setup needs Maintainer on that group; it never removes a status (one in use needs a mapping in
+; the UI). NAME = #RRGGBB | CATEGORY | description [| default-open|default-closed|default-duplicate]; CATEGORY is triage,
+; to_do, in_progress, done or canceled -- done and canceled close the item. Colors are the quad's (lib/Quad.pm).
+; mode = labels makes state::NAME scoped labels instead (GitLab before 18.2, or Free). gitlab.pl status set IID NAME.
+; group = tidewater                                       ; the top-level group (default: the project path's first part)
+mode = statuses
+TODO = #808082 | to_do | On the team backlog, not started | default-open
+OPEN = #27235d | in_progress | Begun, in the sprint
+WAIT = #d6292e | in_progress | Blocked by something outside the team
+HOLD = #c98500 | in_progress | Interrupted by higher priority (hold / resume)
+PUNT = #d6292e | triage | Too hard as written, back to TODO to be re-cut
+DONE = #0ca30c | done | Completed and accepted at the demo | default-closed
+DROP = #555555 | canceled | Should not be done | default-duplicate
+marks = #6b7436 REDO PASS SYNC                            ; marks beside the state, as labels: redone, passed to a team, synced
+
+[boards]
+; NAME = LABEL LABEL ... | milestone=started|upcoming|none|any|TITLE | iteration=current|any|none | sprint=current
+; (Plan > Issue boards; one list per label, in order). Scoping a board is Premium/Ultimate (the norm on GitLab Dedicated);
+; on Free setup warns and the board shows everything. sprint=current follows the sprint that is running, so the board
+; never needs editing at a sprint change: the started milestone, or the current iteration when [iterations] use = iterations.
+Sprint = workflow::ready workflow::in-progress workflow::review workflow::blocked workflow::done | sprint=current
+Backlog = priority::1 priority::2 priority::3 | milestone=none          ; refinement: what no sprint holds yet, by priority
+; States = status:OPEN status:WAIT status:HOLD status:PUNT | sprint=current   ; a board of status lists ([statuses] above)
+
+[iterations]
+; GitLab's own sprints (Premium/Ultimate): an iteration cadence makes a two-week iteration after another by itself.
+; Cadences live on the GROUP, not the project, and GitLab changes them only through GraphQL: setup needs the group path
+; and Maintainer on that group. [milestones] above stay the fallback; `use` decides what sprint=current and
+; `gitlab.pl analytics --by sprint` mean. Tidewater keeps milestones; to switch, uncomment the cadence and set use.
+use = milestones                                          ; milestones (the sprints above) or iterations (the cadence)
+; group = tidewater                                       ; the group the cadence lives on (default: the project's namespace)
+; Sprints = 2026-10-05 2 4 | automatic                    ; TITLE = START WEEKS IN_ADVANCE [| automatic roll-over manual]
+
+[insights]
+; Analyze > Insights (Ultimate) draws the charts in .gitlab/insights.yml on the default branch. setup generates the file
+; from the labels here (workflow::, severity::, work::, the Windchill source label) and writes it into the repository when
+; it runs on the repository's .gitlab/project.conf; commit it through a merge request (or setup --commit opens one).
+; gitlab.pl insights prints it. Insights groups by week or month, not by sprint.
+file = .gitlab/insights.yml
+weeks = 12                                                ; how many weeks each chart shows
+
+[windchill]
+; Requests arrive in Windchill; the team works them in GitLab. gitlab.pl windchill intake EXPORT.csv makes one issue per
+; new Windchill number from a report exported as CSV; gitlab.pl windchill status --csv FILE is the progress to send back.
+; Column names as the export's header has them (Windchill report or search-result export; adjust to yours):
+number = Number
+title = Name
+state = State
+type = Type
+requester = Created By
+priority = Priority
+need-date = Need Date
+description = Description
+url = https://windchill.example.invalid/Windchill/app/#ptc1/search?keyword={number}   ; the link in each issue
+labels = source::windchill, type::story                   ; added to every issue made from a request
+accept = Open, Under Review, Approved                     ; states imported; the others are reported as skipped (* = all)
+priority-map = Critical=priority::1, High=priority::1, Medium=priority::2, Low=priority::3
+
+[backlog]
+; gitlab.pl backlog import FILE.xlsx|.csv loads a planning workbook (tools/gitlab/samples/se-backlog-tidewater.xlsx) as
+; epics on the group, child epics, issues and tasks; gitlab.pl backlog export FILE writes them back in the same columns.
+levels = Tome, Epic, Story, Task                          ; the Level names, top down (a workbook with Epoch works too)
+; group = tidewater                                       ; where the epics go (default: the project's group)
+sprint = project                                          ; Sprint N counts from sprint 1 above; epic = within each epic
+; sprints-per-epic = 13                                   ; with sprint = epic
+team-label = team::                                       ; a story's Team becomes this label
+\end{Verbatim}
+
 \subsection{Labels: scoped, and few}\label{gitlab-setup--labels-scoped-and-few}
 
 GitLab labels can be \textbf{scoped}: a label written \code{type:\allowbreak{}:\allowbreak{}story} belongs to the scope \code{type}, and an issue can carry only one label per scope. Adding \code{type:\allowbreak{}:\allowbreak{}task} to an issue removes \code{type:\allowbreak{}:\allowbreak{}story}. Scoped labels turn a pile of tags into columns of a spreadsheet, each with exactly one value:
@@ -8825,11 +8941,11 @@ The team kept the list short on purpose. Every label must answer a question some
 
 The line \code{sprints =\allowbreak{} 2026-\allowbreak{}10-\allowbreak{}05 39 2} creates thirty-nine milestones named “Sprint 1” to “Sprint 39”, each two weeks long, starting on Monday 5 October 2026, each due on the Friday of its second week. Every story and task is put in the milestone of the sprint that commits to it. A milestone in GitLab is then exactly a sprint backlog: open it and you see what the team promised, what is done and what is not.
 
-GitLab Premium has a separate feature, \textbf{iterations}, designed for sprints, with automatic cadences and burndown charts. The team’s license was the Free tier for the first year, so milestones did the job. \hyperref[tools]{Chapter 17, The DevSecOps tools that earn their keep}~(p.\,\pageref*{tools}) lists which features need which tier.
+Ultimate also has \textbf{iterations}, GitLab’s own sprints: an iteration cadence creates one two-week iteration after another by itself and rolls unfinished work over. Tidewater kept milestones for the first year, on purpose. A milestone belongs to the project, which the team administers; a cadence belongs to the group and is changed only through GitLab’s GraphQL interface, by a group maintainer. Milestones also carry a sprint’s goal and review date in their description, and the journal, the Windchill status sheet and \code{gitlab.\allowbreak{}pl analytics -\allowbreak{}-\allowbreak{}by sprint} all read them. The \code{[iterations]} section above is ready for the switch (\code{use =\allowbreak{} iterations}), and the boards follow whichever is in use (\code{sprint=\allowbreak{}current}). \hyperref[tools]{Chapter 17, The DevSecOps tools that earn their keep}~(p.\,\pageref*{tools}) lists which features need which tier.
 
 \subsection{The approval rule and the variable}\label{gitlab-setup--the-approval-rule-and-the-variable}
 
-\code{Model review =\allowbreak{} 1 jim bob} says that every merge request needs one approval from Jim or Bob. On GitLab Premium this becomes a real approval rule that blocks the merge; on Free, the code owner approval on the protected branches does most of the same work. The \code{KIT} variable tells every pipeline job where the agile kit is checked out on the runner; \hyperref[pipeline]{Chapter 20, The pipeline, job by job}~(p.\,\pageref*{pipeline}) uses it in every job. \code{DOCKER\_\allowbreak{}RUNNER} says whether the runner can run Docker containers (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners}) explains why the team’s cannot). The \code{[schedules]} section creates the nightly full check and the weekly status export as cron schedules, each run as the person who ran \code{setup} (\hyperref[tools]{Chapter 17, The DevSecOps tools that earn their keep}~(p.\,\pageref*{tools})).
+\code{Model review =\allowbreak{} 1 jim bob} says that every merge request needs one approval from Jim or Bob. On Ultimate (and Premium) this is a real approval rule that blocks the merge until Jim or Bob approves; on the Free tier, the code owner approval on the protected branches does most of the same work, by agreement rather than by the server. The \code{KIT} variable tells every pipeline job where the agile kit is checked out on the runner; \hyperref[pipeline]{Chapter 20, The pipeline, job by job}~(p.\,\pageref*{pipeline}) uses it in every job. \code{DOCKER\_\allowbreak{}RUNNER} says whether the runner can run Docker containers (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners}) explains why the team’s cannot). The \code{[schedules]} section creates the nightly full check and the weekly status export as cron schedules, each run as the person who ran \code{setup} (\hyperref[tools]{Chapter 17, The DevSecOps tools that earn their keep}~(p.\,\pageref*{tools})).
 
 \section{Applying the file}\label{gitlab-setup-apply}
 
@@ -8867,10 +8983,24 @@ label type::story
 label type::task
 \end{Verbatim}
 
-and the last ones:
+and, after the labels and the thirty-nine milestones, the last ones:
 
 \begin{Verbatim}
-milestone Sprint 39
+status TODO (to_do, default open) on tidewater
+status OPEN (in_progress) on tidewater
+status WAIT (in_progress) on tidewater
+status HOLD (in_progress) on tidewater
+status PUNT (triage) on tidewater
+status DONE (done, default closed) on tidewater
+status DROP (canceled, default duplicate) on tidewater
+label REDO (mark)
+label PASS (mark)
+label SYNC (mark)
+board Sprint created
+board Sprint: list workflow::ready added
+...
+board Sprint (5 lists, milestone started)
+board Backlog (3 lists, milestone none)
 protected branch main (push:none merge:maintainer force:no codeowners:yes)
 protected branch develop (push:none merge:developer force:no codeowners:yes)
 protected branch release/* (push:maintainer merge:maintainer force:no)
@@ -8880,11 +9010,12 @@ protected tag baseline-*
 approval rule Model review (1)
 schedule Nightly full check skipped (develop does not exist yet)
 schedule Weekly status skipped (develop does not exist yet)
+insights: .gitlab/insights.yml not written (10 charts generated): run setup on the repository's .gitlab/project.conf, or setup --repo DIR
 \end{Verbatim}
 
 The whole run took about a quarter of a second. Clicking the same settings through the web pages took Tom most of an afternoon the first time, on a scratch project, and Tom missed two of them.
 
-The two schedules were skipped, not lost: a schedule runs the pipeline on a branch, and \code{develop} does not exist until the next section creates it. Setup is safe to re-run: it creates what is missing, updates what differs and leaves the rest alone, so the second run, after \code{develop} exists, adds the schedules.
+The two schedules were skipped, not lost: a schedule runs the pipeline on a branch, and \code{develop} does not exist until the next section creates it. The Insights file was generated but not written, for a similar reason: it lives in the repository, so it goes in by merge request with the repository’s first files (\hyperref[gitlab-setup-templates]{Section 15.9, Templates: the forms}~(p.\,\pageref*{gitlab-setup-templates})). Setup is safe to re-run: it creates what is missing, updates what differs and leaves the rest alone, so the second run, after \code{develop} exists, adds the schedules.
 
 \section{The first commit and the two long-lived branches}\label{gitlab-setup-first}
 
@@ -8896,8 +9027,9 @@ cp $KIT/tools/gitlab/templates/gitlab-ci.yml .gitlab-ci.yml
 cp -r $KIT/tools/gitlab/templates/.gitlab $KIT/tools/gitlab/templates/ci .
 cp $KIT/tools/gitlab/templates/CODEOWNERS $KIT/tools/gitlab/templates/README.md \
    $KIT/tools/gitlab/templates/CHANGELOG.md $KIT/tools/gitlab/templates/.gitignore .
+perl $KIT/bin/gitlab.pl insights ../project.conf > .gitlab/insights.yml
 git add -A
-git commit -m "Project skeleton: pipeline, templates, CODEOWNERS"
+git commit -m "Project skeleton: pipeline, templates, CODEOWNERS, the Insights dashboard"
 perl $KIT/bin/gitlab.pl --local ../gl --project tidewater/model --as tom flow init
 perl $KIT/bin/gitlab.pl --local ../gl --as tom setup ../project.conf | grep schedule
 perl $KIT/bin/gitlab.pl --local ../gl --project tidewater/model setup --diff ../project.conf
@@ -9045,7 +9177,7 @@ The team’s split follows responsibility, not seniority. Jim is the first owner
 
 Every section names at least two owners, and that is not generosity. GitLab never lets the author of a merge request approve it. A section whose only owner wrote the change could never be satisfied, and the merge request would wait forever. Jim’s requirement changes are approved by Bob; Tom’s pipeline changes by Jim.
 
-With “code owner approval” switched on for \code{develop} and \code{main} (the \code{codeowners:\allowbreak{}yes} field in \code{project.\allowbreak{}conf}), GitLab enforces this file on every merge request. On the Free tier the file still works as a list of suggested reviewers; enforcement is a Premium feature. The emulator enforces it, so the team practiced the real rule from day one.
+With “code owner approval” switched on for \code{develop} and \code{main} (the \code{codeowners:\allowbreak{}yes} field in \code{project.\allowbreak{}conf}), GitLab enforces this file on every merge request: on Ultimate a merge that a code owner has not approved is blocked. (On the Free tier the file is only a list of suggested reviewers.) The emulator enforces it too, so the team practiced the real rule from day one.
 
 \begin{boxtip}{Tip: Change the file, not the setting}
 When someone joins, leaves or goes on long leave, do not loosen the protection: open a merge request that changes the owners, and another to change them back. The history of who could approve what, and when, is in the file’s history.
@@ -9102,6 +9234,88 @@ The labels from the template’s first quick action are there; the milestone is 
 
 \hyperref[templates]{Appendix I, Templates and GitLab Markdown, field by field}~(p.\,\pageref*{templates}) reproduces every template, and \hyperref[tools]{Chapter 17, The DevSecOps tools that earn their keep}~(p.\,\pageref*{tools}) has filled-in examples of each Markdown field.
 
+\begin{boxtip}{Tip: The Insights dashboard goes in with the forms}
+The first merge request of the repository also carries \code{.\allowbreak{}gitlab/\allowbreak{}insights.\allowbreak{}yml}, the file that defines the charts on Analyze \textgreater{} Insights (an Ultimate feature): open and closed issues by week, the board’s columns, defects by severity, merged MRs, the Windchill requests and the work split. \code{gitlab.\allowbreak{}pl insights .\allowbreak{}gitlab/\allowbreak{}project.\allowbreak{}conf} prints the file from the project file, so the dashboard is reviewed like any other change and never drifts from the labels it counts (\hyperref[analytics]{Chapter 32, Measuring with GitLab analytics}~(p.\,\pageref*{analytics})).
+\end{boxtip}
+
+\section{The front door: requests from Windchill}\label{windchill}
+
+Nobody outside the team files issues in the model project. The program’s users (station leads, the data center, operations, the program office) submit \textbf{DevSecOps requests} in Windchill, the program’s product lifecycle system, where they already file change requests. GitLab does not talk to Windchill on the program’s network, so the bridge is a file in each direction:
+
+\begin{itemize}
+\item \textbf{in}, at each refinement: Jim exports Windchill’s “open DevSecOps requests” report as CSV and imports it with \code{gitlab.\allowbreak{}pl windchill intake}, one issue per new request number;
+\item \textbf{out}, at each review: \code{gitlab.\allowbreak{}pl windchill status -\allowbreak{}-\allowbreak{}csv} writes one row per request (open or closed, its board column, its sprint, when it closed), and the program’s CM office updates the requests in Windchill from it.
+\end{itemize}
+The requests live in their own small project, \code{tidewater/\allowbreak{}requests}, beside the model project. The model project’s issues stay the team’s own work (stories and tasks); the requests keep the requester’s words, the decision, and a link to the story that delivers each one. Its project file is short:
+
+\codecaption{tools/gitlab/templates/requests.conf}
+\begin{Verbatim}
+[project]
+path = tidewater/requests
+default_branch = main
+visibility = private
+
+[members]
+jim = maintainer                                          ; product owner: dispositions every request
+bob = developer
+tom = developer
+dpm = reporter                                            ; the deputy PM reads and comments; Jim records the decision
+
+[labels]
+source::windchill = #6A5ACD | Imported from a Windchill export by gitlab.pl windchill intake
+type::story = #428BCA | A request for something the team builds (the intake's default type)
+disposition::accept = #5CB85C | Accepted at refinement: the story that delivers it is linked in a comment
+disposition::defer = #F0AD4E | Deferred: the comment says to when, or on what condition
+disposition::decline = #D9534F | Declined: the comment gives the reason (and any alternative); closed
+workflow::ready = #A8D695 | Dispositioned; waiting for its sprint
+workflow::done = #5CB85C | Delivered or declined; closed
+priority::1 = #CC0033 | Windchill priority Critical or High
+priority::2 = #FC9403 | Windchill priority Medium
+priority::3 = #C0C0C0 | Windchill priority Low
+
+[boards]
+Requests = disposition::accept disposition::defer disposition::decline | milestone=any
+
+[windchill]
+; Requests arrive in Windchill; the team works them in GitLab. gitlab.pl windchill intake EXPORT.csv makes one issue per
+; new Windchill number from a report exported as CSV; gitlab.pl windchill status --csv FILE is the progress to send back.
+\end{Verbatim}
+
+and its \code{[windchill]} section maps the export’s column names to what the intake needs (the number, the title, the state, the requester, the priority and the need date); change the names to match your site’s report.
+
+A Windchill export, as Jim saved it before the first refinement:
+
+\codecaption{docs/tidewater/sprints/01/windchill/export-2026-10-15.csv}
+\begin{Verbatim}
+Number,Name,Type,State,Created By,Priority,Need Date,Created On,Description
+WC-000101,Nightly model check summary the station leads can open,DevSecOps Request,Open,"Pat Lee (station lead, North Shore)",High,12/04/2026,10/05/2026,"The station leads want the nightly model check (lint, outline, trace) as one page they can open without a GitLab account, every weekday morning."
+WC-000102,Read access to the model for the data center engineers,DevSecOps Request,Open,Dana Wu (data center engineering),Medium,11/13/2026,10/05/2026,Two data center engineers need to read the v2 model and its documents to plan the ingest changes.
+\end{Verbatim}
+
+Type it along in the practice folder: create the intake project, import the first two exports, and print what goes back.
+
+\begin{Verbatim}
+perl $KIT/bin/gitlab.pl --local gl user dpm > /dev/null
+perl $KIT/bin/gitlab.pl --local gl --as jim setup $KIT/tools/gitlab/templates/requests.conf | tail -1
+G="perl $KIT/bin/gitlab.pl --local gl --as jim --project tidewater/requests"
+$G windchill intake --conf $KIT/tools/gitlab/templates/requests.conf $KIT/docs/tidewater/sprints/01/windchill/export-2026-10-15.csv
+$G windchill intake --conf $KIT/tools/gitlab/templates/requests.conf $KIT/docs/tidewater/sprints/02/windchill/export-2026-10-28.csv
+$G windchill status --conf $KIT/tools/gitlab/templates/requests.conf
+\end{Verbatim}
+
+The second import found the two requests of the first one and reported \textbf{drift}: Windchill now says “Approved” where it said “Open”. The intake never edits an issue silently. It reports what changed on the Windchill side, and with \code{-\allowbreak{}-\allowbreak{}note} it records the change as a comment, so the request’s history in GitLab shows what Windchill said and when. A re-import is always safe: a number that already has an issue is never created twice.
+
+Each new request is \textbf{dispositioned} at refinement by Jim, the product owner, with the deputy PM: \emph{accept} (and link the story that will deliver it), \emph{defer} (to a sprint, or until a condition is met), or \emph{decline} (with the reason, and an alternative where there is one). The disposition is a comment with a quick action, so it is on the record and on the Requests board:
+
+\begin{Verbatim}
+Refinement 2026-10-28 (Jim, with the deputy PM): Declined: the government model is SysML v2 text; its diagrams
+are generated on every merge and the model site (sprint 4, WC-000101) shows the current ones.
+/label ~"disposition::decline" ~"workflow::done"
+/close
+\end{Verbatim}
+
+Tidewater’s 13 requests of the first twelve weeks, their dispositions and the sheets that went back are in the evidence (\code{docs/\allowbreak{}tidewater/\allowbreak{}sprints/\allowbreak{}NN/\allowbreak{}windchill/\allowbreak{}}); the sprint chapters show them arriving. What the team learned: a declined request with a reason and an alternative ends the conversation; a declined request without one comes back next sprint with a higher priority.
+
 \section{Wiki, README and CHANGELOG}\label{gitlab-setup-wiki}
 
 Three more places hold text, each with a different job:
@@ -9135,10 +9349,10 @@ echo 'export GITLAB_TOKEN=...' >> ~/.bashrc      # the real value; never commit 
 The pipeline’s \code{secrets} job looks for GitLab tokens (they start with \code{glpat-\allowbreak{}}) in every file of every merge request, because sooner or later someone pastes one into a file. If it happens: revoke the token in GitLab first, then remove it from the branch. Deleting the line is not enough; the token is in the history. \hyperref[admin]{Chapter 42, Administration}~(p.\,\pageref*{admin}) covers rotation.
 \end{boxwarning}
 
-\section{What the enterprise administrators must do, and what the team does}\label{gitlab-setup-split}
+\section{What the platform team does, and what the team does}\label{gitlab-setup-split}
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.440\linewidth}>{\raggedright\arraybackslash}p{0.261\linewidth}>{\raggedright\arraybackslash}p{0.212\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.416\linewidth}>{\raggedright\arraybackslash}p{0.247\linewidth}>{\raggedright\arraybackslash}p{0.250\linewidth}@{}}
 \caption{Who sets up what}\\
 \toprule
 \bfseries Task & \bfseries Who & \bfseries When \\
@@ -9150,13 +9364,15 @@ The pipeline’s \code{secrets} job looks for GitLab tokens (they start with \co
 \endhead
 \bottomrule
 \endlastfoot
-Create the group; make the MBSE lead its owner & enterprise admins & week zero \\
-Register a runner for the group (Windows shell runner with Git for Windows) & enterprise admins with Tom & sprint 1 \\
-Allow the runner to reach the GitLab server and nothing else & network and ISSM & sprint 1 to 3 \\
-Create the project and apply \code{project.\allowbreak{}conf} & Tom & sprint 1 \\
-Commit the pipeline, templates, CODEOWNERS & Tom & sprint 1 \\
+Create the group; make the MBSE lead its owner & platform team & week zero \\
+Register a runner for the group (Windows shell runner with Git for Windows, on an Azure VM; Kubernetes runners on AKS) & platform team with Tom & sprint 1 \\
+Allow the runner to reach the GitLab server and nothing else & platform team, network and ISSM & sprint 1 to 3 \\
+Create the project and apply \code{project.\allowbreak{}conf} (statuses, boards) & Tom & sprint 1 \\
+Create the intake project and apply \code{requests.\allowbreak{}conf} & Jim & sprint 1 \\
+Commit the pipeline, templates, CODEOWNERS, \code{insights.\allowbreak{}yml} & Tom & sprint 1 \\
 Seed the wiki & Jim & sprint 1 \\
 Create epics and the first stories & Jim & sprint 1 planning \\
+Import Windchill requests; send the status sheet back & Jim & every refinement and review \\
 Keep \code{project.\allowbreak{}conf} and CODEOWNERS current & Tom, by merge request & always \\
 Review members and tokens & Jim and Tom & every quarter (\hyperref[admin]{Chapter 42, Administration}~(p.\,\pageref*{admin})) \\
 \end{longtable}}
@@ -9554,7 +9770,7 @@ That rule produced the adoption order in this chapter: one or two tools a sprint
 \section{The list at a glance}\label{tools-glance}
 
 {\footnotesize\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.243\linewidth}>{\raggedright\arraybackslash}p{0.186\linewidth}>{\raggedright\arraybackslash}p{0.328\linewidth}>{\raggedright\arraybackslash}p{0.131\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.218\linewidth}>{\raggedright\arraybackslash}p{0.220\linewidth}>{\raggedright\arraybackslash}p{0.285\linewidth}>{\raggedright\arraybackslash}p{0.166\linewidth}@{}}
 \caption{The GitLab tools the team uses, by tier and adoption sprint}\\
 \toprule
 \bfseries Tool & \bfseries Tier & \bfseries What it gives the team & \bfseries Adopted \\
@@ -9566,11 +9782,13 @@ That rule produced the adoption order in this chapter: one or two tools a sprint
 \endhead
 \bottomrule
 \endlastfoot
-Issues, labels, milestones, boards & Free & the action item list, the sprint backlog and the status wall in one place & sprint 1 \\
+Issues, labels, milestones, boards & Free (scoped boards: Premium) & the action item list, the sprint backlog and the status wall in one place & sprint 1 \\
+Work-item statuses & Premium (GitLab 18.2+) & the seven work states, TODO to DROP, on every issue & sprint 1 \\
 Protected branches and tags & Free & nobody changes the integration branch or a baseline except through review & sprint 1 \\
 Merge requests & Free & every change proposed, discussed, checked and approved in one page & sprint 1 \\
-Code owners & Free (enforced: Premium) & the signature authority matrix, applied per file & sprint 1 \\
+Code owners, approval rules & Premium (enforced) & the signature authority matrix, applied per file; “one of Jim or Bob approves every change” & sprint 1 \\
 CI/CD pipeline & Free & the configuration audit on every change, in minutes & sprint 1 \\
+Insights dashboard & Ultimate & the charts management reads, defined in a file by MR & sprint 1 (file), sprint 4 (read) \\
 Test report widget (JUnit) & Free & the merge request says which check failed, on which file & sprint 2 \\
 Code Quality widget & Free & the merge request lists the findings this change added or fixed & sprint 2 \\
 Metrics report widget & Premium & the merge request shows how the TODO count and lint numbers moved & sprint 2 \\
@@ -9582,14 +9800,12 @@ Generic package registry & Free & each prime drop kept, checksummed, exactly as 
 Releases & Free & each baseline published with its notes and evidence & sprint 5 \\
 Time tracking & Free & estimates and time spent on issues, for the comparison with the old way & sprint 5 \\
 Environments & Free & the model site’s deployments listed with the commit each one came from & sprint 6 \\
-Value stream analytics & Free (limited) / Premium & how long work spends in each stage, from issue to merge & sprint 6 \\
-Approval rules & Premium & “one of Jim or Bob approves every change”, enforced & when licensed \\
-Push rules & Premium & the server rejects commits without the right author e-mail or with large files & when licensed \\
-Merge request and iteration burndown & Premium & sprint burndown charts without a spreadsheet & when licensed \\
-DORA metrics & Ultimate & deployment frequency, lead time, change failure rate, time to restore & not used \\
+Value stream analytics, DORA metrics & Ultimate (VSA basics: Free) & how long work waits in each stage; how fast and how safely changes flow & sprint 6 \\
+Push rules & Premium & the server rejects commits without the right author e-mail or with large files & sprint 7 \\
+Epics, iterations, burndown & Premium (multi-level epics: Ultimate) & the tome and epic tree and the sprint burndown in GitLab itself & sprint 7 \\
 \end{longtable}}
 
-The rest of this chapter takes them in adoption order, then lists what the team left off.
+Tidewater’s GitLab is GitLab Dedicated at the Ultimate tier (\hyperref[admin-dedicated]{Section 42.10, GitLab Dedicated: what GitLab runs and what the program runs}~(p.\,\pageref*{admin-dedicated})), so the Tier column is not a shopping list: everything in it was available on day one. It says what a team on a lower tier would miss. The Adopted column is the decision that matters: a tool goes on when its pain is felt, not when it becomes available. The rest of this chapter takes them in adoption order, then lists what the team left off.
 
 \section{Sprint 1: the work and the gate}\label{tools-s1}
 
@@ -9599,7 +9815,15 @@ In the document era, the team’s work lived in four places: an action item spre
 
 \textbf{Value.} One list, one status, linked to the change that does the work. When a merge request says \code{Closes \#12}, issue 12 closes when the change merges, with a link from the issue to the exact lines that did it. Nobody has to update a status column.
 
-\textbf{Set-up.} The labels and milestones come from \code{project.\allowbreak{}conf} (\hyperref[gitlab-setup]{Chapter 15, Setting up GitLab}~(p.\,\pageref*{gitlab-setup})). The board is two clicks: Plan \textgreater{} Issue boards, create a board scoped to the current milestone, add one list per \code{workflow:\allowbreak{}:\allowbreak{}} label. Because the labels are scoped, dragging a card from “in progress” to “review” swaps the label.
+\textbf{Set-up.} The labels, milestones, boards and work states all come from \code{project.\allowbreak{}conf} (\hyperref[gitlab-setup]{Chapter 15, Setting up GitLab}~(p.\,\pageref*{gitlab-setup})): the Sprint board has one list per \code{workflow:\allowbreak{}:\allowbreak{}} label and follows whichever sprint is running, and the Backlog board shows what no sprint holds yet, by priority. Because the labels are scoped, dragging a card from “in progress” to “review” swaps the label. Check what setup made with \code{gitlab.\allowbreak{}pl board list}:
+
+\begin{Verbatim}
+. ./env.sh > /dev/null
+cd work
+gl board list
+\end{Verbatim}
+
+\textbf{Work states.} Each issue also carries one of the team’s seven work states as a GitLab \emph{status} (the field on a work item, GitLab 18.2 and later): TODO, OPEN, WAIT, HOLD, PUNT, DONE, DROP, in the colors of the weekly quad (\hyperref[journal]{Chapter 23, Stand-ups, the journal and the board}~(p.\,\pageref*{journal})). The \code{workflow:\allowbreak{}:\allowbreak{}} labels say where a card is on the board; the status says what is happening to it, in the words the program manager reads on the quad. \code{gitlab.\allowbreak{}pl status set 12 WAIT} sets one from the command line, and DONE and DROP close the issue.
 
 Here is the board legend the team kept in the wiki:
 
@@ -9746,7 +9970,7 @@ The team used Code Quality for something its designers did not intend: the port 
 
 \subsection{Metrics reports}\label{tools--metrics-reports}
 
-A \textbf{metrics report} is a list of \code{name value} lines; GitLab Premium shows how each value changed against the target branch. The \code{todo} job’s metrics for the raw drop 1 conversion, one line per layer of the model (\hyperref[repo-layout]{Chapter 16, The model repository: what goes where}~(p.\,\pageref*{repo-layout})):
+A \textbf{metrics report} is a list of \code{name value} lines; GitLab (Premium and Ultimate) shows how each value changed against the target branch. The \code{todo} job’s metrics for the raw drop 1 conversion, one line per layer of the model (\hyperref[repo-layout]{Chapter 16, The model repository: what goes where}~(p.\,\pageref*{repo-layout})):
 
 \begin{Verbatim}
 perl ci/job.pl todo > /dev/null
@@ -9763,7 +9987,7 @@ todo_lines_physical 42
 
 The per-file count is one \code{grep} away when you want it: \code{grep -\allowbreak{}c \textquotedbl{}/\allowbreak{}/\allowbreak{} TODO\textquotedbl{} model/\allowbreak{}physical/\allowbreak{}stations/\allowbreak{}Stations.\allowbreak{}sysml} prints 29.
 
-On the Free tier the file is still kept as an artifact, and the team’s scripts read it for the scorecard (\hyperref[scorecard]{Chapter 33, The twelve-week scorecard}~(p.\,\pageref*{scorecard})).
+The file is also kept as an artifact, and the team’s scripts read it for the scorecard (\hyperref[scorecard]{Chapter 33, The twelve-week scorecard}~(p.\,\pageref*{scorecard})); on the Free tier that artifact is all there is.
 
 \subsection{The wiki}\label{tools--the-wiki}
 
@@ -9775,7 +9999,7 @@ Sprint 2 also put the wiki to work: the Definition of Ready and Done, the gitflo
 
 A \textbf{secret} is anything that grants access: a GitLab token, a cloud key, a private key, a password. Secrets leak into repositories in mundane ways: a script tested with a real token, a configuration file copied from someone’s laptop. Once committed, a secret is in the history forever, copied into every clone.
 
-GitLab’s \textbf{Secret Detection} is a Free-tier scanner, added to a pipeline with an \code{include:\allowbreak{}} of GitLab’s template. The scanner runs inside a Docker container, so it needs a runner with the Docker executor. The team’s runner is a Windows \emph{shell} runner, where that job would wait “pending” forever and, with “pipelines must succeed”, block every merge request. So the include is conditional on a project variable, \code{DOCKER\_\allowbreak{}RUNNER}, which \code{project.\allowbreak{}conf} sets to \code{false}:
+GitLab’s \textbf{Secret Detection} is a scanner available on every tier, added to a pipeline with an \code{include:\allowbreak{}} of GitLab’s template. The scanner runs inside a container, so it needs a runner that runs containers: the program’s Kubernetes runners on Azure, or a Docker runner (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners})). The team’s own runner is a Windows \emph{shell} runner, where that job would wait “pending” forever and, with “pipelines must succeed”, block every merge request; the ISSM’s approval to use the Kubernetes runners came after the twelve weeks. So the include is conditional on a project variable, \code{DOCKER\_\allowbreak{}RUNNER}, which \code{project.\allowbreak{}conf} sets to \code{false}:
 
 \codecaption{tools/gitlab/templates/gitlab-ci.yml}
 \begin{Verbatim}
@@ -9857,7 +10081,7 @@ A \textbf{gate} is a check that must pass before work moves on. Systems engineer
 What they cost is a question management asks early, and the answer has three parts:
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.522\linewidth}>{\raggedright\arraybackslash}p{0.415\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.494\linewidth}>{\raggedright\arraybackslash}p{0.443\linewidth}@{}}
 \caption{What the gates cost (check GitLab’s current pricing page; tiers and quotas change)}\\
 \toprule
 \bfseries Item & \bfseries Cost \\
@@ -9870,14 +10094,14 @@ What they cost is a question management asks early, and the answer has three par
 \bottomrule
 \endlastfoot
 The agile kit and every check it runs & nothing: it is a folder of Perl scripts \\
-Pipelines on your own runner (self-managed GitLab or your own runner on GitLab.com) & no per-minute charge; you pay for the machine \\
-Pipelines on GitLab.com’s hosted runners & compute minutes: a free monthly quota, then paid \\
-Pipeline gates, protected branches and tags, discussions resolved & Free tier \\
-Approval rules, enforced code owner approval, push rules, merge trains & Premium \\
-Security policies, compliance frameworks and pipelines & Ultimate \\
+Pipelines on the program’s own runners (Tidewater: a Windows VM and the Kubernetes runners in Azure) & no per-minute charge; the program pays for the machines \\
+Pipelines on GitLab’s hosted runners (GitLab.com, or hosted runners for Dedicated) & compute minutes: billed by use \\
+Pipeline gates, protected branches and tags, discussions resolved & every tier \\
+Approval rules, enforced code owner approval, push rules, merge trains & Premium and Ultimate (Tidewater has them) \\
+Security policies, compliance frameworks and pipelines & Ultimate (Tidewater has them) \\
 \end{longtable}}
 
-Tidewater runs on its own runner, so the pipelines themselves cost nothing beyond the runner machine. The gates that need Premium were practiced on the emulator and requested for the second year. Prices and tier boundaries change often: check GitLab’s pricing page and your organization’s license before promising a feature to anyone.
+Tidewater runs on the program’s own runners, so the pipelines cost nothing beyond the machines, and its Ultimate license already includes every gate in the table: the cost of a gate is the attention it takes, not money. A team on a lower tier practices the Premium gates on the emulator and makes the case in its briefing (\hyperref[admin-tiers]{Section 42.11, License tiers}~(p.\,\pageref*{admin-tiers})). Prices and tier boundaries change often: check GitLab’s pricing page and your organization’s license before promising a feature to anyone.
 
 \section{Sprint 5: deliveries and releases}\label{tools-s5}
 
@@ -9916,7 +10140,7 @@ An \textbf{environment} is GitLab’s name for a place a pipeline deploys to. Fo
 
 \subsection{Value stream analytics}\label{tools--value-stream-analytics}
 
-\textbf{Value stream analytics} measures how long work spends in each stage: issue created, first commit, merge request opened, merged. The Free tier shows a limited project-level view; Premium adds custom stages. The team used it once, for the management briefing, as a cross-check on the numbers its own scripts computed from the exported merge request history (\hyperref[scorecard]{Chapter 33, The twelve-week scorecard}~(p.\,\pageref*{scorecard})).
+\textbf{Value stream analytics} measures how long work spends in each stage: issue created, first commit, merge request opened, merged. On Ultimate it comes with custom stages, the DORA metrics and a value streams dashboard (the Free tier shows a limited project-level view). The team read it at the sprint 6 briefing beside the numbers its own scripts computed from the exported merge request history, and the two agreed (\hyperref[scorecard]{Chapter 33, The twelve-week scorecard}~(p.\,\pageref*{scorecard})).
 
 The same numbers are available on any tier from the kit, because they are computed from data every tier’s API exposes: \code{gitlab.\allowbreak{}pl analytics -\allowbreak{}-\allowbreak{}by sprint} prints the value stream stages, the four DORA measures translated for a model repository, pipeline success rates and durations, merge request throughput and issue flow, and \code{-\allowbreak{}-\allowbreak{}csv DIR} writes them for a spreadsheet. \hyperref[analytics]{Chapter 32, Measuring with GitLab analytics}~(p.\,\pageref*{analytics}) explains each number and which ones belong in a briefing. On the lesson’s sandbox, with only a few days of history, most of them are still empty:
 
@@ -9996,7 +10220,7 @@ Every tool above has a cost, and the briefing in \hyperref[briefing]{Chapter 35,
 \begin{itemize}
 \item \textbf{Runner time}: the pipeline takes well under a minute of checks per merge request on the team’s runner (\hyperref[pipeline]{Chapter 20, The pipeline, job by job}~(p.\,\pageref*{pipeline}) has the job timings); the nightly and weekly schedules add a few minutes a week.
 \item \textbf{Attention}: each widget is one more thing on the merge request page. The team removed none, but the rule was that a widget nobody looked at for a sprint would be switched off.
-\item \textbf{Licenses}: everything adopted in the twelve weeks runs on the Free tier, except the metrics widget and enforced code owner approvals, which the team practiced on the emulator and requested for the second year.
+\item \textbf{Licenses}: none extra. GitLab Dedicated is Ultimate, so every tool above was already paid for; the cost the team controlled was attention, which is why the Adopted column spreads the tools over six sprints.
 \end{itemize}
 \section{Exercises}\label{tools-exercises}
 
@@ -10782,7 +11006,7 @@ Here is the vocabulary, each word with its Tidewater example.
 \item[stage] a group of jobs that run together; stages run in order, and a stage starts only if the previous one passed. Example: \code{check} (grammar, lint, outline, todo, secrets), then \code{trace} (trace, vcrm), then \code{docs}.
 \item[job] one check or one production step; it runs a short script and passes or fails. Example: \code{lint}, which runs the kit’s model linter and fails unless it finds zero errors and zero warnings.
 \item[script] the commands a job runs, the same commands you would type in a terminal. Example: \code{perl ci/\allowbreak{}job.\allowbreak{}pl lint}, which runs the linter and the report writer (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners}) explains why every job is one such line).
-\item[runner] the computer that runs the jobs. Example: a Windows machine with Git for Windows and the agile kit checked out, registered to the group by the enterprise administrators.
+\item[runner] the computer that runs the jobs. Example: a Windows machine with Git for Windows and the agile kit checked out, registered to the group by the platform team.
 \item[rules] when a job runs. Example: \code{delta} runs only on the branch that merges a prime drop; \code{baseline} only when a \code{baseline-\allowbreak{}*} tag is created.
 \item[artifact] a file a job keeps after it finishes, downloadable from the job page and passed to later jobs. Example: \code{lint.\allowbreak{}txt}, the linter’s full output.
 \item[report] an artifact in a format GitLab understands and shows on the merge request page. Example: \code{lint.\allowbreak{}xml}, which fills the test widget.
@@ -13026,7 +13250,7 @@ it works unattended, and if it is offline, nothing merges.
 a pipeline file (\hyperref[pipeline]{Chapter 20, The pipeline, job by job}~(p.\,\pageref*{pipeline})) and a GitLab project (\hyperref[gitlab-setup]{Chapter 15, Setting up GitLab}~(p.\,\pageref*{gitlab-setup})).
 
 \boxsubhead{What you need}
-a computer that actually runs the jobs. This chapter explains what a runner is, the kinds GitLab offers, why the Tidewater team chose a project runner with the Windows shell executor on a dedicated virtual machine, how it was registered and secured, what goes wrong (“pending”, “stuck”, offline), and how the team kept the same pipeline file working on Windows, on Linux, in Docker and on a laptop.
+a computer that actually runs the jobs. This chapter explains what a runner is, the kinds GitLab offers, why the Tidewater team chose a project runner with the Windows shell executor on a dedicated virtual machine in Azure, how it was registered and secured, what goes wrong (“pending”, “stuck”, offline), what the program’s Kubernetes runners on Azure do differently, how the platform team’s Terraform fits in, and how the team kept the same pipeline file working on Windows, on Linux, in Kubernetes and on a laptop.
 \end{boxsurvival}
 
 \section{GitLab runs nothing}\label{runners-nothing}
@@ -13035,12 +13259,12 @@ The most common misunderstanding about GitLab, and the one that cost Tom the mos
 
 In systems engineering terms, the server is the configuration management office that schedules the audit, and the runner is the auditor who shows up and does it. No auditor, no audit: a pipeline with no runner to take its jobs sits in the state GitLab calls \textbf{pending}, indefinitely. With “pipelines must succeed” switched on, that means no merge request can merge. An offline runner stops the whole team.
 
-That is why the request to the enterprise administrators in \hyperref[gitlab-setup]{Chapter 15, Setting up GitLab}~(p.\,\pageref*{gitlab-setup}) asked for a runner on day one, and why Tom’s stand-up said “blocked” until it existed.
+That is why the request to the platform team in \hyperref[gitlab-setup]{Chapter 15, Setting up GitLab}~(p.\,\pageref*{gitlab-setup}) asked for a runner on day one, and why Tom’s stand-up said “blocked” until it existed. On GitLab Dedicated the split is the same: GitLab runs the server (on AWS), and the runners are the program’s own, here in the program’s Azure subscription (\hyperref[admin-dedicated]{Section 42.10, GitLab Dedicated: what GitLab runs and what the program runs}~(p.\,\pageref*{admin-dedicated})).
 
 \section{Who a runner serves: scopes}\label{runners-scopes}
 
 {\footnotesize\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.173\linewidth}>{\raggedright\arraybackslash}p{0.216\linewidth}>{\raggedright\arraybackslash}p{0.214\linewidth}>{\raggedright\arraybackslash}p{0.287\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.148\linewidth}>{\raggedright\arraybackslash}p{0.211\linewidth}>{\raggedright\arraybackslash}p{0.255\linewidth}>{\raggedright\arraybackslash}p{0.274\linewidth}@{}}
 \caption{Runner scopes}\\
 \toprule
 \bfseries Kind & \bfseries Who registers it & \bfseries Who it serves & \bfseries Typical use \\
@@ -13055,29 +13279,29 @@ That is why the request to the enterprise administrators in \hyperref[gitlab-set
 Instance (shared) runner & the GitLab administrators & every project on the server & general-purpose jobs, usually Linux with Docker \\
 Group runner & a group owner & every project in the group & a team’s projects with shared needs \\
 Project runner & a project maintainer & one project (or a few it is enabled for) & special tools, special security rules \\
-GitLab.com hosted runner & GitLab & GitLab.com projects & no machine to maintain; billed in compute minutes \\
+Hosted runner & GitLab & GitLab.com projects, or a Dedicated instance’s (hosted runners for Dedicated) & no machine to maintain; billed by use \\
 \end{longtable}}
 
 The Tidewater team used a \textbf{project runner}, registered to \code{tidewater/\allowbreak{}model}. Three reasons:
 
 \begin{itemize}
-\item \textbf{The tools.} The jobs need Perl and the agile kit. The organization’s shared runners were Linux machines running Docker containers built for software teams, with no kit and no way for the team to add one in the first quarter.
+\item \textbf{The tools.} The jobs need Perl and the agile kit. The program’s shared runners are the platform team’s Kubernetes runners on Azure (\hyperref[runners-k8s]{Section 21.13, The program’s Kubernetes runners on Azure}~(p.\,\pageref*{runners-k8s})): Linux containers built for software teams, with no kit in them in the first quarter, and an image of the team’s own needed the ISSM’s approval.
 \item \textbf{The security conversation.} The ISSM wanted one machine, one service account, one purpose, a list of exactly what runs on it, and no other project’s jobs on it. A project runner is that list.
-\item \textbf{The cost.} On the organization’s self-managed GitLab, a runner on the team’s own virtual machine costs nothing per minute; on GitLab.com, the hosted runners bill compute minutes after a free quota (\hyperref[tools-gates]{Section 17.7, Gates, and what they cost}~(p.\,\pageref*{tools-gates})).
+\item \textbf{The cost.} A runner on the program’s own virtual machine costs nothing per minute; GitLab’s hosted runners bill by use (\hyperref[tools-gates]{Section 17.7, Gates, and what they cost}~(p.\,\pageref*{tools-gates})).
 \end{itemize}
 \section{Hosted or your own: the decision}\label{runners-decision}
 
 Many readers will not have a choice: the organization will have decided where pipelines may run. If you do have one, these are the questions that decided it for Tidewater.
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.322\linewidth}>{\raggedright\arraybackslash}p{0.304\linewidth}>{\raggedright\arraybackslash}p{0.287\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.340\linewidth}>{\raggedright\arraybackslash}p{0.271\linewidth}>{\raggedright\arraybackslash}p{0.302\linewidth}@{}}
 \caption{Hosted runners against your own}\\
 \toprule
-\bfseries Question & \bfseries Hosted runners (GitLab.com) & \bfseries Your own runner \\
+\bfseries Question & \bfseries GitLab’s hosted runners & \bfseries Your own runner (Tidewater: in Azure) \\
 \midrule
 \endfirsthead
 \toprule
-\bfseries Question & \bfseries Hosted runners (GitLab.com) & \bfseries Your own runner \\
+\bfseries Question & \bfseries GitLab’s hosted runners & \bfseries Your own runner (Tidewater: in Azure) \\
 \midrule
 \endhead
 \bottomrule
@@ -13094,7 +13318,7 @@ For a model that is controlled, contractually sensitive or simply not cleared fo
 
 \section{What to put in the request}\label{runners-request}
 
-The enterprise administrators will need the same facts every time. Tom’s request, which got the runner in about two weeks, listed:
+The platform team will need the same facts every time. Tom’s request, which got the runner in about two weeks, listed:
 
 \begin{itemize}
 \item \textbf{Purpose}: run the automated checks of the Tidewater model project’s pipeline; no other project.
@@ -13113,7 +13337,7 @@ A request that answers every question the administrators will ask is a request t
 The \textbf{executor} is how the runner runs each job’s script.
 
 {\footnotesize\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.177\linewidth}>{\raggedright\arraybackslash}p{0.228\linewidth}>{\raggedright\arraybackslash}p{0.225\linewidth}>{\raggedright\arraybackslash}p{0.259\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.174\linewidth}>{\raggedright\arraybackslash}p{0.218\linewidth}>{\raggedright\arraybackslash}p{0.238\linewidth}>{\raggedright\arraybackslash}p{0.258\linewidth}@{}}
 \caption{Runner executors}\\
 \toprule
 \bfseries Executor & \bfseries What it does & \bfseries Good for & \bfseries Watch out for \\
@@ -13128,13 +13352,13 @@ The \textbf{executor} is how the runner runs each job’s script.
 shell & runs the script directly on the runner’s machine, as the runner’s account & simple jobs with tools installed on the machine & jobs share the machine; nothing is isolated \\
 docker & starts a fresh container from an image for each job & clean, repeatable environments & needs Docker on the runner; images must be built and maintained \\
 docker-windows & the same with Windows containers & Windows tools in containers & large images, slow starts \\
-kubernetes & runs each job as a pod in a cluster & large organizations & needs a cluster and its administrators \\
+kubernetes & runs each job as a pod in a cluster & organizations with a platform team (Tidewater’s program: AKS) & needs a cluster and its administrators; jobs run in containers \\
 custom & your own scripts start and stop the environment & special cases & you maintain it \\
 \end{longtable}}
 
 The team chose the \textbf{shell executor on Windows}: the runner machine is a Windows virtual machine with Git for Windows installed (which brings Perl, Git and a POSIX shell), and the agile kit checked out at a fixed path. Every job runs as the runner’s service account, in a work folder the runner creates per project.
 
-Why not Docker, which is cleaner? Because in the first quarter the organization had no Docker runners for the team’s network, and the ISSM’s approval for one would have taken longer than the twelve weeks. The kit does include an optional Docker image for later (\hyperref[runners-docker]{Section 21.12, The Docker alternative}~(p.\,\pageref*{runners-docker})), and the pipeline was written so that switching costs one line.
+Why not the Kubernetes runners, which are cleaner? Because a job there runs in a container image, the team had no approved image with the kit in it, and the ISSM’s approval for one (an image built, scanned and stored in the program’s registry) took longer than the twelve weeks. The kit includes that image (\hyperref[runners-docker]{Section 21.12, The Docker alternative}~(p.\,\pageref*{runners-docker})), and the pipeline was written so that switching costs a few lines (\hyperref[runners-k8s]{Section 21.13, The program’s Kubernetes runners on Azure}~(p.\,\pageref*{runners-k8s})).
 
 \section{The lesson of the first week: PowerShell}\label{runners-pwsh}
 
@@ -13210,7 +13434,7 @@ Registration connects a runner program to a GitLab project. Since GitLab 16 it g
 \end{itemize}
 GitLab shows the token once, starting \code{glrt-\allowbreak{}}. Treat it as a password.
 
-\textbf{Step 2, on the runner machine} (the enterprise administrator with Tom, in an elevated PowerShell window). These are the commands they typed on the Windows virtual machine; the book’s material has no server, so they are shown, not run:
+\textbf{Step 2, on the runner machine} (a platform-team administrator with Tom, in an elevated PowerShell window). These are the commands they typed on the Windows virtual machine; the book’s material has no server, so they are shown, not run:
 
 \begin{Verbatim}
 PS> cd C:\GitLab-Runner
@@ -13336,6 +13560,68 @@ variables:
 
 Because every script line is \code{perl ci/\allowbreak{}job.\allowbreak{}pl NAME}, nothing else in the pipeline changes. The image is built from a committed kit version and tagged with it, so the toolchain is baselined along with the model; \code{tools/\allowbreak{}gitlab/\allowbreak{}docker/\allowbreak{}README.\allowbreak{}md} has the build, test and care instructions. With a Docker runner, GitLab’s managed scanners (Secret Detection and others) can run too.
 
+\section{The program’s Kubernetes runners on Azure}\label{runners-k8s}
+
+The program’s platform team runs GitLab Runner inside \textbf{Azure Kubernetes Service} (AKS), Azure’s managed Kubernetes. Kubernetes is a system that runs containers on a pool of machines and starts or stops them on demand; a \textbf{pod} is one running group of containers. With the runner’s \textbf{Kubernetes executor}, every job becomes a pod:
+
+\begin{enumerate}
+\item A pipeline starts, and GitLab queues each job with its tags.
+\item The runner manager (itself a pod) asks GitLab for work and picks up a job whose tags it has.
+\item It creates a pod for the job: a \emph{build} container from the job’s image, which runs the script; a \emph{helper} container, which clones the repository and moves the cache and artifacts; and any services the job names.
+\item The script runs (\code{perl ci/\allowbreak{}job.\allowbreak{}pl lint}), the log streams back to GitLab, the artifacts are uploaded, and the pod is deleted.
+\end{enumerate}
+Nothing is left behind between jobs, which is exactly what the shell runner cannot promise. Three rules make it work for a model pipeline, and all three are the platform team’s to enforce:
+
+\begin{itemize}
+\item \textbf{The image.} Every job runs in \code{mbse-\allowbreak{}ci}, the kit’s image (Perl, Git and a pinned kit version), built from \code{tools/\allowbreak{}gitlab/\allowbreak{}docker/\allowbreak{}}, scanned, and stored in the program’s registry. The tag is a version, never \code{latest}.
+\item \textbf{Not root.} The pod runs as an ordinary user (uid 1000), never as the administrator of the container.
+\item \textbf{No network at job time.} The job needs GitLab and nothing else; the kit is already in the image, so nothing is downloaded while a check runs. A network policy can enforce it (\code{tools/\allowbreak{}gitlab/\allowbreak{}k8s/\allowbreak{}networkpolicy.\allowbreak{}yaml}).
+\end{itemize}
+Moving the model pipeline there changes one block of \code{.\allowbreak{}gitlab-\allowbreak{}ci.\allowbreak{}yml}: the image and the tags.
+
+\codecaption{tools/gitlab/k8s/gitlab-ci.k8s.yml}
+\begin{Verbatim}
+# The Kubernetes-runner variant of the model pipeline: REPLACE the template's `default:` block (tags windows, mbse) in
+# .gitlab-ci.yml with these keys, and add the variables. Keys in .gitlab-ci.yml win over an included file's, so an
+# include would not change the tags; edit the file. Everything else in the pipeline stays the same: every job is
+# `perl ci/job.pl NAME`, which runs the same in the mbse-ci image as on the Windows shell runner.
+default:
+  image: $CI_REGISTRY/tidewater/model/mbse-ci:1.0     # tools/gitlab/docker; pin a version, never :latest
+  tags:
+    - k8s-linux                                       # the tags the platform team gave the AKS runner in GitLab
+    - mbse
+
+variables:
+  KIT: /opt/agile-kit                                 # the kit inside the image (the project's KIT variable is for the shell runner)
+  DOCKER_RUNNER: "true"                               # the Kubernetes executor runs container images: GitLab's Secret Detection can run
+
+# Jobs that need Windows (a PowerShell-only script, a Windows tool) keep the shell runner's tags on the job itself:
+#   some-windows-job:
+#     tags: [windows, mbse]
+#     image: ""                                       # the shell runner ignores image:
+\end{Verbatim}
+
+What the MBSE team needs to know is short: the tags (\code{k8s-\allowbreak{}linux}, \code{mbse}), the image name and version, and that a pending job means “no runner with these tags is free”, not a broken model. The team does not need \code{kubectl}, the Kubernetes command line. \code{tools/\allowbreak{}gitlab/\allowbreak{}k8s/\allowbreak{}README.\allowbreak{}md} is the hand-off to the platform team: the Helm values for the runner (\code{values.\allowbreak{}yaml}, with the token in a Kubernetes secret, never in a file) and the split of who owns what. GitLab’s own scanners (Secret Detection and the rest) need container runners, so they run here and not on the Windows runner; the kit’s jobs can run on either.
+
+\section{Infrastructure as code: Terraform and OpenTofu}\label{terraform}
+
+The platform team builds the AKS cluster, its node pools, the runners and the network rules with \textbf{Terraform}: text files that describe infrastructure, which a tool compares with what exists and then changes to match. \textbf{OpenTofu} is its open-source fork, with the same language and commands. A systems engineer will meet it in three places.
+
+\begin{itemize}
+\item \textbf{Reading a plan in a merge request.} A change to the platform’s Terraform goes through a merge request like a model change. Its pipeline runs \code{plan}, which lists what would be created, changed or destroyed, and GitLab shows the summary on the merge request. Read it as you read a configuration change: does the plan touch only what the description says? A plan that destroys something the description does not mention is a question for the author. The change is made by \code{apply}, after approval, on the default branch.
+\item \textbf{State in GitLab.} Terraform remembers what it built in a \emph{state} file. GitLab can keep that state for a project (Operate \textgreater{} Terraform states), locked while someone applies, versioned like everything else. It holds names and addresses of real infrastructure, so access to it is a security decision: the platform team owns it.
+\item \textbf{The project itself as code.} Some platform teams manage every GitLab project with Terraform and GitLab’s provider, instead of \code{gitlab.\allowbreak{}pl setup}. The kit writes the same project file as Terraform, so there is still one source of truth:
+\end{itemize}
+\begin{Verbatim}
+sed "s#^KIT = /opt/agile#KIT = $KIT#" $KIT/tools/gitlab/templates/project.conf > project.conf
+perl $KIT/bin/gitlab.pl terraform project.conf --out tf --url https://gitlab.example.invalid
+grep -A6 'resource "gitlab_branch_protection" "develop"' tf/project.tf
+\end{Verbatim}
+
+The provider covers the project, members, labels, milestones, protections, approval rules, variables, schedules and boards. What it does not cover stays with \code{gitlab.\allowbreak{}pl setup}: the work-item statuses, the iteration cadence and the Insights file. Choose one tool per project; a \code{setup} and an \code{apply} against the same project would undo each other. The plan-in-the-merge-request pipeline is \code{tools/\allowbreak{}gitlab/\allowbreak{}terraform/\allowbreak{}gitlab-\allowbreak{}ci.\allowbreak{}tofu.\allowbreak{}yml}, which uses GitLab’s OpenTofu CI/CD component; on GitLab Dedicated the component lives on GitLab.com and must first be mirrored to the program’s instance, which is a platform-team task.
+
+Tidewater’s team never ran \code{apply}. Tom read the platform team’s plans when the runner’s network rules changed, and kept \code{gitlab.\allowbreak{}pl setup -\allowbreak{}-\allowbreak{}diff} as the monthly check that the project matched its file (\hyperref[admin]{Chapter 42, Administration}~(p.\,\pageref*{admin})).
+
 \section{The laptop is a runner too}\label{runners-laptop}
 
 \code{gitlab.\allowbreak{}pl ci} (\hyperref[cicd]{Chapter 19, CI/CD from zero}~(p.\,\pageref*{cicd})) is a runner that takes no orders from a server: it reads \code{.\allowbreak{}gitlab-\allowbreak{}ci.\allowbreak{}yml}, picks the jobs GitLab would pick for the event you name, and runs them in your working copy with Perl. It is not a substitute for the real runner (your laptop is not a fresh environment), but it answers “will my change pass?” in seconds before you push, and it is how every pipeline output in this book was produced.
@@ -13358,7 +13644,7 @@ In one page, describe a runner for your project the way the ISSM needs it: machi
 
 \begin{itemize}
 \item \textbf{Copy}: ask for the runner on day one; one purpose per runner; a least-privilege service account; shell-neutral job scripts (\code{perl ci/\allowbreak{}job.\allowbreak{}pl NAME} or the equivalent in your tool’s language); a written “pending” checklist; disk monitoring; a plan for a second runner.
-\item \textbf{Adapt}: the executor (Docker if your organization has it, shell if not); the scope (group runner if several model projects share tools); protected runners for publishing jobs.
+\item \textbf{Adapt}: the executor (Kubernetes or Docker if your organization has it, with the kit’s image; shell if not); the scope (group runner if several model projects share tools); protected runners for publishing jobs; Terraform for the project if your platform team runs GitLab as code.
 \item \textbf{Decide locally}: who owns the runner machine and its patches; which network it may reach; whether hosted runners and their compute minutes are allowed for your data at all.
 \end{itemize}
 \chapter{Reviewing a model change}\label{reviewing}
@@ -13772,7 +14058,7 @@ The link between them is the number. A story is GitLab issue 12 and journal item
 This is a deliberate application of a rule the agile kit has always had: the architect’s journal holds commitments and their state, and task-level detail stays in the team’s own tool. Tasks change daily; they are cut, merged, re-cut. A journal that tracked them would be noisy and always out of date. Stories change state a few times each, and every change is a fact management cares about: committed, done, carried, blocked.
 
 \begin{boxnote}{Note: Why not GitLab for everything?}
-GitLab’s Premium tier has epics and iterations with burndown charts, and with it a team could keep the whole hierarchy in GitLab. The team had the Free tier, and more importantly a need GitLab does not meet: a ledger in which points are never edited after the fact, only moved, so last month’s numbers are exactly what they were last month. That property is what lets \hyperref[scorecard]{Chapter 33, The twelve-week scorecard}~(p.\,\pageref*{scorecard}) compare sprint 1 with sprint 6 without anyone asking “has this been restated?”
+Tidewater’s GitLab is Ultimate: it has epics, iterations and burndown charts, and with them a team could keep the whole hierarchy in GitLab (the team turned them on in sprint 7). The journal stays anyway, for a need GitLab does not meet: a ledger in which points are never edited after the fact, only moved, so last month’s numbers are exactly what they were last month. That property is what lets \hyperref[scorecard]{Chapter 33, The twelve-week scorecard}~(p.\,\pageref*{scorecard}) compare sprint 1 with sprint 6 without anyone asking “has this been restated?”
 \end{boxnote}
 
 \section{Everything is a ledger}\label{journal-ledger}
@@ -14320,7 +14606,7 @@ wrote standups/2026-10-06-Model-answers.txt
 The suggested line in the stand-up file was \code{block TW-\allowbreak{}1 waiting on the enterprise Git\allowbreak{}Lab admins}. Jim compiled it, and the block was on the record. The flags grow with the days: a blocker reported two days running is amber, three days red; the same “today” three days running is amber (“is this stuck?”); a story id that is not in the sprint, or not in the journal at all, is flagged; someone who says “done” in Y gets a suggested \code{done} line to confirm. None of these is applied automatically. The kit suggests, the lead confirms.
 
 \begin{boxsidebar}{Case study: What the terse format did for the team}
-By the end of sprint 2 Bob, who had complained loudest about “status theater”, said the one-line status was the first status format that had ever told Bob anything about the other two’s work. It also made the blockers impossible to bury: the enterprise administrators’ slow runner request was red on the weekly report by its third day, and management called the administrators before the team had to.
+By the end of sprint 2 Bob, who had complained loudest about “status theater”, said the one-line status was the first status format that had ever told Bob anything about the other two’s work. It also made the blockers impossible to bury: the platform team’s slow runner request was red on the weekly report by its third day, and management called the administrators before the team had to.
 \end{boxsidebar}
 
 \section{Planning poker}\label{ceremonies-poker}
@@ -14446,6 +14732,10 @@ The team’s scale was 1 point = one ideal person-day: a day with no meetings an
 \item[\checkbox] it has been estimated in poker, and the spread was explained
 \end{itemize}
 \end{boxchecklist}
+
+\begin{boxnote}{Note: The first ten minutes: requests from Windchill}
+Refinement opens with the outside world. Before the meeting Jim exports Windchill’s report of open DevSecOps requests and imports it (\hyperref[windchill]{Section 15.10, The front door: requests from Windchill}~(p.\,\pageref*{windchill})); the meeting then dispositions each new request in a minute or two: accept (it becomes a story, or joins one already planned), defer (to a sprint, or until a condition holds), or decline (with the reason and an alternative). The deputy PM attends this part. A request that is accepted is then refined like any other story; the disposition is a comment on the request, so the requester can read the decision in Windchill after the review’s status sheet goes back.
+\end{boxnote}
 
 A ready story gets the \code{workflow:\allowbreak{}:\allowbreak{}ready} label in GitLab. The refinement’s journal file brings the new stories in with \code{new} lines (into the backlog, not yet committed), plus the accepted \code{est} lines:
 
@@ -15425,7 +15715,7 @@ The drift became the team’s first discrepancy report to the prime later, in sp
 
 \subsection{Friday 9: the project exists}\label{sprint-1-setup}
 
-Tom applied the project file to the GitLab group the enterprise administrators had created. The command is one line; its output is long, because it is the whole configuration of the project, read back:
+Tom applied the project file to the GitLab group the platform team had created. The command is one line; its output is long, because it is the whole configuration of the project, read back:
 
 \codecaption{docs/tidewater/sprints/01/setup.txt}
 \begin{Verbatim}
@@ -15489,7 +15779,7 @@ Tom’s first merge request committed the CODEOWNERS file, the issue and merge r
 
 ## What and why
 
-Who approves what, and the shapes of our issues and merge requests. The project has no pipeline yet: .gitlab-ci.yml arrives in sprint 2, and until "pipelines must succeed" is turned on, merges like this one are checked by review only (Jim approves). This MR therefore has no pipeline, on purpose.
+Who approves what, the shapes of our issues and merge requests, and the Insights dashboard management reads (.gitlab/insights.yml, generated by `gitlab.pl insights` from project.conf). The project has no pipeline yet: .gitlab-ci.yml arrives in sprint 2, and until "pipelines must succeed" is turned on, merges like this one are checked by review only (Jim approves). This MR therefore has no pipeline, on purpose.
 
 Closes #16
 Part of #3
@@ -15675,6 +15965,22 @@ TW-32  0.5 pts  Sprint 2 demo: the pipeline and the drop on develop
 \end{Verbatim}
 
 Notice what the list says about the team’s thinking at the end of its first week and a half. The drop is not merged yet; the plan is to bring it in through the vendor branch, \emph{in layers}, which means Bob had already decided the model’s folder layout would follow the layered structure rather than the converter’s default (\hyperref[repo-layout]{Chapter 16, The model repository: what goes where}~(p.\,\pageref*{repo-layout})). That decision is cheap in sprint 2 and very expensive later, because every future drop must land in the same folders.
+
+The refinement also met the program’s users for the first time, through Windchill. Jim exported the report of open DevSecOps requests that morning and imported it into the intake project (\hyperref[windchill]{Section 15.10, The front door: requests from Windchill}~(p.\,\pageref*{windchill})):
+
+\codecaption{docs/tidewater/sprints/01/windchill/intake.txt}
+\begin{Verbatim}
+perl $KIT/bin/gitlab.pl --project tidewater/requests windchill intake --conf requests.conf --note export-2026-10-15.csv
+created #1 WC-000101: Nightly model check summary the station leads can open
+created #2 WC-000102: Read access to the model for the data center engineers
+windchill: 2 rows, 2 created, 0 skipped, 0 drift
+
+Dispositions and plans recorded on the requests:
+  WC-000101 #1   accept   Accepted: delivered by the model site on GitLab Pages, rebuilt nightly, planned for sprint 4.
+  WC-000102 #2   accept   Accepted: Reporter access once drop 1 is on develop (sprint 2); granted at the sprint 2 review.
+\end{Verbatim}
+
+Two requests, both accepted, and neither needed a new story: the station leads’ nightly summary is what the model site of sprint 4 delivers, and the data center’s read access is one setting once drop 1 is on \code{develop}. Jim’s note for the retrospective: “Half of what users ask for is already in the plan. Say so, with the sprint.”
 
 \subsection{Friday 16: a red pipeline on a laptop}\label{sprint-1-local-ci}
 
@@ -16061,7 +16367,7 @@ The lint caught the missing story ids again. What the lint cannot catch is that 
 
 \subsection{Tuesday 20: the runner is online}\label{sprint-2-runner}
 
-The enterprise administrators registered the runner Tom had requested in sprint 1: a Windows virtual machine with Git for Windows, a shell executor, and the tags the pipeline asks for (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners})). Tom’s half-point task was to check the registration and the tags. It was the shortest task of the sprint and the one everything else waited on.
+The platform team registered the runner Tom had requested in sprint 1: a Windows virtual machine with Git for Windows, a shell executor, and the tags the pipeline asks for (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners})). Tom’s half-point task was to check the registration and the tags. It was the shortest task of the sprint and the one everything else waited on.
 
 \subsection{Wednesday 21: asking for what the team needs, in writing}\label{sprint-2-enablers}
 
@@ -16099,9 +16405,9 @@ Tom committed the pipeline that had run on Tom’s laptop the Friday before, ope
 
 \codecaption{docs/tidewater/sprints/02/pipelines/mr2-first-on-powershell-1.log}
 \begin{Verbatim}
-pipeline #1 (push, feature/37-first-pipeline) failed, 3 jobs, 57.8 s
+pipeline #1 (push, feature/37-first-pipeline) failed, 3 jobs, 59.6 s
 
-==== grammar          check    failed    35.6 s
+==== grammar          check    failed    41.3 s
 $ FILES=$(find model -name '*.sysml' | sort)
 FILES=$(find : The term 'FILES=$(find' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the
 spelling of the name, or if a path was included, verify that the path is correct and try again.
@@ -16111,7 +16417,7 @@ At line:1 char:1
     + CategoryInfo          : ObjectNotFound: (FILES=$(find:String) [], CommandNotFoundException
     + FullyQualifiedErrorId : CommandNotFoundException
 
-==== lint             check    failed    42.8 s
+==== lint             check    failed    44.6 s
 $ perl "$KIT/tools/sysml/model.pl" lint > lint.txt || true
 At line:1 char:50
 + perl "$KIT/tools/sysml/model.pl" lint > lint.txt || true
@@ -16120,7 +16426,7 @@ The token '||' is not a valid statement separator in this version.
     + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
     + FullyQualifiedErrorId : InvalidEndOfLine
 
-==== outline          check    failed    15.4 s
+==== outline          check    failed    13.4 s
 $ perl "$KIT/tools/sysml/model.pl" check
 Can't open perl script "/tools/sysml/model.pl": No such file or directory
 \end{Verbatim}
@@ -16136,9 +16442,9 @@ This is the lesson of the runners chapter (\hyperref[runners-pwsh]{Section 21.6,
 
 \codecaption{docs/tidewater/sprints/02/pipelines/mr2-job-pl-2.log}
 \begin{Verbatim}
-pipeline #2 (merge_request_event, refs/merge-requests/2/merge) success, 3 jobs, 59.8 s
+pipeline #2 (merge_request_event, refs/merge-requests/2/merge) success, 3 jobs, 58.7 s
 
-==== grammar          check    success   44.8 s
+==== grammar          check    success   43.7 s
 $ perl ci/job.pl grammar
 no .sysml files under model/ yet
 \end{Verbatim}
@@ -16228,6 +16534,27 @@ TW-55  2 pts  First drift and gap analysis from the trace
 \end{Verbatim}
 
 The list turned toward engineering for the first time: closing the conversion debt in the Network package, bringing the DOORS modules into the model, and the first drift and gap analysis. The platform stories that remained were about making the checks report something useful: the trace report and secret detection.
+
+The Windchill import that morning brought two new requests and the first \textbf{drift}: Windchill’s CM office had marked the first two “Approved” after the sprint 1 status sheet went back.
+
+\codecaption{docs/tidewater/sprints/02/windchill/intake.txt}
+\begin{Verbatim}
+perl $KIT/bin/gitlab.pl --project tidewater/requests windchill intake --conf requests.conf --note export-2026-10-28.csv
+drift   #1 WC-000101: state 'Open' -> 'Approved'
+noted   #1 WC-000101
+drift   #2 WC-000102: state 'Open' -> 'Approved'
+noted   #2 WC-000102
+created #3 WC-000103: Which DOORS requirements are in the model, and which are verified
+created #4 WC-000104: Weekly PowerPoint export of the Cameo diagrams
+windchill: 4 rows, 2 created, 0 skipped, 2 drift
+
+Dispositions and plans recorded on the requests:
+  WC-000103 #3   accept   Accepted: the DOORS modules come into the model in sprint 3 and the trace report lists exactly this.
+  WC-000103 #3   planned  tidewater/model#52 TW-52 in Sprint 3
+  WC-000104 #4   decline  Declined: the government model is SysML v2 text; its diagrams are generated on every merge and the model site (sprint 4, WC-000101) shows the current ones. A weekly export would be a copy that is wrong by Monday.
+\end{Verbatim}
+
+The first decline was the hardest for Jim, who had made those PowerPoint exports for years. The reason went on the request with an alternative (the model site, already accepted for the same station leads as WC-000101), so the answer the requester read in Windchill was “here is something better, and when”, not “no”.
 
 \subsection{Thursday 29: the drop is merged}\label{sprint-2-merge}
 
@@ -16435,7 +16762,7 @@ GitLab’s own view of the sprint agrees. The kit’s analytics command reads it
 
 \codecaption{docs/tidewater/sprints/02/analytics.txt}
 \begin{Verbatim}
-3. CI/CD: 18 pipelines, success rate 94.4%, duration median 1 min, p85 1.7 min
+3. CI/CD: 18 pipelines, success rate 94.4%, duration median 1 min, p85 1.8 min
    period                         runs   failed success%   median min
    Sprint 2                         18        1     94.4            1
    job failures: grammar 1/18, lint 1/18, outline 1/18
@@ -16695,9 +17022,9 @@ The pipeline for !9 failed. Two jobs went red, grammar and lint, and the merge r
 
 \codecaption{docs/tidewater/sprints/03/pipelines/mr9-first-23.log}
 \begin{Verbatim}
-pipeline #23 (merge_request_event, refs/merge-requests/9/merge) failed, 5 jobs, 57.2 s
+pipeline #23 (merge_request_event, refs/merge-requests/9/merge) failed, 5 jobs, 67.1 s
 
-==== grammar          check    failed      42 s
+==== grammar          check    failed    40.5 s
 $ perl ci/job.pl grammar
 $ perl $KIT/tools/sysml/sysml.pl check model/analysis/Analysis.sysml model/legacy/Legacy_Import.sysml model/library/Interfaces.sysml model/library/Tidewater.sysml model/library/Types.sysml model/library/conventions/Conventions.sysml model/logical/Behavior.sysml model/physical/allocation/Allocations.sysml model/physical/datacenter/DataCenter.sysml model/physical/network/Network.sysml model/physical/operations/Operations.sysml model/physical/stations/Stations.sysml model/requirements/model/Requirements.sysml model/verification/Verification.sysml
 model/physical/network/Network.sysml:39:41: error: unexpected 'queryArchive'; expected ',', '.', ':', '::', '::>', ':=', ':>', ':>>', ...
@@ -16983,6 +17310,31 @@ Y none T TW-50 talk.pl; the Day-9 demo rehearsal, by Fri. B TW-54 runner service
 \end{Verbatim}
 
 Tom’s drafted status names the drop-intake issue for prime drop 1 (TW-25), due “by Oct 16”. That issue was still open: the sprint 1 work it tracked was done, but the issue itself was never closed. \code{talk.\allowbreak{}pl} drafts from the board, so a forgotten open issue shows up as somebody’s “today”. The analytics for the sprint list it as the oldest open issue, and it was still showing up in Tom’s drafts at the end of sprint 4. The fix takes ten seconds: close it. The lesson is the one every tool on the team teaches sooner or later: the tools are only as good as the board you keep.
+
+The Windchill import that morning brought the first request from the systems engineering group itself, WC-000106:
+
+\codecaption{docs/tidewater/sprints/03/windchill/intake.txt}
+\begin{Verbatim}
+perl $KIT/bin/gitlab.pl --project tidewater/requests windchill intake --conf requests.conf --note export-2026-11-12.csv
+exists  #1 WC-000101
+drift   #2 WC-000102: state 'Approved' -> 'Implemented'
+noted   #2 WC-000102
+drift   #3 WC-000103: state 'Open' -> 'Approved'
+noted   #3 WC-000103
+drift   #4 WC-000104: state 'Open' -> 'Rejected'
+noted   #4 WC-000104
+created #5 WC-000105: Units on the sensor parameters (wind in knots or m/s?)
+created #6 WC-000106: Observation latency budget: station to published bulletin
+windchill: 6 rows, 2 created, 1 skipped, 3 drift
+
+Dispositions and plans recorded on the requests:
+  WC-000101 #1   planned  tidewater/model#71 TW-71 in Sprint 4
+  WC-000105 #5   accept   Accepted: units and value types are a sprint 4 story.
+  WC-000105 #5   planned  tidewater/model#68 TW-68 in Sprint 4
+  WC-000106 #6   defer    Deferred: a timing budget needs behavior and constraints in the model (planned for sprint 7 onward: the EnergyBalance constraint is the first). Revisit at the sprint 7 refinement.
+\end{Verbatim}
+
+A latency budget (the time from an observation at a station to the published bulletin, divided among station, network, data center and publication, and checked when the model changes) is exactly the kind of analysis the model should do. It was also not possible yet: the model had structure but no behavior or constraints. Jim deferred it to the sprint 7 refinement, when the EnergyBalance constraint would show how a budget is written in SysML v2, and said so on the request. Deferring with a condition is a decision; leaving a request unanswered is not.
 
 \subsection{Friday 13 November: review and retrospective}\label{sprint-3-review}
 
@@ -17310,7 +17662,7 @@ The pipeline failed anyway. Not grammar, not lint: the \textbf{outline} job. Her
 
 \codecaption{docs/tidewater/sprints/04/pipelines/mr13-first-36.log}
 \begin{Verbatim}
-==== outline          check    failed      13 s
+==== outline          check    failed    12.5 s
 $ perl ci/job.pl outline
 $ perl $KIT/tools/sysml/model.pl check
 
@@ -18195,6 +18547,16 @@ ESTIMATE TW-116 VCRM: which requirements are verified, and how  (3 answers at 10
 
 In the first round for the VCRM story, Jim voted low and Bob and Tom voted high. Jim asked the question the facilitation prompt in the chat suggests -- \emph{what does the high vote know?} The answer was the inspection verdicts: someone has to enter and sign a verdict for every requirement verified by inspection, and both high votes had counted that work. The plan already gave it to Jim, as Jim’s own task (\#126), because a signed verdict needs the lead’s authority. With that settled, the second round agreed. That is what planning poker is for: not the number, but the minute in which the team finds out it was imagining two different stories.
 
+The Windchill import showed a different kind of drift: not a state, a priority.
+
+\codecaption{docs/tidewater/sprints/05/windchill/intake.txt}
+\begin{Verbatim}
+drift   #6 WC-000106: priority 'Medium' -> 'High'
+noted   #6 WC-000106
+\end{Verbatim}
+
+The systems engineering group had raised its latency budget request to High in Windchill. Nothing in the plan changed that day (the condition for starting it still held), but the drift line put the change in front of the team instead of in an inbox, and the \code{-\allowbreak{}-\allowbreak{}note} option recorded it on the request.
+
 \subsection{Wednesday 9 December: DataCenter closed; the release rehearsal}\label{sprint-5-rehearsal}
 
 Bob’s !19 closed the level-tag TODO lines in DataCenter. Tom spent two days on \#107: rehearsing the release and hotfix flows in a sandbox project, \code{tidewater/\allowbreak{}sandbox}, before doing either for real. The release path is the gitflow path (\hyperref[git]{Chapter 12, Git from zero, for systems engineers}~(p.\,\pageref*{git}), \hyperref[pipeline]{Chapter 20, The pipeline, job by job}~(p.\,\pageref*{pipeline})): a \code{release/\allowbreak{}} branch from \code{develop}, a merge request into \code{main} with the CCB’s concurrence, a tag, and a back-merge into \code{develop}. The hotfix path starts from \code{main} and ends in both branches.
@@ -18216,7 +18578,7 @@ Bob opened !20 at 10:00. Its first pipeline failed. Here is the end of the \code
 \codecaption{docs/tidewater/sprints/05/pipelines/mr20-first-71.log}
 \begin{Verbatim}
 trace gaps: 3 orphan(s), 9 unverified, 1 drifted
-$ git worktree add -q --detach /tmp/ci-XXXXXX e9a045e31092a6168e07caa1da3048f44f5d2bb3
+$ git worktree add -q --detach /tmp/ci-XXXXXX 77670e86836ef76f2d5b3e578f8e59d329528b60
 $ git worktree remove --force /tmp/ci-XXXXXX
 target branch: 29 of 30 linked; 2 orphan(s), 9 unverified, 1 drifted (full report: trace-base.txt)
 this change adds trace gaps: orphans 2 -> 3 (new: TW-SYS-002) (see trace.txt)
@@ -18234,7 +18596,7 @@ In the document era this mistake would have survived until someone built a trace
 \codecaption{docs/tidewater/sprints/05/pipelines/mr20-fixed-72.log}
 \begin{Verbatim}
 trace gaps: 2 orphan(s), 9 unverified, 1 drifted
-$ git worktree add -q --detach /tmp/ci-XXXXXX e9a045e31092a6168e07caa1da3048f44f5d2bb3
+$ git worktree add -q --detach /tmp/ci-XXXXXX 77670e86836ef76f2d5b3e578f8e59d329528b60
 $ git worktree remove --force /tmp/ci-XXXXXX
 target branch: 29 of 30 linked; 2 orphan(s), 9 unverified, 1 drifted (full report: trace-base.txt)
 no new trace gaps (target branch: orphans 2, unverified 9, drift 1)
@@ -18968,7 +19330,7 @@ And the end of the tag pipeline’s \code{baseline} job:
 \begin{Verbatim}
 baseline-0 rebuilds identically (sha256=9b7c27d309be87b5fa96d49eb0aee8fcfcb04cc690e3e80027cdf0fbbec802ef)
 baseline: baseline-0
-commit: 7884d6291735702e4f0d926126da29603898453c
+commit: 6859b5fbc63b495cf1de9dbbc34feb1e02879bfc
 kit: agile-kit 2026.10
 perl 5.34.0
 git version 2.34.1
@@ -19060,6 +19422,30 @@ The pulse: 4.1, the highest of the twelve weeks, from 1.9 at the end of sprint 1
 \begin{boxobjection}{Objection: “The morale numbers are the team grading its own homework.”}
 They are, and the book does not pretend otherwise. Three people answering five questions is not a survey; it is a conversation starter. What makes the numbers worth reporting is that they were defined in week zero, asked the same way every sprint, and published even when they went down -- sprint 3’s dip is in every briefing. A measure you only report when it is good is advertising. The other eleven measures on the scorecard do not depend on anyone’s mood.
 \end{boxobjection}
+
+After the review Jim sent the CM office the status sheet for Windchill, one row per request since October:
+
+\codecaption{docs/tidewater/sprints/06/windchill/status.txt}
+\begin{Verbatim}
+perl $KIT/bin/gitlab.pl --project tidewater/requests windchill status --conf requests.conf --csv windchill-status-2026-12-24.csv
+
+windchill  issue  state   workflow  milestone  closed      merge_requests  release
+WC-000101  #1     closed  done      Sprint 4   2026-11-24  -               -
+WC-000102  #2     closed  done      Sprint 2   2026-10-30  -               -
+WC-000103  #3     closed  done      Sprint 3   2026-11-10  -               -
+WC-000104  #4     closed  done      -          2026-10-28  -               -
+WC-000105  #5     closed  done      Sprint 4   2026-11-27  -               -
+WC-000106  #6     open    ready     -          -           -               -
+WC-000107  #7     closed  done      Sprint 5   2026-12-08  -               -
+WC-000108  #8     closed  done      -          2026-11-25  -               -
+WC-000109  #9     closed  done      Sprint 6   2026-12-18  -               -
+WC-000110  #10    open    ready     Sprint 6   -           -               -
+WC-000111  #11    open    ready     -          -           -               -
+WC-000112  #12    open    ready     Sprint 7   -           -               -
+WC-000113  #13    closed  done      -          2026-12-23  -               -
+\end{Verbatim}
+
+13 requests in twelve weeks: most delivered by stories already in the plan, the declined ones with a reason, the deferred ones with a condition, and the buoy modes diagram carried into January with its story. The program office stopped asking “what happened to my request?” in November, because the answer arrived every other Friday.
 
 \section{Twelve weeks, in the measures agreed on day one}\label{sprint-6-twelve}
 
@@ -19185,10 +19571,10 @@ the numbers come from the work itself, every day, and nobody counts by hand.
 twelve weeks of issues, merge requests and pipelines in one GitLab project, and the kit’s journal of stories.
 
 \boxsubhead{What you need}
-to know which of GitLab’s analytics views answer a question a systems engineer or a program manager actually asks, which of them your license includes, and how to get the same numbers when it does not.
+to know which of GitLab’s analytics views answer a question a systems engineer or a program manager actually asks, how to put the right ones on one dashboard, and how to get the same numbers offline, by sprint, for the briefing.
 \end{boxsurvival}
 
-Jim’s first instinct, when the program manager asked for “the metrics,” was to open GitLab’s Analytics menu and screenshot whatever was there. Tom talked Jim out of it. Half the menu was greyed out on their license tier, and the other half answered questions nobody on the program had asked. “Deployment frequency” sounds impressive until someone asks what Tidewater deploys. This chapter is the sorting Jim and Tom did in sprint 6: what each view measures, what it means for a team whose product is a model, and how to get the numbers without buying a tier you do not need.
+Jim’s first instinct, when the program manager asked for “the metrics,” was to open GitLab’s Analytics menu and screenshot whatever was there. Tom talked Jim out of it. On Ultimate nothing in the menu is greyed out, and that was the problem: two dozen views, most of them answering questions nobody on the program had asked. “Deployment frequency” sounds impressive until someone asks what Tidewater deploys. This chapter is the sorting Jim and Tom did in sprint 6: what each view measures, what it means for a team whose product is a model, which few go on the dashboard management opens, and how to get the same numbers by sprint for the briefing.
 
 \section{Two kinds of numbers}\label{analytics-two-kinds}
 
@@ -19202,7 +19588,7 @@ Neither replaces the other. The scorecard in \hyperref[scorecard]{Chapter 33, Th
 
 \section{The views GitLab offers}\label{analytics-views}
 
-GitLab’s analytics are spread over several pages, and which ones you see depends on the license tier. Tiers and the features in them change from release to release, so treat the tier column below as a guide and check GitLab’s current pricing page before you plan around a view.
+GitLab’s analytics are spread over several pages. Tidewater’s GitLab Dedicated instance is Ultimate, so all of them are there; the tier column says what a team on a lower tier would see. Tiers change from release to release, so treat the column as a guide and check GitLab’s current pricing page.
 
 {\footnotesize\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.198\linewidth}>{\raggedright\arraybackslash}p{0.175\linewidth}>{\raggedright\arraybackslash}p{0.253\linewidth}>{\raggedright\arraybackslash}p{0.263\linewidth}@{}}
@@ -19229,11 +19615,20 @@ DORA metrics & Ultimate & deployment frequency, lead time, change failure rate, 
 Insights and analytics dashboards & Ultimate & charts you configure in YAML & anything above, on one page \\
 \end{longtable}}
 
-The Tidewater project ran on the Free tier for the first twelve weeks; the tier decision was one of Jim’s asks in the request for enablers (\hyperref[memos]{Chapter 37, Writing it down: DoD-style memos from Vim}~(p.\,\pageref*{memos})). That meant value stream, CI/CD and repository analytics in the web pages, and everything else from the API.
+\section{The dashboard management opens: Insights}\label{analytics-insights}
 
-\section{The Free-tier route: gitlab.pl analytics}\label{analytics-free}
+The program manager does not want two dozen pages. The team gave management one: \textbf{Analyze \textgreater{} Insights}, an Ultimate page that draws the charts listed in a file in the repository, \code{.\allowbreak{}gitlab/\allowbreak{}insights.\allowbreak{}yml}. The file is generated from \code{project.\allowbreak{}conf} by \code{gitlab.\allowbreak{}pl insights} and committed by merge request in sprint 1 (\hyperref[gitlab-setup]{Chapter 15, Setting up GitLab}~(p.\,\pageref*{gitlab-setup})), so the dashboard is reviewed like the model and always counts the labels the project really has:
 
-Every number in the paid views is computed from data that every tier exposes through GitLab’s REST API: merge requests with their commits, notes and approvals; issues with their labels and dates; pipelines and their jobs; deployments and releases. The kit’s \code{gitlab.\allowbreak{}pl analytics} reads that data and prints the same five sections a manager would want from the paid pages. It works the same way against a real GitLab server and against the offline stand-in the book uses.
+\begin{Verbatim}
+sed "s#^KIT = /opt/agile#KIT = $KIT#" $KIT/tools/gitlab/templates/project.conf > project.conf
+perl $KIT/bin/gitlab.pl insights project.conf | grep -E "title:|collection_labels|source::" | head -24
+\end{Verbatim}
+
+Ten charts in four groups, each chart answering one question. \emph{Flow of work}: what sits in each board column, how many issues were created and closed each week, how many merge requests merged. \emph{Defects}: open defects by severity, and how many closed each week. \emph{Requests from Windchill}: received, closed and still open (\hyperref[windchill]{Section 15.10, The front door: requests from Windchill}~(p.\,\pageref*{windchill})). \emph{Where the time goes}: issues closed by kind of work, engineering, platform or learning (\hyperref[bluf]{Bottom line up front}~(p.\,\pageref*{bluf})). The Windchill requests live in their own project, so the team pointed the \emph{group’s} Insights (group Settings \textgreater{} Analytics) at the same file: at group level the charts count every project in \code{tidewater}, the requests included. Insights groups by week or month, not by sprint, which is the reason the briefing still uses the next section’s report. Beside it, the \textbf{value streams dashboard} (Analyze \textgreater{} Analytics dashboards) shows the DORA measures and the value stream stages for the project, with no set-up.
+
+\section{By sprint, offline, for the briefing: gitlab.pl analytics}\label{analytics-free}
+
+Every number in the views above is computed from data GitLab’s REST API exposes on every tier: merge requests with their commits, notes and approvals; issues with their labels and dates; pipelines and their jobs; deployments and releases. The kit’s \code{gitlab.\allowbreak{}pl analytics} reads that data and prints the same five sections, grouped by sprint, with CSV output for the briefing’s spreadsheet. It works the same way against a real GitLab server, against the offline stand-in the book uses, and on a lower tier where the web views are missing.
 
 Here it is on the Tidewater project at the end of sprint 6. The sandbox is a copy of the simulated project, with its GitLab state in \code{gitlab/\allowbreak{}}:
 
@@ -19391,13 +19786,14 @@ Open \code{docs/\allowbreak{}tidewater/\allowbreak{}sprints/\allowbreak{}06/\all
 
 \begin{itemize}
 \item name the GitLab analytics views, what each measures and roughly which tier it needs;
-\item get the same numbers on the Free tier with \code{gitlab.\allowbreak{}pl analytics}, by sprint, with CSV output;
+\item generate the Insights dashboard from the project file and commit it by merge request;
+\item get the same numbers by sprint, offline and on any tier, with \code{gitlab.\allowbreak{}pl analytics}, with CSV output;
 \item translate the DORA measures into model terms, and say which belong in front of management;
 \item spot the traps of small numbers and mismatched definitions before management does.
 \end{itemize}
 \section{Applying this to your project}\label{analytics-applying}
 
-Decide the three flow numbers you will report before the first sprint, write them into your scorecard, and run \code{gitlab.\allowbreak{}pl analytics -\allowbreak{}-\allowbreak{}by sprint} at every sprint end into the sprint’s evidence folder, as Tidewater did. Do not buy a tier for its dashboards until you have used the Free-tier report for a few sprints and know which questions you keep asking. If your license includes the paid views, use them for the team’s own retrospectives and keep the briefing to the few numbers you defined in advance.
+Decide the three flow numbers you will report before the first sprint, write them into your scorecard, and run \code{gitlab.\allowbreak{}pl analytics -\allowbreak{}-\allowbreak{}by sprint} at every sprint end into the sprint’s evidence folder, as Tidewater did. Give management one page (Insights, generated from your project file) rather than the Analytics menu, and keep the briefing to the few numbers you defined in advance. On a lower tier without Insights, the sprint report from \code{gitlab.\allowbreak{}pl analytics -\allowbreak{}-\allowbreak{}csv} is the dashboard.
 
 \chapter{The twelve-week scorecard}\label{scorecard}
 
@@ -19440,7 +19836,7 @@ The scorecard was the team’s insurance. Bob had said it in the first week: “
 1 & Conversion debt: TODO lines left & structure closed, behavior started & not applicable & 0 (nothing imported yet) & 5 & yes \\
 2 & Change lead time, median hours & under 3 working days & 23 working days & 2.2 & 3.5 & yes \\
 3 & Gated changes & 100\% & not measured & 0 of 1 & 7 of 7 & yes, from sprint 2 \\
-4 & Trace answer time, seconds & under one minute & 2 working days & not yet & 24 & yes \\
+4 & Trace answer time, seconds & under one minute & 2 working days & not yet & 23 & yes \\
 5 & Trace measures & computed on every change, every gap owned & computed at reviews only & not yet & linked 29 of 30, completeness 66.7\% & yes (computed); the gaps are the prime’s \\
 6 & Discrepancy reports to the prime & every gap reported & ad hoc emails & 0 & 7 opened, 0 closed & yes \\
 7 & Spider web: package cycles & none & see \hyperref[cameo]{Chapter 2, The Cameo years}~(p.\,\pageref*{cameo}) & not yet & 1 & no \\
@@ -20838,7 +21234,7 @@ I found the drift in two minutes. It used to take a week, and we only looked bef
 \speaker{Bob, 8 October 2026}
 \end{speech}
 
-That sentence was the first time anyone on the team compared the new way to the old way in a unit they cared about. It was also the first number in the scorecard (\hyperref[scorecard]{Chapter 33, The twelve-week scorecard}~(p.\,\pageref*{scorecard})): the trace answers in 24 seconds what the document era answered in 2 days (notional, from the program’s last document-era review cycle).
+That sentence was the first time anyone on the team compared the new way to the old way in a unit they cared about. It was also the first number in the scorecard (\hyperref[scorecard]{Chapter 33, The twelve-week scorecard}~(p.\,\pageref*{scorecard})): the trace answers in 23 seconds what the document era answered in 2 days (notional, from the program’s last document-era review cycle).
 
 \subsection{“We’re systems engineers, not programmers.”}\label{minds--we-re-systems-engineers-not-programmers}
 
@@ -20980,6 +21376,7 @@ Friday 2026-12-18
 
   10:00 tom  opened !25 Generate the data exchange table (pipeline #95 failed)
   11:30 tom  secrets job failed on !25: token revoked, rotated to masked READ_TOKEN, branch rewritten
+  15:00 jim  closed WC-000109 (tidewater/requests#9): delivered by TW-115
   15:00 tom  closed #124 Generate the data exchange table
   15:00 tom  merged !25
 \end{Verbatim}
@@ -21049,7 +21446,7 @@ Bob’s own work that week was the hand-written flows in the \code{Observe\allow
 \codecaption{docs/tidewater/sprints/06/pipelines/mr23-first-86.log}
 \begin{Verbatim}
 trace gaps: 2 orphan(s), 9 unverified, 2 drifted
-$ git worktree add -q --detach /tmp/ci-XXXXXX 418ad2ad3674c27d9c34b2efcac01ce540f5468c
+$ git worktree add -q --detach /tmp/ci-XXXXXX 99589fa0535fc03077ee388706b257d5faa23a4e
 $ git worktree remove --force /tmp/ci-XXXXXX
 target branch: 29 of 30 linked; 2 orphan(s), 9 unverified, 1 drifted (full report: trace-base.txt)
 this change adds trace gaps: drift 1 -> 2 (new: TW-SYS-007) (see trace.txt)
@@ -21717,7 +22114,7 @@ None of this is new in kind. A CM office has always kept access lists, verified 
 Every item in this chapter appears in one table. Tom printed it and taped it beside the monitor; it also lives in the wiki as the Administration page (the version the team started from, \code{wiki/\allowbreak{}Administration.\allowbreak{}md}, is shown in \hyperref[templates]{Appendix I, Templates and GitLab Markdown, field by field}~(p.\,\pageref*{templates})).
 
 {\footnotesize\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.234\linewidth}>{\raggedright\arraybackslash}p{0.169\linewidth}>{\raggedright\arraybackslash}p{0.118\linewidth}>{\raggedright\arraybackslash}p{0.111\linewidth}>{\raggedright\arraybackslash}p{0.234\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.227\linewidth}>{\raggedright\arraybackslash}p{0.186\linewidth}>{\raggedright\arraybackslash}p{0.115\linewidth}>{\raggedright\arraybackslash}p{0.110\linewidth}>{\raggedright\arraybackslash}p{0.227\linewidth}@{}}
 \caption{The administration calendar}\\
 \toprule
 \bfseries Chore & \bfseries Cadence & \bfseries Owner & \bfseries Typical time & \bfseries Evidence it was done \\
@@ -21738,7 +22135,9 @@ Container image rebuild and scan (only if the Docker image is used) & monthly & 
 Protection audit: settings versus \code{project.\allowbreak{}conf} & monthly, and after any admin change & Tom & 20 min & the settings pages match \code{project.\allowbreak{}conf} (\code{setup} re-applied if not) \\
 Project export (backup of issues, MRs, wiki) & each baseline, and monthly & Tom & 20 min & the export file in the package registry, with its checksum \\
 Restore test & quarterly & Tom, watched by Jim & 2 hours & a scratch project restored and its pipeline green \\
-Audit event review & monthly (Premium) & Jim & 20 min & a comment on the Admin story \\
+Audit event review & monthly & Jim & 20 min & a comment on the Admin story \\
+GitLab Dedicated maintenance window: on the team calendar, no schedule inside it & once, and after any notice of emergency maintenance & Tom & 5 min & the calendar entry; the schedules page \\
+Windchill status sheet to the CM office & every review & Jim & 10 min & the sheet attached to the review notes (\hyperref[windchill]{Section 15.10, The front door: requests from Windchill}~(p.\,\pageref*{windchill})) \\
 Milestones two sprints ahead & each sprint planning & Jim & 5 min & the next two milestones exist \\
 Label and board tidy-up & each refinement & Jim & 10 min & no unlabelled open issues \\
 Upgrade watch: GitLab release notes for CI and API changes & monthly & Tom & 30 min & a note in the wiki’s Administration page \\
@@ -21774,7 +22173,7 @@ Guest & nobody (sometimes a reviewer from another program) & see issues, comment
 Reporter & the prime’s modeler, the ISSM, the program office & read the model, issues, MRs, pipelines; comment; download packages & push, merge, change settings \\
 Developer & Bob & push feature branches, open and approve MRs, run pipelines, merge into \code{develop} where the branch rule allows & push to protected branches, change settings or protections, create protected tags \\
 Maintainer & Jim, Tom & everything a developer can, plus merge into \code{main}, create \code{baseline-\allowbreak{}*} tags, manage CI/CD variables, protections and members & delete the project, transfer it (owner only) \\
-Owner & the group owner (the enterprise admins) & everything & n/a \\
+Owner & the group owner (the platform team) & everything & n/a \\
 \end{longtable}}
 
 Two choices in that table were argued over.
@@ -21787,7 +22186,7 @@ Two choices in that table were argued over.
 
 \begin{boxchecklist}{Checklist: Onboarding one person}
 \begin{itemize}[label={},leftmargin=1.6em,itemsep=2pt]
-\item[\checkbox] Account exists on the enterprise GitLab (the enterprise admins create it; the person signs in once)
+\item[\checkbox] Account exists on the program’s GitLab (the platform team create it; the person signs in once)
 \item[\checkbox] Added to the project with the lowest role that lets them do their job (\code{[members]} in \code{project.\allowbreak{}conf}, then \code{gitlab.\allowbreak{}pl setup})
 \item[\checkbox] SSH key or personal access token set up on their laptop (\hyperref[survival]{Chapter 9, The survival kit}~(p.\,\pageref*{survival}))
 \item[\checkbox] Added to \code{CODEOWNERS} if they will own a package, by MR
@@ -21994,9 +22393,9 @@ A schedule runs \emph{as the user who owns it}. When that user leaves, or loses 
 
 \subsection{What the pipeline costs}\label{admin-costs}
 
-The kit and its checks cost nothing. On a self-managed GitLab with the team’s own runners, there are no per-minute charges: the cost is the virtual machines and the time to look after them, about an hour a month each. On GitLab.com with GitLab’s hosted runners, jobs consume \emph{compute minutes}: each plan includes a quota, and more must be bought. Tidewater’s pipeline is small (a few minutes per MR), but a reader on hosted runners should estimate MRs per month times minutes per pipeline before choosing.
+The kit and its checks cost nothing. With the program’s own runners (Tidewater’s: a Windows VM and the Kubernetes runners in Azure, registered to the Dedicated instance) there are no per-minute charges: the cost is the machines and the time to look after them, about an hour a month each. GitLab Dedicated also offers hosted runners, which GitLab runs and bills by use. On GitLab.com with GitLab’s hosted runners, jobs consume \emph{compute minutes}: each plan includes a quota, and more must be bought. Tidewater’s pipeline is small (a few minutes per MR), but a reader on hosted runners should estimate MRs per month times minutes per pipeline before choosing.
 
-Some gate settings need a paid tier: required approval rules, enforced code-owner approval, push rules and merge trains are Premium; security policies and compliance frameworks are Ultimate (\hyperref[admin-tiers]{Section 42.10, License tiers}~(p.\,\pageref*{admin-tiers})). Prices and the features in each tier change; check GitLab’s current pricing page before planning a budget.
+On a lower tier, some gate settings are not available: required approval rules, enforced code-owner approval, push rules and merge trains are Premium; security policies and compliance frameworks are Ultimate (\hyperref[admin-tiers]{Section 42.11, License tiers}~(p.\,\pageref*{admin-tiers})). GitLab Dedicated has all of them. Prices and the features in each tier change; check GitLab’s current pricing page before planning a budget.
 
 \section{Protection audits}\label{admin-protection-audit}
 
@@ -22075,7 +22474,7 @@ Merge requests and their approvals are the audit trail the whole process rests o
 \subsection{Three layers of backup}\label{admin-backup-layers}
 
 \begin{enumerate}
-\item \textbf{The instance backup} belongs to the enterprise GitLab administrators, who back up the whole server daily. Tom asked them, in writing, what is backed up, how often, how long it is kept and when a restore was last tested. The answers went in the wiki. The team does not run this layer, but it should know what it covers.
+\item \textbf{The instance backup} belongs to the platform team, who back up the whole server daily. Tom asked them, in writing, what is backed up, how often, how long it is kept and when a restore was last tested. The answers went in the wiki. The team does not run this layer, but it should know what it covers.
 \item \textbf{The project export.} GitLab can export a project (Settings, General, Advanced, Export project) into one archive holding the repository, issues, MRs with their discussions, labels, milestones, the wiki and more. Tom exports at every baseline and once a month, and uploads the archive to the package registry under a \code{project-\allowbreak{}export} package, versioned by date, so its checksum is recorded.
 \item \textbf{The clones.} Everyone pushes their work daily, and the wiki is cloned onto Tom’s laptop and pulled weekly.
 \end{enumerate}
@@ -22101,20 +22500,20 @@ The offline emulator (\hyperref[tools]{Chapter 17, The DevSecOps tools that earn
 
 \section{Audit events}\label{admin-audit-events}
 
-GitLab Premium records \emph{audit events}: who added a member, changed a protection, created or revoked a token, changed a CI/CD variable, and similar administrative actions, with the time and the source address. (Who pushed what and who merged what is in the repository and the MRs on every tier.) Jim reviews the project’s audit events once a month, looking for three things:
+GitLab Ultimate (and Premium) records \emph{audit events}: who added a member, changed a protection, created or revoked a token, changed a CI/CD variable, and similar administrative actions, with the time and the source address. (Who pushed what and who merged what is in the repository and the MRs on every tier.) Jim reviews the project’s audit events once a month, looking for three things:
 
 \begin{itemize}
 \item \textbf{Any change to protections or merge settings.} Each should match an MR to \code{project.\allowbreak{}conf} or a comment on the Admin story. One that matches nothing is asked about the same day.
 \item \textbf{Membership changes.} They should match the onboarding and offboarding records.
 \item \textbf{Token creation and revocation.} They should match the token inventory.
 \end{itemize}
-On the Free tier there is no audit event page for projects. The team’s fallback was the monthly protection audit above, plus the instance administrators’ logs on request. That is weaker, and Jim said so in writing when the Premium question came up (see \hyperref[admin-tiers]{Section 42.10, License tiers}~(p.\,\pageref*{admin-tiers})).
+On the Free tier there is no audit event page for projects; a team there falls back on the monthly protection audit above, plus the instance administrators’ logs on request. That is weaker (\hyperref[admin-tiers]{Section 42.11, License tiers}~(p.\,\pageref*{admin-tiers})).
 
 \section{Upgrades}\label{admin-upgrades}
 
 Four things in the environment change version, and each needs a different kind of care.
 
-\textbf{GitLab itself.} The enterprise administrators upgrade the server, usually monthly. GitLab announces deprecations in its release notes months ahead, and occasionally removes a CI keyword or an API field. Tom reads the release notes each month for two sections only: CI/CD (anything about keywords the pipeline uses) and the REST API (anything \code{gitlab.\allowbreak{}pl} calls). After each server upgrade, Tom opens the pipeline editor (Build, Pipeline editor), which validates \code{.\allowbreak{}gitlab-\allowbreak{}ci.\allowbreak{}yml} against the server’s current rules, and runs a pipeline on \code{develop}.
+\textbf{GitLab itself.} On GitLab Dedicated, GitLab upgrades the server in the instance’s weekly maintenance window (\hyperref[admin-dedicated]{Section 42.10, GitLab Dedicated: what GitLab runs and what the program runs}~(p.\,\pageref*{admin-dedicated})); nobody on the program does it, and nobody can postpone it. GitLab announces deprecations in its release notes months ahead, and occasionally removes a CI keyword or an API field. Tom reads the release notes each month for two sections only: CI/CD (anything about keywords the pipeline uses) and the REST API (anything \code{gitlab.\allowbreak{}pl} calls). After each server upgrade, Tom opens the pipeline editor (Build, Pipeline editor), which validates \code{.\allowbreak{}gitlab-\allowbreak{}ci.\allowbreak{}yml} against the server’s current rules, and runs a pipeline on \code{develop}.
 
 \textbf{gitlab-runner.} Upgraded monthly with the runner patching, within the version range the server supports.
 
@@ -22126,12 +22525,42 @@ Four things in the environment change version, and each needs a different kind o
 The week a prime drop arrives is the week the team most needs the environment to behave exactly as it did last time, so the delta shows only the prime’s changes. Upgrades wait for the sprint after.
 \end{boxwarning}
 
+\section{GitLab Dedicated: what GitLab runs and what the program runs}\label{admin-dedicated}
+
+Tidewater’s GitLab is \textbf{GitLab Dedicated}: a single-tenant GitLab that GitLab Inc. hosts and operates for one organization, at the Ultimate tier. “Single-tenant” means the server, its database and its storage serve this organization alone. As of October 2026, GitLab hosts Dedicated instances on AWS, in a region the customer chooses; the program’s own infrastructure (the runners, the Kubernetes cluster, Windchill) is in Azure, and talks to the instance over the network the platform team configured. The split of duties is the first thing to learn, because it decides whom you ask:
+
+{\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.164\linewidth}>{\raggedright\arraybackslash}p{0.380\linewidth}>{\raggedright\arraybackslash}p{0.369\linewidth}@{}}
+\caption{GitLab Dedicated: who does what (as of October 2026)}\\
+\toprule
+\bfseries Who & \bfseries Does what & \bfseries Where \\
+\midrule
+\endfirsthead
+\toprule
+\bfseries Who & \bfseries Does what & \bfseries Where \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+GitLab & runs, patches, upgrades and backs up the server; disaster recovery; the web application firewall; rate limits and feature flags & nothing for you to do \\
+The platform team & IP allowlists and private connections, SAML single sign-on, application log delivery, custom domains, which hosted runners exist & Switchboard, GitLab’s portal for Dedicated customers, and support tickets \\
+The platform team & users, groups, instance-wide runners, the Kubernetes runners and their Terraform & GitLab itself, Azure, the platform repositories \\
+Tom and Jim & everything in \hyperref[gitlab-setup]{Chapter 15, Setting up GitLab}~(p.\,\pageref*{gitlab-setup}): the project, its protections, members, labels, boards, statuses, runners registered to the group & \code{project.\allowbreak{}conf}, by merge request \\
+\end{longtable}}
+
+Three consequences for the team:
+
+\begin{itemize}
+\item \textbf{The maintenance window is fixed.} GitLab applies upgrades in a weekly four-hour window chosen when the instance was created; it cannot be moved afterwards. Emergency maintenance for a critical security fix can happen outside it and cannot be postponed. Tom put the window on the team calendar and never schedules a pipeline in it.
+\item \textbf{Some self-managed features do not exist.} GitLab’s documentation lists what Dedicated leaves out; among them are LDAP and Kerberos sign-in, server-side Git hooks, Service Desk and reply-by-email. None of the kit’s practices depends on them: the kit’s protections are GitLab’s protected branches, not server hooks, and requests arrive through Windchill, not Service Desk (\hyperref[windchill]{Section 15.10, The front door: requests from Windchill}~(p.\,\pageref*{windchill})).
+\item \textbf{Logs come through the platform team.} Application logs are delivered through Switchboard to the program’s log store. When an investigation needs them (a leaked token, \hyperref[admin-token-leak]{Section 42.4.5, When a token leaks}~(p.\,\pageref*{admin-token-leak})), ask the platform team the same day.
+\end{itemize}
 \section{License tiers}\label{admin-tiers}
 
-GitLab comes in three tiers: Free, Premium and Ultimate. Several features this book uses are Premium or above, and the team spent part of sprint 2 working out which they actually needed. The honest answer was that the process works on Free with a few manual substitutes, and that Premium buys enforcement of things Free can only ask people to do.
+GitLab comes in three tiers: Free, Premium and Ultimate. GitLab Dedicated is Ultimate, so every feature in this book is available to a team on it. The question is not what to buy but what to turn on, and when: the twelve weeks turn on a feature only when its pain is felt (\hyperref[tools]{Chapter 17, The DevSecOps tools that earn their keep}~(p.\,\pageref*{tools})). A team on a self-managed GitLab or GitLab.com may have a lower tier; the last column says what Tidewater’s practice looks like there.
 
 {\footnotesize\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.232\linewidth}>{\raggedright\arraybackslash}p{0.204\linewidth}>{\raggedright\arraybackslash}p{0.222\linewidth}>{\raggedright\arraybackslash}p{0.232\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.227\linewidth}>{\raggedright\arraybackslash}p{0.196\linewidth}>{\raggedright\arraybackslash}p{0.238\linewidth}>{\raggedright\arraybackslash}p{0.227\linewidth}@{}}
 \caption{Features by tier, and what Tidewater did on each}\\
 \toprule
 \bfseries Feature & \bfseries Tier & \bfseries How Tidewater uses it & \bfseries On Free instead \\
@@ -22150,15 +22579,17 @@ Pipelines, artifacts, schedules, Pages, releases, package registry & Free & all 
 JUnit and Code Quality reports on the MR & Free & the MR widgets & n/a \\
 Metrics report on the MR & Premium & scorecard numbers shown with their change & the numbers are in the job log and artifact \\
 Scoped labels (\code{key:\allowbreak{}:\allowbreak{}value}, one per key) & Premium & \code{workflow:\allowbreak{}:\allowbreak{}}, \code{type:\allowbreak{}:\allowbreak{}}, \code{priority:\allowbreak{}:\allowbreak{}} & plain labels; the board still works; two \code{workflow} labels can coexist by mistake \\
+Board scoped to the current sprint & Premium & the Sprint board follows the running milestone & the board shows everything; filter by milestone \\
+Work-item statuses (GitLab 18.2+) & Premium & the seven work states, TODO to DROP & \code{state:\allowbreak{}:\allowbreak{}} scoped labels (\code{[statuses] mode =\allowbreak{} labels}) \\
 Milestone burndown charts & Premium & the sprint burndown & the journal’s sprint report \\
-Epics, roadmaps & Premium (multi-level: Ultimate) & not needed & \code{epic:\allowbreak{}:\allowbreak{}} and \code{tome:\allowbreak{}:\allowbreak{}} labels, the journal’s roadmap \\
-Iterations & Premium & not used & milestones named \code{Sprint N} \\
+Epics, roadmaps & Premium (multi-level: Ultimate) & from sprint 7, by importing the backlog workbook & \code{epic:\allowbreak{}:\allowbreak{}} and \code{tome:\allowbreak{}:\allowbreak{}} labels, the journal’s roadmap \\
+Iterations & Premium & ready in \code{project.\allowbreak{}conf}; milestones in the first year (\hyperref[gitlab-setup]{Chapter 15, Setting up GitLab}~(p.\,\pageref*{gitlab-setup})) & milestones named \code{Sprint N} \\
 Push rules & Premium & reject commits with secrets or large files at push time & the secrets job in the pipeline \\
 Audit events (project) & Premium & the monthly review & the protection audit and the instance logs \\
-DORA metrics, value stream analytics dashboards & Ultimate (VSA basics on Free) & not essential & \code{gitlab.\allowbreak{}pl export} and the status metrics \\
+DORA metrics, value stream analytics dashboards, Insights & Ultimate (VSA basics on Free) & the dashboard management reads (\hyperref[analytics]{Chapter 32, Measuring with GitLab analytics}~(p.\,\pageref*{analytics})) & \code{gitlab.\allowbreak{}pl analytics}, \code{gitlab.\allowbreak{}pl export} and the status metrics \\
 \end{longtable}}
 
-The program bought Premium for the team in the second quarter, on the strength of one argument Jim made in the sprint 6 briefing: on Free, the rule “every change approved by a code owner other than its author” is a team habit checked monthly; on Premium, it is a setting the server enforces on every merge. For a program that has to show an auditor its change control, the difference was worth the licence cost of three seats.
+The argument for the tier, if your program has to make it: on Free, the rule “every change approved by a code owner other than its author” is a team habit checked monthly; on Premium and Ultimate it is a setting the server enforces on every merge. For a program that has to show an auditor its change control, that difference alone is the case.
 
 \section{Applying this to your project}\label{admin-applying}
 
@@ -22189,7 +22620,7 @@ Write the checklist you would use to restore your own project from an export. Wh
 \end{boxexercise}
 
 \begin{boxexercise}{Exercise 42.5: Make the tier case}\phantomsection\label{ex-admin-tiers}
-Your program is on GitLab Free. Write the three-sentence argument for or against Premium for your team, naming the one rule you most need the server to enforce rather than record.
+Suppose your program is on GitLab Free. Write the three-sentence argument for or against Premium for your team, naming the one rule you most need the server to enforce rather than record. Then, for a team on Ultimate: name two Ultimate features you would \emph{not} turn on in the first twelve weeks, and why.
 \end{boxexercise}
 
 \chapter{Maintenance through the life cycle}\label{maintenance}
@@ -22597,7 +23028,7 @@ In sprint 6 Jim’s story “VCRM: which requirements are verified, and how” a
 
 \codecaption{docs/tidewater/sprints/06/pipelines/mr26-first-100.log}
 \begin{Verbatim}
-==== vcrm             trace    success   13.1 s
+==== vcrm             trace    success   11.1 s
 $ perl ci/job.pl vcrm
 VCRM: 30 requirements, 2 verified, 0 failed, 19 not run, 9 without a case (vcrm.html, vcrm.csv)
 \end{Verbatim}
@@ -23893,7 +24324,7 @@ This chapter walks through twenty-six points, from a note Jim kept from a progra
 
 \subsection{Platform and access}\label{security-platform}
 
-\textbf{5. Self-host on an accredited network.} GitLab and its runners run inside the program’s enclave; shared cloud runners and software-as-a-service tools are out for controlled data unless specifically authorized. \emph{Tidewater: applied.} The project lives on the enterprise GitLab, and the runner is a project runner on a government Windows VM (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners})).
+\textbf{5. Host on an authorized, isolated platform.} GitLab and its runners run where the program’s authorization says they may: a self-managed server in the program’s enclave, or a single-tenant service authorized for the data. Shared cloud runners and multi-tenant software-as-a-service tools are out for controlled data unless specifically authorized. \emph{Tidewater: adapted.} The program’s GitLab is GitLab Dedicated, a single-tenant instance that serves this organization alone, reached through the program’s allowlisted connection (\hyperref[admin-dedicated]{Section 42.10, GitLab Dedicated: what GitLab runs and what the program runs}~(p.\,\pageref*{admin-dedicated})); the runners are the program’s own, a Windows VM and the Kubernetes runners in the program’s Azure subscription (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners})). Tidewater is notional and unclassified; a program with controlled data checks that its instance’s authorization covers that data before the first commit.
 
 \textbf{6. Least privilege.} Roles scoped to need: Jim and Tom are maintainers, Bob is a developer. \code{main} and \code{develop} are protected, merges need a code owner’s approval, and nobody pushes to them directly. Membership is reviewed when someone joins or leaves. \emph{Tidewater: applied} (\hyperref[gitlab-setup]{Chapter 15, Setting up GitLab}~(p.\,\pageref*{gitlab-setup}), \hyperref[admin]{Chapter 42, Administration}~(p.\,\pageref*{admin})).
 
@@ -24096,7 +24527,7 @@ The written answers became a page in the wiki, linked from the onboarding page, 
 \section{The twenty-six points at a glance}\label{security-glance}
 
 {\footnotesize\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedleft\arraybackslash}p{0.038\linewidth}>{\raggedright\arraybackslash}p{0.358\linewidth}>{\raggedright\arraybackslash}p{0.148\linewidth}>{\raggedright\arraybackslash}p{0.344\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedleft\arraybackslash}p{0.038\linewidth}>{\raggedright\arraybackslash}p{0.343\linewidth}>{\raggedright\arraybackslash}p{0.145\linewidth}>{\raggedright\arraybackslash}p{0.363\linewidth}@{}}
 \caption{The twenty-six security points for Tidewater}\\
 \toprule
 \bfseries \# & \bfseries Point & \bfseries Tidewater & \bfseries Where \\
@@ -24112,7 +24543,7 @@ The written answers became a page in the wiki, linked from the onboarding page, 
 2 & Watch for aggregation & adapted & ISSM review at each baseline \\
 3 & Mark packages; the pipeline enforces & LATER & maintenance tome, \code{model.\allowbreak{}pl gate} in the pipeline \\
 4 & Separate repositories by sensitivity & adapted & one level; restricted drops project as the option \\
-5 & Self-host on an accredited network & applied & enterprise GitLab, government runner \\
+5 & Host on an authorized, isolated platform & adapted & GitLab Dedicated (single tenant), the program’s own runners in Azure \\
 6 & Least privilege & applied & roles, protected branches, code owners \\
 7 & Strong authentication & applied & single sign-on, SSH keys, expiring tokens \\
 8 & Sign commits and tags & LATER & “Signed baseline tags” story \\
@@ -24617,8 +25048,9 @@ Merge method & merge commits, never squash & Keep merge commits if you will meas
 Boundary with the supplier & full mirror of the supplier’s model & Full mirror if the model is your deliverable; interface surface if you consume theirs (\hyperref[prime-changes-strategies]{Section 45.8, Two strategies at the v1-to-v2 boundary}~(p.\,\pageref*{prime-changes-strategies})) \\
 Repository layout & layered folders through a layout map & The layers suit any system; the folder names should match your subsystems (\hyperref[repo-layout]{Chapter 16, The model repository: what goes where}~(p.\,\pageref*{repo-layout})) \\
 Requirements source & DOORS authoritative, converted on every drop, never hand-edited & Whatever your contract says governs; never two editable copies \\
-Runner & a Windows shell runner on a dedicated VM with Git for Windows’ Perl & What your enterprise can approve; a Docker runner works with the optional image (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners})) \\
-GitLab tier & started on Free, Premium decided in sprint 2 & Approval rules and code-owner enforcement are the Premium features worth paying for first (\hyperref[tools]{Chapter 17, The DevSecOps tools that earn their keep}~(p.\,\pageref*{tools})) \\
+Runner & a Windows shell runner on a dedicated VM in Azure, with Git for Windows’ Perl; the program’s Kubernetes runners for container jobs & What your platform team can approve; Kubernetes or Docker runners work with the kit’s image (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners})) \\
+GitLab tier & GitLab Dedicated, Ultimate; features turned on as their pain was felt & On a lower tier, approval rules and code-owner enforcement are the Premium features worth paying for first (\hyperref[tools]{Chapter 17, The DevSecOps tools that earn their keep}~(p.\,\pageref*{tools})) \\
+Request intake & Windchill requests imported at refinement into an intake project; status back at review & Wherever your users already file requests; a file each way when there is no API (\hyperref[windchill]{Section 15.10, The front door: requests from Windchill}~(p.\,\pageref*{windchill})) \\
 Generated documents & committed, with a “docs are current” gate & Commit them if reviewers read diffs of documents; regenerate in CI only if nobody does \\
 Primary progress measure & TODO lines left by the converter & Any count the strongest skeptic would accept, computed by a program \\
 Story size & tasks at most five ideal days, stories within a sprint & Keep the limits; the numbers are what make a sprint plannable \\
@@ -24999,7 +25431,7 @@ process rather than around it, which is what the scorecard needed to show.
 
 \textbf{Why it happens.} Urgency, and a maintainer’s role that permits it. In the document era, the equivalent was walking a change past the CCB because the review was next month.
 
-\textbf{Fix.} The gate has no bypass that leaves no trace. Urgent fixes go through a hotfix branch and a merge request like everything else; a small MR with a green pipeline merges in minutes. The monthly protection audit (\hyperref[admin]{Chapter 42, Administration}~(p.\,\pageref*{admin})) checks that nothing was unprotected, and the audit events (Premium) show who did it.
+\textbf{Fix.} The gate has no bypass that leaves no trace. Urgent fixes go through a hotfix branch and a merge request like everything else; a small MR with a green pipeline merges in minutes. The monthly protection audit (\hyperref[admin]{Chapter 42, Administration}~(p.\,\pageref*{admin})) checks that nothing was unprotected, and the audit events (Premium and Ultimate) show who did it.
 
 \textbf{At Tidewater.} Nobody unprotected a branch, which Jim attributes to the sprint 1 exercise: the team deliberately opened an MR with a lint error and watched the merge button refuse (\hyperref[sprint-1]{Chapter 26, Sprint 1: A GitLab project the team can work in}~(p.\,\pageref*{sprint-1})). Seeing the gate work made it feel like protection rather than obstruction.
 
@@ -25968,7 +26400,7 @@ All \code{flow} commands are \code{perl \textquotedbl{}\$KIT/\allowbreak{}bin/\a
 \section{gitlab.pl at a glance}\label{qrg-gitlab-cli}
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.338\linewidth}>{\raggedright\arraybackslash}p{0.599\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.353\linewidth}>{\raggedright\arraybackslash}p{0.584\linewidth}@{}}
 \caption{gitlab.pl at a glance}\\
 \toprule
 \bfseries Goal & \bfseries Command \\
@@ -25997,6 +26429,12 @@ Status metrics inputs & \code{gitlab.\allowbreak{}pl export exports/\allowbreak{
 Pipeline schedules & \code{gitlab.\allowbreak{}pl schedule list} / \code{schedule run ID} (defined in \code{project.\allowbreak{}conf} \code{[schedules]}) \\
 Check a cron line & \code{gitlab.\allowbreak{}pl schedule next \textquotedbl{}0 2 * * 1-\allowbreak{}5\textquotedbl{} -\allowbreak{}-\allowbreak{}tz America/\allowbreak{}New\_\allowbreak{}York -\allowbreak{}n 3} (needs no server) \\
 Numbers for a review & \code{gitlab.\allowbreak{}pl analytics -\allowbreak{}-\allowbreak{}by sprint} (value stream, DORA, pipelines, MRs, issues) \\
+The boards and the work states & \code{gitlab.\allowbreak{}pl board list} / \code{gitlab.\allowbreak{}pl status list} / \code{gitlab.\allowbreak{}pl status set 12 WAIT} \\
+The Insights dashboard file & \code{gitlab.\allowbreak{}pl insights .\allowbreak{}gitlab/\allowbreak{}project.\allowbreak{}conf \textgreater{} .\allowbreak{}gitlab/\allowbreak{}insights.\allowbreak{}yml} (commit it by MR) \\
+Windchill requests in & \code{gitlab.\allowbreak{}pl -\allowbreak{}-\allowbreak{}project tidewater/\allowbreak{}requests windchill intake -\allowbreak{}-\allowbreak{}conf requests.\allowbreak{}conf -\allowbreak{}-\allowbreak{}note export.\allowbreak{}csv} \\
+Windchill status out & \code{gitlab.\allowbreak{}pl -\allowbreak{}-\allowbreak{}project tidewater/\allowbreak{}requests windchill status -\allowbreak{}-\allowbreak{}conf requests.\allowbreak{}conf -\allowbreak{}-\allowbreak{}csv status.\allowbreak{}csv} \\
+Backlog workbook in / out & \code{gitlab.\allowbreak{}pl backlog import se-\allowbreak{}backlog.\allowbreak{}xlsx} / \code{gitlab.\allowbreak{}pl backlog export backlog.\allowbreak{}xlsx} \\
+The project as Terraform & \code{gitlab.\allowbreak{}pl terraform .\allowbreak{}gitlab/\allowbreak{}project.\allowbreak{}conf -\allowbreak{}-\allowbreak{}out gitlab/\allowbreak{}terraform} \\
 Practise offline & add \code{-\allowbreak{}-\allowbreak{}local /\allowbreak{}tmp/\allowbreak{}gl} to any command \\
 \end{longtable}}
 
@@ -26024,7 +26462,7 @@ Type them on their own line in any issue or MR description or comment; they run 
 \code{/\allowbreak{}assign\_\allowbreak{}reviewer @jim} & ask for a review & MR \\
 \code{/\allowbreak{}estimate 2d} & the task’s size (1 point = 1 ideal day) & issue, MR \\
 \code{/\allowbreak{}spend 3h} & time spent (\code{/\allowbreak{}spend -\allowbreak{}1h} corrects) & issue, MR \\
-\code{/\allowbreak{}weight 3} & story points on an issue (Premium) & issue \\
+\code{/\allowbreak{}weight 3} & story points on an issue (Premium, Ultimate) & issue \\
 \code{/\allowbreak{}due 2026-\allowbreak{}11-\allowbreak{}20} & due date & issue \\
 \code{/\allowbreak{}relate \#8 \#11} & link related issues & issue \\
 \code{/\allowbreak{}close} \code{/\allowbreak{}reopen} & close / reopen & issue, MR \\
@@ -26159,7 +26597,7 @@ Never put a token in a file in the repository. A leaked token: revoke first, the
 
 \section{Where things are in GitLab}\label{qrg-gitlab-ui}
 
-Menu names follow the left sidebar of GitLab 16 and 17; older versions differ slightly.
+Menu names follow the left sidebar of GitLab 17 and 18 (GitLab Dedicated runs a current release); older versions differ slightly.
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
 \begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.371\linewidth}>{\raggedright\arraybackslash}p{0.566\linewidth}@{}}
@@ -26174,7 +26612,10 @@ Menu names follow the left sidebar of GitLab 16 and 17; older versions differ sl
 \endhead
 \bottomrule
 \endlastfoot
-Issues, the board, sprints & Plan, Issues / Issue boards / Milestones \\
+Issues, the board, sprints & Plan, Issues / Issue boards / Milestones (Iterations, when used) \\
+Epics and the roadmap & Plan, Epics / Roadmap (group) \\
+The dashboard management reads & Analyze, Insights; Analyze, Analytics dashboards (value streams, DORA) \\
+Terraform state & Operate, Terraform states \\
 The wiki & Plan, Wiki \\
 Merge requests & Code, Merge requests \\
 Files, branches, tags, history & Code, Repository / Branches / Tags / Commits \\
@@ -26184,7 +26625,7 @@ The nightly schedule & Build, Pipeline schedules \\
 Releases, packages, the model site & Deploy, Releases / Package Registry / Pages \\
 Environments & Operate, Environments \\
 Members, labels & Manage, Members / Labels \\
-Audit events (Premium) & Secure, Audit events \\
+Audit events (Premium, Ultimate) & Secure, Audit events \\
 Merge method, squash, approvals & Settings, Merge requests \\
 Protected branches and tags & Settings, Repository \\
 Variables, runners & Settings, CI/CD \\
@@ -27583,7 +28024,7 @@ The \textbf{prime drop} template is the intake checklist for one delivery. Its t
 /assign @jim
 \end{Verbatim}
 
-On GitLab Free there are no group epics, so an epic is an ordinary issue labelled \code{type:\allowbreak{}:\allowbreak{}epic} whose description lists its stories. On Premium the same text goes in a real epic, and the stories are attached to it.
+On GitLab Free there are no group epics, so an epic is an ordinary issue labelled \code{type:\allowbreak{}:\allowbreak{}epic} whose description lists its stories. On Premium and Ultimate the same text goes in a real epic, and the stories are attached to it (Tidewater, from sprint 7: \code{gitlab.\allowbreak{}pl backlog import} creates the epics from the backlog workbook).
 
 \codecaption{GitLab Markdown: tools/gitlab/templates/.gitlab/issue\_templates/Spike.md}
 \begin{Verbatim}
@@ -27827,7 +28268,7 @@ Release and hotfix MRs target \code{main}. The Release template records the base
 /docs/
 \end{Verbatim}
 
-\code{CODEOWNERS} is not Markdown but it lives with the templates. Each \code{[Section]} lists default owners after its name; each path below it can name its own. GitLab reads the file from the MR’s target branch. A \code{\textasciicircum{}} before a section makes it advisory: the generated \code{docs/\allowbreak{}} are listed so reviewers are suggested, but no approval is required for them. With code owner approval enforced on \code{develop} (Premium), an MR touching \code{model/\allowbreak{}doors/\allowbreak{}} cannot merge until Jim approves.
+\code{CODEOWNERS} is not Markdown but it lives with the templates. Each \code{[Section]} lists default owners after its name; each path below it can name its own. GitLab reads the file from the MR’s target branch. A \code{\textasciicircum{}} before a section makes it advisory: the generated \code{docs/\allowbreak{}} are listed so reviewers are suggested, but no approval is required for them. With code owner approval enforced on \code{develop} (Premium and Ultimate), an MR touching \code{model/\allowbreak{}doors/\allowbreak{}} cannot merge until Jim approves.
 
 \subsection{README, CHANGELOG, release notes}\label{templates-readme}
 
@@ -29282,7 +29723,7 @@ From \hyperref[directive]{Chapter 3, The directive}~(p.\,\pageref*{directive}) a
 
 \begin{boxchecklist}{Checklist: Before sprint 1}
 \begin{itemize}[label={},leftmargin=1.6em,itemsep=2pt]
-\item[\checkbox] Ask the enterprise GitLab administrators for the group, the project, the accounts and a runner (lead time: about a week)
+\item[\checkbox] Ask the platform team for the group, the accounts and a runner (lead time: about a week); ask the CM office for the Windchill report of DevSecOps requests
 \item[\checkbox] Book the security officer (ISSM) for a toolchain briefing in sprint 2
 \item[\checkbox] Check every laptop: Git for Windows (Git Bash, Perl), Vim, the kit at the agreed tag; \code{perl tests/\allowbreak{}run.\allowbreak{}pl} passes
 \item[\checkbox] Agree the scorecard with management: measures, how each is computed, targets, old-way baselines; signed
@@ -29303,13 +29744,14 @@ From \hyperref[gitlab-setup]{Chapter 15, Setting up GitLab}~(p.\,\pageref*{gitla
 \item[\checkbox] \code{project.\allowbreak{}conf} written: settings, members, branches, tags, labels, sprints, approvals, variables (no secret values)
 \item[\checkbox] \code{gitlab.\allowbreak{}pl -\allowbreak{}-\allowbreak{}dry-\allowbreak{}run setup project.\allowbreak{}conf} reviewed, then applied
 \item[\checkbox] Default branch is \code{develop}; merge method is merge commit; squash never; pipelines must succeed; discussions must be resolved
-\item[\checkbox] \code{main} and \code{develop} protected: push allowed to no one, force push off, code owner approval on (Premium)
+\item[\checkbox] \code{main} and \code{develop} protected: push allowed to no one, force push off, code owner approval on (Premium, Ultimate)
 \item[\checkbox] \code{vendor/\allowbreak{}prime} protected: push by maintainers, merge by no one
 \item[\checkbox] \code{baseline-\allowbreak{}*} tags protected: created by maintainers only
-\item[\checkbox] \code{CODEOWNERS}, issue templates and MR templates committed through the first MR
+\item[\checkbox] \code{CODEOWNERS}, issue templates, MR templates and \code{.\allowbreak{}gitlab/\allowbreak{}insights.\allowbreak{}yml} committed through the first MR
 \item[\checkbox] Runner registered on a dedicated machine (project runner, tags, service account without admin rights, \code{core.\allowbreak{}longpaths}, antivirus exclusion for the builds folder) and a first job has run
 \item[\checkbox] \code{.\allowbreak{}gitlab-\allowbreak{}ci.\allowbreak{}yml} with grammar, lint and outline jobs; a deliberately broken MR has been seen to fail and be blocked
-\item[\checkbox] Board with workflow columns; sprint milestones two sprints ahead
+\item[\checkbox] Boards (Sprint with workflow columns, Backlog by priority) and the seven work states made by setup (\code{gitlab.\allowbreak{}pl board list}, \code{gitlab.\allowbreak{}pl status list}); sprint milestones two sprints ahead
+\item[\checkbox] Intake project made from \code{requests.\allowbreak{}conf}; its \code{[windchill]} column names match your site’s Windchill export
 \item[\checkbox] Wiki: Home, Definition of Ready, Definition of Done, Glossary
 \end{itemize}
 \end{boxchecklist}
@@ -29343,6 +29785,8 @@ From \hyperref[operating-model]{Chapter 13, The operating model}~(p.\,\pageref*{
 
 \begin{boxchecklist}{Checklist: Refinement (day 9)}
 \begin{itemize}[label={},leftmargin=1.6em,itemsep=2pt]
+\item[\checkbox] Windchill’s open-requests report exported and imported (\code{gitlab.\allowbreak{}pl windchill intake -\allowbreak{}-\allowbreak{}note}); drift read
+\item[\checkbox] Every new request dispositioned on its issue: accept (story linked), defer (to when), or decline (reason and alternative)
 \item[\checkbox] New work entered as stories (\code{new} lines and issues from the Story template)
 \item[\checkbox] Each candidate story checked against the Definition of Ready; tasks cut to 5 points or fewer
 \item[\checkbox] \code{\#est} rounds for anything not yet sized
@@ -29358,6 +29802,7 @@ From \hyperref[operating-model]{Chapter 13, The operating model}~(p.\,\pageref*{
 \item[\checkbox] Show the scorecard, every agreed measure, including the bad ones
 \item[\checkbox] Record management’s feedback as issues, not as notes
 \item[\checkbox] Close the stories that meet the Definition of Done; the rest carry over with a reason
+\item[\checkbox] The Windchill status sheet (\code{gitlab.\allowbreak{}pl windchill status -\allowbreak{}-\allowbreak{}csv}) sent to the CM office
 \end{itemize}
 \end{boxchecklist}
 
@@ -29488,7 +29933,7 @@ From \hyperref[admin]{Chapter 42, Administration}~(p.\,\pageref*{admin}); each i
 \item[\checkbox] Pipeline schedules owned by a current member and passing
 \item[\checkbox] Container image rebuilt from a pinned base and scanned (only if the Docker image is used)
 \item[\checkbox] Protection audit: the settings pages match \code{project.\allowbreak{}conf} (\code{setup} re-applied if not); every merge had a passing pipeline and a non-author approval
-\item[\checkbox] Audit events reviewed (Premium)
+\item[\checkbox] Audit events reviewed (Premium, Ultimate)
 \item[\checkbox] Project exported to the package registry
 \item[\checkbox] GitLab release notes read for CI and API changes
 \end{itemize}
@@ -29582,7 +30027,7 @@ Weekly status chart & status metrics, the weekly quad & progress and problems & 
 \section{DevSecOps and GitLab words}\label{glossary-devsecops}
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.377\linewidth}>{\raggedright\arraybackslash}p{0.560\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.373\linewidth}>{\raggedright\arraybackslash}p{0.564\linewidth}@{}}
 \caption{DevSecOps and GitLab words}\\
 \toprule
 \bfseries Word & \bfseries Meaning in this book \\
@@ -29594,6 +30039,7 @@ Weekly status chart & status metrics, the weekly quad & progress and problems & 
 \endhead
 \bottomrule
 \endlastfoot
+AKS & Azure Kubernetes Service: Azure’s managed Kubernetes, where the program’s container runners live \\
 Allow failure & a job setting: its failure shows yellow and does not block the merge \\
 Approval & a reviewer’s recorded “yes” on an MR \\
 Artifact & a file a job keeps after it runs (a report, a log, a count) \\
@@ -29610,19 +30056,25 @@ Default branch & the branch GitLab shows first and closes issues on (\code{devel
 Deploy token & a read-only credential for cloning or downloading from outside \\
 DevSecOps & development, security and operations done together, in small changes with automated checks \\
 Environment & a named place a job publishes to (the model site); each successful publish is a deployment \\
+Epic (GitLab) & a group-level work item that holds issues and child epics (Premium; multi-level on Ultimate) \\
 Fast-forward & moving a branch to a newer commit without a merge commit \\
 Force push & overwriting a branch’s history on the server; forbidden on protected branches \\
 Gitflow & the branching scheme used here: \code{main}, \code{develop}, feature, release, hotfix, plus \code{vendor/\allowbreak{}prime} \\
+GitLab Dedicated & a GitLab instance GitLab Inc. runs for one organization alone, at the Ultimate tier \\
 GitLab flow & a simpler alternative scheme: feature branches into \code{main}, promotion by environment or release branches \\
+Insights & an Ultimate page of charts defined by \code{.\allowbreak{}gitlab/\allowbreak{}insights.\allowbreak{}yml}; the dashboard management reads \\
 Issue & a work item: story, task, defect, discrepancy report, drop intake \\
-Job & one step of a pipeline, such as \code{lint} \\
+Iteration, iteration cadence & GitLab’s own sprints; a cadence creates them on a schedule (Premium, Ultimate) \\
 Job token (\code{CI\_\allowbreak{}JOB\_\allowbreak{}TOKEN}) & a credential that exists only while a job runs \\
+Job & one step of a pipeline, such as \code{lint} \\
+Kubernetes, pod & a system that runs containers on a pool of machines; a pod is one running group of containers (one job, with the Kubernetes executor) \\
 Label, scoped label & a tag on an issue or MR; a scoped label \code{key:\allowbreak{}:\allowbreak{}value} allows one value per key (Premium) \\
 Lint & an automatic structural check of the model \\
 Masked variable & a CI/CD variable hidden as \code{[MASKED]} in job logs \\
 Merge request (MR) & a request to merge a branch, with its changes, checks, discussion and approvals \\
 Merged-results pipeline & an MR pipeline run on the result of merging the branch into its target \\
 Milestone & a dated time box; here, one sprint \\
+OpenTofu & the open-source fork of Terraform: the same language and commands \\
 Package registry & storage for files with versions and checksums (the prime drops, baseline bundles) \\
 Pages & a static website published from a job’s \code{public/\allowbreak{}} folder (the model site) \\
 Personal access token & a credential for one person’s scripts \\
@@ -29642,9 +30094,14 @@ Secret detection & a job that looks for passwords, keys and tokens in committed 
 Shift left & finding a problem earlier: at merge rather than at integration \\
 Squash & combining a branch’s commits into one at merge; never used here \\
 Stage & a column of jobs; stages run in order \\
+Status (work item) & a work item’s state from a list the group defines; here the seven work states, TODO to DROP (GitLab 18.2+) \\
+Switchboard & GitLab’s portal for Dedicated customers: allowlists, single sign-on, logs, hosted runners \\
 Tag, annotated tag & a permanent name for one state of the repository; annotated tags carry a message \\
+Terraform, plan, apply, state & infrastructure described as text; \code{plan} lists the changes, \code{apply} makes them, the \emph{state} records what exists \\
+Value streams dashboard & an Ultimate page of flow and DORA measures, with no set-up \\
 Vendor branch & \code{vendor/\allowbreak{}prime}: exactly what the converters make of each drop, never edited \\
 Wiki & the project’s versioned pages of procedures and decisions \\
+Windchill & the program’s product lifecycle system, where users submit requests; imported into GitLab at refinement \\
 YAML & the indented text format of \code{.\allowbreak{}gitlab-\allowbreak{}ci.\allowbreak{}yml} \\
 \end{longtable}}
 
@@ -32030,6 +32487,8 @@ The checklist: import the export into a scratch group; check the repository, bra
 
 \begin{boxanswer}{\hyperref[ex-admin-tiers]{Exercise 42.5}~(p.\,\pageref*{ex-admin-tiers}): Make the tier case}
 “On Free, the rule that a model change needs another engineer’s approval is a habit we record; on Premium, GitLab refuses the merge without it, and the code owner of the interface files must be one of the approvers. For a model the government will baseline under contract, an approval the server enforces is the evidence an auditor needs. The cost is a few seats a year against one finding at a configuration audit.”
+
+On Ultimate, two features to leave off in the first twelve weeks: compliance frameworks and pipelines (they enforce a pipeline across many projects, and one project does not need them yet) and epics with iterations (a second hierarchy to keep in step with the labels while three people are still learning git; Tidewater turned them on in sprint 7). Either answer is right if it names the pain the feature would relieve and shows the team does not feel it yet.
 \end{boxanswer}
 
 \begin{boxanswer}{\hyperref[maintenance--ex-1]{Exercise 43.1}~(p.\,\pageref*{maintenance--ex-1}): Run a drop through the loop yourself}

@@ -356,7 +356,7 @@ learn to use them, the way we learned DOORS.
 ```
 
 Bob replied the next morning with one line: "Twelve weeks. Then we talk." Tom did not reply, but on Wednesday Tom
-had already requested a GitLab group from the enterprise administrators, three days before Jim had planned to.
+had already requested a GitLab group from the platform team, three days before Jim had planned to.
 
 ::: tip What the email does
 The email does four things a change leader has to do: it admits what is not known, commits to specific behaviors,
@@ -370,7 +370,7 @@ The week between the memo and sprint 1 (29 September to 2 October 2026) was not 
 to prepare the ground. Nothing in it required DevSecOps knowledge; all of it was ordinary program work. The full
 checklist is in [[checklists]]; the main items were:
 
-- **Request access early.** Tom asked the enterprise GitLab administrators for a group (`tidewater`), a project
+- **Request access early.** Tom asked the platform team for a group (`tidewater`), a project
   (`tidewater/model`), three accounts with the right roles, and a runner, the machine that will execute the
   pipeline. The administrators' standard turnaround was five working days, so the request had to go in before
   sprint 1, not during it.
@@ -389,7 +389,7 @@ checklist is in [[checklists]]; the main items were:
 
 ::: warning Access requests are on the critical path
 The longest lead time in the first two weeks was not learning git or writing a pipeline. It was waiting for
-accounts, a project and a runner from the enterprise administrators. Submit those requests before you do anything
+accounts, a project and a runner from the platform team. Submit those requests before you do anything
 else, even before you are sure exactly what you need. You can adjust a project's settings later; you cannot get
 back the week you spent waiting.
 :::

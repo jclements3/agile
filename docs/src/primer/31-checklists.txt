@@ -16,7 +16,7 @@ comment (paste the lines as `- [ ]` items) when the record matters. Each names t
 From [[directive]] and [[gitlab-setup]].
 
 ::: checklist Before sprint 1
-[ ] Ask the enterprise GitLab administrators for the group, the project, the accounts and a runner (lead time: about a week)
+[ ] Ask the platform team for the group, the accounts and a runner (lead time: about a week); ask the CM office for the Windchill report of DevSecOps requests
 [ ] Book the security officer (ISSM) for a toolchain briefing in sprint 2
 [ ] Check every laptop: Git for Windows (Git Bash, Perl), Vim, the kit at the agreed tag; `perl tests/run.pl` passes
 [ ] Agree the scorecard with management: measures, how each is computed, targets, old-way baselines; signed
@@ -35,13 +35,14 @@ From [[gitlab-setup]] and [[tools]].
 [ ] `project.conf` written: settings, members, branches, tags, labels, sprints, approvals, variables (no secret values)
 [ ] `gitlab.pl --dry-run setup project.conf` reviewed, then applied
 [ ] Default branch is `develop`; merge method is merge commit; squash never; pipelines must succeed; discussions must be resolved
-[ ] `main` and `develop` protected: push allowed to no one, force push off, code owner approval on (Premium)
+[ ] `main` and `develop` protected: push allowed to no one, force push off, code owner approval on (Premium, Ultimate)
 [ ] `vendor/prime` protected: push by maintainers, merge by no one
 [ ] `baseline-*` tags protected: created by maintainers only
-[ ] `CODEOWNERS`, issue templates and MR templates committed through the first MR
+[ ] `CODEOWNERS`, issue templates, MR templates and `.gitlab/insights.yml` committed through the first MR
 [ ] Runner registered on a dedicated machine (project runner, tags, service account without admin rights, `core.longpaths`, antivirus exclusion for the builds folder) and a first job has run
 [ ] `.gitlab-ci.yml` with grammar, lint and outline jobs; a deliberately broken MR has been seen to fail and be blocked
-[ ] Board with workflow columns; sprint milestones two sprints ahead
+[ ] Boards (Sprint with workflow columns, Backlog by priority) and the seven work states made by setup (`gitlab.pl board list`, `gitlab.pl status list`); sprint milestones two sprints ahead
+[ ] Intake project made from `requests.conf`; its `[windchill]` column names match your site's Windchill export
 [ ] Wiki: Home, Definition of Ready, Definition of Done, Glossary
 :::
 
@@ -69,6 +70,8 @@ From [[operating-model]] and [[ceremonies]].
 :::
 
 ::: checklist Refinement (day 9)
+[ ] Windchill's open-requests report exported and imported (`gitlab.pl windchill intake --note`); drift read
+[ ] Every new request dispositioned on its issue: accept (story linked), defer (to when), or decline (reason and alternative)
 [ ] New work entered as stories (`new` lines and issues from the Story template)
 [ ] Each candidate story checked against the Definition of Ready; tasks cut to 5 points or fewer
 [ ] `#est` rounds for anything not yet sized
@@ -82,6 +85,7 @@ From [[operating-model]] and [[ceremonies]].
 [ ] Show the scorecard, every agreed measure, including the bad ones
 [ ] Record management's feedback as issues, not as notes
 [ ] Close the stories that meet the Definition of Done; the rest carry over with a reason
+[ ] The Windchill status sheet (`gitlab.pl windchill status --csv`) sent to the CM office
 :::
 
 ::: checklist Retrospective (day 10)
@@ -190,7 +194,7 @@ From [[admin]]; each is explained there.
 [ ] Pipeline schedules owned by a current member and passing
 [ ] Container image rebuilt from a pinned base and scanned (only if the Docker image is used)
 [ ] Protection audit: the settings pages match `project.conf` (`setup` re-applied if not); every merge had a passing pipeline and a non-author approval
-[ ] Audit events reviewed (Premium)
+[ ] Audit events reviewed (Premium, Ultimate)
 [ ] Project exported to the package registry
 [ ] GitLab release notes read for CI and API changes
 :::

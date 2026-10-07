@@ -189,8 +189,13 @@ Around the team:
   model to the government as "drops": an XMI export of the model, a ReqIF export of the DOORS requirements, a CSV
   copy of the requirements and a manifest with checksums.
 - **The prime's modeler** is the contractor engineer the team talks to about the content of each drop.
-- **The enterprise GitLab administrators** run the organization's GitLab server. They create groups and projects
-  on request, register runners and enforce the organization's settings. They are helpful and slow.
+- **The platform team** administers the program's GitLab, a GitLab Dedicated instance at the Ultimate tier that
+  GitLab itself runs and upgrades, and the program's Azure infrastructure: the runners, the Kubernetes cluster and
+  its Terraform. They create groups on request, register runners and enforce the organization's settings. They are
+  helpful and slow.
+- **The program's users** (station leads, the data center, operations, the program office) never open GitLab to ask
+  for something: they submit requests in **Windchill**, the program's product lifecycle system, and read the answers
+  there.
 
 ::: note A note on pronouns
 The book refers to every person by name or by role, and uses "they" when a pronoun is needed.

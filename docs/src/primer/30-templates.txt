@@ -113,7 +113,8 @@ The **prime drop** template is the intake checklist for one delivery. Its task l
 {{include-md: tools/gitlab/templates/.gitlab/issue_templates/Epic.md}}
 
 On GitLab Free there are no group epics, so an epic is an ordinary issue labelled `type::epic` whose description lists
-its stories. On Premium the same text goes in a real epic, and the stories are attached to it.
+its stories. On Premium and Ultimate the same text goes in a real epic, and the stories are attached to it
+(Tidewater, from sprint 7: `gitlab.pl backlog import` creates the epics from the backlog workbook).
 
 {{include-md: tools/gitlab/templates/.gitlab/issue_templates/Spike.md}}
 
@@ -154,7 +155,7 @@ released IID` tags `main`, creates the release and opens the back-merge MR.
 `CODEOWNERS` is not Markdown but it lives with the templates. Each `[Section]` lists default owners after its name;
 each path below it can name its own. GitLab reads the file from the MR's target branch. A `^` before a section makes it
 advisory: the generated `docs/` are listed so reviewers are suggested, but no approval is required for them. With code
-owner approval enforced on `develop` (Premium), an MR touching `model/doors/` cannot merge until Jim approves.
+owner approval enforced on `develop` (Premium and Ultimate), an MR touching `model/doors/` cannot merge until Jim approves.
 
 ==== README, CHANGELOG, release notes {#templates-readme}
 

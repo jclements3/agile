@@ -37,11 +37,13 @@ feels the problem it solves is noise; the same tool turned on the week after the
 === The list at a glance {#tools-glance}
 
 || Tool | Tier | What it gives the team | Adopted ||
-| Issues, labels, milestones, boards | Free | the action item list, the sprint backlog and the status wall in one place | sprint 1 |
+| Issues, labels, milestones, boards | Free (scoped boards: Premium) | the action item list, the sprint backlog and the status wall in one place | sprint 1 |
+| Work-item statuses | Premium (GitLab 18.2+) | the seven work states, TODO to DROP, on every issue | sprint 1 |
 | Protected branches and tags | Free | nobody changes the integration branch or a baseline except through review | sprint 1 |
 | Merge requests | Free | every change proposed, discussed, checked and approved in one page | sprint 1 |
-| Code owners | Free (enforced: Premium) | the signature authority matrix, applied per file | sprint 1 |
+| Code owners, approval rules | Premium (enforced) | the signature authority matrix, applied per file; "one of Jim or Bob approves every change" | sprint 1 |
 | CI/CD pipeline | Free | the configuration audit on every change, in minutes | sprint 1 |
+| Insights dashboard | Ultimate | the charts management reads, defined in a file by MR | sprint 1 (file), sprint 4 (read) |
 | Test report widget (JUnit) | Free | the merge request says which check failed, on which file | sprint 2 |
 | Code Quality widget | Free | the merge request lists the findings this change added or fixed | sprint 2 |
 | Metrics report widget | Premium | the merge request shows how the TODO count and lint numbers moved | sprint 2 |
@@ -53,13 +55,14 @@ feels the problem it solves is noise; the same tool turned on the week after the
 | Releases | Free | each baseline published with its notes and evidence | sprint 5 |
 | Time tracking | Free | estimates and time spent on issues, for the comparison with the old way | sprint 5 |
 | Environments | Free | the model site's deployments listed with the commit each one came from | sprint 6 |
-| Value stream analytics | Free (limited) / Premium | how long work spends in each stage, from issue to merge | sprint 6 |
-| Approval rules | Premium | "one of Jim or Bob approves every change", enforced | when licensed |
-| Push rules | Premium | the server rejects commits without the right author e-mail or with large files | when licensed |
-| Merge request and iteration burndown | Premium | sprint burndown charts without a spreadsheet | when licensed |
-| DORA metrics | Ultimate | deployment frequency, lead time, change failure rate, time to restore | not used |
+| Value stream analytics, DORA metrics | Ultimate (VSA basics: Free) | how long work waits in each stage; how fast and how safely changes flow | sprint 6 |
+| Push rules | Premium | the server rejects commits without the right author e-mail or with large files | sprint 7 |
+| Epics, iterations, burndown | Premium (multi-level epics: Ultimate) | the tome and epic tree and the sprint burndown in GitLab itself | sprint 7 |
 Table: The GitLab tools the team uses, by tier and adoption sprint
 
+Tidewater's GitLab is GitLab Dedicated at the Ultimate tier ([[admin-dedicated]]), so the Tier column is not a
+shopping list: everything in it was available on day one. It says what a team on a lower tier would miss. The
+Adopted column is the decision that matters: a tool goes on when its pain is felt, not when it becomes available.
 The rest of this chapter takes them in adoption order, then lists what the team left off.
 
 === Sprint 1: the work and the gate {#tools-s1}
@@ -75,9 +78,22 @@ which sprint promised it; the board shows all of it as cards.
 issue 12 closes when the change merges, with a link from the issue to the exact lines that did it. Nobody has to
 update a status column.
 
-**Set-up.** The labels and milestones come from `project.conf` ([[gitlab-setup]]). The board is two clicks: Plan >
-Issue boards, create a board scoped to the current milestone, add one list per `workflow::` label. Because the
-labels are scoped, dragging a card from "in progress" to "review" swaps the label.
+**Set-up.** The labels, milestones, boards and work states all come from `project.conf` ([[gitlab-setup]]): the
+Sprint board has one list per `workflow::` label and follows whichever sprint is running, and the Backlog board shows
+what no sprint holds yet, by priority. Because the labels are scoped, dragging a card from "in progress" to "review"
+swaps the label. Check what setup made with `gitlab.pl board list`:
+
+```sh run sandbox=practice-11 expect="(?s)Sprint.*workflow::ready.*workflow::done.*Backlog"
+. ./env.sh > /dev/null
+cd work
+gl board list
+```
+
+**Work states.** Each issue also carries one of the team's seven work states as a GitLab *status* (the field on a
+work item, GitLab 18.2 and later): TODO, OPEN, WAIT, HOLD, PUNT, DONE, DROP, in the colors of the weekly quad
+([[journal]]). The `workflow::` labels say where a card is on the board; the status says what is happening to it, in
+the words the program manager reads on the quad. `gitlab.pl status set 12 WAIT` sets one from the command line, and
+DONE and DROP close the issue.
 
 Here is the board legend the team kept in the wiki:
 
@@ -204,7 +220,7 @@ satisfaction at seeing "29 fixed" on the Stations merge request in sprint 4 is r
 
 ==== Metrics reports
 
-A **metrics report** is a list of `name value` lines; GitLab Premium shows how each value changed against the target
+A **metrics report** is a list of `name value` lines; GitLab (Premium and Ultimate) shows how each value changed against the target
 branch. The `todo` job's metrics for the raw drop 1 conversion, one line per layer of the model ([[repo-layout]]):
 
 ```sh run expect="todo_lines [0-9]+"
@@ -223,8 +239,8 @@ todo_lines_physical 42
 The per-file count is one `grep` away when you want it: `grep -c "// TODO" model/physical/stations/Stations.sysml`
 prints 29.
 
-On the Free tier the file is still kept as an artifact, and the team's scripts read it for the scorecard
-([[scorecard]]).
+The file is also kept as an artifact, and the team's scripts read it for the scorecard ([[scorecard]]); on the Free
+tier that artifact is all there is.
 
 ==== The wiki
 
@@ -240,10 +256,11 @@ A **secret** is anything that grants access: a GitLab token, a cloud key, a priv
 into repositories in mundane ways: a script tested with a real token, a configuration file copied from someone's
 laptop. Once committed, a secret is in the history forever, copied into every clone.
 
-GitLab's **Secret Detection** is a Free-tier scanner, added to a pipeline with an `include:` of GitLab's template. The
-scanner runs inside a Docker container, so it needs a runner with the Docker executor. The team's runner is a
-Windows *shell* runner, where that job would wait "pending" forever and, with "pipelines must succeed", block every
-merge request. So the include is conditional on a project variable, `DOCKER_RUNNER`, which `project.conf` sets to
+GitLab's **Secret Detection** is a scanner available on every tier, added to a pipeline with an `include:` of
+GitLab's template. The scanner runs inside a container, so it needs a runner that runs containers: the program's
+Kubernetes runners on Azure, or a Docker runner ([[runners]]). The team's own runner is a Windows *shell* runner,
+where that job would wait "pending" forever and, with "pipelines must succeed", block every merge request; the ISSM's
+approval to use the Kubernetes runners came after the twelve weeks. So the include is conditional on a project variable, `DOCKER_RUNNER`, which `project.conf` sets to
 `false`:
 
 {{include: tools/gitlab/templates/gitlab-ci.yml | lines 57-66}}
@@ -326,16 +343,18 @@ What they cost is a question management asks early, and the answer has three par
 
 || Item | Cost ||
 | The agile kit and every check it runs | nothing: it is a folder of Perl scripts |
-| Pipelines on your own runner (self-managed GitLab or your own runner on GitLab.com) | no per-minute charge; you pay for the machine |
-| Pipelines on GitLab.com's hosted runners | compute minutes: a free monthly quota, then paid |
-| Pipeline gates, protected branches and tags, discussions resolved | Free tier |
-| Approval rules, enforced code owner approval, push rules, merge trains | Premium |
-| Security policies, compliance frameworks and pipelines | Ultimate |
+| Pipelines on the program's own runners (Tidewater: a Windows VM and the Kubernetes runners in Azure) | no per-minute charge; the program pays for the machines |
+| Pipelines on GitLab's hosted runners (GitLab.com, or hosted runners for Dedicated) | compute minutes: billed by use |
+| Pipeline gates, protected branches and tags, discussions resolved | every tier |
+| Approval rules, enforced code owner approval, push rules, merge trains | Premium and Ultimate (Tidewater has them) |
+| Security policies, compliance frameworks and pipelines | Ultimate (Tidewater has them) |
 Table: What the gates cost (check GitLab's current pricing page; tiers and quotas change)
 
-Tidewater runs on its own runner, so the pipelines themselves cost nothing beyond the runner machine. The gates that
-need Premium were practiced on the emulator and requested for the second year. Prices and tier boundaries change
-often: check GitLab's pricing page and your organization's license before promising a feature to anyone.
+Tidewater runs on the program's own runners, so the pipelines cost nothing beyond the machines, and its Ultimate
+license already includes every gate in the table: the cost of a gate is the attention it takes, not money. A team on
+a lower tier practices the Premium gates on the emulator and makes the case in its briefing ([[admin-tiers]]). Prices
+and tier boundaries change often: check GitLab's pricing page and your organization's license before promising a
+feature to anyone.
 
 === Sprint 5: deliveries and releases {#tools-s5}
 
@@ -395,9 +414,9 @@ came from. When the deputy program manager asked "what changed on the site since
 ==== Value stream analytics
 
 **Value stream analytics** measures how long work spends in each stage: issue created, first commit, merge request
-opened, merged. The Free tier shows a limited project-level view; Premium adds custom stages. The team used it once,
-for the management briefing, as a cross-check on the numbers its own scripts computed from the exported merge
-request history ([[scorecard]]).
+opened, merged. On Ultimate it comes with custom stages, the DORA metrics and a value streams dashboard (the Free
+tier shows a limited project-level view). The team read it at the sprint 6 briefing beside the numbers its own
+scripts computed from the exported merge request history, and the two agreed ([[scorecard]]).
 
 The same numbers are available on any tier from the kit, because they are computed from data every tier's API
 exposes: `gitlab.pl analytics --by sprint` prints the value stream stages, the four DORA measures translated for a
@@ -466,8 +485,8 @@ Every tool above has a cost, and the briefing in [[briefing]] states it honestly
   ([[pipeline]] has the job timings); the nightly and weekly schedules add a few minutes a week.
 - **Attention**: each widget is one more thing on the merge request page. The team removed none, but the rule was
   that a widget nobody looked at for a sprint would be switched off.
-- **Licenses**: everything adopted in the twelve weeks runs on the Free tier, except the metrics widget and enforced
-  code owner approvals, which the team practiced on the emulator and requested for the second year.
+- **Licenses**: none extra. GitLab Dedicated is Ultimate, so every tool above was already paid for; the cost the
+  team controlled was attention, which is why the Adopted column spreads the tools over six sprints.
 
 === Exercises {#tools-exercises}
 

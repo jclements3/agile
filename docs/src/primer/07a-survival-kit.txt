@@ -496,7 +496,7 @@ file, which the kit's templates provide.
 === Proving who you are to GitLab: SSH keys and tokens {#survival-ssh}
 
 When your laptop sends changes to GitLab (a **push**) or fetches them (a **pull** or **clone**), GitLab has to know
-who you are. There are two ways, and your enterprise administrators decide which you may use.
+who you are. There are two ways, and your platform team decides which you may use.
 
 ==== An SSH key
 

@@ -229,7 +229,7 @@ themselves, and the team votes again. A few things the team learned about sizing
 - **The first time is always bigger.** The first package with level tags took Bob three points; the third took one.
   Size the first of a kind generously and expect the next ones to shrink. Velocity in the first two sprints is not a
   forecast of anything.
-- **Waiting is not effort.** A task blocked for three days on the enterprise GitLab administrators is not a
+- **Waiting is not effort.** A task blocked for three days on the platform team is not a
   five-point task. Size the effort, mark the wait (`/label ~workflow::blocked`), and say it at stand-up as an ask.
 - **Half points are fine, quarter points are not.** A half-day task exists (send the DR, hold the meeting). Anything
   smaller is part of another task.
@@ -391,6 +391,35 @@ size, the role that usually does it, a sprint hint and an acceptance criterion. 
 
 Load it into a spreadsheet, delete what does not apply, rename the epics for your system, and file the first two
 sprints as GitLab issues. It is a starting list, not a plan: the plan comes out of your own refinement sessions.
+
+=== The backlog workbook: the plan as a spreadsheet, the tree in GitLab {#stories-workbook}
+
+Program offices plan in spreadsheets, and the planning workbook is often where a backlog starts: one row per tome,
+epic, story and task, with its parent, its team, its planned sprint and its size in days. The kit reads and writes
+that workbook, so the spreadsheet and GitLab hold the same tree. `tools/gitlab/samples/se-backlog-tidewater.xlsx`
+is Tidewater's own plan for sprints 1 to 6 in that form; its first rows:
+
+{{include: tools/gitlab/samples/se-backlog-tidewater.csv | lines 1-5}}
+
+`gitlab.pl backlog import` loads it, parents first: each tome becomes an epic on the group, each epic a child epic,
+each story an issue under its epic (weight from the days, due at the end of its planned sprint, in that sprint's
+milestone), and each task a task under its story, with its work state. Importing twice creates nothing the second
+time, and `backlog export` writes the tree back in the same columns, so a group can be rebuilt elsewhere from its
+export. In the practice folder:
+
+```sh run sandbox=scratch expect="(?s)backlog: [0-9]+ rows, [0-9]+ epics, 42 issues, 77 tasks created.*0 tasks created, [0-9]+ already there.*Story, 77 Task -> back.csv"
+sed "s#^KIT = /opt/agile#KIT = $KIT#" $KIT/tools/gitlab/templates/project.conf > project.conf
+for u in jim bob tom; do perl $KIT/bin/gitlab.pl --local gl user $u > /dev/null; done
+perl $KIT/bin/gitlab.pl --local gl --as tom setup project.conf > /dev/null 2>&1
+perl $KIT/bin/gitlab.pl --local gl --as jim backlog import --conf project.conf $KIT/tools/gitlab/samples/se-backlog-tidewater.xlsx | tail -1
+perl $KIT/bin/gitlab.pl --local gl --as jim backlog import --conf project.conf $KIT/tools/gitlab/samples/se-backlog-tidewater.xlsx | tail -1
+perl $KIT/bin/gitlab.pl --local gl backlog export --conf project.conf back.csv
+```
+
+Epics are a Premium and Ultimate feature. Tidewater planned its first twelve weeks with labels and milestones
+([[operating-model]]) and imported the workbook in sprint 7, when the tree had proven itself; from then on the
+roadmap in GitLab (Plan > Roadmap) and the journal's roadmap showed the same epics. The level names are set in
+`project.conf`'s `[backlog]` section, so a workbook that says *Epoch* instead of *Epic* imports the same way.
 
 === Applying this to your project {#stories-apply}
 

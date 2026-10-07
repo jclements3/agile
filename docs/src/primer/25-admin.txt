@@ -59,7 +59,9 @@ the wiki as the Administration page (the version the team started from, `wiki/Ad
 | Protection audit: settings versus `project.conf` | monthly, and after any admin change | Tom | 20 min | the settings pages match `project.conf` (`setup` re-applied if not) |
 | Project export (backup of issues, MRs, wiki) | each baseline, and monthly | Tom | 20 min | the export file in the package registry, with its checksum |
 | Restore test | quarterly | Tom, watched by Jim | 2 hours | a scratch project restored and its pipeline green |
-| Audit event review | monthly (Premium) | Jim | 20 min | a comment on the Admin story |
+| Audit event review | monthly | Jim | 20 min | a comment on the Admin story |
+| GitLab Dedicated maintenance window: on the team calendar, no schedule inside it | once, and after any notice of emergency maintenance | Tom | 5 min | the calendar entry; the schedules page |
+| Windchill status sheet to the CM office | every review | Jim | 10 min | the sheet attached to the review notes ([[windchill]]) |
 | Milestones two sprints ahead | each sprint planning | Jim | 5 min | the next two milestones exist |
 | Label and board tidy-up | each refinement | Jim | 10 min | no unlabelled open issues |
 | Upgrade watch: GitLab release notes for CI and API changes | monthly | Tom | 30 min | a note in the wiki's Administration page |
@@ -88,7 +90,7 @@ matters for a model project is what each role can do to the controlled configura
 | Reporter | the prime's modeler, the ISSM, the program office | read the model, issues, MRs, pipelines; comment; download packages | push, merge, change settings |
 | Developer | Bob | push feature branches, open and approve MRs, run pipelines, merge into `develop` where the branch rule allows | push to protected branches, change settings or protections, create protected tags |
 | Maintainer | Jim, Tom | everything a developer can, plus merge into `main`, create `baseline-*` tags, manage CI/CD variables, protections and members | delete the project, transfer it (owner only) |
-| Owner | the group owner (the enterprise admins) | everything | n/a |
+| Owner | the group owner (the platform team) | everything | n/a |
 Table: GitLab roles as Tidewater uses them
 
 Two choices in that table were argued over.
@@ -107,7 +109,7 @@ the government v2 model is the government's record; the prime's changes arrive a
 ==== Adding a person {#admin-onboarding}
 
 ::: checklist Onboarding one person
-[ ] Account exists on the enterprise GitLab (the enterprise admins create it; the person signs in once)
+[ ] Account exists on the program's GitLab (the platform team create it; the person signs in once)
 [ ] Added to the project with the lowest role that lets them do their job (`[members]` in `project.conf`, then `gitlab.pl setup`)
 [ ] SSH key or personal access token set up on their laptop ([[survival]])
 [ ] Added to `CODEOWNERS` if they will own a package, by MR
@@ -376,14 +378,17 @@ over the leaver's schedules (Build, Pipeline schedules, Take ownership).
 
 ==== What the pipeline costs {#admin-costs}
 
-The kit and its checks cost nothing. On a self-managed GitLab with the team's own runners, there are no per-minute
-charges: the cost is the virtual machines and the time to look after them, about an hour a month each. On GitLab.com
+The kit and its checks cost nothing. With the program's own runners (Tidewater's: a Windows VM and the Kubernetes
+runners in Azure, registered to the Dedicated instance) there are no per-minute charges: the cost is the machines
+and the time to look after them, about an hour a month each. GitLab Dedicated also offers hosted runners, which GitLab
+runs and bills by use. On GitLab.com
 with GitLab's hosted runners, jobs consume *compute minutes*: each plan includes a quota, and more must be bought.
 Tidewater's pipeline is small (a few minutes per MR), but a reader on hosted runners should estimate MRs per month
 times minutes per pipeline before choosing.
 
-Some gate settings need a paid tier: required approval rules, enforced code-owner approval, push rules and merge
-trains are Premium; security policies and compliance frameworks are Ultimate ([[admin-tiers]]). Prices and the
+On a lower tier, some gate settings are not available: required approval rules, enforced code-owner approval, push
+rules and merge trains are Premium; security policies and compliance frameworks are Ultimate ([[admin-tiers]]).
+GitLab Dedicated has all of them. Prices and the
 features in each tier change; check GitLab's current pricing page before planning a budget.
 
 === Protection audits {#admin-protection-audit}
@@ -466,7 +471,7 @@ every signed CCB form.
 
 ==== Three layers of backup {#admin-backup-layers}
 
-1. **The instance backup** belongs to the enterprise GitLab administrators, who back up the whole server daily.
+1. **The instance backup** belongs to the platform team, who back up the whole server daily.
    Tom asked them, in writing, what is backed up, how often, how long it is kept and when a restore was last
    tested. The answers went in the wiki. The team does not run this layer, but it should know what it covers.
 2. **The project export.** GitLab can export a project (Settings, General, Advanced, Export project) into one archive
@@ -499,7 +504,7 @@ emulator's state is one file, and restoring it is copying that file and the bare
 
 === Audit events {#admin-audit-events}
 
-GitLab Premium records *audit events*: who added a member, changed a protection, created or revoked a token,
+GitLab Ultimate (and Premium) records *audit events*: who added a member, changed a protection, created or revoked a token,
 changed a CI/CD variable, and similar administrative actions, with the time and the source address. (Who pushed what
 and who merged what is in the repository and the MRs on every tier.) Jim reviews the project's audit events once a
 month, looking for three things:
@@ -509,16 +514,16 @@ month, looking for three things:
 - **Membership changes.** They should match the onboarding and offboarding records.
 - **Token creation and revocation.** They should match the token inventory.
 
-On the Free tier there is no audit event page for projects. The team's fallback was the monthly protection audit
-above, plus the instance administrators' logs on request. That is weaker, and Jim said so in writing when the
-Premium question came up (see [[admin-tiers]]).
+On the Free tier there is no audit event page for projects; a team there falls back on the monthly protection
+audit above, plus the instance administrators' logs on request. That is weaker ([[admin-tiers]]).
 
 === Upgrades {#admin-upgrades}
 
 Four things in the environment change version, and each needs a different kind of care.
 
-**GitLab itself.** The enterprise administrators upgrade the server, usually monthly. GitLab announces deprecations
-in its release notes months ahead, and occasionally removes a CI keyword or an API field. Tom reads the release notes
+**GitLab itself.** On GitLab Dedicated, GitLab upgrades the server in the instance's weekly maintenance window
+([[admin-dedicated]]); nobody on the program does it, and nobody can postpone it. GitLab announces deprecations in its
+release notes months ahead, and occasionally removes a CI keyword or an API field. Tom reads the release notes
 each month for two sections only: CI/CD (anything about keywords the pipeline uses) and the REST API (anything
 `gitlab.pl` calls). After each server upgrade, Tom opens the pipeline editor (Build, Pipeline editor), which
 validates `.gitlab-ci.yml` against the server's current rules, and runs a pipeline on `develop`.
@@ -540,11 +545,40 @@ The week a prime drop arrives is the week the team most needs the environment to
 time, so the delta shows only the prime's changes. Upgrades wait for the sprint after.
 :::
 
+=== GitLab Dedicated: what GitLab runs and what the program runs {#admin-dedicated}
+
+Tidewater's GitLab is **GitLab Dedicated**: a single-tenant GitLab that GitLab Inc. hosts and operates for one
+organization, at the Ultimate tier. "Single-tenant" means the server, its database and its storage serve this
+organization alone. As of October 2026, GitLab hosts Dedicated instances on AWS, in a region the customer chooses;
+the program's own infrastructure (the runners, the Kubernetes cluster, Windchill) is in Azure, and talks to the
+instance over the network the platform team configured. The split of duties is the first thing to learn, because it
+decides whom you ask:
+
+|| Who | Does what | Where ||
+| GitLab | runs, patches, upgrades and backs up the server; disaster recovery; the web application firewall; rate limits and feature flags | nothing for you to do |
+| The platform team | IP allowlists and private connections, SAML single sign-on, application log delivery, custom domains, which hosted runners exist | Switchboard, GitLab's portal for Dedicated customers, and support tickets |
+| The platform team | users, groups, instance-wide runners, the Kubernetes runners and their Terraform | GitLab itself, Azure, the platform repositories |
+| Tom and Jim | everything in [[gitlab-setup]]: the project, its protections, members, labels, boards, statuses, runners registered to the group | `project.conf`, by merge request |
+Table: GitLab Dedicated: who does what (as of October 2026)
+
+Three consequences for the team:
+
+- **The maintenance window is fixed.** GitLab applies upgrades in a weekly four-hour window chosen when the instance
+  was created; it cannot be moved afterwards. Emergency maintenance for a critical security fix can happen outside it
+  and cannot be postponed. Tom put the window on the team calendar and never schedules a pipeline in it.
+- **Some self-managed features do not exist.** GitLab's documentation lists what Dedicated leaves out; among them are
+  LDAP and Kerberos sign-in, server-side Git hooks, Service Desk and reply-by-email. None of the kit's practices
+  depends on them: the kit's protections are GitLab's protected branches, not server hooks, and requests arrive
+  through Windchill, not Service Desk ([[windchill]]).
+- **Logs come through the platform team.** Application logs are delivered through Switchboard to the program's log
+  store. When an investigation needs them (a leaked token, [[admin-token-leak]]), ask the platform team the same day.
+
 === License tiers {#admin-tiers}
 
-GitLab comes in three tiers: Free, Premium and Ultimate. Several features this book uses are Premium or above, and
-the team spent part of sprint 2 working out which they actually needed. The honest answer was that the process works
-on Free with a few manual substitutes, and that Premium buys enforcement of things Free can only ask people to do.
+GitLab comes in three tiers: Free, Premium and Ultimate. GitLab Dedicated is Ultimate, so every feature in this book
+is available to a team on it. The question is not what to buy but what to turn on, and when: the twelve weeks turn
+on a feature only when its pain is felt ([[tools]]). A team on a self-managed GitLab or GitLab.com may have a lower
+tier; the last column says what Tidewater's practice looks like there.
 
 || Feature | Tier | How Tidewater uses it | On Free instead ||
 | Protected branches and tags | Free | `develop`, `main`, `vendor/prime`, `baseline-*` | n/a |
@@ -554,18 +588,19 @@ on Free with a few manual substitutes, and that Premium buys enforcement of thin
 | JUnit and Code Quality reports on the MR | Free | the MR widgets | n/a |
 | Metrics report on the MR | Premium | scorecard numbers shown with their change | the numbers are in the job log and artifact |
 | Scoped labels (`key::value`, one per key) | Premium | `workflow::`, `type::`, `priority::` | plain labels; the board still works; two `workflow` labels can coexist by mistake |
+| Board scoped to the current sprint | Premium | the Sprint board follows the running milestone | the board shows everything; filter by milestone |
+| Work-item statuses (GitLab 18.2+) | Premium | the seven work states, TODO to DROP | `state::` scoped labels (`[statuses] mode = labels`) |
 | Milestone burndown charts | Premium | the sprint burndown | the journal's sprint report |
-| Epics, roadmaps | Premium (multi-level: Ultimate) | not needed | `epic::` and `tome::` labels, the journal's roadmap |
-| Iterations | Premium | not used | milestones named `Sprint N` |
+| Epics, roadmaps | Premium (multi-level: Ultimate) | from sprint 7, by importing the backlog workbook | `epic::` and `tome::` labels, the journal's roadmap |
+| Iterations | Premium | ready in `project.conf`; milestones in the first year ([[gitlab-setup]]) | milestones named `Sprint N` |
 | Push rules | Premium | reject commits with secrets or large files at push time | the secrets job in the pipeline |
 | Audit events (project) | Premium | the monthly review | the protection audit and the instance logs |
-| DORA metrics, value stream analytics dashboards | Ultimate (VSA basics on Free) | not essential | `gitlab.pl export` and the status metrics |
+| DORA metrics, value stream analytics dashboards, Insights | Ultimate (VSA basics on Free) | the dashboard management reads ([[analytics]]) | `gitlab.pl analytics`, `gitlab.pl export` and the status metrics |
 Table: Features by tier, and what Tidewater did on each
 
-The program bought Premium for the team in the second quarter, on the strength of one argument Jim made in the
-sprint 6 briefing: on Free, the rule "every change approved by a code owner other than its author" is a team habit
-checked monthly; on Premium, it is a setting the server enforces on every merge. For a program that has to show an
-auditor its change control, the difference was worth the licence cost of three seats.
+The argument for the tier, if your program has to make it: on Free, the rule "every change approved by a code owner
+other than its author" is a team habit checked monthly; on Premium and Ultimate it is a setting the server enforces
+on every merge. For a program that has to show an auditor its change control, that difference alone is the case.
 
 === Applying this to your project {#admin-applying}
 
@@ -611,6 +646,7 @@ would fail on your server, and why? (Hint: think about what an export deliberate
 :::
 
 ::: exercise {#ex-admin-tiers} Make the tier case
-Your program is on GitLab Free. Write the three-sentence argument for or against Premium for your team, naming the
-one rule you most need the server to enforce rather than record.
+Suppose your program is on GitLab Free. Write the three-sentence argument for or against Premium for your team,
+naming the one rule you most need the server to enforce rather than record. Then, for a team on Ultimate: name two
+Ultimate features you would *not* turn on in the first twelve weeks, and why.
 :::

@@ -2207,6 +2207,12 @@ they must be re-applied from `project.conf` and the token inventory.
 refuses the merge without it, and the code owner of the interface files must be one of the approvers. For a model
 the government will baseline under contract, an approval the server enforces is the evidence an auditor needs. The
 cost is a few seats a year against one finding at a configuration audit."
+
+On Ultimate, two features to leave off in the first twelve weeks: compliance frameworks and pipelines (they enforce
+a pipeline across many projects, and one project does not need them yet) and epics with iterations (a second
+hierarchy to keep in step with the labels while three people are still learning git; Tidewater turned them on in
+sprint 7). Either answer is right if it names the pain the feature would relieve and shows the team does not feel
+it yet.
 :::
 
 ::: answer [[maintenance--ex-1]]: Run a drop through the loop yourself

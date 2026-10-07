@@ -71,10 +71,14 @@ agreement with the prime.
 
 ==== Platform and access {#security-platform}
 
-**5. Self-host on an accredited network.** GitLab and its runners run inside the program's enclave; shared cloud
-runners and software-as-a-service tools are out for controlled data unless specifically authorized. *Tidewater:
-applied.* The project lives on the enterprise GitLab, and the runner is a project runner on a government Windows VM
-([[runners]]).
+**5. Host on an authorized, isolated platform.** GitLab and its runners run where the program's authorization says
+they may: a self-managed server in the program's enclave, or a single-tenant service authorized for the data.
+Shared cloud runners and multi-tenant software-as-a-service tools are out for controlled data unless specifically
+authorized. *Tidewater: adapted.* The program's GitLab is GitLab Dedicated, a single-tenant instance that serves this
+organization alone, reached through the program's allowlisted connection ([[admin-dedicated]]); the runners are the
+program's own, a Windows VM and the Kubernetes runners in the program's Azure subscription ([[runners]]). Tidewater is
+notional and unclassified; a program with controlled data checks that its instance's authorization covers that data
+before the first commit.
 
 **6. Least privilege.** Roles scoped to need: Jim and Tom are maintainers, Bob is a developer. `main` and `develop`
 are protected, merges need a code owner's approval, and nobody pushes to them directly. Membership is reviewed when
@@ -360,7 +364,7 @@ recipe for a leaked secret became "call the security owner" ([[rescue-secret]]).
 | 2 | Watch for aggregation | adapted | ISSM review at each baseline |
 | 3 | Mark packages; the pipeline enforces | LATER | maintenance tome, `model.pl gate` in the pipeline |
 | 4 | Separate repositories by sensitivity | adapted | one level; restricted drops project as the option |
-| 5 | Self-host on an accredited network | applied | enterprise GitLab, government runner |
+| 5 | Host on an authorized, isolated platform | adapted | GitLab Dedicated (single tenant), the program's own runners in Azure |
 | 6 | Least privilege | applied | roles, protected branches, code owners |
 | 7 | Strong authentication | applied | single sign-on, SSH keys, expiring tokens |
 | 8 | Sign commits and tags | LATER | "Signed baseline tags" story |

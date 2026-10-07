@@ -73,7 +73,7 @@ list('every link into the book names an anchor the book has', @nolink);
 # the slides
 my @slides; while ($html =~ /(<section class="slide (\w+)" id="([^"]+)"([^>]*)>(.*?)<\/section>)/sg) { push @slides, { kind => $2, id => $3, attr => $4, inner => $5 } }
 check_('the deck has slides', @slides > 50 ? 1 : 0, 1);
-check_('the cover comes first, with the book\'s cover art and title', ($slides[0]{kind} eq 'cover' && $slides[0]{inner} =~ /url\(img\/cover-art\.jpg\)/ && $slides[0]{inner} =~ /class="ctitle">MBSE-DEVSECOPS Primer</) ? 1 : 0, 1);
+check_('the cover comes first, with the book\'s cover art and title', ($slides[0]{kind} eq 'cover' && $slides[0]{inner} =~ /url\(img\/cover-art-color\.jpg\)/ && $slides[0]{inner} =~ /class="ctitle">MBSE-DEVSECOPS Primer</) ? 1 : 0, 1);
 check_('the BLUF follows the cover', $slides[1]{kind}, 'bluf');
 check_('the BLUF headline is the book\'s, with the number from the evidence', $slides[1]{inner} =~ /<h2>\d+% of the work the team finished/ ? 1 : 0, 1);
 check_('a slide index', scalar(grep { $_->{kind} eq 'index' && $_->{inner} =~ /<ol class="index">/ } @slides), 1);

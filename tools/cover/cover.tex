@@ -1,6 +1,6 @@
-% cover.tex -- the kit's book cover (the same design as docs/HALBERD.pdf and the MBSE-DEVSECOPS Primer) as a
-% standalone one-page PDF. Change the four lines below, put cover-art.jpg next to this file (the kit's copy is
-% docs/img/cover-art.jpg), and build:   xelatex cover.tex  (run it twice)  ->  cover.pdf
+% cover.tex -- the kit's book cover (the MBSE-DEVSECOPS Primer's design: colour art, navy band with gold rules) as a
+% standalone one-page PDF. Change the four lines below, put cover-art.jpg next to this file (the kit's copies are
+% docs/img/cover-art-color.jpg, used first, and the grey docs/img/cover-art.jpg), and build:   xelatex cover.tex  (run it twice)  ->  cover.pdf
 % Put it in front of another PDF:       pdfunite cover.pdf book.pdf book-with-cover.pdf
 % Or inside a LaTeX document:           \usepackage{pdfpages} ... \includepdf{cover.pdf}   (first thing after \begin{document})
 \newcommand{\CoverTitle}{Your Title Here}                      % two lines? use \\ where it should break
@@ -14,28 +14,30 @@
 \usepackage[letterpaper,margin=0pt]{geometry}
 \usepackage{fontspec}
 \usepackage{xcolor,graphicx,tikz}
+\definecolor{bandnavy}{HTML}{120E33}\definecolor{bandgold}{HTML}{D4A84B}\definecolor{bandgolddim}{HTML}{8F6B2A}\definecolor{bandcream}{HTML}{F6ECD6}
 \IfFontExistsTF{LibertinusSans-Regular.otf}
   {\newfontfamily\coverfont{LibertinusSans}[Extension=.otf, UprightFont=*-Regular, BoldFont=*-Bold]}
   {\newfontfamily\coverfont{TeX Gyre Heros}}
-\graphicspath{{./}{../../docs/img/}}
+\graphicspath{{./}{fig/}{../../docs/img/}}
 \pagestyle{empty}
+\IfFileExists{cover-art.jpg}{\def\CoverArt{cover-art.jpg}}{\IfFileExists{../../docs/img/cover-art-color.jpg}{\def\CoverArt{cover-art-color.jpg}}{\def\CoverArt{cover-art.jpg}}}
 \begin{document}
 \begin{tikzpicture}[remember picture,overlay]
   \fill[white] (current page.south west) rectangle (current page.north east);
   \begin{scope}
     \clip (current page.south west) rectangle (current page.north east);
-    \node[inner sep=0pt,anchor=center] at (current page.center) {\includegraphics[width=\paperwidth]{cover-art.jpg}};
+    \node[inner sep=0pt,anchor=center] at ([yshift=0.5in]current page.center) {\includegraphics[width=\paperwidth]{\CoverArt}};
   \end{scope}
-  \fill[black,opacity=0.85] ([yshift=0.45in]current page.south west) rectangle ([yshift=\BandTop]current page.south east);
-  \draw[white!78!black,line width=1.2pt] ([yshift=\BandTop]current page.south west) -- ([yshift=\BandTop]current page.south east);
-  \draw[white!78!black,line width=1.2pt] ([yshift=0.45in]current page.south west) -- ([yshift=0.45in]current page.south east);
-  \draw[white!55!black,line width=0.4pt] ([yshift=\BandTop-0.06in]current page.south west) -- ([yshift=\BandTop-0.06in]current page.south east);
-  \draw[white!55!black,line width=0.4pt] ([yshift=0.51in]current page.south west) -- ([yshift=0.51in]current page.south east);
-  \node[white,font=\coverfont\bfseries,align=center] (t) at ([yshift=\TitleY]current page.south)
-    {\fontsize{28}{33}\selectfont \CoverTitle};
-  \node[white,font=\coverfont,anchor=north] (s) at ([yshift=-0.10in]t.south) {\Large\scshape \CoverLine};
-  \node[white,font=\coverfont,anchor=north,align=center,text width=0.8\paperwidth] at ([yshift=-0.10in]s.south)
-    {\large \CoverSubtitle\ifx\CoverDate\empty\else\quad{\normalsize\color{white!75!black}\textbullet\ \CoverDate}\fi};
+  \fill[bandnavy,opacity=0.94] ([yshift=0.45in]current page.south west) rectangle ([yshift=\BandTop]current page.south east);
+  \draw[bandgold,line width=1.4pt] ([yshift=\BandTop]current page.south west) -- ([yshift=\BandTop]current page.south east);
+  \draw[bandgold,line width=1.4pt] ([yshift=0.45in]current page.south west) -- ([yshift=0.45in]current page.south east);
+  \draw[bandgolddim,line width=0.5pt] ([yshift=\BandTop-0.06in]current page.south west) -- ([yshift=\BandTop-0.06in]current page.south east);
+  \draw[bandgolddim,line width=0.5pt] ([yshift=0.51in]current page.south west) -- ([yshift=0.51in]current page.south east);
+  \node[bandcream,font=\coverfont\bfseries\fontsize{28}{33}\selectfont,align=center] (t) at ([yshift=\TitleY]current page.south)
+    {\CoverTitle};
+  \node[bandgold,font=\coverfont,anchor=north] (s) at ([yshift=-0.10in]t.south) {\Large\scshape \CoverLine};
+  \node[bandcream,font=\coverfont,anchor=north,align=center,text width=0.8\paperwidth] at ([yshift=-0.10in]s.south)
+    {\large\hyphenpenalty=10000\exhyphenpenalty=10000 \CoverSubtitle\ifx\CoverDate\empty\else\quad{\normalsize\color{bandgold}\textbullet\ \CoverDate}\fi};
 \end{tikzpicture}
 \null
 \end{document}

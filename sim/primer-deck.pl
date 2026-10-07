@@ -611,13 +611,13 @@ ol.index .when { color: var(--muted); font-size: .8em; display: block; }
 .slide.all { height: auto; min-height: 100vh; overflow: visible; } .slide.all > .frame { overflow: visible; } ol.all { columns: 3; font-size: .55em; }
 ul.ex li { margin: .5em 0; font-size: .92em; }
 .cover .body { display: flex; flex-direction: column; justify-content: flex-end; }
-.cover > .frame { background: #555 center / cover no-repeat; justify-content: flex-end; padding: 0 0 6vh; color: #fff; }
-.cover .band { width: 100%; background: rgba(0,0,0,.85); text-align: center; padding: 1.2em 1em 1em; border-top: 3px double #c7c7c7; border-bottom: 3px double #c7c7c7; }
+.cover > .frame { background: #120E33 center 20% / cover no-repeat; justify-content: flex-end; padding: 0 0 6vh; color: #F6ECD6; }
+.cover .band { width: 100%; background: rgba(18,14,51,.94); text-align: center; padding: 1.2em 1em 1em; border-top: 3px double #D4A84B; border-bottom: 3px double #D4A84B; }
 .cover .ctitle { font-size: 1.9em; font-weight: 700; line-height: 1.15; }
-.cover .cline { font-size: 1em; font-variant: small-caps; margin-top: .3em; }
+.cover .cline { color: #D4A84B; font-size: 1em; font-variant: small-caps; margin-top: .3em; }
 .cover .csub { font-size: .8em; max-width: 46em; margin: .4em auto 0; }
-.cover .cdate { color: #bfbfbf; margin-left: 1em; white-space: nowrap; }
-.cover .cdeck { font-size: .65em; color: #d8d8d8; margin-top: .6em; letter-spacing: .04em; }
+.cover .cdate { color: #D4A84B; margin-left: 1em; white-space: nowrap; }
+.cover .cdeck { font-size: .65em; color: #E8DCC0; margin-top: .6em; letter-spacing: .04em; }
 .cover .num { color: #ddd; }
 .module > .frame { justify-content: center; background: var(--box-bg); }
 .module h2 { font-size: 1.8em; }
@@ -642,7 +642,7 @@ aside.notes p { margin: .3em 0; } aside.notes p.time { font-weight: 700; margin-
   .slide h2 { color: #000; }
   figure.fig svg { max-height: 2.4in; border: 0; }
   .slide.module > .frame { background: none; }
-  .cover > .frame { background: #555 center / cover no-repeat; -webkit-print-color-adjust: exact; print-color-adjust: exact; display: flex; align-items: flex-end; padding: 0 0 .3in; }
+  .cover > .frame { background: #120E33 center 20% / cover no-repeat; -webkit-print-color-adjust: exact; print-color-adjust: exact; display: flex; align-items: flex-end; padding: 0 0 .3in; }
   .slide.all > .frame { aspect-ratio: auto; } .slide.all ol.all { font-size: 7.5pt; }
   aside.notes { display: block; background: none; border: 0; border-top: 1px solid #000; padding: .1in 0 0; margin-top: .15in; font-size: 9pt; color: #000; }
   a { color: inherit; text-decoration: none; }
@@ -658,7 +658,7 @@ sub render {
         . "<span id=\"notes\"></span>\n<main>\n";
     for my $s (@{ $deck->{slides} }) {
         (my $head = $s->{head} // q()) =~ s/(?<!\.)\.$//;            # a headline is a statement, not a sentence: no full stop
-        my $fstyle = $s->{kind} eq q(cover) ? ' style="background-image:url(img/cover-art.jpg)"' : q();
+        my $fstyle = $s->{kind} eq q(cover) ? ' style="background-image:url(img/cover-art-color.jpg)"' : q();
         my $mod = defined $s->{module} ? qq( data-module="$s->{module}") : '';
         my $frame = ($s->{kicker} ? '<div class="kicker">' . $s->{kicker} . "</div>\n" : '') . (defined $s->{head} ? "<h2>$head</h2>\n" : q())
             . '<div class="body">' . ($s->{body} // '') . "</div>\n"

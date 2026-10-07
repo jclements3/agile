@@ -606,13 +606,13 @@ main { margin-left: 290px; padding: 2em 3em 4em; max-width: 1010px; }
   main { margin-left: 0; padding: 1em 16px 3em; } }
 a { color: var(--link); }
 h1, h2, h3, h4, .boxtitle, caption, figcaption, .subhead, .who { font-family: Calibri, "Segoe UI", Arial, sans-serif; }
-.cover { position: relative; height: 92vh; min-height: 520px; background: #555 center / cover no-repeat; margin: -2em -3em 2em; display: flex; align-items: flex-end; padding-bottom: 4vh; }
-.cover .band { width: 100%; background: rgba(0,0,0,.85); color: #fff; text-align: center; padding: 1.4em 1em 1.2em; font-family: Calibri, "Segoe UI", Arial, sans-serif;
-  border-top: 3px double #c7c7c7; border-bottom: 3px double #c7c7c7; }
+.cover { position: relative; height: 92vh; min-height: 520px; background: #120E33 center 20% / cover no-repeat; margin: -2em -3em 2em; display: flex; align-items: flex-end; padding-bottom: 4vh; }
+.cover .band { width: 100%; background: rgba(18,14,51,.94); color: #F6ECD6; text-align: center; padding: 1.4em 1em 1.2em; font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  border-top: 3px double #D4A84B; border-bottom: 3px double #D4A84B; }
 .cover .ctitle { font-size: 30pt; font-weight: 700; line-height: 1.15; }
-.cover .cline { font-size: 15pt; font-variant: small-caps; margin-top: .3em; }
+.cover .cline { color: #D4A84B; font-size: 15pt; font-variant: small-caps; margin-top: .3em; }
 .cover .csub { font-size: 13pt; max-width: 46em; margin: .4em auto 0; }
-.cover .cdate { font-size: 11pt; color: #bfbfbf; margin-left: 1em; white-space: nowrap; }
+.cover .cdate { font-size: 11pt; color: #D4A84B; margin-left: 1em; white-space: nowrap; }
 @media (max-width: 900px) { .cover { margin: -1em -16px 1.5em; } .cover .ctitle { font-size: 22pt; } }
 @media print { .cover { height: 10in; margin: 0; break-after: page; -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
 .titlepage { border-bottom: 3px solid var(--navy); padding: 2em 0 1.5em; margin-bottom: 2em; }
@@ -712,7 +712,7 @@ sub render_html {
     }
     $toc .= "</ul></nav>\n"; $contents .= "</ul></div>\n";
     my $date = cover_date($m);
-    my $body = '<section class="cover" style="background-image:url(img/cover-art.jpg)"><div class="band"><div class="ctitle">' . h($m->{title}) . '</div>'
+    my $body = '<section class="cover" style="background-image:url(img/cover-art-color.jpg)"><div class="band"><div class="ctitle">' . h($m->{title}) . '</div>'
         . '<div class="cline">' . h($m->{coverline} // 'A Case Study') . '</div><div class="csub">' . h($m->{subtitle} // '')
         . ($date ? ' <span class="cdate">&bull; ' . h($date) . '</span>' : '') . "</div></div></section>\n";   # the HTML lives in docs/, beside img/
     $body .= '<div class="titlepage"><h1>' . h($m->{title}) . '</h1>'
@@ -986,19 +986,20 @@ sub tex_cover {
     my ($top, $inner, $ty) = $long ? ('2.95in', '2.89in', '2.30in') : ('2.55in', '2.49in', '1.85in');
     my $date = cover_date($m);
     return "\\IfFileExists{cover-art.jpg}{%\n\\begin{titlingpage}\n\\thispagestyle{empty}\n\\begin{tikzpicture}[remember picture,overlay]\n"
+      . "  \\definecolor{bandnavy}{HTML}{120E33}\\definecolor{bandgold}{HTML}{D4A84B}\\definecolor{bandgolddim}{HTML}{8F6B2A}\\definecolor{bandcream}{HTML}{F6ECD6}\n"
       . "  \\fill[white] (current page.south west) rectangle (current page.north east);\n"
       . "  \\begin{scope}\n    \\clip (current page.south west) rectangle (current page.north east);\n"
-      . "    \\node[inner sep=0pt,anchor=center] at (current page.center) {\\includegraphics[width=\\paperwidth]{cover-art.jpg}};\n  \\end{scope}\n"
-      . "  \\fill[black,opacity=0.85] ([yshift=0.45in]current page.south west) rectangle ([yshift=$top]current page.south east);\n"
-      . "  \\draw[white!78!black,line width=1.2pt] ([yshift=$top]current page.south west) -- ([yshift=$top]current page.south east);\n"
-      . "  \\draw[white!78!black,line width=1.2pt] ([yshift=0.45in]current page.south west) -- ([yshift=0.45in]current page.south east);\n"
-      . "  \\draw[white!55!black,line width=0.4pt] ([yshift=$inner]current page.south west) -- ([yshift=$inner]current page.south east);\n"
-      . "  \\draw[white!55!black,line width=0.4pt] ([yshift=0.51in]current page.south west) -- ([yshift=0.51in]current page.south east);\n"
-      . "  \\node[white,font=\\coverfont\\bfseries,align=center] (t) at ([yshift=$ty]current page.south)\n"
+      . "    \\node[inner sep=0pt,anchor=center] at ([yshift=0.5in]current page.center) {\\includegraphics[width=\\paperwidth]{cover-art.jpg}};\n  \\end{scope}\n"
+      . "  \\fill[bandnavy,opacity=0.94] ([yshift=0.45in]current page.south west) rectangle ([yshift=$top]current page.south east);\n"
+      . "  \\draw[bandgold,line width=1.4pt] ([yshift=$top]current page.south west) -- ([yshift=$top]current page.south east);\n"
+      . "  \\draw[bandgold,line width=1.4pt] ([yshift=0.45in]current page.south west) -- ([yshift=0.45in]current page.south east);\n"
+      . "  \\draw[bandgolddim,line width=0.5pt] ([yshift=$inner]current page.south west) -- ([yshift=$inner]current page.south east);\n"
+      . "  \\draw[bandgolddim,line width=0.5pt] ([yshift=0.51in]current page.south west) -- ([yshift=0.51in]current page.south east);\n"
+      . "  \\node[bandcream,font=\\coverfont\\bfseries,align=center] (t) at ([yshift=$ty]current page.south)\n"
       . "    {\\fontsize{28}{33}\\selectfont " . cover_title($m->{title}) . "};\n"
-      . "  \\node[white,font=\\coverfont,anchor=north] (s) at ([yshift=-0.10in]t.south) {\\Large\\scshape " . tex_text($m->{coverline} // 'A Case Study') . "};\n"
-      . "  \\node[white,font=\\coverfont,anchor=north,align=center,text width=0.8\\paperwidth] at ([yshift=-0.10in]s.south)\n"
-      . "    {\\large " . tex_text($m->{subtitle} // '') . ($date ? " \\quad{\\normalsize\\color{white!75!black}\\textbullet\\ " . tex_text($date) . "}" : '') . "};\n"
+      . "  \\node[bandgold,font=\\coverfont,anchor=north] (s) at ([yshift=-0.10in]t.south) {\\Large\\scshape " . tex_text($m->{coverline} // 'A Case Study') . "};\n"
+      . "  \\node[bandcream,font=\\coverfont,anchor=north,align=center,text width=0.8\\paperwidth] at ([yshift=-0.10in]s.south)\n"
+      . "    {\\large\\hyphenpenalty=10000\\exhyphenpenalty=10000 " . tex_text($m->{subtitle} // '') . ($date ? " \\quad{\\normalsize\\color{bandgold}\\textbullet\\ " . tex_text($date) . "}" : '') . "};\n"
       . "\\end{tikzpicture}\n\\end{titlingpage}\n}{}\n";
 }
 
@@ -1075,7 +1076,8 @@ sub build_pdf {
     }
     my $dir = $keep // tempdir(CLEANUP => 1);
     if ($keep) { require File::Path; File::Path::make_path($dir) }
-    copy("$KIT/docs/img/cover-art.jpg", "$dir/cover-art.jpg") if -f "$KIT/docs/img/cover-art.jpg";   # the cover art (absent: no cover page)
+    my ($art) = grep { -f } map { "$KIT/docs/img/$_" } qw(cover-art-color.jpg cover-art.jpg);   # the cover art, colour first (absent: no cover page)
+    copy($art, "$dir/cover-art.jpg") if $art;
     my $rsvg = grep { -x "$_/rsvg-convert" } split /:/, $ENV{PATH} // '';
     for my $f (@$figs) {
         my ($name, $svg) = @$f;

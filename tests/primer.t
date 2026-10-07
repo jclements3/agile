@@ -187,8 +187,8 @@ has('TeX part intro and cards', $tex, qr/\\renewcommand\*\{\\afterpartskip\}\{\\
     qr/\\cleartorecto\n\\chapter\{Vim card\}\\label\{qrg-vim\}\n\\begin\{qrg\}\n\\begin\{multicols\}\{2\}/, qr/\\cleartorecto\n\\chapter\{Git card\}\\label\{qrg-git\}\n\\begin\{qrg\}\n\{\\small/);
 # the cover (as docs/HALBERD.pdf): art, band, title, small-caps line, subtitle with the month
 has('TeX cover', $tex, qr/\\frontmatter\n\\pagestyle\{empty\}\n\\IfFileExists\{cover-art\.jpg\}\{%\n\\begin\{titlingpage\}/, qr/\\includegraphics\[width=\\paperwidth\]\{cover-art\.jpg\}/,
-    qr/\\fill\[black,opacity=0\.85\]/, qr/\\fontsize\{28\}\{33\}\\selectfont Test Book\}/, qr/\\scshape A Case Study\}/, qr/\{\\large Sub\}/, qr/\\usepackage\{tikz\}/);
-has('HTML cover', $html, qr/<section class="cover" style="background-image:url\(img\/cover-art\.jpg\)"><div class="band"><div class="ctitle">Test Book<\/div><div class="cline">A Case Study<\/div><div class="csub">Sub<\/div>/);
+    qr/\\fill\[bandnavy,opacity=0\.94\]/, qr/\\definecolor\{bandgold\}\{HTML\}\{D4A84B\}/, qr/\\fontsize\{28\}\{33\}\\selectfont Test Book\}/, qr/\\scshape A Case Study\}/, qr/\{\\large\\hyphenpenalty=10000\\exhyphenpenalty=10000 Sub\}/, qr/\\usepackage\{tikz\}/);
+has('HTML cover', $html, qr/<section class="cover" style="background-image:url\(img\/cover-art-color\.jpg\)"><div class="band"><div class="ctitle">Test Book<\/div><div class="cline">A Case Study<\/div><div class="csub">Sub<\/div>/);
 @main::ERR = ();
 my $cm = { title => 'MBSE-DEVSECOPS Primer', coverline => 'Field Manual', subtitle => 'x' x 90, edition => 'First edition, October 2026' };
 my $cv = main::tex_cover($cm);

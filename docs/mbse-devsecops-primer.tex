@@ -29900,27 +29900,29 @@ These ship with the kit, in \code{docs/\allowbreak{}}, and need no download:
 \item \code{docs/\allowbreak{}OLLAMA.\allowbreak{}md}, installing a local model, approvals first (\hyperref[local-ai]{Chapter 18, A local AI assistant on the laptop}~(p.\,\pageref*{local-ai})).
 \item \code{docs/\allowbreak{}HELP.\allowbreak{}html}, the kit’s help, the same text as \code{:\allowbreak{}help agile} and \code{perl agile.\allowbreak{}pl help}.
 \end{itemize}
-\chapter{References: DoD and Microsoft guidance}\label{references}
+\chapter{References: DoW and Microsoft guidance}\label{references}
 
 \begin{boxbridge}{From what you know}
 \boxsubhead{You know}
 the applicable documents list at the front of a SEMP, with each document’s number and where to get it.
 
 \boxsubhead{{\symfont\char"2192}\ Here it is called}
-references: the DoD’s software and DevSecOps guidance and Microsoft’s Azure Government pages.
+references: the Department of War’s software and DevSecOps guidance and Microsoft’s Azure Government pages.
 
 \boxsubhead{{\symfont\char"2192}\ What is new}
 these documents are written for software teams; this appendix says which part a systems engineer needs.
 \end{boxbridge}
 
-\hyperref[reading]{Appendix M, Further reading}~(p.\,\pageref*{reading}) lists titles only, because web addresses move. This appendix makes one exception: the official DoD and Microsoft pages a program office will ask about, with the addresses as they stood on 7 October 2026. Start from the two index pages (the DoD CIO library and Microsoft’s Azure Government documentation); when an address below has moved, the document is still listed there under the same title. Check with your security office before downloading anything to a work laptop.
+\hyperref[reading]{Appendix M, Further reading}~(p.\,\pageref*{reading}) lists titles only, because web addresses move. This appendix makes one exception: the official Department of War (DoW, formerly DoD) and Microsoft pages a program office will ask about, with the addresses as the DoW CIO library linked them on 3 October 2026. Start from the two index pages (the DoW CIO library and Microsoft’s Azure Government documentation); when an address below has moved, the document is still listed there under the same title. Check with your security office before downloading anything to a work laptop.
 
-\section{DoD software and DevSecOps guidance}\label{references-dod}
+The kit also carries a condensed guide to these documents, \code{docs/\allowbreak{}Modern\allowbreak{}Software\allowbreak{}Practices.\allowbreak{}pdf} (\emph{Modern Software Practices: A Condensed Guide}, about 35 pages): what each one is, whether it is policy, guidance or a draft, its key points with page references, and what it means for a small model team. It is unofficial; the originals govern.
 
-The DoD Chief Information Officer (CIO) publishes the DevSecOps document set as a library: a fundamentals document for everyone, guidebooks and playbooks for practitioners, and reference designs for the teams that build a software factory. All of it is approved for public release.
+\section{DoW software and DevSecOps guidance}\label{references-dod}
+
+The DoW Chief Information Officer (CIO) library groups the documents under five headings: modern software practices, the DevSecOps document set, the reference designs, open source software, and continuous authority to operate. The titles below are the library’s. All are approved for public release except where noted.
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.468\linewidth}>{\raggedright\arraybackslash}p{0.468\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.457\linewidth}>{\raggedright\arraybackslash}p{0.480\linewidth}@{}}
 \toprule
 \bfseries Document & \bfseries What to read it for \\
 \midrule
@@ -29931,18 +29933,26 @@ The DoD Chief Information Officer (CIO) publishes the DevSecOps document set as 
 \endhead
 \bottomrule
 \endlastfoot
-\textbf{DoD CIO Library} (the index) \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}library/\allowbreak{}} & the current versions of everything in this section; start here \\
-\textbf{DoD Enterprise DevSecOps Fundamentals} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Do\allowbreak{}D\%20\allowbreak{}Enterprise\%20\allowbreak{}Dev\allowbreak{}Sec\allowbreak{}Ops\%20\allowbreak{}Fundamentals\_\allowbreak{}Do\allowbreak{}D-\allowbreak{}CIO\_\allowbreak{}20211019.\allowbreak{}pdf} & the DoD’s definitions: the lifecycle, the software factory, culture and metrics. The vocabulary management will use; compare it with \hyperref[devsecops]{Chapter 5, DevSecOps in systems-engineering words}~(p.\,\pageref*{devsecops}) \\
-\textbf{DevSecOps Fundamentals Guidebook: DevSecOps Tools and Activities} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Dev\allowbreak{}Sec\allowbreak{}Ops\%20\allowbreak{}Fundamentals\%20\allowbreak{}Guidebook-\allowbreak{}Dev\allowbreak{}Sec\allowbreak{}Ops\%20\allowbreak{}Tools\%20and\%20\allowbreak{}Activities\_\allowbreak{}Do\allowbreak{}D-\allowbreak{}CIO\_\allowbreak{}20211019.\allowbreak{}pdf} & the activities and tools by phase. Map the team’s pipeline jobs (\hyperref[pipeline]{Chapter 20, The pipeline, job by job}~(p.\,\pageref*{pipeline})) onto its tables when an assessor asks “which activities do you perform?” \\
-\textbf{DoD Enterprise DevSecOps: Pathway to a Reference Design} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Do\allowbreak{}D\%20\allowbreak{}Enterprise\%20\allowbreak{}Dev\allowbreak{}Sec\allowbreak{}Ops-\allowbreak{}Pathway\%20to\%20a\%20\allowbreak{}Reference\%20\allowbreak{}Design\_\allowbreak{}Do\allowbreak{}D-\allowbreak{}CIO\_\allowbreak{}20211018.\allowbreak{}pdf} & how a reference design is built up; read before the Kubernetes reference design \\
-\textbf{DoD Enterprise DevSecOps Reference Design: CNCF Kubernetes} (in the library) & the design the platform team follows when the runners run on Kubernetes; what a job pod may and may not do (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners})) \\
-\textbf{DoD Enterprise DevSecOps Strategy Guide} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Do\allowbreak{}DEnterprise\allowbreak{}Dev\allowbreak{}Sec\allowbreak{}Ops\allowbreak{}Strategy\allowbreak{}Guide.\allowbreak{}pdf} & the why, for the program manager: the argument \hyperref[directive]{Chapter 3, The directive}~(p.\,\pageref*{directive}) makes, in the DoD’s words \\
+\textbf{DoW CIO Library} (the index) \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}library/\allowbreak{}} & the current versions of everything in this section; start here \\
+\textbf{DoWI 8430.01, Accelerated Mission Software} (effective 8 September 2026) \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}www.\allowbreak{}esd.\allowbreak{}whs.\allowbreak{}mil/\allowbreak{}Portals/\allowbreak{}54/\allowbreak{}Documents/\allowbreak{}DD/\allowbreak{}issuances/\allowbreak{}dodi/\allowbreak{}843001p.\allowbreak{}pdf} & the instruction: modern practices, pipelines as critical infrastructure, SBOMs and machine-readable evidence, value-stream measures, rules for AI-generated code. The one document here that is policy for every program \\
+\textbf{DoW Software Modernization Strategy} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Software\allowbreak{}Mod\allowbreak{}Strat.\allowbreak{}pdf} & the department-level goals \hyperref[directive]{Chapter 3, The directive}~(p.\,\pageref*{directive}) cites: cloud, software factories, continuous authorization \\
+\textbf{DoW Software Modernization Implementation Plan Summary for FY25-26} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}SW-\allowbreak{}Mod-\allowbreak{}I-\allowbreak{}Plan25-\allowbreak{}26.\allowbreak{}pdf} & the tasks behind the strategy, for the program manager \\
+\textbf{DoW Enterprise DevSecOps Fundamentals} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Do\allowbreak{}D\%20\allowbreak{}Enterprise\%20\allowbreak{}Dev\allowbreak{}Sec\allowbreak{}Ops\%20\allowbreak{}Fundamentals\%20v2.\allowbreak{}5.\allowbreak{}pdf} & the definitions: the ten-phase lifecycle, the software factory, culture and metrics. The vocabulary management will use; compare it with \hyperref[devsecops]{Chapter 5, DevSecOps in systems-engineering words}~(p.\,\pageref*{devsecops}) \\
+\textbf{DoW Enterprise DevSecOps Activities \& Tools Guidebook} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Dev\allowbreak{}Sec\allowbreak{}Ops\allowbreak{}Activites\allowbreak{}Tools\allowbreak{}Guidebook.\allowbreak{}pdf} and its workbook \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Dev\allowbreak{}Sec\allowbreak{}Ops\allowbreak{}Activites\allowbreak{}Tools\allowbreak{}Guidebook\allowbreak{}Tables.\allowbreak{}xlsx} & the activities by phase, REQUIRED or PREFERRED. Map the team’s pipeline jobs (\hyperref[pipeline]{Chapter 20, The pipeline, job by job}~(p.\,\pageref*{pipeline})) onto its tables when an assessor asks “which activities do you perform?” \\
+\textbf{The State of DevSecOps Report} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Dev\allowbreak{}Sec\allowbreak{}Ops\allowbreak{}State\allowbreak{}Of.\allowbreak{}pdf} & findings and a measurement playbook: “Manage to mission value, not metrics” \\
+\textbf{DoW Enterprise DevSecOps Reference Design: CNCF Kubernetes} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Do\allowbreak{}D\%20\allowbreak{}Enterprise\%20\allowbreak{}Dev\allowbreak{}Sec\allowbreak{}Ops\%20\allowbreak{}Reference\%20\allowbreak{}Design\%20-\allowbreak{}\%20\allowbreak{}CNCF\%20\allowbreak{}Kubernetes\%20w-\allowbreak{}DD1910\_\allowbreak{}cleared\_\allowbreak{}20211022.\allowbreak{}pdf} & the approved design the platform team follows when the runners run on Kubernetes (\hyperref[runners]{Chapter 21, Runners: where the pipeline runs}~(p.\,\pageref*{runners})) \\
+\textbf{DRAFT: DOW Cloud IaC + GitHub + Azure} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Do\allowbreak{}DRef\allowbreak{}Design\allowbreak{}Cloud\allowbreak{}Github.\allowbreak{}pdf} & a draft design for a cloud-hosted factory on Azure; its runner and credential patterns carry over to other tools \\
+\textbf{Software Development and Open Source Software Memorandum} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}Software\allowbreak{}Dev-\allowbreak{}Open\allowbreak{}Source.\allowbreak{}pdf} & adopt, buy, create; how to assess and release open source \\
+\textbf{Memo: Continuous Authorization to Operate (cATO)} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}20220204-\allowbreak{}c\allowbreak{}ATO-\allowbreak{}memo-\allowbreak{}Signed-\allowbreak{}Cleared.\allowbreak{}pdf} & the three competencies an authorizing official must show; what the ISSM will ask about (\hyperref[security]{Chapter 48, Security: protect the environment, engineer it into the system}~(p.\,\pageref*{security})) \\
+\textbf{DevSecOps cATO Evaluation Criteria} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}dodcio.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}Portals/\allowbreak{}0/\allowbreak{}Documents/\allowbreak{}Library/\allowbreak{}c\allowbreak{}ATO-\allowbreak{}Evaluation\allowbreak{}Criteria.\allowbreak{}pdf} & the evidence a cATO request needs: control gates described and demonstrated, SBOMs, training \\
 \end{longtable}}
+
+The library also holds the DevSecOps Playbook, the Pathway to a Reference Design, the CNCF Multi-Cluster Kubernetes design, a draft AWS design, the Accelerating Secure Software memo and its RFI summary, and the cATO Implementation Guide (whose cover is marked Distribution C); the condensed guide covers all of them.
 
 \section{Acquisition policy}\label{references-acquisition}
 
 {\small\setlength{\tabcolsep}{0.012\linewidth}\setlength{\emergencystretch}{2em}
-\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.452\linewidth}>{\raggedright\arraybackslash}p{0.485\linewidth}@{}}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.463\linewidth}>{\raggedright\arraybackslash}p{0.474\linewidth}@{}}
 \toprule
 \bfseries Document & \bfseries What to read it for \\
 \midrule
@@ -29953,7 +29963,6 @@ The DoD Chief Information Officer (CIO) publishes the DevSecOps document set as 
 \endhead
 \bottomrule
 \endlastfoot
-\textbf{DoD Software Modernization Strategy} (2022) \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}media.\allowbreak{}defense.\allowbreak{}gov/\allowbreak{}2022/\allowbreak{}Feb/\allowbreak{}03/\allowbreak{}2002932833/\allowbreak{}-\allowbreak{}1/\allowbreak{}-\allowbreak{}1/\allowbreak{}1/\allowbreak{}department-\allowbreak{}of-\allowbreak{}defense-\allowbreak{}software-\allowbreak{}modernization-\allowbreak{}strategy.\allowbreak{}pdf} & the department-level goals the directive cites: software factories, cloud, faster authorization \\
 \textbf{DoDI 5000.87, Operation of the Software Acquisition Pathway} \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}www.\allowbreak{}esd.\allowbreak{}whs.\allowbreak{}mil/\allowbreak{}Portals/\allowbreak{}54/\allowbreak{}Documents/\allowbreak{}DD/\allowbreak{}issuances/\allowbreak{}dodi/\allowbreak{}500087p.\allowbreak{}PDF} & how a software program is bought and reported: iterations, value assessments, metrics. Read it to understand why management asks for the measures in \hyperref[scorecard]{Chapter 33, The twelve-week scorecard}~(p.\,\pageref*{scorecard}) and \hyperref[analytics]{Chapter 32, Measuring with GitLab analytics}~(p.\,\pageref*{analytics}); the Directives Division site \code{https:\allowbreak{}/\allowbreak{}/\allowbreak{}www.\allowbreak{}esd.\allowbreak{}whs.\allowbreak{}mil/\allowbreak{}DD/\allowbreak{}} has the current version \\
 \end{longtable}}
 
@@ -29977,7 +29986,7 @@ The DoD Chief Information Officer (CIO) publishes the DevSecOps document set as 
 \end{longtable}}
 
 \begin{boxtip}{Tip: Which three to read first}
-For a systems engineer starting the twelve weeks: the \textbf{DevSecOps Fundamentals} (the words), the \textbf{Tools and Activities guidebook} (to map your pipeline), and \textbf{DoDI 5000.87} (to understand what management will measure). Leave the reference designs and the Azure pages to the platform team unless you are asked.
+For a systems engineer starting the twelve weeks: the \textbf{DevSecOps Fundamentals} (the words), the \textbf{Activities \& Tools Guidebook} (to map your pipeline), and section 3 of \textbf{DoWI 8430.01} (what is now required, and what management will measure). Leave the reference designs and the Azure pages to the platform team unless you are asked.
 \end{boxtip}
 
 \chapter{Answers to the exercises}\label{answers}

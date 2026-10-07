@@ -139,3 +139,4 @@ perl $KIT/bin/gitlab.pl --as tom setup tools/gitlab/templates/project.conf
   protected branch vendor/prime (push:maintainer merge:none force:no)
   protected tag baseline-*
   approval rule Model review (1)
+  insights: .gitlab/insights.yml not written (10 charts generated): run setup on the repository's .gitlab/project.conf, or setup --repo DIR

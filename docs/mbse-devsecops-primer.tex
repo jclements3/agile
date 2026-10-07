@@ -102,21 +102,22 @@
 \begin{titlingpage}
 \thispagestyle{empty}
 \begin{tikzpicture}[remember picture,overlay]
+  \definecolor{bandnavy}{HTML}{120E33}\definecolor{bandgold}{HTML}{D4A84B}\definecolor{bandgolddim}{HTML}{8F6B2A}\definecolor{bandcream}{HTML}{F6ECD6}
   \fill[white] (current page.south west) rectangle (current page.north east);
   \begin{scope}
     \clip (current page.south west) rectangle (current page.north east);
-    \node[inner sep=0pt,anchor=center] at (current page.center) {\includegraphics[width=\paperwidth]{cover-art.jpg}};
+    \node[inner sep=0pt,anchor=center] at ([yshift=0.5in]current page.center) {\includegraphics[width=\paperwidth]{cover-art.jpg}};
   \end{scope}
-  \fill[black,opacity=0.85] ([yshift=0.45in]current page.south west) rectangle ([yshift=2.95in]current page.south east);
-  \draw[white!78!black,line width=1.2pt] ([yshift=2.95in]current page.south west) -- ([yshift=2.95in]current page.south east);
-  \draw[white!78!black,line width=1.2pt] ([yshift=0.45in]current page.south west) -- ([yshift=0.45in]current page.south east);
-  \draw[white!55!black,line width=0.4pt] ([yshift=2.89in]current page.south west) -- ([yshift=2.89in]current page.south east);
-  \draw[white!55!black,line width=0.4pt] ([yshift=0.51in]current page.south west) -- ([yshift=0.51in]current page.south east);
-  \node[white,font=\coverfont\bfseries,align=center] (t) at ([yshift=2.30in]current page.south)
+  \fill[bandnavy,opacity=0.94] ([yshift=0.45in]current page.south west) rectangle ([yshift=2.95in]current page.south east);
+  \draw[bandgold,line width=1.4pt] ([yshift=2.95in]current page.south west) -- ([yshift=2.95in]current page.south east);
+  \draw[bandgold,line width=1.4pt] ([yshift=0.45in]current page.south west) -- ([yshift=0.45in]current page.south east);
+  \draw[bandgolddim,line width=0.5pt] ([yshift=2.89in]current page.south west) -- ([yshift=2.89in]current page.south east);
+  \draw[bandgolddim,line width=0.5pt] ([yshift=0.51in]current page.south west) -- ([yshift=0.51in]current page.south east);
+  \node[bandcream,font=\coverfont\bfseries,align=center] (t) at ([yshift=2.30in]current page.south)
     {\fontsize{28}{33}\selectfont MBSE-DEVSECOPS Primer};
-  \node[white,font=\coverfont,anchor=north] (s) at ([yshift=-0.10in]t.south) {\Large\scshape A Case Study};
-  \node[white,font=\coverfont,anchor=north,align=center,text width=0.8\paperwidth] at ([yshift=-0.10in]s.south)
-    {\large A case study: Jim, Bob and Tom take Tidewater from SysML v1 to SysML v2 in GitLab in twelve weeks \quad{\normalsize\color{white!75!black}\textbullet\ October 2026}};
+  \node[bandgold,font=\coverfont,anchor=north] (s) at ([yshift=-0.10in]t.south) {\Large\scshape A Case Study};
+  \node[bandcream,font=\coverfont,anchor=north,align=center,text width=0.8\paperwidth] at ([yshift=-0.10in]s.south)
+    {\large\hyphenpenalty=10000\exhyphenpenalty=10000 A case study: Jim, Bob and Tom take Tidewater from SysML v1 to SysML v2 in GitLab in twelve weeks \quad{\normalsize\color{bandgold}\textbullet\ October 2026}};
 \end{tikzpicture}
 \end{titlingpage}
 }{}
@@ -28479,6 +28480,7 @@ from are in `../templates/`. Tidewater is fictional; Jim, Bob and Tom are the go
 | `14-board-and-labels.md` | Label descriptions and the board columns | Manage > Labels, Plan > Issue boards |
 | `15-snippet-and-mentions.md` | References and mentions anywhere | any Markdown field |
 | `16-windchill-round-trip.md` and `windchill-export.csv` | Issues made from a Windchill export; the status sheet sent back | `gitlab.pl windchill intake` / `status` |
+| `17-insights.yml` | `.gitlab/insights.yml`: the Insights dashboard (Ultimate), generated from project.conf | `gitlab.pl setup` writes it; commit it by MR |
 \end{Verbatim}
 
 \subsection{Planning: epic, story, task}\label{templates-samples-planning}

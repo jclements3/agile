@@ -96,13 +96,15 @@ line in the kit's terse format, outcome first. Each person then edits the draft 
 
 {{include: docs/tidewater/sprints/03/standups/2026-11-05-talk-drafts.txt}}
 
-Look at what changed between draft and posted line: almost nothing. The drafts end with an ellipsis where a long task
-title was cut; the posted lines drop it. That is the honest finding from the evidence. Once the board is kept up to
+Look at what changed between draft and posted line. Jim and Bob posted the draft as written, apart from the ellipsis
+where a long task title was cut. Tom changed the plan: "(first thing: read the review comments)", because a review
+waiting on Tom's merge request mattered more that morning than the task the draft picked. That is the honest finding
+from the evidence: most mornings the draft is right, and the edit, when there is one, is the engineer's judgement. Once the board is kept up to
 date, the draft is usually right, and editing it takes seconds. The value is not in the editing. It is that the draft
 starts from what actually happened, so nobody has to remember yesterday at 09:00 or invent a number.
 
-By the end of the sprint, {{value: docs/tidewater/sprints/03/scorecard.json standup_outcome_share}} of the stand-up
-lines that reported work carried an outcome and a number.
+For the sprint the share was {{value: docs/tidewater/sprints/03/scorecard.json standup_outcome_share}}, as a fraction:
+every stand-up line that reported work carried an outcome and a number.
 Chapter [[talking]] explains why the draft helps engineers who would otherwise say nothing, and its limits.
 
 ==== Tuesday 3 November: the DOORS modules go onto the vendor branch
@@ -153,10 +155,12 @@ cases. The converter had left it as a comment, because it does not map UML inclu
 // TODO uml:Include (xmi:id _22_1_7f3a0c1_08793d6918c3): no SysML v2 mapping in this converter
 ```
 
-Bob replaced the TODO with what Bob believed was the SysML v2 form. You can see the edit in Bob's clone:
+Bob replaced the TODO with what Bob believed was the SysML v2 form. You can see the edit in Bob's clone. The commit is
+named by its subject, `:/^Replace the Include TODO` (the newest commit whose message starts with those words), because
+commit ids differ from one copy of the repository to the next:
 
 ```sh run cwd=work/bob expect="include use case : QueryArchive queryArchive"
-git show --format='%h %an %s' 62a57b0 -- model/physical/network/Network.sysml | grep '^[-+ ]  *include\|^[0-9a-f]'
+git show --format='%h %an %s' ':/^Replace the Include TODO' -- model/physical/network/Network.sysml | grep '^[-+ ]  *include\|^[0-9a-f]'
 ```
 
 The pipeline for !9 failed. Two jobs went red, grammar and lint, and the merge request showed a red X. This is the
@@ -173,14 +177,16 @@ the type after a colon: `queryArchive : QueryArchive`.
 You can reproduce the error yourself from the commit, which is still in the repository:
 
 ```sh run cwd=. expect="unexpected 'queryArchive'"
-git -C work/bob show 62a57b0:model/physical/network/Network.sysml > network-before.sysml
+before=$(git -C work/bob rev-parse --short ':/^Replace the Include TODO')
+git -C work/bob show "$before:model/physical/network/Network.sysml" > network-before.sysml
 perl "$KIT/tools/sysml/sysml.pl" check network-before.sysml || echo "exit status $?"
 ```
 
 And the fixed file, from the commit Bob pushed to the same branch:
 
 ```sh run expect="0 error"
-git -C work/bob show 472756e:model/physical/network/Network.sysml > network-after.sysml
+after=$(git -C work/bob log -1 --format=%h --grep='^Fix what the pipeline found' origin/develop -- model/physical/network/Network.sysml)
+git -C work/bob show "$after:model/physical/network/Network.sysml" > network-after.sysml
 perl "$KIT/tools/sysml/sysml.pl" check network-after.sysml
 ```
 
@@ -312,22 +318,25 @@ modeling team: someone pastes a credential into a file and pushes it. Chapter [[
 
 === Week 2 {#sprint-3-week-2}
 
-==== Monday 9 November to Tuesday 10: three days waiting on a signature {#sprint-3-wait}
+==== Monday 9 to Thursday 12 November: a wait said a day late, with no one to ask {#sprint-3-wait}
 
 Tom's second story, TW-54, was runner hardening: the GitLab runner that executes every pipeline job is a Windows
 machine running jobs under an account, and the security office wanted that account to be a service account with the
 least privilege it needs, approved by the ISSM, with a hardening checklist in the wiki. Tom started the task on
-Friday 6 November; it closed on Tuesday 10 November.
+Monday 9 November; it closed on Thursday 12 November.
 
 Most of those days were waiting: the checklist was quick, the ISSM's signature on the service account was not. Here
-are Tom's stand-up lines from the Monday and Tuesday of that wait, as posted:
+are Tom's stand-up lines from the three working days of that wait (Wednesday 11 November was a holiday), as posted:
 
 {{include: docs/tidewater/sprints/03/standups/2026-11-09-chat.txt | lines 8-9}}
 {{include: docs/tidewater/sprints/03/standups/2026-11-10-chat.txt | lines 8-9}}
+{{include: docs/tidewater/sprints/03/standups/2026-11-12-chat.txt | lines 8-9}}
 
-Read the last field. **B none.** Tom was waiting for three days on another office, and the stand-up said nothing
-blocked the work. The kit's lint could not catch it, because a status that says "none" is a valid status. The journal
-recorded no block. The weekly quad showed no watch items. Nobody asked Jim to call the ISSM.
+Read the last field, day by day. On Monday it says **B none**, although the request was already sitting with another
+office. On Tuesday the block appears, a day late, and the kit records it in the journal. But look at the ask: "a date
+from the ISSM". It names no one who can get that date. On Thursday it is still there, and the ask has become "help to
+unblock it", still with no name and no date. The kit's lint could not catch either problem, because a status that says
+"none", or a blocker with a vague ask, is a valid status.
 
 At the retrospective, Tom said what had happened:
 
@@ -344,11 +353,11 @@ office. So they say "none" and wait. The stand-up exists to catch exactly this, 
 out loud, with a date and an ask:
 
 ```text
-Y TW-54 checklist in the wiki. T TW-54 runner service account, by Tue. B TW-54 waiting on the ISSM's approval since Fri -- need: Jim to ask for a date today
+Y TW-54 checklist in the wiki. T TW-54 runner service account, by Tue. B TW-54 waiting on the ISSM to approve the runner service account -- need: Jim to ask the ISSM for a date today
 ```
 
-That line would have put the wait in the journal as a block, on the quad as a watch item, and in Jim's hands the
-same morning. Chapter [[talking]] has the templates; the change the team made was simply to agree that a wait on
+Said on Monday, that line would have started the block a day earlier, named the person who could act, and put the
+ask in Jim's hands that morning. Chapter [[talking]] has the templates; the change the team made was simply to agree that a wait on
 anyone outside the team for more than one day is a blocker and gets said.
 
 ==== Tuesday 10 November: the DOORS modules merge
@@ -358,11 +367,16 @@ Bob merged !10 on Tuesday, after reading the delta. The review note mentions the
 a single file) the model is allowed to have. The prime's drop brings its own: the converted Requirements package has
 more members than the 2-to-9 rule allows, because Cameo put every requirement in one package. The outline job does not
 fail the drop for that. It records the new count as the allowance, and from then on any change that *adds* a violation
-fails, while any change that removes one must lower the number. You can see the allowance move in the history:
+fails, while any change that removes one must lower the number. You can see the allowance move in the history, one
+line per commit that changed the file, with the number it recorded:
 
-```sh run cwd=work/bob expect="allowance 19 after drop v1.0"
-git log --format='%ad %s' --date=short origin/develop -- .ci/outline-max | sed -n '2,3p'
+```sh run cwd=work/bob expect="2026-11-06 19"
+git log --format='%h %ad' --date=short origin/develop -- .ci/outline-max |
+  while read h d; do echo "$d $(git show $h:.ci/outline-max)"; done
 ```
+
+Read it from the bottom up: 1 at the start, 17 after the first import of drop 1, 19 once the DOORS modules came in,
+and back to 17 in December when Tom removed the Legacy Import clutter and lowered the number, as the ratchet requires.
 
 That pattern, a measure that may only get better, is called a ratchet. The team uses it for every measure it cannot
 make perfect on day one: outline violations here, trace gaps from [[sprint-5]], package complexity later
@@ -467,8 +481,10 @@ Every Friday the kit writes the weekly quad from the journal and Jim sends it to
 {{include: docs/tidewater/sprints/03/quad-2026-11-13.txt | lines 1-12}}
 
 Sprint progress {{value: docs/tidewater/sprints/03/scorecard.json 11_delivery.pct}}%, every story on time, no watch
-items. Look again at the watch items: "none". The quad was as honest as its inputs. The three-day wait in week 2 never
-became a watch item because it never became a block in the journal. The tooling cannot report what nobody says.
+items. Look again at the watch items: "none". The quad was as honest as its inputs. The wait in week 2 did reach the
+journal as a block, from Tuesday to Thursday, but it was cleared before Friday and stayed under the quad's three-day
+threshold for asking the program manager for help. What cost the team was not the tooling: it was the Monday nobody
+heard about, and an ask that named nobody.
 
 === What the numbers say {#sprint-3-numbers}
 

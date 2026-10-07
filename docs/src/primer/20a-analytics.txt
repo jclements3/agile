@@ -158,7 +158,7 @@ team learned to say so before anyone else did.
 - **Watch the definitions.** The `talk.pl review` draft for sprint 6 reported "verify coverage" from the
   verification matrix, which counts requirements with a *passing recorded result*. The scorecard reports
   requirements with a *verification case*. The draft therefore showed coverage collapsing from seventy percent to
-  almost nothing, the week the matrix job arrived. Jim caught it in the Day-9 rehearsal; [[scorecard]] explains the
+  almost nothing, the week the matrix job arrived. Tom caught it in the Day-9 rehearsal; [[scorecard]] explains the
   two measures.
 - **Separate the prime's numbers from the team's.** Open discrepancy reports and unverified requirements belong to
   the prime until a drop closes them. A government team that reports them as its own backlog looks stuck.

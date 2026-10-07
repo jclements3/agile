@@ -1707,18 +1707,20 @@ A five-minute model script:
 :::
 
 ::: answer [[sprint-2--ex-3]]: Read the integration branch
-```sh run sandbox=tidewater cwd=. expect="(?s)cdc5559.*80a956f Merge branch 'feature/drop-v1.0'.*2cbb927"
+```sh run sandbox=tidewater cwd=. expect="(?s)feature/42-.*feature/drop-v1.0.*feature/46-.*feature/44-.*feature/43-.*feature/37-.*feature/16-"
 git -C work/bob log --oneline --first-parent --before=2026-10-31 origin/develop
 ```
 
+The merges, oldest first (the log lists them newest first; your commit ids will differ, the branch names will not):
+
 || Merge | Story | Kind ||
-| 2cbb927 feature/16 | TW-3, CODEOWNERS and templates | machinery |
-| 2b589e3 feature/37 | TW-4, the first pipeline | machinery |
-| 398eb79 feature/43 | the government conventions package | model (library) |
-| c304f3f feature/44 | level tags in `sysml.conf` | machinery |
-| b98b22c feature/46 | decision records 0001 to 0014 | records |
-| 80a956f feature/drop-v1.0 | drop 1 import | **the model** |
-| cdc5559 feature/42 | the `todo` burn-down job | machinery |
+| feature/16 | TW-3, CODEOWNERS and templates | machinery |
+| feature/37 | TW-4, the first pipeline | machinery |
+| feature/43 | the government conventions package | model (library) |
+| feature/44 | level tags in `sysml.conf` | machinery |
+| feature/46 | decision records 0001 to 0014 | records |
+| feature/drop-v1.0 | drop 1 import | **the model** |
+| feature/42 | the `todo` burn-down job | machinery |
 
 The drop-v1.0 merge brought the model in. CODEOWNERS, the pipeline, the level tags and the burn-down job changed only
 the machinery; the conventions package is the team's first model text, and the decision records are documentation.

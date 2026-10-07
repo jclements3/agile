@@ -271,9 +271,10 @@ It is the first merge request the project ever had, and its description says som
 {{include-md: docs/tidewater/sprints/01/samples/mr-1.md}}
 
 It has no pipeline on purpose: the pipeline file arrives in sprint 2. Jim approved it, Tom merged it, and the project
-had its first reviewed change. Two of the checklist boxes are ticked that could not have applied yet, because there
-was no pipeline to run and no docs to regenerate. Nobody noticed at the time. It is a small thing, and it is exactly the kind of small thing that decides whether a
-checklist means anything: tick only what you actually did.
+had its first reviewed change. Look at the checklist: only one box is ticked. The other three could not apply yet,
+because there was no pipeline to run, no docs job and no trace job, and Tom left them empty with the reason beside
+each. It is a small thing, and it is exactly the kind of small thing that decides whether a checklist means anything:
+tick only what you actually did.
 
 The kit lets you read any merge request the team made, from the simulation's GitLab:
 
@@ -332,7 +333,7 @@ paid down; new debt is refused. This is a *ratchet*, and the team used the same 
 complexity checks ([[pipeline]]).
 :::
 
-The review that afternoon was short. The deputy program manager attended, as the meeting record shows:
+The review on Friday morning was short. The deputy program manager attended, as the meeting record shows:
 
 {{include: docs/tidewater/sprints/01/meetings.csv | lines 12-13}}
 
@@ -342,8 +343,9 @@ and the review record is plain:
 
 The four headline numbers at the bottom show how little there was to show: no TODO lines because the drop was not in
 the model yet, no verification coverage because the trace did not run in a pipeline yet. The demonstration was a walk
-through the board and the GitLab project. The deputy's reaction was polite and noncommittal. The team took it as
-licence to keep going, which it was.
+through the board and the GitLab project. The deputy's one question, recorded above, is the one every manager asks
+of a port: when does the model itself move? Jim's answer put a date on it, sprint 2, and named the mechanism that
+would check every change after that. The team took the question as the measure of sprint 2.
 
 ==== The retrospective {#sprint-1-retro}
 

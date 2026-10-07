@@ -104,13 +104,14 @@ you source it once; the blocks below each start with `. ../env.sh` because each 
 Week zero left drop 1 on its own branch, `feature/drop-v1.0`, ready for review. The prime's structure arrives all at
 once, and with it the prime's outline violations (packages with one member, folders with one file). The government
 did not make them and does not fix them in the drop's merge request. It records them, so that from now on the
-outline gate fails only on violations the government adds:
+outline gate fails only on violations the government adds. `flow vendor`, which `kickoff.pl start` ran for drop 1,
+records the new allowance in a commit of its own and regenerates the documents in another. Look at the branch, then
+open the merge request:
 
-```sh run cwd=model expect="merged as" timeout=300
+```sh run cwd=model expect="(?s)Record the outline allowance after drop v1.0.*merged as" timeout=300
 . ../env.sh
-n=$(perl ci/job.pl outline 2>&1 | sed -n 's/^outline violations: \([0-9]*\).*/\1/p')
-echo "$n" > .ci/outline-max
-git commit -qam "Record the outline allowance the prime's drop 1 brought in ($n)"
+git log --format='%s' -3
+echo "outline allowance: $(cat .ci/outline-max)"
 gl --as tom flow finish --title "Prime drop v1.0 (NWM-CR-0001)"
 gl --as jim mr approve 1
 gl --as bob mr approve 1

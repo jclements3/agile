@@ -194,7 +194,7 @@ The sprint files carry three more numbers that the team found useful, though the
   ([[bluf]]): engineering grew from a quarter of sprint 1 to most of sprint 6.
 - **Stand-up outcome share.** The share of stand-up lines that stated an outcome and a number. It went from
   {{value: docs/tidewater/sprints/01/scorecard.json standup_outcome_share}} in sprint 1 to
-  {{value: docs/tidewater/sprints/06/scorecard.json standup_outcome_share}} from sprint 4 on ([[talking]]). Sprint 2
+  {{value: docs/tidewater/sprints/06/scorecard.json standup_outcome_share}} from sprint 3 on ([[talking]]). Sprint 2
   scored lower than sprint 1 because sprint 1's statuses happened to quote counts while sprint 2's described
   mechanism.
 - **First-pipeline pass rate.** How many merge requests passed their checks on the first try:

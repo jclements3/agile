@@ -244,10 +244,11 @@ weekly status export as cron schedules, each run as the person who ran `setup` (
 
 === Applying the file {#gitlab-setup-apply}
 
-The command that applies `project.conf` is part of the kit:
+The command that applies `project.conf` is part of the kit. Run it from the model repository, where the scaffold
+([[playbook]]) put the file in `.gitlab/`:
 
 ```sh
-perl bin/gitlab.pl --url https://gitlab.example.com --token-env GITLAB_TOKEN setup project.conf
+perl "$KIT/bin/gitlab.pl" --url https://gitlab.example.com --token-env GITLAB_TOKEN setup .gitlab/project.conf
 ```
 
 It talks to GitLab through its web API (the same thing the web pages use underneath), authenticated by a personal

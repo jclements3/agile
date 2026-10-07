@@ -163,15 +163,15 @@ at 2026-10-07T16:30 --as bob issue close 4
 You are now in the sandbox's `work` folder; the examples below stay there. (Each one sources `../env.sh` again so it also works in a new window.) Now draft Thursday's stand-up for Bob. `--prefix TW-` makes the story ids look like the journal's; `--why` adds the
 line that says where each part of the draft came from.
 
-```sh run expect="^Y TW-2 Close the Stations level tags: 2 of 3 tasks done\. T TW-2 decide who owns ObservationRecord"
+```sh run expect="^Y TW-2 Close the Stations level tags: 2 of 3 tasks done\..* T TW-2 decide who owns ObservationRecord"
 . ../env.sh > /dev/null
 perl $KIT/tools/gitlab/talk.pl standup --as bob --prefix TW- --date 2026-10-08 --why
 ```
 
 ```text
-Y TW-2 Close the Stations level tags: 2 of 3 tasks done. T TW-2 decide who owns ObservationRecord, by Oct 16. B none
+Y TW-2 Close the Stations level tags: 2 of 3 tasks done. Reviewed !1. T TW-2 decide who owns ObservationRecord, by Oct 16. B none
 # draft for bob on Thu Oct 8 (since Wed Oct 7): edit it, then post it yourself
-# from: #3 closed, #4 closed, today: #5 (story #2)
+# from: #3 closed, #4 closed, reviewed !1, today: #5 (story #2)
 # lint: ok
 ```
 
@@ -183,7 +183,8 @@ check, so the line will not bounce in the meeting. What Bob actually posted that
 Y TW-2 Stations level tags: 2 of 3 done, the part tree now shows every station's level. T TW-2 decide who owns ObservationRecord, by Thu. B none
 ```
 
-Bob kept the number, added what it means ("the part tree now shows every station's level"), and tightened the date.
+Bob kept the number, added what it means ("the part tree now shows every station's level"), dropped the review of
+!1 (true, but not what the team needed to hear that morning), and tightened the date.
 That is the intended use: the tool does the remembering, the engineer does the meaning.
 
 Tom's draft turns the blocked task into an ask, using the reason Tom wrote in the issue's comment:

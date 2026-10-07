@@ -45,7 +45,7 @@ A DoD-style memorandum has a fixed shape. `md2memo.pl` maps plain Markdown onto 
 || Memo part | Markdown | Rendered ||
 | Organization (letterhead) | `# Tidewater Coastal Observation Program` | centered, upper case |
 | Office symbol | `## TW-SE` | flush left, upper case |
-| Date | `## 18 December 2026` | flush left |
+| Date | `## 24 December 2026` | flush left |
 | MEMORANDUM FOR | `## Memorandum for Tidewater Program Manager` | upper case |
 | FROM, SUBJECT, REFERENCES | `## From: ...`, `## Subject: ...`, `## References: (a) ...; (b) ...` | upper case |
 | Numbered paragraphs | each top-level paragraph | 1., 2., 3. ... |
@@ -252,7 +252,7 @@ The team wrote five memos in its first four months. All five are in `docs/tidewa
 | 24 Sep 2026 | the directive: adopt DevSecOps practices for systems engineering artifacts ([[directive-memo]]) | the program manager | none: it came first |
 | 21 Oct 2026 | request for enablers: training hours, the ISSM slot, a Cameo seat, a second runner, the GitLab tier decision | Jim, sprint 2 | `request-for-enablers.md` |
 | 23 Oct 2026 | memorandum for record of decisions D-1 to D-10 ([[om-decisions]]) | Jim, sprint 2 | `memorandum-for-record.md` |
-| 18 Dec 2026 | twelve-week results for the December review | Jim, sprint 6 | `progress-memo.md` |
+| 24 Dec 2026 | twelve-week results for the December review | Jim, sprint 6 | `progress-memo.md` |
 | 13 Jan 2027 | disposition of prime drop v1.1 | Jim, as chair of the model change board | `drop-disposition.md` |
 Table: The Tidewater memos
 

@@ -53,7 +53,7 @@ two weeks and an ISSM review, and the team had neither.
 | ssh, ssh-keygen | secure connections and keys | `ssh -V` | proving your identity to GitLab |
 | curl | a program that talks to web servers | `curl --version` | the kit's GitLab client uses it |
 | wish | Tcl/Tk, a small toolkit for windows | `which wish` | the live model viewer beside Vim |
-| the agile kit | a folder of Perl scripts, Vim files and documentation | `perl agile.pl help` | converters, checks, journal, GitLab tools |
+| the agile kit | a folder of Perl scripts, Vim files and documentation | `perl "$KIT/agile.pl" help` | converters, checks, journal, GitLab tools |
 | a web browser | Edge or Firefox | | GitLab's web pages: issues, merge requests, pipelines |
 Table: The survival kit: what is on the laptop
 
@@ -373,13 +373,13 @@ Almost every command explains itself:
 ```sh
 grep --help | less
 git help commit
-perl agile.pl help xmi2sysml
+perl "$KIT/agile.pl" help xmi2sysml
 ```
 
 The last one is the kit's own help, which is also available inside Vim as `:help agile` ([[survival-vim]]):
 
 ```text run sandbox=kit expect="(?s)^xmi2sysml\.pl\n.*--report FILE\.xmi"
-$ perl agile.pl help xmi2sysml
+$ perl "$KIT/agile.pl" help xmi2sysml
 xmi2sysml.pl
     perl bin/xmi2sysml.pl --report FILE.xmi
     perl bin/xmi2sysml.pl --out DIR [--layout '{seg}/{pkg}.sysml'] [--check] FILE.xmi
@@ -421,35 +421,38 @@ git clone https://gitlab.example.com/tools/agile.git
 cd agile
 ```
 
-(`git clone` copies a repository from GitLab to your laptop; [[git]] explains it. If your organization gives you
-the kit as a zip file instead, unzip it to `~/projects/agile`.)
+(`git clone` copies a repository from GitLab to your laptop; [[git]] explains it.) Most teams get the kit the other
+way, as the slim MBSE zip that `START-MBSE.md` describes: the tools, templates, Vim files and practice lessons this
+book uses, without the kit's own development files. Unzip it into `C:\Users\you\projects` and it makes the same
+folder, `~/projects/agile`. The book works with either form, and always calls that folder `$KIT`.
 
-Check that it works on your machine by running one of its test suites and one of its tools:
+Check that it works on your machine. The kit's `doctor` checks Perl, git and Vim, and runs a small self-test: two of
+the kit's own test suites, and the converter and grammar checker on the Tidewater sample drop:
 
-```text run sandbox=kit expect="(?s)tests/xmi2sysml\.t\s+# all \d+ passed.*sysml: 1 file\(s\), 0 error\(s\)" timeout=300
-$ perl tests/run.pl tests/xmi2sysml.t
-tests/xmi2sysml.t  # all 192 passed                   24.1s
-
-1 suites, 0 failed, 25s with 8 at a time
-$ perl tools/sysml/sysml.pl check examples/halberd/model/program/Enterprise.sysml
-sysml: 1 file(s), 0 error(s)
+```text run sandbox=kit expect="(?s)PASS  kit self-test tests/prelude\.t: # all \d+ passed.*PASS  converter and grammar check: .*self-check ok" timeout=300
+$ perl "$KIT/tools/gitlab/kickoff.pl" doctor | grep -E 'self-test|grammar'
+PASS  kit self-test tests/prelude.t: # all 223 passed
+PASS  kit self-test tests/ledger.t: # all 109 passed
+PASS  converter and grammar check: xmi2sysml: 560 elements in, 206 of 206 in scope ported, 12 TODO, 13 file(s), self-check ok
 ```
 
-The first runs the converter's own tests: 192 checks that the converter does what it claims, on this laptop, with
-this Perl. "All 192 passed" is a better answer to "does the tool work here?" than any installation guide. The second
-runs the SysML v2 grammar checker on one file of the kit's other example model. Zero errors means the checker works.
+"All 223 passed" is a better answer to "does the tool work here?" than any installation guide: the checks ran on
+this laptop, with this Perl. The last line converted a sample drop and checked every file it wrote against the SysML
+v2 grammar. If a self-test line fails, stop and find out why before going further; [[survival-trouble]] lists the
+usual causes. The team found one laptop with an old Git for Windows this way, on day one rather than in the middle of
+a sprint.
 
-::: tip Run the whole test set once
-On the first day, run every test suite once: `perl tests/run.pl`. It takes a few minutes and prints one line per
-suite. If any suite fails, stop and find out why before going further; [[survival-trouble]] lists the usual causes.
-The team found one laptop with an old Git for Windows this way, on day one rather than in the middle of a sprint.
+::: tip Full kit only: run the whole test set once
+If you cloned the full kit rather than the slim zip, run every test suite once on the first day:
+`perl "$KIT/tests/run.pl"`. It takes a few minutes and prints one line per suite. The slim zip carries only the
+suites `doctor` runs.
 :::
 
-The kit also checks the whole laptop in one command, once the rest of this chapter is done. It changes nothing;
-every line is PASS, WARN or FAIL, and every problem comes with the exact command that fixes it:
+Run `doctor` again without the `grep` once the rest of this chapter is done: it checks the whole laptop. It changes
+nothing; every line is PASS, WARN or FAIL, and every problem comes with the exact command that fixes it:
 
 ```sh
-perl ~/projects/agile/tools/gitlab/kickoff.pl doctor
+perl "$KIT/tools/gitlab/kickoff.pl" doctor
 ```
 
 It checks Perl and the modules the kit uses, git and the settings below, Vim and the kit's Vim setup, curl, a short
@@ -658,7 +661,7 @@ This is Tom's page, as it ended up after the team had used it. Every box was tic
 ::: checklist Survival kit: every box ticked before you start
 [ ] Git Bash opens; `pwd` prints your home folder
 [ ] `git --version`, `perl -v`, `vim --version` all print a version
-[ ] the kit is in `~/projects/agile`; `perl tests/run.pl` prints no failed suites
+[ ] the kit is in `~/projects/agile` (the slim zip or a clone)
 [ ] `echo $KIT` prints the kit's folder in a new Git Bash window (`~/.bashrc` exports it)
 [ ] `perl $KIT/tools/gitlab/kickoff.pl doctor` prints no FAIL lines
 [ ] `git config --global --list` shows your name, email, `init.defaultbranch=main`, `core.editor=vim`, `core.autocrlf=false`

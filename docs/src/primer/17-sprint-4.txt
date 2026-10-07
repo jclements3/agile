@@ -97,7 +97,7 @@ Tom took the Network and Operations cycle. The Operations package depended on Ne
 engineer would miss. The fix removed it, and the import of Network that existed only to serve it:
 
 ```sh run sandbox=tidewater cwd=work/bob expect="dependency from ServiceVessel to Technician"
-git show --format='%h %an %ad %s' --date=short 3a743cb | grep '^[0-9a-f]\|^[-+] '
+git show --format='%h %an %ad %s' --date=short ':/^Break the Network <-> Operations cycle' | grep '^[0-9a-f]\|^[-+] '
 ```
 
 Two removed lines. Jim approved !12 the same day, and Tom merged it. The cycle count the scorecard tracks went from
@@ -140,7 +140,7 @@ comes from the same root.
 You can reproduce the finding from Bob's commit:
 
 ```sh run expect="WaveSensor: tagged L5, first reached at L4"
-git worktree add -q --detach ../../s4-stations 1c11bb3
+git worktree add -q --detach ../../s4-stations ':/^Level tags in Stations'
 cd ../../s4-stations && perl "$KIT/tools/sysml/model.pl" check | grep -A1 "tag mismatches"
 ```
 
@@ -159,7 +159,7 @@ This is the decision point the sprint is remembered for. Bob and Jim had three o
 They chose the third, and the commit says so in the model itself:
 
 ```sh run cwd=work/bob expect="DR-7"
-git show --format='%h %s' 8686239 | grep '^[0-9a-f]\|^[-+] '
+git show --format='%h %s' ':/^Re-level WaveSensor' | grep '^[0-9a-f]\|^[-+] '
 ```
 
 Jim opened DR-7 the same day. The second pipeline was green, Jim approved, and Bob merged !13 that afternoon.
@@ -316,7 +316,7 @@ metadata with values, not just a level tag, and the Stations walk-through had no
 settled at 3.5, which is the sprint 4 lesson written as an estimate.
 
 The demo script for the review was drafted with `talk.pl review` ([[talking]]) and rehearsed out loud before the
-meeting; the rehearsal was Tom's learning task on the sprint's first day, and the script itself is in the evidence
+meeting; the rehearsal was Tom's task on Wednesday 25 November, Day 9, and the script itself is in the evidence
 (`docs/tidewater/sprints/04/review-script.md`).
 
 ==== Thursday 26 November: Thanksgiving
@@ -327,7 +327,7 @@ Bob merged !15 in the morning: the value types Power and Energy now specialize t
 standard library, so a power is a power and not just a number:
 
 ```sh run cwd=work/bob expect="ISQ::PowerValue"
-git show 6265f68 | grep '^+.*attribute def'
+git show ':/^Units for Power and Energy' | grep '^+.*attribute def'
 ```
 
 The three TODO lines for the Cameo unit instances went with it.

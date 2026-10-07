@@ -16,10 +16,11 @@ To make the slim download yourself from a clone:
 perl bin/release.pl --profile mbse          # -> release/agile-mbse-<version>.zip
 ```
 
-Unzip it anywhere you like, for example `C:\Users\you\agile`. In Git Bash, point `KIT` at it:
+Unzip it into `C:\Users\you\projects` (it makes the folder `agile` there: `~/projects/agile` in Git
+Bash, the place the primer uses). In Git Bash, point `KIT` at it:
 
 ```sh
-export KIT=~/agile                            # put this line in ~/.bashrc
+export KIT=~/projects/agile                   # put this line in ~/.bashrc
 ```
 
 ## 2. Check your laptop
@@ -57,9 +58,13 @@ plan says what to read in which week, by role.
 
 ```sh
 perl $KIT/tools/gitlab/kickoff.pl scaffold my-model --project mygroup/model --title "My System" \
-     --levels L1System,L2Segment,L3Subsystem --layout-map my-layout.map
+     --levels L1System,L2Segment,L3Subsystem
 perl $KIT/tools/gitlab/kickoff.pl help start      # the twelve week-zero steps; nothing runs without --yes
 ```
+
+Once you know where each of the prime's packages should land in your repository, write that down as a
+layout map (the new repository's `.ci/layout.map.example` explains the format; Tidewater's is
+`examples/tidewater-v1/layout.map`) and pass it as `--layout-map FILE` to `scaffold` or `start`.
 
 `start` sets up the GitLab project from a project file, pushes the starter repository, creates the
 `develop` branch, the sprints and the schedules, imports the first v1 drop, starts the team's journal
@@ -85,7 +90,7 @@ Each one is commented. Tidewater's versions, in `tools/gitlab/templates/`, are w
 | Every command | `perl $KIT/agile.pl help`, or `:help agile` in Vim |
 | An error message explained | `perl $KIT/agile.pl help error "the message"` |
 | Quick reference cards for Vim, GitLab and the v1-to-v2 port | the primer's appendices |
-| The worked example, end to end | `docs/TIDEWATER.html` and `docs/tidewater/` |
+| The worked example, end to end | the primer's Part III; in the full kit (not the slim download), `docs/TIDEWATER.html` and `docs/tidewater/` |
 | A local AI assistant, and the approvals first | `docs/OLLAMA.md` |
 
 Tidewater, its people and every number about it are fictional. The tools, templates and commands are

@@ -1452,7 +1452,7 @@ gl pipeline show N</pre>
 <pre class=ex>git commit -am &quot;Add the missing semicolon&quot;
 gl flow publish
 gl mr show 2</pre>
-<p>The new pipeline passes. A push updates the same merge request. The test count still shows failures: the outline findings drop v1.0 brought, within what .ci/outline-max allows, so the job passes.</p>
+<p>The new pipeline passes. A push updates the same merge request. The tests line shows &quot;0 failed&quot; and many &quot;skipped&quot;: the outline findings drop v1.0 brought are within what .ci/outline-max allows, so they are reported as skipped, not as failures.</p>
 <p>7. Approval, the CCB signature: gl mr merge 2 is refused again, &quot;approvals required&quot;. Jim approves; then you merge:</p>
 <pre class=ex>gl --as jim mr approve 2
 gl mr merge 2
@@ -1466,8 +1466,8 @@ gl flow sync</pre>
 <p>Sandbox: lesson 11's project, later: Bob's tag is merged; DR-5 asked the prime for a humidity sensor, and Bob modeled an interim HumiditySensor on develop meanwhile; issue #3 asks Tom to take in drop v1.1, just delivered to SANDBOX/drops/v1.1. You are Tom, who keeps the vendor branch. About 45 minutes. Task:</p>
 <p>1. cd SANDBOX/work, source ../env.sh, then gl issue show 3: the intake checklist, a receiving inspection for a contract delivery.</p>
 <p>2. What changed, in the prime's own v1 terms, element by element:</p>
-<pre class=ex>perl $KIT/bin/xmi2sysml.pl --delta ../drops/v1.0/tidewater.xmi ../drops/v1.1/tidewater.xmi</pre>
-<p>7 added, 1 changed, 0 manual: the converter carries all of it.</p>
+<pre class=ex>perl $KIT/bin/xmi2sysml.pl --delta ../drops/v1.0/tidewater.xmi ../drops/v1.1/tidewater.xmi --layout-map .ci/layout.map</pre>
+<p>7 added, 1 changed, 0 manual: the converter carries all of it. The layout map makes each &quot;carried:&quot; line name the file as it is in your repository (model/physical/...).</p>
 <p>3. Bring the drop in. vendor/prime holds only the prime's model, converted with the repository's .ci/layout.map; git merges it into yours like two redlines of one drawing against the drawing both started from:</p>
 <pre class=ex>gl flow vendor ../drops/v1.1 v1.1</pre>
 <p>It stops on a conflict in model/physical/stations/Stations.sysml: both sides added a humidity sensor at the same place.</p>
@@ -1477,8 +1477,10 @@ gl flow sync</pre>
 <p>6. Finish the merge and open the merge request; it closes the intake and DR-5, because the prime delivered what DR-5 asked for:</p>
 <pre class=ex>git add model
 git commit --no-edit
+gl flow allowance v1.1
 gl flow finish --title &quot;Prime drop v1.1&quot; --description &quot;Closes #3 and #2&quot;</pre>
-<p>7. The pipeline fails on docs: &quot;docs/ is stale&quot;. docs/ is generated from the model and kept in the repository, so a reviewer sees what a change does to the documents. Regenerate it, commit, push:</p>
+<p>flow allowance records how many outline findings the drop brings (in .ci/outline-max), so later merge requests are measured against it; flow vendor reminded you of it when it stopped on the conflict.</p>
+<p>&lt;7. The pipeline fails on docs: &quot;docs/ is stale&quot;. docs/ is generated from the model and kept in the repository, so a reviewer sees what a change does to the documents. Regenerate it, commit, push:</p>
 <pre class=ex>perl $KIT/tools/sysml/model.pl docs
 git add docs
 git commit -m &quot;Regenerate docs for drop v1.1&quot;

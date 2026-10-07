@@ -2337,8 +2337,9 @@ Task:
     gl flow publish
     gl mr show 2
 <   The new pipeline passes. A push updates the same merge request. The
-   test count still shows failures: the outline findings drop v1.0
-   brought, within what .ci/outline-max allows, so the job passes.
+   tests line shows "0 failed" and many "skipped": the outline findings
+   drop v1.0 brought are within what .ci/outline-max allows, so they are
+   reported as skipped, not as failures.
 7. Approval, the CCB signature: gl mr merge 2 is refused again,
    "approvals required". Jim approves; then you merge: >
     gl --as jim mr approve 2
@@ -2365,8 +2366,10 @@ Task:
 1. cd SANDBOX/work, source ../env.sh, then gl issue show 3: the intake
    checklist, a receiving inspection for a contract delivery.
 2. What changed, in the prime's own v1 terms, element by element: >
-    perl $KIT/bin/xmi2sysml.pl --delta ../drops/v1.0/tidewater.xmi ../drops/v1.1/tidewater.xmi
-<   7 added, 1 changed, 0 manual: the converter carries all of it.
+    perl $KIT/bin/xmi2sysml.pl --delta ../drops/v1.0/tidewater.xmi ../drops/v1.1/tidewater.xmi --layout-map .ci/layout.map
+<   7 added, 1 changed, 0 manual: the converter carries all of it. The
+   layout map makes each "carried:" line name the file as it is in your
+   repository (model/physical/...).
 3. Bring the drop in. vendor/prime holds only the prime's model, converted
    with the repository's .ci/layout.map; git merges it into yours like two
    redlines of one drawing against the drawing both started from: >
@@ -2385,7 +2388,11 @@ Task:
    DR-5, because the prime delivered what DR-5 asked for: >
     git add model
     git commit --no-edit
+    gl flow allowance v1.1
     gl flow finish --title "Prime drop v1.1" --description "Closes #3 and #2"
+<   flow allowance records how many outline findings the drop brings (in
+   .ci/outline-max), so later merge requests are measured against it;
+   flow vendor reminded you of it when it stopped on the conflict.
 <7. The pipeline fails on docs: "docs/ is stale". docs/ is generated from
    the model and kept in the repository, so a reviewer sees what a change
    does to the documents. Regenerate it, commit, push: >

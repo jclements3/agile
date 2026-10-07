@@ -523,6 +523,12 @@ sub start {
     }
     print "\nkickoff: " . ($yes ? 'week zero is set up.' : 'that is the plan; run again with --yes to do it.') . "\n";
     print "next: the sprint 1 kickoff -- perl $KIT/bin/daily.pl --conf $journal/scrum.conf new; the board at the project's Issues > Boards\n" if $yes;
+    if ($yes && $o{local}) {                    # the emulator has no web page: say how to reach it from the clone
+        my $dir = abs_path_new($o{local});
+        print "the offline GitLab, from $repo (as one of the members):\n",
+              "  export GITLAB_LOCAL='$dir' GITLAB_PROJECT='$project' GITLAB_USER=$as\n",
+              "  gl() { perl \"$KIT/bin/gitlab.pl\" \"\$@\"; }        # then: gl issue list\n";
+    }
     return 0;
 }
 sub abs_path_new { my $p = shift; return $p if File::Spec->file_name_is_absolute($p); File::Spec->rel2abs($p) }
@@ -551,7 +557,7 @@ sub main {
     }
     if ($cmd eq 'scaffold') {
         GetOptionsFromArray(\@a, \%o, q(project=s), q(title=s), q(noun-root=s), q(verb-root=s), q(levels=s), q(layout-map=s), q(force)) or return usage();
-        if (defined $o{'layout-map'} && !-f $o{'layout-map'}) { print STDERR "kickoff: no layout map $o{'layout-map'}\n"; return 2 }
+        if (defined $o{'layout-map'} && !-f $o{'layout-map'}) { print STDERR "kickoff: no layout map $o{'layout-map'} (write it first, or leave --layout-map out: the new repository's .ci/layout.map.example explains the format)\n"; return 2 }
         if (defined $o{levels}) {
             my @l = grep { length } map { s/^\s+|\s+$//gr } split /,/, $o{levels};
             if (!@l || grep { !/^[A-Za-z_]\w*$/ } @l) { print STDERR "kickoff: --levels is a comma list of names, top level first (e.g. L1Network,L2Segment,L3Station)\n"; return 2 }
@@ -564,7 +570,7 @@ sub main {
         my @sp;
         GetOptionsFromArray(\@a, \%o, 'yes', 'local=s', 'url=s', 'token-env=s', 'project=s', 'title=s', 'conf=s', 'dir=s', 'journal=s',
                             'team=s', 'as=s', 'from=i', 'drop=s', 'version=s', 'sprints=s{2}' => \@sp, 'no-wiki', 'no-issues', 'layout-map=s') or return usage();
-        if (defined $o{'layout-map'}) { if (!-f $o{'layout-map'}) { print STDERR "kickoff: no layout map $o{'layout-map'}\n"; return 2 } $o{'layout-map'} = abs_path_new($o{'layout-map'}) }
+        if (defined $o{'layout-map'}) { if (!-f $o{'layout-map'}) { print STDERR "kickoff: no layout map $o{'layout-map'} (write it first, or leave --layout-map out: the new repository's .ci/layout.map.example explains the format)\n"; return 2 } $o{'layout-map'} = abs_path_new($o{'layout-map'}) }
         $o{sprints} = \@sp if @sp;
         $o{url} //= $ENV{GITLAB_URL} unless $o{local};
         $o{$_ =~ tr/-/_/r} = delete $o{$_} for grep { /-/ } keys %o;

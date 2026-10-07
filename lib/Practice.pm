@@ -103,6 +103,7 @@ sub cli {
         return check($n, $dir);
     }
     if (my $why = enabled($l)) { print STDERR "practice: lesson $n needs " . join(' ', @{ $l->{needs} }) . " ($why)\n"; return 1 }
+    if ($l->{kind} eq q(tw-gitlab)) { local $| = 1; print "Setting up lesson $n: the offline GitLab runs the earlier lessons' pipelines (up to a few minutes) ...\n\n" }
     my $info = eval { setup($n, $dir, $today) };
     if (!$info) { print STDERR $@ =~ /^practice:/ ? $@ : "practice: lesson $n set-up failed: $@"; return 1 }
     print lesson_text($n) // "Lesson $n\n";
@@ -536,7 +537,7 @@ sub check {
     my $ok = grep { $_->[0] } @r;
     printf "  %-5s %s\n", $_->[0] ? 'ok' : 'TODO', $_->[1] for @r;
     if ($ok == @r) { print "lesson $n: done\n"; return 0 }
-    printf "lesson %d: not yet (%d of %d checks pass). The task: perl agile.pl help practice-%d\n", $n, $ok, scalar @r, $n;
+    printf "lesson %d: not yet (%d of %d checks pass). The task: perl %s/agile.pl help practice-%d\n", $n, $ok, scalar @r, $ROOT, $n;
     1;
 }
 sub _load { my ($dir, $today) = @_; require Scrum; my $s = eval { Scrum::load("$dir/scrum.txt", today => $today // _today()) }; $s }

@@ -289,6 +289,8 @@ either directly or indirectly sampled from the main CCA clock source. (NC_112358
 
 Here it is taken apart, element by element.
 
+{{figure: docs/img/recipe-anatomy.svg | The worked example split into the recipe's fields 1 to 18, one color per field}}
+
 || Element | Source text | Evaluation ||
 | Classification | "(U//FOUO)" | Unclassified, but labeled For Official Use Only. Care must be taken when extracting this requirement from its specification and storing or sending it through other media, because it is controlled unclassified information. |
 | State indicator | "While" | The system, subsystem or component is in a specific state as the predicate for performing the required function. |
@@ -611,7 +613,13 @@ future drops. Treat it as the direction of travel, not week-one work.
 
 Parts 1 to 18 make a requirement well formed. Parts 19 to 23 make it traceable: up to why it exists, sideways to
 how it is justified, down to how it is met and proven. In the model each one is something a person can point at by
-its identifier, so the checker reads them from the whole model, not from one sentence. Give it a folder and
+its identifier, so the checker reads them from the whole model, not from one sentence.
+
+{{figure: docs/img/building-blocks.svg | The building blocks a requirement connects to: needs, functions, components, interfaces, verification cases, hazards, decisions and baselines}}
+
+The links tie a requirement to the other building blocks of the model: its parent need or requirement (part 19),
+the decision or analysis behind its numbers (part 20), the verification case that proves it (parts 21 and 22), the
+component that meets it (part 23), and, for a safety tag, the hazard it mitigates. Give the checker a folder and
 `--links`:
 
 || Part | Where it lives in SysML v2 | Missing means ||

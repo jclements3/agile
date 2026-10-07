@@ -2054,6 +2054,64 @@ Windchill: FILE has no 'Number' column for the number (its columns: ...)
 	   deleted. A repeated number usually means the report joins another
 	   object (affected items): export the request objects only.
 
+------------------------------------------------------------------------------
+                                                    *agile-err-gitlab-statuses*
+FILE:LINE: a status is NAME = #RRGGBB | CATEGORY | description ...
+
+  Pattern: *:*: [statuses] mode is statuses or labels, not '*'
+  Pattern: *:*: a status is NAME = #RRGGBB | CATEGORY | description [| default-open|default-closed|default-duplicate] (CATEGORY: *)
+  Pattern: *:*: a status's last field is default-open, default-closed or default-duplicate, not '*'
+  Pattern: *: [statuses] names more than one default-* status
+  Pattern: *: [statuses] needs a status for default-* (a * status)
+  From:    gitlab.pl setup, setup --diff, status list|set (the [statuses]
+	   section of the project file)
+  Means:   A line of [statuses] is not NAME = #RRGGBB | CATEGORY |
+	   description, the category is not one of triage, to_do,
+	   in_progress, done, canceled, two statuses claim the same default,
+	   or no status fits a default GitLab needs (open: a to_do status,
+	   closed: a done status, duplicate: a canceled or done one).
+  Fix:	   Write each status as in tools/gitlab/templates/project.conf, mark
+	   at most one default-open, default-closed and default-duplicate, and
+	   keep at least one to_do and one done status. mode = labels is the
+	   fallback for GitLab before 18.2 or Free (state:: labels).
+
+------------------------------------------------------------------------------
+                                                    *agile-err-backlog*
+Backlog: FILE: the header needs ID, Level and Title columns (found: ...)
+
+  Pattern: Backlog: levels are four names, top down (Tome, Epic, Story, Task), not '*'
+  Pattern: Backlog: [backlog] sprint is project or epic, not '*'
+  Pattern: Backlog: * is not an .xlsx workbook (no xl/workbook.xml)
+  Pattern: Backlog: * has no sheets
+  Pattern: Backlog: *: no * for sheet '*'
+  Pattern: Backlog: *: give an .xlsx or a .csv file
+  Pattern: Backlog: *: write an .xlsx or a .csv file
+  Pattern: Backlog: *: the header needs ID, Level and Title columns (found: *)
+  Pattern: Backlog: no group for the epics: [backlog] group = PATH (or [project] path = group/name)
+  Pattern: backlog: *
+  Pattern: row *: level '*' is not one of *: skipped
+  Pattern: a * row without an ID ('*'): skipped
+  Pattern: row *: state '*' is not in [statuses]: left as is
+  Pattern: row *: status * not set (*)
+  Pattern: row *: parent * not found above it: made without a parent
+  Pattern: row *: epic '*' not found above it: the issue has no epic
+  Pattern: row *: task without its story (Parent '*' not above it): skipped
+  Pattern: *: not one of the states (*): taken as TODO
+  From:    gitlab.pl backlog import FILE, gitlab.pl backlog export FILE
+  Means:   The workbook is not an .xlsx or a .csv, its Backlog sheet (or
+	   first sheet) has no ID, Level and Title columns, or [backlog]
+	   has a value it does not know. The "row" warnings (printed as
+	   "backlog: ...") name a row that was skipped or made without its
+	   parent: rows are read top down, so a parent must come before its
+	   children. A Status that is not one of the seven states (such as
+	   "Not started") is taken as TODO, and counted once.
+  Fix:	   Save the workbook as .xlsx (not .xls or .xlsm) or export the
+	   Backlog sheet as CSV; keep the header row first; give every row
+	   an ID; order rows parents first (tome, its epics, their stories,
+	   their tasks); set levels = in [backlog] (or --levels) to the four
+	   Level names the workbook uses. A status not set on GitLab: check
+	   [statuses] and that the instance has them (GitLab 18.2+).
+
 ==============================================================================
 11. INTERNAL INVARIANTS                                 *agile-err-internal*
 

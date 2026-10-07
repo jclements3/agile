@@ -2,6 +2,26 @@
 
 `gitlab_agile_setup.py` sets up a GitLab Premium or Ultimate group for the tome / epoch / story / task plan and the seven work states. It can then load the SE backlog from `se-backlog-staffing.xlsx`.
 
+## The kit's Perl port
+
+The core-Perl kit does the same without Python or openpyxl, on GitLab or on the offline emulator, from the project
+file (`tools/gitlab/templates/project.conf`):
+
+| This script | The kit |
+|---|---|
+| 1. statuses | `[statuses]`: `gitlab.pl setup` sets the lifecycle; `gitlab.pl status list`, `status set IID NAME`; `mode = labels` for `state::*` |
+| 2. labels (marks, teams) | `marks = #6b7436 REDO PASS SYNC` in `[statuses]`; `team::` labels are made by `backlog import` from the Team column |
+| 3. cadence | `[iterations]` |
+| 4. milestones | `[milestones]` (sprints, or a milestone per review: `TITLE = START DUE \| description`) |
+| 5. board | `[boards]`, with label lists or status lists (`status:OPEN`) |
+| 6. templates | the scaffold's `.gitlab/issue_templates/` (`tools/gitlab/kickoff.pl scaffold`) |
+| 7. backlog, export | `gitlab.pl backlog import FILE.xlsx\|.csv` and `backlog export FILE` (`[backlog]`: levels Tome, Epic or Epoch, Story, Task; `sprint = epic` counts sprints within each epoch, as here) |
+
+`gitlab.pl help status`, `gitlab.pl help backlog`. A Tidewater workbook in this format:
+`tools/gitlab/samples/se-backlog-tidewater.xlsx` (`perl sim/tidewater-backlog.pl`). One difference to know: GitLab's
+status category for DROP is `CANCELED` (one L, `WorkItems::Statuses::SharedConstants`); this script sends `CANCELLED`,
+which GitLab may refuse -- the Perl port sends `CANCELED`.
+
 ## What it builds
 
 | Step          | GitLab object                            | Detail                                                                                                                                                                                      |

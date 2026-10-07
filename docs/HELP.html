@@ -199,6 +199,8 @@ by <code>perl agile.pl help --html</code>. Edit the source, not this page.</p>
 <li><a href="#t-agile-err-gitlab-terraform">FILE:LINE: 'X' is not an access level Terraform knows / board B lists label 'L'</a></li>
 <li><a href="#t-agile-err-windchill-config">FILE:LINE: unknown [windchill] key / priority-map entries are WINDCHILL=LABEL</a></li>
 <li><a href="#t-agile-err-windchill-export">Windchill: FILE has no 'Number' column for the number (its columns: ...)</a></li>
+<li><a href="#t-agile-err-gitlab-statuses">FILE:LINE: a status is NAME = #RRGGBB | CATEGORY | description ...</a></li>
+<li><a href="#t-agile-err-backlog">Backlog: FILE: the header needs ID, Level and Title columns (found: ...)</a></li>
 <li><a href="#t-agile-err-internal">11. INTERNAL INVARIANTS</a></li>
 </ul></div>
 <hr>
@@ -1692,6 +1694,10 @@ board list              the issue boards setup made from [boards]: each one's
                         label lists in order and its milestone scope</pre>
 <p>windchill intake|status requests from Windchill in, progress back out:</p>
 <pre>                        <a href="#t-agile-gitlab-windchill">agile-gitlab-windchill</a>
+status list|set IID NAME   the work-item statuses ([statuses]) and an item's
+                        state: <a href="#t-agile-gitlab-statuses">agile-gitlab-statuses</a>
+backlog import|export FILE   a backlog workbook (.xlsx or .csv) to epics,
+                        issues and tasks, and back: <a href="#t-agile-gitlab-backlog">agile-gitlab-backlog</a>
 iteration list          the group's iteration cadence and its iterations, and
                         whether sprints come from milestones or iterations
 insights [FILE]         the .gitlab/insights.yml setup generates, to stdout
@@ -1745,6 +1751,28 @@ windchill status [--csv FILE|-] [--since DATE]   one row per Windchill-sourced
                         .gitlab/project.conf here or above); --dry-run shows
                         the issues intake would create</pre>
 <p>[windchill] keys: number, title, state, type, requester, priority, need-date, description (the export's column names; defaults Number, Name, State, Type, Created By, Priority, Need Date, Description), url (with {number}), labels, accept (state list, or *), priority-map (High=priority::1, ...). Each issue ends with a hidden marker of what Windchill said; drift is measured against it, so retitling or relabelling the issue in GitLab is not drift. Sample export: tools/gitlab/samples/windchill-export.csv; the round trip: tools/gitlab/samples/16-windchill-round-trip.md. Messages: <a href="#t-agile-err-windchill-config">agile-err-windchill-config</a>, <a href="#t-agile-err-windchill-export">agile-err-windchill-export</a>.</p>
+<h4 id="t-agile-gitlab-statuses">gitlab.pl status <span class=tag>agile-gitlab-statuses</span></h4>
+<p>The team's seven work states (TODO OPEN WAIT HOLD PUNT DONE DROP, the quad's words and colors) as GitLab work-item statuses: GitLab 18.2+ (generally available in 18.4), Premium or Ultimate, on a lifecycle of the top-level group, changed only through GraphQL. setup sets them from [statuses] (NAME = #RRGGBB | CATEGORY | description [| default-open|default-closed| default-duplicate]; CATEGORY triage, to_do, in_progress, done or canceled -- done and canceled close the item) and never removes a status; marks = REDO PASS SYNC makes the marks labels (olive). mode = labels makes state::NAME scoped labels instead, for older GitLab or Free. A board list may be a status: status:OPEN in [boards].</p>
+<pre>status list             the lifecycle's statuses and its defaults (or the
+                        state:: labels)
+status set IID NAME     an issue's or task's status; done and canceled ones
+                        close it, the others reopen it</pre>
+<p>Messages: <a href="#t-agile-err-gitlab-statuses">agile-err-gitlab-statuses</a>.</p>
+<h4 id="t-agile-gitlab-backlog">gitlab.pl backlog <span class=tag>agile-gitlab-backlog</span></h4>
+<p>A planning workbook to GitLab and back -- the Perl port of tools/gitlab/se-backlog/gitlab_agile_setup.py's --backlog and --export.</p>
+<pre>backlog import FILE     one row per item, parents first: Tome -&gt; an epic on
+                        the group, Epic (or Epoch) -&gt; a child epic, Story -&gt;
+                        an issue under its epic (weight = Days, due = the end
+                        of its planned sprint, milestone Sprint N, team::Team,
+                        the Marks as labels), Task -&gt; a task under its story
+                        (estimate = Days). Status sets the work-item status.
+                        Items are titled &quot;ID Title&quot;; a re-import skips IDs
+                        already there. Ends: backlog: N rows, E epics, I
+                        issues, T tasks created, S already there, W warnings
+backlog export FILE     the group's epics and the project's issues and tasks
+                        in the same columns, tree order (rebuild elsewhere)
+--levels A,B,C,D        the four Level names (default Tome, Epic, Story, Task)</pre>
+<p>[backlog] keys: levels, group (default the project's group), sprint = project (Sprint N counts from sprint 1) or epic (within each epic; sprints-per-epic, default 13), team-label (team::). Columns: ID, Level, Parent, Title, Team, Epic, Sprint, Days, Done when, Model link, Status, Marks, Iteration, Assignee, Spent (d), GitLab. Sample: tools/gitlab/samples/se-backlog-tidewater.xlsx (and .csv), made by perl sim/tidewater-backlog.pl. Messages: <a href="#t-agile-err-backlog">agile-err-backlog</a>.</p>
 <h4 id="t-agile-gitlab-flow">gitlab.pl flow <span class=tag>agile-gitlab-flow</span></h4>
 <p>Gitflow for the model repository: main holds released baselines, develop is the integration branch (GitLab's default branch), work happens on feature/ branches, baselines on release/ branches, fixes to a baseline on hotfix/ branches, and every prime drop lands on vendor/prime, never edited by hand.</p>
 <pre>flow init                     develop from main
@@ -2893,6 +2921,35 @@ Fix:     Set number = and title = in [windchill] to the column names your
          a report exported with a title row above the header needs that row
          deleted. A repeated number usually means the report joins another
          object (affected items): export the request objects only.</pre>
+<h3 id="t-agile-err-gitlab-statuses">FILE:LINE: a status is NAME = #RRGGBB | CATEGORY | description ... <span class=tag>agile-err-gitlab-statuses</span></h3>
+<p>Pattern: *:*: [statuses] mode is statuses or labels, not '*' Pattern: *:*: a status is NAME = #RRGGBB | CATEGORY | description [| default-open|default-closed|default-duplicate] (CATEGORY: *) Pattern: *:*: a status's last field is default-open, default-closed or default-duplicate, not '*' Pattern: *: [statuses] names more than one default-* status Pattern: *: [statuses] needs a status for default-* (a * status)</p>
+<pre>From:    gitlab.pl setup, setup --diff, status list|set (the [statuses]
+         section of the project file)
+Means:   A line of [statuses] is not NAME = #RRGGBB | CATEGORY |
+         description, the category is not one of triage, to_do,
+         in_progress, done, canceled, two statuses claim the same default,
+         or no status fits a default GitLab needs (open: a to_do status,
+         closed: a done status, duplicate: a canceled or done one).
+Fix:     Write each status as in tools/gitlab/templates/project.conf, mark
+         at most one default-open, default-closed and default-duplicate, and
+         keep at least one to_do and one done status. mode = labels is the
+         fallback for GitLab before 18.2 or Free (state:: labels).</pre>
+<h3 id="t-agile-err-backlog">Backlog: FILE: the header needs ID, Level and Title columns (found: ...) <span class=tag>agile-err-backlog</span></h3>
+<p>Pattern: Backlog: levels are four names, top down (Tome, Epic, Story, Task), not '*' Pattern: Backlog: [backlog] sprint is project or epic, not '*' Pattern: Backlog: * is not an .xlsx workbook (no xl/workbook.xml) Pattern: Backlog: * has no sheets Pattern: Backlog: *: no * for sheet '*' Pattern: Backlog: *: give an .xlsx or a .csv file Pattern: Backlog: *: write an .xlsx or a .csv file Pattern: Backlog: *: the header needs ID, Level and Title columns (found: *) Pattern: Backlog: no group for the epics: [backlog] group = PATH (or [project] path = group/name) Pattern: backlog: * Pattern: row *: level '*' is not one of *: skipped Pattern: a * row without an ID ('*'): skipped Pattern: row *: state '*' is not in [statuses]: left as is Pattern: row *: status * not set (*) Pattern: row *: parent * not found above it: made without a parent Pattern: row *: epic '*' not found above it: the issue has no epic Pattern: row *: task without its story (Parent '*' not above it): skipped Pattern: *: not one of the states (*): taken as TODO</p>
+<pre>From:    gitlab.pl backlog import FILE, gitlab.pl backlog export FILE
+Means:   The workbook is not an .xlsx or a .csv, its Backlog sheet (or
+         first sheet) has no ID, Level and Title columns, or [backlog]
+         has a value it does not know. The &quot;row&quot; warnings (printed as
+         &quot;backlog: ...&quot;) name a row that was skipped or made without its
+         parent: rows are read top down, so a parent must come before its
+         children. A Status that is not one of the seven states (such as
+         &quot;Not started&quot;) is taken as TODO, and counted once.
+Fix:     Save the workbook as .xlsx (not .xls or .xlsm) or export the
+         Backlog sheet as CSV; keep the header row first; give every row
+         an ID; order rows parents first (tome, its epics, their stories,
+         their tasks); set levels = in [backlog] (or --levels) to the four
+         Level names the workbook uses. A status not set on GitLab: check
+         [statuses] and that the instance has them (GitLab 18.2+).</pre>
 <hr>
 <h2 id="t-agile-err-internal">11. INTERNAL INVARIANTS <span class=tag>agile-err-internal</span></h2>
 <p>These messages mean a bug in the kit or a broken copy of it, not something you did. Note the command you ran and the message, and get a fresh copy of the kit (git status shows local changes; git checkout -- FILE restores one).</p>

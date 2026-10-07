@@ -41,6 +41,8 @@ usage: gitlab.pl [--url URL [--token-env VAR] [--sudo] | --local DIR] [--project
   schedule new|list|run|delete|due|next ...                   cron pipeline schedules (gitlab.pl help schedule)
   analytics [--since D] [--until D] [--by sprint|week|month] [--csv DIR]   value stream, DORA, CI/CD, MRs, issues
   board list                     the issue boards: lists in order and the milestone scope ([boards] in setup)
+  status list | set IID NAME     the work-item statuses ([statuses] in setup; GitLab 18.2+) and an item's state
+  backlog import FILE | export FILE                           a backlog workbook (.xlsx/.csv) <-> epics, issues, tasks
   iteration list [--group G]     the group's iteration cadence and its iterations ([iterations] in setup)
   insights [FILE]                the .gitlab/insights.yml setup generates from the project file (no server needed)
   terraform [FILE] [--out DIR]   the project file as Terraform/OpenTofu for the gitlab provider (no server needed)
@@ -77,13 +79,19 @@ gitlab.pl setup FILE
                  [iterations] use = iterations)
     [iterations] group = PATH   use = milestones|iterations   TITLE = START WEEKS [IN_ADVANCE] [| automatic roll-over]
     [insights]   file = .gitlab/insights.yml   weeks = 12   (the Insights dashboard, generated)
+    [statuses]   NAME = #RRGGBB | CATEGORY | description [| default-open|default-closed|default-duplicate]
+                 group = PATH (top level)   mode = statuses|labels   marks = [#RRGGBB] REDO PASS SYNC
     [windchill]  the Windchill intake mapping (read by gitlab.pl windchill, not by setup)
+    [backlog]    levels = Tome, Epic, Story, Task   group = PATH   sprint = project|epic   (read by gitlab.pl backlog)
   A section may appear more than once; its lines add up (a second [labels] adds labels).
   Boards: setup creates a missing board, adds the missing label lists, puts them in the file's order and
   scopes the board to the milestone (Premium/Ultimate; on Free it warns and the board shows every milestone).
   Iterations: GitLab keeps iteration cadences on the GROUP and changes them only through GraphQL; setup needs
   the group path (group =, default the project's namespace) and Maintainer on it. [milestones] stay the
   fallback: use = milestones (default) or iterations decides what sprint=current and analytics --by sprint use.
+  Statuses: GitLab 18.2+ (GA 18.4), Premium/Ultimate, on the top-level group: setup sets the lifecycle's
+  statuses and defaults through GraphQL and never removes one; a board list may be status:NAME. On older GitLab
+  or Free it warns; mode = labels makes state::NAME scoped labels instead. marks are labels, not states.
   Insights: setup writes .gitlab/insights.yml when FILE is the repository's .gitlab/project.conf (or --repo
   DIR); it never commits it: commit it through a merge request, or --commit makes a branch and the MR.
   Creates the project if it does not exist. Safe to re-run: labels and protections are updated in place.
@@ -179,12 +187,29 @@ gitlab.pl terraform [PROJECT FILE] [--out DIR] [--url URL] [--state NAME]
   labels, milestones, protected branches and tags, approval rules, CI/CD variables, schedules, boards),
   variables.tf (CI/CD variable values as Terraform variables, never in the files) and backend.hcl (the state
   URLs for `tofu init -backend-config=backend.hcl`). An alternative to setup for a platform team that runs
-  GitLab as code. Not in the provider, so left to setup: [iterations], [insights]. Needs no GitLab and no
+  GitLab as code. Not in the provider, so left to setup: [iterations], [insights], [statuses]. Needs no GitLab and no
   terraform binary; without --out the files go to stdout. --url is the GitLab server (default GITLAB_URL).
   CI: tools/gitlab/terraform/gitlab-ci.tofu.yml (plan in the MR, apply on the default branch; off by default).
 EOF
     insights => "gitlab.pl insights [PROJECT FILE]\n  Print the .gitlab/insights.yml that setup generates from the project file's [labels], [windchill] and\n  [insights] (default: .gitlab/project.conf here or above). Needs no GitLab. Analyze > Insights (Ultimate)\n  reads the file from the default branch: setup writes it into the repository, you commit it by merge request\n  (or setup --commit opens one).\n",
     iteration => "gitlab.pl iteration list [--group PATH] [--conf FILE]\n  The group's iteration cadences and their iterations (Sprint N = the iteration's sequence), and whether the\n  kit's sprints come from milestones or iterations ([iterations] use). Cadences live on the group, not the\n  project: setup makes them from [iterations] and needs Maintainer on that group.\n",
+    status => "gitlab.pl status list [--conf FILE]\ngitlab.pl status set IID NAME [--conf FILE]\n  list: the lifecycle's statuses on the top-level group (name, category, color, the defaults) -- or, with\n  [statuses] mode = labels, the state:: labels. set: an issue's or task's status; done and canceled ones close it\n  (mode = labels: the state::NAME label, closing DONE and DROP). Statuses need GitLab 18.2+, Premium or Ultimate.\n",
+    backlog => <<'EOT',
+gitlab.pl backlog import FILE.xlsx|FILE.csv [--conf FILE] [--levels L1,L2,L3,L4] [--group PATH] [--dry-run]
+  Load a backlog workbook (sheet Backlog, or the first) or CSV into GitLab, parents first: the first level
+  (Tome) -> an epic on the group, the second (Epic or Epoch) -> a child epic, Story -> an issue under its epic
+  (weight = Days, due = the end of its planned sprint, milestone "Sprint N", label team::Team, the Marks as
+  labels), Task -> a task under its story (estimate = Days). Status sets the work-item status ([statuses]), the
+  state:: label (mode = labels), or with no [statuses] closes DONE and DROP. Items are titled "ID Title"; a
+  re-import skips IDs already there (it creates, never edits). Ends with:
+    backlog: N rows, E epics, I issues, T tasks created, S already there, W warnings
+gitlab.pl backlog export FILE.xlsx|FILE.csv [--conf FILE] [--levels ...] [--group PATH]
+  The group's epics and the project's issues and tasks, back into the same columns (ID, Level, Parent, Title,
+  Team, Epic, Sprint, Days, Done when, Model link, Status, Marks, Iteration, Assignee, Spent (d), GitLab) in
+  tree order, so the backlog can be rebuilt elsewhere with import. Issues with no epic go under UNPLANNED.
+  [backlog] in the project file: levels, group (default the project's group), sprint = project (Sprint N counts
+  from the project's sprint 1) or epic (within each epic, sprints-per-epic, default 13), team-label (team::).
+EOT
     board => "gitlab.pl board list\n  Each issue board: its label lists in order and its milestone scope (any, none, upcoming, started or a\n  milestone title). Boards are made by setup from the [boards] section of the project file.\n",
     windchill => <<'EOF',
 gitlab.pl windchill intake FILE.csv [--conf FILE] [--note] [--dry-run]
@@ -325,6 +350,14 @@ sub iteration_conf {                          # [iterations] of --conf FILE or .
     return { use => 'milestones', group => undef } unless defined $f && -f $f;
     my $c = GitLab::parse_project_file(slurp($f), $f);
     GitLab::parse_iterations($c->{iterations}, $f, $G{project} // (map { $_->[1] } grep { $_->[0] eq 'path' } @{ $c->{project} // [] })[0]);
+}
+sub project_conf {                            # project_conf(--conf or undef) -> (parsed project file or {}, its path); --project defaults to its [project] path
+    my $conf = shift // find_conf();
+    return ({}, undef) unless defined $conf;
+    open my $fh, '<:raw', $conf or die "gitlab.pl: cannot read $conf: $!\n";
+    my $c = GitLab::parse_project_file(do { local $/; <$fh> }, $conf); close $fh;
+    $G{project} //= (map { $_->[1] } grep { $_->[0] eq 'path' } @{ $c->{project} // [] })[0];
+    ($c, $conf);
 }
 sub P { $G{project} // die "gitlab.pl: give --project GROUP/NAME (or GITLAB_PROJECT)\n" }
 sub need { my ($n, $what, @a) = @_; @a >= $n or die "gitlab.pl: $what\n" }
@@ -589,11 +622,63 @@ sub main_cmd {
         usage('board') unless $sub eq 'list';
         my $bs = $gl->boards(P());
         print "no issue boards (add a [boards] section to the project file and run setup)\n" unless @$bs;
+        my $sl = $gl->is_local ? {} : eval { $gl->board_status_lists(P()) } // {};
         for my $bo (@$bs) {
-            my @l = map { $_->{label}{name} } sort { ($a->{position} // 0) <=> ($b->{position} // 0) } grep { $_->{label} } @{ $bo->{lists} // [] };
+            my @l = map { GitLab::list_key($_) } sort { ($a->{position} // 0) <=> ($b->{position} // 0) } grep { length GitLab::list_key($_) } @{ $bo->{lists} // [] }, @{ $sl->{ $bo->{name} } // [] };
             printf "%s  (milestone %s)\n  %s\n", $bo->{name}, GitLab::board_scope($bo->{milestone}), @l ? join(' | ', @l) : '(no lists)';
         }
         return 0;
+    }
+    if ($cmd eq 'status') {
+        my $sub = shift @a // 'list';
+        my %o = opts(\@a, 'conf=s');
+        my ($c, $conf) = project_conf($o{conf});
+        my $st = GitLab::parse_statuses($c->{statuses}, $conf // 'project file', P());
+        if ($sub eq 'list') {
+            if ($st->{mode} eq 'labels') { printf "%-14s %s  %s\n", $_->{name}, $_->{color}, $_->{description} // '' for grep { $_->{name} =~ /^state::/ } @{ $gl->labels(P()) }; return 0 }
+            my $l = $gl->lifecycle($st->{group});
+            print "lifecycle $l->{name} on $st->{group}\n";
+            for my $s (@{ $l->{statuses} }) {
+                my @d = grep { ($l->{"default_$_"} // '') eq $s->{name} } qw(open closed duplicate);
+                printf "  %-12s %-12s %s%s\n", $s->{name}, $s->{category}, $s->{color} // '', @d ? '  default ' . join('/', @d) : '';
+            }
+            return 0;
+        }
+        if ($sub eq 'set') {
+            need(2, 'status set needs IID NAME', @a);
+            $gl->set_item_status(P(), $a[0], $a[1], mode => $st->{mode});
+            my $now = $G{'dry-run'} ? undef : $gl->issue(P(), $a[0]);
+            print "#$a[0] " . ($now ? (GitLab::item_status($now) // $a[1]) . " ($now->{state})" : $a[1]) . "\n";
+            return 0;
+        }
+        usage('status');
+    }
+    if ($cmd eq 'backlog') {
+        require Backlog;
+        $| = 1;                                   # the requests (--dry-run) and the warnings interleave by line
+        my $sub = shift @a // usage('backlog');
+        my %o = opts(\@a, 'conf=s', 'levels=s', 'group=s');
+        my ($c) = project_conf($o{conf});
+        my $cfg = Backlog::config($c, project => P(), (map { defined $o{$_} ? ($_ => $o{$_}) : () } qw(levels group)));
+        need(1, "backlog $sub needs the workbook FILE (.xlsx or .csv)", @a);
+        binmode STDOUT, ':encoding(UTF-8)';
+        if ($sub eq 'import') {
+            my $b = Backlog::read_file($a[0]);
+            my $r = Backlog::import_rows($gl, P(), $b->{rows}, $cfg);
+            print "$_\n" for @{ $r->{log} };
+            print STDERR "backlog: $_\n" for @{ $r->{warnings} };
+            printf "backlog: %d rows, %d epics, %d issues, %d tasks %s, %d already there, %d warning%s\n", scalar @{ $b->{rows} }, @{ $r->{made} }{qw(epic issue task)},
+                $G{'dry-run'} ? 'would be created' : 'created', $r->{skipped}, scalar @{ $r->{warnings} }, @{ $r->{warnings} } == 1 ? '' : 's';
+            return 0;
+        }
+        if ($sub eq 'export') {
+            my $rows = Backlog::export_rows($gl, P(), $cfg);
+            Backlog::write_file($a[0], $rows, levels => $cfg->{levels});
+            my %n; $n{ $_->{Level} }++ for @$rows;
+            print "backlog: " . join(', ', map { "$n{$_} $_" } grep { $n{$_} } @{ $cfg->{levels} }) . " -> $a[0]\n";
+            return 0;
+        }
+        usage('backlog');
     }
     if ($cmd eq 'windchill') {
         require Windchill;

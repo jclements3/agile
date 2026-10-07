@@ -2745,6 +2745,10 @@ board list              the issue boards setup made from [boards]: each one's
                         label lists in order and its milestone scope
 windchill intake|status requests from Windchill in, progress back out:
                         |agile-gitlab-windchill|
+status list|set IID NAME   the work-item statuses ([statuses]) and an item's
+                        state: |agile-gitlab-statuses|
+backlog import|export FILE   a backlog workbook (.xlsx or .csv) to epics,
+                        issues and tasks, and back: |agile-gitlab-backlog|
 iteration list          the group's iteration cadence and its iterations, and
                         whether sprints come from milestones or iterations
 insights [FILE]         the .gitlab/insights.yml setup generates, to stdout
@@ -2864,6 +2868,45 @@ it, so retitling or relabelling the issue in GitLab is not drift. Sample
 export: tools/gitlab/samples/windchill-export.csv; the round trip:
 tools/gitlab/samples/16-windchill-round-trip.md. Messages:
 |agile-err-windchill-config|, |agile-err-windchill-export|.
+
+gitlab.pl status                                          *agile-gitlab-statuses*
+The team's seven work states (TODO OPEN WAIT HOLD PUNT DONE DROP, the quad's
+words and colors) as GitLab work-item statuses: GitLab 18.2+ (generally
+available in 18.4), Premium or Ultimate, on a lifecycle of the top-level
+group, changed only through GraphQL. setup sets them from [statuses] (NAME =
+#RRGGBB | CATEGORY | description [| default-open|default-closed|
+default-duplicate]; CATEGORY triage, to_do, in_progress, done or canceled --
+done and canceled close the item) and never removes a status; marks = REDO
+PASS SYNC makes the marks labels (olive). mode = labels makes state::NAME
+scoped labels instead, for older GitLab or Free. A board list may be a status:
+status:OPEN in [boards].
+status list             the lifecycle's statuses and its defaults (or the
+                        state:: labels)
+status set IID NAME     an issue's or task's status; done and canceled ones
+                        close it, the others reopen it
+Messages: |agile-err-gitlab-statuses|.
+
+gitlab.pl backlog                                         *agile-gitlab-backlog*
+A planning workbook to GitLab and back -- the Perl port of
+tools/gitlab/se-backlog/gitlab_agile_setup.py's --backlog and --export.
+backlog import FILE     one row per item, parents first: Tome -> an epic on
+                        the group, Epic (or Epoch) -> a child epic, Story ->
+                        an issue under its epic (weight = Days, due = the end
+                        of its planned sprint, milestone Sprint N, team::Team,
+                        the Marks as labels), Task -> a task under its story
+                        (estimate = Days). Status sets the work-item status.
+                        Items are titled "ID Title"; a re-import skips IDs
+                        already there. Ends: backlog: N rows, E epics, I
+                        issues, T tasks created, S already there, W warnings
+backlog export FILE     the group's epics and the project's issues and tasks
+                        in the same columns, tree order (rebuild elsewhere)
+--levels A,B,C,D        the four Level names (default Tome, Epic, Story, Task)
+[backlog] keys: levels, group (default the project's group), sprint = project
+(Sprint N counts from sprint 1) or epic (within each epic; sprints-per-epic,
+default 13), team-label (team::). Columns: ID, Level, Parent, Title, Team,
+Epic, Sprint, Days, Done when, Model link, Status, Marks, Iteration, Assignee,
+Spent (d), GitLab. Sample: tools/gitlab/samples/se-backlog-tidewater.xlsx (and
+.csv), made by perl sim/tidewater-backlog.pl. Messages: |agile-err-backlog|.
 
 gitlab.pl flow                                             *agile-gitlab-flow*
 Gitflow for the model repository: main holds released baselines, develop is

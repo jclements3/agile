@@ -11,3 +11,6 @@ examples/tidewater-v1/tidewater.csv -text
 examples/tidewater-v1/MANIFEST.txt -text
 examples/tidewater-v1/CHANGES.csv -text
 tools/gitlab/samples/windchill-export.csv -text
+# the backlog sample is what sim/tidewater-backlog.pl writes, byte for byte (CRLF CSV for Excel; the workbook is a zip)
+tools/gitlab/samples/se-backlog-tidewater.csv -text
+*.xlsx binary

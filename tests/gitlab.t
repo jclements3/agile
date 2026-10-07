@@ -909,6 +909,139 @@ use Windchill;
     dies('rest graphql: errors are reported', sub { $r->cadences('tidewater') }, qr/^GitLab: GraphQL: The resource that you are attempting to access does not exist/);
 }
 
+# ================================================================ work-item statuses and the backlog workbook
+{
+    require Backlog;
+    my $cli = sub { my $o = qx("$^X" "$ROOT/bin/gitlab.pl" @_ 2>&1); ($o, $? >> 8) };
+    my $conf = "$ROOT/tools/gitlab/templates/project.conf";
+    my $st = GitLab::parse_statuses([ [ 'A', '#111111 | to_do | first', 1 ], [ 'B', '#222222 | done | last', 2 ], [ 'C', '#333333 | canceled | dropped', 3 ] ], 'x', 'grp/proj');
+    check('statuses: defaults filled by category', join(' ', map { "$_->{name}:" . join('/', @{ $_->{default} }) } @{ $st->{statuses} }), 'A:open B:closed C:duplicate');
+    check('statuses: the group is the top level', $st->{group}, 'grp');
+    dies('statuses: a bad category', sub { GitLab::parse_statuses([ [ 'A', '#111111 | doing | x', 4 ] ], 'f', 'g/p') }, qr/^f:4: a status is NAME = #RRGGBB \| CATEGORY/);
+    dies('statuses: two default-closed', sub { GitLab::parse_statuses([ [ 'A', '#111111 | done | x | default-closed', 1 ], [ 'B', '#111111 | done | x | default-closed', 2 ] ], 'f', 'g/p') },
+         qr/^f: \[statuses\] names more than one default-closed status/);
+    dies('statuses: a bad mode', sub { GitLab::parse_statuses([ [ 'mode', 'flags', 5 ] ], 'f', 'g/p') }, qr/^f:5: \[statuses\] mode is statuses or labels, not 'flags'/);
+
+    my $L = "$T/gl-st";
+    $cli->('--local', $L, 'user', $_) for qw(jim bob tom);
+    my ($o, $rc) = $cli->('--local', $L, '--as', 'tom', 'setup', $conf);
+    like('statuses: setup sets the seven states on the top-level group', $o, qr/^status TODO \(to_do, default open\) on tidewater\n(?:status \w+ .*\n){5}status DROP \(canceled, default duplicate\) on tidewater$/m);
+    like('statuses: the marks are labels', $o, qr/^label REDO \(mark\)\nlabel PASS \(mark\)\nlabel SYNC \(mark\)$/m);
+    my $g = GitLab->new(local => $L);
+    my $lc = $g->lifecycle('tidewater');
+    check('statuses: the file\'s first, GitLab\'s built-in ones kept after', join(',', map { $_->{name} } @{ $lc->{statuses} }), "TODO,OPEN,WAIT,HOLD,PUNT,DONE,DROP,To do,In progress,Done,Won't do,Duplicate");
+    check('statuses: defaults', join(' ', @$lc{qw(default_open default_closed default_duplicate)}), 'TODO DONE DROP');
+    ($o) = $cli->('--local', $L, 'setup', '--diff', $conf);
+    unlike_('statuses: setup --diff is clean for them', $o, qr/\[statuses\]|\[labels\] (REDO|PASS|SYNC)/);
+    (my $c2 = slurp($conf)) =~ s/^OPEN = #27235d/OPEN = #000000/m;
+    spew("$T/p2.conf", $c2);
+    ($o) = $cli->('--local', $L, 'setup', '--diff', "$T/p2.conf");
+    like('statuses: setup --diff reports a changed color', $o, qr/^\[statuses\] OPEN: color file #000000, live #27235d$/m);
+    ($o) = $cli->('--local', $L, '--as', 'tom', 'setup', "$T/p2.conf");
+    check('statuses: re-running setup updates in place (still 12)', scalar @{ GitLab->new(local => $L)->lifecycle('tidewater')->{statuses} }, 12);
+    ($o) = $cli->('--local', $L, 'status', 'list', '--conf', $conf);
+    like('status list', $o, qr/^lifecycle \S+ on tidewater\n  TODO\s+to_do\s+#808082  default open$/m);
+    ($o) = $cli->('--local', $L, '--project', 'tidewater/model', 'issue', 'new', 'Write the ICD');
+    ($o) = $cli->('--local', $L, 'status', 'set', '1', 'WAIT', '--conf', $conf);
+    check('status set: WAIT keeps it open', $o, "#1 WAIT (opened)\n");
+    ($o) = $cli->('--local', $L, 'status', 'set', '1', 'DONE', '--conf', $conf);
+    check('status set: DONE closes it', $o, "#1 DONE (closed)\n");
+    ($o) = $cli->('--local', $L, 'status', 'set', '1', 'OPEN', '--conf', $conf);
+    check('status set: OPEN reopens it', $o, "#1 OPEN (opened)\n");
+    ($o, $rc) = $cli->('--local', $L, 'status', 'set', '1', 'LATER', '--conf', $conf);
+    like('status set: an unknown status', "$rc $o", qr/^1 gitlab.pl: no status 'LATER' on tidewater \(statuses: TODO, OPEN/);
+    (my $c3 = slurp($conf)) =~ s/^mode = statuses/mode = labels/m;
+    spew("$T/p3.conf", $c3);
+    my $L3 = "$T/gl-st3";
+    ($o) = $cli->('--local', $L3, 'setup', "$T/p3.conf");
+    like('statuses mode = labels: state:: labels instead', $o, qr/^label state::TODO\n(?:label state::\w+\n){5}label state::DROP$/m);
+    ($o) = $cli->('--local', $L3, '--project', 'tidewater/model', 'issue', 'new', 'Fix the trace');
+    ($o) = $cli->('--local', $L3, 'status', 'set', '1', 'DROP', '--conf', "$T/p3.conf");
+    check('statuses mode = labels: the label, and DROP closes', $o, "#1 DROP (closed)\n");
+    (my $c4 = slurp($conf)) =~ s/^(Backlog = .*)$/$1\nStates = status:OPEN status:WAIT status:HOLD | sprint=current/m;
+    spew("$T/p4.conf", $c4);
+    my $L4 = "$T/gl-st4";
+    ($o) = $cli->('--local', $L4, 'setup', "$T/p4.conf");
+    like('boards: status lists', $o, qr/^board States: list status:OPEN added\nboard States: list status:WAIT added\nboard States: list status:HOLD added$/m);
+    ($o) = $cli->('--local', $L4, '--project', 'tidewater/model', 'board', 'list');
+    like('board list shows status lists', $o, qr/^States  \(milestone started\)\n  status:OPEN \| status:WAIT \| status:HOLD$/m);
+    ($o) = $cli->('--local', $L4, 'setup', '--diff', "$T/p4.conf");
+    unlike_('boards: status lists diff clean', $o, qr/\[boards\] States/);
+
+    # ---- the backlog workbook: the committed sample is what sim/tidewater-backlog.pl writes
+    my $out = qx("$^X" "$ROOT/sim/tidewater-backlog.pl" --out "$T" 2>&1);
+    like('backlog sample: generated', $out, qr/^3 Tome, 16 Epic, 42 Story, 77 Task$/m);
+    for my $x (qw(xlsx csv)) {
+        check("backlog sample: the committed .$x is current (perl sim/tidewater-backlog.pl)", slurp("$T/se-backlog-tidewater.$x") eq slurp("$ROOT/tools/gitlab/samples/se-backlog-tidewater.$x") ? 1 : 0, 1);
+    }
+    my $wb = Backlog::read_file("$T/se-backlog-tidewater.xlsx");
+    check('backlog xlsx: sheet and header', "$wb->{sheet}: " . join(',', @{ $wb->{header} }), 'Backlog: ' . join(',', Backlog::columns()));
+    my $cv = Backlog::read_file("$T/se-backlog-tidewater.csv");
+    check('backlog: xlsx and csv hold the same rows', join("\n", map { my $r = $_; join '|', map { $r->{$_} // '' } Backlog::columns() } @{ $wb->{rows} }),
+                                                      join("\n", map { my $r = $_; join '|', map { $r->{$_} // '' } Backlog::columns() } @{ $cv->{rows} }));
+    my $L5 = "$T/gl-bk";
+    $cli->('--local', $L5, 'user', $_) for qw(jim bob tom);
+    $cli->('--local', $L5, '--as', 'tom', 'setup', $conf);
+    ($o, $rc) = $cli->('--local', $L5, 'backlog', 'import', "$T/se-backlog-tidewater.xlsx", '--conf', $conf);
+    like('backlog import: the summary', "$rc $o", qr/^0 [\s\S]*^backlog: 138 rows, 19 epics, 42 issues, 77 tasks created, 0 already there, 0 warnings$/m);
+    like('backlog import: a story under its epic, in its sprint', $o, qr/^\+ issue S1-project Create the GitLab group and model project \(sprint 1, 3 d\)$/m);
+    ($o) = $cli->('--local', $L5, 'backlog', 'import', "$T/se-backlog-tidewater.csv", '--conf', $conf);
+    like('backlog import: a re-import creates nothing', $o, qr/^backlog: 138 rows, 0 epics, 0 issues, 0 tasks created, 138 already there, 0 warnings$/m);
+    $g = GitLab->new(local => $L5);
+    my ($is) = grep { $_->{title} =~ /^S1-project / } @{ $g->issues('tidewater/model') };
+    check('backlog import: weight, due date, milestone, labels, state', join(' | ', $is->{weight}, $is->{due_date}, $is->{milestone}{title}, join(',', @{ $is->{labels} }), $is->{state}, $is->{status}{name}),
+          '3 | 2026-10-16 | Sprint 1 | team::MBSE | closed | DONE');
+    my ($ep) = grep { $_->{title} eq 'E1 GitLab project and gitflow' } @{ $g->work_items('tidewater', kind => 'group') };
+    check('backlog import: the issue\'s parent is its epic, the epic\'s its tome',
+          join(' ', ($g->_local_work_item($is->{parent}{id}) // {})->{title}, ($g->_local_work_item($ep->{parent}) // {})->{title}), 'E1 GitLab project and gitflow T1 Stand up MBSE DevSecOps');
+    my ($tk) = grep { $_->{title} =~ /^S1-project\.K1 / } @{ $g->issues('tidewater/model') };
+    check('backlog import: a task under its story, estimate in 8-hour days', join(' ', $tk->{issue_type}, $tk->{parent}{title}, $tk->{time_stats}{time_estimate}), 'task S1-project Create the GitLab group and model project 28800');
+    ($o) = $cli->('--local', $L5, '--project', 'tidewater/model', 'backlog', 'export', "$T/exp.xlsx", '--conf', $conf);
+    check('backlog export: the summary', $o, "backlog: 3 Tome, 16 Epic, 42 Story, 77 Task -> $T/exp.xlsx\n");
+    my $ex = Backlog::read_file("$T/exp.xlsx");
+    my %X = map { ($_->{ID} => $_) } @{ $ex->{rows} };
+    my @diff;
+    for my $r (@{ $wb->{rows} }) { for my $k ('ID', 'Level', 'Parent', 'Title', 'Team', 'Epic', 'Sprint', 'Done when', 'Model link', 'Status') {
+        push @diff, "$r->{ID} $k" if ($r->{$k} // '') ne (($X{ $r->{ID} } // {})->{$k} // '') } }
+    check('backlog export: the round trip keeps every row and column (Days rounds to a whole weight)', join(', ', @diff) || 'same', 'same');
+    check('backlog export: the same order', join(',', map { $_->{ID} } @{ $ex->{rows} }), join(',', map { $_->{ID} } @{ $wb->{rows} }));
+    like('backlog export: the GitLab link', $X{'S1-project'}{GitLab}, qr{^https://gitlab\.local/tidewater/model/-/issues/\d+$});
+
+    # ---- a workbook with Epoch levels and sprints counted within each epoch
+    spew("$T/epoch.csv", "\xEF\xBB\xBFID,Level,Parent,Title,Team,Epoch,Sprint,Days,Status\r\nT1,Tome,,One,,,,,\r\nT1.E1,Epoch,T1,First,,,,,\r\nT1.E2,Epoch,T1,Second,,,,,\r\n"
+                       . "T1.E2.S01,Story,T1.E2,A story,ARCH,T1.E2,2,2.5,Not started\r\nT1.E2.S01.K1,Task,T1.E2.S01,A task,ARCH,T1.E2,,1.5,\r\n");
+    (my $ce = slurp($conf)) =~ s/^sprint = project/sprint = epic\nsprints-per-epic = 13/m;
+    $ce =~ s/^levels = .*$/levels = Tome, Epoch, Story, Task/m;
+    spew("$T/epoch.conf", $ce);
+    my $L6 = "$T/gl-ep";
+    $cli->('--local', $L6, 'setup', "$T/epoch.conf");
+    ($o) = $cli->('--local', $L6, 'backlog', 'import', "$T/epoch.csv", '--conf', "$T/epoch.conf");
+    like('backlog epoch: sprint 2 of the second epoch is project sprint 15', $o, qr/^\+ issue T1\.E2\.S01 A story \(sprint 15, 2\.5 d\)$/m);
+    like('backlog epoch: a status that is not a state is TODO, once', $o, qr/^backlog: 'Not started' \(1\): not one of the states \(DONE DROP HOLD OPEN PUNT TODO WAIT\): taken as TODO$/m);
+    ($is) = grep { $_->{title} =~ /^T1\.E2\.S01 / } @{ GitLab->new(local => $L6)->issues('tidewater/model') };
+    check('backlog epoch: due at the end of sprint 15, weight rounded', join(' ', $is->{due_date}, $is->{weight}), '2027-04-30 3');
+    ($o) = $cli->('--local', $L6, '--project', 'tidewater/model', 'backlog', 'export', "$T/ep.csv", '--conf', "$T/epoch.conf");
+    like('backlog epoch: export heads the column Epoch', slurp("$T/ep.csv"), qr/^\xEF\xBB\xBFID,Level,Parent,Title,Team,Epoch,Sprint,/);
+    ($o, $rc) = $cli->('--local', $L6, '--project', 'tidewater/model', 'backlog', 'import', "$T/none.xlsx");
+    like('backlog: a missing file', "$rc $o", qr/^\d+ gitlab.pl: Backlog: cannot read .*none\.xlsx: no such file/);
+    spew("$T/bad.csv", "Name,Team\nx,y\n");
+    ($o, $rc) = $cli->('--local', $L6, '--project', 'tidewater/model', 'backlog', 'import', "$T/bad.csv");
+    like('backlog: a header without ID, Level, Title', "$rc $o", qr/^\d+ gitlab.pl: Backlog: .*bad\.csv: the header needs ID, Level and Title columns \(found: Name Team\)/);
+    ($o, $rc) = $cli->('--local', $L6, '--project', 'tidewater/model', 'backlog', 'import', "$T/epoch.csv", '--levels', 'A,B');
+    like('backlog: --levels needs four', "$rc $o", qr/^\d+ gitlab.pl: Backlog: levels are four names, top down/);
+
+    # ---- the live path, as a dry run: GraphQL work items, the REST issue
+    local $ENV{GL_DRY_TOKEN} = 'x';
+    ($o) = $cli->('--url', 'https://gitlab.example.invalid', '--token-env', 'GL_DRY_TOKEN', '--dry-run', 'backlog', 'import', "$T/epoch.csv", '--conf', "$T/epoch.conf");
+    like('backlog dry run: an epic is a work item on the group', $o, qr{^POST /api/graphql \{"query":"mutation\(\$in: WorkItemCreateInput!\).*"namespacePath":"tidewater","title":"T1 One","workItemTypeId":"\{id of type Epic\}"}m);
+    like('backlog dry run: the story is a REST issue', $o, qr{^POST /api/v4/projects/tidewater%2Fmodel/issues \{.*"due_date":"2027-04-30".*"title":"T1\.E2\.S01 A story","weight":3\}$}m);
+    like('backlog dry run: the task carries its estimate', $o, qr{"namespacePath":"tidewater/model","timeTrackingWidget":\{"timeEstimate":"12h"\},"title":"T1\.E2\.S01\.K1 A task"});
+    ($o) = $cli->('--url', 'https://gitlab.example.invalid', '--token-env', 'GL_DRY_TOKEN', '--dry-run', 'setup', $conf);
+    like('statuses dry run: lifecycleUpdate with the default indexes', $o, qr{^POST /api/graphql \{"query":"mutation\(\$in: LifecycleUpdateInput!\).*"defaultClosedStatusIndex":5,"defaultDuplicateStatusIndex":6,"defaultOpenStatusIndex":0,"id":"\{lifecycle id\}","namespacePath":"tidewater"}m);
+    like('statuses dry run: categories in GraphQL case', $o, qr/"category":"IN_PROGRESS","color":"#27235d","description":"Begun, in the sprint","name":"OPEN"/);
+}
+sub unlike_ { my ($name, $got, $re) = @_; $n++; $got //= '(undef)'; if ($got !~ $re) { print "ok $n - $name\n" } else { $bad++; print "not ok $n - $name\n#   got:  $got\n" } }
+
 print "1..$n\n";
 print $bad ? "# $bad of $n FAILED\n" : "# all $n passed\n";
 exit($bad ? 1 : 0);

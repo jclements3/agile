@@ -22,3 +22,4 @@ from are in `../templates/`. Tidewater is fictional; Jim, Bob and Tom are the go
 | `15-snippet-and-mentions.md` | References and mentions anywhere | any Markdown field |
 | `16-windchill-round-trip.md` and `windchill-export.csv` | Issues made from a Windchill export; the status sheet sent back | `gitlab.pl windchill intake` / `status` |
 | `17-insights.yml` | `.gitlab/insights.yml`: the Insights dashboard (Ultimate), generated from project.conf | `gitlab.pl setup` writes it; commit it by MR |
+| `se-backlog-tidewater.xlsx` and `.csv` | A backlog workbook: Tidewater's tomes, epics and the stories and tasks of sprints 1-6 (`perl sim/tidewater-backlog.pl`) | `gitlab.pl backlog import` / `export` |

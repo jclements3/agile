@@ -326,13 +326,30 @@ sub update_board {                            # update_board(p, ID, milestone =>
     my $mid = exists $BOARD_MS{ lc $want } ? $BOARD_MS{ lc $want } : $self->_mid($p, $want);
     $self->_api('PUT', '/projects/' . $self->_pid($p) . "/boards/$id", { milestone_id => $mid });
 }
-sub create_board_list {                       # create_board_list(p, BOARD ID, LABEL NAME) -> the list (added at the end)
+sub list_key { my $l = shift; $l->{label} ? $l->{label}{name} : $l->{status} ? "status:$l->{status}{name}" : '' }   # a board list as its [boards] word
+sub create_board_list {                       # create_board_list(p, BOARD ID, LABEL NAME | status:NAME) -> the list (added at the end)
     my ($self, $p, $id, $label) = @_;
+    if ($label =~ /^status:(.+)$/) {           # a status list (GitLab 18.2+): GraphQL boardListCreate(statusId)
+        my $s = $self->_status_of($p, $1);
+        if ($self->{local}) {
+            my $b = $self->_board($self->_p($p), $id);
+            die "GitLab: board $b->{name} already has a list for status '$s->{name}' (400 Bad request)\n" if grep { list_key($_) eq "status:$s->{name}" } @{ $b->{lists} };
+            push @{ $b->{lists} }, my $x = { id => $self->_id, status => { name => $s->{name}, color => $s->{color} }, position => scalar @{ $b->{lists} } };
+            return $x;
+        }
+        my $d = $self->_gql('mutation($in: BoardListCreateInput!) { boardListCreate(input: $in) { list { id position } errors } }',
+                            { in => { boardId => "gid://gitlab/Board/$id", statusId => $s->{id} } });
+        my $r = $d->{boardListCreate} // {};
+        die "GitLab: boardListCreate: @{ $r->{errors} }\n" if @{ $r->{errors} // [] };
+        my $l = $r->{list} // {};
+        (my $lid = $l->{id} // 0) =~ s/.*\///;
+        return { id => $lid, status => { name => $s->{name} }, position => $l->{position} };
+    }
     if ($self->{local}) {
         my $P = $self->_p($p);
         my $b = $self->_board($P, $id);
         my ($l) = grep { $_->{name} eq $label } @{ $P->{labels} } or die "GitLab: no label '$label' in $P->{path_with_namespace} (add it to [labels])\n";
-        die "GitLab: board $b->{name} already has a list for '$label' (400 Bad request)\n" if grep { $_->{label}{name} eq $label } @{ $b->{lists} };
+        die "GitLab: board $b->{name} already has a list for '$label' (400 Bad request)\n" if grep { list_key($_) eq $label } @{ $b->{lists} };
         push @{ $b->{lists} }, my $x = { id => $self->_id, label => { id => $l->{id}, name => $l->{name}, color => $l->{color} }, position => scalar @{ $b->{lists} } };
         return $x;
     }
@@ -353,6 +370,20 @@ sub move_board_list {                         # move_board_list(p, BOARD ID, LIS
         return $x;
     }
     $self->_api('PUT', '/projects/' . $self->_pid($p) . "/boards/$id/lists/$list", { position => 0 + $pos });
+}
+sub board_status_lists {                      # -> { board name => [ { id, status => { name }, position } ] } (GraphQL; REST lists only label lists)
+    my ($self, $p) = @_;
+    return {} if $self->{local} || $self->{dry_run};
+    my $d = $self->_gql('query($p: ID!) { project(fullPath: $p) { boards { nodes { name lists { nodes { id position listType status { name } } } } } } }', { p => $p });
+    my %r;
+    for my $b (@{ ((($d->{project} // {})->{boards} // {})->{nodes}) // [] }) {
+        for my $l (@{ (($b->{lists} // {})->{nodes}) // [] }) {
+            next unless ($l->{listType} // '') eq 'status' && $l->{status};
+            (my $id = $l->{id} // 0) =~ s/.*\///;
+            push @{ $r{ $b->{name} } }, { id => $id, status => { name => $l->{status}{name} }, position => $l->{position} };
+        }
+    }
+    \%r;
 }
 sub parse_board_line {                        # 'L1 L2 ... | milestone=started' -> { labels => [..], milestone => WORD|TITLE, iteration => WORD }
     my ($v, $where, $use) = @_;               # $use: what sprint=current means (milestones: milestone started; iterations: iteration current)
@@ -401,8 +432,12 @@ sub _setup_board {                            # create the board, add missing li
     my ($bo) = $self->{dry_run} && !$self->{local} ? () : grep { $_->{name} eq $name } @{ $self->boards($p) };
     if (!$bo) { $bo = $self->create_board($p, $name); push @log, "board $name created" }
     my $bid = $bo->{id} // 0;
-    my %have = map { (($_->{label} // {})->{name} // '' => $_) } @{ $bo->{lists} // [] };
-    my @order = map { $_->{label}{name} } sort { ($a->{position} // 0) <=> ($b->{position} // 0) } grep { $_->{label} } @{ $bo->{lists} // [] };
+    if (!$self->{local} && !$self->{dry_run} && $bo->{id} && grep { /^status:/ } @{ $want->{labels} }) {   # REST does not show status lists
+        my $sl = eval { $self->board_status_lists($p) } // {};
+        push @{ $bo->{lists} }, @{ $sl->{ $name } // [] };
+    }
+    my %have = map { (list_key($_) => $_) } @{ $bo->{lists} // [] };
+    my @order = map { list_key($_) } sort { ($a->{position} // 0) <=> ($b->{position} // 0) } grep { length list_key($_) } @{ $bo->{lists} // [] };
     for my $l (@{ $want->{labels} }) { next if $have{$l}; $have{$l} = $self->create_board_list($p, $bid, $l); push @order, $l; push @log, "board $name: list $l added" }
     for my $k (0 .. $#{ $want->{labels} }) {   # order: move each list that is out of place (GitLab shifts the others, as here)
         my $l = $want->{labels}[$k];
@@ -550,6 +585,314 @@ sub _setup_iterations {                       # create or update each cadence on
     (\@log, \%by);
 }
 
+# ---------------------------------------------------------------- work-item statuses: the team's states as GitLab statuses
+# GitLab 18.2 added configurable work-item statuses (generally available in 18.4, Premium and Ultimate). They belong to
+# a LIFECYCLE on the TOP-LEVEL group (Settings > Work items), at most 30 statuses a lifecycle, each in one of five
+# categories: triage, to_do, in_progress, done, canceled (WorkItems::Statuses::SharedConstants). An item whose status is
+# in done or canceled is closed. Only GraphQL reads or changes them: namespace { lifecycles } and lifecycleUpdate
+# (ee/app/graphql/mutations/work_items/lifecycles/update.rb: namespacePath, id, statuses [{ id, name, color,
+# description, category }], defaultOpenStatusIndex, defaultClosedStatusIndex, defaultDuplicateStatusIndex); an item's
+# status is set with workItemUpdate(statusWidget: { status: STATUS GID }). setup never removes a status (one in use
+# would need a mapping): statuses the file does not name stay, after the file's. Older GitLab, or Free: [statuses]
+# mode = labels makes state::NAME scoped labels instead, and the same commands set the label.
+our @STATUS_CATEGORIES = qw(triage to_do in_progress done canceled);
+my %STATUS_CAT = map { ($_ => 1) } @STATUS_CATEGORIES;
+my @DEFAULT_LIFECYCLE = ([ 'To do', '#737278', 'to_do' ], [ 'In progress', '#1f75cb', 'in_progress' ], [ 'Done', '#108548', 'done' ],
+                         [ "Won't do", '#dd2b0e', 'canceled' ], [ 'Duplicate', '#dd2b0e', 'canceled' ]);   # GitLab's built-in lifecycle
+sub top_group { my $p = shift // ''; ($p =~ m{^([^/]+)})[0] }
+sub parse_statuses {                          # [statuses] lines -> { group, mode statuses|labels, statuses => [ {name, color, category, description, default} ], marks => [..], mark_color }
+    my ($lines, $where, $project) = @_;
+    my %r = (group => undef, mode => 'statuses', statuses => [], marks => [], mark_color => '#6b7436');
+    for (@{ $lines // [] }) {
+        my ($k, $v, $n) = @$_;
+        if ($k eq 'group') { $r{group} = $v; next }
+        if ($k eq 'mode') { $v =~ /^(statuses|labels)$/ or die "$where:$n: [statuses] mode is statuses or labels, not '$v'\n"; $r{mode} = $v; next }
+        if ($k eq 'marks') { my ($c, @m) = split ' ', $v; if (($c // '') !~ /^#[0-9A-Fa-f]{6}$/) { unshift @m, $c if defined $c; $c = $r{mark_color} } $r{mark_color} = $c; $r{marks} = [ map { uc } @m ]; next }
+        my ($color, $cat, $desc, $def) = map { s/^\s+|\s+$//gr } split /\|/, $v, 4;
+        ($color // '') =~ /^#[0-9A-Fa-f]{6}$/ && $STATUS_CAT{ lc($cat // '') }
+            or die "$where:$n: a status is NAME = #RRGGBB | CATEGORY | description [| default-open|default-closed|default-duplicate] (CATEGORY: @STATUS_CATEGORIES)\n";
+        my %d = map { (lc $_ => 1) } split /[\s,]+/, $def // '';
+        for (keys %d) { /^default-(open|closed|duplicate)$/ or die "$where:$n: a status's last field is default-open, default-closed or default-duplicate, not '$_'\n" }
+        push @{ $r{statuses} }, { name => $k, color => lc $color, category => lc $cat, description => $desc // '', default => [ map { s/^default-//r } sort keys %d ], line => $n };
+    }
+    if (@{ $r{statuses} }) {
+        for my $kind (qw(open closed duplicate)) {
+            my @d = grep { grep { $_ eq $kind } @{ $_->{default} } } @{ $r{statuses} };
+            die "$where: [statuses] names more than one default-$kind status\n" if @d > 1;
+        }
+        my %pref = (open => [ 'to_do', 'triage' ], closed => ['done'], duplicate => [ 'canceled', 'done' ]);
+        for my $kind (qw(open closed duplicate)) {
+            next if grep { grep { $_ eq $kind } @{ $_->{default} } } @{ $r{statuses} };
+            my ($s) = map { my $c = $_; grep { $_->{category} eq $c } @{ $r{statuses} } } @{ $pref{$kind} };   # GitLab needs all three defaults
+            $s or die "$where: [statuses] needs a status for default-$kind (a $pref{$kind}[0] status)\n";
+            push @{ $s->{default} }, $kind;
+        }
+    }
+    $r{group} //= top_group($project);
+    \%r;
+}
+sub _status_default { my ($ss, $kind) = @_; my ($s) = grep { my $x = $_; grep { $_ eq $kind } @{ $x->{default} // [] } } @$ss; $s ? $s->{name} : undef }
+sub lifecycle {                               # lifecycle(GROUP) -> { id, name, statuses => [ { id, name, color, category, description } ], default_open, default_closed, default_duplicate }
+    my ($self, $g) = @_;
+    $g = top_group($g);
+    if ($self->{local}) {
+        my $G = $self->{st}{groups}{$g} // die "GitLab: no group '$g' (404 Group Not Found)\n";
+        $G->{lifecycle} //= { id => 'gid://gitlab/WorkItems::Statuses::SystemDefined::Lifecycle/1', name => 'Default',
+                              statuses => [ map { +{ id => 'gid://gitlab/WorkItems::Statuses::SystemDefined::Status/' . ($_ + 1), name => $DEFAULT_LIFECYCLE[$_][0],
+                                                     color => $DEFAULT_LIFECYCLE[$_][1], category => $DEFAULT_LIFECYCLE[$_][2], description => '' } } 0 .. $#DEFAULT_LIFECYCLE ],
+                              default_open => 'To do', default_closed => 'Done', default_duplicate => 'Duplicate' };
+        return $G->{lifecycle};
+    }
+    return { id => '{lifecycle id}', name => 'Default', statuses => [] } if $self->{dry_run};
+    my $d = $self->_gql('query($p: ID!) { namespace(fullPath: $p) { lifecycles { nodes { id name workItemTypes { name } '
+        . 'defaultOpenStatus { name } defaultClosedStatus { name } defaultDuplicateStatus { name } statuses { id name color category description } } } } }', { p => $g });
+    my @n = @{ ((($d->{namespace} // {})->{lifecycles} // {})->{nodes}) // [] };
+    my ($l) = (grep({ grep { ($_->{name} // '') eq 'Issue' } @{ $_->{workItemTypes} // [] } } @n), @n);
+    $l or die "GitLab: no work-item lifecycle on $g: statuses need GitLab 18.2 or later, Premium or Ultimate, on the top-level group (else [statuses] mode = labels)\n";
+    +{ id => $l->{id}, name => $l->{name}, statuses => [ map { +{ %$_, category => lc($_->{category} // '') } } @{ $l->{statuses} // [] } ],
+       default_open => ($l->{defaultOpenStatus} // {})->{name}, default_closed => ($l->{defaultClosedStatus} // {})->{name}, default_duplicate => ($l->{defaultDuplicateStatus} // {})->{name} };
+}
+sub set_lifecycle {                           # set_lifecycle(GROUP, [ {name, color, category, description} ], open => N, closed => N, duplicate => N) -> lifecycle
+    my ($self, $g, $want, %o) = @_;
+    $g = top_group($g);
+    my $have = $self->lifecycle($g);
+    my %old = map { ($_->{name} => $_) } @{ $have->{statuses} // [] };
+    my %named = map { ($_->{name} => 1) } @$want;
+    my @all = ((map { +{ %{ $old{ $_->{name} } // {} }, name => $_->{name}, color => $_->{color}, category => $_->{category}, description => $_->{description} // '' } } @$want),
+               (grep { !$named{ $_->{name} } } @{ $have->{statuses} // [] }));   # never removed: kept after the file's
+    @all <= 30 or die "GitLab: a lifecycle holds at most 30 statuses (this one would have " . scalar(@all) . ")\n";
+    my %ix = map { ($all[$_]{name} => $_) } 0 .. $#all;
+    for my $k (qw(open closed duplicate)) { defined $o{$k} && exists $ix{ $o{$k} } or die "GitLab: set_lifecycle needs $k => a status name\n" }
+    if ($self->{local}) {
+        my $G = $self->{st}{groups}{$g};
+        for (@all) { $_->{id} //= 'gid://gitlab/WorkItems::Statuses::Custom::Status/' . $self->_id }
+        $G->{lifecycle} = { id => $have->{id} =~ /Custom/ ? $have->{id} : 'gid://gitlab/WorkItems::Statuses::Custom::Lifecycle/' . $self->_id, name => $have->{name},
+                            statuses => [ map { +{ %$_ } } @all ], default_open => $o{open}, default_closed => $o{closed}, default_duplicate => $o{duplicate} };
+        return $G->{lifecycle};
+    }
+    my $d = $self->_gql('mutation($in: LifecycleUpdateInput!) { lifecycleUpdate(input: $in) { lifecycle { id name statuses { id name color category description } } errors } }',
+        { in => { namespacePath => $g, id => $have->{id}, statuses => [ map { my $s = $_; +{ (defined $s->{id} ? (id => $s->{id}) : ()), name => $s->{name}, color => $s->{color},
+                  category => uc $s->{category}, description => $s->{description} // '' } } @all ],
+                  defaultOpenStatusIndex => $ix{ $o{open} }, defaultClosedStatusIndex => $ix{ $o{closed} }, defaultDuplicateStatusIndex => $ix{ $o{duplicate} } } });
+    my $r = $d->{lifecycleUpdate} // {};
+    die "GitLab: lifecycleUpdate: @{ $r->{errors} }\n" if @{ $r->{errors} // [] };
+    $r->{lifecycle} // {};
+}
+sub _status_of {                              # the lifecycle's status called NAME (case-insensitive)
+    my ($self, $g, $name) = @_;
+    my $l = $self->lifecycle($g);
+    my ($s) = grep { lc $_->{name} eq lc $name } @{ $l->{statuses} };
+    $s // ($self->{dry_run} && !$self->{local} ? { id => "{id of status $name}", name => $name } : die "GitLab: no status '$name' on " . top_group($g) . " (statuses: " . join(', ', map { $_->{name} } @{ $l->{statuses} }) . ")\n");
+}
+sub set_item_status {                         # set_item_status(p, IID, NAME, mode => statuses|labels, gid => WORK ITEM GID) -> the item
+    my ($self, $p, $iid, $name, %o) = @_;
+    if (($o{mode} // 'statuses') eq 'labels') {   # the fallback: one state::NAME scoped label, closed for DONE/DROP-like states
+        my $i = $self->update_issue($p, $iid, add_labels => "state::$name");
+        my $closing = $o{closing} // ($name =~ /^(DONE|DROP)$/i);
+        my $st = $self->{dry_run} ? '' : ($self->issue($p, $iid)->{state} // '');
+        return $closing && $st ne 'closed' ? $self->update_issue($p, $iid, state_event => 'close') : !$closing && $st eq 'closed' ? $self->update_issue($p, $iid, state_event => 'reopen') : $i;
+    }
+    my $s = $self->_status_of($p, $name);
+    if ($self->{local}) {
+        my $i = $self->_issue($self->_p($p), $iid);
+        my $was = ($i->{status} // {})->{name};
+        $i->{status} = { name => $s->{name}, category => $s->{category}, color => $s->{color} };
+        $self->_sysnote($i, "set status to **$s->{name}**") unless ($was // '') eq $s->{name};
+        if ($s->{category} =~ /^(done|canceled)$/) { $self->_close($i) if $i->{state} ne 'closed' }
+        elsif ($i->{state} eq 'closed') { $i->{state} = 'opened'; $i->{closed_at} = undef; $self->_sysnote($i, 'reopened') }
+        $i->{updated_at} = $self->now;
+        return $i;
+    }
+    my $gid = $o{gid} // ($self->{dry_run} ? "gid://gitlab/WorkItem/{id of #$iid}" : 'gid://gitlab/WorkItem/' . $self->issue($p, $iid)->{id});
+    my $d = $self->_gql('mutation($in: WorkItemUpdateInput!) { workItemUpdate(input: $in) { workItem { id state } errors } }',
+                        { in => { id => $gid, statusWidget => { status => $s->{id} } } });
+    my $r = $d->{workItemUpdate} // {};
+    die "GitLab: workItemUpdate: @{ $r->{errors} }\n" if @{ $r->{errors} // [] };
+    $r->{workItem} // {};
+}
+sub item_status {                             # the status name of an issue or task as read back (status, else state:: label, else open/closed)
+    my ($i) = @_;
+    return $i->{status}{name} if ref $i->{status} eq 'HASH' && defined $i->{status}{name};
+    my ($l) = grep { /^state::/ } map { ref $_ ? $_->{name} // $_->{title} : $_ } @{ $i->{labels} // [] };
+    return substr($l, 7) if $l;
+    undef;
+}
+sub _setup_statuses {                         # the lifecycle (or the state:: labels) and the mark labels -> log lines
+    my ($self, $p, $st) = @_;
+    my @log;
+    if ($st->{mode} eq 'labels') {
+        for (@{ $st->{statuses} }) { $self->create_label($p, "state::$_->{name}", $_->{color}, $_->{description}); push @log, "label state::$_->{name}" }
+    } elsif (@{ $st->{statuses} }) {
+        my $g = $st->{group};
+        $self->create_group($g) if $self->{local} && !$self->{st}{groups}{$g};
+        my $r = eval { $self->set_lifecycle($g, $st->{statuses}, map { ($_ => _status_default($st->{statuses}, $_)) } qw(open closed duplicate)) };
+        if (!$r) {
+            (my $why = $@) =~ s/^GitLab: //; $why =~ s/\n$//;
+            warn "GitLab: statuses not set on $g ($why); they need GitLab 18.2+, Premium or Ultimate, the top-level group and Maintainer on it ([statuses] mode = labels is the fallback)\n";
+            push @log, "statuses not set on $g (needs GitLab 18.2+, Premium or Ultimate)";
+        } else {
+            push @log, map { my $s = $_; "status $s->{name} ($s->{category}" . (@{ $s->{default} } ? ', default ' . join('/', @{ $s->{default} }) : '') . ") on $g" } @{ $st->{statuses} };
+        }
+    }
+    my %MD = (REDO => 'Mark: the demo showed it was wrong, back in this sprint', PASS => 'Mark: handed to another team',
+              SYNC => 'Mark: coordinated across teams, with a shared DONE');
+    for (@{ $st->{marks} }) { $self->create_label($p, $_, $st->{mark_color}, $MD{$_} // "Mark: $_ (shown beside the state)"); push @log, "label $_ (mark)" }
+    @log;
+}
+# ---------------------------------------------------------------- work items: epics on the group, tasks under issues (a backlog's hierarchy)
+# Epics are work items of type Epic on a GROUP (child epics through the hierarchy widget, Premium and Ultimate); tasks
+# are work items of type Task under an issue (every tier). GitLab deprecated the Epics REST API in 17.0 and points to
+# the Work Items GraphQL API (doc/api/graphql/epic_work_items_api_migration_guide.md), so epics and tasks are made with
+# workItemCreate(namespacePath, workItemTypeId, hierarchyWidget { parentId }, ...) and an issue is put under its epic
+# with workItemUpdate(hierarchyWidget). An issue's work-item id is its REST id: gid://gitlab/WorkItem/ID.
+sub _wi_gid { my $id = shift; $id =~ /^gid:/ ? $id : "gid://gitlab/WorkItem/$id" }
+sub _wi_type_id {                             # the work item type's global id in a namespace (cached)
+    my ($self, $ns, $type, $kind) = @_;
+    return "{id of type $type}" if $self->{dry_run};
+    return $self->{wit}{$ns}{$type} //= do {
+        my $f = $kind eq 'group' ? 'group' : 'project';
+        my $d = $self->_gql("query(\$p: ID!) { $f(fullPath: \$p) { workItemTypes { nodes { id name } } } }", { p => $ns });
+        my ($t) = grep { lc $_->{name} eq lc $type } @{ (((($d->{$f} // {})->{workItemTypes}) // {})->{nodes}) // [] };
+        $t ? $t->{id} : die "GitLab: no work item type '$type' in $ns" . ($type eq 'Epic' ? ' (epics need Premium or Ultimate, on a group)' : '') . "\n";
+    };
+}
+my $WI_FIELDS = 'id iid title state webUrl createdAt closedAt workItemType { name } widgets { __typename '
+    . '... on WorkItemWidgetDescription { description } ... on WorkItemWidgetHierarchy { parent { id } } '
+    . '... on WorkItemWidgetStartAndDueDate { startDate dueDate } ... on WorkItemWidgetWeight { weight } '
+    . '... on WorkItemWidgetTimeTracking { timeEstimate totalTimeSpent } ... on WorkItemWidgetLabels { labels { nodes { title } } } '
+    . '... on WorkItemWidgetMilestone { milestone { title } } ... on WorkItemWidgetIteration { iteration { title startDate } } '
+    . '... on WorkItemWidgetAssignees { assignees { nodes { username } } } STATUS }';
+sub work_items {                              # work_items(NAMESPACE, kind => group|project, types => [Epic] | [Issue, Task]) -> [ item ]
+    my ($self, $ns, %o) = @_;                 # item: { id (gid), iid, type, title, state opened|closed, description, parent (gid), status, weight,
+    my $kind = $o{kind} // 'project';         #         estimate, spent (seconds), start_date, due_date, labels, milestone, iteration, assignees, web_url }
+    my %want = map { (lc $_ => 1) } @{ $o{types} // ($kind eq 'group' ? ['Epic'] : [ 'Issue', 'Task' ]) };
+    if ($self->{local}) {
+        my @it;
+        if ($kind eq 'group') { my $G = $self->{st}{groups}{$ns} // die "GitLab: no group '$ns' (404 Group Not Found)\n"; @it = map { +{ %$_ } } @{ $G->{work_items} // [] } }
+        else {
+            @it = map { my $i = $_; +{ id => _wi_gid($i->{id}), iid => $i->{iid}, type => ucfirst($i->{issue_type} // 'issue'), title => $i->{title}, state => $i->{state},
+                         description => $i->{description}, parent => ($i->{parent} // {})->{id}, status => item_status($i), weight => $i->{weight},
+                         estimate => ($i->{time_stats} // {})->{time_estimate} // 0, spent => ($i->{time_stats} // {})->{total_time_spent} // 0,
+                         start_date => undef, due_date => $i->{due_date}, labels => [ map { ref $_ ? $_->{name} : $_ } @{ $i->{labels} } ],
+                         milestone => ($i->{milestone} // {})->{title}, iteration => undef, assignees => [ map { $_->{username} } @{ $i->{assignees} } ], web_url => $i->{web_url} } }
+                  @{ $self->_p($ns)->{issues} };
+        }
+        return [ grep { $want{ lc $_->{type} } } @it ];
+    }
+    return [] if $self->{dry_run};
+    my $f = $kind eq 'group' ? 'group' : 'project';
+    my $types = join ', ', map { uc } sort keys %want;
+    for my $status ('... on WorkItemWidgetStatus { status { name } }', '') {      # older GitLab has no status widget: ask again without it
+        (my $fields = $WI_FIELDS) =~ s/STATUS/$status/;
+        my (@out, $after);
+        my $ok = eval {
+            while (1) {
+                my $d = $self->_gql("query(\$p: ID!, \$after: String) { $f(fullPath: \$p) { workItems(first: 100, after: \$after, types: [$types]) "
+                                    . "{ pageInfo { hasNextPage endCursor } nodes { $fields } } } }", { p => $ns, after => $after });
+                my $w = (($d->{$f} // {})->{workItems}) // {};
+                push @out, @{ $w->{nodes} // [] };
+                last unless ($w->{pageInfo} // {})->{hasNextPage};
+                $after = $w->{pageInfo}{endCursor};
+            }
+            1;
+        };
+        if (!$ok) { die $@ unless $status && $@ =~ /WorkItemWidgetStatus/; next }
+        return [ map { my $n = $_; my %w = map { (($_->{__typename} // '') => $_) } @{ $n->{widgets} // [] };
+            +{ id => $n->{id}, iid => $n->{iid}, type => ($n->{workItemType} // {})->{name}, title => $n->{title}, state => lc($n->{state} // '') eq 'closed' ? 'closed' : 'opened',
+               description => ($w{WorkItemWidgetDescription} // {})->{description}, parent => (($w{WorkItemWidgetHierarchy} // {})->{parent} // {})->{id},
+               status => (($w{WorkItemWidgetStatus} // {})->{status} // {})->{name}, weight => ($w{WorkItemWidgetWeight} // {})->{weight},
+               estimate => ($w{WorkItemWidgetTimeTracking} // {})->{timeEstimate} // 0, spent => ($w{WorkItemWidgetTimeTracking} // {})->{totalTimeSpent} // 0,
+               start_date => ($w{WorkItemWidgetStartAndDueDate} // {})->{startDate}, due_date => ($w{WorkItemWidgetStartAndDueDate} // {})->{dueDate},
+               labels => [ map { $_->{title} } @{ ((($w{WorkItemWidgetLabels} // {})->{labels} // {})->{nodes}) // [] } ],
+               milestone => (($w{WorkItemWidgetMilestone} // {})->{milestone} // {})->{title}, iteration => (($w{WorkItemWidgetIteration} // {})->{iteration} // {})->{startDate},
+               assignees => [ map { $_->{username} } @{ ((($w{WorkItemWidgetAssignees} // {})->{assignees} // {})->{nodes}) // [] } ], web_url => $n->{webUrl} } } @out ];
+    }
+    [];
+}
+sub create_work_item {                        # create_work_item(NAMESPACE, kind => group|project, type => Epic|Task, title, description, parent => GID,
+    my ($self, $ns, %o) = @_;                 #                  start_date, due_date, estimate => SECONDS) -> { id (gid), iid, web_url }
+    my $kind = $o{kind} // 'project';
+    my $type = $o{type} // die "GitLab: create_work_item needs type => Epic or Task\n";
+    defined $o{title} && length $o{title} or die "GitLab: a work item needs a title\n";
+    if ($self->{local}) {
+        if ($kind eq 'group') {
+            my $G = $self->{st}{groups}{$ns} // die "GitLab: no group '$ns' (404 Group Not Found)\n";
+            my $iid = ++$G->{iids}{epic};
+            my $id = $self->_id;
+            push @{ $G->{work_items} }, my $w = { id => _wi_gid($id), iid => $iid, type => $type, title => $o{title}, state => 'opened', description => $o{description} // '',
+                parent => $o{parent}, status => undef, start_date => $o{start_date}, due_date => $o{due_date}, labels => [], web_url => "$self->{base}/groups/$ns/-/epics/$iid",
+                created_at => $self->now };
+            return $w;
+        }
+        my $i = $self->_create_issue($ns, title => $o{title}, description => $o{description}, issue_type => lc $type, due_date => $o{due_date});
+        $i->{time_stats}{time_estimate} = 0 + ($o{estimate} // 0);
+        $self->set_work_item_parent($ns, _wi_gid($i->{id}), $o{parent}) if $o{parent};
+        return { id => _wi_gid($i->{id}), iid => $i->{iid}, web_url => $i->{web_url} };
+    }
+    my %in = (namespacePath => $ns, title => $o{title}, workItemTypeId => $self->_wi_type_id($ns, $type, $kind));
+    $in{descriptionWidget} = { description => $o{description} } if defined $o{description};
+    $in{hierarchyWidget} = { parentId => $o{parent} } if $o{parent};
+    $in{startAndDueDateWidget} = { isFixed => JSON::PP::true, startDate => $o{start_date}, dueDate => $o{due_date} } if $o{start_date} || $o{due_date};
+    $in{timeTrackingWidget} = { timeEstimate => _gl_time($o{estimate}) } if $o{estimate};
+    my $d = $self->_gql('mutation($in: WorkItemCreateInput!) { workItemCreate(input: $in) { workItem { id iid webUrl } errors } }', { in => \%in });
+    my $r = $d->{workItemCreate} // {};
+    die "GitLab: workItemCreate: @{ $r->{errors} }\n" if @{ $r->{errors} // [] };
+    my $w = $r->{workItem} // { id => 'gid://gitlab/WorkItem/0', iid => 0 };
+    { id => $w->{id}, iid => $w->{iid}, web_url => $w->{webUrl} };
+}
+sub _gl_time { my $s = 0 + (shift // 0); my $d = $s / 28800; $d == int $d ? int($d) . 'd' : sprintf('%dh', $s / 3600 + 0.5) }   # seconds -> GitLab's 3d / 12h (8-hour days)
+sub set_work_item_parent {                    # set_work_item_parent(NAMESPACE, CHILD GID, PARENT GID): an issue under its epic, a task under its issue
+    my ($self, $ns, $child, $parent) = @_;
+    if ($self->{local}) {
+        my ($cid) = $child =~ /(\d+)$/;
+        my $P = $self->{st}{projects}{$ns};
+        my ($i) = $P ? grep { $_->{id} == $cid } @{ $P->{issues} } : ();
+        my $par = $self->_local_work_item($parent) // die "GitLab: no work item $parent (404 Not found)\n";
+        if ($i) { $i->{parent} = { id => $par->{id}, title => $par->{title}, type => $par->{type} }; return $i }
+        my $w = $self->_local_work_item($child) // die "GitLab: no work item $child (404 Not found)\n";
+        $w->{parent} = $par->{id};
+        return $w;
+    }
+    my $d = $self->_gql('mutation($in: WorkItemUpdateInput!) { workItemUpdate(input: $in) { workItem { id } errors } }',
+                        { in => { id => _wi_gid($child), hierarchyWidget => { parentId => _wi_gid($parent) } } });
+    my $r = $d->{workItemUpdate} // {};
+    die "GitLab: workItemUpdate: @{ $r->{errors} }\n" if @{ $r->{errors} // [] };
+    $r->{workItem} // {};
+}
+sub _local_work_item {                        # a gid -> the emulator's epic (group work item) or issue/task, as { id, title, type, ... }
+    my ($self, $gid) = @_;
+    return undef unless defined $gid;
+    for my $G (values %{ $self->{st}{groups} }) { for (@{ $G->{work_items} // [] }) { return $_ if $_->{id} eq $gid } }
+    my ($n) = $gid =~ /(\d+)$/;
+    for my $P (values %{ $self->{st}{projects} }) { for (@{ $P->{issues} }) { return { id => _wi_gid($_->{id}), title => $_->{title}, type => ucfirst($_->{issue_type} // 'issue') } if $_->{id} == $n } }
+    undef;
+}
+sub set_epic_status {                         # set_epic_status(GROUP, EPIC GID, NAME, mode => statuses|labels|close)
+    my ($self, $g, $gid, $name, %o) = @_;      # close: only DONE and DROP close it (epics are not on every lifecycle: the backlog import uses this)
+    if (($o{mode} // '') eq 'close') {
+        return {} unless $name =~ /^(DONE|DROP)$/i;
+        if ($self->{local}) { my $w = $self->_local_work_item($gid) // die "GitLab: no work item $gid (404 Not found)\n"; $w->{state} = 'closed'; return $w }
+        my $d = $self->_gql('mutation($in: WorkItemUpdateInput!) { workItemUpdate(input: $in) { workItem { id state } errors } }', { in => { id => _wi_gid($gid), stateEvent => 'CLOSE' } });
+        my $r = $d->{workItemUpdate} // {};
+        die "GitLab: workItemUpdate: @{ $r->{errors} }\n" if @{ $r->{errors} // [] };
+        return $r->{workItem} // {};
+    }
+    if ($self->{local}) {
+        my $w = $self->_local_work_item($gid) // die "GitLab: no work item $gid (404 Not found)\n";
+        if (($o{mode} // 'statuses') eq 'labels') { $w->{labels} = [ (grep { !/^state::/ } @{ $w->{labels} // [] }), "state::$name" ]; $w->{state} = $name =~ /^(DONE|DROP)$/i ? 'closed' : 'opened'; return $w }
+        my $s = $self->_status_of($g, $name);
+        $w->{status} = $s->{name};
+        $w->{state} = $s->{category} =~ /^(done|canceled)$/ ? 'closed' : 'opened';
+        return $w;
+    }
+    my %in = (id => _wi_gid($gid));
+    if (($o{mode} // 'statuses') eq 'labels') { $in{stateEvent} = 'CLOSE' if $name =~ /^(DONE|DROP)$/i; return {} unless $in{stateEvent} }
+    else { $in{statusWidget} = { status => $self->_status_of($g, $name)->{id} } }
+    my $d = $self->_gql('mutation($in: WorkItemUpdateInput!) { workItemUpdate(input: $in) { workItem { id state } errors } }', { in => \%in });
+    my $r = $d->{workItemUpdate} // {};
+    die "GitLab: workItemUpdate: @{ $r->{errors} }\n" if @{ $r->{errors} // [] };
+    $r->{workItem} // {};
+}
 # ---------------------------------------------------------------- files in the repository: read one, commit some (REST: Commits API)
 sub file_raw {                                # file_raw(p, PATH, REF) -> content or undef when the file is not there
     my ($self, $p, $path, $ref) = @_;
@@ -1445,6 +1788,7 @@ sub apply_project_file {                      # apply_project_file(path) -> [ li
             $self->_upsert_milestone($p, $_->[0], start_date => $s, due_date => $d, description => $desc // ''); push @log, "milestone $_->[0]";
         }
     }
+    push @log, $self->_setup_statuses($p, parse_statuses($c->{statuses}, $path, $p)) if $c->{statuses};   # before the boards that may list them
     my $it = parse_iterations($c->{iterations}, $path, $p);   # the group's cadence, before the boards that may scope to it
     my ($ilog, $cads) = $self->_setup_iterations($it);
     push @log, @$ilog;
@@ -2514,7 +2858,8 @@ for my $m (qw(create_user create_group create_project update_project add_member 
               protect_branch protect_tag create_approval_rule create_issue update_issue add_note resolve_discussions link_issues create_mr approve_mr
               merge_mr run_pipeline create_tag create_branch create_release wiki_put package_put create_schedule update_schedule delete_schedule
               play_schedule pushed create_board update_board create_board_list move_board_list
-              update_board_iteration create_cadence update_cadence commit_files)) {
+              update_board_iteration create_cadence update_cadence commit_files set_lifecycle set_item_status create_work_item
+              set_work_item_parent set_epic_status)) {
     no strict 'refs';
     no warnings 'redefine';
     my $orig = defined &{"GitLab::$m"} ? \&{"GitLab::$m"} : next;
@@ -2584,6 +2929,30 @@ sub diff_project_file {                       # diff_project_file(path) -> [ "[s
         push @d, !defined $have ? "[members] $_->[0]: missing (file $_->[1])" : $have != $want ? "[members] $_->[0]: file $_->[1], live " . $ln->($have) : () }
     push @d, map { "[members] $_: live only (" . $ln->($mem->{$_}) . ')' } grep { !$fm{$_} && $_ ne 'root' } sort keys %$mem if $c->{members};
     my %ll = map { ($_->{name} => $_) } @{ $self->labels($p) };
+    my $sts = $c->{statuses} ? parse_statuses($c->{statuses}, $path, $p) : undef;
+    if ($sts) {                                      # the labels [statuses] makes: marks (and state:: in labels mode)
+        for my $l (@{ $sts->{marks} }, ($sts->{mode} eq 'labels' ? map { "state::$_->{name}" } @{ $sts->{statuses} } : ())) {
+            my $x = delete $ll{$l};
+            push @d, !$x ? "[statuses] label $l: missing" : lc($x->{color} // '') ne lc($l =~ /^state::(.+)$/ ? (map { $_->{color} } grep { $_->{name} eq $1 } @{ $sts->{statuses} })[0] : $sts->{mark_color}) ? "[statuses] label $l: color differs" : ();
+        }
+        if ($sts->{mode} eq 'statuses' && @{ $sts->{statuses} }) {
+            my $lc = eval { $self->lifecycle($sts->{group}) };
+            if (!$lc) { push @d, "[statuses] $sts->{group}: no lifecycle (statuses need GitLab 18.2+, Premium or Ultimate)" }
+            else {
+                my %ls = map { ($_->{name} => $_) } @{ $lc->{statuses} };
+                for my $w (@{ $sts->{statuses} }) {
+                    my $l = $ls{ $w->{name} };
+                    if (!$l) { push @d, "[statuses] $w->{name}: missing on $sts->{group}"; next }
+                    push @d, "[statuses] $w->{name}: color file $w->{color}, live " . lc($l->{color} // '') if lc($l->{color} // '') ne $w->{color};
+                    push @d, "[statuses] $w->{name}: category file $w->{category}, live " . ($l->{category} // '') if ($l->{category} // '') ne $w->{category};
+                }
+                for my $k (qw(open closed duplicate)) {
+                    my $f = _status_default($sts->{statuses}, $k);
+                    push @d, "[statuses] default $k: file $f, live " . ($lc->{"default_$k"} // '(unset)') if ($lc->{"default_$k"} // '') ne $f;
+                }
+            }
+        }
+    }
     for (@{ $c->{labels} // [] }) {
         my ($color, $desc) = $_->[1] =~ /^\s*(#[0-9A-Fa-f]{6})\s*(?:\|\s*(.*))?$/ or die "$path:$_->[2]: label value is '#RRGGBB | description'\n";
         my $l = delete $ll{ $_->[0] };
@@ -2627,7 +2996,9 @@ sub diff_project_file {                       # diff_project_file(path) -> [ "[s
             my $w = parse_board_line($_->[1], "$path:$_->[2]", $it->{use});
             my $bo = $bd{ $_->[0] };
             if (!$bo) { push @d, "[boards] $_->[0]: missing"; next }
-            my @live = map { $_->{label}{name} } sort { ($a->{position} // 0) <=> ($b->{position} // 0) } grep { $_->{label} } @{ $bo->{lists} // [] };
+            my @bl = @{ $bo->{lists} // [] };
+            push @bl, @{ (eval { $self->board_status_lists($p) } // {})->{ $_->[0] } // [] } if !$self->{local} && grep { /^status:/ } @{ $w->{labels} };
+            my @live = map { list_key($_) } sort { ($a->{position} // 0) <=> ($b->{position} // 0) } grep { length list_key($_) } @bl;
             push @d, "[boards] $_->[0]: lists file @{ $w->{labels} }, live " . (@live ? "@live" : '(none)') if "@live" ne "@{ $w->{labels} }";
             my $ms = board_scope($bo->{milestone});
             push @d, "[boards] $_->[0]: milestone file $w->{milestone}, live $ms" if $ms ne $w->{milestone};

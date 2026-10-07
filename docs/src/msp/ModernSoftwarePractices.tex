@@ -1,0 +1,850 @@
+% ModernSoftwarePractices.tex -- Modern Software Practices: A Condensed Guide (October 2026)
+% An unofficial condensation of the DoW CIO library's software modernization, DevSecOps, open source and cATO documents.
+% Sources: the documents listed in Appendix B (the user's copies, git-ignored under refs/; notes per document were kept
+% outside the repository). Every claim carries the source's short name and PDF page.
+% Build:  perl sim/msp.pl            (XeLaTeX via latexmk in a temporary directory -> docs/ModernSoftwarePractices.pdf)
+%   or:   cd docs/src/msp && latexmk -xelatex ModernSoftwarePractices.tex
+\documentclass[11pt,letterpaper,twoside,openany]{memoir}
+\usepackage{fontspec}
+\defaultfontfeatures[\rmfamily,\sffamily]{Ligatures=TeX}
+\setmainfont{texgyrepagella}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+\setsansfont{texgyreheros}[Extension=.otf, UprightFont=*-regular, BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic, Scale=MatchLowercase]
+\setmonofont{DejaVuSansMono}[Extension=.ttf, BoldFont=*-Bold, ItalicFont=*-Oblique, BoldItalicFont=*-BoldOblique, Scale=0.84, Ligatures=NoCommon]
+\newfontfamily\symfont{DejaVuSans}[Extension=.ttf, Scale=0.9]
+\IfFontExistsTF{LibertinusSans-Regular.otf}
+  {\newfontfamily\coverfont{LibertinusSans}[Extension=.otf, UprightFont=*-Regular, BoldFont=*-Bold]}
+  {\newfontfamily\coverfont{TeX Gyre Heros}}
+\usepackage{microtype}
+\usepackage{xcolor,graphicx,array,booktabs,longtable,calc}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit}
+\usepackage[shortlabels]{enumitem}
+\setlist{itemsep=1pt,topsep=4pt,parsep=0pt}
+\usepackage[most]{tcolorbox}
+\usepackage{multicol}
+\usepackage{xurl}
+\usepackage[hidelinks,bookmarksnumbered,pdfusetitle]{hyperref}
+\usepackage{bookmark}
+\graphicspath{{./}{../../img/}}
+% ---- page layout: as the MBSE-DEVSECOPS Primer
+\setlrmarginsandblock{1.15in}{1in}{*}
+\setulmarginsandblock{1in}{1in}{*}
+\setheadfoot{\onelineskip}{2\onelineskip}
+\setheaderspaces{*}{1.5\onelineskip}{*}
+\checkandfixthelayout
+\setsecnumdepth{subsection}
+\settocdepth{section}
+\pagestyle{ruled}
+\makeevenhead{ruled}{\small\thepage}{}{\small\sffamily\leftmark}
+\makeoddhead{ruled}{\small\sffamily\rightmark}{}{\small\thepage}
+\makeevenfoot{ruled}{}{\scriptsize\sffamily Unofficial condensation --- the original documents govern}{}
+\makeoddfoot{ruled}{}{\scriptsize\sffamily Unofficial condensation --- the original documents govern}{}
+\nouppercaseheads
+\makechapterstyle{msp}{%
+  \renewcommand*{\chapterheadstart}{\vspace*{1.2\onelineskip}}
+  \renewcommand*{\chapnamefont}{\normalfont\sffamily\small\MakeUppercase}
+  \renewcommand*{\chapnumfont}{\normalfont\sffamily\fontsize{36}{36}\selectfont\color{black!70}}
+  \renewcommand*{\chaptitlefont}{\normalfont\sffamily\bfseries\huge\raggedright}
+  \renewcommand*{\printchaptername}{\chapnamefont\chaptername}
+  \renewcommand*{\chapternamenum}{\par\vspace{2pt}}
+  \renewcommand*{\printchapternum}{\chapnumfont\thechapter}
+  \renewcommand*{\afterchapternum}{\par\vspace{6pt}}
+  \renewcommand*{\printchaptertitle}[1]{\chaptitlefont ##1\par\vspace{4pt}{\color{black!60}\rule{\textwidth}{0.6pt}}}
+  \renewcommand*{\afterchaptertitle}{\par\vspace{1.2\onelineskip}}}
+\chapterstyle{msp}
+\setsecheadstyle{\normalfont\sffamily\bfseries\Large\raggedright}
+\setsubsecheadstyle{\normalfont\sffamily\bfseries\large\raggedright}
+\setsubsubsecheadstyle{\normalfont\sffamily\bfseries\raggedright}
+\captionnamefont{\sffamily\bfseries\small}
+\captiontitlefont{\sffamily\small}
+\setlength{\LTcapwidth}{\linewidth}
+\setlength{\parskip}{0.35\onelineskip}
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{3em}
+\tolerance=2000
+\hbadness=10000
+\renewcommand{\arraystretch}{1.15}
+% ---- conventions
+\newcommand{\pg}[2]{{\small(#1~p.~#2)}}          % a source citation: short name and PDF page
+\newcommand{\checkbox}{{\symfont\char"2610}\ }
+\newcommand{\st}[1]{{\sffamily\scriptsize\bfseries #1}}   % a status tag
+\tcbset{pbox/.style={enhanced,breakable,sharp corners,colback=white,colframe=black!65,boxrule=0.6pt,
+  left=7pt,right=7pt,top=5pt,bottom=5pt,fonttitle=\sffamily\bfseries\small\raggedright,coltitle=black,colbacktitle=black!10,
+  titlerule=0.4pt,toptitle=2pt,bottomtitle=2pt,before skip=10pt,after skip=10pt,parbox=false}}
+\newtcolorbox{boxnote}[1]{pbox,title={#1}}
+\newtcolorbox{boxteam}[1]{pbox,colback=black!3,frame hidden,borderline west={3pt}{0pt}{black!60},colbacktitle=black!3,titlerule=0pt,
+  title={For a small MBSE team: #1}}
+\newtcolorbox{boxwarning}[1]{pbox,colframe=black,boxrule=1.2pt,colbacktitle=black!18,title={#1}}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\setpnumwidth{2.8em}\setrmarg{3.8em}
+\renewcommand{\cftchapterfont}{\sffamily\bfseries}
+\title{Modern Software Practices}
+\author{The agile kit}
+\date{October 2026}
+% ---- cover (tools/cover/cover.tex design: colour art, navy band with gold rules)
+\definecolor{bandnavy}{HTML}{120E33}\definecolor{bandgold}{HTML}{D4A84B}\definecolor{bandgolddim}{HTML}{8F6B2A}\definecolor{bandcream}{HTML}{F6ECD6}
+\newcommand{\CoverTitle}{Modern Software Practices}
+\newcommand{\CoverLine}{A Condensed Guide}
+\newcommand{\CoverSubtitle}{The DoW software modernization, DevSecOps, open source and cATO documents,\\ condensed for systems engineers and program teams}
+\newcommand{\CoverDate}{October 2026}
+\begin{document}
+\frontmatter
+\begin{titlingpage}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[white] (current page.south west) rectangle (current page.north east);
+  \begin{scope}
+    \clip (current page.south west) rectangle (current page.north east);
+    \node[inner sep=0pt,anchor=center] at ([yshift=0.5in]current page.center) {\includegraphics[width=\paperwidth]{cover-art-color.jpg}};
+  \end{scope}
+  \fill[bandnavy,opacity=0.94] ([yshift=0.45in]current page.south west) rectangle ([yshift=2.95in]current page.south east);
+  \draw[bandgold,line width=1.4pt] ([yshift=2.95in]current page.south west) -- ([yshift=2.95in]current page.south east);
+  \draw[bandgold,line width=1.4pt] ([yshift=0.45in]current page.south west) -- ([yshift=0.45in]current page.south east);
+  \draw[bandgolddim,line width=0.5pt] ([yshift=2.89in]current page.south west) -- ([yshift=2.89in]current page.south east);
+  \draw[bandgolddim,line width=0.5pt] ([yshift=0.51in]current page.south west) -- ([yshift=0.51in]current page.south east);
+  \node[bandcream,font=\coverfont\bfseries\fontsize{28}{33}\selectfont,align=center] (t) at ([yshift=2.30in]current page.south) {\CoverTitle};
+  \node[bandgold,font=\coverfont,anchor=north] (s) at ([yshift=-0.10in]t.south) {\Large\scshape \CoverLine};
+  \node[bandcream,font=\coverfont,anchor=north,align=center,text width=0.8\paperwidth] at ([yshift=-0.10in]s.south)
+    {\large\hyphenpenalty=10000\exhyphenpenalty=10000 \CoverSubtitle\quad{\normalsize\color{bandgold}\textbullet\ \CoverDate}};
+\end{tikzpicture}
+\end{titlingpage}
+\cleardoublepage
+\thispagestyle{empty}
+\vspace*{1.5in}
+\begin{center}
+{\sffamily\bfseries\Huge Modern Software Practices}\par\medskip
+{\sffamily\Large A Condensed Guide}\par\bigskip
+{\large The Department of War software modernization, DevSecOps, open source\\ and continuous authorization documents, as of October 2026}\par\vfill
+{\small October 2026}
+\end{center}
+\clearpage
+\thispagestyle{empty}
+\vspace*{\fill}
+\begin{boxwarning}{Read this first}
+\textbf{This is an unofficial condensation. The originals govern.} It summarizes nineteen publicly listed documents of
+the Department of War Chief Information Officer (DoW CIO) library, as linked on 3 October 2026 and read in the copies
+listed, with their SHA-256 checksums, in Appendix~\ref{app:sources}. It adds no requirement of its own. Where it says
+what a document means for a small systems-engineering team, the box is marked \emph{For a small MBSE team} and that
+reading is this guide's, not the Department's.
+
+\textbf{Names.} The Department of Defense now styles itself the Department of War. Documents published before the
+change say ``DoD''; the library now lists several of them under ``DoW'' titles. This guide uses each document's own
+name and the library's title for it.
+
+\textbf{Citations.} ``\pg{Fundamentals}{12}'' means page 12 of the PDF file, counting the cover as page~1, which is
+not always the number printed on the page. The short names are listed in Table~\ref{tab:status}.
+
+\textbf{Status words.} \emph{Policy} binds (an instruction or a signed memorandum). \emph{Guidance} explains and
+recommends. A \emph{report} records findings. \emph{Draft} is marked pre-decisional by the document itself. Several
+2021 documents print ``This document automatically expires 1-year from publication date unless revised''; they are
+still listed in the library, and this guide flags them.
+
+\textbf{One marking to respect.} The cATO Implementation Guide carries Distribution Statement~C on its cover although it
+also bears an open-publication clearance stamp and is posted in the public library. This guide summarizes it at a high
+level only. Ask your security office before redistributing that original.
+\end{boxwarning}
+\vspace*{\fill}
+\clearpage
+\tableofcontents*
+\clearpage
+\mainmatter
+
+% =====================================================================================================================
+\chapter{Bottom line up front}\label{ch:bluf}
+\vspace{-1\onelineskip}
+Ten things a program team should know before reading any of the nineteen documents.
+
+{\small
+\begin{enumerate}[leftmargin=1.6em,itemsep=2pt]
+\item \textbf{There is now an instruction.} DoWI 8430.01, \emph{Accelerated Mission Software}, effective 8 September
+  2026, applies to all software throughout its lifecycle in every DoW Component, acquisition and non-acquisition
+  programs alike, regardless of dollar value \pg{DoWI 8430.01}{1, 4}. Everything else in this guide is older and
+  either directs one topic (the memos) or explains (guidance and reports).
+\item \textbf{The direction is the same in every document:} small cross-functional teams, CI/CD pipelines, automation,
+  security built in, continuous feedback from users \pg{DoWI 8430.01}{13--15}, \pg{Fundamentals}{9--10}.
+  ``Treat testing, security scanning, compliance checks, and deployment as continuous activities, not final gates''
+  \pg{DoWI 8430.01}{14}.
+\item \textbf{Pipelines are critical infrastructure.} Component heads ``operate secure, automated CI/CD pipelines'' and
+  treat them as infrastructure that ``must be authorized, monitored, and protected'' \pg{DoWI 8430.01}{9}.
+\item \textbf{Evidence is machine-readable.} All software on DoW networks is to be supported by machine-readable
+  evidence of its composition, build integrity and application security; an accurate SBOM for all covered software;
+  provenance and attestations from an automated build \pg{DoWI 8430.01}{18}.
+\item \textbf{The vocabulary is the Fundamentals.} Ten lifecycle phases (Plan to Feedback), software factory,
+  DevSecOps platform, CI/CD pipeline, Infrastructure as Code \pg{Fundamentals}{9--12}.
+\item \textbf{The checklist is the Activities \& Tools Guidebook.} Its REQUIRED activities ``are not negotiable'';
+  a reference design may add activities or raise PREFERRED to REQUIRED, never lower one \pg{Guidebook}{6, 10}.
+\item \textbf{Only two reference designs are approved.} CNCF Kubernetes (2021) and CNCF Multi-Cluster Kubernetes
+  (2022). The AWS and the Azure + GitHub designs are drafts \pg{RD-AWS}{1}, \pg{RD-Azure}{2}.
+\item \textbf{cATO is a privilege on top of an ATO.} It needs an existing ATO in the RMF monitor step, continuous
+  monitoring, active cyber defense and an approved reference design; the DoD CISO approves it \pg{cATO memo}{1--3},
+  \pg{cATO criteria}{6, 8}.
+\item \textbf{Measure the value stream; use DORA metrics inside the team.} DORA metrics ``are not appropriate to compare
+  beyond the team context''; enterprise reporting focuses on value streams and mission outcomes \pg{DoWI 8430.01}{16}.
+\item \textbf{Open source and AI have rules.} Adopt, buy, then create \pg{OSS memo}{3}; assess third-party and open
+  source components on sustainment, source, dependencies, security, integrity and foreign influence \pg{DoWI 8430.01}{22};
+  AI-generated code is ``unverified input'' and non-public information stays out of unapproved AI services
+  \pg{DoWI 8430.01}{23}.
+\end{enumerate}
+}
+
+\begin{boxteam}{the short version}
+{\small Use an existing DevSecOps platform; keep the model and its pipeline in it; let the pipeline produce the
+evidence (tests, scans, SBOMs, the verification matrix) on every change; report value-stream measures upward and keep
+DORA numbers inside the team.}
+\end{boxteam}
+
+% =====================================================================================================================
+\chapter{How the documents fit together}\label{ch:map}
+
+The library groups the documents under five headings. Read top-down, they form a chain: a strategy sets goals, an
+implementation plan assigns tasks, an instruction makes them policy, the fundamentals give the vocabulary, the
+guidebook and playbook give the activities, the reference designs give tested architectures, and the cATO documents
+say how a platform built that way is authorized continuously.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\sffamily\footnotesize, node distance=5mm and 6mm,
+  b/.style={draw, rounded corners=1pt, align=center, text width=31mm, minimum height=11mm, fill=white},
+  g/.style={draw=black!40, dashed, rounded corners=2pt, inner sep=2.5mm},
+  a/.style={-{Stealth[length=2mm]}, black!70}]
+\node[b] (strat) {Software Modernization\\Strategy (2021/22)};
+\node[b, right=of strat] (plan) {Implementation Plan\\FY25--26 (2025)};
+\node[b, right=of plan] (swft) {SWFT memo (2025)\\+ RFI summary};
+\node[b, below=8mm of plan, text width=40mm, fill=black!8] (dowi) {\textbf{DoWI 8430.01}\\Accelerated Mission Software\\(policy, Sept 2026)};
+\node[b, below=8mm of dowi] (fund) {DevSecOps\\Fundamentals (2024)};
+\node[b, left=of fund] (guide) {Activities \& Tools\\Guidebook + xlsx (2025)};
+\node[b, right=of fund] (play) {Playbook (2021)\\State of DevSecOps (2025)};
+\node[b, below=8mm of guide] (path) {Pathway to a\\Reference Design};
+\node[b, below=8mm of fund] (rd) {Reference designs:\\K8s, Multi-Cluster\\(drafts: AWS, Azure)};
+\node[b, below=8mm of play] (oss) {Open Source\\memo (2022)};
+\node[b, below=8mm of rd, text width=60mm] (cato) {cATO memo (2022) $\rightarrow$ Evaluation Criteria (2024)\\$\rightarrow$ Implementation Guide (2024)};
+\draw[a] (strat) -- (plan); \draw[a] (plan) -- (swft);
+\draw[a] (plan) -- (dowi); \draw[a] (strat.south) |- (dowi.west); \draw[a] (swft.south) |- (dowi.east);
+\draw[a] (dowi) -- (fund); \draw[a] (fund) -- (guide); \draw[a] (fund) -- (play);
+\draw[a] (guide) -- (path); \draw[a] (path) -- (rd); \draw[a] (guide.south east) -- (rd.north west);
+\draw[a] (rd) -- (cato); \draw[a] (oss.south) |- (cato.east);
+\end{tikzpicture}
+\caption{How the nineteen documents relate (this guide's reading). Arrows point from the document that sets
+direction to the one that implements or depends on it.}
+\label{fig:map}
+\end{figure}
+
+\needspace{10\baselineskip}
+\begin{longtable}{@{}L{0.28\linewidth}L{0.16\linewidth}L{0.14\linewidth}L{0.32\linewidth}@{}}
+\caption{The nineteen documents: short name used in this guide, date, status.}\label{tab:status}\\
+\toprule \sffamily\bfseries Document (library title) & \sffamily\bfseries Short name & \sffamily\bfseries Date & \sffamily\bfseries Status\\ \midrule\endfirsthead
+\toprule \sffamily\bfseries Document (library title) & \sffamily\bfseries Short name & \sffamily\bfseries Date & \sffamily\bfseries Status\\ \midrule\endhead
+\bottomrule\endfoot
+\multicolumn{4}{@{}l}{\sffamily\bfseries Modern Software Practices}\\
+DoW Software Modernization Strategy & Strategy & Nov 2021; memo 1 Feb 2022 & Strategy, directed by DepSecDef memo\\
+Software Modernization Implementation Plan FY25--26 & I-Plan & cleared Apr 2025 & Plan (tasks); some pages carry inconsistent footer markings\\
+DoWI 8430.01, Accelerated Mission Software & DoWI 8430.01 & effective 8 Sep 2026 & \st{POLICY} instruction\\
+Memo: Accelerating Secure Software & SWFT memo & 24 Apr 2025 & \st{POLICY} memo (directs SWFT)\\
+Software Fast Track RFI Combined Summary & SWFT RFI & cleared Dec 2025 & Report of industry responses, not an endorsement\\
+\multicolumn{4}{@{}l}{\sffamily\bfseries DevSecOps document set}\\
+DoW Enterprise DevSecOps Fundamentals & Fundamentals & v2.5, Oct 2024 & Guidance (approved by the SSG)\\
+DoW Enterprise DevSecOps Activities \& Tools Guidebook & Guidebook & v2.5, Apr 2025 & Guidance with a REQUIRED baseline\\
+DevSecOps Fundamentals Guidebook: Activities \& Tools (xlsx) & Workbook & companion of v2.5 & The guidebook's tables as a workbook\\
+DevSecOps Playbook & Playbook & v2.1, Sep 2021 & Guidance; \st{SELF-EXPIRY} printed on cover\\
+The State of DevSecOps Report & State report & Mar 2025 & Report (findings)\\
+\multicolumn{4}{@{}l}{\sffamily\bfseries DevSecOps reference designs}\\
+Pathway to Reference Design & Pathway & Sep 2021 & Process description\\
+Reference Design: CNCF Kubernetes & RD-K8s & v2.1, Sep 2021 & Approved design; \st{SELF-EXPIRY} printed\\
+Reference Design: CNCF Multi-Cluster Kubernetes & RD-Multi & v1.0, Jul 2022 & Approved design\\
+DRAFT: DOW AWS Managed Service & RD-AWS & v0.2, Sep 2021 & \st{DRAFT}; approval ``TBD''; \st{SELF-EXPIRY}\\
+DRAFT: DOW Cloud IaC + GitHub + Azure & RD-Azure & v0.01, Sep 2022 & \st{DRAFT} (signed, marked pre-decisional)\\
+\multicolumn{4}{@{}l}{\sffamily\bfseries Open source software}\\
+Software Development and Open Source Software Memorandum & OSS memo & 24 Jan 2022 & \st{POLICY} memo\\
+\multicolumn{4}{@{}l}{\sffamily\bfseries Continuous authority to operate}\\
+Memo: Continuous Authorization to Operate (cATO) & cATO memo & 2 Feb 2022 & \st{POLICY} memo (DoD SISO)\\
+cATO Evaluation Criteria (DevSecOps use case) & cATO criteria & 29 May 2024 & Criteria; ``living document'' on the RMF KS\\
+DevSecOps Continuous Authorization Implementation Guide & cATO guide & v1.0, Mar 2024 & Guidance; cover marked Distribution~C\\
+\end{longtable}
+
+\begin{boxnote}{Version drift between the documents}
+The documents cite each other by version, and the versions moved on. The CNCF Kubernetes design asserts compatibility
+with the Strategy Guide and the Tools and Activities Guidebook \emph{version 2.1} \pg{RD-K8s}{8}; the current guidebook
+is version 2.5 \pg{Guidebook}{1}. The cATO guide cites the Fundamentals version 2.1 and the guidebook version 2.2
+\pg{cATO guide}{26}. When two documents disagree on a detail, the later document and the instruction win; for an
+authorization, ask your AO which version they assess against.
+\end{boxnote}
+
+% =====================================================================================================================
+\chapter{Modern software practices: strategy, plan, policy}\label{ch:msp}
+
+\section{DoW Software Modernization Strategy}
+\textbf{What it is.} The DoD Software Modernization Strategy, version 1.0 of November 2021, approved by the Deputy
+Secretary of Defense in a memo of 1 February 2022 \pg{Strategy}{1--2}. It is a sub-strategy of the Digital Modernization
+Strategy and replaces the DoD Cloud Strategy \pg{Strategy}{3}. Audience: Department leadership and everyone who plans
+software work.
+
+\textbf{Key points.}
+\begin{itemize}
+\item Vision: ``Deliver Resilient Software Capability at the Speed of Relevance''; resilience means high-quality and
+  secure software \pg{Strategy}{5--6}.
+\item Five unifying principles: Primacy of Security, Stability, and Quality at Speed; Cloud Smart/Data Smart; Enterprise
+  First; No One Left Behind; More Than Code (contracting, intellectual property, transition to fielding) \pg{Strategy}{6}.
+\item Software is adopted, bought or created, and ``software delivery is not a one-and-done activity'' \pg{Strategy}{7}.
+\item The framework pairs technical enablers (enterprise cloud, design patterns, DevSecOps tooling, enterprise
+  services) with process transformation (business operations, acquisition, cyber survivability, testing, workforce)
+  \pg{Strategy}{7--9}. A software factory is ``a software assembly plant'' with multiple pipelines producing deployable
+  artifacts ``with minimal human intervention'' \pg{Strategy}{8}.
+\item ``Cybersecurity should be the driver and compliance an outcome'' \pg{Strategy}{9}.
+\item Three goals: accelerate the enterprise cloud environment (including automated design patterns such as
+  Infrastructure as Code, Compliance as Code and hardened containers) \pg{Strategy}{10--11}; establish a
+  Department-wide software factory ecosystem (including continuous authorization, where cyber professionals work with
+  developers \emph{and system engineers} to identify pipeline-generated evidence) \pg{Strategy}{11--12}; transform
+  processes (policy, agile acquisition, software as data, workforce) \pg{Strategy}{12--13}.
+\item The CIO and the Under Secretaries for A\&S and R\&E lead through a Software Modernization Senior Steering Group
+  (SSG) \pg{Strategy}{1, 14}.
+\end{itemize}
+\textbf{Requires or recommends.} A strategy: it sets direction and tasks the SSG; it does not itself bind programs.
+
+\section{Software Modernization Implementation Plan, FY25--26}
+\textbf{What it is.} The task list that carries the strategy forward, cleared for publication in April 2025
+\pg{I-Plan}{1}. Of the 41 tasks in the FY23--24 plan, 27 were accomplished, 12 carried over and 2 combined
+\pg{I-Plan}{4}. Audience: those responsible for an organization's software strategy, developers and operators, and
+leaders \pg{I-Plan}{5}.
+
+\textbf{Tasks that matter to a program team} (the plan lists them under the strategy's three goals, not in priority
+order \pg{I-Plan}{6}):
+\begin{itemize}
+\item a quick-track Software-as-a-Service ATO process \pg{I-Plan}{7};
+\item scale modern software practices, including a DevSecOps platform and software factory catalog and DoD-wide
+  software assurance capabilities \pg{I-Plan}{9};
+\item developer tools (web.git.mil, digital engineering for software development, Infrastructure as Code for the cloud
+  contract's capabilities and at IL6) \pg{I-Plan}{10};
+\item cATO ``must become a standard business practice'': designate cATO platforms, publish analytics, train
+  authorizing officials \pg{I-Plan}{11};
+\item prepare software factories for AI: data provenance, AI traceability, risk assessment, AI/ML DevSecOps guidance
+  \pg{I-Plan}{12};
+\item secure software standards: the NIST Secure Software Development Framework (SSDF) is already integrated into the
+  Activities and Tools guidebook; secure coding practices and metrics, secure container standards and an SBOM
+  repository pilot are next \pg{I-Plan}{14};
+\item modernize JCIDS for DevSecOps, ``oftentimes the root cause is unclear requirements'', with recommended metrics
+  such as DORA metrics \pg{I-Plan}{14};
+\item software modernization in embedded weapons systems (Weapons Ignite toolkit) \pg{I-Plan}{15}; more use of the
+  Software Acquisition Pathway, whose adoption grew about 50\% a year \pg{I-Plan}{16}; a software cadre and eight
+  software engineering work roles \pg{I-Plan}{13, 16--17}.
+\end{itemize}
+
+\section{DoWI 8430.01, Accelerated Mission Software}\label{sec:dowi}
+\textbf{What it is.} The DoW instruction on software modernization and management, approved 31 August 2026 by the DoW
+CIO and effective 8 September 2026 \pg{DoWI 8430.01}{1}. It applies to all software throughout its lifecycle except
+research and prototype funding (budget activities 1--4) until that software transitions to acquisition or operations
+\pg{DoWI 8430.01}{4}. \st{POLICY}
+
+\subsection{Policy in one page}
+Software is ``a strategic asset to be managed as an enduring capability throughout its lifecycle''
+\pg{DoWI 8430.01}{4}. DoW software efforts:
+\begin{enumerate}[(1)]
+\item employ modern, secure, human-centric practices such as Agile and DevSecOps;
+\item use ``measurable and testable requirements that are traceable to mission critical functions'', including
+  cybersecurity, cyber resilience and zero trust suitability;
+\item use component analysis, telemetry, observability and automated monitoring;
+\item prefer existing software, open source, COTS and SaaS before developing anything new;
+\item examine business processes before developing software \pg{DoWI 8430.01}{4--5}.
+\end{enumerate}
+
+\subsection{The seven tenets}
+\begin{longtable}{@{}L{0.30\linewidth}L{0.64\linewidth}@{}}
+\caption{Modern software tenets \pg{DoWI 8430.01}{13--15}.}\\
+\toprule \sffamily\bfseries Tenet & \sffamily\bfseries What it asks\\ \midrule\endfirsthead
+\bottomrule\endfoot
+Embrace change through continuous feedback & Software is never done; CI/CD and frequent deployment of working software are ``the primary mechanism for refining requirements''.\\
+Optimize for flow, not phases & Remove friction; small, cross-functional, mission-focused teams decide technical choices, workflows and tooling within architecture and security baselines.\\
+Build security and quality in, not on & The whole team owns it; approved reference designs, enterprise platforms and provisionally authorized IaC ``make the secure path the easy path''.\\
+Automate to the greatest extent possible & Testing, scanning, compliance checks and deployment are continuous, ``not final gates''; feedback on every code change.\\
+Architect for evolvability and scale & Loosely coupled, highly cohesive, modular, well-defined APIs, containers; simplicity and testability.\\
+Default to enterprise reuse & Source, documentation, APIs, data schemas and SBOMs discoverable with unlimited (else government purpose) rights; military or space software is CTI from inception.\\
+Align governance with speed & Adapt acquisition, cyber and T\&E processes; delegate decisions to the lowest practical level; verify through automated evidence.\\
+\end{longtable}
+
+\subsection{What it requires of a program}
+\begin{itemize}
+\item \textbf{Pipelines.} Operate secure, automated CI/CD pipelines as critical infrastructure \pg{DoWI 8430.01}{9}.
+\item \textbf{Assurance evidence.} Static and dynamic analysis, fuzz testing, penetration testing and secure-code
+  reviews, with continuous authorization strategies from inception \pg{DoWI 8430.01}{10}.
+\item \textbf{Supply chain.} SBOMs generated for custom software and captured for COTS; provenance and pedigree tracked
+  \pg{DoWI 8430.01}{10}. A secure, automated, observable build that emits machine-readable provenance and attestations
+  \pg{DoWI 8430.01}{18}. All third-party components, including transitive dependencies, in the SBOM
+  \pg{DoWI 8430.01}{23}.
+\item \textbf{Users.} Human-centered design, regular contact with representative users, usage and satisfaction
+  telemetry, value stream metrics in recurring product reviews \pg{DoWI 8430.01}{10}.
+\item \textbf{Test.} Integrated, continuous T\&E that unifies DT\&E and OT\&E; DT\&E follows the DevSecOps Activities
+  and Tools Guidebook; adversarial testing covers pipelines, IaC scripts, source repositories and running
+  applications; findings go into the backlog and are tracked to remediation; periodic independent government cyber
+  DT\&E is still required \pg{DoWI 8430.01}{19--20}. Testers accept validated automated artifacts, scans, performance
+  data and telemetry as evidence \pg{DoWI 8430.01}{9}.
+\item \textbf{Security baseline.} Factories in the enterprise digital arsenal are authorized at least moderate
+  confidentiality and integrity; cloud hosting at IL2 or higher; software and technical artifacts with a military or
+  space application (source, build scripts, SBOMs, test vectors, design documents) are CTI at moderate/moderate
+  \pg{DoWI 8430.01}{20}.
+\item \textbf{Common security requirements} in eight areas: secure architecture, authentication and authorization,
+  input validation, FIPS-validated cryptography, error handling and logging, software safety, operational resilience,
+  continuous vulnerability management with analysis and dependency scanning in pipelines \pg{DoWI 8430.01}{20--21}.
+\item \textbf{Measurement.} Value stream metrics across the full lifecycle; team metrics such as DORA are leading
+  indicators ``not appropriate to compare beyond the team context''; contracts give the government access to the
+  metrics data in contractor environments \pg{DoWI 8430.01}{15--16}.
+\item \textbf{Reuse and release.} Report custom code (DITPR for unclassified); share it in a repository after removing
+  PII and sensitive data ``from code, documentation, issues, and commit history''; military or space code is shared by
+  InnerSource; other code may be released as open source under permissive, widely recognized licences
+  \pg{DoWI 8430.01}{25--26}.
+\item \textbf{Acquisition.} The Software Acquisition Pathway (DoDI 5000.87) is ``the preferred pathway for all DoW
+  software acquisition''; commercial solutions openings and other transactions are the default solicitations
+  \pg{DoWI 8430.01}{27}.
+\end{itemize}
+
+\subsection{AI in software development}
+Developers stay fully accountable; security- or safety-critical AI-generated changes need human review and approval;
+AI-generated code is ``unverified input''; non-public DoW information --- code, configuration scripts, infrastructure
+definitions, schematics, documentation --- may not go into generative AI unless the service resides on DoW information
+systems and is approved; AI code gets the same review and testing as other code, including intellectual property and
+licence checks; only approved AI services, which must not train on government data or prompts and must be auditable;
+keep a record of models, versions and datasets in the evidence package ``analogous to the SBOM'' \pg{DoWI 8430.01}{23--25}.
+
+\begin{boxteam}{DoWI 8430.01}
+A model repository in GitLab with a pipeline is already most of tenets (a), (c) and (d). The instruction's phrase
+``requirements that are traceable to mission critical functions'' is the requirement-to-verification trace a SysML v2
+model keeps (Primer: \emph{The pipeline, job by job}). The AI rules apply to a local model assistant too: keep the model
+on an approved system, review what it writes, and record which model wrote it (Primer: \emph{A local AI assistant on
+the laptop}). Removing sensitive data ``from \dots commit history'' before sharing is a reason to keep it out of the
+history in the first place.
+\end{boxteam}
+
+\section{Memo: Accelerating Secure Software}
+\textbf{What it is.} A one-page memo of 24 April 2025 by the official performing the duties of the CIO, directing a
+Software Fast-Track (SWFT) initiative \pg{SWFT memo}{1}. \st{POLICY}
+
+It names the problem plainly: ``Lengthy, outdated cybersecurity authorization processes frustrate agile, continuous
+delivery'', and the Department ``lacks visibility into the origins and security of software code''. SWFT is to define
+clear cybersecurity and supply chain risk management requirements, rigorous software security verification, secure
+information sharing, and government-led risk determinations to expedite authorizations; the framework and plan were
+due within 90 days \pg{SWFT memo}{1}.
+
+\section{Software Fast Track RFI Combined Summary}
+\textbf{What it is.} An analysis of 420 industry responses to three requests for information on supply chain security
+tools, external assessment, and automation and AI, cleared in December 2025 \pg{SWFT RFI}{1, 3}. It ``does not represent
+an endorsement \dots nor dictate what a SWFT implementation plan will encompass'' \pg{SWFT RFI}{7}, and it says it was
+partially assisted by generative AI with human review \pg{SWFT RFI}{1}. \st{REPORT}
+
+\textbf{Findings worth knowing.} NIST SP 800-218 (SSDF) appeared in over 75\% of responses, OWASP material in 66\%,
+NIST SP 800-53 in 60\%, NIST SP 800-161 in 46\% \pg{SWFT RFI}{7}; respondents asked the Department to define what a
+valid SSDF attestation is \pg{SWFT RFI}{8}; 90\% would provide an SBOM \pg{SWFT RFI}{10}; risk artifacts mapped to the
+RMF body of evidence (SAR, SSP, RAR, POA\&M) \pg{SWFT RFI}{11--12}; for SBOMs, standardized machine-readable formats
+such as CycloneDX or SPDX, package URLs, licences, provenance and dependency relationships \pg{SWFT RFI}{26}.
+
+% =====================================================================================================================
+\chapter{The DevSecOps document set}\label{ch:dso}
+
+\section{DoW Enterprise DevSecOps Fundamentals}
+\textbf{What it is.} An ``educational compendium'' approved by the SSG on 16 October 2024 \pg{Fundamentals}{3, 7},
+for novice and intermediate staff and for managers and leaders \pg{Fundamentals}{7}. \st{GUIDANCE}
+
+\textbf{Definition.} DevSecOps is ``a combination of software engineering methodologies, practices, and tools that
+unifies software development (Dev), security (Sec), and operations (Ops)'' with collaboration, automation and continuous
+monitoring \pg{Fundamentals}{9}. DoWI 8430.01 uses the same definition \pg{DoWI 8430.01}{31}.
+
+\textbf{Assumptions.} Agile is already in place; approved or provisionally authorized cloud is preferred, with
+on-premises hardware-in-the-loop testing for weapons systems; ``Avoiding vendor lock-in without considering other types
+of lock-in is ill-advised'' \pg{Fundamentals}{7--8}. A DevSecOps implementation ``does not require a specific
+architecture, containers, or even explicit use of cloud computing'', though these are strongly recommended and some
+reference designs mandate them \pg{Fundamentals}{12}.
+
+\textbf{Implementation components.} The software supply chain (four links each 90\% secure give roughly 65\%; raising
+each to 95\% gives 81\%) \pg{Fundamentals}{12--13}; the software factory (infrastructure, digital platform and
+application capabilities) \pg{Fundamentals}{13--14}; the DevSecOps platform \pg{Fundamentals}{17--18}; CI/CD pipelines
+\pg{Fundamentals}{18--20}; Infrastructure as Code, which can shorten deployment of networking, identity and security
+policies ``from the standard 30 weeks to hours'' \pg{Fundamentals}{20}. A merge request's peer review is ``the software
+code equivalent of two-person integrity'' \pg{Fundamentals}{15}; ``Released is never equivalent to Deployed!''
+\pg{Fundamentals}{16}.
+
+\textbf{Metrics.} DORA's four (deployment frequency, change lead time, change failure rate, failed deployment recovery
+time), Google's four golden signals, the OUSD(A\&S) ``DoD4'' (speed and cadence, stability and reliability,
+value/ROI, cyber resilience), OKRs and flow metrics (cycle time, throughput, work in progress)
+\pg{Fundamentals}{33--35}.
+
+\textbf{Culture.} Small incremental changes, security from the start, value open source, engage users early, automate
+repeated manual work, ``Fail fast, learn fast, but don't fail twice for the same reason'', documentation close to the
+code \pg{Fundamentals}{30--31}. Adoption is ``a marathon, not a sprint'' \pg{Fundamentals}{37}.
+
+\section{Activities \& Tools Guidebook and workbook}\label{sec:guidebook}
+\textbf{What it is.} Version 2.5 of April 2025 and its companion spreadsheet, ``a single package''
+\pg{Guidebook}{1, 6}. The spreadsheet is also a template for submitting new reference designs and for ``building a
+continuous ATO package that demonstrates process and responsibility mapping'' \pg{Guidebook}{6}. \st{GUIDANCE} with a
+REQUIRED baseline.
+
+\textbf{The baseline column.} REQUIRED activities ``are not negotiable'' and must be performed within the software
+factory as part of the minimum viable product release; PREFERRED are aspirational; AS REQUIRED are at the mission owner
+and AO's discretion \pg{Guidebook}{6, 10}. Reference designs cannot lower REQUIRED to PREFERRED; a contract, requirement
+or reference design may make an activity AS REQUIRED or not applicable \pg{Guidebook}{10}. Each activity is mapped to
+the SSDF practice groups PO, PS, PW and RV \pg{Guidebook}{11}. DevSecOps ``is most frequently adopted using Scrum 1 and 2
+week Sprints'' \pg{Guidebook}{7}.
+
+\textbf{Configuration management.} ``Without configuration management discipline, DevSecOps practices will not reach
+their full potential'': identification, control (CMDB, source and artifact repositories), and verification and audit as
+pipeline control gates \pg{Guidebook}{15--16}.
+
+\begin{longtable}{@{}L{0.12\linewidth}L{0.30\linewidth}L{0.52\linewidth}@{}}
+\caption{The ten lifecycle phases \pg{Fundamentals}{10} and their REQUIRED activities (Guidebook Tables 4--13,
+PDF pp.~17--52; workbook phase tabs). Mission-based cyber risk assessment and test audit are REQUIRED in nearly every
+phase and are not repeated.}\label{tab:phases}\\
+\toprule \sffamily\bfseries Phase & \sffamily\bfseries Purpose & \sffamily\bfseries REQUIRED activities\\ \midrule\endfirsthead
+\toprule \sffamily\bfseries Phase & \sffamily\bfseries Purpose & \sffamily\bfseries REQUIRED activities\\ \midrule\endhead
+\bottomrule\endfoot
+Plan & Requirements and objectives, focused on the next release & Change management planning; configuration identification; CM planning; DevSecOps process design; documentation version control; IaC deployment; project/release planning; team onboarding planning; risk management; software requirement analysis; system design; test deployment; test plan. (Threat modeling and design review are PREFERRED.)\\
+Develop & Create the elements & Code commit; code commit logging; code commit scan; database component test; documentation; functional test; security code development; static analysis; static code scan before commit; test development; unit test. (Code review is PREFERRED.)\\
+Build & Compile or integrate & API security tests; build; build configuration control and audit; component, functional, integration, regression and software integration tests; dependency vulnerability checking; release packaging; SAST; store artifacts.\\
+Test & Verify against requirements & API security tests; compliance scan; manual security test; regression test; SBOM software composition analysis; service security test; software factory risk continuous monitoring; software integration test; SAST; system test. (DAST and performance test are PREFERRED.)\\
+Release & Package and document & Operational readiness test; release go/no-go decision; SBOM SCA; software factory risk continuous monitoring. (User story review and demonstration is PREFERRED.)\\
+Deliver & Make available to operations & Configuration integration testing; deliver released artifacts; delivery results review; operations team acceptance; SBOM SCA; factory risk monitoring.\\
+Deploy & Install and configure & Compliance tests; interoperability tests; mission-oriented developmental tests; performance tests; post-deployment security scan; SBOM SCA; factory risk monitoring; user evaluation/feedback. (Formal qualification, OT\&E and others AS REQUIRED.)\\
+Operate & Use in operations & Business operations; cyber OT\&E; logging; SBOM SCA; factory risk monitoring; user evaluation/feedback.\\
+Monitor & Observe and measure & Asset inventory including SBOMs; compliance monitoring (COTS; resources and services); log analysis and auditing; system security monitoring; user evaluation/feedback.\\
+Feedback & Changes for the next iteration & Revise product backlog; user evaluation/feedback.\\
+\end{longtable}
+
+\begin{boxteam}{the guidebook}
+Several Plan-phase REQUIRED activities are systems engineering by another name: configuration identification, CM
+planning, risk management, software requirement analysis, system design, test plan. A model-based team that keeps its
+requirements, design and verification in a configuration-managed model with a pipeline already performs them; map them
+in the workbook's tailoring columns rather than writing new documents. The Tools tab's ``requirements database'' asks to
+``trace requirements to their source'' and ``trace features or design components to the requirements'' --- the model's
+trace (Primer: \emph{DevSecOps in systems-engineering words}).
+\end{boxteam}
+
+\section{DevSecOps Playbook}
+\textbf{What it is.} Eleven one-page plays with checklists, version 2.1 of September 2021, printed with a one-year
+self-expiry \pg{Playbook}{1}. \st{GUIDANCE} \st{SELF-EXPIRY}
+
+The plays: adopt a DevSecOps culture (``from `I' to `we'{}'') \pg{Playbook}{4}; adopt Infrastructure as Code (vendor
+lock-in versus product lock-in: cloud-agnostic tools such as Ansible and Terraform ``avoid vendor lock-in but create product lock-in''; GitOps =
+IaC + merge requests + CI/CD) \pg{Playbook}{5}; containerized microservices on CNCF Certified Kubernetes with Iron Bank
+images, a sidecar security stack and a service mesh \pg{Playbook}{6}; a capability model, not a maturity model (DORA's
+four key metrics) \pg{Playbook}{7}; 24 key capabilities \pg{Playbook}{8}; establish a software factory --- adopt an
+existing one before building a new, expensive, multi-tenant one \pg{Playbook}{9}; define a meaningful pipeline (start
+small; ``work closely with the AO to understand precisely what each control gate must validate'') \pg{Playbook}{10};
+agile acquisition (``Do not lock technical requirements into legal contracts'') \pg{Playbook}{11}; cyber resilience
+(``Do not use Fast Track Authority to Operate for software produced by a DevSecOps software factory CI/CD pipeline'';
+help the AO move to a near real-time dashboard) \pg{Playbook}{12}; shift test and evaluation left (``Establish the plan
+to automate the collection of test data metrics in the first sprint'') \pg{Playbook}{13}; industry practices
+\pg{Playbook}{14}.
+
+\section{The State of DevSecOps}
+\textbf{What it is.} The first DoD CIO report on the state of DevSecOps, March 2025, based on interviews with more than
+75 leaders and practitioners in 19 software organizations \pg{State report}{1, 4}. \st{REPORT}
+
+\textbf{Findings.} Over 50 software factories deliver code to production \pg{State report}{3}; about 78 acquisition
+programs had adopted the Software Acquisition Pathway, three quarters of them delivering software in under six months
+\pg{State report}{10}; ``Software Factories Are Our Digital Arsenal'' \pg{State report}{4}; DevSecOps ``must be
+introduced with leadership commitment'' \pg{State report}{3}. On cATO: a system needs an existing ATO and the RMF
+monitoring stage; authorizing officials are often ``biased to caution'' rather than ``biased to action''
+\pg{State report}{27--28}; reciprocity is now the default stance ``except when cybersecurity risk is too great''
+\pg{State report}{29}. Policy should be S-P-E-E-E-D: Socialized, Portfolio-wide, Executable, Expertise-aware, Evolving,
+Discoverable; ``Culture interprets policy'' \pg{State report}{32--33}.
+
+\textbf{Its playbook for measurement} \pg{State report}{39--41}: do not average metrics across unlike systems; ask did we
+build the right thing, did we build it right, did we get it to the right people, quickly and adaptably; and four rules ---
+``The best data is the data used every day'', ``Manage to mission value, not metrics'', ``Don't rely on a single
+metric'', ``Data can be aggregated, but metrics can't''.
+
+% =====================================================================================================================
+\chapter{DevSecOps reference designs}\label{ch:rd}
+
+\section{Pathway to a Reference Design}
+Eight steps from community proposal to approved design: proposal, evaluation and differentiation, define interconnects,
+publish draft, execute pilot, lessons learned, SSG briefing, approved reference design \pg{Pathway}{2}. A draft must
+build on the guidebook's REQUIRED items and ``must be piloted in an operationally relevant environment'' before approval;
+approved designs are living documents ``revised no less than once per year'' with an expiration banner
+\pg{Pathway}{3}.
+
+\section{The four designs side by side}
+{\footnotesize
+\begin{longtable}{@{}L{0.15\linewidth}L{0.18\linewidth}L{0.18\linewidth}L{0.18\linewidth}L{0.18\linewidth}@{}}
+\caption{Reference design comparison (each design's own statements).}\label{tab:rd}\\
+\toprule & \sffamily\bfseries CNCF Kubernetes & \sffamily\bfseries Multi-Cluster K8s & \sffamily\bfseries AWS Managed (draft) & \sffamily\bfseries Azure + GitHub (draft)\\ \midrule\endfirsthead
+\toprule & \sffamily\bfseries CNCF Kubernetes & \sffamily\bfseries Multi-Cluster K8s & \sffamily\bfseries AWS Managed (draft) & \sffamily\bfseries Azure + GitHub (draft)\\ \midrule\endhead
+\bottomrule\endfoot
+Status & Approved, v2.1, Sep 2021; self-expiry printed \pg{RD-K8s}{1, 3} & Approved, v1.0, Jul 2022 \pg{RD-Multi}{1, 3} & Pre-decisional draft v0.2; approval TBD \pg{RD-AWS}{1, 3} & Pre-decisional draft v0.01 (signed Oct 2022) \pg{RD-Azure}{1--2}\\
+Stance & Cloud-agnostic; container is the unit of deployment; K8s in production \pg{RD-K8s}{7} & Many small clusters, shared services, forward-deployable management \pg{RD-Multi}{7, 10} & ``not vendor or product-agnostic''; deep AWS managed services \pg{RD-AWS}{9--10} & CSP-native SaaS + IaC; ``does not cover containers'' \pg{RD-Azure}{7, 9}\\
+Platform & CNCF Certified K8s, Iron Bank hardened containers \pg{RD-K8s}{11, 18} & Conformant K8s with Cluster API lifecycle \pg{RD-Multi}{9} & EKS, ECR, App Mesh \pg{RD-AWS}{12--13} & DoD Cloud IaC on Azure Government; GitHub \pg{RD-Azure}{8--9}\\
+North--south & Cloud Native Access Point \pg{RD-K8s}{11} & Delegated authentication within an accreditation boundary \pg{RD-Multi}{8} & CNAP \pg{RD-AWS}{12} & CNAP via Azure AD, Firewall, App Gateway/WAF or Front Door \pg{RD-Azure}{19}\\
+East--west & Service mesh; sidecar security stack mandatory \pg{RD-K8s}{11} & mTLS between and within clusters \pg{RD-Multi}{10, 17} & App Mesh mTLS \pg{RD-AWS}{15} & Private endpoints, firewall hub \pg{RD-Azure}{52}\\
+CI/CD & Orchestrator with stage entrance/exit control gates \pg{RD-K8s}{18--19} & Continuous reconciliation from a central source of truth \pg{RD-Multi}{12--14} & Pipeline with the main branch; CDK/CloudFormation \pg{RD-AWS}{11} & GitHub Actions; GitHub-hosted or self-hosted runners \pg{RD-Azure}{23, 30--33}\\
+Monitoring & SIEM/SOAR; CSP services ``both/and'' \pg{RD-K8s}{30--31} & Production-ready K8s even in development \pg{RD-Multi}{10, 19} & CloudEvents, EventBridge, Security Hub \pg{RD-AWS}{13} & Monitor, Defender for Cloud, Policy, Sentinel \pg{RD-Azure}{14--15}\\
+Notable & Two different container scanners REQUIRED \pg{RD-K8s}{25} & ``No in-place patching'' \pg{RD-Multi}{10} & No SSH or RDP; HTTPS only \pg{RD-AWS}{11} & ``code low, deploy high'' (IL2 dev, IL4/5 prod) \pg{RD-Azure}{8}\\
+\end{longtable}}
+
+\section{The Azure + GitHub draft in more detail}
+Because the Azure draft is the closest to a cloud-hosted, SaaS-tooled team, its specifics are worth knowing even though
+it is a draft and names GitHub rather than any other tool.
+\begin{itemize}
+\item Three design elements: Infrastructure as Code builds the cloud environment; a CSP-managed development suite as a
+  service; applications from CSP-native services secured by policy \pg{RD-Azure}{8--9}.
+\item The DoD Cloud IaC baseline has a DISA provisional ATO; inheritance from the PaaS and IaaS layers ``accounts for
+  approximately 40\% of all controls''; systems ``must still be assessed for a full ATO'' \pg{RD-Azure}{7, 10, 19}. The
+  baselines are updated monthly and are Distribution~C (US Government and contractors) \pg{RD-Azure}{20}.
+\item Prerequisites: an empty Azure AD tenant, an Enterprise Agreement with five named subscriptions (Operations,
+  Development, Test, Production, Forensics); pay-as-you-go subscriptions are incompatible \pg{RD-Azure}{16}.
+\item Runners: GitHub-hosted runners in Azure Commercial for workloads up to IL5, or self-hosted runners inside the
+  Azure Government environment, which poll outward over authenticated HTTPS so artifacts never leave the secured
+  environment \pg{RD-Azure}{30--33}. Use OpenID Connect federation instead of long-lived cloud credentials in the CI
+  secret store \pg{RD-Azure}{34--35}.
+\item Pipeline minimums: linters, security checks, code coverage, functional checks; a periodic (weekly or daily) build
+  so scanning happens even without changes \pg{RD-Azure}{29--30}. IL6 and air-gapped clouds need a self-hosted server
+  product \pg{RD-Azure}{70}.
+\end{itemize}
+
+\begin{boxteam}{GitLab Dedicated on Azure with AKS runners}
+No reference design in the library names GitLab. The cATO guide lists ``an existing commercial integrated DevSecOps
+tool'' among its options for a platform \pg{cATO guide}{15}, and the Azure draft's patterns carry over by analogy:
+runners inside your own Azure subscription that poll outward (a GitLab runner with the Kubernetes executor on AKS does
+this), short-lived federated credentials instead of stored secrets, private repositories at IL4 and above, a scheduled
+pipeline that scans even when nothing changed. Which reference design your platform claims conformance to is a
+question for your platform team and AO, because cATO requires one \pg{cATO criteria}{14} (Primer: \emph{Runners: where
+the pipeline runs}). Terraform is named in the Playbook as cloud-agnostic IaC that trades vendor lock-in for product
+lock-in \pg{Playbook}{5}.
+\end{boxteam}
+
+% =====================================================================================================================
+\chapter{Open source software}\label{ch:oss}
+
+\textbf{What it is.} The DoD CIO memorandum of 24 January 2022, which supersedes the 2009 open source memo
+\pg{OSS memo}{1--2}. \st{POLICY} DoWI 8430.01 adds the 2026 rules (sections 3.5.i and 3.7) \pg{DoWI 8430.01}{21--26}.
+
+Two concerns frame it: externally maintained code is a path for malicious code, so open source needs the same supply
+chain risk management as any product; and imprudent sharing of DoD code helps adversaries, which a modular open systems
+approach manages by separating the critical parts \pg{OSS memo}{1}.
+
+\begin{longtable}{@{}L{0.62\linewidth}L{0.32\linewidth}@{}}
+\caption{Open source rules.}\label{tab:oss}\\
+\toprule \sffamily\bfseries Rule & \sffamily\bfseries Source\\ \midrule\endfirsthead
+\toprule \sffamily\bfseries Rule & \sffamily\bfseries Source\\ \midrule\endhead
+\bottomrule\endfoot
+Adopt, Buy, Create: existing government or open source first, then proprietary, new software last. & \pg{OSS memo}{3}; \pg{DoWI 8430.01}{10}\\
+Open source is commercial computer software and gets equal consideration; refusing it only because it is open source may restrict competition. & \pg{OSS memo}{3}\\
+Program managers own the suitability of off-the-shelf components, including open source. & \pg{OSS memo}{3}\\
+Assess: long-term support (project health), trusted sources, dependencies, component security, integrity (signatures), foreign influence. & \pg{OSS memo}{4--5}; \pg{DoWI 8430.01}{22}\\
+For non-trivial open source, also governance and control model, community health and security practices, licence and legal risk. & \pg{DoWI 8430.01}{22--23}\\
+Respect the licence: most open source is copyrighted; keep authorship and licence notices. & \pg{OSS memo}{5}\\
+Do not unduly restrict developers' access to software repositories. & \pg{OSS memo}{5}\\
+Plan sustainment of open source components in the product support strategy. & \pg{OSS memo}{6}\\
+Take delivery of source code and everything needed to build, test and deploy it. & \pg{OSS memo}{6}\\
+Non-NSS software is open by default unless it is critical technology, the government lacks rights, or export rules forbid release. & \pg{OSS memo}{7}\\
+Distribution B--F software is CTI and may not be released as open source; software that is not is not CTI. & \pg{OSS memo}{7}\\
+Acceptable licences: Apache-2.0, BSD, GPL, LGPL, MIT; no custom licences. (DoWI: permissive, widely recognized licences approved by a Military Department or the CIO.) & \pg{OSS memo}{7--8}; \pg{DoWI 8430.01}{26}\\
+Contribute upstream by pull/merge request; avoid DoD-specific forks; employees may contribute as official duty after consulting their supervisor. & \pg{OSS memo}{8}\\
+All third-party components and transitive dependencies go in the SBOM. & \pg{DoWI 8430.01}{23}\\
+\end{longtable}
+
+\begin{boxteam}{open source tools in a model pipeline}
+A team's toolchain (git, a scripting language, a SysML v2 grammar, a diagram tool) is open source under these rules:
+record each in the SBOM, assess its project health once, and keep the tool versions in the baseline. A kit written by
+the government team for a civilian, non-critical purpose is a candidate for release; anything with a military
+application is CTI from its inception \pg{DoWI 8430.01}{14}.
+\end{boxteam}
+
+% =====================================================================================================================
+\chapter{Continuous authorization to operate}\label{ch:cato}
+
+\section{The memo}
+Signed 2 February 2022 by the DoD Senior Information Security Officer \pg{cATO memo}{3}. \st{POLICY} RMF practice focused
+on obtaining ATOs and fell short on continuous monitoring \pg{cATO memo}{1}. To achieve cATO the AO must demonstrate three
+competencies: on-going visibility with robust continuous monitoring of RMF controls; active cyber defense in real time;
+and ``the adoption and use of an approved DevSecOps reference design'' \pg{cATO memo}{1}. ``Simply conducting scans and
+patching does not meet the threshold for active cyber defense'' \pg{cATO memo}{2}. The AO and component CISO present
+the request and evidence to the DoD CISO; approved cATOs ``do not have an expiration date'' while the posture holds;
+the cATO does not replace the underlying ATO and can be revoked without losing it \pg{cATO memo}{2--3}.
+
+\section{The evaluation criteria and the implementation guide}
+\textbf{Two use cases} \pg{cATO criteria}{5--6}: (1) inside the software factory boundary --- the factory's own
+production environment, ``the main use case''; (2) outside it --- software deployed into another authorization
+boundary (for example a weapon system) under a memorandum of understanding and interconnection security agreement.
+
+\textbf{Prerequisites.} All RMF steps followed and the system in the RMF Monitor step \pg{cATO criteria}{6}; a current
+ATO ``with no `High' or `Very High' unmitigated findings'' \pg{cATO criteria}{8}; a robust continuous monitoring
+strategy with automated triggers on approved thresholds \pg{cATO criteria}{7}. Cloud hosting ``requires the deployment
+of a Cloud Native Application Protection Platform (CNAPP)'' \pg{cATO criteria}{7}.
+
+\textbf{Assessment.} Platform, process and people are assessed against the three competencies \pg{cATO criteria}{9};
+evidence includes demonstrations, interviews and tracking systems \pg{cATO guide}{9--10}. The guide's practical advice:
+use an existing platform before building one --- building new ``is the most time-consuming approach, and it should be
+avoided if possible''; bring security into the team at the start; continuous monitoring in all environments, including
+development and test; user stories and frequent demonstrations ``rather than creating comprehensive requirements''; no
+waterfall and no heavy-weight agile process \pg{cATO guide}{15--16}.
+
+\textbf{Metrics.} Mean time to patch; guardrail and control-gate trends sprint over sprint; feedback frequency;
+mitigation effectiveness; security posture dashboards \pg{cATO guide}{14--15}, \pg{State report}{30}.
+
+\section{Checklist}
+Condensed from the evaluation criteria \pg{cATO criteria}{10--17}. The criteria mark the package documents; this list
+is a reading aid, not the package.
+
+\begin{longtable}{@{}L{0.04\linewidth}L{0.90\linewidth}@{}}
+\caption{cATO evaluation checklist.}\label{tab:cato}\\
+\toprule \multicolumn{2}{@{}l}{\sffamily\bfseries Continuous monitoring \pg{cATO criteria}{10--13}}\\ \midrule\endfirsthead
+\bottomrule\endfoot
+\checkbox & cATO risk management strategy with risk tolerances, insider and external threats (DoDI 8510.01)\\
+\checkbox & System CONMON strategy: vulnerabilities tracked on all assets; implementation, effectiveness and impact measures; monitoring timelines; tied to audit and incident response\\
+\checkbox & Authorization boundary diagram with data flows (including PII) and all external connections\\
+\checkbox & Business rules: certified cyber staff, roles, a vulnerability POC, AO real-time access to test, scan and monitoring results\\
+\checkbox & Automated monitoring: a working near-real-time dashboard, alerting, reporting to CMRS, the pipeline itself monitored\\
+\checkbox & Authorization package (SAP, SAR, RAR, SSP, signed ATO, POA\&Ms), with a security assessment covering the platform and delivery pipeline (threat modeling, pen testing, attack surface, manual code review, SAST, DAST, IAST)\\
+\checkbox & COOP/disaster recovery with test evidence; incident response plan with exercises\\
+\checkbox & Continuous vulnerability management with timelines; audit log analysis; the cATO approval memo template\\
+\midrule \multicolumn{2}{@{}l}{\sffamily\bfseries Active cyber defense \pg{cATO criteria}{13--14}}\\ \midrule
+\checkbox & Certified CSSP with SLA, sensors, and training on DevSecOps\\
+\checkbox & Third-party penetration test of development and operational environments within 90 days and annually\\
+\checkbox & Ongoing security testing against real adversary techniques; budget for automated cyber testing\\
+\midrule \multicolumn{2}{@{}l}{\sffamily\bfseries Platform \pg{cATO criteria}{14--15}}\\ \midrule
+\checkbox & Name the approved reference design the platform implements\\
+\checkbox & SBOM for the platform and an automated SBOM export for every product (SPDX, SWID or CycloneDX; the format ``has not yet been mandated''); an SBOM archive; how new CVEs are applied to stored SBOMs\\
+\checkbox & Activities and Tools mapping of REQUIRED and PREFERRED activities, with a roadmap and demonstrations\\
+\checkbox & CNAPP: composition analysis, SAST/DAST/IAST, cloud posture and entitlement management, IaC scanning, workload protection, cloud detection and response\\
+\midrule \multicolumn{2}{@{}l}{\sffamily\bfseries Process \pg{cATO criteria}{15--16}}\\ \midrule
+\checkbox & IaC and configuration as code to prevent drift\\
+\checkbox & Each control gate described (what opens and closes it, alerts, responses) and demonstrated; each guardrail and its out-of-tolerance process\\
+\midrule \multicolumn{2}{@{}l}{\sffamily\bfseries People \pg{cATO criteria}{16--17}}\\ \midrule
+\checkbox & Role-based training records; org chart; separation of duties and least privilege\\
+\checkbox & Tabletop exercises with after-action reports (incidents, gate triggers, alerts, privilege requests)\\
+\checkbox & Team trained on the reference design, tools, gates and tolerances, adjudication, root cause analysis, POA\&Ms and dashboards\\
+\checkbox & Insider threat working group; onboarding and offboarding for everyone regardless of rank\\
+\end{longtable}
+
+\begin{boxteam}{cATO}
+A small model team rarely seeks its own cATO; it builds on a platform that has (or is pursuing) one, and inherits most
+of the platform controls. What it owns is in its repository: control gates that are documented and demonstrable (the
+pipeline jobs and their failure messages), an SBOM and an archive of them per baseline, findings tracked to closure in
+the backlog, and training records. Ask the platform team for its reference design, its risk tolerances and how a
+pipeline failure is routed (Primer: \emph{Security: protect the environment, engineer it into the system}).
+\end{boxteam}
+
+% =====================================================================================================================
+\chapter{What it means for a small MBSE team}\label{ch:team}
+
+This chapter is this guide's reading, not the Department's. It assumes a team like the MBSE-DEVSECOPS Primer's: a few
+systems engineers keeping a SysML v2 text model in GitLab Dedicated, runners on Kubernetes (AKS) in an Azure
+subscription, the environment defined in Terraform, work arriving as requests from another system.
+
+\begin{longtable}{@{}L{0.33\linewidth}L{0.38\linewidth}L{0.23\linewidth}@{}}
+\caption{From obligation to practice.}\label{tab:team}\\
+\toprule \sffamily\bfseries The documents ask & \sffamily\bfseries A model team does & \sffamily\bfseries Primer chapter\\ \midrule\endfirsthead
+\toprule \sffamily\bfseries The documents ask & \sffamily\bfseries A model team does & \sffamily\bfseries Primer chapter\\ \midrule\endhead
+\bottomrule\endfoot
+Testable requirements traceable to mission functions \pg{DoWI 8430.01}{4--5} & Requirements as model elements with satisfy and verify links, checked on every merge request & Requirements a pipeline can check\\
+Operate a secure CI/CD pipeline \pg{DoWI 8430.01}{9} & Every model change through a merge request and a pipeline; protected branches & The pipeline, job by job\\
+Testing is continuous, not a final gate \pg{DoWI 8430.01}{14} & Grammar, lint, trace and verification-matrix jobs on every change; results kept as evidence & CI/CD from zero\\
+Configuration management discipline \pg{Guidebook}{15} & Baselines as tags, audited by checksum; the change history in git & Maintenance through the life cycle\\
+SBOM and provenance \pg{DoWI 8430.01}{18} & Record the toolchain (versions and checksums) with each baseline; generate an SBOM for any software produced & Security: protect the environment\\
+Value stream metrics; DORA inside the team \pg{DoWI 8430.01}{15--16} & Lead time from request to merged change and to baseline; deployment frequency of baselines; failure rate of pipelines & Measuring with GitLab analytics\\
+Engage users; demonstrate \pg{DoWI 8430.01}{10} & Sprint reviews that demonstrate the model, not slides about it & The rhythm\\
+AI code is unverified input \pg{DoWI 8430.01}{23} & Review every AI-drafted change like any other; label it; keep the assistant on an approved system & A local AI assistant on the laptop\\
+Use an existing platform \pg{cATO guide}{15} & Use the enterprise GitLab and runners; add jobs, not infrastructure & Setting up GitLab; Runners\\
+Infrastructure as Code \pg{Strategy}{11} & Keep the project's own settings (labels, boards, schedules) as code; leave the cluster's Terraform to the platform team unless you own it & Administration\\
+\end{longtable}
+
+\begin{boxnote}{What not to over-read}
+None of the documents requires a particular tool, a SysML language or a model repository. The guidebook says common
+tools are ``a class of tooling'' and not the same product everywhere \pg{Fundamentals}{20}. The DORA metrics and the
+twelve-week scorecard are team diagnostics; reporting upward should be in mission terms \pg{DoWI 8430.01}{16},
+\pg{State report}{41}.
+\end{boxnote}
+
+% =====================================================================================================================
+\chapter{What to read in full, and when}\label{ch:read}
+
+\begin{longtable}{@{}L{0.22\linewidth}L{0.36\linewidth}L{0.36\linewidth}@{}}
+\caption{Reading plan.}\label{tab:read}\\
+\toprule \sffamily\bfseries Who & \sffamily\bfseries Read in full & \sffamily\bfseries When\\ \midrule\endfirsthead
+\toprule \sffamily\bfseries Who & \sffamily\bfseries Read in full & \sffamily\bfseries When\\ \midrule\endhead
+\bottomrule\endfoot
+Everyone on the team & DevSecOps Fundamentals (44 pp.); DoWI 8430.01 section 3 (pp.~13--29) & In the first two weeks\\
+Systems engineering lead & DoWI 8430.01 in full; Activities \& Tools Guidebook Plan, Develop and Test tables & Before the first planning meeting; again before a review\\
+Whoever owns the pipeline & Guidebook and workbook in full; the reference design your platform implements & Before writing the pipeline; when the platform changes\\
+Security and the ISSM & cATO memo, evaluation criteria, implementation guide; DoWI 8430.01 section 3.5 & Before the authorization conversation\\
+Program manager & Strategy; Implementation Plan; State of DevSecOps sections 5 and 8; DoWI 8430.01 sections 3.3 and 3.8 & Before setting measures and contracts\\
+Anyone choosing a tool or library & OSS memo; DoWI 8430.01 section 3.5.i & Before adopting it\\
+Anyone using an AI assistant & DoWI 8430.01 section 3.6 & Before the first use\\
+For background only & Playbook, Pathway, SWFT memo and RFI summary, AWS draft & When the topic comes up\\
+\end{longtable}
+
+% =====================================================================================================================
+\appendix
+\chapter{Glossary of acronyms}\label{app:glossary}
+\begin{multicols}{2}\small
+\begin{description}[style=nextline,leftmargin=0pt,itemsep=1pt,font=\sffamily\bfseries]
+\item[ACD] Active Cyber Defense
+\item[AO / AODR] Authorizing Official / AO Designated Representative
+\item[ATO / ATC] Authorization to Operate / to Connect
+\item[cATO] Continuous Authorization to Operate
+\item[CI/CD] Continuous Integration / Continuous Delivery (or Deployment)
+\item[CISO] Chief Information Security Officer
+\item[CM / CMDB] Configuration Management / CM Database
+\item[CNAP] Cloud Native Access Point
+\item[CNAPP] Cloud Native Application Protection Platform
+\item[CNCF] Cloud Native Computing Foundation
+\item[CONMON] Continuous Monitoring
+\item[CSSP] Cybersecurity Service Provider
+\item[CTI] Controlled Technical Information
+\item[CUI] Controlled Unclassified Information
+\item[DAST / SAST / IAST] Dynamic / Static / Interactive Application Security Testing
+\item[DCWF] DoD (DoW) Cyber Workforce Framework
+\item[DITPR] DoD IT Portfolio Repository
+\item[DORA] DevOps Research and Assessment
+\item[DSOP] DevSecOps Platform
+\item[DT\&E / OT\&E] Developmental / Operational Test and Evaluation
+\item[E2P] Exception to Policy
+\item[IaC / CaC] Infrastructure / Configuration as Code
+\item[IL] Impact Level (cloud security requirements guide)
+\item[ISA / MOU] Interconnection Security Agreement / Memorandum of Understanding
+\item[ISCM] Information Security Continuous Monitoring
+\item[JWCC] Joint Warfighting Cloud Capability
+\item[MOSA] Modular Open Systems Approach
+\item[MVP / MVCR] Minimum Viable Product / Capability Release
+\item[NSS] National Security System
+\item[OSS] Open Source Software
+\item[POA\&M] Plan of Action and Milestones
+\item[RAR / SAR / SAP / SSP] Risk Assessment Report / Security Assessment Report / Plan / System Security Plan
+\item[RMF / RMF KS] Risk Management Framework / its Knowledge Service
+\item[SBOM / SCA] Software Bill of Materials / Software Composition Analysis
+\item[SCSS] Sidecar Container Security Stack
+\item[SIEM / SOAR] Security Information and Event Management / Security Orchestration, Automation and Response
+\item[SSDF] Secure Software Development Framework (NIST SP 800-218); groups PO, PS, PW, RV
+\item[SSG] Software Modernization Senior Steering Group
+\item[SSSC] Secure Software Supply Chain
+\item[SWFT] Software Fast Track
+\item[SWP] Software Acquisition Pathway (DoDI 5000.87)
+\end{description}
+\end{multicols}
+
+\chapter{Sources}\label{app:sources}
+The library page \url{https://dodcio.defense.gov/library/} as captured on 3 October 2026 (the live site did not answer
+automated requests when this guide was compiled). Pages are PDF pages. Checksums are SHA-256 of the copies read.
+
+{\small
+\begin{longtable}{@{}L{0.04\linewidth}L{0.90\linewidth}@{}}
+\toprule \sffamily\bfseries \# & \sffamily\bfseries Document, address, version, pages, SHA-256\\ \midrule\endfirsthead
+\toprule \sffamily\bfseries \# & \sffamily\bfseries Document, address, version, pages, SHA-256\\ \midrule\endhead
+\bottomrule\endfoot
+1 & \textbf{DoW Software Modernization Strategy} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/SoftwareModStrat.pdf} --- v1.0 Nov 2021, memo 1 Feb 2022 --- 14 pp. --- \texttt{\scriptsize 0276c47b7fb058e660bdacce2ca621e93a8cea78e290a7b05f9f581b8a02b53a}\\
+2 & \textbf{Software Modernization Implementation Plan FY25--26} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/SW-Mod-I-Plan25-26.pdf} --- cleared 30 Apr 2025 --- 27 pp. --- \texttt{\scriptsize ba350c72245b8efac4a0e4a5655f4042e9a53b6e8a1fa44dbe3170bae0122601}\\
+3 & \textbf{DoWI 8430.01, Accelerated Mission Software} --- \url{https://www.esd.whs.mil/Portals/54/Documents/DD/issuances/dodi/843001p.pdf} --- effective 8 Sep 2026 --- 37 pp. --- \texttt{\scriptsize b35f0dcc2fae721994413c702671e9b754ed6911daeecfcfec0d83f0a4df465a}\\
+4 & \textbf{Memo: Accelerating Secure Software} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/Memo-AcceleratingSecureSoftware.pdf} --- 24 Apr 2025 --- 1 p. --- \texttt{\scriptsize 2010080899dceab07f1dd9caa48ed5cfba6d921eccc34cd5a7b790efdabdea13}\\
+5 & \textbf{Software Fast Track RFI Combined Summary} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/SWFT-RFI-Combined-Summary.pdf} --- cleared 3 Dec 2025 --- 31 pp. --- \texttt{\scriptsize a2a2ad2a36b9e336775e567e3a6c60ba6745f8ef204d5bf9ab0066dfc06825b1}\\
+6 & \textbf{DoW Enterprise DevSecOps Fundamentals} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/DoD%20Enterprise%20DevSecOps%20Fundamentals%20v2.5.pdf} --- v2.5, Oct 2024 --- 44 pp. --- \texttt{\scriptsize dbef8ab70c33aade3d6495970caad09f46f750482625e8ad22400c7b1eddb22b}\\
+7 & \textbf{DoW Enterprise DevSecOps Activities \& Tools Guidebook} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/DevSecOpsActivitesToolsGuidebook.pdf} --- v2.5, Apr 2025 --- 65 pp. --- \texttt{\scriptsize 350432bf6bc046a8a0ab5e5ece352386dabcb8a7921c54fcacd9b49897224143}\\
+8 & \textbf{DevSecOps Fundamentals Guidebook: Activities \& Tools (xlsx)} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/DevSecOpsActivitesToolsGuidebookTables.xlsx} --- companion of v2.5 --- 14 tabs --- \texttt{\scriptsize 60c330c7659d2fa242deba078722c5c8242883c9c02cc0f147506c2459b623a9}\\
+9 & \textbf{DevSecOps Playbook} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/DevSecOps%20Playbook_DoD-CIO_20211019.pdf} --- v2.1, Sep 2021 --- 14 pp. --- \texttt{\scriptsize 809a6fbb462aeeec20b4db087b3feddf084dcd9ff855842e7b18e990ce882554}\\
+10 & \textbf{The State of DevSecOps Report} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/DevSecOpsStateOf.pdf} --- Mar 2025 --- 47 pp. --- \texttt{\scriptsize 66a647df3b1b1bf837e430e5aff1fb4b0a0370979ff55ec4d30f0c9a11f3874e}\\
+11 & \textbf{Reference Design: CNCF Kubernetes} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/DoD%20Enterprise%20DevSecOps%20Reference%20Design%20-%20CNCF%20Kubernetes%20w-DD1910_cleared_20211022.pdf} --- v2.1, Sep 2021 --- 32 pp. --- \texttt{\scriptsize 9742f6a5d6ca6b32ca30c6857a61e3d35d009141df2d5e6891a77eaf7164a117}\\
+12 & \textbf{Reference Design: CNCF Multi-Cluster Kubernetes} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/DoDReferenceDesign-CNCFMulti-ClusterKubernetes.pdf} --- v1.0, Jul 2022 --- 28 pp. --- \texttt{\scriptsize addad98c2d19c620f4ef0260687595b731e0d11fb9eef93f9fe3e460ef7ffef1}\\
+13 & \textbf{DRAFT: DOW AWS Managed Service} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/DoD%20Enterprise%20DevSecOps%20Reference%20Design%20-%20AWS%20Managed%20Services_DoD-CIO_20211019.pdf} --- v0.2, Sep 2021 --- 35 pp. --- \texttt{\scriptsize 0041626903b05b2cd8fbb3e8aa323fe5de4624d29148d17425498bc0aeabef9e}\\
+14 & \textbf{DRAFT: DOW Cloud IaC + GitHub + Azure} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/DoDRefDesignCloudGithub.pdf} --- v0.01, Sep 2022 --- 70 pp. --- \texttt{\scriptsize 2e2e896d30588754cc0be268ac896b0e5c8b35df6c93a843a990ff633838fc0d}\\
+15 & \textbf{Pathway to Reference Design} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/DoD%20Enterprise%20DevSecOps-Pathway%20to%20a%20Reference%20Design_DoD-CIO_20211018.pdf} --- Sep 2021 --- 3 pp. --- \texttt{\scriptsize 0e4b2f85eb0d8eaeda3098f7aa4c2ba17298fcb1b36792aa19952e0934ca733b}\\
+16 & \textbf{Software Development and Open Source Software Memorandum} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/SoftwareDev-OpenSource.pdf} --- 24 Jan 2022 --- 8 pp. --- \texttt{\scriptsize 8113f7c6321f5adf549de678bfc8bfb60fd784b03cbcf73d34f88ae7e6345cff}\\
+17 & \textbf{Memo: Continuous Authorization to Operate (cATO)} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/20220204-cATO-memo-Signed-Cleared.pdf} --- 2 Feb 2022 --- 3 pp. --- \texttt{\scriptsize c366edb4bd0174574c12dae25362a40cd7428f871dc2a0676cf76d2da6580c90}\\
+18 & \textbf{DevSecOps cATO Evaluation Criteria} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/cATO-EvaluationCriteria.pdf} --- 29 May 2024 --- 19 pp. --- \texttt{\scriptsize afbe0a13a7f63c8741d036d373508c93ae1c9df1abb37ddf74714f1b43052608}\\
+19 & \textbf{DevSecOps Continuous Authorization Implementation Guide} --- \url{https://dodcio.defense.gov/Portals/0/Documents/Library/DoDCIO-ContinuousAuthorizationImplementationGuide.pdf} --- v1.0, Mar 2024 --- 26 pp. --- \texttt{\scriptsize 4218c2c20efd5002ea107e1f74d9e7777009fe9efe66f04a5bbaba142918712a}\\
+\end{longtable}}
+
+\end{document}

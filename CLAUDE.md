@@ -201,6 +201,7 @@ drill.pl. `vim/autoload/drills.vim` + `vim/plugin/drills.vim` (sourced by `vim/s
 memory trainer (one level per section, cards from the solutions) and `:DrillOpen`/`:DrillTest`/`:DrillTestAll` (`\do \dt \da`).
 Statements are the kit's own words; the `LeetCode:` line is a pointer only (tests/drills.t checks). Guide: `docs/DRILLS.html`.
 
+`docs/ModernSoftwarePractices.pdf` (*Modern Software Practices: A Condensed Guide*) condenses the DoW CIO library's software modernization, DevSecOps, open source and cATO documents with page cites; source `docs/src/msp/ModernSoftwarePractices.tex`, built by `perl sim/msp.pl` (XeLaTeX; PDF committed), checked by `tests/msp.t`; the 19 source documents live in the git-ignored `refs/`, never in the repo.
 **Other tools:** `tools/memo/md2memo.pl` (Markdown -> DoD-style memo as PDF/PS/text with portion and banner marking;
 `tests/memo.t` pins the sample's output by SHA-256). `tools/idef0/` also carries the Halberd IDEF0 model, the parity suite
 against the Python reference (`cd tools/idef0 && sh tests/parity.sh`, needs python3; html and `fmt --auto` are known,

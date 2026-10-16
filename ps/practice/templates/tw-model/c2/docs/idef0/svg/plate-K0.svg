@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2533" height="1246" viewBox="0 0 2533 1246" font-family="IBM Plex Mono,monospace">
+<rect width="2533" height="1246" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<path d="M596,101 H634 Q641,101 641,108 V256 Q641,263 648,263 H704" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="645" y="182" font-size="9">Observation Record</text>
+<path d="M596,101 H634 Q641,101 641,108 V418 Q641,425 648,425 H1037" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="645" y="263" font-size="9">Observation Record</text>
+<path d="M1262,425 H1300 Q1307,425 1307,432 V580 Q1307,587 1314,587 H1370" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1311" y="506" font-size="9">Ingest Observation Record</text>
+<path d="M1595,587 H1633 Q1640,587 1640,594 V742 Q1640,749 1647,749 H1703" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1644" y="668" font-size="9">Check Observation Record</text>
+<rect x="371" y="56" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="483.5" y="80" font-size="12" text-anchor="middle">Sample Sensors<title>Read every sensor and timestamp the readings.</title></text>
+<text x="590" y="138" font-size="10" text-anchor="end" fill="#555">K1</text>
+<path d="M483,176 V146" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="487" y="174" font-size="9"><tspan>Sensor Suite</tspan></text>
+<rect x="704" y="218" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="816.5" y="242" font-size="12" text-anchor="middle">Transmit Observations<title>Send the buffered records; keep them if the link is down.</title></text>
+<text x="923" y="300" font-size="10" text-anchor="end" fill="#555">K2</text>
+<path d="M929,245 H969" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="973" y="242" font-size="9">Send</text>
+<path d="M816,338 V308" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="820" y="336" font-size="9"><tspan>Telemetry Unit</tspan></text>
+<rect x="1037" y="380" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="1149.5" y="404" font-size="12" text-anchor="middle">Ingest Observations<title>Receive records and discard duplicates.</title></text>
+<text x="1256" y="462" font-size="10" text-anchor="end" fill="#555">K3</text>
+<path d="M1149,500 V470" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1153" y="498" font-size="9"><tspan>Ingest Service</tspan></text>
+<rect x="1370" y="542" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="1482.5" y="566" font-size="12" text-anchor="middle">Check Quality<title>Range, step and consistency checks; set the flag and the reason.</title></text>
+<text x="1589" y="624" font-size="10" text-anchor="end" fill="#555">K4</text>
+<path d="M1482,662 V632" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1486" y="660" font-size="9"><tspan>Quality Control</tspan></text>
+<rect x="1703" y="704" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="1815.5" y="728" font-size="12" text-anchor="middle">Archive Observations<title>Store each record with its flag.</title></text>
+<text x="1922" y="786" font-size="10" text-anchor="end" fill="#555">K5</text>
+<path d="M1928,731 H1968" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1972" y="728" font-size="9">Store</text>
+<path d="M1815,824 V794" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1819" y="822" font-size="9"><tspan>Archive</tspan></text>
+<rect x="2036" y="866" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="2148.5" y="890" font-size="12" text-anchor="middle">Publish Bulletin<title>Write the bulletin from the latest good observations and publish it.</title></text>
+<text x="2255" y="948" font-size="10" text-anchor="end" fill="#555">K6</text>
+<path d="M2261,893 H2301" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="2305" y="890" font-size="9">Bulletin</text>
+<path d="M2148,986 V956" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="2152" y="984" font-size="9"><tspan>Bulletin Publisher</tspan></text>
+<rect x="0" y="1192" width="2533" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="1192" x2="99" y2="1246" stroke="#222"/>
+<line x1="2434" y1="1192" x2="2434" y2="1246" stroke="#222"/>
+<text x="10" y="1208" font-size="10">NODE</text>
+<text x="10" y="1228" font-size="12">K0</text>
+<text x="110" y="1208" font-size="10">TITLE</text>
+<text x="110" y="1228" font-size="12">Observe Coast<title>One cycle of the network: sample, send, ingest, check, archive, publish.</title></text>
+<text x="2444" y="1208" font-size="10">NUMBER</text>
+<text x="2444" y="1228" font-size="12">p.2</text>
+</svg>

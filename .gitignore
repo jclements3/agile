@@ -12,3 +12,6 @@
 /release/
 /vim/doc/tags
 /examples/*/tags
+
+# the PowerShell ports: test scratch stays local (73k files)
+/ps/work/

@@ -1,0 +1,29 @@
+# compiled 2026-10-15 11:01
+2026-10-19
+sprint 2
+== Halberd
+cap 360
+commit HAL-10 JC
+new HAL-11 11 "Port 11 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-11 JC
+new HAL-12 37 "Port 37 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-12 JC
+new HAL-13 34 "Port 34 Interceptor Development v1 items to SysML v2" p:1 e:"V Interceptor Development" t:"Halberd SysML v2 port" o:JC
+commit HAL-13 JC
+new HAL-14 37 "Port 37 Interceptor Development v1 items to SysML v2" p:1 e:"V Interceptor Development" t:"Halberd SysML v2 port" o:JC
+commit HAL-14 JC
+new HAL-15 31 "Port 31 Interceptor Development v1 items to SysML v2" p:1 e:"V Interceptor Development" t:"Halberd SysML v2 port" o:JC
+commit HAL-15 JC
+new HAL-16 32 "Port 32 Interceptor Development v1 items to SysML v2" p:1 e:"V Interceptor Development" t:"Halberd SysML v2 port" o:JC
+commit HAL-16 JC
+new HAL-17 40 "Port 40 Interceptor Development v1 items to SysML v2" p:1 e:"V Interceptor Development" t:"Halberd SysML v2 port" o:JC
+commit HAL-17 JC
+new HAL-18 36 "Port 36 Interceptor Development v1 items to SysML v2" p:1 e:"V Interceptor Development" t:"Halberd SysML v2 port" o:JC
+commit HAL-18 JC
+new HAL-19 40 "Port 40 Interceptor Development v1 items to SysML v2" p:1 e:"V Interceptor Development" t:"Halberd SysML v2 port" o:JC
+commit HAL-19 JC
+new HAL-20 32 "Port 32 Interceptor Development v1 items to SysML v2" p:1 e:"V Interceptor Development" t:"Halberd SysML v2 port" o:JC
+commit HAL-20 JC
+new HAL-21 10 "Port 10 Interceptor Development v1 items to SysML v2" p:1 e:"V Interceptor Development" t:"Halberd SysML v2 port" o:JC
+commit HAL-21 JC
+done HAL-10 HAL-11

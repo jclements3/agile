@@ -1,0 +1,29 @@
+# compiled 2026-10-15 11:01
+2026-11-02
+sprint 3
+== Halberd
+cap 375
+commit HAL-21 JC
+new HAL-22 21 "Port 21 Interceptor Development v1 items to SysML v2" p:1 e:"V Interceptor Development" t:"Halberd SysML v2 port" o:JC
+commit HAL-22 JC
+new HAL-23 37 "Port 37 Interceptor Development v1 items to SysML v2" p:1 e:"V Interceptor Development" t:"Halberd SysML v2 port" o:JC
+commit HAL-23 JC
+new HAL-24 34 "Port 34 Battle Management & Fire Control v1 items to SysML v2" p:1 e:"B Battle Management & Fire Control" t:"Halberd SysML v2 port" o:JC
+commit HAL-24 JC
+new HAL-25 37 "Port 37 Battle Management & Fire Control v1 items to SysML v2" p:1 e:"B Battle Management & Fire Control" t:"Halberd SysML v2 port" o:JC
+commit HAL-25 JC
+new HAL-26 31 "Port 31 Battle Management & Fire Control v1 items to SysML v2" p:1 e:"B Battle Management & Fire Control" t:"Halberd SysML v2 port" o:JC
+commit HAL-26 JC
+new HAL-27 29 "Port 29 Battle Management & Fire Control v1 items to SysML v2" p:1 e:"B Battle Management & Fire Control" t:"Halberd SysML v2 port" o:JC
+commit HAL-27 JC
+new HAL-28 35 "Port 35 Battle Management & Fire Control v1 items to SysML v2" p:1 e:"B Battle Management & Fire Control" t:"Halberd SysML v2 port" o:JC
+commit HAL-28 JC
+new HAL-29 32 "Port 32 Battle Management & Fire Control v1 items to SysML v2" p:1 e:"B Battle Management & Fire Control" t:"Halberd SysML v2 port" o:JC
+commit HAL-29 JC
+new HAL-30 35 "Port 35 Battle Management & Fire Control v1 items to SysML v2" p:1 e:"B Battle Management & Fire Control" t:"Halberd SysML v2 port" o:JC
+commit HAL-30 JC
+new HAL-31 29 "Port 29 Battle Management & Fire Control v1 items to SysML v2" p:1 e:"B Battle Management & Fire Control" t:"Halberd SysML v2 port" o:JC
+commit HAL-31 JC
+new HAL-32 45 "Port 45 Battle Management & Fire Control v1 items to SysML v2" p:1 e:"B Battle Management & Fire Control" t:"Halberd SysML v2 port" o:JC
+commit HAL-32 JC
+done HAL-21 HAL-22

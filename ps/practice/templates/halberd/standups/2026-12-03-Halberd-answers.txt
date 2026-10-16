@@ -1,0 +1,5 @@
+2026-12-03 Halberd
+JC (08:30)
+  Y: 36 more elements under configuration control, now 73% (A), all merged at 0/0 (E).
+  T: Reviewing threat and mitigation coverage with the ISSM.
+  B: none

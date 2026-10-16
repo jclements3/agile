@@ -1,0 +1,16 @@
+Tidewater system model -- prime drop v1.0 (drop 1)
+CDRL: A003 System Model
+Contractor: Northwind Marine Systems (fictional)
+Delivered: 2026-10-02
+Built by: Jenkins https://jenkins.nwm.example.invalid/job/tidewater-model-delivery/137/ (build 137)
+Prime repository commit: 2c38530dd8cbd15849071d9e3c4a476cd1235229
+Tools: Cameo Systems Modeler 2022x Refresh2; DOORS 9.7 ReqIF export; Teamwork Cloud 2024x
+Delivery: CDRL file transfer to government approved storage
+Changes: Initial delivery: the model at contract start.
+Change requests:
+  NWM-CR-0001  add     Baseline delivery at contract start -- The model as it stood when the contract was awarded.
+Files (sha256):
+  af17989626f37e8ec57e2891d9cfbb34bf190d46d9b07345a5bed3887cc8d9ad  tidewater.xmi
+  d22edcbffe71f554f2b380ec2f97ca1d1165dd9c0892f11073bb3ec8f84bc577  tidewater.reqif
+  4a70d12ea15f7f618295cf7967a5e7e094f4aa57474ffe845ee090e062862c58  tidewater.csv
+  5f8a25fff925d6ded925cb2042663872a8f8de875349ec8aeb263f7c6f460e08  CHANGES.csv

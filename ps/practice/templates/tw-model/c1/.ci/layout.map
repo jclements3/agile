@@ -1,0 +1,40 @@
+# layout.map -- where each top-level package of a Tidewater drop goes in the government's model repo.
+# Used by both converters, for every drop:
+#   perl bin/xmi2sysml.pl   --out model --layout-map examples/tidewater-v1/layout.map tidewater.xmi
+#   perl bin/reqif2sysml.pl --out model --layout-map examples/tidewater-v1/layout.map tidewater.reqif
+# The same map keeps every package at the same path from drop to drop, so a new drop merges 3-way on the
+# vendor branch. A package the prime adds later is not listed: it lands in unsorted/ and the report names it.
+#
+#   PACKAGE = folder/                -> folder/<Package>.sysml
+#   PACKAGE = folder/File.sysml      -> exactly that file
+
+# library: types, interfaces, and what the Cameo model had outside any package
+Types        = library/
+Interfaces   = library/
+Tidewater    = library/
+
+# requirements: the three DOORS modules (reqif2sysml), and the copy the Cameo model keeps (xmi2sysml)
+Stakeholder Needs    = requirements/stakeholder/
+System Requirements  = requirements/system/
+Segment Requirements = requirements/segment/
+Requirements         = requirements/model/
+
+# logical: what the network does
+Behavior     = logical/
+
+# physical: what it is made of, one folder per segment, and what performs what
+Network      = physical/network/
+Stations     = physical/stations/
+DataCenter   = physical/datacenter/
+Operations   = physical/operations/
+Allocations  = physical/allocation/
+
+# analysis and verification
+Analysis     = analysis/
+Verification = verification/
+
+# clutter from the document port: Discrepancy Reports ask the prime to delete it (gone in drop 6)
+Legacy Import = legacy/
+
+# anything the prime adds that is not listed above
+* = unsorted/

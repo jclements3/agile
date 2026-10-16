@@ -1,0 +1,5 @@
+2026-11-23 Halberd
+JC (08:30)
+  Y: 31 more elements under configuration control, now 59% (A), all merged at 0/0 (E). 3 of 19 zone-crossing interfaces still need a security requirement (Q).
+  T: More of Test & Evaluation goes under configuration control today.
+  B: none

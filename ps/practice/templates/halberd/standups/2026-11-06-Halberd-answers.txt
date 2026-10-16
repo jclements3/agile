@@ -1,0 +1,5 @@
+2026-11-06 Halberd
+JC (08:30)
+  Y: 37 more elements under configuration control, now 40% (A), all merged at 0/0 (E). 454 of 1,450 DOORS requirements linked (C).
+  T: Bringing more of Battle Management & Fire Control under the pipeline.
+  B: Runner still pending; asked for it again (Y).

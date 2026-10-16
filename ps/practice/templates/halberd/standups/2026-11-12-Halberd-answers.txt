@@ -1,0 +1,5 @@
+2026-11-12 Halberd
+JC (08:30)
+  Y: 32 more elements under configuration control, now 47% (A), all merged at 0/0 (E). Drift checks found 47 discrepancies in the legacy ICDs, flagged for correction (T). 558 of 1,450 DOORS requirements linked (C).
+  T: Continuing Battle Management & Fire Control.
+  B: none

@@ -1,0 +1,30 @@
+# compiled 2026-10-15 11:01
+2026-11-30
+sprint 5
+== Halberd
+cap 370
+commit HAL-40 JC
+new HAL-41 12 "Port 12 Government Program Office v1 items to SysML v2" p:1 e:"G Government Program Office" t:"Halberd SysML v2 port" o:JC
+commit HAL-41 JC
+new HAL-42 40 "Port 40 Government Program Office v1 items to SysML v2" p:1 e:"G Government Program Office" t:"Halberd SysML v2 port" o:JC
+commit HAL-42 JC
+new HAL-43 36 "Port 36 Government Program Office v1 items to SysML v2" p:1 e:"G Government Program Office" t:"Halberd SysML v2 port" o:JC
+commit HAL-43 JC
+new HAL-44 40 "Port 40 Government Program Office v1 items to SysML v2" p:1 e:"G Government Program Office" t:"Halberd SysML v2 port" o:JC
+commit HAL-44 JC
+new HAL-45 32 "Port 32 Government Program Office v1 items to SysML v2" p:1 e:"G Government Program Office" t:"Halberd SysML v2 port" o:JC
+commit HAL-45 JC
+new HAL-46 32 "Port 32 Manufacturing & Production v1 items to SysML v2" p:1 e:"M Manufacturing & Production" t:"Halberd SysML v2 port" o:JC
+commit HAL-46 JC
+new HAL-47 40 "Port 40 Manufacturing & Production v1 items to SysML v2" p:1 e:"M Manufacturing & Production" t:"Halberd SysML v2 port" o:JC
+commit HAL-47 JC
+new HAL-48 36 "Port 36 Manufacturing & Production v1 items to SysML v2" p:1 e:"M Manufacturing & Production" t:"Halberd SysML v2 port" o:JC
+commit HAL-48 JC
+new HAL-49 40 "Port 40 Manufacturing & Production v1 items to SysML v2" p:1 e:"M Manufacturing & Production" t:"Halberd SysML v2 port" o:JC
+commit HAL-49 JC
+new HAL-50 32 "Port 32 Manufacturing & Production v1 items to SysML v2" p:1 e:"M Manufacturing & Production" t:"Halberd SysML v2 port" o:JC
+commit HAL-50 JC
+new HAL-51 10 "Port 10 Manufacturing & Production v1 items to SysML v2" p:1 e:"M Manufacturing & Production" t:"Halberd SysML v2 port" o:JC
+commit HAL-51 JC
+done HAL-40 HAL-41
+note Test & Evaluation is now gated on every merge: 4 of 7 segments (B).

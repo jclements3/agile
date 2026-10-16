@@ -1,0 +1,57 @@
+Meeting started
+Sam Archer joined the meeting.
+[8:31 AM] Bob Contracting
+y finished IF-48 t will b in the lab on IF-6 b none
+[8:32 AM] Cy Executive
+Y wrapped up the review T more of the same B none
+[8:50 AM] Sam Archer
+#est C-11
+[8:51 AM] Tia Testing
+5
+[8:33 AM] Dee Executive
+Y IF-21 done T ZZ-999 B none
+[8:34 AM] Eve Finance
+Y IF-10 T C-11 B none
+👍 2
+[8:35 AM] Fay Finance
+Y IF-5 T IF-32
+[8:36 AM] Gus HR
+Y: H-31 in progress
+[8:37 AM] Hal HR
+Y H-12 T punting H-23, too hard as written B none
+👍 2
+[8:38 AM] Ida Logistics
+Y IF-39 T IF-12 on hold, pulled onto the outage B none
+👍 2
+[8:39 AM] Jon Logistics
+Y IF-20 T passing L-12 to Contracting, their service B none
+[8:40 AM] Kim Production
+Y IF-2 T IF-25 B none
+[8:41 AM] Lou Production
+Y: IF-1 nearly done
+T: IF-13
+B: none
+👍 2
+[8:42 AM] Max Quality
+Max Quality Y finished IF-47 T start IF-33 B none
+👍 2
+[8:43 AM] Nia Quality
+yesterday: IF-34  today: IF-46  blockers: waiting on ICD from SEI
+[8:44 AM] Ola Research
+Y R-11 T punting IF-45, too hard as written B none
+[8:45 AM] Pat Research
+Y IF-36 T IF-8 on hold, pulled onto the outage B none
+👍 2
+[8:46 AM] Quinn Support
+Y S-11 T passing S-13 to Contracting, their service B none
+[8:47 AM] Ray Support
+Y S-12 T S-23 B none
+👍 2
+[8:48 AM] Sam Testing
+Y: IF-35 nearly done
+T: IF-43
+B: none
+[8:49 AM] Tia Testing
+Tia Testing Y finished IF-37 T start IF-28 B none
+Tia Testing left the meeting.
+Meeting ended

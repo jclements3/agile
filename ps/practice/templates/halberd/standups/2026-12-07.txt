@@ -1,0 +1,6 @@
+# compiled 2026-10-15 11:01
+2026-12-07
+sprint 5
+== Halberd
+done HAL-46
+note Government Program Office is now gated on every merge: 5 of 7 segments (B).

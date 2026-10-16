@@ -1,0 +1,5 @@
+2026-10-16 Halberd
+JC (08:30)
+  Y: 35 more elements under configuration control, now 14% (A), all merged at 0/0 (E). 3 interface mismatches caught at merge to date, 0 reached integration (H).
+  T: Bringing more of Systems Engineering & Integration under the pipeline.
+  B: none

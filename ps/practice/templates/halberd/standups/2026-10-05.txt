@@ -1,0 +1,25 @@
+# compiled 2026-10-15 11:01
+2026-10-05
+sprint 1
+== Halberd
+cap 320
+new HAL-1 21 "Port 21 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-1 JC
+new HAL-2 35 "Port 35 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-2 JC
+new HAL-3 42 "Port 42 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-3 JC
+new HAL-4 42 "Port 42 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-4 JC
+new HAL-5 29 "Port 29 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-5 JC
+new HAL-6 35 "Port 35 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-6 JC
+new HAL-7 32 "Port 32 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-7 JC
+new HAL-8 35 "Port 35 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-8 JC
+new HAL-9 29 "Port 29 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-9 JC
+new HAL-10 20 "Port 20 Systems Engineering & Integration v1 items to SysML v2" p:1 e:"E Systems Engineering & Integration" t:"Halberd SysML v2 port" o:JC
+commit HAL-10 JC

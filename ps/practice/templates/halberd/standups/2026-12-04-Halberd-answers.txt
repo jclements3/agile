@@ -1,0 +1,5 @@
+2026-12-04 Halberd
+JC (08:30)
+  Y: 40 more elements under configuration control, now 75% (A), all merged at 0/0 (E). 2 of 12 recorded threats lack a traced mitigation (R). 30 orphan and 37 unverified requirements, flagged to owners (F, G).
+  T: Measuring lead time on the last 10 merges.
+  B: none

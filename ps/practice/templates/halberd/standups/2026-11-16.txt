@@ -1,0 +1,22 @@
+# compiled 2026-10-15 11:01
+2026-11-16
+sprint 4
+== Halberd
+cap 360
+commit HAL-32 JC
+new HAL-33 23 "Port 23 Battle Management & Fire Control v1 items to SysML v2" p:1 e:"B Battle Management & Fire Control" t:"Halberd SysML v2 port" o:JC
+commit HAL-33 JC
+new HAL-34 34 "Port 34 Test & Evaluation v1 items to SysML v2" p:1 e:"T Test & Evaluation" t:"Halberd SysML v2 port" o:JC
+commit HAL-34 JC
+new HAL-35 37 "Port 37 Test & Evaluation v1 items to SysML v2" p:1 e:"T Test & Evaluation" t:"Halberd SysML v2 port" o:JC
+commit HAL-35 JC
+new HAL-36 31 "Port 31 Test & Evaluation v1 items to SysML v2" p:1 e:"T Test & Evaluation" t:"Halberd SysML v2 port" o:JC
+commit HAL-36 JC
+new HAL-37 54 "Port 54 Test & Evaluation v1 items to SysML v2" p:1 e:"T Test & Evaluation" t:"Halberd SysML v2 port" o:JC
+commit HAL-37 JC
+new HAL-38 61 "Port 61 Test & Evaluation v1 items to SysML v2" p:1 e:"T Test & Evaluation" t:"Halberd SysML v2 port" o:JC
+commit HAL-38 JC
+new HAL-39 55 "Port 55 Test & Evaluation v1 items to SysML v2" p:1 e:"T Test & Evaluation" t:"Halberd SysML v2 port" o:JC
+commit HAL-39 JC
+new HAL-40 20 "Port 20 Test & Evaluation v1 items to SysML v2" p:1 e:"T Test & Evaluation" t:"Halberd SysML v2 port" o:JC
+commit HAL-40 JC

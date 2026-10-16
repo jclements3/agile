@@ -1,0 +1,5 @@
+2026-10-23 Halberd
+JC (08:30)
+  Y: 37 more elements under configuration control, now 22% (A), all merged at 0/0 (E). 36 orphan and 49 unverified requirements, flagged to owners (F, G).
+  T: More of Interceptor Development goes under configuration control today.
+  B: none

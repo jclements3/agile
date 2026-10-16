@@ -1,0 +1,5 @@
+2026-10-12 Halberd
+JC (08:30)
+  Y: 42 more elements under configuration control, now 7% (A), all merged at 0/0 (E).
+  T: Importing the first DOORS module.
+  B: none

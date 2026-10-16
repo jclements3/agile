@@ -1,0 +1,419 @@
+# .gitlab-ci.yml -- the Tidewater government model pipeline (tools/gitlab/templates/gitlab-ci.yml).
+#
+# In configuration-management terms this file is the CONFIGURATION AUDIT, written down once and run by the server on
+# every proposed change (every merge request), on every baseline tag, nightly and once a week for the status report.
+# A job is one audit check; a stage is a group of checks that run together; the stages run in the order listed below.
+#
+# Copy it to the model repo as .gitlab-ci.yml, with tools/gitlab/templates/ci/job.pl as ci/job.pl. Every job's script
+# is one line, `perl ci/job.pl NAME`: the job's logic lives in that Perl script, so it runs the same under the Windows
+# runner's PowerShell, cmd, Git Bash, a Linux runner, the Docker image (tools/gitlab/docker) and `gitlab.pl ci` on a
+# laptop. ci/job.pl calls the agile kit through the CI/CD variable KIT (the path of the kit's checkout on the runner;
+# `gitlab.pl setup` sets it from project.conf [variables]). Nothing is installed: Perl and Git are all a job needs.
+#
+# Run it on your own machine before you push, with the same rules GitLab applies:
+#   perl $KIT/bin/gitlab.pl ci --event merge_request_event --branch feature/12-stations --target develop --var KIT=$KIT
+#   perl $KIT/bin/gitlab.pl ci --list            (which jobs would run, and why the others are skipped)
+#
+# Stages, in order:
+#   check    the gate: grammar, structure lint, outline (a ratchet), secrets, and the TODO count (the port burn-down)
+#   trace    DOORS against the model (a ratchet on merge requests); the VCRM; SIL/HIL when a harness exists (disabled)
+#   docs     generated docs must be committed and current
+#   delta    on drop intake only: the delivery checked (intake, on a trigger), what the prime changed in v1 (delta),
+#            and the drop filed in the package registry
+#   release  on baseline tags only: the baseline rebuilds byte for byte, then the GitLab release is created
+#   publish  on the default branch only: the model's web site (GitLab Pages) for readers who never open the repo
+#   report   on the weekly schedule only: export issues, MRs and jobs for the status metrics
+#
+# Reports: the check jobs attach JUnit (the MR's test widget: which check failed and why), Code Quality (the MR's
+# findings widget: which errors, warnings or TODO lines this change added or fixed) and metrics (Premium: how each
+# number moved) -- all written by $KIT/tools/gitlab/ci-reports.pl from the checkers' own output, called by ci/job.pl.
+#
+# YAML note: a script line that contains ": " (colon, space) must be in quotes, or YAML reads it as a map. With
+# ci/job.pl there are none left.
+
+stages:
+  - check
+  - trace
+  - docs
+  - delta
+  - release
+  - publish
+  - report
+
+variables:
+  GIT_DEPTH: "0"            # the full history: trace reads the merge base, delta reads earlier imports, pages the merges
+
+# One pipeline per change, never two: an MR gets a merge request pipeline; a branch with an open MR does not also get a
+# branch pipeline. Branches without an MR (develop, main, vendor/prime), tags and the schedules still get theirs.
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS && $CI_PIPELINE_SOURCE == "push"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+# GitLab's own secret scanner (Free tier) runs its analyzer in a Docker image, so it needs a runner with the Docker
+# executor. The team's runner is a Windows *shell* runner: there the scanner's job would sit "pending" forever and, with
+# "pipelines must succeed", block every MR. So the include is conditional: it is pulled in only when the project
+# variable DOCKER_RUNNER is "true" (project.conf [variables] sets it to "false"). The `secrets` job below is the
+# always-on check, runnable on any runner and by `gitlab.pl ci` on a laptop (which lists the include as "runs on
+# GitLab only").
+include:
+  - template: Security/Secret-Detection.gitlab-ci.yml
+    rules:
+      - if: '$DOCKER_RUNNER == "true"'
+
+# Runner tags pick the runner: the team's Windows shell runner is registered with the tags windows and mbse. On a
+# Docker runner (tools/gitlab/docker), drop these tags or use that runner's own.
+default:
+  tags:
+    - windows
+    - mbse
+
+# The rules every model job shares: run on changes and on the nightly full check (FULL=1), never on the weekly status
+# schedule (that one only reports) or a delivery trigger (that one only takes the drop in).
+.model_rules: &model_rules
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $FULL != "1"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "trigger"'
+      when: never
+    # vendor/prime holds the prime's drop as delivered, converted and untouched: the model checks run where it is
+    # merged (feature/drop-VERSION and its MR), not on the raw branch, which would stay red (no docs, no recorded
+    # outline count) for structure only the prime can change. The delta and drop-package jobs still run there.
+    - if: '$CI_COMMIT_BRANCH == "vendor/prime"'
+      when: never
+    - when: on_success
+
+# A hidden job: the check-stage jobs extend it. Reports are kept even when the check fails (that is when they matter).
+.check:
+  stage: check
+  <<: *model_rules
+
+# GRAMMAR -- every .sysml file against the official SysML v2 grammar (tools/sysml/sysml.pl, built from the vendored
+# KerML/SysML release). A syntax error anywhere stops the merge. One JUnit test case per file.
+grammar:
+  extends: .check
+  script:
+    - perl ci/job.pl grammar
+  artifacts:
+    when: always
+    paths:
+      - grammar.txt
+    reports:
+      junit: grammar.xml
+      codequality: grammar-cq.json
+
+# LINT -- the model's structure: names resolve, packages import what they use. The last line is
+# elements=N errors=E warnings=W; the gate is 0 errors and 0 warnings ("0/0 to merge").
+lint:
+  extends: .check
+  script:
+    - perl ci/job.pl lint
+  artifacts:
+    when: always
+    paths:
+      - lint.txt
+    reports:
+      junit: lint.xml
+      codequality: lint-cq.json
+      metrics: lint.metrics
+
+# OUTLINE -- 2 to 9 children at every level, and each part def carries its level tag (@L1Network ... @L6Component).
+# A RATCHET, not a wall: the converted v1 model starts with violations it inherited from the prime's structure (a
+# 25-member package, parts with one child), and most can only be fixed upstream, by a discrepancy report to the prime.
+# So the gate is "no new violations": .ci/outline-max holds the highest count allowed; a change that adds a violation
+# fails, a change that removes one is told to lower the number (and the reviewer checks that it did). When the count
+# reaches 0 the file reads 0 and the rule is absolute. A new project (kickoff.pl scaffold) starts with room: its
+# skeleton's one-file folders plus one for each layer folder still to come, with comment lines saying when to tighten
+# it (every layer folder holds two files, or the first baseline at the latest); the job reads only the first line.
+outline:
+  extends: .check
+  script:
+    - perl ci/job.pl outline
+  artifacts:
+    when: always
+    paths:
+      - outline.txt
+    reports:
+      junit: outline.xml
+      codequality: outline-cq.json
+      metrics: outline.metrics
+
+# TODO -- the port burn-down: every // TODO line the converter left. Never fails. Each TODO is an "info" finding, so the
+# MR widget shows the TODO lines a change closed (and any it added).
+todo:
+  extends: .check
+  script:
+    - perl ci/job.pl todo
+  artifacts:
+    paths:
+      - todo.txt
+    reports:
+      codequality: todo-cq.json
+      metrics: todo.metrics
+
+# SECRETS -- tokens, cloud keys and private keys must never reach the repo (an MR is the last place to catch it).
+secrets:
+  extends: .check
+  script:
+    - perl ci/job.pl secrets
+
+# COMPLEXITY -- the spider-web guardrails: per package fan-in and fan-out, dependency cycles, dependencies that go up the
+# layers named in sysml.conf (`layers = ...`, lowest first), duplicate names, and relationship ends per part def (the
+# spaghetti measure). A RATCHET on merge requests: it fails only when a change makes a measure worse than on the target
+# branch, or adds a wildcard import to a government file. Findings show in the MR's Code Quality widget.
+complexity:
+  extends: .check
+  script:
+    - perl ci/job.pl complexity
+  artifacts:
+    when: always
+    paths:
+      - complexity.txt
+    reports:
+      codequality: complexity-cq.json
+      metrics: complexity.metrics
+
+# TRACE -- DOORS against the model, from the newest imported drop: linked (C), orphans (F), unverified (G), text drift.
+# A RATCHET on merge requests: the job also traces the model as it was at the merge base and fails only when this change
+# adds a gap (removes a satisfy, drops a verify, edits a requirement's text away from DOORS). Gaps the prime must fix
+# stay visible in the widget without blocking unrelated work. On develop and schedules it reports and passes.
+trace:
+  stage: trace
+  <<: *model_rules
+  script:
+    - perl ci/job.pl trace
+  artifacts:
+    when: always
+    paths:
+      - trace.txt
+    reports:
+      junit: trace.xml
+      metrics: trace.metrics
+
+# VCRM -- the verification cross-reference matrix: every requirement, its verification method, the cases that verify it
+# (verify relationships in the model) and their newest verdicts from verification/*.csv (one schema: requirement, case,
+# verdict, commit, environment, timestamp, signed_by -- the prime's test results ride in each drop from drop 4 on;
+# analysis and inspection verdicts are entered and signed by a person). Reports, never blocks: the trace ratchet gates
+# missing cases. vcrm.html is also on the Pages site.
+vcrm:
+  stage: trace
+  <<: *model_rules
+  script:
+    - perl ci/job.pl vcrm
+  artifacts:
+    when: always
+    paths:
+      - vcrm.html
+      - vcrm.csv
+    reports:
+      junit: vcrm.xml
+      metrics: vcrm.metrics
+
+# RECIPE -- every requirement statement graded against the requirement recipe (tools/sysml/req-recipe.pl): missing
+# parts, weak verbs ("provide", "support"), passive voice, vague words. Reports only: the DOORS text is the prime's,
+# so findings go to the prime as a discrepancy report. Findings show in the MR's Code Quality widget.
+recipe:
+  stage: trace
+  <<: *model_rules
+  script:
+    - perl ci/job.pl recipe
+  artifacts:
+    when: always
+    paths:
+      - recipe.txt
+    reports:
+      codequality: recipe-cq.json
+      metrics: recipe.metrics
+
+# DOCS -- generated docs (docs/Nouns.md, Verbs.md, idef0/, Traceability.md) are committed with the model that made them.
+# Stale docs fail here: run model.pl docs and commit the result.
+docs:
+  stage: docs
+  <<: *model_rules
+  script:
+    - perl ci/job.pl docs
+
+# DELTA -- drop intake: the v1 delta between the two newest imports. Runs on the vendor branch and on the drop merge MR,
+# so the reviewer sees what the prime changed, including what the converter cannot carry (state machines, interactions,
+# constraint expressions), which has to be reworked by hand.
+delta:
+  stage: delta
+  rules:
+    - if: '$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /^feature\/drop-/'
+    - if: '$CI_COMMIT_BRANCH == "vendor/prime"'
+  script:
+    - perl ci/job.pl delta
+  artifacts:
+    paths:
+      - delta.txt
+
+# DROP-PACKAGE -- file each prime drop, exactly as delivered, in the project's Generic Package Registry
+# (Deploy > Package registry > prime-drop): the CDRL deliverable kept with the model it became, downloadable by version.
+# The job token authenticates; nothing to configure. Skipped outside GitLab (no registry on a laptop).
+drop-package:
+  stage: delta
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "vendor/prime"'
+  script:
+    - perl ci/job.pl drop-package
+
+# INTAKE -- a delivery from the prime's Jenkins: its build uploads the drop to the Generic Package Registry (prime-drop/
+# <version>, with a deploy token that can do nothing else) and fires a pipeline trigger with DROP_VERSION. This job then
+# fetches every file, checks each sha256 against the MANIFEST the prime's build wrote, keeps the drop as received
+# (formal evidence: never expires) and opens the Prime Drop issue that starts the vendor import. A green Jenkins build
+# on the prime's side is evidence, not acceptance: the government's own gates run on the import MR.
+intake:
+  stage: delta
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "trigger" && $DROP_VERSION'
+  script:
+    - perl ci/job.pl intake
+  artifacts:
+    expire_in: never
+    paths:
+      - intake.txt
+      - intake/
+
+# BASELINE -- a baseline tag must rebuild: regenerate the docs, confirm nothing changed, and check the hash in the tag
+# message: sha256 over `git ls-tree -r <commit> -- docs` (mode, blob id and path of every tracked file under docs/),
+# the same text `gitlab.pl flow released` hashed when it wrote the tag. It also writes toolchain.txt: the kit version,
+# Perl, Git, OS, runner and image that produced the baseline (an inventory for the audit). This is the physical
+# configuration audit of the baseline, done by machine.
+baseline:
+  stage: release
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^baseline-/'
+  script:
+    - perl ci/job.pl baseline
+  artifacts:
+    expire_in: never         # formal evidence: the baseline's audit, toolchain and VCRM are kept for the life of the program
+    paths:
+      - toolchain.txt
+      - vcrm.html
+      - vcrm.csv
+    reports:
+      dotenv: release.env    # RELEASE_MILESTONE: the sprint this baseline closes, for the release below
+
+# PUBLISH-PACKAGE -- the baseline as a package for downstream users (other programs, the test range, the prime): the
+# model and its docs at the tag (git archive), the VCRM, the toolchain and SHA256SUMS, as tidewater-model/<tag> in the
+# Generic Package Registry. CI_JOB_TOKEN authenticates the upload. The release below links to these files.
+publish-package:
+  stage: release
+  needs:
+    - baseline
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^baseline-/'
+  script:
+    - perl ci/job.pl publish-package
+  artifacts:
+    expire_in: never
+    paths:
+      - package-upload/
+
+# PUBLISH-RELEASE -- once the baseline audit passes, create the GitLab release for the tag (Deploy > Releases), with the
+# baseline's CHANGELOG section, its verification summary and the toolchain as notes, links to the package files, and
+# the sprint milestone it closes (GitLab then collects the release evidence: the milestone's issues and the tag
+# pipeline's test report, as a JSON snapshot). The `release:` keyword is run by GitLab's release-cli after the script.
+publish-release:
+  stage: release
+  needs:
+    - baseline
+    - publish-package
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^baseline-/'
+  script:
+    - perl ci/job.pl publish-release
+  release:
+    tag_name: $CI_COMMIT_TAG
+    name: 'Tidewater model $CI_COMMIT_TAG'
+    description: release-notes.md
+    milestones:
+      - $RELEASE_MILESTONE
+    assets:
+      links:
+        - name: 'Model and docs (tar.gz)'
+          url: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/tidewater-model/${CI_COMMIT_TAG}/tidewater-model-${CI_COMMIT_TAG}.tar.gz'
+          link_type: package
+        - name: 'VCRM (csv)'
+          url: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/tidewater-model/${CI_COMMIT_TAG}/vcrm.csv'
+          link_type: other
+        - name: 'Toolchain'
+          url: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/tidewater-model/${CI_COMMIT_TAG}/toolchain.txt'
+          link_type: other
+        - name: 'SHA256SUMS'
+          url: '${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/tidewater-model/${CI_COMMIT_TAG}/SHA256SUMS'
+          link_type: other
+
+# SIL / HIL -- software-in-the-loop regression (nightly) and hardware-in-the-loop tests (on a bench, by hand), for when
+# the program has a simulation or a lab to drive. DISABLED: each runs only when its variable is "true" (SIL_ENABLED,
+# HIL_ENABLED), so this file stays valid where there is no harness. Each job runs the harness named by SIL_CMD /
+# HIL_CMD and files its verdicts in the same results schema (verification/results-sil.csv / -hil.csv), so the VCRM
+# shows them next to the prime's results. The HIL job shows the GitLab features a lab needs: a runner tag that only the
+# bench's runner has, a resource_group (one test on the bench at a time), when: manual (a person starts it, with the
+# bench ready), and an environment (the bench's deployment history).
+sil-regression:
+  stage: trace
+  rules:
+    - if: '$SIL_ENABLED == "true" && $CI_PIPELINE_SOURCE == "schedule"'
+  script:
+    - perl ci/job.pl sil-regression
+  artifacts:
+    expire_in: never
+    paths:
+      - sil.txt
+      - verification/results-sil.csv
+
+hil-test:
+  stage: trace
+  tags:
+    - hil-bench
+  resource_group: hil-bench
+  rules:
+    - if: '$HIL_ENABLED == "true" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: manual
+  environment:
+    name: hil-lab
+  script:
+    - perl ci/job.pl hil-test
+  artifacts:
+    expire_in: never
+    paths:
+      - hil.txt
+      - verification/results-hil.csv
+
+# PAGES -- the model's web site, rebuilt on every merge to the default branch and nightly: the generated docs, the tree /
+# trace / package views, the requirement trace and the port burn-down. For the program office, the prime and review
+# boards: people who need the model's state and will never clone a repository. GitLab serves public/ at $CI_PAGES_URL.
+pages:
+  stage: publish
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $FULL != "1"'
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "trigger"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  environment:
+    name: model-site
+    url: $CI_PAGES_URL
+  script:
+    - perl ci/job.pl pages
+  artifacts:
+    paths:
+      - public
+
+# STATUS -- weekly, from a pipeline schedule (Build > Pipeline schedules, Fridays 06:00): export what GitLab knows --
+# issues, MRs, jobs -- in the status-metrics formats, and collect this week's metrics if the repo has a metrics.json.
+# STATUS_TOKEN is a masked CI/CD variable holding a read_api project access token.
+status:
+  stage: report
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $FULL != "1"'
+  script:
+    - perl ci/job.pl status
+  artifacts:
+    paths:
+      - exports/

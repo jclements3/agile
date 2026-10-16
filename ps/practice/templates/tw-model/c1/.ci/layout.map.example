@@ -1,0 +1,31 @@
+# .ci/layout.map.example -- an example, not in use. Rename it to .ci/layout.map (by merge request, BEFORE the first
+# prime drop) to choose where each top-level package of a drop lands in this repository:
+#
+#   PACKAGE = folder/                -> model/folder/<Package>.sysml
+#   PACKAGE = folder/File.sysml      -> exactly that file
+#
+# gitlab.pl flow vendor reads .ci/layout.map for every drop (both converters use it), so a package always lands at
+# the same path and the next drop merges 3-way on vendor/prime. Without it the converters write one folder per
+# package (model/<package>/) and the DOORS modules under model/doors/. A package the prime adds later that the map
+# does not list lands in unsorted/, and the converter's report names it.
+#
+# The folders are the repository's layers, lowest first: library -> requirements -> logical -> physical ->
+# analysis -> verification (a package may depend only on its own layer or a lower one). Tidewater's map, for
+# example (examples/tidewater-v1/layout.map in the kit):
+#
+# Types                = library/
+# Interfaces           = library/
+# Tidewater            = library/
+# Stakeholder Needs    = requirements/stakeholder/
+# System Requirements  = requirements/system/
+# Segment Requirements = requirements/segment/
+# Requirements         = requirements/model/
+# Behavior             = logical/
+# Network              = physical/network/
+# Stations             = physical/stations/
+# DataCenter           = physical/datacenter/
+# Operations           = physical/operations/
+# Allocations          = physical/allocation/
+# Analysis             = analysis/
+# Verification         = verification/
+# Legacy Import        = legacy/

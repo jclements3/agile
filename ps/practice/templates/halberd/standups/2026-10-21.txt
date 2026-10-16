@@ -1,0 +1,6 @@
+# compiled 2026-10-15 11:01
+2026-10-21
+sprint 2
+== Halberd
+done HAL-13
+note Systems Engineering & Integration is now gated on every merge: 1 of 7 segments (B).

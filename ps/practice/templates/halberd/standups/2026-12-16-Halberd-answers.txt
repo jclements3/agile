@@ -1,0 +1,5 @@
+2026-12-16 Halberd
+JC (08:30)
+  Y: 35 more elements under configuration control, now 89% (A), all merged at 0/0 (E). Manufacturing & Production is now gated on every merge: 6 of 7 segments (B). 6 of 7 segment owners now merge their own changes (Z). 13 orphan and 18 unverified requirements, flagged to owners (F, G).
+  T: Rebuilding the gate after this morning's parser update.
+  B: none

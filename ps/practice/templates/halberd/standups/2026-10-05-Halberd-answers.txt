@@ -1,0 +1,5 @@
+2026-10-05 Halberd
+JC (08:30)
+  Y: Nothing yet; the pipeline goes up today.
+  T: Setting up the repo, the pre-commit gate and the CI lint job.
+  B: none

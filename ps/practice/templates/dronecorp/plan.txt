@@ -1,0 +1,372 @@
+DATE
+sprint 1
+
+== Contracting
+cap 30
+new C-11 5 Build Market Presence p:1 e:"C1 Develop Markets & Pipeline" t:"C Contracting & Sales" o:"Ann Contracting"
+new C-12 5 Develop Channel & Team Relationships p:1 e:"C1 Develop Markets & Pipeline" t:"C Contracting & Sales" o:"Bob Contracting"
+new C-13 5 Maintain Opportunity Pipeline p:1 e:"C1 Develop Markets & Pipeline" t:"C Contracting & Sales" o:"Ann Contracting"
+new C-21 5 Scope Opportunity & Bid Decision p:1 e:"C2 Win Contracts" t:"C Contracting & Sales" o:"Bob Contracting"
+new C-221 3 Define Solution & Supply Terms p:2 e:"C2 Win Contracts" t:"C Contracting & Sales" o:"Ann Contracting"
+new C-2221 3 Estimate Costs & Margins p:3 e:"C2 Win Contracts" t:"C Contracting & Sales" o:"Bob Contracting"
+new C-22221 3 Classify Products & Destinations p:3 e:"C2 Win Contracts" t:"C Contracting & Sales" o:"Ann Contracting"
+new C-222221 3 Run Denied-Party Screening p:3 e:"C2 Win Contracts" t:"C Contracting & Sales" o:"Bob Contracting"
+new C-222222 3 Verify End-Use & End-User Statements p:3 e:"C2 Win Contracts" t:"C Contracting & Sales" o:"Ann Contracting"
+new C-222223 3 Assess Diversion Risk p:3 e:"C2 Win Contracts" t:"C Contracting & Sales" o:"Bob Contracting"
+new C-22223 3 Determine License Needs & File p:3 e:"C2 Win Contracts" t:"C Contracting & Sales" o:"Ann Contracting"
+new C-2223 3 Approve Pricing p:3 e:"C2 Win Contracts" t:"C Contracting & Sales" o:"Bob Contracting"
+new C-223 3 Assemble & Submit Proposal p:2 e:"C2 Win Contracts" t:"C Contracting & Sales" o:"Ann Contracting"
+new C-23 5 Negotiate & Close p:1 e:"C2 Win Contracts" t:"C Contracting & Sales" o:"Bob Contracting"
+new C-31 5 Book Orders & Supply Schedules p:1 e:"C3 Manage Contract Fulfillment" t:"C Contracting & Sales" o:"Ann Contracting"
+new C-32 5 Coordinate Deliveries & Billing p:1 e:"C3 Manage Contract Fulfillment" t:"C Contracting & Sales" o:"Bob Contracting"
+new C-33 5 Forecast Demand & Renewals p:1 e:"C3 Manage Contract Fulfillment" t:"C Contracting & Sales" o:"Ann Contracting"
+
+== Executive
+cap 30
+new E-11 5 Scan Market & Race Scene p:1 e:"E1 Set Direction" t:"E Executive & Strategy" o:"Cy Executive"
+new E-12 5 Set Product & Race Strategy p:1 e:"E1 Set Direction" t:"E Executive & Strategy" o:"Dee Executive"
+new E-13 5 Approve Portfolio Mandate p:1 e:"E1 Set Direction" t:"E Executive & Strategy" o:"Cy Executive"
+new E-21 5 Consolidate Demand & Capacity Outlook p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Dee Executive"
+new E-221 3 Draft Product-Line Plans p:2 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Cy Executive"
+new E-2221 3 Project Revenue & Bookings p:3 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Dee Executive"
+new E-22221 3 Collect Budget Submissions p:3 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Cy Executive"
+new E-222221 3 Check Submissions Against Targets p:3 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Dee Executive"
+new E-222222 3 Resolve Variances With Departments p:3 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Cy Executive"
+new E-222223 3 Lock Consolidated Budget p:3 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Dee Executive"
+new E-22223 3 Prioritize Capex p:3 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Cy Executive"
+new E-2223 3 Assemble Financial Plan p:3 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Dee Executive"
+new E-223 3 Reconcile & Approve Plan p:2 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Cy Executive"
+new E-23 5 Issue Budgets & Targets p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Dee Executive"
+new E-31 5 Compile Performance Review p:1 e:"E3 Govern Performance" t:"E Executive & Strategy" o:"Cy Executive"
+new E-32 5 Hold Business Reviews p:1 e:"E3 Govern Performance" t:"E Executive & Strategy" o:"Dee Executive"
+new E-33 5 Direct Corrective Action p:1 e:"E3 Govern Performance" t:"E Executive & Strategy" o:"Cy Executive"
+new E-4 8 Manage Risk & Compliance p:1 e:"E4 Manage Risk & Compliance" t:"E Executive & Strategy" o:"Dee Executive"
+
+== Finance
+cap 30
+new F-11 5 Issue Budget Policy & Calendar p:1 e:"F1 Plan & Steward Budgets" t:"F Finance" o:"Eve Finance"
+new F-12 5 Consolidate Budget Requests p:1 e:"F1 Plan & Steward Budgets" t:"F Finance" o:"Fay Finance"
+new F-13 5 Monitor Budget Execution p:1 e:"F1 Plan & Steward Budgets" t:"F Finance" o:"Eve Finance"
+new F-21 5 Process Procure-to-Pay p:1 e:"F2 Run Financial Operations" t:"F Finance" o:"Fay Finance"
+new F-221 3 Invoice Customers p:2 e:"F2 Run Financial Operations" t:"F Finance" o:"Eve Finance"
+new F-2221 3 Monitor Aging & Prioritize p:3 e:"F2 Run Financial Operations" t:"F Finance" o:"Fay Finance"
+new F-22221 3 Send Dunning Notices p:3 e:"F2 Run Financial Operations" t:"F Finance" o:"Eve Finance"
+new F-222221 3 Assess Customer Credit Position p:3 e:"F2 Run Financial Operations" t:"F Finance" o:"Fay Finance"
+new F-222222 3 Structure Payment Plans p:3 e:"F2 Run Financial Operations" t:"F Finance" o:"Eve Finance"
+new F-222223 3 Document & Monitor Arrangements p:3 e:"F2 Run Financial Operations" t:"F Finance" o:"Fay Finance"
+new F-22223 3 Coordinate Credit Holds p:3 e:"F2 Run Financial Operations" t:"F Finance" o:"Eve Finance"
+new F-2223 3 Resolve Disputes & Write-Offs p:3 e:"F2 Run Financial Operations" t:"F Finance" o:"Fay Finance"
+new F-223 3 Apply & Reconcile Cash p:2 e:"F2 Run Financial Operations" t:"F Finance" o:"Eve Finance"
+new F-23 5 Run Payroll p:1 e:"F2 Run Financial Operations" t:"F Finance" o:"Fay Finance"
+new F-31 5 Close Ledgers p:1 e:"F3 Close Books & Report" t:"F Finance" o:"Eve Finance"
+new F-32 5 Consolidate & Analyze Results p:1 e:"F3 Close Books & Report" t:"F Finance" o:"Fay Finance"
+new F-33 5 Publish Statements & KPIs p:1 e:"F3 Close Books & Report" t:"F Finance" o:"Eve Finance"
+
+== HR
+cap 30
+new H-11 5 Plan Headcount & Skills p:1 e:"H1 Plan Workforce & Organization" t:"H Human Resources" o:"Gus HR"
+new H-12 5 Design Organization & Roles p:1 e:"H1 Plan Workforce & Organization" t:"H Human Resources" o:"Hal HR"
+new H-13 5 Set Compensation Structures p:1 e:"H1 Plan Workforce & Organization" t:"H Human Resources" o:"Gus HR"
+new H-211 3 Source Candidates p:2 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Hal HR"
+new H-212 3 Interview & Select p:2 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Gus HR"
+new H-213 3 Onboard New Hires p:2 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Hal HR"
+new H-221 3 Maintain Training Curricula p:2 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Gus HR"
+new H-22211 3 Deliver Skills Training p:3 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Hal HR"
+new H-222121 3 Stage Assessment Stations p:3 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Gus HR"
+new H-222122 3 Score Workmanship Samples p:3 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Hal HR"
+new H-222123 3 Adjudicate & Record Results p:3 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Gus HR"
+new H-22213 3 Issue & Record Certifications p:3 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Hal HR"
+new H-2222 3 Certify Test Pilots p:3 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Gus HR"
+new H-2223 3 Certify Compliance & Export Handlers p:3 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Hal HR"
+new H-223 3 Track Qualifications & Deploy Staff p:2 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Gus HR"
+new H-23 5 Manage Performance & Retention p:1 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Hal HR"
+new H-31 5 Compile Payroll Inputs p:1 e:"H3 Administer HR Operations" t:"H Human Resources" o:"Gus HR"
+new H-32 5 Administer Benefits & Records p:1 e:"H3 Administer HR Operations" t:"H Human Resources" o:"Hal HR"
+new H-33 5 Ensure Labor & Safety Compliance p:1 e:"H3 Administer HR Operations" t:"H Human Resources" o:"Gus HR"
+
+== Logistics
+cap 30
+new L-11 5 Unload & Check Freight p:1 e:"L1 Receive Inbound Freight" t:"L Logistics & Shipping" o:"Ida Logistics"
+new L-12 5 Clear Import Customs p:1 e:"L1 Receive Inbound Freight" t:"L Logistics & Shipping" o:"Jon Logistics"
+new L-13 5 Deliver to Production Stores p:1 e:"L1 Receive Inbound Freight" t:"L Logistics & Shipping" o:"Ida Logistics"
+new L-21 5 Put Away Released Stock p:1 e:"L2 Warehouse Finished Goods" t:"L Logistics & Shipping" o:"Jon Logistics"
+new L-22 5 Count & Reconcile Inventory p:1 e:"L2 Warehouse Finished Goods" t:"L Logistics & Shipping" o:"Ida Logistics"
+new L-23 5 Stage Orders for Shipment p:1 e:"L2 Warehouse Finished Goods" t:"L Logistics & Shipping" o:"Jon Logistics"
+new L-31 5 Plan Shipments & Book Carriers p:1 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Ida Logistics"
+new L-321 3 Pick & Pack Orders p:2 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Jon Logistics"
+new L-3221 3 Prepare Commercial Invoice & Packing List p:3 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Ida Logistics"
+new L-32221 3 Validate License & Screening Data p:3 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Jon Logistics"
+new L-322221 3 Assemble Filing Data Set p:3 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Ida Logistics"
+new L-322222 3 Transmit Export & Destination Filings p:3 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Jon Logistics"
+new L-322223 3 Archive Filing Acknowledgments p:3 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Ida Logistics"
+new L-32223 3 Resolve Filing Exceptions p:3 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Jon Logistics"
+new L-3223 3 Compile Battery & Dangerous-Goods Docs p:3 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Ida Logistics"
+new L-323 3 Tender to Carrier p:2 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Jon Logistics"
+new L-33 5 Track & Confirm Delivery p:1 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Ida Logistics"
+
+== Production
+cap 30
+new P-11 5 Build Master Schedule p:1 e:"P1 Plan Production" t:"P Production" o:"Kim Production"
+new P-12 5 Plan Materials p:1 e:"P1 Plan Production" t:"P Production" o:"Lou Production"
+new P-13 5 Release Work Orders p:1 e:"P1 Plan Production" t:"P Production" o:"Kim Production"
+new P-21 5 Order Components p:1 e:"P2 Procure & Kit Materials" t:"P Production" o:"Lou Production"
+new P-22 5 Receive & Stage Materials p:1 e:"P2 Procure & Kit Materials" t:"P Production" o:"Kim Production"
+new P-23 5 Kit Jobs to Line p:1 e:"P2 Procure & Kit Materials" t:"P Production" o:"Lou Production"
+new P-311 3 CNC-Cut Carbon Plates p:2 e:"P3 Build Products" t:"P Production" o:"Kim Production"
+new P-312 3 Finish & Deburr Plates p:2 e:"P3 Build Products" t:"P Production" o:"Lou Production"
+new P-313 3 Fit-Check & Bag Frame Sets p:2 e:"P3 Build Products" t:"P Production" o:"Kim Production"
+new P-3211 3 Prepare Line & Programs p:3 e:"P3 Build Products" t:"P Production" o:"Lou Production"
+new P-321211 3 Align Stencil & Load Paste p:3 e:"P3 Build Products" t:"P Production" o:"Kim Production"
+new P-321212 3 Print Panel p:3 e:"P3 Build Products" t:"P Production" o:"Lou Production"
+new P-321213 3 Verify Paste Deposition p:3 e:"P3 Build Products" t:"P Production" o:"Kim Production"
+new P-32122 3 Place Components p:3 e:"P3 Build Products" t:"P Production" o:"Lou Production"
+new P-32123 3 Reflow Solder p:3 e:"P3 Build Products" t:"P Production" o:"Kim Production"
+new P-3213 3 Inspect Panels p:3 e:"P3 Build Products" t:"P Production" o:"Lou Production"
+new P-322 3 Assemble Through-Hole & Connectors p:2 e:"P3 Build Products" t:"P Production" o:"Kim Production"
+new P-323 3 Test & Rework Boards p:2 e:"P3 Build Products" t:"P Production" o:"Lou Production"
+new P-331 3 Assemble Airframe p:2 e:"P3 Build Products" t:"P Production" o:"Kim Production"
+new P-332 3 Install Electronics Stack p:2 e:"P3 Build Products" t:"P Production" o:"Lou Production"
+new P-333 3 Close Out & Serialize p:2 e:"P3 Build Products" t:"P Production" o:"Kim Production"
+new P-34 5 Flash & Configure Firmware p:1 e:"P3 Build Products" t:"P Production" o:"Lou Production"
+new P-4 8 Support Manufacturing Engineering p:1 e:"P4 Support Manufacturing Engineering" t:"P Production" o:"Kim Production"
+
+== Quality
+cap 30
+new Q-11 5 Maintain Procedures & Standards p:1 e:"Q1 Maintain Quality System" t:"Q Quality Assurance" o:"Max Quality"
+new Q-12 5 Author Acceptance & Inspection Criteria p:1 e:"Q1 Maintain Quality System" t:"Q Quality Assurance" o:"Nia Quality"
+new Q-13 5 Qualify & Audit Suppliers p:1 e:"Q1 Maintain Quality System" t:"Q Quality Assurance" o:"Max Quality"
+new Q-21 5 Inspect Units & Records p:1 e:"Q2 Inspect & Release Product" t:"Q Quality Assurance" o:"Nia Quality"
+new Q-22 5 Disposition Release Decisions p:1 e:"Q2 Inspect & Release Product" t:"Q Quality Assurance" o:"Max Quality"
+new Q-23 5 Certify & Release Products p:1 e:"Q2 Inspect & Release Product" t:"Q Quality Assurance" o:"Nia Quality"
+new Q-31 5 Log & Screen Quality Events p:1 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Max Quality"
+new Q-321 3 Contain & Segregate p:2 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Nia Quality"
+new Q-3221 3 Reproduce Failure p:3 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Max Quality"
+new Q-32221 3 Perform Visual & X-Ray Inspection p:3 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Nia Quality"
+new Q-322221 3 Map Failing Nets p:3 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Max Quality"
+new Q-322222 3 Isolate Faulty Components p:3 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Nia Quality"
+new Q-322223 3 Characterize Failure Mode p:3 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Max Quality"
+new Q-32223 3 Cross-Section & Materials Analysis p:3 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Nia Quality"
+new Q-3223 3 Confirm Root Cause p:3 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Max Quality"
+new Q-323 3 Define Corrective Actions p:2 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Nia Quality"
+new Q-33 5 Track Effectiveness & Close p:1 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Max Quality"
+
+== Research
+cap 30
+new R-11 5 Gather Race-Team & Market Inputs p:1 e:"R1 Define Product Requirements" t:"R Research & Development" o:"Ola Research"
+new R-12 5 Write Product Requirements p:1 e:"R1 Define Product Requirements" t:"R Research & Development" o:"Pat Research"
+new R-13 5 Baseline Requirements p:1 e:"R1 Define Product Requirements" t:"R Research & Development" o:"Ola Research"
+new R-211 3 Model Frame Geometry p:2 e:"R2 Develop Product Design" t:"R Research & Development" o:"Pat Research"
+new R-212 3 Analyze Structure & Aero p:2 e:"R2 Develop Product Design" t:"R Research & Development" o:"Ola Research"
+new R-213 3 Prototype & Iterate Frame p:2 e:"R2 Develop Product Design" t:"R Research & Development" o:"Pat Research"
+new R-221 3 Architect Electronics Suite p:2 e:"R2 Develop Product Design" t:"R Research & Development" o:"Ola Research"
+new R-2221 3 Capture FC Schematic p:3 e:"R2 Develop Product Design" t:"R Research & Development" o:"Pat Research"
+new R-22221 3 Place Components & Plan Stackup p:3 e:"R2 Develop Product Design" t:"R Research & Development" o:"Ola Research"
+new R-222221 3 Route Power Stages p:3 e:"R2 Develop Product Design" t:"R Research & Development" o:"Pat Research"
+new R-222222 3 Route High-Speed & RF Nets p:3 e:"R2 Develop Product Design" t:"R Research & Development" o:"Ola Research"
+new R-222223 3 Tune & Clean Up Routing p:3 e:"R2 Develop Product Design" t:"R Research & Development" o:"Pat Research"
+new R-22223 3 Run DRC & Prepare Fab Package p:3 e:"R2 Develop Product Design" t:"R Research & Development" o:"Ola Research"
+new R-2223 3 Bring Up FC Prototype p:3 e:"R2 Develop Product Design" t:"R Research & Development" o:"Pat Research"
+new R-223 3 Develop ESC & VTX Boards p:2 e:"R2 Develop Product Design" t:"R Research & Development" o:"Ola Research"
+new R-224 3 Integrate Electronics Package p:2 e:"R2 Develop Product Design" t:"R Research & Development" o:"Pat Research"
+new R-231 3 Define Firmware Architecture p:2 e:"R2 Develop Product Design" t:"R Research & Development" o:"Ola Research"
+new R-232 3 Implement Flight & Config Code p:2 e:"R2 Develop Product Design" t:"R Research & Development" o:"Pat Research"
+new R-233 3 Bench-Validate Firmware p:2 e:"R2 Develop Product Design" t:"R Research & Development" o:"Ola Research"
+new R-24 5 Integrate Design Data p:1 e:"R2 Develop Product Design" t:"R Research & Development" o:"Pat Research"
+new R-31 5 Build Verification Units p:1 e:"R3 Verify Design" t:"R Research & Development" o:"Ola Research"
+new R-32 5 Run Design Verification Tests p:1 e:"R3 Verify Design" t:"R Research & Development" o:"Pat Research"
+new R-33 5 Disposition Findings p:1 e:"R3 Verify Design" t:"R Research & Development" o:"Ola Research"
+new R-41 5 Compile Release Package p:1 e:"R4 Release Engineering Baseline" t:"R Research & Development" o:"Pat Research"
+new R-42 5 Review & Approve Release p:1 e:"R4 Release Engineering Baseline" t:"R Research & Development" o:"Ola Research"
+new R-43 5 Publish Baseline p:1 e:"R4 Release Engineering Baseline" t:"R Research & Development" o:"Pat Research"
+
+== Support
+cap 30
+new S-11 5 Run Help Desk & Community Channels p:1 e:"S1 Operate Support Channels" t:"S Customer Support & Feedback" o:"Quinn Support"
+new S-12 5 Publish Guides & Firmware Notes p:1 e:"S1 Operate Support Channels" t:"S Customer Support & Feedback" o:"Ray Support"
+new S-13 5 Open Support Cases p:1 e:"S1 Operate Support Channels" t:"S Customer Support & Feedback" o:"Quinn Support"
+new S-21 5 Triage & Diagnose Cases p:1 e:"S2 Resolve Customer Cases" t:"S Customer Support & Feedback" o:"Ray Support"
+new S-221 3 Authorize Returns p:2 e:"S2 Resolve Customer Cases" t:"S Customer Support & Feedback" o:"Quinn Support"
+new S-2221 3 Receive & Log Returns p:3 e:"S2 Resolve Customer Cases" t:"S Customer Support & Feedback" o:"Ray Support"
+new S-22221 3 Diagnose Faults p:3 e:"S2 Resolve Customer Cases" t:"S Customer Support & Feedback" o:"Quinn Support"
+new S-222221 3 Replace Damaged Modules p:3 e:"S2 Resolve Customer Cases" t:"S Customer Support & Feedback" o:"Ray Support"
+new S-222222 3 Rework Solder & Connectors p:3 e:"S2 Resolve Customer Cases" t:"S Customer Support & Feedback" o:"Quinn Support"
+new S-222223 3 Rebind & Configure Electronics p:3 e:"S2 Resolve Customer Cases" t:"S Customer Support & Feedback" o:"Ray Support"
+new S-22223 3 Verify & Reflash Units p:3 e:"S2 Resolve Customer Cases" t:"S Customer Support & Feedback" o:"Quinn Support"
+new S-2223 3 QC & Restock or Scrap p:3 e:"S2 Resolve Customer Cases" t:"S Customer Support & Feedback" o:"Ray Support"
+new S-223 3 Close RMAs & Ship Replacements p:2 e:"S2 Resolve Customer Cases" t:"S Customer Support & Feedback" o:"Quinn Support"
+new S-23 5 Close Cases & Follow Up p:1 e:"S2 Resolve Customer Cases" t:"S Customer Support & Feedback" o:"Ray Support"
+new S-31 5 Mine Case & Telemetry Data p:1 e:"S3 Synthesize Feedback & Insights" t:"S Customer Support & Feedback" o:"Quinn Support"
+new S-32 5 Identify Product Issues & Trends p:1 e:"S3 Synthesize Feedback & Insights" t:"S Customer Support & Feedback" o:"Ray Support"
+new S-33 5 Publish Feedback & Signals p:1 e:"S3 Synthesize Feedback & Insights" t:"S Customer Support & Feedback" o:"Quinn Support"
+
+== Testing
+cap 30
+new T-11 5 Author Test Procedures p:1 e:"T1 Prepare Test Program" t:"T Testing" o:"Sam Testing"
+new T-12 5 Plan Test Capacity & Schedule p:1 e:"T1 Prepare Test Program" t:"T Testing" o:"Tia Testing"
+new T-13 5 Maintain & Calibrate Rigs p:1 e:"T1 Prepare Test Program" t:"T Testing" o:"Sam Testing"
+new T-21 5 Bench-Test Units p:1 e:"T2 Execute Acceptance Tests" t:"T Testing" o:"Tia Testing"
+new T-221 3 Stage & Preflight Units p:2 e:"T2 Execute Acceptance Tests" t:"T Testing" o:"Sam Testing"
+new T-2221 3 Hover & Failsafe Checks p:3 e:"T2 Execute Acceptance Tests" t:"T Testing" o:"Tia Testing"
+new T-22221 3 Fly Speed Runs p:3 e:"T2 Execute Acceptance Tests" t:"T Testing" o:"Sam Testing"
+new T-22222 3 Fly Agility Circuits p:3 e:"T2 Execute Acceptance Tests" t:"T Testing" o:"Tia Testing"
+new T-222231 3 Extract Telemetry Metrics p:3 e:"T2 Execute Acceptance Tests" t:"T Testing" o:"Sam Testing"
+new T-222232 3 Compare Against Acceptance Gates p:3 e:"T2 Execute Acceptance Tests" t:"T Testing" o:"Tia Testing"
+new T-222233 3 Tag Pass-Fail & Archive Runs p:3 e:"T2 Execute Acceptance Tests" t:"T Testing" o:"Sam Testing"
+new T-2223 3 Consolidate Flight Results p:3 e:"T2 Execute Acceptance Tests" t:"T Testing" o:"Tia Testing"
+new T-223 3 Post-Flight Inspect & Return Units p:2 e:"T2 Execute Acceptance Tests" t:"T Testing" o:"Sam Testing"
+new T-23 5 Consolidate Test Data p:1 e:"T2 Execute Acceptance Tests" t:"T Testing" o:"Tia Testing"
+new T-31 5 Review Results & Disposition Units p:1 e:"T3 Disposition & Report" t:"T Testing" o:"Sam Testing"
+new T-32 5 Segregate Accepts & Rejects p:1 e:"T3 Disposition & Report" t:"T Testing" o:"Tia Testing"
+new T-33 5 Compile Test Records p:1 e:"T3 Disposition & Report" t:"T Testing" o:"Sam Testing"
+
+== Contracting
+new IF-6 5 Interface: Strategic Plan from Executive to Contracting p:1 e:"E1 Set Direction" t:"E Executive & Strategy" o:"Bob Contracting"
+new IF-9 5 Interface: Approved Budgets from Executive to Contracting p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Ann Contracting"
+new IF-19 5 Interface: Trade-Compliance Policy from Executive to Contracting p:1 e:"E4 Manage Risk & Compliance" t:"E Executive & Strategy" o:"Bob Contracting"
+new IF-31 5 Interface: Shipment Confirmations from Logistics to Contracting p:1 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Ann Contracting"
+new IF-48 5 Interface: Renewal & Upsell Signals from Support to Contracting p:1 e:"S3 Synthesize Feedback & Insights" t:"S Customer Support & Feedback" o:"Bob Contracting"
+
+== Executive
+new IF-4 5 Interface: Demand Forecast from Contracting to Executive p:1 e:"C3 Manage Contract Fulfillment" t:"C Contracting & Sales" o:"Cy Executive"
+new IF-21 5 Interface: Budget Policy from Finance to Executive p:1 e:"F1 Plan & Steward Budgets" t:"F Finance" o:"Dee Executive"
+new IF-22 5 Interface: Planning Calendar from Finance to Executive p:1 e:"F1 Plan & Steward Budgets" t:"F Finance" o:"Cy Executive"
+new IF-23 5 Interface: Department Budget Requests from Finance to Executive p:1 e:"F1 Plan & Steward Budgets" t:"F Finance" o:"Dee Executive"
+new IF-24 5 Interface: Financial Statements & KPIs from Finance to Executive p:1 e:"F3 Close Books & Report" t:"F Finance" o:"Cy Executive"
+
+== Finance
+new IF-5 5 Interface: Billing Milestones from Contracting to Finance p:1 e:"C3 Manage Contract Fulfillment" t:"C Contracting & Sales" o:"Fay Finance"
+new IF-10 5 Interface: Approved Budgets from Executive to Finance p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Eve Finance"
+new IF-18 5 Interface: Performance Targets from Executive to Finance p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Fay Finance"
+new IF-29 5 Interface: Payroll Inputs from HR to Finance p:1 e:"H3 Administer HR Operations" t:"H Human Resources" o:"Eve Finance"
+new IF-32 5 Interface: Shipping & Freight Documents from Logistics to Finance p:1 e:"L3 Ship Customer Orders" t:"L Logistics & Shipping" o:"Fay Finance"
+
+== HR
+new IF-11 5 Interface: Approved Budgets from Executive to HR p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Hal HR"
+
+== Logistics
+new IF-3 5 Interface: Delivery Orders from Contracting to Logistics p:1 e:"C3 Manage Contract Fulfillment" t:"C Contracting & Sales" o:"Jon Logistics"
+new IF-12 5 Interface: Approved Budgets from Executive to Logistics p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Ida Logistics"
+new IF-20 5 Interface: Trade-Compliance Policy from Executive to Logistics p:1 e:"E4 Manage Risk & Compliance" t:"E Executive & Strategy" o:"Jon Logistics"
+new IF-39 5 Interface: Released Products from Quality to Logistics p:1 e:"Q2 Inspect & Release Product" t:"Q Quality Assurance" o:"Ida Logistics"
+
+== Production
+new IF-1 5 Interface: Spot Orders from Contracting to Production p:1 e:"C3 Manage Contract Fulfillment" t:"C Contracting & Sales" o:"Lou Production"
+new IF-2 5 Interface: Continuous Supply Schedule from Contracting to Production p:1 e:"C3 Manage Contract Fulfillment" t:"C Contracting & Sales" o:"Kim Production"
+new IF-13 5 Interface: Approved Budgets from Executive to Production p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Lou Production"
+new IF-25 5 Interface: Production Crew from HR to Production p:1 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Kim Production"
+new IF-26 5 Interface: Staffed Production Workforce from HR to Production p:1 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Lou Production"
+new IF-30 5 Interface: Inbound Component Deliveries from Logistics to Production p:1 e:"L1 Receive Inbound Freight" t:"L Logistics & Shipping" o:"Kim Production"
+new IF-38 5 Interface: Approved Supplier List from Quality to Production p:1 e:"Q1 Maintain Quality System" t:"Q Quality Assurance" o:"Lou Production"
+new IF-40 5 Interface: CAPA Directives from Quality to Production p:1 e:"Q3 Manage Nonconformance & CAPA" t:"Q Quality Assurance" o:"Kim Production"
+new IF-41 5 Interface: Engineering Baseline from Research to Production p:1 e:"R4 Release Engineering Baseline" t:"R Research & Development" o:"Lou Production"
+new IF-44 5 Interface: Firmware Release from Research to Production p:1 e:"R4 Release Engineering Baseline" t:"R Research & Development" o:"Kim Production"
+new IF-50 5 Interface: Rework Units from Testing to Production p:1 e:"T3 Disposition & Report" t:"T Testing" o:"Lou Production"
+new IF-51 5 Interface: Test Rejects from Testing to Production p:1 e:"T3 Disposition & Report" t:"T Testing" o:"Kim Production"
+
+== Quality
+new IF-14 5 Interface: Approved Budgets from Executive to Quality p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Nia Quality"
+new IF-33 5 Interface: Line Nonconformance Reports from Production to Quality p:1 e:"P3 Build Products" t:"P Production" o:"Max Quality"
+new IF-34 5 Interface: Line Nonconformances from Production to Quality p:1 e:"P3 Build Products" t:"P Production" o:"Nia Quality"
+new IF-42 5 Interface: Engineering Baseline from Research to Quality p:1 e:"R4 Release Engineering Baseline" t:"R Research & Development" o:"Max Quality"
+new IF-46 5 Interface: Field Complaint Reports from Support to Quality p:1 e:"S3 Synthesize Feedback & Insights" t:"S Customer Support & Feedback" o:"Nia Quality"
+new IF-47 5 Interface: Field Complaints from Support to Quality p:1 e:"S3 Synthesize Feedback & Insights" t:"S Customer Support & Feedback" o:"Max Quality"
+new IF-49 5 Interface: Accepted Drones from Testing to Quality p:1 e:"T3 Disposition & Report" t:"T Testing" o:"Nia Quality"
+new IF-52 5 Interface: Test Records from Testing to Quality p:1 e:"T3 Disposition & Report" t:"T Testing" o:"Max Quality"
+
+== Research
+new IF-7 5 Interface: Strategic Plan from Executive to Research p:1 e:"E1 Set Direction" t:"E Executive & Strategy" o:"Ola Research"
+new IF-8 5 Interface: Portfolio Mandate from Executive to Research p:1 e:"E1 Set Direction" t:"E Executive & Strategy" o:"Pat Research"
+new IF-15 5 Interface: Approved Budgets from Executive to Research p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Ola Research"
+new IF-36 5 Interface: Manufacturability Feedback from Production to Research p:1 e:"P4 Support Manufacturing Engineering" t:"P Production" o:"Pat Research"
+new IF-45 5 Interface: Customer Feedback from Support to Research p:1 e:"S3 Synthesize Feedback & Insights" t:"S Customer Support & Feedback" o:"Ola Research"
+
+== Support
+new IF-16 5 Interface: Approved Budgets from Executive to Support p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Ray Support"
+
+== Testing
+new IF-17 5 Interface: Approved Budgets from Executive to Testing p:1 e:"E2 Plan & Allocate" t:"E Executive & Strategy" o:"Tia Testing"
+new IF-27 5 Interface: Certified Test Pilots from HR to Testing p:1 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Sam Testing"
+new IF-28 5 Interface: Test Pilots from HR to Testing p:1 e:"H2 Staff & Develop Workforce" t:"H Human Resources" o:"Tia Testing"
+new IF-35 5 Interface: Configured Drones from Production to Testing p:1 e:"P3 Build Products" t:"P Production" o:"Sam Testing"
+new IF-37 5 Interface: Acceptance Test Procedure from Quality to Testing p:1 e:"Q1 Maintain Quality System" t:"Q Quality Assurance" o:"Tia Testing"
+new IF-43 5 Interface: Engineering Baseline from Research to Testing p:1 e:"R4 Release Engineering Baseline" t:"R Research & Development" o:"Sam Testing"
+
+== Contracting
+commit IF-19
+commit IF-31
+commit IF-48
+commit IF-6
+commit IF-9
+commit C-11
+
+== Executive
+commit IF-21
+commit IF-22
+commit IF-23
+commit IF-24
+commit IF-4
+commit E-11
+
+== Finance
+commit IF-10
+commit IF-18
+commit IF-29
+commit IF-32
+commit IF-5
+commit F-11
+
+== HR
+commit IF-11
+commit H-11
+commit H-12
+commit H-13
+commit H-23
+commit H-31
+
+== Logistics
+commit IF-12
+commit IF-20
+commit IF-3
+commit IF-39
+commit L-11
+commit L-12
+
+== Production
+commit IF-1
+commit IF-13
+commit IF-2
+commit IF-25
+commit IF-26
+commit IF-30
+
+== Quality
+commit IF-14
+commit IF-33
+commit IF-34
+commit IF-42
+commit IF-46
+commit IF-47
+
+== Research
+commit IF-15
+commit IF-36
+commit IF-45
+commit IF-7
+commit IF-8
+commit R-11
+
+== Support
+commit IF-16
+commit S-11
+commit S-12
+commit S-13
+commit S-21
+commit S-23
+
+== Testing
+commit IF-17
+commit IF-27
+commit IF-28
+commit IF-35
+commit IF-37
+commit IF-43

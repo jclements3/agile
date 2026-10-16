@@ -1,0 +1,5 @@
+2026-11-25 Halberd
+JC (08:30)
+  Y: 61 more elements under configuration control, now 65% (A), all merged at 0/0 (E). 64 of 64 pre-flight prediction parameters now come from the model (O), and 12 of 12 prediction runs name their baseline (P). 41 interface mismatches caught at merge to date, 0 reached integration (H).
+  T: Tagging baseline 2 before the holiday.
+  B: none

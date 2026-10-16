@@ -1,0 +1,5 @@
+2026-11-05 Halberd
+JC (08:30)
+  Y: 34 more elements under configuration control, now 38% (A), all merged at 0/0 (E).
+  T: More of Battle Management & Fire Control goes under configuration control today.
+  B: Still waiting on the shared runner (Y).

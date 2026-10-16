@@ -1,0 +1,1116 @@
+﻿SLCACHE 1 45378,1313,51805,7942
+GRootNamespace
+Kaboutabstractacceptactionactorafteraliasallallocateallocationanalysisandasassertassignassumeatattributebindbindingbycalccasecommentconcernconnectconnectionconstantconstraintcrossesdecidedefdefaultdefineddependencyderiveddodocelseendentryenumeventexhibitexitexposefalsefilterfirstflowforforkframefromhastypeifimpliesimportinincludeindividualinoutinterfaceistypeitemjoinlanguagelibrarylocaleloopmergemessagemetametadatanewnonuniquenotnullobjectiveoccurrenceofororderedoutpackageparallelpartperformportprivateprotectedpublicredefinesrefreferencesrenderrenderingreprequirerequirementreturnsatisfysendsnapshotspecializesstakeholderstandardstatesubjectsubsetssuccessionterminatethentimeslicetotransitiontrueuntilusevariantvariationverificationverifyviaviewviewpointwhenwhilexor
+S===:>>::>!==??>==>==<=:>:=::.?..->**!=~}|{^][@?>=<;:/.-,+*)(&%$#
+O
+RSpecificTypealt2xref0seq2refOwnedFeatureChainempty
+RFeatureValueseq2alt3lit=lit:=seq2litdefaultopt1alt2lit=lit:=refOwnedExpression
+RBooleanValuealt2littruelitfalse
+RMetadataBodyFeatureMemberrefMetadataBodyFeature
+RDefinitionDeclarationseq2refIdentificationopt1refSubclassificationPart
+RPayloadFeaturealt3seq3opt1refIdentificationrefPayloadFeatureSpecializationPartopt1refValuePartseq2refOwnedFeatureTypingopt1refOwnedMultiplicityseq2refOwnedMultiplicityrefOwnedFeatureTyping
+RViewpointDefinitionseq5refOccurrenceDefinitionPrefixlitviewpointlitdefrefDefinitionDeclarationrefRequirementBody
+ROwnedFeatureChainingxref0
+RSubsettingseq6opt1seq2litspecializationrefIdentificationlitsubsetrefSpecificTyperefSUBSETSrefGeneralTyperefRelationshipBody
+RSuccessionFlowseq5refFeaturePrefixlitsuccessionlitflowrefFlowDeclarationrefTypeBody
+RReturnFeatureMemberseq3refMemberPrefixlitreturnrefFeatureElement
+RTypeFeatureMemberseq3refMemberPrefixlitmemberrefFeatureElement
+RNamespaceDeclarationseq2litnamespacerefIdentification
+ROwnedFeatureChainMemberrefOwnedFeatureChain
+RTriggerActionrefAcceptParameterPart
+RIndividualUsageseq4refBasicUsagePrefixlitindividualstar1refUsageExtensionKeywordrefUsage
+RREFERENCESalt2lit::>litreferences
+RMultiplicityPartalt2refOwnedMultiplicityseq2opt1refOwnedMultiplicityalt2seq2litorderedopt1seq2emptylitnonuniqueseq3emptylitnonuniqueopt1litordered
+RStructureUsageElementalt15refOccurrenceUsagerefIndividualUsagerefPortionUsagerefEventOccurrenceUsagerefItemUsagerefPartUsagerefViewUsagerefRenderingUsagerefPortUsagerefConnectionUsagerefInterfaceUsagerefAllocationUsagerefMessagerefFlowUsagerefSuccessionFlowUsage
+RGuardedTargetSuccessionseq3refGuardExpressionMemberlitthenrefTransitionSuccessionMember
+RIndividualDefinitionseq6opt1refBasicDefinitionPrefixlitindividualstar1refDefinitionExtensionKeywordlitdefrefDefinitionrefEmptyMultiplicityMember
+REmptyMultiplicityMemberrefEmptyMultiplicity
+RSubjectMemberseq2refMemberPrefixrefSubjectUsage
+ROwnedExpressionMemberrefOwnedExpression
+RAnnotatingElementalt4refCommentrefDocumentationrefTextualRepresentationrefMetadataFeature
+RFlowEndSubsettingalt2seq2xref0lit.seq2refFeatureChainPrefixempty
+RDependencyseq4star1refPrefixMetadataAnnotationlitdependencyrefDependencyDeclarationrefRelationshipBody
+RSubclassificationPartseq3refSPECIALIZESrefOwnedSubclassificationstar1seq2lit,refOwnedSubclassification
+RActionUsageseq4refOccurrenceUsagePrefixlitactionrefActionUsageDeclarationrefActionBody
+RMultiplicityRangeseq4lit[opt1seq2refMultiplicityExpressionMemberlit..refMultiplicityExpressionMemberlit]
+RBodyArgumentValuerefBodyExpression
+RLiteralBooleanrefBooleanValue
+RFunctionOperationExpressionseq5refPrimaryArgumentMemberlit->refInstantiatedTypeMemberalt3refBodyArgumentMemberrefFunctionReferenceArgumentMemberrefArgumentListrefEmptyResultMember
+RCalculationBodyItemalt2refActionBodyItemrefReturnParameterMember
+RPrimaryArgumentMemberrefPrimaryArgument
+REnumerationUsageMemberseq2refMemberPrefixrefEnumeratedValue
+ROwnedTypeFeaturingxref0
+RSatisfyRequirementUsageseq8refOccurrenceUsagePrefixopt1litassertopt1litnotlitsatisfyalt2seq2refOwnedReferenceSubsettingopt1refFeatureSpecializationPartseq2litrequirementopt1refUsageDeclarationopt1refValuePartopt1seq2litbyrefSatisfactionSubjectMemberrefRequirementBody
+RSubsettingsseq2refSubsetsstar1seq2lit,refOwnedSubsetting
+RConnectorEndseq3opt1refOwnedCrossMultiplicityMemberopt1seq2refNAMErefREFERENCESrefOwnedReferenceSubsetting
+RSpecializationPartseq3refSPECIALIZESrefOwnedSpecializationstar1seq2lit,refOwnedSpecialization
+RREGULAR_COMMENTseq3lit/*refCOMMENT_TEXTlit*/
+RDefaultInterfaceEndseq2litendrefUsage
+RRelationshipOwnedElementalt2refOwnedRelatedElementrefOwnedAnnotation
+RAllocationUsageDeclarationalt2seq3litallocationrefUsageDeclarationopt1seq2litallocaterefConnectorPartseq2litallocaterefConnectorPart
+RPositionalArgumentListseq2refArgumentMemberstar1seq2lit,refArgumentMember
+RConnectionDefinitionseq4refOccurrenceDefinitionPrefixlitconnectionlitdefrefDefinition
+RSequenceExpressionListalt2seq2refOwnedExpressionopt1lit,refSequenceOperatorExpression
+RJoinNodeseq4refControlNodePrefixlitjoinrefUsageDeclarationrefActionBody
+RBasicFeaturePrefixseq5opt1refFeatureDirectionopt1litderivedopt1litabstractopt1alt2litcompositelitportionopt1alt2litvarseq2litconstempty
+RStateAcceptActionUsageseq2refAcceptNodeDeclarationrefActionBody
+RFeatureInvertingseq6opt1seq2litinvertingopt1refIdentificationlitinversealt2xref0seq2refOwnedFeatureChainemptylitofalt2xref0seq2refOwnedFeatureChainemptyrefRelationshipBody
+RDoActionMemberseq3refMemberPrefixlitdorefStateActionUsage
+REmptyMultiplicityempty
+RConnectionUsageseq3refOccurrenceUsagePrefixalt2seq4litconnectionrefUsageDeclarationopt1refValuePartopt1seq2litconnectrefConnectorPartseq2litconnectrefConnectorPartrefUsageBody
+RActionDefinitionseq5refOccurrenceDefinitionPrefixlitactionlitdefrefDefinitionDeclarationrefActionBody
+ROwnedFeatureChainseq2refOwnedFeatureChainingplus1seq2lit.refOwnedFeatureChaining
+RExhibitStateUsageseq5refOccurrenceUsagePrefixlitexhibitalt2seq2refOwnedReferenceSubsettingopt1refFeatureSpecializationPartseq2litstaterefUsageDeclarationopt1refValuePartrefStateUsageBody
+REnumerationUsageseq3refUsagePrefixlitenumrefUsage
+RConjugatedPortDefinitionMemberrefConjugatedPortDefinition
+ROwnedSubsettingalt2xref0seq2refOwnedFeatureChainempty
+RExpressionBodyseq3lit{refCalculationBodyPartlit}
+RForVariableDeclarationMemberrefUsageDeclaration
+ROwnedExpressionalt8refConditionalExpressionrefConditionalBinaryOperatorExpressionrefBinaryOperatorExpressionrefUnaryOperatorExpressionrefClassificationExpressionrefMetaclassificationExpressionrefExtentExpressionrefPrimaryExpression
+RIntersectingalt2xref0refOwnedFeatureChain
+RBinaryConnectorPartseq3refConnectorEndMemberlittorefConnectorEndMember
+RPrefixMetadataAnnotationseq3lit#refPrefixMetadataUsageempty
+RFunctionBodyPartseq2star1alt2refTypeBodyElementrefReturnFeatureMemberopt1refResultExpressionMember
+RElementFilterMemberseq4refMemberPrefixlitfilterrefOwnedExpressionlit;
+RMultiplicityBoundsseq4lit[opt1seq2refMultiplicityExpressionMemberlit..refMultiplicityExpressionMemberlit]
+RTypePrefixseq2opt1litabstractstar1refPrefixMetadataMember
+RDecisionNodeseq4refControlNodePrefixlitdeciderefUsageDeclarationrefActionBody
+RExpressionParameterMemberrefOwnedExpression
+RBinaryOperatorExpressionseq4refArgumentMemberrefBinaryOperatorrefArgumentMemberrefEmptyResultMember
+RViewBodyalt2lit;seq3lit{star1refViewBodyItemlit}
+RVerificationCaseUsageseq4refOccurrenceUsagePrefixlitverificationrefConstraintUsageDeclarationrefCaseBody
+RSubclassificationseq6opt1seq2litspecializationrefIdentificationlitsubclassifierxref0refSPECIALIZESxref0refRelationshipBody
+RInvocationExpressionseq3refInstantiatedTypeMemberrefArgumentListrefEmptyResultMember
+RMultiplicityExpressionMemberalt2refLiteralExpressionrefFeatureReferenceExpression
+RRootNamespacestar1refPackageBodyElement
+RMessageDeclarationalt2seq4refUsageDeclarationopt1refValuePartopt1seq2litofrefFlowPayloadFeatureMemberopt1seq4litfromrefMessageEventMemberlittorefMessageEventMemberseq3refMessageEventMemberlittorefMessageEventMember
+RActionBodyItemalt4refNonBehaviorBodyItemseq2refInitialNodeMemberstar1refActionTargetSuccessionMemberseq3opt1refSourceSuccessionMemberrefActionBehaviorMemberstar1refActionTargetSuccessionMemberrefGuardedSuccessionMember
+RFlowDeclarationalt2seq4refUsageDeclarationopt1refValuePartopt1seq2litofrefFlowPayloadFeatureMemberopt1seq4litfromrefFlowEndMemberlittorefFlowEndMemberseq3refFlowEndMemberlittorefFlowEndMember
+ROwnedFeatureMemberseq2refMemberPrefixrefFeatureElement
+RMetadataBodyElementalt4refNonFeatureMemberrefMetadataBodyFeatureMemberrefAliasMemberrefImport
+RActionUsageDeclarationseq2refUsageDeclarationopt1refValuePart
+RMessageEventMemberrefMessageEvent
+REmptyUsageempty
+RFlowEndseq2opt1refFlowEndSubsettingrefFlowFeatureMember
+RFeatureDeclarationseq3opt1litallalt3seq2refFeatureIdentificationopt1alt2refFeatureSpecializationPartrefConjugationPartrefFeatureSpecializationPartrefConjugationPartstar1refFeatureRelationshipPart
+RItemDefinitionseq4refOccurrenceDefinitionPrefixlititemlitdefrefDefinition
+ROwnedSubclassificationxref0
+RExpressionBodyMemberrefExpressionBody
+RSTRING_CHARACTERlitany printable character other than backslash or "
+RPackageBodyElementalt4refPackageMemberrefElementFilterMemberrefAliasMemberrefImport
+RFilterPackageImportseq2refImportDeclarationempty
+RBehaviorUsageElementalt16refActionUsagerefCalculationUsagerefStateUsagerefConstraintUsagerefRequirementUsagerefConcernUsagerefCaseUsagerefAnalysisCaseUsagerefVerificationCaseUsagerefUseCaseUsagerefViewpointUsagerefPerformActionUsagerefExhibitStateUsagerefIncludeUseCaseUsagerefAssertConstraintUsagerefSatisfyRequirementUsage
+RForVariableDeclarationrefUsageDeclaration
+RTargetSuccessionseq3refSourceEndMemberlitthenrefConnectorEndMember
+RPortUsageseq3refOccurrenceUsagePrefixlitportrefUsage
+RUnaryOperatorExpressionseq3refUnaryOperatorrefArgumentMemberrefEmptyResultMember
+RNonBehaviorBodyItemalt6refImportrefAliasMemberrefDefinitionMemberrefVariantUsageMemberrefNonOccurrenceUsageMemberseq2opt1refSourceSuccessionMemberrefStructureUsageMember
+RConjugationseq6opt1seq2litconjugationrefIdentificationlitconjugatealt2xref0seq2refFeatureChainemptyrefCONJUGATESalt2xref0seq2refFeatureChainemptyrefRelationshipBody
+RRequirementDefinitionseq5refOccurrenceDefinitionPrefixlitrequirementlitdefrefDefinitionDeclarationrefRequirementBody
+RBindingConnectorseq4refFeaturePrefixlitbindingrefBindingConnectorDeclarationrefTypeBody
+REXPONENTIAL_VALUEseq4refDECIMAL_VALUEalt2litelitEopt1alt2lit+lit-refDECIMAL_VALUE
+RFlowPayloadFeaturerefPayloadFeature
+RConstraintUsageDeclarationseq2refUsageDeclarationopt1refValuePart
+RPrimaryExpressionalt2refFeatureChainExpressionrefNonFeatureChainPrimaryExpression
+RActorMemberseq2refMemberPrefixrefActorUsage
+RIfNodeseq5refActionNodePrefixlitifrefExpressionParameterMemberrefActionBodyParameterMemberopt1seq2litelsealt2refActionBodyParameterMemberrefIfNodeParameterMember
+RDefinitionPrefixseq2opt1refBasicDefinitionPrefixstar1refDefinitionExtensionKeyword
+RPackageMemberseq2refMemberPrefixalt2refDefinitionElementrefUsageElement
+RStateDefBodyalt2lit;seq4opt1litparallellit{star1refStateBodyItemlit}
+RMemberElementalt2refAnnotatingElementrefNonFeatureElement
+RNodeParameterrefFeatureBinding
+RUsageExtensionKeywordrefPrefixMetadataMember
+RFeaturePrefixseq2alt2seq2refEndFeaturePrefixopt1refOwnedCrossFeatureMemberrefBasicFeaturePrefixstar1refPrefixMetadataMember
+RDEFINED_BYalt2lit:seq2litdefinedlitby
+RAcceptNodeseq3refOccurrenceUsagePrefixrefAcceptNodeDeclarationrefActionBody
+RPartDefinitionseq4refOccurrenceDefinitionPrefixlitpartlitdefrefDefinition
+RReferenceTypingxref0
+RSuccessionseq4refFeaturePrefixlitsuccessionrefSuccessionDeclarationrefTypeBody
+RFlowFeatureMemberrefFlowFeature
+RMetadataArgumentrefMetadataValue
+RMetadataFeatureseq5star1refPrefixMetadataMemberalt2lit@litmetadatarefMetadataFeatureDeclarationopt1seq3litaboutrefAnnotationstar1seq2lit,refAnnotationrefMetadataBody
+RNonFeatureChainPrimaryArgumentrefNonFeatureChainPrimaryArgumentValue
+RStatePerformActionUsageseq2refPerformActionUsageDeclarationrefActionBody
+RSequenceExpressionseq3lit(refSequenceExpressionListlit)
+RMetadataReferencerefElementReferenceMember
+RRESERVED_KEYWORDalt129litaboutlitabstractlitacceptlitactionlitactorlitafterlitaliaslitalllitallocatelitallocationlitanalysislitandlitaslitassertlitassignlitassumelitatlitattributelitbindlitbindinglitbylitcalclitcaselitcommentlitconcernlitconnectlitconnectionlitconstantlitconstraintlitcrosseslitdecidelitdeflitdefaultlitdefinedlitdependencylitderivedlitdolitdoclitelselitendlitentrylitenumliteventlitexhibitlitexitlitexposelitfalselitfilterlitfirstlitflowlitforlitforklitframelitfromlithastypelitiflitimplieslitimportlitinlitincludelitindividuallitinoutlitinterfacelitistypelititemlitjoinlitlanguagelitlibrarylitlocalelitlooplitmergelitmessagelitmetalitmetadatalitnewlitnonuniquelitnotlitnulllitobjectivelitoccurrencelitoflitorlitorderedlitoutlitpackagelitparallellitpartlitperformlitportlitprivatelitprotectedlitpubliclitredefineslitreflitreferenceslitrenderlitrenderinglitreplitrequirelitrequirementlitreturnlitsatisfylitsendlitsnapshotlitspecializeslitstakeholderlitstandardlitstatelitsubjectlitsubsetslitsuccessionlitterminatelitthenlittimeslicelittolittransitionlittruelituntillituselitvariantlitvariationlitverificationlitverifylitvialitviewlitviewpointlitwhenlitwhilelitxor
+RConcernDefinitionseq5refOccurrenceDefinitionPrefixlitconcernlitdefrefDefinitionDeclarationrefRequirementBody
+RPortionUsageseq6refBasicUsagePrefixopt1litindividualrefPortionKindstar1refUsageExtensionKeywordrefUsageempty
+RBehaviorseq4refTypePrefixlitbehaviorrefClassifierDeclarationrefTypeBody
+RTypedByseq2refDEFINED_BYrefFeatureTyping
+RBodyArgumentMemberrefBodyArgument
+RNamespaceMemberalt2refNonFeatureMemberrefNamespaceFeatureMember
+RRedefinitionsseq2refRedefinesstar1seq2lit,refOwnedRedefinition
+RVisibilityIndicatoralt3litpubliclitprivatelitprotected
+RUsagePrefixseq2refUnextendedUsagePrefixstar1refUsageExtensionKeyword
+RTerminateNodeseq5refOccurrenceUsagePrefixopt1refActionNodeUsageDeclarationlitterminateopt1refNodeParameterMemberrefActionBody
+RCaseDefinitionseq5refOccurrenceDefinitionPrefixlitcaselitdefrefDefinitionDeclarationrefCaseBody
+RMessageEventrefOwnedReferenceSubsetting
+RSTRING_VALUEseq3lit"star1alt2refSTRING_CHARACTERrefESCAPE_SEQUENCElit"
+RMetadataAccessExpressionseq3refElementReferenceMemberlit.litmetadata
+RNamespaceImportalt2seq4xref0lit::lit*opt1seq2lit::lit**seq2refFilterPackageempty
+RFilterPackageMemberseq3lit[refOwnedExpressionlit]
+RBracketExpressionseq4refPrimaryArgumentMemberlit[refSequenceExpressionListMemberlit]
+RConstraintDefinitionseq5refOccurrenceDefinitionPrefixlitconstraintlitdefrefDefinitionDeclarationrefCalculationBody
+RClassifierseq4refTypePrefixlitclassifierrefClassifierDeclarationrefTypeBody
+RAttributeUsageseq3refUsagePrefixlitattributerefUsage
+RPackageseq3star1refPrefixMetadataMemberrefPackageDeclarationrefPackageBody
+RSuccessionAsUsageseq7refUsagePrefixopt1seq2litsuccessionrefUsageDeclarationlitfirstrefConnectorEndMemberlitthenrefConnectorEndMemberrefUsageBody
+RDependencyDeclarationseq6opt1seq2refIdentificationlitfromxref0star1seq2lit,xref0littoxref0star1seq2lit,xref0
+RFeatureElementalt10refFeaturerefSteprefExpressionrefBooleanExpressionrefInvariantrefConnectorrefBindingConnectorrefSuccessionrefFlowrefSuccessionFlow
+RTransitionAssignmentActionUsageseq2refAssignmentNodeDeclarationopt1seq3lit{star1refActionBodyItemlit}
+RFilterPackageseq2refFilterPackageImportplus1refFilterPackageMember
+RViewDefinitionseq5refOccurrenceDefinitionPrefixlitviewlitdefrefDefinitionDeclarationrefViewDefinitionBody
+ROwnedCrossFeatureMemberrefOwnedCrossFeature
+RFunctionReferencerefReferenceTyping
+RViewDefinitionBodyalt2lit;seq3lit{star1refViewDefinitionBodyItemlit}
+RLINE_TEXTlit[^\r\n]*
+RPrefixMetadataMemberseq2lit#refPrefixMetadataUsage
+RIdentificationseq2opt1seq3lit<refNAMElit>opt1refNAME
+RObjectiveRequirementUsageseq3star1refUsageExtensionKeywordrefConstraintUsageDeclarationrefRequirementBody
+RCalculationBodyalt2lit;seq3lit{refCalculationBodyPartlit}
+RRenderingDefinitionseq4refOccurrenceDefinitionPrefixlitrenderinglitdefrefDefinition
+RAssignmentNodeDeclarationseq6opt1refActionNodeUsageDeclarationlitassignrefAssignmentTargetMemberrefFeatureChainMemberlit:=refNodeParameterMember
+RTypeBodyElementalt4refNonFeatureMemberrefFeatureMemberrefAliasMemberrefImport
+RConstructorResultMemberrefConstructorResult
+RSPECIALIZESalt2lit:>litspecializes
+REmptyParameterMemberrefEmptyUsage
+ROwnedMultiplicityrefMultiplicityRange
+RMetaclassseq4refTypePrefixlitmetaclassrefClassifierDeclarationrefTypeBody
+RTransitionPerformActionUsageseq2refPerformActionUsageDeclarationopt1seq3lit{star1refActionBodyItemlit}
+RActorUsageseq3litactorstar1refUsageExtensionKeywordrefUsage
+RNullExpressionalt2litnullseq2lit(lit)
+RTextualRepresentationseq4opt1seq2litreprefIdentificationlitlanguagerefSTRING_VALUErefREGULAR_COMMENT
+RFeatureSpecializationPartalt2seq3plus1refFeatureSpecializationopt1refMultiplicityPartstar1refFeatureSpecializationseq2refMultiplicityPartstar1refFeatureSpecialization
+RUseCaseUsageseq5refOccurrenceUsagePrefixlituselitcaserefConstraintUsageDeclarationrefCaseBody
+RInterfaceBodyItemalt6refDefinitionMemberrefVariantUsageMemberrefInterfaceNonOccurrenceUsageMemberseq2opt1refSourceSuccessionMemberrefInterfaceOccurrenceUsageMemberrefAliasMemberrefImport
+RCaseBodyalt2lit;seq4lit{star1refCaseBodyItemopt1refResultExpressionMemberlit}
+RCalculationDefinitionseq5refOccurrenceDefinitionPrefixlitcalclitdefrefDefinitionDeclarationrefCalculationBody
+RDefinitionBodyItemalt6refDefinitionMemberrefVariantUsageMemberrefNonOccurrenceUsageMemberseq2opt1refSourceSuccessionMemberrefOccurrenceUsageMemberrefAliasMemberrefImport
+RMetadataUsageseq5star1refUsageExtensionKeywordalt2lit@litmetadatarefMetadataUsageDeclarationopt1seq3litaboutrefAnnotationstar1seq2lit,refAnnotationrefMetadataBody
+RTypeReferencerefReferenceTyping
+RAssignmentTargetMemberrefAssignmentTargetParameter
+RNamespaceExposerefNamespaceImport
+RMetadataBodyFeatureseq6opt1litfeatureopt1alt2lit:>>litredefinesrefOwnedRedefinitionopt1refFeatureSpecializationPartopt1refValuePartrefMetadataBody
+RSourceSuccessionMemberseq2litthenrefSourceSuccession
+RReturnParameterMemberseq3opt1refMemberPrefixlitreturnrefUsageElement
+RClassifierDeclarationseq5opt1litallrefIdentificationopt1refOwnedMultiplicityopt1alt2refSuperclassingPartrefConjugationPartstar1refTypeRelationshipPart
+RCrossesseq2refCROSSESrefOwnedCrossSubsetting
+RFeatureTypingalt2refOwnedFeatureTypingrefConjugatedPortTyping
+RBASIC_NAMEseq2refBASIC_INITIAL_CHARACTERstar1refBASIC_NAME_CHARACTER
+REventOccurrenceUsageseq4refOccurrenceUsagePrefixliteventalt2seq2refOwnedReferenceSubsettingopt1refFeatureSpecializationPartseq2litoccurrenceopt1refUsageDeclarationrefUsageCompletion
+RNamedArgumentseq3refParameterRedefinitionlit=refArgumentValue
+RSourceEndMemberrefSourceEnd
+REnumerationBodyalt2lit;seq3lit{star1alt2refAnnotatingMemberrefEnumerationUsageMemberlit}
+RDisjoiningPartseq4litdisjointlitfromrefOwnedDisjoiningstar1seq2lit,refOwnedDisjoining
+ROwnedFeatureTypingalt2xref0seq2refOwnedFeatureChainempty
+RTYPED_BYalt2lit:seq2littypedlitby
+RMetadataBodyUsageseq6opt1litrefopt1alt2lit:>>litredefinesrefOwnedRedefinitionopt1refFeatureSpecializationPartopt1refValuePartrefMetadataBody
+RSpecializationseq6opt1seq2litspecializationrefIdentificationlitsubtyperefSpecificTyperefSPECIALIZESrefGeneralTyperefRelationshipBody
+RSuperclassingPartseq3refSPECIALIZESrefOwnedSubclassificationstar1seq2lit,refOwnedSubclassification
+ROccurrenceUsagePrefixseq2alt2refEndUsagePrefixseq3refBasicUsagePrefixopt1litindividualopt1seq2refPortionKindemptystar1refUsageExtensionKeyword
+RMetadataValuerefMetadataReference
+RNaryInterfacePartseq6lit(refInterfaceEndMemberlit,refInterfaceEndMemberstar1seq2lit,refInterfaceEndMemberlit)
+RRequirementBodyItemalt7refDefinitionBodyItemrefSubjectMemberrefRequirementConstraintMemberrefFramedConcernMemberrefRequirementVerificationMemberrefActorMemberrefStakeholderMember
+RNaryConnectorPartseq6lit(refConnectorEndMemberlit,refConnectorEndMemberstar1seq2lit,refConnectorEndMemberlit)
+RMultiplicitySubsetseq4litmultiplicityrefIdentificationrefSubsetsrefTypeBody
+ROwnedRelatedElementalt2refNonFeatureElementrefFeatureElement
+RAllocationUsageseq3refOccurrenceUsagePrefixrefAllocationUsageDeclarationrefUsageBody
+RDisjoiningseq6opt1seq2litdisjoiningrefIdentificationlitdisjointalt2xref0seq2refFeatureChainemptylitfromalt2xref0seq2refFeatureChainemptyrefRelationshipBody
+RNonFeatureMemberseq2refMemberPrefixrefMemberElement
+RStructureseq4refTypePrefixlitstructrefClassifierDeclarationrefTypeBody
+RStateUsageBodyalt2lit;seq4opt1litparallellit{star1refStateBodyItemlit}
+ROwnedMultiplicityRangerefMultiplicityBounds
+RActionBodyParameterseq4opt1seq2litactionopt1refUsageDeclarationlit{star1refActionBodyItemlit}
+RActionNodeMemberseq2refMemberPrefixrefActionNode
+RNamedArgumentMemberrefNamedArgument
+RInteractionseq4refTypePrefixlitinteractionrefClassifierDeclarationrefTypeBody
+RMetadataArgumentMemberrefMetadataArgument
+RCaseBodyItemalt4refCalculationBodyItemrefSubjectMemberrefActorMemberrefObjectiveMember
+RTransitionUsageMemberseq2refMemberPrefixrefTransitionUsage
+RFunctionseq4refTypePrefixlitfunctionrefClassifierDeclarationrefFunctionBody
+RInterfaceEndMemberrefInterfaceEnd
+RUnioningalt2xref0refOwnedFeatureChain
+ROwnedCrossMultiplicityMemberrefOwnedCrossMultiplicity
+RWhileLoopNodeseq4refActionNodePrefixalt2seq2litwhilerefExpressionParameterMemberseq2litlooprefEmptyParameterMemberrefActionBodyParameterMemberopt1seq3lituntilrefExpressionParameterMemberlit;
+RTypeReferenceMemberrefTypeReference
+RExtendedUsageseq3refUnextendedUsagePrefixplus1refUsageExtensionKeywordrefUsage
+RSatisfactionReferenceExpressionrefFeatureChainMember
+RDefaultTargetSuccessionseq2litelserefTransitionSuccessionMember
+RStateActionUsagealt5seq2refEmptyActionUsagelit;refStatePerformActionUsagerefStateAcceptActionUsagerefStateSendActionUsagerefStateAssignmentActionUsage
+RFeatureReferenceMemberrefFeatureReference
+RREDEFINESalt2lit:>>litredefines
+RSuccessionFlowUsageseq5refOccurrenceUsagePrefixlitsuccessionlitflowrefFlowDeclarationrefDefinitionBody
+RSenderReceiverPartalt2seq3litviarefNodeParameterMemberopt1seq2littorefNodeParameterMemberseq3refEmptyParameterMemberlittorefNodeParameterMember
+RConditionalBinaryOperatorExpressionseq4refArgumentMemberrefConditionalBinaryOperatorrefArgumentExpressionMemberrefEmptyResultMember
+RStakeholderUsageseq3litstakeholderstar1refUsageExtensionKeywordrefUsage
+RCollectExpressionseq3refPrimaryArgumentMemberlit.refBodyArgumentMember
+RBaseExpressionalt7refNullExpressionrefLiteralExpressionrefFeatureReferenceExpressionrefMetadataAccessExpressionrefInvocationExpressionrefConstructorExpressionrefBodyExpression
+RSendNodeseq5refOccurrenceUsagePrefixopt1refActionNodeUsageDeclarationlitsendopt1alt2seq2refNodeParameterMemberopt1refSenderReceiverPartseq2refEmptyParameterMemberrefSenderReceiverPartrefActionBody
+RNAME_CHARACTERlitany printable character other than backslash or single_quote
+RStructureUsageMemberseq2refMemberPrefixrefStructureUsageElement
+RActionNodePrefixseq2refOccurrenceUsagePrefixopt1refActionNodeUsageDeclaration
+RNonFeatureChainPrimaryArgumentValuerefNonFeatureChainPrimaryExpression
+RStateBodyItemalt6refNonBehaviorBodyItemseq3opt1refSourceSuccessionMemberrefBehaviorUsageMemberstar1refTargetTransitionUsageMemberrefTransitionUsageMemberseq2refEntryActionMemberstar1refEntryTransitionMemberrefDoActionMemberrefExitActionMember
+RMetadataDefinitionseq5opt1litabstractstar1refDefinitionExtensionKeywordlitmetadatalitdefrefDefinition
+RLiteralIntegerrefDECIMAL_VALUE
+RBinaryOperatoralt19lit|lit&litxorlit..lit==lit!=lit===lit!==lit<lit>lit<=lit>=lit+lit-lit*lit/lit%lit^lit**
+RControlNodealt4refMergeNoderefDecisionNoderefJoinNoderefForkNode
+RTransitionSuccessionseq2refEmptyEndMemberrefConnectorEndMember
+RConstraintUsageseq4refOccurrenceUsagePrefixlitconstraintrefConstraintUsageDeclarationrefCalculationBody
+RGeneralTypealt2xref0seq2refOwnedFeatureChainempty
+RForLoopNodeseq6refActionNodePrefixlitforrefForVariableDeclarationMemberlitinrefNodeParameterMemberrefActionBodyParameterMember
+RMembershipImportseq2xref0opt1seq2lit::lit**
+ROccurrenceUsageElementalt2refStructureUsageElementrefBehaviorUsageElement
+RCaseUsageseq4refOccurrenceUsagePrefixlitcaserefConstraintUsageDeclarationrefCaseBody
+ROccurrenceUsageMemberseq2refMemberPrefixrefOccurrenceUsageElement
+RArgumentExpressionMemberrefArgumentExpression
+RLiteralExpressionalt5refLiteralBooleanrefLiteralStringrefLiteralIntegerrefLiteralRealrefLiteralInfinity
+RArgumentrefArgumentValue
+RCalculationBodyPartseq2star1refCalculationBodyItemopt1refResultExpressionMember
+RPackageDeclarationseq2litpackagerefIdentification
+RExtentExpressionseq2litallrefTypeReferenceMember
+RTargetTransitionUsageMemberseq2refMemberPrefixrefTargetTransitionUsage
+RInterfaceOccurrenceUsageMemberseq2refMemberPrefixrefInterfaceOccurrenceUsageElement
+RNamedArgumentListseq2refNamedArgumentMemberstar1seq2lit,refNamedArgumentMember
+REffectBehaviorMemberseq3litdoemptyrefEffectBehaviorUsage
+RBindingConnectorAsUsageseq7refUsagePrefixopt1seq2litbindingrefUsageDeclarationlitbindrefConnectorEndMemberlit=refConnectorEndMemberrefUsageBody
+RESCAPE_SEQUENCEalt5lit\flit\nlit\tlit\rlit\v
+RPrefixMetadataFeaturerefOwnedFeatureTyping
+RAssociationseq4refTypePrefixlitassocrefClassifierDeclarationrefTypeBody
+RIncludeUseCaseUsageseq5refOccurrenceUsagePrefixlitincludealt2seq2refOwnedReferenceSubsettingopt1refFeatureSpecializationPartseq3lituselitcaserefUsageDeclarationopt1refValuePartrefCaseBody
+RViewRenderingMemberseq3refMemberPrefixlitrenderrefViewRenderingUsage
+RALPHABETIC_CHARACTERalt52litAlitBlitClitDlitElitFlitGlitHlitIlitJlitKlitLlitMlitNlitOlitPlitQlitRlitSlitTlitUlitVlitWlitXlitYlitZlitalitblitclitdlitelitflitglithlitilitjlitklitllitmlitnlitolitplitqlitrlitslittlitulitvlitwlitxlitylitz
+RTransitionSendActionUsageseq2refSendNodeDeclarationopt1seq3lit{star1refActionBodyItemlit}
+RTriggerFeatureValuerefTriggerExpression
+RActionNodealt8refControlNoderefSendNoderefAcceptNoderefAssignmentNoderefTerminateNoderefIfNoderefWhileLoopNoderefForLoopNode
+RArgumentListseq3lit(opt1alt2refPositionalArgumentListrefNamedArgumentListlit)
+RFeatureseq3alt2seq3refFeaturePrefixalt2litfeaturerefPrefixMetadataMemberopt1refFeatureDeclarationseq2alt2refEndFeaturePrefixrefBasicFeaturePrefixrefFeatureDeclarationopt1refValuePartrefTypeBody
+RStakeholderMemberseq2refMemberPrefixrefStakeholderUsage
+REndFeaturePrefixseq2opt1seq2litconstemptylitend
+RTypeFeaturingPartseq4litfeaturedlitbyrefOwnedTypeFeaturingstar1seq2lit,refOwnedTypeFeaturing
+RImportDeclarationalt2refMembershipImportrefNamespaceImport
+RVerificationCaseDefinitionseq5refOccurrenceDefinitionPrefixlitverificationlitdefrefDefinitionDeclarationrefCaseBody
+RFlowDefinitionseq4refOccurrenceDefinitionPrefixlitflowlitdefrefDefinition
+REmptyResultMemberrefEmptyFeature
+RElementReferenceMemberxref0
+ROwnedAnnotationrefAnnotatingElement
+RDefinitionExtensionKeywordrefPrefixMetadataMember
+RViewBodyItemalt4refDefinitionBodyItemrefElementFilterMemberrefViewRenderingMemberrefExpose
+ROwnedConjugationalt2xref0seq2refFeatureChainempty
+RObjectiveMemberseq3refMemberPrefixlitobjectiverefObjectiveRequirementUsage
+RGuardExpressionMemberseq3litifemptyrefOwnedExpression
+RMetadataBodyalt2lit;seq3lit{star1alt4refDefinitionMemberrefMetadataBodyUsageMemberrefAliasMemberrefImportlit}
+RInterfaceDefinitionseq5refOccurrenceDefinitionPrefixlitinterfacelitdefrefDefinitionDeclarationrefInterfaceBody
+RInterfaceOccurrenceUsageElementalt3refDefaultInterfaceEndrefStructureUsageElementrefBehaviorUsageElement
+RArgumentValuerefOwnedExpression
+RAnnotationxref0
+RNaryConnectorDeclarationseq7opt1refFeatureDeclarationlit(refConnectorEndMemberlit,refConnectorEndMemberstar1seq2lit,refConnectorEndMemberlit)
+RRequirementUsageseq4refOccurrenceUsagePrefixlitrequirementrefConstraintUsageDeclarationrefRequirementBody
+RLiteralRealrefRealValue
+RSatisfactionParameterrefSatisfactionFeatureValue
+RForkNodeseq4refControlNodePrefixlitforkrefUsageDeclarationrefActionBody
+RNonOccurrenceUsageElementalt7refDefaultReferenceUsagerefReferenceUsagerefAttributeUsagerefEnumerationUsagerefBindingConnectorAsUsagerefSuccessionAsUsagerefExtendedUsage
+RSatisfactionFeatureValuerefSatisfactionReferenceExpression
+RExitActionMemberseq3refMemberPrefixlitexitrefStateActionUsage
+RPrimaryArgumentValuerefPrimaryExpression
+RCOMMENT_LINE_TEXTlit.*(?=(\r|\n|\*/))
+RTransitionSuccessionMemberrefTransitionSuccession
+RDataTypeseq4refTypePrefixlitdatatyperefClassifierDeclarationrefTypeBody
+RWHITE_SPACEalt4lit lit\tlit\frefLINE_TERMINATOR
+ROccurrenceDefinitionseq4refOccurrenceDefinitionPrefixlitoccurrencelitdefrefDefinition
+RFlowUsageseq4refOccurrenceUsagePrefixlitflowrefFlowDeclarationrefDefinitionBody
+RPerformActionUsageDeclarationseq2alt2seq2refOwnedReferenceSubsettingopt1refFeatureSpecializationPartseq2litactionrefUsageDeclarationopt1refValuePart
+RRequirementVerificationUsagealt2seq3refOwnedReferenceSubsettingstar1refFeatureSpecializationrefRequirementBodyseq3alt2seq2star1refUsageExtensionKeywordlitrequirementplus1refUsageExtensionKeywordrefConstraintUsageDeclarationrefRequirementBody
+RFeatureChainExpressionseq3refNonFeatureChainPrimaryArgumentMemberlit.refFeatureChainMember
+RFlowFeaturerefFlowFeatureRedefinition
+RNAMEalt2refBASIC_NAMErefUNRESTRICTED_NAME
+RUsageseq2refUsageDeclarationrefUsageCompletion
+RUsageCompletionseq2opt1refValuePartrefUsageBody
+RIfNodeParameterMemberrefIfNode
+RInterfaceEndseq3opt1refOwnedCrossMultiplicityMemberopt1seq2refNAMErefREFERENCESrefOwnedReferenceSubsetting
+RUnextendedUsagePrefixalt2refEndUsagePrefixrefBasicUsagePrefix
+RMessageseq5refOccurrenceUsagePrefixlitmessagerefMessageDeclarationrefDefinitionBodyempty
+RChainingPartseq2litchainsalt2refOwnedFeatureChainingrefFeatureChain
+ROwnedReferenceSubsettingalt2xref0seq2refOwnedFeatureChainempty
+RRequirementKindalt2seq2litassumeemptyseq2litrequireempty
+RClassificationExpressionseq3opt1refArgumentMemberalt2seq2refClassificationTestOperatorrefTypeReferenceMemberseq2refCastOperatorrefTypeResultMemberrefEmptyResultMember
+RInterfacePartalt2refBinaryInterfacePartrefNaryInterfacePart
+RNodeParameterMemberrefNodeParameter
+RSINGLE_LINE_NOTEseq2lit//refLINE_TEXT
+RRelationshipBodyalt2lit;seq3lit{star1refOwnedAnnotationlit}
+RUsageElementalt2refNonOccurrenceUsageElementrefOccurrenceUsageElement
+RSuccessionDeclarationalt2seq2refFeatureDeclarationopt1seq4litfirstrefConnectorEndMemberlitthenrefConnectorEndMemberseq2opt1litallopt1seq4opt1litfirstrefConnectorEndMemberlitthenrefConnectorEndMember
+RArgumentMemberrefArgument
+RMultiplicityalt2refMultiplicitySubsetrefMultiplicityRange
+REntryTransitionMemberseq3refMemberPrefixalt2refGuardedTargetSuccessionseq2litthenrefTransitionSuccessionlit;
+RSubsetsseq2refSUBSETSrefOwnedSubsetting
+RReferencesseq2refREFERENCESrefOwnedReferenceSubsetting
+RFunctionReferenceArgumentValuerefFunctionReferenceExpression
+RTypeDeclarationseq5opt1litallrefIdentificationopt1refOwnedMultiplicityplus1alt2refSpecializationPartrefConjugationPartstar1refTypeRelationshipPart
+RTransitionUsageseq10littransitionopt1seq2refUsageDeclarationlitfirstrefFeatureChainMemberrefEmptyParameterMemberopt1seq2refEmptyParameterMemberrefTriggerActionMemberopt1refGuardExpressionMemberopt1refEffectBehaviorMemberlitthenrefTransitionSuccessionMemberrefActionBody
+RAcceptParameterPartseq2refPayloadParameterMemberopt1seq2litviarefNodeParameterMember
+RConditionalExpressionseq7litifrefArgumentMemberlit?refArgumentExpressionMemberlitelserefArgumentExpressionMemberrefEmptyResultMember
+RInvariantseq6refFeaturePrefixlitinvopt1alt2littruelitfalseopt1refFeatureDeclarationopt1refValuePartrefFunctionBody
+RSINGLE_QUOTElit#x27
+RNonFeatureChainPrimaryExpressionalt7refBracketExpressionrefIndexExpressionrefSequenceExpressionrefSelectExpressionrefCollectExpressionrefFunctionOperationExpressionrefBaseExpression
+RAnnotatingMemberseq2refMemberPrefixrefAnnotatingElement
+RMemberPrefixopt1refVisibilityIndicator
+RConditionalBinaryOperatoralt4lit??litorlitandlitimplies
+RBodyExpressionrefExpressionBodyMember
+RBASIC_INITIAL_CHARACTERalt2refALPHABETIC_CHARACTERlit_
+RUnioningPartseq3litunionsrefUnioningstar1seq2lit,refUnioning
+RPayloadParameterMemberrefPayloadParameter
+RPortDefinitionseq6refDefinitionPrefixlitportlitdefrefDefinitionrefConjugatedPortDefinitionMemberempty
+RStepseq5refFeaturePrefixlitsteprefFeatureDeclarationopt1refValuePartrefTypeBody
+RRedefinitionseq6opt1seq2litspecializationrefIdentificationlitredefinitionrefSpecificTyperefREDEFINESrefGeneralTyperefRelationshipBody
+RRefPrefixseq4opt1refFeatureDirectionopt1litderivedopt1alt2litabstractlitvariationopt1litconstant
+RAllocationDefinitionseq4refOccurrenceDefinitionPrefixlitallocationlitdefrefDefinition
+RAssertConstraintUsageseq5refOccurrenceUsagePrefixlitassertopt1litnotalt2seq2refOwnedReferenceSubsettingopt1refFeatureSpecializationPartseq2litconstraintrefConstraintUsageDeclarationrefCalculationBody
+RReferenceUsageseq3alt2refEndUsagePrefixrefRefPrefixlitrefrefUsage
+RImportseq5refVisibilityIndicatorlitimportopt1litallrefImportDeclarationrefRelationshipBody
+RNonFeatureChainPrimaryArgumentMemberrefPrimaryArgument
+RDifferencingalt2xref0refOwnedFeatureChain
+RFeatureChainPrefixseq3plus1seq2refOwnedFeatureChaininglit.refOwnedFeatureChaininglit.
+RUNRESTRICTED_NAMEseq3refSINGLE_QUOTEstar1alt2refNAME_CHARACTERrefESCAPE_SEQUENCErefSINGLE_QUOTE
+RViewRenderingUsagealt2seq3refOwnedReferenceSubsettingopt1refFeatureSpecializationPartrefUsageBodyseq2alt2seq2star1refUsageExtensionKeywordlitrenderingplus1refUsageExtensionKeywordrefUsage
+RConcernUsageseq4refOccurrenceUsagePrefixlitconcernrefConstraintUsageDeclarationrefRequirementBody
+RMembershipExposerefMembershipImport
+RCOMMENT_TEXTstar1alt2refCOMMENT_LINE_TEXTrefLINE_TERMINATOR
+RRealValuealt2seq3opt1refDECIMAL_VALUElit.alt2refDECIMAL_VALUErefEXPONENTIAL_VALUErefEXPONENTIAL_VALUE
+RTypeResultMemberrefTypeReference
+RSUBSETSalt2lit:>litsubsets
+RActionBodyParameterMemberrefActionBodyParameter
+RConjugationPartseq2refCONJUGATESrefOwnedConjugation
+RVariantUsageElementalt21refVariantReferencerefReferenceUsagerefAttributeUsagerefBindingConnectorAsUsagerefSuccessionAsUsagerefOccurrenceUsagerefIndividualUsagerefPortionUsagerefEventOccurrenceUsagerefItemUsagerefPartUsagerefViewUsagerefRenderingUsagerefPortUsagerefConnectionUsagerefInterfaceUsagerefAllocationUsagerefMessagerefFlowUsagerefSuccessionFlowUsagerefBehaviorUsageElement
+RTypeFeaturingseq6litfeaturingopt1seq2refIdentificationlitofxref0litbyxref0refRelationshipBody
+RFeatureDirectionalt3litinlitoutlitinout
+RVariantReferenceseq3refOwnedReferenceSubsettingstar1refFeatureSpecializationrefUsageBody
+ROwnedRedefinitionalt2xref0seq2refOwnedFeatureChainempty
+RMULTILINE_NOTEseq3lit//*refCOMMENT_TEXTlit*/
+RBasicDefinitionPrefixalt2litabstractlitvariation
+RPayloadFeatureMemberrefPayloadFeature
+ROwnedCrossFeaturealt2seq2refBasicUsagePrefixalt2seq2refFeatureIdentificationopt1refFeatureSpecializationPartrefFeatureSpecializationPartrefSuccessionAsUsage
+RDECIMAL_VALUEplus1refDECIMAL_DIGIT
+RAttributeDefinitionseq4refDefinitionPrefixlitattributelitdefrefDefinition
+ROwnedCrossMultiplicityrefOwnedMultiplicity
+RCalculationUsageseq4refOccurrenceUsagePrefixlitcalcrefActionUsageDeclarationrefCalculationBody
+RSelectExpressionseq3refPrimaryArgumentMemberlit.?refBodyArgumentMember
+RPredicateseq4refTypePrefixlitpredicaterefClassifierDeclarationrefFunctionBody
+RNamespaceFeatureMemberseq2refMemberPrefixrefFeatureElement
+RDefinitionElementalt30refPackagerefLibraryPackagerefAnnotatingElementrefDependencyrefAttributeDefinitionrefEnumerationDefinitionrefOccurrenceDefinitionrefIndividualDefinitionrefItemDefinitionrefPartDefinitionrefConnectionDefinitionrefFlowDefinitionrefInterfaceDefinitionrefAllocationDefinitionrefPortDefinitionrefActionDefinitionrefCalculationDefinitionrefStateDefinitionrefConstraintDefinitionrefRequirementDefinitionrefConcernDefinitionrefCaseDefinitionrefAnalysisCaseDefinitionrefVerificationCaseDefinitionrefUseCaseDefinitionrefViewDefinitionrefViewpointDefinitionrefRenderingDefinitionrefMetadataDefinitionrefExtendedDefinition
+REnumerationDefinitionseq5star1refDefinitionExtensionKeywordlitenumlitdefrefDefinitionDeclarationrefEnumerationBody
+RLiteralStringrefSTRING_VALUE
+RActionNodeUsageDeclarationseq2litactionopt1refUsageDeclaration
+RFlowEndMemberrefFlowEnd
+RConnectorPartalt2refBinaryConnectorPartrefNaryConnectorPart
+RPrimaryArgumentrefPrimaryArgumentValue
+RGuardedSuccessionseq7opt1seq2litsuccessionrefUsageDeclarationlitfirstrefFeatureChainMemberrefGuardExpressionMemberlitthenrefTransitionSuccessionMemberrefUsageBody
+RFeatureSpecializationalt5refTypingsrefSubsettingsrefReferencesrefCrossesrefRedefinitions
+RMetaCastOperatorlitmeta
+RBasicUsagePrefixseq2refRefPrefixopt1litref
+ROccurrenceUsageseq3refOccurrenceUsagePrefixlitoccurrencerefUsage
+RTypeRelationshipPartalt4refDisjoiningPartrefUnioningPartrefIntersectingPartrefDifferencingPart
+RTransitionAcceptActionUsageseq2refAcceptNodeDeclarationopt1seq3lit{star1refActionBodyItemlit}
+RMergeNodeseq4refControlNodePrefixlitmergerefUsageDeclarationrefActionBody
+RInterfaceUsageDeclarationalt2seq3refUsageDeclarationopt1refValuePartopt1seq2litconnectrefInterfacePartrefInterfacePart
+RFeatureReferencexref0
+RMetadataBodyUsageMemberrefMetadataBodyUsage
+RNonOccurrenceUsageMemberseq2refMemberPrefixrefNonOccurrenceUsageElement
+RPayloadParameteralt2refPayloadFeatureseq3refIdentificationopt1refPayloadFeatureSpecializationPartrefTriggerValuePart
+RResultExpressionMemberseq2opt1refMemberPrefixrefOwnedExpression
+RLibraryPackageseq5opt1litstandardlitlibrarystar1refPrefixMetadataMemberrefPackageDeclarationrefPackageBody
+ROwnedFeatureInvertingalt2xref0seq2refOwnedFeatureChainempty
+RFlowFeatureRedefinitionxref0
+ROwnedExpressionReferencerefOwnedExpressionMember
+RFlowseq4refFeaturePrefixlitflowrefFlowDeclarationrefTypeBody
+REntryActionMemberseq3refMemberPrefixlitentryrefStateActionUsage
+RConnectorEndMemberrefConnectorEnd
+RCROSSESalt2lit=>litcrosses
+RIndexExpressionseq5refPrimaryArgumentMemberlit#lit(refSequenceExpressionListMemberlit)
+RTypingsseq2refTypedBystar1seq2lit,refFeatureTyping
+RConstructorExpressionseq3litnewrefInstantiatedTypeMemberrefConstructorResultMember
+RAssignmentTargetParameteropt1seq2refAssignmentTargetBindinglit.
+RInstantiatedTypeMemberalt2refInstantiatedTypeReferencerefOwnedFeatureChainMember
+RFeatureChainseq2refOwnedFeatureChainingplus1seq2lit.refOwnedFeatureChaining
+RSourceEndopt1refOwnedMultiplicity
+RUsageBodyrefDefinitionBody
+RDefinitionBodyalt2lit;seq3lit{star1refDefinitionBodyItemlit}
+RAcceptNodeDeclarationseq3opt1refActionNodeUsageDeclarationlitacceptrefAcceptParameterPart
+RPayloadFeatureSpecializationPartalt2seq3plus1refFeatureSpecializationopt1refMultiplicityPartstar1refFeatureSpecializationseq2refMultiplicityPartplus1refFeatureSpecialization
+RAnalysisCaseUsageseq4refOccurrenceUsagePrefixlitanalysisrefConstraintUsageDeclarationrefCaseBody
+RMetaclassificationTestOperatorlit@@
+RClassificationTestOperatoralt3litistypelithastypelit@
+RValuePartrefFeatureValue
+ROwnedSpecializationrefGeneralType
+RExposeseq3litexposealt2refMembershipExposerefNamespaceExposerefRelationshipBody
+RSourceSuccessionrefSourceEndMember
+RBASIC_NAME_CHARACTERalt2refBASIC_INITIAL_CHARACTERrefDECIMAL_DIGIT
+RNamespaceseq3star1refPrefixMetadataMemberrefNamespaceDeclarationrefNamespaceBody
+RRequirementBodyalt2lit;seq3lit{star1refRequirementBodyItemlit}
+RInitialNodeMemberseq4refMemberPrefixlitfirstxref0refRelationshipBody
+RExpressionseq5refFeaturePrefixlitexprrefFeatureDeclarationopt1refValuePartrefFunctionBody
+RNamespaceBodyElementalt3refNamespaceMemberrefAliasMemberrefImport
+RPortionKindalt2litsnapshotlittimeslice
+REndUsagePrefixseq2litendopt1refOwnedCrossFeatureMember
+RBooleanExpressionseq5refFeaturePrefixlitboolrefFeatureDeclarationopt1refValuePartrefFunctionBody
+RTriggerValuePartrefTriggerFeatureValue
+RPackageBodyalt2lit;seq3lit{star1refPackageBodyElementlit}
+RRESERVED_SYMBOLalt43lit~lit}lit|lit{lit^lit]lit[lit@lit??lit?lit>=lit>lit=>lit===lit==lit=lit<=lit<lit;lit:>>lit:>lit:=lit::>lit::lit:lit/lit.?lit..lit.lit->lit-lit,lit+lit**lit*lit)lit(lit&lit%lit$lit#lit!==lit!=
+RBodyArgumentrefBodyArgumentValue
+REnumeratedValueseq3star1refUsageExtensionKeywordopt1litenumrefUsage
+RFlowPayloadFeatureMemberrefFlowPayloadFeature
+RAssignmentNodeseq3refOccurrenceUsagePrefixrefAssignmentNodeDeclarationrefActionBody
+RRedefinesseq2refREDEFINESrefOwnedRedefinition
+RInvertingPartseq3litinverselitofrefOwnedFeatureInverting
+RDefinitionseq2refDefinitionDeclarationrefDefinitionBody
+RDifferencingPartseq3litdifferencesrefDifferencingstar1seq2lit,refDifferencing
+RActionTargetSuccessionseq2alt3refTargetSuccessionrefGuardedTargetSuccessionrefDefaultTargetSuccessionrefUsageBody
+RNonFeatureElementalt26refDependencyrefNamespacerefTyperefClassifierrefDataTyperefClassrefStructurerefMetaclassrefAssociationrefAssociationStructurerefInteractionrefBehaviorrefFunctionrefPredicaterefMultiplicityrefPackagerefLibraryPackagerefSpecializationrefConjugationrefSubclassificationrefDisjoiningrefFeatureInvertingrefFeatureTypingrefSubsettingrefRedefinitionrefTypeFeaturing
+RStateUsageseq4refOccurrenceUsagePrefixlitstaterefActionUsageDeclarationrefStateUsageBody
+RInterfaceNonOccurrenceUsageMemberseq2refMemberPrefixrefInterfaceNonOccurrenceUsageElement
+RInterfaceBodyalt2lit;seq3lit{star1refInterfaceBodyItemlit}
+RConjugatedPortDefinitionrefPortConjugation
+RGuardedSuccessionMemberseq2refMemberPrefixrefGuardedSuccession
+RActionTargetSuccessionMemberseq2refMemberPrefixrefActionTargetSuccession
+RStateAssignmentActionUsageseq2refAssignmentNodeDeclarationrefActionBody
+RRenderingUsageseq3refOccurrenceUsagePrefixlitrenderingrefUsage
+RCommentseq3opt1seq3litcommentrefIdentificationopt1seq3litaboutrefAnnotationstar1seq2lit,refAnnotationopt1seq2litlocalerefSTRING_VALUErefREGULAR_COMMENT
+RInstantiatedTypeReferencexref0
+RLiteralInfinitylit*
+REffectBehaviorUsagealt5refEmptyActionUsagerefTransitionPerformActionUsagerefTransitionAcceptActionUsagerefTransitionSendActionUsagerefTransitionAssignmentActionUsage
+RVariantUsageMemberseq3refMemberPrefixlitvariantrefVariantUsageElement
+RTypeBodyalt2lit;seq3lit{star1refTypeBodyElementlit}
+RConnectorDeclarationalt2refBinaryConnectorDeclarationrefNaryConnectorDeclaration
+RFunctionBodyalt2lit;seq3lit{refFunctionBodyPartlit}
+ROwnedDisjoiningalt2xref0seq2refFeatureChainempty
+RUsageDeclarationseq2refIdentificationopt1refFeatureSpecializationPart
+RFeatureRelationshipPartalt4refTypeRelationshipPartrefChainingPartrefInvertingPartrefTypeFeaturingPart
+RBehaviorUsageMemberseq2refMemberPrefixrefBehaviorUsageElement
+RClassseq4refTypePrefixlitclassrefClassifierDeclarationrefTypeBody
+RTriggerExpressionalt2seq2alt2litatlitafterrefArgumentMemberseq2litwhenrefArgumentExpressionMember
+RRequirementConstraintUsagealt2seq3refOwnedReferenceSubsettingopt1refFeatureSpecializationPartrefRequirementBodyseq3alt2seq2star1refUsageExtensionKeywordlitconstraintplus1refUsageExtensionKeywordrefConstraintUsageDeclarationrefCalculationBody
+RAliasMemberseq7refMemberPrefixlitaliasopt1seq3lit<refNAMElit>opt1refNAMElitforxref0refRelationshipBody
+RUnaryOperatoralt4lit+lit-lit~litnot
+RFunctionReferenceArgumentMemberrefFunctionReferenceArgument
+RCastOperatorlitas
+RActionBehaviorMemberalt2refBehaviorUsageMemberrefActionNodeMember
+RViewUsageseq5refOccurrenceUsagePrefixlitviewopt1refUsageDeclarationopt1refValuePartrefViewBody
+RPortConjugationempty
+RConnectorseq4refFeaturePrefixlitconnectoralt2seq2opt1refFeatureDeclarationopt1refValuePartrefConnectorDeclarationrefTypeBody
+RFramedConcernUsagealt2seq3refOwnedReferenceSubsettingopt1refFeatureSpecializationPartrefRequirementBodyseq3alt2seq2star1refUsageExtensionKeywordlitconcernplus1refUsageExtensionKeywordrefConstraintUsageDeclarationrefRequirementBody
+RActionBodyalt2lit;seq3lit{star1refActionBodyItemlit}
+RBinaryInterfacePartseq3refInterfaceEndMemberlittorefInterfaceEndMember
+RViewDefinitionBodyItemalt3refDefinitionBodyItemrefElementFilterMemberrefViewRenderingMember
+RViewpointUsageseq4refOccurrenceUsagePrefixlitviewpointrefConstraintUsageDeclarationrefRequirementBody
+RFunctionReferenceExpressionrefFunctionReferenceMember
+RParameterRedefinitionxref0
+RArgumentExpressionValuerefOwnedExpressionReference
+RAssignmentTargetBindingrefNonFeatureChainPrimaryExpression
+RSubjectUsageseq3litsubjectstar1refUsageExtensionKeywordrefUsage
+RItemUsageseq3refOccurrenceUsagePrefixlititemrefUsage
+RInterfaceNonOccurrenceUsageElementalt5refReferenceUsagerefAttributeUsagerefEnumerationUsagerefBindingConnectorAsUsagerefSuccessionAsUsage
+RFeatureBindingrefOwnedExpression
+RIntersectingPartseq3litintersectsrefIntersectingstar1seq2lit,refIntersecting
+RPartUsageseq3refOccurrenceUsagePrefixlitpartrefUsage
+REmptyActionUsageempty
+RRequirementVerificationMemberseq4refMemberPrefixlitverifyemptyrefRequirementVerificationUsage
+RInterfaceUsageseq4refOccurrenceUsagePrefixlitinterfacerefInterfaceUsageDeclarationrefInterfaceBody
+RFunctionReferenceArgumentrefFunctionReferenceArgumentValue
+ROwnedExpressionReferenceMemberrefOwnedExpressionReference
+RNamespaceBodyalt2lit;seq3lit{star1refNamespaceBodyElementlit}
+RFramedConcernMemberseq3opt1refMemberPrefixlitframerefFramedConcernUsage
+RAssociationStructureseq5refTypePrefixlitassoclitstructrefClassifierDeclarationrefTypeBody
+ROccurrenceDefinitionPrefixseq3opt1refBasicDefinitionPrefixopt1seq2litindividualrefEmptyMultiplicityMemberstar1refDefinitionExtensionKeyword
+RDefaultReferenceUsageseq5opt1litendrefRefPrefixalt2seq2refFeatureIdentificationopt1refFeatureSpecializationPartrefFeatureSpecializationPartopt1refValuePartrefUsageBody
+RRequirementConstraintMemberseq3opt1refMemberPrefixrefRequirementKindrefRequirementConstraintUsage
+RFeatureMemberalt2refTypeFeatureMemberrefOwnedFeatureMember
+RStateDefinitionseq5refOccurrenceDefinitionPrefixlitstatelitdefrefDefinitionDeclarationrefStateDefBody
+RFeatureIdentificationalt2seq4lit<refNAMElit>opt1refNAMErefNAME
+RSequenceOperatorExpressionseq3refOwnedExpressionMemberlit,refSequenceExpressionListMember
+RFeatureReferenceExpressionseq2refFeatureReferenceMemberrefEmptyResultMember
+RTriggerActionMemberseq3litacceptemptyrefTriggerAction
+RControlNodePrefixseq4refRefPrefixopt1litindividualopt1seq2refPortionKindemptystar1refUsageExtensionKeyword
+RLINE_TERMINATORalt3lit\nlit\rlit\r\n
+RTargetTransitionUsageseq5refEmptyParameterMemberopt1alt3seq4littransitionopt1seq2refEmptyParameterMemberrefTriggerActionMemberopt1refGuardExpressionMemberopt1refEffectBehaviorMemberseq4refEmptyParameterMemberrefTriggerActionMemberopt1refGuardExpressionMemberopt1refEffectBehaviorMemberseq2refGuardExpressionMemberopt1refEffectBehaviorMemberlitthenrefTransitionSuccessionMemberrefActionBody
+RDECIMAL_DIGITalt10lit0lit1lit2lit3lit4lit5lit6lit7lit8lit9
+RFunctionReferenceMemberrefFunctionReference
+RMetadataUsageDeclarationseq2opt1seq2refIdentificationalt2lit:seq2littypedlitbyrefOwnedFeatureTyping
+RConjugatedPortTypingseq2lit~xref1
+RMetadataFeatureDeclarationseq2opt1seq2refIdentificationalt2lit:seq2littypedlitbyrefOwnedFeatureTyping
+RUseCaseDefinitionseq6refOccurrenceDefinitionPrefixlituselitcaselitdefrefDefinitionDeclarationrefCaseBody
+RArgumentExpressionrefArgumentExpressionValue
+RTypeseq4refTypePrefixlittyperefTypeDeclarationrefTypeBody
+RCONJUGATESalt2lit~litconjugates
+RSatisfactionSubjectMemberrefSatisfactionParameter
+RBindingConnectorDeclarationalt2seq2refFeatureDeclarationopt1seq4litofrefConnectorEndMemberlit=refConnectorEndMemberseq2opt1litallopt1seq4opt1litofrefConnectorEndMemberlit=refConnectorEndMember
+RExtendedDefinitionseq4opt1refBasicDefinitionPrefixplus1refDefinitionExtensionKeywordlitdefrefDefinition
+RDocumentationseq4litdocrefIdentificationopt1seq2litlocalerefSTRING_VALUErefREGULAR_COMMENT
+ROwnedCrossSubsettingalt2xref0seq2refOwnedFeatureChainempty
+RSendNodeDeclarationseq4opt1refActionNodeUsageDeclarationlitsendrefNodeParameterMemberopt1refSenderReceiverPart
+RPrefixMetadataUsagerefOwnedFeatureTyping
+RConstructorResultrefArgumentList
+REmptyEndMemberrefEmptyFeature
+RStateSendActionUsageseq2refSendNodeDeclarationrefActionBody
+RMetaclassificationExpressionseq3refMetadataArgumentMemberalt2seq2refMetaclassificationTestOperatorrefTypeReferenceMemberseq2refMetaCastOperatorrefTypeResultMemberrefEmptyResultMember
+RAnalysisCaseDefinitionseq5refOccurrenceDefinitionPrefixlitanalysislitdefrefDefinitionDeclarationrefCaseBody
+REmptyFeatureempty
+RBinaryConnectorDeclarationseq4opt1alt2seq2opt1refFeatureDeclarationlitfromseq2litallopt1litfromrefConnectorEndMemberlittorefConnectorEndMember
+RSequenceExpressionListMemberrefSequenceExpressionList
+RQualifiedNameseq3opt1seq2lit$lit::star1seq2refNAMElit::refNAME
+RPerformActionUsageseq4refOccurrenceUsagePrefixlitperformrefPerformActionUsageDeclarationrefActionBody
+RFeatureChainMemberalt2xref0refOwnedFeatureChainMember
+RDefinitionMemberseq2refMemberPrefixrefDefinitionElement
+FSpecificType0k:namet:$
+FFeatureValue0t:=t::=t:default
+FBooleanValue0t:truet:false
+FMetadataBodyFeatureMember0k:namet:redefinest:featuret::>>t:$
+FPayloadFeature0k:namet:subsetst:crossest::>t:orderedt:$t:nonuniquet::>>t:[t:<t:=>t::t:::>t:redefinest:referencest:defined
+FOwnedFeatureChaining0k:namet:$
+FSubsetting0t:subsett:specialization
+FTypeBody0t:;t:{
+FSuccessionFlow0t:portiont:compositet:abstractt:inoutt:#t:outt:derivedt:endt:int:successiont:vart:const
+FReturnFeatureMember0t:returnt:privatet:protectedt:public
+FTypeFeatureMember0t:privatet:membert:protectedt:public
+FNamespaceDeclaration0t:namespace
+FOwnedFeatureChainMember0k:namet:$
+FIndividualUsage0t:constantt:individualt:reft:inoutt:outt:derivedt:variationt:int:abstract
+FREFERENCES0t:::>t:references
+FMultiplicityPart0t:orderedt:nonuniquet:[
+FStructureUsageElement0t:individualt:renderingt:snapshott:abstractt:successiont:portt:inoutt:eventt:viewt:outt:reft:interfacet:variationt:occurrencet:endt:allocationt:messaget:partt:timeslicet:#t:itemt:flowt:constantt:allocatet:connectiont:derivedt:int:connect
+FGuardedTargetSuccession0t:if
+FSubjectMember0t:privatet:subjectt:protectedt:public
+FFeatureSpecializationPart0t:subsetst:crossest::>t:orderedt:nonuniquet::>>t:[t:definedt:=>t::t:::>t:redefinest:references
+FAnnotatingElement0t:commentt:languaget:#k:commentt:metadatat:@t:rept:localet:doc
+FFlowEndSubsetting0k:namet:$
+FDependency0t:dependencyt:#
+FActionUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:actiont:inout
+FTriggerExpression0t:whent:att:after
+FBodyArgumentValue0t:{
+FLiteralBoolean0t:truet:false
+FSequenceExpressionListMember0k:namek:stringt:nullt:hastypet:.t:newt:-t:*t:+t:~t:allt:@t:$t:{k:expt:(t:ask:intt:istypet:truet:falset:ift:not
+FFunctionOperationExpression0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FCalculationBodyItem0t:viewt:firstt:protectedt:redefinest:allocatet:#t:acceptt:statet:merget:<t:enumt:bindt:variantt:inoutt:int:orderedt:concernt:connectt:standardt:returnt:metadatat:libraryt:outt:actiont:calct:@t:languaget:nonuniquet:[t::t::>t:::>t:definedt:decidet:abstractt:renderingt:doct:connectiont:eventt:localet:privatek:namet:assignt:partt:nott:ift:snapshott:constraintk:commentt:messaget:performt:constantt:attributet:occurrencet:uset:interfacet:itemt:derivedt:whilet:joint:crossest:includet:allocationt:timeslicet:assertt:subsetst:bindingt:packaget:thent:variationt:rept:analysist:fort:endt:forkt:=>t:terminatet:flowt:portt:reft:verificationt:referencest::>>t:loopt:dependencyt:requirementt:sendt:satisfyt:aliast:viewpointt:commentt:successiont:caset:publict:individualt:exhibit
+FPrimaryArgumentMember0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FOwnedTypeFeaturing0k:namet:$
+FSatisfyRequirementUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:satisfyt:assertt:nott:inout
+FSubsettings0t:subsetst::>
+FConnectorEnd0k:namet:[t:$
+FSpecializationPart0t::>t:specializes
+FReferenceUsage0t:endt:constantt:outt:inoutt:derivedt:variationt:int:reft:abstract
+FDefaultInterfaceEnd0t:end
+FViewDefinitionBody0t:;t:{
+FAllocationUsageDeclaration0t:allocationt:allocate
+FPositionalArgumentList0k:namek:stringt:nullt:hastypet:.t:newt:-t:*t:+t:~t:ast:@t:$t:{k:expt:(t:nott:falsek:intt:istypet:ift:allt:true
+FFunctionReferenceExpression0k:namet:$
+FSequenceExpressionList0k:namek:stringt:nullt:hastypet:.t:newt:-t:*t:+t:~t:allt:@t:$t:{k:expt:(t:ask:intt:istypet:truet:falset:ift:not
+FJoinNode0t:abstractt:constantt:individualt:outt:inoutt:timeslicet:#t:derivedt:variationt:joint:int:snapshot
+FBasicFeaturePrefix1t:portiont:abstractt:inoutt:vart:outt:derivedt:int:compositet:const
+FStateAcceptActionUsage0t:acceptt:action
+FFeatureInverting0t:inverset:inverting
+FEmptyMultiplicity1
+FConnectionUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:connectt:derivedt:constantt:endt:connectiont:inout
+FActionDefinition0t:variationt:abstractt:#t:individualt:action
+FOwnedFeatureChain0k:namet:$
+FOwnedSubsetting0k:namet:$
+FExpressionBody0t:{
+FForVariableDeclarationMember1k:namet:subsetst:crossest::>t:orderedt:nonuniquet::>>t:[t:<t:=>t::t:::>t:redefinest:referencest:defined
+FOwnedExpression0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FIntersecting0k:namet:$
+FVerificationCaseDefinition0t:variationt:verificationt:abstractt:#t:individual
+FPrefixMetadataAnnotation0t:#
+FFunctionBodyPart1t:languaget:classifiert:disjointt:-t:protectedt:+t:(t:redefinest:$t:vart:#t:behaviort:portionk:commentt::t:istypet:compositet:invt:int:orderedk:intt:standardt:returnt:metadatat:libraryt:outt:allt:@t:datatypet:newt:inoutt:nonuniquet:[t:=>t::>t:::>t:definedt:exprt:doct:truet:privatet:<t:featurek:namet:~t:functiont:conjugationt:nott:{t:ift:rept:classt:aliast:abstractk:stringt:constt:featuringt:conjugatest:flowt:nullt:derivedt:membert:hastypet:subclassifiert:crossest:structt:publict:subsetsk:expt:bindingt:metaclasst:redefinitiont:disjoiningt:endt:namespacet:inverset:typet:interactiont:connectort:subtypet:localet:referencest::>>t:falset:boolt:dependencyt:.t:ast:packaget:specializationt:assoct:conjugatet:commentt:successiont:multiplicityt:predicatet:*t:invertingt:stept:subset
+FElementFilterMember0t:filtert:privatet:protectedt:public
+FMultiplicityBounds0t:[
+FBaseExpression0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FDecisionNode0t:abstractt:constantt:individualt:outt:inoutt:timeslicet:#t:derivedt:variationt:int:snapshott:decide
+FFeatureMember0t:subsetst:referencest:invt:boolt:definedt:portiont:stept:protectedt:abstractt:successiont:featuret:inoutt:~t:connectort:outt:orderedt:compositet:membert:=>t:endt::>>t:nonuniquet:redefinest:<t:flowt::t:publict::>t:crossest:constt:bindingt:privatek:namet:derivedt:conjugatest:::>t:int:vart:exprt:allt:#t:[
+FConjugatedPortDefinitionMember1
+FViewBody0t:;t:{
+FVerificationCaseUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:verificationt:reft:#t:derivedt:constantt:endt:inout
+FSubclassification0t:subclassifiert:specialization
+FInvocationExpression0k:namet:$
+FMultiplicityExpressionMember0t:truek:expt:$k:namek:intt:.k:stringt:*t:false
+FRootNamespace1t:viewt:exhibitt:caset:redefinest:attributet:variationt:<t:enumt::t:requirementt:inoutt:int:orderedt:concernt:standardt:flowt:libraryt:outt:reft:actiont:calct:@t:languaget:statet:nonuniquet:[t:=>t::>t:::>t:definedt:filtert:aliast:abstractt:renderingt:doct:connectiont:eventt:privatet:metadatak:namet:partt:nott:constraintk:commentt:performt:verificationt:messaget:subsetst:constantt:firstt:occurrencet:uset:snapshott:itemt:derivedt:crossest:#t:includet:allocationt:timeslicet:assertt:analysist:bindingt:packaget:protectedt:rept:endt:portt:connectt:localet:referencest::>>t:bindt:dependencyt:interfacet:satisfyt:allocatet:viewpointt:commentt:successiont:publict:individual
+FMessageDeclaration1k:namet:fromt:subsetst:crossest:=t::=t:defaultt:orderedt:$t:nonuniquet::>>t:[t:<t:=>t::>t:::>t:redefinest::t:oft:referencest:defined
+FActionBodyItem0t:viewt:constraintt:attributet:protectedt:redefinest:#t:acceptt:statet:merget:<t:enumt:bindt:variantt:inoutt:int:orderedt:concernt:standardt:metadatat:libraryt:outt:reft:actiont:calct:@t:languaget:nonuniquet:[t:=>t::>t:::>t:definedt:decidet:abstractt:renderingt:doct:connectiont:eventt:privatek:namet:assignt:nott:partt:variationt::t:snapshott:aliask:commentt:performt:subsetst:commentt:constantt:firstt:occurrencet:includet:interfacet:itemt:ift:derivedt:assertt:whilet:joint:crossest:messaget:allocationt:timeslicet:verificationt:analysist:bindingt:packaget:thent:rept:fort:endt:forkt:terminatet:flowt:portt:connectt:localet:referencest::>>t:loopt:dependencyt:requirementt:sendt:satisfyt:allocatet:viewpointt:uset:successiont:caset:publict:individualt:exhibit
+FFlowDeclaration1k:namet:fromt:subsetst:crossest:=t::=t:defaultt:orderedt:$t:nonuniquet::>>t:[t:<t:=>t::>t:::>t:redefinest::t:oft:referencest:defined
+FOwnedFeatureMember0t:subsetst:referencest:invt:boolt:definedt:stept:portiont:orderedt:protectedt:abstractt:successiont:featuret:inoutt:~t:connectort:outt:conjugatest:compositet:=>t:endt::>>t:nonuniquet:redefinest:<t:flowt::t:publict:int::>t:bindingt:privatek:namet:derivedt:crossest:::>t:constt:vart:exprt:allt:#t:[
+FMetadataBodyElement0t:protectedt::>>t:classt:structt:subsett:redefinest:predicatet:languaget:packaget:behaviort:rept:abstractt:conjugatet:~t:localet:subclassifiert:[t:metaclasst:functiont:featuringk:commentt:metadatat:namespacet:classifiert:featuret:subtypet:$t:datatypet:#t:aliast:specializationt:interactiont:publict:multiplicityt:typet:disjoiningt:doct:redefinitiont:privatet:conjugationk:namet:commentt:disjointt:inverset:standardt:libraryt:@t:invertingt:assoct:dependency
+FActionUsageDeclaration1k:namet:subsetst:crossest:=t::=t:defaultt::>t:orderedt:nonuniquet::>>t:[t:<t:=>t::t:::>t:redefinest:referencest:defined
+FMessageEventMember0k:namet:$
+FPrimaryArgument0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FEmptyUsage1
+FIntersectingPart0t:intersects
+FEnumerationUsageMember0k:namet:referencest:subsetst:crossest:=t:enumt::=t:defaultt:orderedt:{t:redefinest:#t::>>t:[t:<t:protectedt:=>t::>t:;t:::>t:nonuniquet:privatet::t:publict:defined
+FViewRenderingMember0t:rendert:privatet:protectedt:public
+FConjugationPart0t:~t:conjugates
+FExpressionBodyMember0t:{
+FSTRING_CHARACTER0t:any printable character other than backslash or "
+FLiteralInfinity0t:*
+FVisibilityIndicator0t:privatet:protectedt:public
+FTypings0t::t:defined
+FTargetSuccession0t:[t:then
+FPortUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:portt:inout
+FUnaryOperatorExpression0t:-t:+t:nott:~
+FConjugation0t:conjugationt:conjugate
+FRequirementDefinition0t:variationt:abstractt:requirementt:#t:individual
+FBindingConnector0t:portiont:compositet:abstractt:inoutt:#t:outt:derivedt:bindingt:endt:int:vart:const
+FMetadataReference0k:namet:$
+FFlowPayloadFeature0k:namet:subsetst:crossest::>t:orderedt:$t:nonuniquet::>>t:[t:<t:=>t::t:::>t:redefinest:referencest:defined
+FConstraintUsageDeclaration1k:namet:subsetst:crossest:=t::=t:defaultt::>t:orderedt:nonuniquet::>>t:[t:<t:=>t::t:::>t:redefinest:referencest:defined
+FPrimaryExpression0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FBASIC_INITIAL_CHARACTER0t:Xt:Yt:Vt:Wt:Tt:Ut:Rt:St:Pt:Qt:nt:ot:lt:mt:jt:kt:ht:it:ft:gt:dt:et:bt:ct:at:zt:xt:yt:vt:wt:tt:ut:rt:st:pt:qt:Nt:Ot:Lt:Mt:Jt:Kt:Ht:It:Ft:Gt:Dt:Et:Bt:Ct:At:_t:Z
+FBinaryConnectorDeclaration0k:namet:fromt:nonuniquet:subsetst:crossest:~t::>t:orderedt:$t:allt::>>t:[t:<t:=>t::t:::>t:redefinest:conjugatest:referencest:defined
+FActorMember0t:privatet:actort:protectedt:public
+FIfNode0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:actiont:ift:inout
+FDefinitionPrefix1t:variationt:abstractt:#
+FPackageMember0t:viewt:firstt:caset:redefinest:#t:statet:<t:enumt::t:requirementt:inoutt:int:orderedt:concernt:connectt:standardt:flowt:libraryt:outt:actiont:calct:@t:languaget:nonuniquet:[t:=>t::>t:localet:definedt:::>t:abstractt:renderingt:doct:connectiont:eventt:privatet:metadatak:namet:partt:nott:constraintk:commentt:performt:subsetst:commentt:constantt:attributet:occurrencet:includet:snapshott:itemt:derivedt:crossest:messaget:allocationt:timeslicet:assertt:analysist:bindingt:successiont:packaget:variationt:rept:endt:portt:reft:verificationt:referencest::>>t:bindt:dependencyt:interfacet:satisfyt:allocatet:viewpointt:uset:protectedt:publict:individualt:exhibit
+FStateDefBody0t:parallelt:;t:{
+FConditionalBinaryOperator0t:andt:ort:??t:implies
+FNodeParameter0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FUsageExtensionKeyword0t:#
+FFeaturePrefix1t:portiont:compositet:#t:abstractt:inoutt:endt:outt:derivedt:int:vart:const
+FDEFINED_BY0t::t:defined
+FReferenceTyping0k:namet:$
+FViewBodyItem0t:viewt:exhibitt:attributet:protectedt:redefinest:#t:statet:<t:enumt:bindt:variantt:inoutt:int:orderedt:concernt:standardt:metadatat:libraryt:outt:reft:exposet:actiont:calct:@t:languaget:nonuniquet:[t::t::>t:::>t:definedt:filtert:abstractt:renderingt:doct:connectiont:eventt:privatek:namet:partt:nott:snapshott:constraintk:commentt:performt:verificationt:messaget:subsetst:commentt:constantt:firstt:occurrencet:interfacet:itemt:derivedt:allocatet:crossest:includet:allocationt:timeslicet:assertt:analysist:bindingt:packaget:thent:variationt:rept:endt:=>t:flowt:portt:connectt:localet:referencest::>>t:dependencyt:requirementt:satisfyt:aliast:viewpointt:uset:successiont:caset:publict:individualt:render
+FLiteralExpression0t:truet:*k:intt:.k:stringk:expt:false
+FMetadataFeature0t:metadatat:@t:#
+FNonFeatureChainPrimaryArgument0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FStatePerformActionUsage0k:namet:$t:action
+FSequenceExpression0t:(
+FCaseUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:caset:inout
+FConcernDefinition0t:variationt:abstractt:#t:individualt:concern
+FUseCaseUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:uset:derivedt:constantt:endt:inout
+FBehavior0t:abstractt:#t:behavior
+FArgumentExpressionValue0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FBodyArgumentMember0t:{
+FNamespaceMember0t:languaget:constt:classifiert:disjointt:protectedt:portiont:int:redefinest:$t:vart:#t:behaviort:stepk:commentt:rept:inoutt:invt:subsett:orderedt:standardt:metadatat:libraryt:outt:allt:@t:datatypet:structt:nonuniquet:[t:compositet:=>t:multiplicityt:definedt:::>t::>t:abstractt:doct:privatet:<t:featurek:namet:~t:functiont:conjugationt::t:classt::>>t:exprt:featuringt:conjugatest:flowt:derivedt:subclassifiert:crossest:subsetst:bindingt:successiont:redefinitiont:disjoiningt:predicatet:endt:namespacet:inverset:typet:interactiont:connectort:subtypet:localet:referencest:boolt:dependencyt:packaget:specializationt:assoct:conjugatet:commentt:metaclasst:publict:inverting
+FRedefinitions0t::>>t:redefines
+FMetadataArgument0k:namet:$
+FUsagePrefix1t:endt:constantt:reft:inoutt:#t:outt:derivedt:variationt:int:abstract
+FMessageEvent0k:namet:$
+FAssignmentTargetBinding0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FMetadataAccessExpression0k:namet:$
+FReferences0t:::>t:references
+FNamespaceImport0k:namet:$
+FFilterPackageMember0t:[
+FBracketExpression0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FConstraintDefinition0t:variationt:abstractt:#t:individualt:constraint
+FClassifier0t:abstractt:classifiert:#
+FAttributeUsage0t:endt:constantt:reft:inoutt:#t:outt:derivedt:variationt:int:abstractt:attribute
+FInvariant0t:portiont:compositet:abstractt:inoutt:#t:outt:derivedt:invt:endt:int:vart:const
+FPackage0t:packaget:#
+FDependencyDeclaration0k:namet:<t:fromt:$
+FFeatureElement0t:subsetst:referencest:invt:boolt:definedt:stept:portiont:orderedt:abstractt:successiont:featuret:inoutt:~t:connectort:outt:compositet:=>t:endt::>>t:nonuniquet:redefinest:<t:flowt::t::>t:constt:bindingt:crossesk:namet:derivedt:conjugatest:::>t:int:vart:exprt:allt:#t:[
+FTransitionAssignmentActionUsage0t:actiont:assign
+FFilterPackage0k:namet:$
+FViewDefinition0t:variationt:abstractt:viewt:#t:individual
+FOwnedCrossFeatureMember0t:subsetst:referencest:definedt:orderedt:firstt:abstractt:successiont:outt:inoutt:reft:variationt:=>t:endt::>>t:nonuniquet:redefinest:<t::t::>t:constantk:namet:derivedt:crossest:::>t:int:#t:[
+FFunctionReference0k:namet:$
+FLINE_TEXT0t:[^\r\n]*
+FPrefixMetadataMember0t:#
+FIdentification1k:namet:<
+FTypePrefix1t:#t:abstract
+FCalculationBody0t:;t:{
+FRenderingDefinition0t:variationt:abstractt:#t:individualt:rendering
+FAssignmentNodeDeclaration0t:actiont:assign
+FTypeBodyElement0t:languaget:constt:classifiert:disjointt:protectedt:portiont:int:redefinest:$t:vart:#t:behaviort:stepk:commentt:rept:inoutt:invt:subsett:orderedt:standardt:metadatat:libraryt:outt:allt:@t:datatypet:structt:nonuniquet:[t:compositet:=>t:multiplicityt:definedt:::>t::>t:abstractt:doct:privatet:<t:featurek:namet:~t:functiont:conjugationt::t:classt:aliast::>>t:exprt:featuringt:conjugatest:flowt:derivedt:membert:subclassifiert:crossest:subsetst:bindingt:successiont:redefinitiont:disjoiningt:predicatet:endt:namespacet:inverset:typet:interactiont:connectort:subtypet:localet:referencest:boolt:dependencyt:packaget:specializationt:assoct:conjugatet:commentt:metaclasst:publict:inverting
+FConstructorResultMember0t:(
+FDefaultTargetSuccession0t:else
+FEmptyParameterMember1
+FOwnedMultiplicity0t:[
+FMetaclass0t:metaclasst:abstractt:#
+FTransitionPerformActionUsage0k:namet:$t:action
+FUsageCompletion0t:{t:=t::=t:;t:default
+FActorUsage0t:actor
+FNullExpression0t:(t:null
+FTextualRepresentation0t:rept:language
+FConstructorResult0t:(
+FAttributeDefinition0t:variationt:attributet:abstractt:#
+FInterfaceBodyItem0t:viewt:exhibitt:protectedt:attributet:statet:enumt:bindt:variantt:inoutt:int:concernt:connectt:standardt:metadatat:libraryt:outt:actiont:calct:@t:languaget:caset:interfacet:aliast:abstractt:renderingt:doct:connectiont:eventt:localet:privatet:partt:nott:constraintk:commentt:performt:constantt:firstt:individualt:uset:includet:snapshott:itemt:derivedt:#t:messaget:allocationt:timeslicet:assertt:analysist:occurrencet:bindingt:packaget:thent:variationt:rept:endt:flowt:portt:reft:verificationt:dependencyt:requirementt:satisfyt:allocatet:viewpointt:commentt:successiont:public
+FCaseBody0t:;t:{
+FFeatureReferenceExpression0k:namet:$
+FDefinitionBodyItem0t:viewt:exhibitt:protectedt:redefinest:attributet:statet:<t:enumt:bindt:variantt:inoutt:int:orderedt:concernt:connectt:standardt:metadatat:libraryt:outt:actiont:calct:@t:languaget:nonuniquet:[t::t::>t:interfacet:definedt:::>t:aliast:abstractt:renderingt:doct:connectiont:portt:localet:privatek:namet:partt:variationt:constraintk:commentt:performt:subsetst:eventt:constantt:firstt::>>t:uset:includet:snapshott:itemt:derivedt:nott:crossest:#t:messaget:allocationt:timeslicet:assertt:analysist:occurrencet:bindingt:packaget:thent:rept:endt:=>t:flowt:reft:verificationt:referencest:dependencyt:requirementt:satisfyt:allocatet:viewpointt:commentt:successiont:caset:publict:individual
+FViewUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:viewt:abstractt:reft:#t:derivedt:constantt:endt:inout
+FInterfaceNonOccurrenceUsageElement0t:bindt:variationt:enumt:outt:int:attributet:successiont:abstractt:firstt:reft:#t:bindingt:derivedt:constantt:endt:inout
+FMetadataUsage0t:metadatat:@t:#
+FOwnedCrossFeature0t:subsetst:referencest:definedt:orderedt:firstt:abstractt:successiont:outt:inoutt:reft:variationt:=>t:endt::>>t:nonuniquet:redefinest:<t::t::>t:constantk:namet:derivedt:crossest:::>t:int:#t:[
+FRelationshipOwnedElement0t:languaget:constt:classifiert:disjointt:redefinitiont:portiont:redefinest:$t:vart:#t:behaviort:stepk:commentt::t:inoutt:invt:int:orderedt:standardt:metadatat:libraryt:outt:allt:<t:datatypet:structt:nonuniquet:[t:compositet::>t:multiplicityt:definedt:::>t:exprt:doct:@t:featurek:namet:~t:functiont:conjugationt:rept:classt:abstractt::>>t:featuringt:conjugatest:flowt:derivedt:subclassifiert:crossest:subsetst:bindingt:metaclasst:packaget:disjoiningt:endt:namespacet:inverset:=>t:typet:interactiont:connectort:subtypet:localet:referencest:boolt:dependencyt:specializationt:assoct:conjugatet:commentt:successiont:predicatet:invertingt:subset
+FType0t:abstractt:#t:type
+FAssignmentTargetMember1k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FNamespaceExpose0k:namet:$
+FMetadataBodyFeature0k:namet:redefinest:featuret::>>t:$
+FSourceSuccessionMember0t:then
+FUNRESTRICTED_NAME0t:#x27
+FClassifierDeclaration1k:namet:unionst:intersectst:~t::>t:conjugatest:differencest:<t:[t:allt:specializest:disjoint
+FCrosses0t:crossest:=>
+FFeatureTyping0k:namet:$t:~
+FInstantiatedTypeMember0k:namet:$
+FNamedArgument0k:namet:$
+FSourceEndMember1t:[
+FEnumerationBody0t:;t:{
+FDisjoiningPart0t:disjoint
+FOwnedFeatureTyping0k:namet:$
+FTYPED_BY0t::t:typed
+FSpecialization0t:subtypet:specialization
+FNamespaceBodyElement0t:languaget:classifiert:disjointt:protectedt:redefinest:$t:vart:#t:behaviort:portionk:commentt::t:compositet:invt:int:orderedt:standardt:metadatat:libraryt:outt:allt:@t:datatypet:inoutt:nonuniquet:[t:=>t::>t:::>t:definedt:exprt:doct:privatet:<t:featurek:namet:~t:functiont:conjugationt:rept:classt:aliast:abstractt:constt:featuringt:conjugatest:flowt:derivedt:subclassifiert:crossest:structt:publict:subsetst:bindingt:metaclasst:redefinitiont:disjoiningt:endt:namespacet:inverset:typet:interactiont:connectort:subtypet:localet:referencest::>>t:boolt:dependencyt:packaget:specializationt:assoct:conjugatet:commentt:successiont:multiplicityt:predicatet:invertingt:stept:subset
+FConnectionDefinition0t:variationt:abstractt:#t:individualt:connection
+FOccurrenceUsagePrefix1t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:inout
+FMetadataValue0k:namet:$
+FNaryInterfacePart0t:(
+FRequirementBodyItem0t:viewt:exhibitt:attributet:protectedt:stakeholdert:redefinest:#t:statet:<t:enumt:bindt:variantt:inoutt:int:orderedt:concernt:standardt:verifyt:metadatat:libraryt:outt:reft:actiont:calct:@t:languaget:nonuniquet:[t::t::>t:::>t:definedt:abstractt:renderingt:doct:connectiont:eventt:privatek:namet:framet:requiret:partt:nott:actort:snapshott:constraintk:commentt:performt:verificationt:messaget:subsetst:commentt:constantt:firstt:occurrencet:interfacet:itemt:derivedt:allocatet:crossest:includet:allocationt:timeslicet:assertt:analysist:bindingt:packaget:thent:variationt:rept:endt:assumet:=>t:flowt:portt:connectt:localet:referencest::>>t:subjectt:dependencyt:requirementt:satisfyt:aliast:viewpointt:uset:successiont:caset:publict:individual
+FEmptyFeature1
+FNaryConnectorPart0t:(
+FMultiplicitySubset0t:multiplicity
+FOwnedRelatedElement0t:classifiert:disjointt:redefinitiont:portiont:int:redefinest:$t:vart:#t:behaviort:<t::t:inoutt:invt:subsett:orderedt:standardt:libraryt:outt:allt:datatypet:structt:nonuniquet:[t:compositet::>t:multiplicityt:definedt:::>t:abstractt:featurek:namet:~t:functiont:conjugationt:classt:stept:constt:exprt:featuringt:conjugatest:flowt:derivedt:subclassifiert:crossest:subsetst:bindingt:successiont:packaget:disjoiningt:endt:namespacet:inverset:=>t:typet:interactiont:connectort:subtypet:referencest::>>t:boolt:dependencyt:specializationt:assoct:conjugatet:metaclasst:predicatet:inverting
+FAllocationUsage0t:snapshott:variationt:outt:int:timeslicet:allocationt:individualt:allocatet:abstractt:reft:#t:derivedt:constantt:endt:inout
+FDisjoining0t:disjoiningt:disjoint
+FNonFeatureMember0t:libraryt:classt:structt:interactiont:subsett:predicatet:languaget:@t:protectedt:rept:abstractt:conjugatet:~t:localet:subclassifiert:metaclasst:functionk:commentt:behaviort:namespacet:classifiert:dependencyt:subtypet:$t:datatypet:#t:metadatat:specializationt:packaget:publict:multiplicityt:assoct:typet:doct:redefinitiont:privatet:conjugationk:namet:commentt:disjointt:inverset:standardt:featuringt:invertingt:disjoiningt:[
+FPackageBodyElement0t:viewt:exhibitt:caset:redefinest:attributet:variationt:<t:enumt::t:requirementt:inoutt:int:orderedt:concernt:standardt:flowt:libraryt:outt:reft:actiont:calct:@t:languaget:statet:nonuniquet:[t:=>t::>t:::>t:definedt:filtert:aliast:abstractt:renderingt:doct:connectiont:eventt:privatet:metadatak:namet:partt:nott:constraintk:commentt:performt:verificationt:messaget:subsetst:constantt:firstt:occurrencet:uset:snapshott:itemt:derivedt:crossest:#t:includet:allocationt:timeslicet:assertt:analysist:bindingt:packaget:protectedt:rept:endt:portt:connectt:localet:referencest::>>t:bindt:dependencyt:interfacet:satisfyt:allocatet:viewpointt:commentt:successiont:publict:individual
+FOwnedMultiplicityRange0t:[
+FActionBodyParameter0t:actiont:{
+FFeatureChainMember0k:namet:$
+FActionNodeMember0t:individualt:loopt:snapshott:protectedt:ift:abstractt:outt:inoutt:reft:sendt:variationt:endt:merget:actiont:joint:decidet:#t:publict:whilet:fort:constantt:acceptt:assignt:privatet:derivedt:terminatet:int:timeslicet:fork
+FFlowDefinition0t:variationt:flowt:abstractt:#t:individual
+FInteraction0t:interactiont:abstractt:#
+FMetadataArgumentMember0k:namet:$
+FWHITE_SPACE0t:\r\nt:\rt:\ft: t:\nt:\t
+FRESERVED_KEYWORD0t:viewt:exhibitt:nullt:protectedt:oft:redefinest:tot:attributet:acceptt:statet:merget:importt:enumt:bindt:requirementt:exitt:int:orderedt:viat:concernt:standardt:deft:specializest:returnt:framet:falset:libraryt:outt:reft:exposet:allt:calct:constraintt:languaget:privatet:newt:inoutt:nonuniquet:xort:uset:caset:interfacet:definedt:decidet:att:transitiont:abstractt:renderingt:doct:connectiont:eventt:stakeholdert:messaget:metadatat:verifyt:andt:assignt:untilt:istypet:partt:nott:variantt:ort:ift:actort:subjectt:timeslicet:aliast:whilet:verificationt:itemt:performt:constantt:firstt:individualt:requiret:fromt:objectivet:snapshott:defaultt:flowt:derivedt:hastypet:metat:joint:crossest:includet:allocationt:filtert:assertt:analysist:occurrencet:bindingt:assumet:dot:thent:variationt:rept:fort:endt:parallelt:forkt:impliest:terminatet:byt:packaget:truet:portt:connectt:localet:referencest:aftert:loopt:dependencyt:actiont:ast:whent:subsetst:sendt:satisfyt:allocatet:viewpointt:aboutt:commentt:successiont:elset:publict:entryt:render
+FTransitionUsageMember0t:privatet:transitiont:protectedt:public
+FInterfaceEndMember0k:namet:[t:$
+FUnioning0k:namet:$
+FWhileLoopNode0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:loopt:derivedt:constantt:endt:whilet:actiont:inout
+FTypeReferenceMember0k:namet:$
+FDefaultReferenceUsage0k:namet:variationt:outt:crossest:int::t:definedt:orderedt:abstractt:nonuniquet:=>t::>>t:[t:derivedt:<t:constantt::>t:endt:::>t:redefinest:subsetst:referencest:inout
+FFeatureReferenceMember0k:namet:$
+FREDEFINES0t::>>t:redefines
+FSuccessionFlowUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:successiont:abstractt:reft:#t:derivedt:constantt:endt:inout
+FSenderReceiverPart0t:viat:to
+FOwnedExpressionReferenceMember0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FConditionalBinaryOperatorExpression0k:namek:stringt:nullt:hastypet:.t:newt:-t:*t:+t:~t:ast:@t:$t:{k:expt:(t:nott:falsek:intt:istypet:ift:allt:true
+FStakeholderUsage0t:stakeholder
+FCollectExpression0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FItemUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:itemt:inout
+FIndexExpression0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FNAME_CHARACTER0t:any printable character other than backslash or single_quote
+FStructureUsageMember0t:individualt:renderingt:snapshott:allocatet:protectedt:abstractt:successiont:portt:inoutt:eventt:viewt:outt:reft:interfacet:variationt:occurrencet:endt:allocationt:messaget:timeslicet:#t:itemt:flowt:publict:constantt:partt:connectiont:privatet:derivedt:int:connect
+FActionNodePrefix1t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:actiont:inout
+FNonFeatureChainPrimaryArgumentValue0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FStateBodyItem0t:viewt:constraintt:attributet:protectedt:redefinest:#t:statet:<t:enumt:bindt:variantt:inoutt:int:orderedt:concernt:standardt:metadatat:libraryt:outt:reft:actiont:calct:@t:languaget:nonuniquet:[t:=>t::>t:::>t:definedt:transitiont:abstractt:renderingt:doct:connectiont:eventt:privatek:namet:partt:variationt::t:snapshott:aliask:commentt:performt:subsetst:commentt:constantt:firstt:occurrencet:includet:interfacet:itemt:derivedt:assertt:nott:crossest:messaget:allocationt:timeslicet:verificationt:analysist:bindingt:packaget:dot:thent:exitt:rept:endt:flowt:portt:connectt:localet:referencest::>>t:dependencyt:requirementt:satisfyt:allocatet:viewpointt:uset:successiont:caset:publict:individualt:entryt:exhibit
+FMetadataDefinition0t:metadatat:abstractt:#
+FLiteralInteger0k:int
+FBinaryOperator0t:===t:-t:!=t:>=t:&t:<=t:==t:..t:|t:xort:%t:/t:**t:>t:^t:<t:!==t:+t:*
+FControlNode0t:snapshott:variationt:outt:int:merget:individualt:forkt:abstractt:#t:timeslicet:derivedt:constantt:joint:decidet:inout
+FTransitionSuccession0k:namet:[t:$
+FConstraintUsage0t:constraintt:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:inout
+FGeneralType0k:namet:$
+FMembershipImport0k:namet:$
+FOccurrenceUsageElement0t:individualt:renderingt:exhibitt:actiont:snapshott:assertt:constraintt:uset:abstractt:successiont:portt:inoutt:eventt:viewt:outt:reft:interfacet:concernt:variationt:occurrencet:endt:allocationt:messaget:statet:partt:timeslicet:#t:itemt:requirementt:flowt:caset:constantt:allocatet:connectiont:nott:viewpointt:derivedt:verificationt:analysist:int:performt:satisfyt:includet:connectt:calc
+FOccurrenceUsageMember0t:individualt:renderingt:exhibitt:actiont:snapshott:assertt:allocatet:protectedt:uset:abstractt:successiont:portt:inoutt:connectiont:eventt:viewt:outt:reft:interfacet:endt:variationt:occurrencet:constraintt:allocationt:messaget:timeslicet:#t:statet:requirementt:flowt:publict:constantt:partt:caset:nott:itemt:viewpointt:privatet:derivedt:verificationt:concernt:analysist:int:performt:satisfyt:includet:connectt:calc
+FStructure0t:abstractt:#t:struct
+FArgumentExpressionMember0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FArgument0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FCalculationBodyPart1t:viewt:firstt:truet:.t:nullt:-t:protectedt:+t:(t:redefinest:$t:#t:acceptt:statet:merget:<t:enumt:bindt:variantt:inoutt:int:orderedt:concernt:connectt:standardt:returnt:metadatat:libraryt:outt:actiont:calct:@t:languaget:newt:nonuniquet:[t::t::>t:::>t:definedt:decidet:abstractt:renderingt:doct:connectiont:eventt:privatek:stringk:namet:assignt:ast:~t:istypet:partt:nott:{t:ift:rept:snapshott:joink:commentt:verificationt:messaget:performt:constantt:attributet:occurrencek:intt:uset:allt:interfacet:itemt:derivedt:hastypet:whilet:allocatet:crossest:includet:allocationt:timeslicet:assertt:analysisk:expt:bindingt:packaget:thent:variationt:constraintt:fort:endt:forkt:=>t:terminatet:flowt:portt:reft:localet:referencest::>>t:falset:loopt:dependencyt:subsetst:requirementt:sendt:satisfyt:aliast:viewpointt:commentt:successiont:caset:publict:*t:individualt:exhibit
+FPackageDeclaration0t:package
+FExtentExpression0t:all
+FFeatureChain0k:namet:$
+FEffectBehaviorUsage1t:acceptt:$t:assignk:namet:sendt:action
+FRealValue0k:intk:expt:.
+FInterfaceOccurrenceUsageMember0t:individualt:renderingt:exhibitt:actiont:snapshott:assertt:allocatet:protectedt:uset:abstractt:successiont:portt:inoutt:connectiont:eventt:viewt:outt:reft:interfacet:endt:variationt:occurrencet:constraintt:allocationt:messaget:timeslicet:#t:statet:requirementt:flowt:publict:constantt:partt:caset:nott:itemt:viewpointt:privatet:derivedt:verificationt:concernt:analysist:int:performt:satisfyt:includet:connectt:calc
+FNamedArgumentList0k:namet:$
+FPackageBody0t:;t:{
+FFeatureDirection0t:outt:int:inout
+FESCAPE_SEQUENCE0t:\ft:\tt:\vt:\nt:\r
+FPrefixMetadataFeature0k:namet:$
+FFlowUsage0t:snapshott:variationt:outt:flowt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:inout
+FIncludeUseCaseUsage0t:snapshott:variationt:outt:includet:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:inout
+FFeatureIdentification0k:namet:<
+FALPHABETIC_CHARACTER0t:Xt:Yt:Vt:Wt:Tt:Ut:Rt:St:Pt:Qt:nt:ot:lt:mt:jt:kt:ht:it:ft:gt:dt:et:bt:ct:at:zt:xt:yt:vt:wt:tt:ut:rt:st:pt:qt:Nt:Ot:Lt:Mt:Jt:Kt:Ht:It:Ft:Gt:Dt:Et:Bt:Ct:At:Z
+FTransitionSendActionUsage0t:actiont:send
+FTriggerFeatureValue0t:whent:att:after
+FFlowFeatureRedefinition0k:namet:$
+FArgumentList0t:(
+FNonFeatureChainPrimaryExpression0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FFunctionReferenceArgumentValue0k:namet:$
+FOwnedCrossMultiplicityMember0t:[
+FFeature0t:subsetst:referencest:definedt:portiont:orderedt:abstractt:featuret:inoutt:~t:outt:compositet:=>t:endt::>>t:nonuniquet:redefinest:<t::t::>t:constt:crossesk:namet:derivedt:conjugatest:::>t:int:vart:allt:#t:[
+FLiteralString0k:string
+FEndFeaturePrefix0t:endt:const
+FTypeFeaturingPart0t:featured
+FImportDeclaration0k:namet:$
+FNodeParameterMember0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FEmptyResultMember1
+FElementReferenceMember0k:namet:$
+FOwnedAnnotation0t:commentt:languaget:#k:commentt:metadatat:@t:rept:localet:doc
+FDefinitionExtensionKeyword0t:#
+FOwnedConjugation0k:namet:$
+FObjectiveMember0t:privatet:objectivet:protectedt:public
+FGuardExpressionMember0t:if
+FMetadataBody0t:;t:{
+FInterfaceDefinition0t:variationt:abstractt:#t:individualt:interface
+FInterfaceOccurrenceUsageElement0t:individualt:renderingt:exhibitt:actiont:snapshott:assertt:constraintt:uset:abstractt:successiont:portt:inoutt:eventt:viewt:outt:reft:interfacet:concernt:variationt:occurrencet:endt:allocationt:messaget:statet:partt:timeslicet:#t:itemt:requirementt:flowt:caset:constantt:allocatet:connectiont:nott:viewpointt:derivedt:verificationt:analysist:int:performt:satisfyt:includet:connectt:calc
+FArgumentValue0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FAnnotation0k:namet:$
+FNaryConnectorDeclaration0k:namet:subsetst:crossest:redefinest::t:~t:orderedt:allt::>>t:[t:(t:<t:=>t::>t:::>t:nonuniquet:conjugatest:referencest:defined
+FRequirementUsage0t:snapshott:variationt:outt:requirementt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:inout
+FLiteralReal0k:intk:expt:.
+FMetadataFeatureDeclaration0k:namet:<t:typedt::t:$
+FOwnedExpressionMember0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FPrefixMetadataUsage0k:namet:$
+FExitActionMember0t:privatet:exitt:protectedt:public
+FPrimaryArgumentValue0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FCOMMENT_LINE_TEXT0t:.*(?=(\r|\n|\*/))
+FTransitionSuccessionMember0k:namet:[t:$
+FDataType0t:datatypet:abstractt:#
+FIndividualDefinition0t:variationt:abstractt:individual
+FOccurrenceDefinition0t:variationt:abstractt:occurrencet:#t:individual
+FPerformActionUsageDeclaration0k:namet:$t:action
+FRequirementVerificationUsage0k:namet:$t:requirementt:#
+FFeatureChainExpression0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FFlowFeature0k:namet:$
+FFunctionReferenceMember0k:namet:$
+FBehaviorUsageMember0t:individualt:exhibitt:actiont:snapshott:assertt:protectedt:uset:abstractt:outt:inoutt:performt:caset:reft:concernt:variationt:endt:constraintt:timeslicet:#t:statet:requirementt:publict:int:constantt:nott:viewpointt:privatet:derivedt:verificationt:analysist:includet:satisfyt:calc
+FUseCaseDefinition0t:variationt:abstractt:#t:individualt:use
+FUsage0k:namet:subsetst:crossest:=t:{t:defaultt::>t::=t:orderedt:nonuniquet::>>t:[t:<t:=>t::t:;t:::>t:redefinest:referencest:defined
+FStateUsageBody0t:parallelt:;t:{
+FIfNodeParameterMember0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:actiont:ift:inout
+FMultiplicity0t:multiplicityt:[
+FMemberPrefix1t:privatet:protectedt:public
+FInterfaceEnd0k:namet:[t:$
+FUnextendedUsagePrefix1t:endt:constantt:reft:inoutt:outt:derivedt:variationt:int:abstract
+FMessage0t:messaget:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:inout
+FChainingPart0t:chains
+FOwnedReferenceSubsetting0k:namet:$
+FRequirementKind0t:requiret:assume
+FClassificationExpression0k:namek:stringt:nullt:hastypet:.t:newt:-t:*t:+t:~t:allt:@t:$t:{k:expt:(t:ask:intt:istypet:truet:falset:ift:not
+FInterfacePart0k:namet:[t:$t:(
+FFilterPackageImport0k:namet:$
+FSINGLE_LINE_NOTE0t://
+FRelationshipBody0t:;t:{
+FUsageElement0t:viewt:connectt:redefinest:#t:statet:<t:enumt::t:requirementt:inoutt:int:orderedt:concernt:flowt:outt:actiont:calct:nonuniquet:[t:=>t:caset:::>t::>t:abstractt:renderingt:subsetst:connectiont:eventk:namet:partt:nott:firstt:constraintt:messaget:performt:constantt:attributet:individualt:snapshott:itemt:definedt:derivedt:crossest:includet:allocationt:timeslicet:assertt:analysist:occurrencet:bindingt:variationt:endt:portt:reft:verificationt:referencest::>>t:bindt:interfacet:satisfyt:allocatet:viewpointt:uset:successiont:exhibit
+FBehaviorUsageElement0t:individualt:exhibitt:constraintt:snapshott:assertt:concernt:uset:abstractt:outt:inoutt:performt:caset:reft:variationt:includet:endt:timeslicet:#t:statet:requirementt:actiont:constantt:nott:viewpointt:derivedt:verificationt:analysist:int:satisfyt:calc
+FArgumentMember0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FEnumerationUsage0t:endt:constantt:reft:inoutt:enumt:#t:outt:derivedt:variationt:int:abstract
+FSubsets0t::>t:subsets
+FAssociation0t:assoct:abstractt:#
+FExpressionParameterMember0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FTypeDeclaration0k:namet:~t::>t:conjugatest:<t:[t:allt:specializes
+FAnalysisCaseDefinition0t:variationt:analysist:abstractt:#t:individual
+FAcceptParameterPart0k:namet:att:subsetst:crossest:aftert::t:orderedt:$t:nonuniquet:whent::>>t:[t:<t:=>t::>t:::>t:redefinest:referencest:defined
+FConditionalExpression0t:if
+FDefinitionDeclaration1k:namet:<t::>t:specializes
+FSINGLE_QUOTE0t:#x27
+FFunction0t:functiont:abstractt:#
+FControlNodePrefix1t:constantt:individualt:outt:inoutt:timeslicet:abstractt:derivedt:variationt:int:snapshott:#
+FAnnotatingMember0t:commentt:languagek:commentt:privatet:publict:#t:rept:metadatat:protectedt:localet:doct:@
+FTypedBy0t::t:defined
+FEffectBehaviorMember0t:do
+FStakeholderMember0t:privatet:stakeholdert:protectedt:public
+FObjectiveRequirementUsage0k:namet:subsetst:crossest:=t::=t:defaultt:{t:orderedt:nonuniquet:#t::>>t:[t:<t:=>t::>t:;t:::>t:redefinest::t:referencest:defined
+FUnioningPart0t:unions
+FOwnedCrossSubsetting0k:namet:$
+FPayloadParameterMember0k:namet:att:subsetst:crossest:aftert::>t:orderedt:$t:nonuniquet:whent::>>t:[t:<t:=>t::t:::>t:redefinest:referencest:defined
+FPortDefinition0t:variationt:abstractt:#t:port
+FStep0t:portiont:compositet:abstractt:inoutt:#t:outt:derivedt:stept:endt:int:vart:const
+FRedefinition0t:redefinitiont:specialization
+FDECIMAL_DIGIT0t:9t:6t:7t:4t:5t:2t:3t:0t:1t:8
+FRefPrefix1t:constantt:outt:inoutt:derivedt:variationt:int:abstract
+FAllocationDefinition0t:variationt:abstractt:#t:individualt:allocation
+FAssertConstraintUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:assertt:inout
+FMULTILINE_NOTE0t://*
+FSuccessionDeclaration1k:namet:subsetst:crossest:redefinest::t:~t:orderedt:firstt:allt:$t::>>t:[t:<t:=>t::>t:::>t:nonuniquet:conjugatest:referencest:defined
+FMembershipExpose0k:namet:$
+FImport0t:privatet:protectedt:public
+FNonFeatureChainPrimaryArgumentMember0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FDifferencing0k:namet:$
+FBinaryInterfacePart0k:namet:[t:$
+FFeatureChainPrefix0k:namet:$
+FSatisfactionReferenceExpression0k:namet:$
+FViewRenderingUsage0k:namet:$t:renderingt:#
+FConcernUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:concernt:constantt:endt:inout
+FSendNode0t:snapshott:variationt:sendt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:actiont:inout
+FExhibitStateUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:exhibitt:inout
+FTypeResultMember0k:namet:$
+FSUBSETS0t:subsetst::>
+FActionBodyParameterMember0t:actiont:{
+FRequirementVerificationMember0t:verifyt:privatet:protectedt:public
+FNonOccurrenceUsageElement0t:subsetst:referencest:definedt:orderedt:firstt:abstractt:successiont:outt:inoutt:reft:variationt:=>t:endt::>>t:nonuniquet:redefinest:bindt:<t:enumt::t::>t:constantt:attributet:bindingk:namet:derivedt:crossest:::>t:int:#t:[
+FTypeFeaturing0t:featuring
+FViewpointDefinition0t:variationt:abstractt:viewpointt:#t:individual
+FVariantReference0k:namet:$
+FOwnedRedefinition0k:namet:$
+FTriggerAction0k:namet:att:subsetst:crossest:aftert::t:orderedt:$t:nonuniquet:whent::>>t:[t:<t:=>t::>t:::>t:redefinest:referencest:defined
+FBasicDefinitionPrefix0t:variationt:abstract
+FPayloadFeatureMember0k:namet:subsetst:crossest::>t:orderedt:$t:nonuniquet::>>t:[t:<t:=>t::t:::>t:redefinest:referencest:defined
+FFlowEnd0k:namet:$
+FPartDefinition0t:variationt:abstractt:partt:#t:individual
+FForkNode0t:abstractt:constantt:individualt:outt:inoutt:timeslicet:#t:forkt:derivedt:variationt:int:snapshot
+FOwnedCrossMultiplicity0t:[
+FCalculationUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:calct:constantt:endt:inout
+FPredicate0t:predicatet:abstractt:#
+FInstantiatedTypeReference0k:namet:$
+FNamespaceFeatureMember0t:subsetst:referencest:invt:boolt:definedt:stept:portiont:orderedt:protectedt:abstractt:successiont:featuret:inoutt:~t:connectort:outt:conjugatest:compositet:=>t:endt::>>t:nonuniquet:redefinest:<t:flowt::t:publict:int::>t:bindingt:privatek:namet:derivedt:crossest:::>t:constt:vart:exprt:allt:#t:[
+FDefinitionElement0t:libraryt:uset:verificationt:languaget:concernt:renderingt:rept:requirementt:abstractt:portt:localet:viewt:statet:caset:interfacek:commentt:variationt:occurrencet:constraintt:allocationt:flowt:individualt:#t:itemt:metadatat:enumt:packaget:actiont:calct:partt:connectiont:doct:viewpointt:attributet:commentt:analysist:standardt:@t:dependency
+FNamedArgumentMember0k:namet:$
+FMetadataBodyUsage0k:namet:reft:redefinest:$t::>>
+FActionNodeUsageDeclaration0t:action
+FInterfaceUsage0t:snapshott:variationt:outt:interfacet:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:inout
+FMultiplicityRange0t:[
+FGuardedSuccession0t:successiont:first
+FFeatureSpecialization0t:subsetst:referencest:definedt:redefinest::>>t:=>t::>t:crossest:::>t::
+FMetaCastOperator0t:meta
+FConnectorDeclaration0k:namet:fromt:subsetst:crossest:redefinest::t:~t:orderedt:$t:allt::>>t:[t:(t:<t:=>t::>t:::>t:nonuniquet:conjugatest:referencest:defined
+FOccurrenceUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:occurrencet:endt:inout
+FTypeRelationshipPart0t:differencest:unionst:disjointt:intersects
+FTransitionAcceptActionUsage0t:acceptt:action
+FMergeNode0t:abstractt:constantt:individualt:outt:inoutt:timeslicet:#t:derivedt:variationt:int:snapshott:merge
+FInterfaceUsageDeclaration1k:namet:subsetst:crossest:=t::=t:defaultt:orderedt:$t:nonuniquet::>>t:[t:connectt:<t:=>t::>t:::>t:redefinest::t:(t:referencest:defined
+FFeatureReference0k:namet:$
+FMetadataBodyUsageMember0k:namet:reft:redefinest:$t::>>
+FNonOccurrenceUsageMember0t:subsetst:referencest:definedt:orderedt:protectedt:abstractt:successiont:outt:inoutt:reft:variationt:endt:=>t::>t::>>t:nonuniquet:redefinest:bindt:<t:enumt::t:publict:firstt:constantt:attributet:bindingt:privatek:namet:derivedt:crossest:::>t:int:#t:[
+FPayloadParameter0k:namet:att:subsetst:crossest:aftert::>t:orderedt:$t:nonuniquet:whent::>>t:[t:<t:=>t::t:::>t:redefinest:referencest:defined
+FResultExpressionMember0k:namek:stringt:nullt:hastypet:.t:newt:-t:*t:+t:~t:ast:@t:$t:{k:expt:(t:protectedt:nott:falsek:intt:istypet:privatet:ift:allt:truet:public
+FLibraryPackage0t:standardt:library
+FOwnedFeatureInverting0k:namet:$
+FBinaryOperatorExpression0k:namek:stringt:nullt:hastypet:.t:newt:-t:*t:+t:~t:ast:@t:$t:{k:expt:(t:nott:falsek:intt:istypet:ift:allt:true
+FEmptyMultiplicityMember1
+FFlow0t:portiont:flowt:compositet:abstractt:inoutt:#t:outt:derivedt:endt:int:vart:const
+FEntryActionMember0t:privatet:entryt:protectedt:public
+FSelectExpression0k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FCROSSES0t:crossest:=>
+FSuperclassingPart0t::>t:specializes
+FOwnedSubclassification0k:namet:$
+FConstructorExpression0t:new
+FAssignmentTargetParameter1k:namek:stringt:nullt:.t:newt:*k:expt:(t:$t:{t:falsek:intt:true
+FTransitionUsage0t:transition
+FFlowEndMember0k:namet:$
+FSourceEnd1t:[
+FUsageBody0t:;t:{
+FDefinitionBody0t:;t:{
+FAcceptNodeDeclaration0t:acceptt:action
+FPayloadFeatureSpecializationPart0t:subsetst:crossest::>t:orderedt:nonuniquet::>>t:[t:definedt:=>t::t:::>t:redefinest:references
+FAnalysisCaseUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:analysist:endt:inout
+FMetaclassificationTestOperator0t:@@
+FClassificationTestOperator0t:@t:hastypet:istype
+FValuePart0t:=t::=t:default
+FOwnedSpecialization0k:namet:$
+FBodyExpression0t:{
+FExpose0t:expose
+FSourceSuccession1t:[
+FFlowFeatureMember0k:namet:$
+FBasicUsagePrefix1t:reft:constantt:outt:inoutt:derivedt:variationt:int:abstract
+FRequirementBody0t:;t:{
+FInitialNodeMember0t:privatet:firstt:protectedt:public
+FExpression0t:portiont:compositet:abstractt:inoutt:#t:outt:derivedt:endt:int:vart:exprt:const
+FEnumerationDefinition0t:enumt:#
+FEndUsagePrefix0t:end
+FFeatureDeclaration0k:namet:subsetst:crossest:redefinest::t:~t:orderedt:allt::>>t:[t:<t:=>t::>t:::>t:nonuniquet:conjugatest:referencest:defined
+FTriggerValuePart0t:whent:att:after
+FEntryTransitionMember0t:thent:privatet:ift:protectedt:public
+FNamespace0t:namespacet:#
+FRESERVED_SYMBOL0t:.?t:)t:**t:/t:??t:,t:=t:!==t:~t:|t:}t:-t:{t:!=t:>=t:.t:<=t:==t::=t:=>t::>t:(t::>>t:&t:$t:%t:#t:*t:>t:?t:<t:::t::t:;t:===t:+t:->t:..t:::>t:@t:^t:]t:[
+FBodyArgument0t:{
+FEnumeratedValue0k:namet:definedt:subsetst:crossest:enumt::=t:defaultt:=>t:orderedt:{t:#t::>>t:[t:<t:=t::>t:;t:::>t:nonuniquet::t:referencest:redefines
+FFlowPayloadFeatureMember0k:namet:subsetst:crossest::>t:orderedt:$t:nonuniquet::>>t:[t:<t:=>t::t:::>t:redefinest:referencest:defined
+FAssignmentNode0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:assignt:constantt:endt:actiont:inout
+FCOMMENT_TEXT1t:.*(?=(\r|\n|\*/))t:\rt:\r\nt:\n
+FSatisfactionParameter0k:namet:$
+FNonBehaviorBodyItem0t:viewt:constraintt:protectedt:redefinest:attributet:statet:<t:enumt:bindt:variantt:inoutt:int:orderedt:concernt:connectt:standardt:metadatat:libraryt:outt:actiont:calct:@t:languaget:nonuniquet:[t::t::>t:interfacet:definedt:::>t:abstractt:renderingt:doct:connectiont:portt:localet:privatek:namet:partt:variationt:aliask:commentt:subsetst:eventt:constantt:firstt::>>t:uset:snapshott:itemt:derivedt:crossest:#t:messaget:allocationt:timeslicet:analysist:occurrencet:bindingt:packaget:thent:rept:endt:=>t:flowt:reft:verificationt:referencest:dependencyt:requirementt:allocatet:viewpointt:commentt:successiont:caset:publict:individual
+FDifferencingPart0t:differences
+FCalculationDefinition0t:variationt:abstractt:#t:individualt:calc
+FNonFeatureElement0t:libraryt:classt:structt:interactiont:subsett:predicatet:featuringt:behaviort:abstractt:conjugatet:~t:subclassifiert:metaclasst:functiont:namespacet:classifiert:dependencyt:subtypet:$t:datatypet:#t:specializationt:packaget:assoct:typet:redefinitiont:conjugationk:namet:disjointt:inverset:standardt:multiplicityt:invertingt:disjoiningt:[
+FStateUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:statet:derivedt:constantt:endt:inout
+FInterfaceBody0t:;t:{
+FBindingConnectorDeclaration1k:namet:subsetst:crossest:redefinest::t:~t:orderedt:$t:allt::>>t:[t:<t:=>t::>t:::>t:nonuniquet:oft:conjugatest:referencest:defined
+FConjugatedPortDefinition1
+FItemDefinition0t:variationt:abstractt:itemt:#t:individual
+FSPECIALIZES0t:specializest::>
+FGuardedSuccessionMember0t:privatet:successiont:firstt:protectedt:public
+FActionTargetSuccessionMember0t:ift:privatet:publict:elset:thent:protectedt:[
+FStateAssignmentActionUsage0t:actiont:assign
+FRenderingUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:renderingt:inout
+FComment0t:commentk:commentt:locale
+FTypeReference0k:namet:$
+FStateDefinition0t:variationt:abstractt:statet:#t:individual
+FBindingConnectorAsUsage0t:endt:constantt:reft:inoutt:#t:outt:derivedt:variationt:int:bindt:abstractt:binding
+FVariantUsageElement0t:individualt:renderingt:exhibitt:actiont:snapshott:assertt:allocatet:firstt:portt:uset:abstractt:successiont:outt:inoutt:connectiont:eventt:viewt:constraintt:reft:interfacet:concernt:variationt:occurrencet:endt:allocationt:messaget:statet:$t:timeslicet:#t:itemt:bindt:requirementt:flowt:caset:constantt:partt:attributet:nott:viewpointt:bindingk:namet:derivedt:verificationt:analysist:int:performt:satisfyt:includet:connectt:calc
+FPortionKind0t:snapshott:timeslice
+FAcceptNode0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:acceptt:endt:actiont:inout
+FFunctionBody0t:;t:{
+FOwnedDisjoining0k:namet:$
+FUsageDeclaration1k:namet:subsetst:crossest::>t:orderedt:nonuniquet::>>t:[t:<t:=>t::t:::>t:redefinest:referencest:defined
+FFeatureRelationshipPart0t:chainst:featuredt:unionst:inverset:intersectst:differencest:disjoint
+FOwnedExpressionReference0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FClass0t:classt:abstractt:#
+FBooleanExpression0t:portiont:compositet:boolt:abstractt:inoutt:#t:outt:derivedt:endt:int:vart:const
+FActionTargetSuccession0t:thent:[t:ift:else
+FRequirementConstraintUsage0k:namet:$t:#t:constraint
+FAliasMember0t:aliast:privatet:protectedt:public
+FUnaryOperator0t:-t:+t:nott:~
+FFunctionReferenceArgumentMember0k:namet:$
+FCastOperator0t:as
+FActionBehaviorMember0t:constraintt:individualt:exhibitt:loopt:publict:snapshott:assertt:protectedt:ift:uset:abstractt:outt:inoutt:performt:decidet:caset:reft:sendt:concernt:variationt:includet:endt:merget:joint:timeslicet:#t:statet:requirementt:actiont:whilet:fort:constantt:acceptt:nott:viewpointt:privatet:derivedt:verificationt:analysist:int:assignt:forkt:satisfyt:terminatet:calc
+FSuccession0t:portiont:compositet:abstractt:inoutt:#t:outt:derivedt:endt:int:successiont:vart:const
+FPortConjugation1
+FConnector0t:portiont:compositet:connectort:abstractt:inoutt:#t:outt:derivedt:endt:int:vart:const
+FActionBody0t:;t:{
+FBASIC_NAME_CHARACTER0t:Xt:Yt:Vt:Wt:Tt:Ut:Rt:St:Pt:Qt:nt:ot:lt:mt:jt:kt:ht:it:ft:gt:dt:et:bt:ct:at:zt:xt:yt:vt:wt:tt:ut:rt:st:pt:qt:8t:9t:6t:7t:4t:5t:2t:3t:0t:1t:Nt:Ot:Lt:Mt:Jt:Kt:Ht:It:Ft:Gt:Dt:Et:Bt:Ct:At:_t:Z
+FViewDefinitionBodyItem0t:viewt:exhibitt:attributet:protectedt:redefinest:#t:statet:<t:enumt:bindt:variantt:inoutt:int:orderedt:concernt:standardt:metadatat:libraryt:outt:reft:actiont:calct:@t:languaget:nonuniquet:[t::t::>t:::>t:definedt:filtert:abstractt:renderingt:doct:connectiont:eventt:privatek:namet:partt:nott:snapshott:constraintk:commentt:performt:verificationt:messaget:subsetst:commentt:constantt:firstt:occurrencet:interfacet:itemt:derivedt:allocatet:crossest:includet:allocationt:timeslicet:assertt:analysist:bindingt:packaget:thent:variationt:rept:endt:=>t:flowt:portt:connectt:localet:referencest::>>t:dependencyt:requirementt:satisfyt:aliast:viewpointt:uset:successiont:caset:publict:individualt:render
+FViewpointUsage0t:snapshott:variationt:viewpointt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:inout
+FPortionUsage0t:constantt:individualt:reft:inoutt:timeslicet:outt:derivedt:variationt:int:snapshott:abstract
+FParameterRedefinition0k:namet:$
+FCaseDefinition0t:variationt:caset:abstractt:#t:individual
+FConnectorEndMember0k:namet:[t:$
+FSubjectUsage0t:subject
+FForLoopNode0t:fort:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:actiont:inout
+FDoActionMember0t:privatet:dot:protectedt:public
+FFeatureBinding0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FForVariableDeclaration1k:namet:subsetst:crossest::>t:orderedt:nonuniquet::>>t:[t:<t:=>t::t:::>t:redefinest:referencest:defined
+FPartUsage0t:partt:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:inout
+FEmptyActionUsage1
+FFunctionReferenceArgument0k:namet:$
+FExtendedUsage0t:endt:constantt:reft:inoutt:#t:outt:derivedt:variationt:int:abstract
+FSuccessionAsUsage0t:endt:constantt:reft:inoutt:#t:outt:derivedt:variationt:firstt:int:successiont:abstract
+FFramedConcernMember0t:privatet:framet:protectedt:public
+FAssociationStructure0t:assoct:abstractt:#
+FOccurrenceDefinitionPrefix1t:variationt:abstractt:#t:individual
+FEventOccurrenceUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:eventt:inout
+FStateActionUsage0t:acceptt:$t:assignk:namet:sendt:actiont:;
+FConnectorPart0k:namet:[t:$t:(
+FTargetTransitionUsageMember0t:acceptt:transitiont:privatet:publict:thent:protectedt:if
+FSequenceOperatorExpression0k:namek:stringt:nullt:hastypet:.t:newt:-t:*t:+t:~t:ast:@t:$t:{k:expt:(t:nott:falsek:intt:istypet:ift:allt:true
+FBinaryConnectorPart0k:namet:[t:$
+FTriggerActionMember0t:accept
+FSatisfactionFeatureValue0k:namet:$
+FLINE_TERMINATOR0t:\rt:\r\nt:\n
+FFramedConcernUsage0k:namet:$t:#t:concern
+FRequirementConstraintMember0t:privatet:assumet:requiret:protectedt:public
+FActionNode0t:individualt:loopt:snapshott:ift:abstractt:outt:inoutt:reft:sendt:variationt:decidet:endt:merget:joint:timeslicet:#t:actiont:whilet:fort:constantt:acceptt:derivedt:terminatet:int:assignt:fork
+FMetadataUsageDeclaration0k:namet:<t:typedt::t:$
+FConjugatedPortTyping0t:~
+FMemberElement0t:libraryt:classt:structt:subsett:predicatet:languaget:packaget:behaviort:rept:abstractt:conjugatet:~t:localet:subclassifiert:[t:metaclasst:functiont:featuringk:commentt:metadatat:namespacet:classifiert:subtypet:$t:datatypet:#t:specializationt:interactiont:multiplicityt:typet:disjoiningt:doct:redefinitiont:conjugationk:namet:commentt:disjointt:inverset:standardt:@t:invertingt:assoct:dependency
+FArgumentExpression0k:namek:stringt:nullt:hastypet:~t:newt:-t:falset:+t:(t:{t:truet:@t:$t:allk:expt:.t:ask:intt:istypet:ift:nott:*
+FDefinition0t:;k:namet::>t:{t:<t:specializes
+FReturnParameterMember0t:returnt:privatet:protectedt:public
+FCONJUGATES0t:~t:conjugates
+FSatisfactionSubjectMember0k:namet:$
+FSubclassificationPart0t::>t:specializes
+FExtendedDefinition0t:variationt:abstractt:#
+FDocumentation0t:doc
+FTargetTransitionUsage0t:ift:transitiont:thent:accept
+FSendNodeDeclaration0t:actiont:send
+FInvertingPart0t:inverse
+FVariantUsageMember0t:variantt:privatet:protectedt:public
+FEmptyEndMember1
+FStateSendActionUsage0t:actiont:send
+FMetaclassificationExpression0k:namet:$
+FCaseBodyItem0t:viewt:whilet:protectedt:redefinest:attributet:acceptt:statet:merget:<t:enumt:bindt:variantt:inoutt:int:orderedt:concernt:standardt:returnt:objectivet:metadatat:libraryt:outt:reft:actiont:calct:@t:languaget:nonuniquet:[t::t::>t:localet:definedt:decidet:::>t:aliast:abstractt:renderingt:doct:connectiont:eventt:privatek:namet:assignt:partt:nott:ift:actort:snapshott:joink:commentt:analysist:performt:commentt:constantt:firstt:occurrencet:includet:interfacet:itemt:derivedt:crossest:#t:messaget:allocationt:timeslicet:assertt:subsetst:bindingt:successiont:packaget:thent:variationt:constraintt:fort:endt:forkt:=>t:terminatet:flowt:portt:connectt:verificationt:referencest::>>t:subjectt:loopt:dependencyt:requirementt:sendt:satisfyt:allocatet:viewpointt:uset:rept:caset:publict:individualt:exhibit
+FInterfaceNonOccurrenceUsageMember0t:bindt:variationt:outt:enumt:attributet:successiont:abstractt:firstt:reft:#t:bindingt:derivedt:protectedt:constantt:endt:int:privatet:publict:inout
+FTerminateNode0t:snapshott:variationt:outt:terminatet:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:endt:actiont:inout
+FRedefines0t::>>t:redefines
+FQualifiedName0k:namet:$
+FNamespaceBody0t:;t:{
+FPerformActionUsage0t:snapshott:variationt:outt:int:timeslicet:individualt:abstractt:reft:#t:derivedt:constantt:performt:endt:inout
+FBASIC_NAME0t:Xt:Yt:Vt:Wt:Tt:Ut:Rt:St:Pt:Qt:nt:ot:lt:mt:jt:kt:ht:it:ft:gt:dt:et:bt:ct:at:zt:xt:yt:vt:wt:tt:ut:rt:st:pt:qt:Nt:Ot:Lt:Mt:Jt:Kt:Ht:It:Ft:Gt:Dt:Et:Bt:Ct:At:_t:Z
+FDefinitionMember0t:libraryt:renderingt:actiont:standardt:languaget:concernt:rept:uset:abstractt:portt:itemt:connectiont:localet:viewt:caset:interfacek:commentt:variationt:occurrencet:constraintt:allocationt:flowt:individualt:#t:statet:requirementt:enumt:packaget:publict:protectedt:partt:metadatat:doct:viewpointt:privatet:attributet:commentt:verificationt:analysist:@t:dependencyt:calc

@@ -1,0 +1,21 @@
+answer key:
+  Bob Contracting: ERROR -- second lowercase b is a word; lint should say 'B' appears 2 times and guess Y finished IF-48 / T will b in the lab on IF-6 / B none
+  Cy Executive: warn -- no task id in Y or T
+  Dee Executive: warn -- ZZ-999 is not in the journal; and a 'done' claim on IF-21 for you to confirm
+  Eve Finance: info -- working C-11 which is owned by Ann Contracting
+  Fay Finance: ERROR -- no B found
+  Gus HR: incomplete -- only Y given (answers flags incomplete)
+  Hal HR: ok -- says punt H-23: expect a commented punt line
+  Ida Logistics: ok -- says hold IF-12: expect a commented hold line
+  Jon Logistics: ok -- says pass L-12: expect a commented pass line
+  Kim Production: ok
+  Lou Production: ok
+  Max Quality: ok
+  Nia Quality: ok -- blocked (waiting on ICD), expect a block flag
+  Ola Research: ok -- says punt IF-45: expect a commented punt line
+  Pat Research: ok -- says hold IF-8: expect a commented hold line
+  Quinn Support: ok -- says pass S-13: expect a commented pass line
+  Ray Support: ok
+  Sam Testing: ok
+  Tia Testing: ok
+  Ann Contracting: SILENT -- expect 'no answers in chat' (or an assumed status with --assume)

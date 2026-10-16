@@ -1,0 +1,7 @@
+9
+# .ci/outline-max -- the outline job's allowance: the number on the first line is the most outline violations
+# (2..9 rule and level tags) a merge request may leave. The scaffold has 3 (its one-file folders) and adds
+# 6 of room: requirements/, logical/, physical/, analysis/, verification/ and one more each start with one file.
+# Tighten it -- write the count the outline job prints and delete these comment lines -- once every layer folder
+# holds two or more files, and at the latest in the merge request of the first baseline. Never raise it by hand
+# (a prime drop's merge raises it, in its own commit). Written by kickoff.pl scaffold.

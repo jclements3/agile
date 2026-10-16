@@ -1,0 +1,5 @@
+2026-12-09 Halberd
+JC (08:30)
+  Y: 40 more elements under configuration control, now 80% (A), all merged at 0/0 (E). 47 interface mismatches caught at merge to date, 0 reached integration (H).
+  T: Generating the remaining ICD views.
+  B: none

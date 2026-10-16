@@ -1,0 +1,5 @@
+2026-11-30 Halberd
+JC (08:30)
+  Y: 55 more elements under configuration control, now 67% (A), all merged at 0/0 (E). Test & Evaluation is now gated on every merge: 4 of 7 segments (B). 4 of 7 segment owners now merge their own changes (Z). Baseline 2 is tagged: 1,320 elements (D), rebuilds identically (S). 39 orphan and 48 unverified requirements, flagged to owners (F, G).
+  T: More of Government Program Office goes under configuration control today.
+  B: none

@@ -1,0 +1,39 @@
+tome,epic,story,task,points,owner_role,sprint_hint,acceptance
+T1 Stand up MBSE DevSecOps,E1 GitLab project and gitflow,Create the group and the model project,Apply the project file with gitlab.pl setup; request a runner,1,CM engineer,1,The project exists with the settings in project.conf
+T1 Stand up MBSE DevSecOps,E1 GitLab project and gitflow,Create the group and the model project,Prove a direct push to the integration branch is refused,1,CM engineer,1,The push is rejected by the server
+T1 Stand up MBSE DevSecOps,E1 GitLab project and gitflow,Create the group and the model project,"Commit CODEOWNERS, the templates and .gitignore",1,CM engineer,1,The files are on the integration branch through a merge request
+T1 Stand up MBSE DevSecOps,E3 Team practices and onboarding,Laptops ready,Install Git for Windows and Vim; run kickoff.pl doctor (one per person),1,each engineer,1,kickoff.pl doctor shows no FAIL
+T1 Stand up MBSE DevSecOps,E3 Team practices and onboarding,Learn the tools,"Practice lessons, the survival kit, git and Vim chapters (one per person)",1.5,each engineer,1,Lessons done; questions written in the wiki
+T1 Stand up MBSE DevSecOps,E3 Team practices and onboarding,Working agreements,Write the Definition of Ready and Done in the wiki,0.5,MBSE lead,1,Both pages on the wiki
+T1 Stand up MBSE DevSecOps,E1 GitLab project and gitflow,Record the decisions,Write the week-zero decisions as ADR files under docs/adr,1.5,MBSE lead,2,docs/adr holds one file per decision
+T1 Stand up MBSE DevSecOps,E2 Pipeline and quality gates,Draft the first pipeline,"Draft .gitlab-ci.yml: grammar, lint, outline",0.5,CM engineer,1,The draft runs locally with gitlab.pl ci
+T1 Stand up MBSE DevSecOps,E2 Pipeline and quality gates,The pipeline gates every merge request,Commit the pipeline as perl ci/job.pl NAME lines; check it on the real runner,2,CM engineer,2,A pipeline runs on every merge request
+T1 Stand up MBSE DevSecOps,E2 Pipeline and quality gates,The pipeline gates every merge request,Turn on pipelines-must-succeed and the report widgets,0.5,CM engineer,2,A red pipeline blocks the merge
+T1 Stand up MBSE DevSecOps,E2 Pipeline and quality gates,Burn-down and generated docs,Add the todo and docs jobs; commit docs/,2,CM engineer,2,The todo count shows on every merge request
+T1 Stand up MBSE DevSecOps,E2 Pipeline and quality gates,Trace and secrets,Add the trace report (report only) and the secrets job,2.5,CM engineer,3,Trace measures and drift on every merge request
+T1 Stand up MBSE DevSecOps,E2 Pipeline and quality gates,The model site,Add the pages job and a nightly schedule,3,CM engineer,4,Management can read the model site without a clone
+T1 Stand up MBSE DevSecOps,E2 Pipeline and quality gates,Trace becomes a gate,Trace ratchet: fail only on new gaps,2,CM engineer,5,A merge request that adds a gap is stopped
+T1 Stand up MBSE DevSecOps,E4 Toolchain security,Runner hardening,Runner service account and hardening checklist with the security officer,2,CM engineer,3,The security officer concurs in writing
+T2 Port the v1 model to SysML v2,E5 First drop intake,Receive the first drop,Check every file against the MANIFEST sha256; open the drop issue,1.5,MBSE lead,1,Every file matches; the checklist is open
+T2 Port the v1 model to SysML v2,E5 First drop intake,Convert and assess the first drop,Run both converters with --report; write the TODO inventory,2,MBSE engineer,1,The inventory is on the wiki
+T2 Port the v1 model to SysML v2,E5 First drop intake,Import through the vendor branch,Decide the layered layout; write the layout map,1,MBSE engineer,2,The map is committed
+T2 Port the v1 model to SysML v2,E5 First drop intake,Import through the vendor branch,Import the drop onto vendor/prime; merge it to the integration branch,3,CM engineer + MBSE engineer,2,The converted model is on the integration branch
+T2 Port the v1 model to SysML v2,E6 Structure,Conventions for the part tree,Write the conventions package (level tags; procured marking),2,MBSE engineer,2,The outline check reads the level tags
+T2 Port the v1 model to SysML v2,E6 Structure,Close one structure package,Replace the level-stereotype TODO lines with level metadata,1-3,MBSE engineer,3-6,No TODO lines left in the package; the pipeline is green
+T2 Port the v1 model to SysML v2,E6 Structure,Break a package cycle,Remove the dependency that closes the cycle; raise a DR,2,any engineer,4-7,The complexity report shows one cycle fewer
+T2 Port the v1 model to SysML v2,E6 Structure,Untangle legacy clutter,Remove duplicates and unused elements from the government copy; raise a DR,2,any engineer,5,The clutter is gone from the integration branch
+T2 Port the v1 model to SysML v2,E7 Requirements and trace,Requirements into the model,Import the requirement modules; merge them,3,MBSE lead,3,The trace report runs on every change
+T2 Port the v1 model to SysML v2,E7 Requirements and trace,Discrepancy reports,Open one DR per gap the trace finds; send them through the contract channel,2,MBSE lead,4,Each gap has a DR with an owner
+T2 Port the v1 model to SysML v2,E7 Requirements and trace,Grade the requirements,Run the requirement recipe; raise a DR for weak text,2,MBSE lead,5,Findings are on the merge request widget
+T2 Port the v1 model to SysML v2,E7 Requirements and trace,The VCRM,Add the vcrm job; enter and sign the inspection verdicts,2,MBSE lead,6,The VCRM is on the model site
+T2 Port the v1 model to SysML v2,E8 Behavior,State machines by hand,Write each v1 state machine as a state def; exhibit it,3,MBSE engineer,6-7,The state machine TODO lines are gone
+T2 Port the v1 model to SysML v2,E8 Behavior,Flows by hand,"Write forks, pins and object flows the converter left as TODO",1,MBSE engineer,6,No TODO lines left in the behavior package
+T2 Port the v1 model to SysML v2,E8 Behavior,Interactions by hand,Write each v1 sequence as ordered steps,2,MBSE engineer,7,The interaction TODO lines are gone
+T2 Port the v1 model to SysML v2,E10 Baseline 1,Interim baseline,"Release branch, CCB concurrence on the merge request, tag, back-merge",2,CM engineer,6,The tag rebuilds identically in its pipeline
+T3 Maintain against the supplier's drops,E11 Drop intake automation,Deliveries from the supplier's CI,Deploy token and trigger token for the supplier; the intake job,3,CM engineer,17,A delivery arrives as a triggered pipeline
+T3 Maintain against the supplier's drops,E12 Drops,Take in one drop,"Check the MANIFEST; import onto vendor/prime; resolve conflicts; rework what the delta marks manual; update DRs",8,CM engineer + MBSE engineer,each drop,The drop is on the integration branch within the sprint
+T3 Maintain against the supplier's drops,E12 Drops,Disposition the supplier's changes,One prime-change issue per CR; the CCB dispositions each,1,MBSE lead,each drop,Every CR has a disposition label and a CCB comment
+T3 Maintain against the supplier's drops,E14 Sustainment,Platform upkeep,"Patch the runner; review tokens, members and protections",2,CM engineer,monthly,The access review is recorded
+T3 Maintain against the supplier's drops,E14 Sustainment,Backup and restore test,Restore the project export into a scratch group,2,CM engineer,quarterly,The restored project's pipeline is green
+T3 Maintain against the supplier's drops,E15 Engineering with the model,An analysis in the model,Model the analysis with notional values and a check that fails when it does not close,4,MBSE engineer,semester,The check runs in the pipeline
+T3 Maintain against the supplier's drops,E10 Baselines,A baseline,"Release branch, CCB, tag, package, release notes; the return deliverable",3,CM engineer + MBSE lead,semester,The baseline package and transmittal are recorded

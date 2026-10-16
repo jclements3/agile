@@ -1,0 +1,5 @@
+2026-12-22 Halberd
+JC (08:30)
+  Y: 38 more elements under configuration control, now 96% (A), all merged at 0/0 (E). 6 orphan and 9 unverified requirements, flagged to owners (F, G).
+  T: Bringing more of Logistics & Sustainment under the pipeline.
+  B: none

@@ -1,0 +1,123 @@
+<!doctype html><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>IDEF0 drawing set</title><style>body{font-family:IBM Plex Mono,monospace;background:#eee;margin:0}
+.plate{background:#fff;margin:10px auto;padding:6px;box-shadow:0 1px 4px #0003;
+width:max-content;max-width:calc(100vw - 20px);overflow-x:auto;scroll-margin-top:4px;
+page-break-after:always}
+.plate svg{display:block;width:auto;height:auto;max-width:calc(100vw - 34px);max-height:calc(100vh - 60px)}
+body.one2one .plate svg{max-width:none;max-height:none}
+.zoom{float:right}.zoom a{margin:0 0 0 4px}.zoom a.on{font-weight:700;color:#000;text-decoration:none;cursor:default}
+@media print{.plate svg{max-width:100%;max-height:none}}
+h1{font-size:16px;margin:18px}
+h1 svg.logo{height:22px;width:auto;color:#eee;vertical-align:-4px;margin-right:14px}
+table{border-collapse:collapse;margin:18px;background:#fff}
+td,th{border:1px solid #999;padding:3px 9px;font-size:12px}
+.p1{display:flex;flex-wrap:wrap;align-items:flex-start;gap:0 18px}.p1 table{margin-top:0}.p1 caption{text-align:left;font-weight:700;font-size:12px;padding:0 0 6px}
+a{color:#27235d}
+.nav{font-size:12px;padding:4px 8px;background:#e4e4e7;border-bottom:1px solid #ddd;
+position:sticky;left:0}
+.nav a{text-decoration:none;margin-right:4px}
+.dim{color:#999}
+details.notes{font-size:12px;max-width:640px;padding:4px 8px;background:#fdfcf2;
+border-bottom:1px solid #eee}
+details.notes p{margin:4px 0}
+.hasdoc{text-decoration:underline dotted 1.5px #6a994e;cursor:help}
+svg a text{cursor:pointer}
+svg a:hover rect{fill:#f5f9ee}
+#tip{position:fixed;display:none;z-index:9;max-width:340px;background:#fffbea;
+border:1px solid #b7a;box-shadow:2px 3px 8px #0004;padding:2px 12px;
+font-size:12.5px;line-height:1.45}
+#tip p{margin:8px 0}
+#tip code{background:#eee8d5;padding:0 3px}
+</style>
+<h1 id='top'>IDEF0 drawing set &mdash; p.1: node index and interface table</h1>
+<div class='p1'>
+<table><caption>Node index</caption><tr><th>NODE</th><th>TITLE</th><th>NUMBER</th></tr>
+<tr><td><a href='#plate-K0'>K0</a></td><td class='hasdoc' data-doc='K0'>Observe Coast</td><td><a href='#plate-K0'>p.2</a></td></tr>
+</table>
+<table><caption>Interface table</caption><tr><th>SOURCE</th><th>DEST</th><th>FLOW</th></tr>
+</table>
+</div>
+<div class='plate' id='plate-K0'>
+<div class='nav'><span class='zoom'><a href='#' class='fit on' onclick='return zoom(0)'>fit</a> &middot; <a href='#' class='one' onclick='return zoom(1)'>1:1</a></span><a href='#top'>&#8962; index</a> &middot; <span class='dim'>top plate</span> &middot; <a href='javascript:history.back()'>&#8592; back</a> &middot; <a href='javascript:history.forward()'>fwd &#8594;</a> &middot; <span class='dim'>K0 &middot; p.2</span></div>
+<details class='notes'><summary>notes: Observe Coast</summary><p>One cycle of the network: sample, send, ingest, check, archive, publish.</p></details>
+<svg xmlns="http://www.w3.org/2000/svg" width="2533" height="1246" viewBox="0 0 2533 1246" font-family="IBM Plex Mono,monospace">
+<rect width="2533" height="1246" fill="#fdfcf8"/>
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 z" fill="#222"/></marker></defs>
+<path d="M596,101 H634 Q641,101 641,108 V256 Q641,263 648,263 H704" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="645" y="182" font-size="9">Observation Record</text>
+<path d="M596,101 H634 Q641,101 641,108 V418 Q641,425 648,425 H1037" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="645" y="263" font-size="9">Observation Record</text>
+<path d="M1262,425 H1300 Q1307,425 1307,432 V580 Q1307,587 1314,587 H1370" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1311" y="506" font-size="9">Ingest Observation Record</text>
+<path d="M1595,587 H1633 Q1640,587 1640,594 V742 Q1640,749 1647,749 H1703" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1644" y="668" font-size="9">Check Observation Record</text>
+<rect x="371" y="56" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="483.5" y="80" font-size="12" text-anchor="middle" class="hasdoc" data-doc="K1">Sample Sensors</text>
+<text x="590" y="138" font-size="10" text-anchor="end" fill="#555">K1</text>
+<path d="M483,176 V146" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="487" y="174" font-size="9"><tspan>Sensor Suite</tspan></text>
+<rect x="704" y="218" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="816.5" y="242" font-size="12" text-anchor="middle" class="hasdoc" data-doc="K2">Transmit Observations</text>
+<text x="923" y="300" font-size="10" text-anchor="end" fill="#555">K2</text>
+<path d="M929,245 H969" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="973" y="242" font-size="9">Send</text>
+<path d="M816,338 V308" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="820" y="336" font-size="9"><tspan>Telemetry Unit</tspan></text>
+<rect x="1037" y="380" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="1149.5" y="404" font-size="12" text-anchor="middle" class="hasdoc" data-doc="K3">Ingest Observations</text>
+<text x="1256" y="462" font-size="10" text-anchor="end" fill="#555">K3</text>
+<path d="M1149,500 V470" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1153" y="498" font-size="9"><tspan>Ingest Service</tspan></text>
+<rect x="1370" y="542" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="1482.5" y="566" font-size="12" text-anchor="middle" class="hasdoc" data-doc="K4">Check Quality</text>
+<text x="1589" y="624" font-size="10" text-anchor="end" fill="#555">K4</text>
+<path d="M1482,662 V632" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1486" y="660" font-size="9"><tspan>Quality Control</tspan></text>
+<rect x="1703" y="704" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="1815.5" y="728" font-size="12" text-anchor="middle" class="hasdoc" data-doc="K5">Archive Observations</text>
+<text x="1922" y="786" font-size="10" text-anchor="end" fill="#555">K5</text>
+<path d="M1928,731 H1968" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1972" y="728" font-size="9">Store</text>
+<path d="M1815,824 V794" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="1819" y="822" font-size="9"><tspan>Archive</tspan></text>
+<rect x="2036" y="866" width="225" height="90" fill="#fff" stroke="#222" stroke-width="1.6"/>
+<text x="2148.5" y="890" font-size="12" text-anchor="middle" class="hasdoc" data-doc="K6">Publish Bulletin</text>
+<text x="2255" y="948" font-size="10" text-anchor="end" fill="#555">K6</text>
+<path d="M2261,893 H2301" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="2305" y="890" font-size="9">Bulletin</text>
+<path d="M2148,986 V956" fill="none" stroke="#222" stroke-width="1.1" marker-end="url(#arr)"/>
+<text x="2152" y="984" font-size="9"><tspan>Bulletin Publisher</tspan></text>
+<rect x="0" y="1192" width="2533" height="54" fill="#fff" stroke="#222"/>
+<line x1="99" y1="1192" x2="99" y2="1246" stroke="#222"/>
+<line x1="2434" y1="1192" x2="2434" y2="1246" stroke="#222"/>
+<text x="10" y="1208" font-size="10">NODE</text>
+<text x="10" y="1228" font-size="12">K0</text>
+<text x="110" y="1208" font-size="10">TITLE</text>
+<text x="110" y="1228" font-size="12" class="hasdoc" data-doc="K0">Observe Coast</text>
+<text x="2444" y="1208" font-size="10">NUMBER</text>
+<text x="2444" y="1228" font-size="12">p.2</text>
+</svg>
+</div>
+<div id='tip'></div><script>const DOCS={"K0": "<p>One cycle of the network: sample, send, ingest, check, archive, publish.<\/p>", "K1": "<p>Read every sensor and timestamp the readings.<\/p>", "K2": "<p>Send the buffered records; keep them if the link is down.<\/p>", "K3": "<p>Receive records and discard duplicates.<\/p>", "K4": "<p>Range, step and consistency checks; set the flag and the reason.<\/p>", "K5": "<p>Store each record with its flag.<\/p>", "K6": "<p>Write the bulletin from the latest good observations and publish it.<\/p>"};
+function zoom(one){document.body.classList.toggle('one2one',!!one);
+ document.querySelectorAll('.zoom a').forEach(a=>a.classList.toggle('on',a.classList.contains(one?'one':'fit')));
+ try{localStorage.setItem('idef0-zoom',one?'1':'0');}catch(e){}return false;}
+try{if(localStorage.getItem('idef0-zoom')==='1')zoom(1);}catch(e){}
+const tip=document.getElementById('tip');
+let pin=null;
+function show(k,x,y){tip.innerHTML=DOCS[k]||'';tip.style.display='block';
+ const r=tip.getBoundingClientRect();
+ x=Math.min(x+14,innerWidth-r.width-8);y=Math.min(y+16,innerHeight-r.height-8);
+ tip.style.left=Math.max(4,x)+'px';tip.style.top=Math.max(4,y)+'px';}
+function hide(){tip.style.display='none';pin=null;}
+const canHover=matchMedia('(hover:hover)').matches;
+document.addEventListener('mousemove',e=>{if(!canHover||pin)return;
+ const t=e.target.closest?e.target.closest('.hasdoc'):null;
+ if(t)show(t.dataset.doc,e.clientX,e.clientY);else hide();});
+document.addEventListener('click',e=>{
+ const t=e.target.closest?e.target.closest('.hasdoc'):null;
+ if(t&&!t.closest('a')){
+  if(pin===t.dataset.doc){hide();}
+  else{pin=t.dataset.doc;show(pin,e.clientX,e.clientY);}
+  e.stopPropagation();}
+ else if(!e.target.closest('#tip'))hide();});
+</script>

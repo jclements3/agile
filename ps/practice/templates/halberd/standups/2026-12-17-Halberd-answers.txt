@@ -1,0 +1,5 @@
+2026-12-17 Halberd
+JC (08:30)
+  Y: 32 more elements under configuration control, now 91% (A), all merged at 0/0 (E). The gate broke on a parser update and was restored in 2 hours (W). ICD views regenerate in 6 minutes (K).
+  T: Bringing more of Logistics & Sustainment under the pipeline.
+  B: none

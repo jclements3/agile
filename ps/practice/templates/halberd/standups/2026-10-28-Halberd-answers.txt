@@ -1,0 +1,5 @@
+2026-10-28 Halberd
+JC (08:30)
+  Y: 40 more elements under configuration control, now 28% (A), all merged at 0/0 (E). 13 interface mismatches caught at merge to date, 0 reached integration (H).
+  T: More of Interceptor Development goes under configuration control today.
+  B: none

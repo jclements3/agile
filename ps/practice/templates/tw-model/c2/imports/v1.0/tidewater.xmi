@@ -1,0 +1,1195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Tidewater prime drop v1.0 (2026-10-02) -->
+<!-- Tidewater: a notional coastal weather-observation network, written by sim/tidewater-v1.pl in the shape of a
+     Cameo Systems Modeler 2022x export (Eclipse UML2 5.x XMI). Fictional; every value is notional. -->
+<xmi:XMI xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.omg.org/spec/UML/20131001"
+         xmlns:sysml="http://www.omg.org/spec/SysML/20181001/SysML"
+         xmlns:MD_Customization_for_Requirements__additional_stereotypes="http://www.magicdraw.com/spec/Customization/190/Requirements"
+         xmlns:Tidewater_Profile="http://example.com/profiles/Tidewater">
+  <xmi:Documentation><xmi:exporter>MagicDraw UML</xmi:exporter><xmi:exporterVersion>2022x</xmi:exporterVersion></xmi:Documentation>
+  <uml:Model xmi:type="uml:Model" xmi:id="_22_1_7f3a0c1_20f35e630daf" name="Tidewater">
+    <packageImport xmi:type="uml:PackageImport" xmi:id="_22_1_7f3a0c1_4555e606cfe2"><importedPackage href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#_0"/></packageImport>
+    <profileApplication xmi:type="uml:ProfileApplication" xmi:id="_22_1_7f3a0c1_e305f15fccf3"><appliedProfile xmi:idref="_22_1_7f3a0c1_7d97481b1fe6"/></profileApplication>
+    <packagedElement xmi:type="uml:Profile" xmi:id="_22_1_7f3a0c1_7d97481b1fe6" name="Tidewater Profile">
+      <packagedElement xmi:type="uml:Stereotype" xmi:id="_22_1_7f3a0c1_b0f7d47a260c" name="L1Network"/>
+      <packagedElement xmi:type="uml:Stereotype" xmi:id="_22_1_7f3a0c1_72f486eaa882" name="L2Segment"/>
+      <packagedElement xmi:type="uml:Stereotype" xmi:id="_22_1_7f3a0c1_80996f87238c" name="L3Station"/>
+      <packagedElement xmi:type="uml:Stereotype" xmi:id="_22_1_7f3a0c1_5d2c8c0fbc6d" name="L4Subsystem"/>
+      <packagedElement xmi:type="uml:Stereotype" xmi:id="_22_1_7f3a0c1_c3d6dd104113" name="L5Assembly"/>
+      <packagedElement xmi:type="uml:Stereotype" xmi:id="_22_1_7f3a0c1_75b11776dc43" name="L6Component"/>
+      <packagedElement xmi:type="uml:Stereotype" xmi:id="_22_1_7f3a0c1_82dffdbddc17" name="Procured"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_241e764c09ce" name="Types">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_6ea4fcf15c7b" body="Value types and units used across the network.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_241e764c09ce"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:DataType" xmi:id="_22_1_7f3a0c1_dd4fe0cc913f" name="Power">
+        <generalization xmi:type="uml:Generalization" xmi:id="_22_1_7f3a0c1_8bbea6b88455"><general href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Real"/></generalization>
+      </packagedElement>
+      <packagedElement xmi:type="uml:DataType" xmi:id="_22_1_7f3a0c1_5cc28f31113e" name="Energy">
+        <generalization xmi:type="uml:Generalization" xmi:id="_22_1_7f3a0c1_4bf21ef60381"><general href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Real"/></generalization>
+      </packagedElement>
+      <packagedElement xmi:type="uml:DataType" xmi:id="_22_1_7f3a0c1_37be07209f53" name="Percentage">
+        <generalization xmi:type="uml:Generalization" xmi:id="_22_1_7f3a0c1_30222d4d3ad9"><general href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Real"/></generalization>
+      </packagedElement>
+      <packagedElement xmi:type="uml:InstanceSpecification" xmi:id="_22_1_7f3a0c1_635c3454811f" name="watt"/>
+      <packagedElement xmi:type="uml:InstanceSpecification" xmi:id="_22_1_7f3a0c1_6f4c2f1b2938" name="watt hour"/>
+      <packagedElement xmi:type="uml:InstanceSpecification" xmi:id="_22_1_7f3a0c1_57eac3b61581" name="percent"/>
+      <packagedElement xmi:type="uml:Enumeration" xmi:id="_22_1_7f3a0c1_a30afa651e03" name="StationMode">
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_22_1_7f3a0c1_510faf9001a3" name="observing"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_22_1_7f3a0c1_6eaf8986a1c2" name="degraded"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_22_1_7f3a0c1_09985dfa1869" name="maintenance"/>
+        <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="_22_1_7f3a0c1_2b8ff3e7d3ef" name="recovered"/>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_c6a15c4e4ea4" name="Interfaces">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_880835523e34" body="What crosses each segment boundary: interface blocks with flow properties, and the signals they carry.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_c6a15c4e4ea4"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:Signal" xmi:id="_22_1_7f3a0c1_fa5333dcddff" name="ObservationRecord">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_3bab0224f4f1" body="One timed set of measurements from one station.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_fa5333dcddff"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_2fbe36e597dc" name="stationId"><type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#String"/></ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_f5c9a7ed9389" name="observedAt"><type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#String"/></ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_4616f77375e7" name="qualityFlag"><type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Integer"/></ownedAttribute>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Signal" xmi:id="_22_1_7f3a0c1_94f3dbe1ae67" name="HealthReport">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_f493868913b8" body="Battery, mode and fault state of one station.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_94f3dbe1ae67"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_24738d1bd26a" name="stationId"><type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#String"/></ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_4d6c5bd3657c" name="stateOfCharge"><type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Real"/></ownedAttribute>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Signal" xmi:id="_22_1_7f3a0c1_98326bceadb8" name="Bulletin">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_f33480b9e206" body="The published marine bulletin.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_98326bceadb8"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_83e5e98d1a47" name="issuedAt"><type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#String"/></ownedAttribute>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_daa6a5934e2c" name="ObservationIF">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_4e7ea0b13dfb" body="Observations from a station to the data center.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_daa6a5934e2c"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_583159b7c40b" name="observation" type="_22_1_7f3a0c1_fa5333dcddff"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_bb41b49a0c86" name="HealthIF">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_ca3cc2207071" body="Health reports from a station to the data center.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_bb41b49a0c86"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_d1f6bcef67e7" name="health" type="_22_1_7f3a0c1_94f3dbe1ae67"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_630e0a71c8a0" name="PublicIF">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_3141a8915e81" body="Bulletins and latest observations to the public.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_630e0a71c8a0"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_3bfaa55eeaea" name="bulletin" type="_22_1_7f3a0c1_98326bceadb8"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_e734f3eca670" name="latest" type="_22_1_7f3a0c1_fa5333dcddff"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_dba6f2e0627e" name="PowerIF">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_fc1d21a9a46f" body="DC power between the power system and its loads.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_dba6f2e0627e"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_aad32c7af105" name="supply" type="_22_1_7f3a0c1_dd4fe0cc913f"/>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_d90581a23d20" name="Network">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_d845d87891c5" body="The observation network as a whole, its users and what they do with it.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_d90581a23d20"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_92fe4694a169" name="ObservationNetwork">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_0d3f69797f0b" body="Every station, the data center and the field crew that keeps them running.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_92fe4694a169"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_8bb8c0b5026e" name="stations" type="_22_1_7f3a0c1_22783eed5a67" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_af9f5cca66e3" name="dataCenter" type="_22_1_7f3a0c1_ba6ead208aa5" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_1f26ac91943c" name="operations" type="_22_1_7f3a0c1_3f2f6c9d9b1f" aggregation="composite"/>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_cbb4849853ab" name="observationLink">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_4135f56e77bd" role="_22_1_7f3a0c1_b00f88e886fb" partWithPort="_22_1_7f3a0c1_8bb8c0b5026e"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_91fe98726f5c" role="_22_1_7f3a0c1_d13e50a4133a" partWithPort="_22_1_7f3a0c1_af9f5cca66e3"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_7ba33dff7ded" name="healthLink">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_ed48d96fa8bc" role="_22_1_7f3a0c1_cc8fbd16438e" partWithPort="_22_1_7f3a0c1_8bb8c0b5026e"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_a69252bf4627" role="_22_1_7f3a0c1_1c0f0650a68e" partWithPort="_22_1_7f3a0c1_af9f5cca66e3"/>
+        </ownedConnector>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_623582073999" name="NetworkContext">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_723574ade08c" body="The network among the people who use and service it.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_623582073999"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_4058bd1da1c2" name="network" type="_22_1_7f3a0c1_92fe4694a169" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_3e843fd9f859" name="forecaster" type="_22_1_7f3a0c1_1a8c16d4a662"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_6b990dafad0f" name="mariner" type="_22_1_7f3a0c1_de4bd95ab898"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_a4975a41aacc" name="technician" type="_22_1_7f3a0c1_f08343fd09a9"/>
+        <ownedBehavior xmi:type="uml:Interaction" xmi:id="_22_1_7f3a0c1_db6d13407a41" name="DailyUpload">
+          <lifeline xmi:type="uml:Lifeline" xmi:id="_22_1_7f3a0c1_ae717f74fa95" name="buoy" represents="_22_1_7f3a0c1_a21fae7e61e9"/>
+          <lifeline xmi:type="uml:Lifeline" xmi:id="_22_1_7f3a0c1_3bdf1aa4b6b2" name="ingest" represents="_22_1_7f3a0c1_1899b5cdd13d"/>
+          <lifeline xmi:type="uml:Lifeline" xmi:id="_22_1_7f3a0c1_1dc1d9bba934" name="forecaster" represents="_22_1_7f3a0c1_3e843fd9f859"/>
+          <message xmi:type="uml:Message" xmi:id="_22_1_7f3a0c1_b0e0d7784703" name="sendObservations" messageSort="asynchSignal" sendEvent="_22_1_7f3a0c1_729cae266bd8" receiveEvent="_22_1_7f3a0c1_c651db5e8f0f"/>
+          <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_22_1_7f3a0c1_729cae266bd8" covered="_22_1_7f3a0c1_ae717f74fa95" message="_22_1_7f3a0c1_b0e0d7784703"/>
+          <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_22_1_7f3a0c1_c651db5e8f0f" covered="_22_1_7f3a0c1_3bdf1aa4b6b2" message="_22_1_7f3a0c1_b0e0d7784703"/>
+          <message xmi:type="uml:Message" xmi:id="_22_1_7f3a0c1_f3406b8212c3" name="acknowledge" messageSort="asynchSignal" sendEvent="_22_1_7f3a0c1_927c9d33b928" receiveEvent="_22_1_7f3a0c1_5fa1274a94e7"/>
+          <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_22_1_7f3a0c1_927c9d33b928" covered="_22_1_7f3a0c1_3bdf1aa4b6b2" message="_22_1_7f3a0c1_f3406b8212c3"/>
+          <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_22_1_7f3a0c1_5fa1274a94e7" covered="_22_1_7f3a0c1_ae717f74fa95" message="_22_1_7f3a0c1_f3406b8212c3"/>
+          <message xmi:type="uml:Message" xmi:id="_22_1_7f3a0c1_459dfe33948f" name="notifyNewData" messageSort="asynchSignal" sendEvent="_22_1_7f3a0c1_b4b2421dc903" receiveEvent="_22_1_7f3a0c1_516dadff96ee"/>
+          <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_22_1_7f3a0c1_b4b2421dc903" covered="_22_1_7f3a0c1_3bdf1aa4b6b2" message="_22_1_7f3a0c1_459dfe33948f"/>
+          <fragment xmi:type="uml:MessageOccurrenceSpecification" xmi:id="_22_1_7f3a0c1_516dadff96ee" covered="_22_1_7f3a0c1_1dc1d9bba934" message="_22_1_7f3a0c1_459dfe33948f"/>
+        </ownedBehavior>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Actor" xmi:id="_22_1_7f3a0c1_1a8c16d4a662" name="Forecaster">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_adcfc8cf1f8d" body="Writes forecasts from the observations.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_1a8c16d4a662"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Actor" xmi:id="_22_1_7f3a0c1_de4bd95ab898" name="Mariner">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_ef2f676a3809" body="Reads the bulletin before going out.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_de4bd95ab898"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Actor" xmi:id="_22_1_7f3a0c1_f08343fd09a9" name="Technician">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_982e8d145090" body="Services stations from the vessel.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_f08343fd09a9"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="_22_1_7f3a0c1_401578123aed" name="ReadBulletin" subject="_22_1_7f3a0c1_92fe4694a169">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_208668a26c7e" body="A mariner reads the latest bulletin.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_401578123aed"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="_22_1_7f3a0c1_a6d90aa847f9" name="ReviewObservations" subject="_22_1_7f3a0c1_92fe4694a169">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_100822874400" body="A forecaster reviews recent and past observations.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_a6d90aa847f9"/>
+        </ownedComment>
+        <include xmi:type="uml:Include" xmi:id="_22_1_7f3a0c1_08793d6918c3" addition="_22_1_7f3a0c1_f4995fd7d455"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="_22_1_7f3a0c1_f4995fd7d455" name="QueryArchive" subject="_22_1_7f3a0c1_92fe4694a169">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_0119f2972981" body="Look up observations by station and time.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_f4995fd7d455"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:UseCase" xmi:id="_22_1_7f3a0c1_89b42af7e7e9" name="ServiceStation" subject="_22_1_7f3a0c1_92fe4694a169">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_26c4713c4c6a" body="A technician visits, inspects and repairs a station.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_89b42af7e7e9"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="_22_1_7f3a0c1_a5de6030f964" memberEnd="_22_1_7f3a0c1_016d4de6e460 _22_1_7f3a0c1_2caf2aa68492">
+        <ownedEnd xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_016d4de6e460" type="_22_1_7f3a0c1_de4bd95ab898" association="_22_1_7f3a0c1_a5de6030f964"/>
+        <ownedEnd xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_2caf2aa68492" type="_22_1_7f3a0c1_401578123aed" association="_22_1_7f3a0c1_a5de6030f964"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="_22_1_7f3a0c1_a306fa499a08" memberEnd="_22_1_7f3a0c1_2978f90fb240 _22_1_7f3a0c1_beb8b91684dc">
+        <ownedEnd xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_2978f90fb240" type="_22_1_7f3a0c1_1a8c16d4a662" association="_22_1_7f3a0c1_a306fa499a08"/>
+        <ownedEnd xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_beb8b91684dc" type="_22_1_7f3a0c1_a6d90aa847f9" association="_22_1_7f3a0c1_a306fa499a08"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Association" xmi:id="_22_1_7f3a0c1_168ed46329e3" memberEnd="_22_1_7f3a0c1_faf6f4050101 _22_1_7f3a0c1_94cdd387653b">
+        <ownedEnd xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_faf6f4050101" type="_22_1_7f3a0c1_f08343fd09a9" association="_22_1_7f3a0c1_168ed46329e3"/>
+        <ownedEnd xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_94cdd387653b" type="_22_1_7f3a0c1_89b42af7e7e9" association="_22_1_7f3a0c1_168ed46329e3"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Dependency" xmi:id="_22_1_7f3a0c1_7779de0bd06e" client="_22_1_7f3a0c1_92fe4694a169" supplier="_22_1_7f3a0c1_9c37129402ac"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_377d6f004244" name="Stations">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_2be33746e8ba" body="Everything that goes out to a site: moored buoys and shore stations.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_377d6f004244"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_22783eed5a67" name="StationSegment">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_61777e7b0aaf" body="All the observing stations of the network.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_22783eed5a67"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_a21fae7e61e9" name="buoys" type="_22_1_7f3a0c1_0fc1e102b809" aggregation="composite">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_22_1_7f3a0c1_8fc41481cb82" value="1"/>
+          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_22_1_7f3a0c1_acfc968b3463" value="*"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_d73212160d48" name="shoreStations" type="_22_1_7f3a0c1_26811af874d9" aggregation="composite">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_22_1_7f3a0c1_57149a485779" value="1"/>
+          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_22_1_7f3a0c1_d310393dbd09" value="*"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_b00f88e886fb" name="obsOut" aggregation="composite" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_cc8fbd16438e" name="healthOut" aggregation="composite" type="_22_1_7f3a0c1_bb41b49a0c86"/>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_b6b2d0d528b3">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_56da61319eca" role="_22_1_7f3a0c1_b00f88e886fb"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_ab85119de805" role="_22_1_7f3a0c1_034fdaefcc6a" partWithPort="_22_1_7f3a0c1_a21fae7e61e9"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_cae6a2330ea3">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_b5bc6674652b" role="_22_1_7f3a0c1_b00f88e886fb"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_b0b3078f8d18" role="_22_1_7f3a0c1_034fdaefcc6a" partWithPort="_22_1_7f3a0c1_d73212160d48"/>
+        </ownedConnector>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_c8dfa258b43b" name="ObservingStation" isAbstract="true">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_5918c0ac596d" body="What every station has: sensors, a logger, telemetry and the two outgoing ports.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_c8dfa258b43b"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_0eb28272aab6" name="sensors" type="_22_1_7f3a0c1_6fd0bcde26f7" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_6d6513ae97bc" name="logger" type="_22_1_7f3a0c1_29ec9807adf0" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_e63735811387" name="telemetry" type="_22_1_7f3a0c1_ad49c29550c9" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_74483969ebf6" name="stationId">
+          <type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#String"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_034fdaefcc6a" name="obsOut" aggregation="composite" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_35b7724df8d1" name="healthOut" aggregation="composite" type="_22_1_7f3a0c1_bb41b49a0c86"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_681a51385f26" name="mode" aggregation="composite" type="_22_1_7f3a0c1_a30afa651e03"/>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_37d6e7a8f2d4" name="toLogger">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_4510066ac251" role="_22_1_7f3a0c1_98927f06a08c" partWithPort="_22_1_7f3a0c1_0eb28272aab6"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_0686b4857bff" role="_22_1_7f3a0c1_15c8a94dc4c4" partWithPort="_22_1_7f3a0c1_6d6513ae97bc"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_fb948fe9330b" name="toTelemetry">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_3bec5311749f" role="_22_1_7f3a0c1_32929fc594f0" partWithPort="_22_1_7f3a0c1_6d6513ae97bc"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_52aae4043c12" role="_22_1_7f3a0c1_02920094c732" partWithPort="_22_1_7f3a0c1_e63735811387"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_9e61c6898a8f">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_30392f9d40b1" role="_22_1_7f3a0c1_09b78bf2ad31" partWithPort="_22_1_7f3a0c1_e63735811387"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_292eceabc2ae" role="_22_1_7f3a0c1_034fdaefcc6a"/>
+        </ownedConnector>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_0fc1e102b809" name="MooredBuoy">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_571c49592554" body="An offshore station on a mooring, powered by its own solar panel.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_0fc1e102b809"/>
+        </ownedComment>
+        <generalization xmi:type="uml:Generalization" xmi:id="_22_1_7f3a0c1_c6dde00a2c86" general="_22_1_7f3a0c1_c8dfa258b43b"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_f9196c78d52e" name="hull" type="_22_1_7f3a0c1_63b0fc998685" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_f89b77b42989" name="mooring" type="_22_1_7f3a0c1_d2e5dad2b4a9" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_cadf90df27b9" name="power" type="_22_1_7f3a0c1_53498550400d" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_c97fc9c6fd3c" name="waveSensor" type="_22_1_7f3a0c1_87d4a80559d6" aggregation="composite"/>
+        <ownedBehavior xmi:type="uml:StateMachine" xmi:id="_22_1_7f3a0c1_7a13eb20b93a" name="BuoyModes">
+          <region xmi:type="uml:Region" xmi:id="_22_1_7f3a0c1_f5b2c26f3e15">
+            <subvertex xmi:type="uml:Pseudostate" xmi:id="_22_1_7f3a0c1_5c26d0884fcc" kind="initial"/>
+            <subvertex xmi:type="uml:State" xmi:id="_22_1_7f3a0c1_9a1f982f3529" name="Observing"/>
+            <subvertex xmi:type="uml:State" xmi:id="_22_1_7f3a0c1_239bb5b533d5" name="Degraded"/>
+            <subvertex xmi:type="uml:State" xmi:id="_22_1_7f3a0c1_085b57f4bd53" name="Maintenance"/>
+            <subvertex xmi:type="uml:State" xmi:id="_22_1_7f3a0c1_90f9eb5f51cd" name="Recovered"/>
+            <transition xmi:type="uml:Transition" xmi:id="_22_1_7f3a0c1_3ac7dba8cf09" source="_22_1_7f3a0c1_5c26d0884fcc" target="_22_1_7f3a0c1_9a1f982f3529"/>
+            <transition xmi:type="uml:Transition" xmi:id="_22_1_7f3a0c1_18494c86076e" source="_22_1_7f3a0c1_9a1f982f3529" target="_22_1_7f3a0c1_239bb5b533d5">
+              <trigger xmi:type="uml:Trigger" xmi:id="_22_1_7f3a0c1_914894f45b79" name="lowBattery"/>
+            </transition>
+            <transition xmi:type="uml:Transition" xmi:id="_22_1_7f3a0c1_ffbafb629d95" source="_22_1_7f3a0c1_239bb5b533d5" target="_22_1_7f3a0c1_9a1f982f3529">
+              <trigger xmi:type="uml:Trigger" xmi:id="_22_1_7f3a0c1_f7de241dcfd0" name="charged"/>
+            </transition>
+            <transition xmi:type="uml:Transition" xmi:id="_22_1_7f3a0c1_7ba773be01e6" source="_22_1_7f3a0c1_9a1f982f3529" target="_22_1_7f3a0c1_085b57f4bd53">
+              <trigger xmi:type="uml:Trigger" xmi:id="_22_1_7f3a0c1_042ecdab7487" name="crewOnSite"/>
+            </transition>
+            <transition xmi:type="uml:Transition" xmi:id="_22_1_7f3a0c1_d0fb7b7514a3" source="_22_1_7f3a0c1_239bb5b533d5" target="_22_1_7f3a0c1_085b57f4bd53">
+              <trigger xmi:type="uml:Trigger" xmi:id="_22_1_7f3a0c1_66acf0ced679" name="crewOnSite"/>
+            </transition>
+            <transition xmi:type="uml:Transition" xmi:id="_22_1_7f3a0c1_e4fcee824aee" source="_22_1_7f3a0c1_085b57f4bd53" target="_22_1_7f3a0c1_9a1f982f3529">
+              <trigger xmi:type="uml:Trigger" xmi:id="_22_1_7f3a0c1_394a0a86571a" name="crewDeparts"/>
+            </transition>
+            <transition xmi:type="uml:Transition" xmi:id="_22_1_7f3a0c1_29753e3cc9fb" source="_22_1_7f3a0c1_085b57f4bd53" target="_22_1_7f3a0c1_90f9eb5f51cd">
+              <trigger xmi:type="uml:Trigger" xmi:id="_22_1_7f3a0c1_82a0ba8b2a36" name="liftedAboard"/>
+            </transition>
+          </region>
+        </ownedBehavior>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_26811af874d9" name="ShoreStation">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_b1d1448b3b6c" body="A station on a mast at the shore, on mains power.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_26811af874d9"/>
+        </ownedComment>
+        <generalization xmi:type="uml:Generalization" xmi:id="_22_1_7f3a0c1_cfc7e4c94a95" general="_22_1_7f3a0c1_c8dfa258b43b"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_fe75a493c9a7" name="mast" type="_22_1_7f3a0c1_765de9cc4106" aggregation="composite"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_53498550400d" name="PowerSystem">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_921711e73920" body="Solar generation, storage and regulation for a buoy.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_53498550400d"/>
+        </ownedComment>
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_3548f92cb7a1" body="Per SSDD section 4.3 the power budget is TBD pending the 2024 trade study. Do not change without CCB approval.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_53498550400d"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_2771a9d8cf7b" name="solar" type="_22_1_7f3a0c1_a89dbce342d7" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_51a315531793" name="battery" type="_22_1_7f3a0c1_d67c92867cc3" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_d231adcf987f" name="regulator" type="_22_1_7f3a0c1_810fe6f71337" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_e44e17097b9a" name="averageLoad" type="_22_1_7f3a0c1_dd4fe0cc913f">
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_8528ad993ca6" name="supplyOut" aggregation="composite" type="_22_1_7f3a0c1_dba6f2e0627e"/>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_a6c9a8c0e288" name="charge">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_cee6f801c4c6" role="_22_1_7f3a0c1_911b930881e1" partWithPort="_22_1_7f3a0c1_2771a9d8cf7b"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_62854d7cfb05" role="_22_1_7f3a0c1_e98396655451" partWithPort="_22_1_7f3a0c1_d231adcf987f"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_e2db4e77c935" name="store">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_881813205d72" role="_22_1_7f3a0c1_e1c02e368b11" partWithPort="_22_1_7f3a0c1_d231adcf987f"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_7c0e53111d5f" role="_22_1_7f3a0c1_14f943ca7db5" partWithPort="_22_1_7f3a0c1_51a315531793"/>
+        </ownedConnector>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_3c4cba40b26f" name="balance" type="_22_1_7f3a0c1_7e64fce5fb55" aggregation="composite"/>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_f44f1356fb30">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_99dff3eff169" role="_22_1_7f3a0c1_29ff7bff35a9" partWithPort="_22_1_7f3a0c1_3c4cba40b26f"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_8e7601830617" role="_22_1_7f3a0c1_8190460a888e" partWithPort="_22_1_7f3a0c1_2771a9d8cf7b"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_cffcb806a540">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_4764abe1f19a" role="_22_1_7f3a0c1_0a9f9324fe1c" partWithPort="_22_1_7f3a0c1_3c4cba40b26f"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_833ea87e6f2b" role="_22_1_7f3a0c1_21acb2210828" partWithPort="_22_1_7f3a0c1_51a315531793"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_5a3f64f4ba10">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_af2d1c25ab77" role="_22_1_7f3a0c1_db8955716d27" partWithPort="_22_1_7f3a0c1_3c4cba40b26f"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_1575bf94522a" role="_22_1_7f3a0c1_e44e17097b9a"/>
+        </ownedConnector>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_6fd0bcde26f7" name="SensorSuite">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_cb5fa524b9de" body="The meteorological sensors common to every station.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_6fd0bcde26f7"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_4c0133cecb66" name="anemometer" type="_22_1_7f3a0c1_825439797502" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_5a3d129bdc8f" name="barometer" type="_22_1_7f3a0c1_601645450814" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_8bcc36adde16" name="thermometer" type="_22_1_7f3a0c1_d9cb7b5497a3" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_98927f06a08c" name="dataOut" aggregation="composite">
+          <type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#String"/>
+        </ownedAttribute>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_29ec9807adf0" name="DataLogger">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_6af4dd9afe1c" body="Timestamps and stores observations until they are sent.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_29ec9807adf0"/>
+        </ownedComment>
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_64cd7791788c" body="Per SRS rev C para 3.2.1 the logger shall buffer observations while the link is down (see ICD-004 Table 7, TBR). Copied from the SRS 2023-11 baseline.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_29ec9807adf0"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_5d8e7fcbcc51" name="bufferedRecords">
+          <type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#Integer"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_15c8a94dc4c4" name="dataIn" aggregation="composite">
+          <type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#String"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_32929fc594f0" name="uplink" aggregation="composite" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_ad49c29550c9" name="TelemetryUnit">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_bf27a20a9c08" body="Sends observations and health over the cellular or satellite link.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_ad49c29550c9"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_543257e5ed7b" name="modem" type="_22_1_7f3a0c1_c9e3acf12422" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_fdd56e5e1bdb" name="antenna" type="_22_1_7f3a0c1_7b5449bd8435" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_02920094c732" name="dataIn" aggregation="composite" isConjugated="true" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_09b78bf2ad31" name="obsOut" aggregation="composite" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_63b0fc998685" name="Hull">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_6ff3d17de555" body="The floating body that carries everything else.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_63b0fc998685"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_255d9934db0e" name="mastFrame" type="_22_1_7f3a0c1_b46fca77f554" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_1da3859a543b" name="ballast" type="_22_1_7f3a0c1_b2db9418282d" aggregation="composite"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_d2e5dad2b4a9" name="Mooring">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_d50611c91e51" body="Holds the buoy on station.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_d2e5dad2b4a9"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_393d713ec2b9" name="chain" type="_22_1_7f3a0c1_f9a63dce7cae" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_d1dba85bc4d1" name="anchor" type="_22_1_7f3a0c1_a34285645af2" aggregation="composite"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_765de9cc4106" name="Mast">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_2aae72e2f1fe" body="Holds the shore sensors at height.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_765de9cc4106"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_a89dbce342d7" name="SolarPanel">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_fd71123c374d" body="Generates power.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_a89dbce342d7"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_8190460a888e" name="ratedPower" type="_22_1_7f3a0c1_dd4fe0cc913f">
+          <defaultValue xmi:type="uml:LiteralReal" xmi:id="_22_1_7f3a0c1_06d6ee446155" value="40"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_911b930881e1" name="out" aggregation="composite" type="_22_1_7f3a0c1_dba6f2e0627e"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_d67c92867cc3" name="Battery">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_aeb9d3098cdf" body="Stores power for night and cloud.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_d67c92867cc3"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_0f8622ff4bbc" name="cells" type="_22_1_7f3a0c1_1a66ab62bfc8" aggregation="composite">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_22_1_7f3a0c1_2702d62d85ca" value="4"/>
+          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_22_1_7f3a0c1_858055cbfd91" value="4"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_21acb2210828" name="capacity" type="_22_1_7f3a0c1_5cc28f31113e">
+          <defaultValue xmi:type="uml:LiteralReal" xmi:id="_22_1_7f3a0c1_8517a19976b4" value="400"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_b12c7b1839fb" name="stateOfCharge" type="_22_1_7f3a0c1_37be07209f53">
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_14f943ca7db5" name="terminal" aggregation="composite" isConjugated="true" type="_22_1_7f3a0c1_dba6f2e0627e"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_810fe6f71337" name="ChargeRegulator">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_594fc47c5605" body="Keeps the battery within its charge limits.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_810fe6f71337"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_e98396655451" name="in" aggregation="composite" isConjugated="true" type="_22_1_7f3a0c1_dba6f2e0627e"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_e1c02e368b11" name="toBattery" aggregation="composite" type="_22_1_7f3a0c1_dba6f2e0627e"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_825439797502" name="Anemometer">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_5ee26adf89d9" body="Wind speed and direction.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_825439797502"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_601645450814" name="Barometer">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_2199c1cce0cc" body="Air pressure.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_601645450814"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_d9cb7b5497a3" name="Thermometer">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_c49ce90c45ad" body="Air temperature.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_d9cb7b5497a3"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_87d4a80559d6" name="WaveSensor">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_287eca83d253" body="Wave height and period, from motion.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_87d4a80559d6"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_c9e3acf12422" name="Modem">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_8075b02dca9d" body="The radio link.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_c9e3acf12422"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_7b5449bd8435" name="Antenna">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_b3207ed13678" body="The radio antenna.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_7b5449bd8435"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_b46fca77f554" name="SensorMast">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_32ac4eaf5097" body="The frame on the hull that carries the sensors.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_b46fca77f554"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_b2db9418282d" name="Ballast">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_30f7ecc66f91" body="Keeps the hull upright.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_b2db9418282d"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_f9a63dce7cae" name="MooringChain">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_37dbe3e2b0f0" body="Chain between hull and anchor.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_f9a63dce7cae"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_a34285645af2" name="Anchor">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_f826f265acaf" body="Holds the mooring to the seabed.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_a34285645af2"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_1a66ab62bfc8" name="Cell">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_948f41a5ccb9" body="One battery cell.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_1a66ab62bfc8"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_430a69e41cc6" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_dd757905a7cc"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_208d85f9df47" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_b36bb4f6cff9"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_78c8adcd9495" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_669f971ffa64"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_81264f56578b" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_d72c631fe423"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_2312bbb1b942" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_70913ac715f2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_9df7fe236be5" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_343cca00ef32"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_e72673b0ece6" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_ebda5f95d8df"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_39a4cc05c41f" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_695ea251e1c2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_07232c58ebbe" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_62a45c1ecac4"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_f36ec3eea892" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_af06d7105f08"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_11ab0d6c813e" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_f832863d9d67"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_3ee308506dac" client="_22_1_7f3a0c1_29ec9807adf0" supplier="_22_1_7f3a0c1_e29307bc6976"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_f7bffc0d5e24" name="Analysis">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_0099cef4e300" body="Constraint blocks used in parametric diagrams.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_f7bffc0d5e24"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_7e64fce5fb55" name="EnergyBalance">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_4f7fd17dd4f8" body="Daily energy in must cover daily energy out, with the battery as the buffer.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_7e64fce5fb55"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_29ff7bff35a9" name="generation" type="_22_1_7f3a0c1_dd4fe0cc913f"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_0a9f9324fe1c" name="storage" type="_22_1_7f3a0c1_5cc28f31113e"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_db8955716d27" name="load" type="_22_1_7f3a0c1_dd4fe0cc913f"/>
+        <ownedRule xmi:type="uml:Constraint" xmi:id="_22_1_7f3a0c1_f2cac788664a" name="balance">
+          <specification xmi:type="uml:OpaqueExpression" xmi:id="_22_1_7f3a0c1_0381e445303d"><body>generation * sunHours &gt;= load * 24</body><language>English</language></specification>
+        </ownedRule>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_5e059a470b26" name="DataCenter">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_7e0095197a4b" body="The services that turn observations into an archive and a bulletin.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_5e059a470b26"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_ba6ead208aa5" name="DataSegment">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_14b7d6704596" body="Ingest, quality control, archive and publication.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_ba6ead208aa5"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_1899b5cdd13d" name="ingest" type="_22_1_7f3a0c1_e29307bc6976" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_f2e8e4ba4f6f" name="qc" type="_22_1_7f3a0c1_3c4a7228b58f" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_cb5482d2558b" name="archive" type="_22_1_7f3a0c1_e727b00944f8" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_eb8d67a3b709" name="publisher" type="_22_1_7f3a0c1_1c3dd59f7df6" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_d13e50a4133a" name="obsIn" aggregation="composite" isConjugated="true" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_1c0f0650a68e" name="healthIn" aggregation="composite" isConjugated="true" type="_22_1_7f3a0c1_bb41b49a0c86"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_98f9023d9625" name="publicOut" aggregation="composite" type="_22_1_7f3a0c1_630e0a71c8a0"/>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_0f1aac61562c">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_9fb0da782b07" role="_22_1_7f3a0c1_d13e50a4133a"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_364a85634c2f" role="_22_1_7f3a0c1_ac220108461c" partWithPort="_22_1_7f3a0c1_1899b5cdd13d"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_60eba8914aea" name="toQc">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_8c48d7e84ee8" role="_22_1_7f3a0c1_18ef12295f32" partWithPort="_22_1_7f3a0c1_1899b5cdd13d"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_ce73285ceccb" role="_22_1_7f3a0c1_a55c3f61af01" partWithPort="_22_1_7f3a0c1_f2e8e4ba4f6f"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_51cc1555b97d" name="toArchive">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_36c21bb4f8ed" role="_22_1_7f3a0c1_0033ffa177b1" partWithPort="_22_1_7f3a0c1_f2e8e4ba4f6f"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_0316d0ad419e" role="_22_1_7f3a0c1_3c9fe14b985d" partWithPort="_22_1_7f3a0c1_cb5482d2558b"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_d8f23c667de2" name="toPublisher">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_2f8ae3b61648" role="_22_1_7f3a0c1_1e1dadca6733" partWithPort="_22_1_7f3a0c1_cb5482d2558b"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_0f326b51a1d7" role="_22_1_7f3a0c1_1c71d4403296" partWithPort="_22_1_7f3a0c1_eb8d67a3b709"/>
+        </ownedConnector>
+        <ownedConnector xmi:type="uml:Connector" xmi:id="_22_1_7f3a0c1_8867ef2d9c1a">
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_ac9a9c53c6a5" role="_22_1_7f3a0c1_0022685ad0f5" partWithPort="_22_1_7f3a0c1_eb8d67a3b709"/>
+          <end xmi:type="uml:ConnectorEnd" xmi:id="_22_1_7f3a0c1_bfa7bc56cc5c" role="_22_1_7f3a0c1_98f9023d9625"/>
+        </ownedConnector>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_e29307bc6976" name="IngestService">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_0f2da8e76176" body="Receives and de-duplicates observations.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_e29307bc6976"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_ac220108461c" name="obsIn" aggregation="composite" isConjugated="true" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_18ef12295f32" name="out" aggregation="composite" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_3c4a7228b58f" name="QualityControl">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_2f85df6e8908" body="Checks each observation and sets its flag.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_3c4a7228b58f"/>
+        </ownedComment>
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_5b6134a490c0" body="From the Ops Concept briefing, slide 22: QC flags are reviewed by the duty forecaster each morning. Para 4.1.2 of the CONOPS applies.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_3c4a7228b58f"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_a55c3f61af01" name="in" aggregation="composite" isConjugated="true" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_0033ffa177b1" name="out" aggregation="composite" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Dependency" xmi:id="_22_1_7f3a0c1_06e3f2a9e768" client="_22_1_7f3a0c1_3c4a7228b58f" supplier="_22_1_7f3a0c1_6fd0bcde26f7"/>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_e727b00944f8" name="Archive">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_51b8b05d86e4" body="Keeps every observation with its flag.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_e727b00944f8"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_3c9fe14b985d" name="in" aggregation="composite" isConjugated="true" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_1e1dadca6733" name="query" aggregation="composite" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_1c3dd59f7df6" name="BulletinPublisher">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_6561b6abdf10" body="Writes and publishes the marine bulletin.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_1c3dd59f7df6"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_1c71d4403296" name="source" aggregation="composite" isConjugated="true" type="_22_1_7f3a0c1_daa6a5934e2c"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_0022685ad0f5" name="publicOut" aggregation="composite" type="_22_1_7f3a0c1_630e0a71c8a0"/>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_b0950bd5f450" name="Operations">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_3ff9a8dc2d1f" body="The field crew and what it needs to keep the stations running.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_b0950bd5f450"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_3f2f6c9d9b1f" name="OperationsSegment">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_269ba302b130" body="The depot, the vessel and the spares.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_3f2f6c9d9b1f"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_b3a85c374b30" name="depot" type="_22_1_7f3a0c1_9c37129402ac" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_1a76af9c0be5" name="vessel" type="_22_1_7f3a0c1_f7242e4a15dd" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_5765b43c19f0" name="spares" type="_22_1_7f3a0c1_b8e0bb3de65b" aggregation="composite"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_9c37129402ac" name="MaintenanceDepot">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_2bac05796434" body="Where stations are refurbished.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_9c37129402ac"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_f7242e4a15dd" name="ServiceVessel">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_1fb8ecdb760d" body="Carries the crew and a spare buoy.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_f7242e4a15dd"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_1babd3a0ec90" name="crane" type="_22_1_7f3a0c1_18bcc6b7cb4b" aggregation="composite"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_18bcc6b7cb4b" name="DeckCrane">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_79621df6e4e1" body="Lifts a buoy aboard.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_18bcc6b7cb4b"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_b8e0bb3de65b" name="SparesPool">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_5fa4c288017b" body="Spare sensors, batteries and one spare buoy.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_b8e0bb3de65b"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Dependency" xmi:id="_22_1_7f3a0c1_ae9218b11f7b" client="_22_1_7f3a0c1_f7242e4a15dd" supplier="_22_1_7f3a0c1_f08343fd09a9"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_e2caf1d9a7bd" name="Legacy Import">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_e3fd59e7ee66" body="Imported from the SRS and SSDD in 2023. Clean up later.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_e2caf1d9a7bd"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_4f417e3ae6dc" name="Battery_old">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_313a1decce8a" body="Copy of Battery from the 2023 SRS import. Use Battery.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_4f417e3ae6dc"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_74ec2d60a377" name="cells" type="_22_1_7f3a0c1_1a66ab62bfc8" aggregation="composite">
+          <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_22_1_7f3a0c1_f10a43c8a6a8" value="4"/>
+          <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_22_1_7f3a0c1_8bc1d288d653" value="4"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_99b800a59421" name="capacity" type="_22_1_7f3a0c1_5cc28f31113e">
+          <defaultValue xmi:type="uml:LiteralReal" xmi:id="_22_1_7f3a0c1_4338911a7924" value="400"/>
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_ff726df568c6" name="stateOfCharge" type="_22_1_7f3a0c1_37be07209f53">
+        </ownedAttribute>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_5b5adb9d2f83" name="terminal" aggregation="composite" isConjugated="true" type="_22_1_7f3a0c1_dba6f2e0627e"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_31e1bd5cc281" name="Copy of SensorSuite">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_4b00c46ec204" body="The meteorological sensors common to every station.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_31e1bd5cc281"/>
+        </ownedComment>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_3e46eab09d33" name="anemometer" type="_22_1_7f3a0c1_825439797502" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_dd4c54988e85" name="barometer" type="_22_1_7f3a0c1_601645450814" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Property" xmi:id="_22_1_7f3a0c1_ea145ea1f21c" name="thermometer" type="_22_1_7f3a0c1_d9cb7b5497a3" aggregation="composite"/>
+        <ownedAttribute xmi:type="uml:Port" xmi:id="_22_1_7f3a0c1_d8c16385b328" name="dataOut" aggregation="composite">
+          <type href="http://www.omg.org/spec/UML/20131001/PrimitiveTypes.xmi#String"/>
+        </ownedAttribute>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_d4b78d5168e5" name="TBD Component">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_4a015bd56b4f" body="Placeholder from the document import. TBD.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_d4b78d5168e5"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_9b9e960a5604" name="Requirement from slide 14">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_4fec287712ff" body="The system shall be available 99.5% of the time (2024-03 program review, slide 14).">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_9b9e960a5604"/>
+        </ownedComment>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_15972c24a0bd" name="Behavior">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_2a4019d39350" body="The observation cycle, from sampling to the published bulletin.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_15972c24a0bd"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_e05c3af2cbe1" name="ObserveCoast">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_20461e7b5b88" body="One cycle of the network: sample, send, ingest, check, archive, publish.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_e05c3af2cbe1"/>
+        </ownedComment>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_22_1_7f3a0c1_1ae47f15ee02" name="bulletin" direction="out" type="_22_1_7f3a0c1_98326bceadb8"/>
+        <node xmi:type="uml:InitialNode" xmi:id="_22_1_7f3a0c1_495468d8c3fb"/>
+        <node xmi:type="uml:CallBehaviorAction" xmi:id="_22_1_7f3a0c1_b9fd770ae1cc" name="sample" behavior="_22_1_7f3a0c1_cf9180568b36"/>
+        <node xmi:type="uml:CallBehaviorAction" xmi:id="_22_1_7f3a0c1_76719c0f232b" name="send" behavior="_22_1_7f3a0c1_0d9387d37ce5"/>
+        <node xmi:type="uml:CallBehaviorAction" xmi:id="_22_1_7f3a0c1_436671b722f6" name="ingest" behavior="_22_1_7f3a0c1_27aa27582fe0"/>
+        <node xmi:type="uml:CallBehaviorAction" xmi:id="_22_1_7f3a0c1_84391da6547c" name="check" behavior="_22_1_7f3a0c1_09926ff5307e"/>
+        <node xmi:type="uml:CallBehaviorAction" xmi:id="_22_1_7f3a0c1_ff48813d6a4b" name="store" behavior="_22_1_7f3a0c1_15eefd9470eb"/>
+        <node xmi:type="uml:CallBehaviorAction" xmi:id="_22_1_7f3a0c1_d49e01cc6e24" name="publish" behavior="_22_1_7f3a0c1_0050bbf728e5"/>
+        <node xmi:type="uml:ActivityFinalNode" xmi:id="_22_1_7f3a0c1_e37bb142dea9"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_22_1_7f3a0c1_b494cd3cda3e" source="_22_1_7f3a0c1_495468d8c3fb" target="_22_1_7f3a0c1_b9fd770ae1cc"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_22_1_7f3a0c1_d6d4a2816c0e" source="_22_1_7f3a0c1_b9fd770ae1cc" target="_22_1_7f3a0c1_76719c0f232b"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_22_1_7f3a0c1_0545b6cab979" source="_22_1_7f3a0c1_76719c0f232b" target="_22_1_7f3a0c1_436671b722f6"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_22_1_7f3a0c1_e2e2d2d070ca" source="_22_1_7f3a0c1_436671b722f6" target="_22_1_7f3a0c1_84391da6547c"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_22_1_7f3a0c1_fd9284e9971c" source="_22_1_7f3a0c1_84391da6547c" target="_22_1_7f3a0c1_ff48813d6a4b"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_22_1_7f3a0c1_8288be9542dc" source="_22_1_7f3a0c1_ff48813d6a4b" target="_22_1_7f3a0c1_d49e01cc6e24"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_22_1_7f3a0c1_a7f5c41c9c7b" source="_22_1_7f3a0c1_d49e01cc6e24" target="_22_1_7f3a0c1_e37bb142dea9"/>
+        <node xmi:type="uml:ForkNode" xmi:id="_22_1_7f3a0c1_56146662ad81" name="after check"/>
+        <node xmi:type="uml:OpaqueAction" xmi:id="_22_1_7f3a0c1_01ea5ad033a3" name="log health">
+          <inputValue xmi:type="uml:InputPin" xmi:id="_22_1_7f3a0c1_c91b3000bf85" name="report" type="_22_1_7f3a0c1_94f3dbe1ae67"/>
+        </node>
+        <node xmi:type="uml:ActivityParameterNode" xmi:id="_22_1_7f3a0c1_11dca0e7c932" name="bulletin" parameter="_22_1_7f3a0c1_1ae47f15ee02"/>
+        <edge xmi:type="uml:ObjectFlow" xmi:id="_22_1_7f3a0c1_49fcb94547f1" source="_22_1_7f3a0c1_d49e01cc6e24" target="_22_1_7f3a0c1_11dca0e7c932"/>
+        <edge xmi:type="uml:ControlFlow" xmi:id="_22_1_7f3a0c1_b1c9f188a001" source="_22_1_7f3a0c1_56146662ad81" target="_22_1_7f3a0c1_01ea5ad033a3"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_cf9180568b36" name="SampleSensors">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_d732b50b1e3b" body="Read every sensor and timestamp the readings.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_cf9180568b36"/>
+        </ownedComment>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_22_1_7f3a0c1_cc68f0689f8f" name="record" direction="out" type="_22_1_7f3a0c1_fa5333dcddff"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_0d9387d37ce5" name="TransmitObservations">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_bb5faaf5808a" body="Send the buffered records; keep them if the link is down.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_0d9387d37ce5"/>
+        </ownedComment>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_22_1_7f3a0c1_8527acf60f4c" name="record" direction="in" type="_22_1_7f3a0c1_fa5333dcddff"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_27aa27582fe0" name="IngestObservations">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_7f0ff31aa7c4" body="Receive records and discard duplicates.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_27aa27582fe0"/>
+        </ownedComment>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_22_1_7f3a0c1_f5b3ec900c56" name="record" direction="inout" type="_22_1_7f3a0c1_fa5333dcddff"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_09926ff5307e" name="CheckQuality">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_273028ffa0f3" body="Range, step and consistency checks; set the flag and the reason.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_09926ff5307e"/>
+        </ownedComment>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_22_1_7f3a0c1_f9c32d09c16c" name="record" direction="inout" type="_22_1_7f3a0c1_fa5333dcddff"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_15eefd9470eb" name="ArchiveObservations">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_cb36c12d8da9" body="Store each record with its flag.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_15eefd9470eb"/>
+        </ownedComment>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_22_1_7f3a0c1_86f57f393527" name="record" direction="in" type="_22_1_7f3a0c1_fa5333dcddff"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_0050bbf728e5" name="PublishBulletin">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_f507f0a352e5" body="Write the bulletin from the latest good observations and publish it.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_0050bbf728e5"/>
+        </ownedComment>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_22_1_7f3a0c1_fcde048bf24a" name="bulletin" direction="out" type="_22_1_7f3a0c1_98326bceadb8"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_d96c19bf32ea" name="ReportHealth">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_da39f3501c96" body="Send battery state, mode and faults.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_d96c19bf32ea"/>
+        </ownedComment>
+        <ownedParameter xmi:type="uml:Parameter" xmi:id="_22_1_7f3a0c1_b0dfae32c3e2" name="report" direction="out" type="_22_1_7f3a0c1_94f3dbe1ae67"/>
+      </packagedElement>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_7ecd69cf8eac" name="Requirements">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_7377a7da1a50" body="The requirements as they stood when DOORS was last synchronized, and their trace.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_7ecd69cf8eac"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_a5115bf44245" name="Stakeholder Needs">
+        <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_5e7e1ad33fc2" name="Coastal coverage"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_b83a265d62a9" name="Timely observations"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_d7fba08ce1ec" name="Public access"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_b129751ce5d4" name="Serviceable in the field"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_63f0db2b50c2" name="Observation history"/>
+        <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_cb8d53c384d7" name="Off-grid operation"/>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_f194858140e3" name="System Requirements">
+        <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_dafc9817dc32" name="Functions">
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_dd757905a7cc" name="Measure conditions"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_b36bb4f6cff9" name="Scheduled transmission"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_669f971ffa64" name="Ingest"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_d72c631fe423" name="Quality control"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_70913ac715f2" name="Archive"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_343cca00ef32" name="Bulletin"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_ebda5f95d8df" name="Latest observations"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_a8e81d2df63e" name="Interfaces">
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_695ea251e1c2" name="Observation interface"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_62a45c1ecac4" name="Health reporting"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_af06d7105f08" name="Public interface"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_931628399ef5" name="Operations">
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_f832863d9d67" name="Own power"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_20810da973a3" name="Vessel access"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_5a6cc70d7869" name="Store and forward"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_f39bdaeef850" name="Operating mode"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_4c5a7e73285e" name="Bulletin log"/>
+        </packagedElement>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_1858b2158873" name="Segment Requirements">
+        <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_72274bf412b0" name="Stations">
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_fc7ae94be23f" name="Sensor height"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_02d720e73204" name="Watch circle"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_9d23343f3c65" name="State of charge"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_2eb890addee5" name="Retry"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_608970f914f8" name="Lowerable mast"/>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_c12d1555fb33" name="Data Center">
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_09891cd25a09" name="Duplicates"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_2111488cc3bd" name="Flag reason"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_ffe7bcd02b38" name="Retrieval"/>
+          <packagedElement xmi:type="uml:Class" xmi:id="_22_1_7f3a0c1_60a945737921" name="Issue time"/>
+        </packagedElement>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_98cdf47814de" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_dd757905a7cc"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_66e6f23ca925" client="_22_1_7f3a0c1_c8dfa258b43b" supplier="_22_1_7f3a0c1_b36bb4f6cff9"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_a446afc0092c" client="_22_1_7f3a0c1_e29307bc6976" supplier="_22_1_7f3a0c1_669f971ffa64"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_8056b89a8371" client="_22_1_7f3a0c1_3c4a7228b58f" supplier="_22_1_7f3a0c1_d72c631fe423"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_6fca3f64d85d" client="_22_1_7f3a0c1_e727b00944f8" supplier="_22_1_7f3a0c1_70913ac715f2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_b6f9d2c40726" client="_22_1_7f3a0c1_1c3dd59f7df6" supplier="_22_1_7f3a0c1_343cca00ef32"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_db5e5c722fb6" client="_22_1_7f3a0c1_1c3dd59f7df6" supplier="_22_1_7f3a0c1_ebda5f95d8df"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_50cd24565932" client="_22_1_7f3a0c1_034fdaefcc6a" supplier="_22_1_7f3a0c1_695ea251e1c2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_65b603ccad27" client="_22_1_7f3a0c1_35b7724df8d1" supplier="_22_1_7f3a0c1_62a45c1ecac4"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_fd08e2934c6e" client="_22_1_7f3a0c1_98f9023d9625" supplier="_22_1_7f3a0c1_af06d7105f08"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_2dc66f99c741" client="_22_1_7f3a0c1_53498550400d" supplier="_22_1_7f3a0c1_f832863d9d67"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_e5c094193d07" client="_22_1_7f3a0c1_29ec9807adf0" supplier="_22_1_7f3a0c1_5a6cc70d7869"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_bab30b749927" client="_22_1_7f3a0c1_681a51385f26" supplier="_22_1_7f3a0c1_f39bdaeef850"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_17a93507f919" client="_22_1_7f3a0c1_1c3dd59f7df6" supplier="_22_1_7f3a0c1_4c5a7e73285e"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_1f4173887d67" client="_22_1_7f3a0c1_63b0fc998685" supplier="_22_1_7f3a0c1_fc7ae94be23f"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_a2954c9d670d" client="_22_1_7f3a0c1_d2e5dad2b4a9" supplier="_22_1_7f3a0c1_02d720e73204"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_127de7185947" client="_22_1_7f3a0c1_b12c7b1839fb" supplier="_22_1_7f3a0c1_9d23343f3c65"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_d7280352800b" client="_22_1_7f3a0c1_ad49c29550c9" supplier="_22_1_7f3a0c1_2eb890addee5"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_4022945ec06a" client="_22_1_7f3a0c1_e29307bc6976" supplier="_22_1_7f3a0c1_09891cd25a09"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_b15841ba0e74" client="_22_1_7f3a0c1_3c4a7228b58f" supplier="_22_1_7f3a0c1_2111488cc3bd"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_e3b2dce1a815" client="_22_1_7f3a0c1_e727b00944f8" supplier="_22_1_7f3a0c1_ffe7bcd02b38"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_2632d9240ebf" client="_22_1_7f3a0c1_1c3dd59f7df6" supplier="_22_1_7f3a0c1_60a945737921"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_05f3bf2b7880" client="_22_1_7f3a0c1_765de9cc4106" supplier="_22_1_7f3a0c1_608970f914f8"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_ca3bff46ca6f" client="_22_1_7f3a0c1_92fe4694a169" supplier="_22_1_7f3a0c1_5e7e1ad33fc2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_f7afe900edd0" client="_22_1_7f3a0c1_92fe4694a169" supplier="_22_1_7f3a0c1_b83a265d62a9"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_5c985d38db82" client="_22_1_7f3a0c1_92fe4694a169" supplier="_22_1_7f3a0c1_d7fba08ce1ec"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_1b14af7361f0" client="_22_1_7f3a0c1_92fe4694a169" supplier="_22_1_7f3a0c1_b129751ce5d4"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_b9df34004dde" client="_22_1_7f3a0c1_92fe4694a169" supplier="_22_1_7f3a0c1_63f0db2b50c2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_1a60dd788b4c" client="_22_1_7f3a0c1_92fe4694a169" supplier="_22_1_7f3a0c1_cb8d53c384d7"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_ed7efa4f54c0" client="_22_1_7f3a0c1_dd757905a7cc" supplier="_22_1_7f3a0c1_5e7e1ad33fc2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_100a7b2b30c0" client="_22_1_7f3a0c1_b36bb4f6cff9" supplier="_22_1_7f3a0c1_b83a265d62a9"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_a15c5c3216e5" client="_22_1_7f3a0c1_669f971ffa64" supplier="_22_1_7f3a0c1_b83a265d62a9"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_15d8c2bb8f31" client="_22_1_7f3a0c1_d72c631fe423" supplier="_22_1_7f3a0c1_b83a265d62a9"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_1dce9f631119" client="_22_1_7f3a0c1_70913ac715f2" supplier="_22_1_7f3a0c1_63f0db2b50c2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_39a4e48c381c" client="_22_1_7f3a0c1_343cca00ef32" supplier="_22_1_7f3a0c1_d7fba08ce1ec"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_2e1ab88727ac" client="_22_1_7f3a0c1_ebda5f95d8df" supplier="_22_1_7f3a0c1_d7fba08ce1ec"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_4bcfdf744793" client="_22_1_7f3a0c1_695ea251e1c2" supplier="_22_1_7f3a0c1_b83a265d62a9"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_70191ef3ce8b" client="_22_1_7f3a0c1_62a45c1ecac4" supplier="_22_1_7f3a0c1_b129751ce5d4"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_95b9747782cf" client="_22_1_7f3a0c1_af06d7105f08" supplier="_22_1_7f3a0c1_d7fba08ce1ec"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_a476154e8006" client="_22_1_7f3a0c1_f832863d9d67" supplier="_22_1_7f3a0c1_cb8d53c384d7"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_080c0bfc7ab2" client="_22_1_7f3a0c1_20810da973a3" supplier="_22_1_7f3a0c1_b129751ce5d4"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_035b86a0aa8e" client="_22_1_7f3a0c1_5a6cc70d7869" supplier="_22_1_7f3a0c1_b83a265d62a9"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_b25bafca865e" client="_22_1_7f3a0c1_f39bdaeef850" supplier="_22_1_7f3a0c1_b129751ce5d4"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_2dfdd23152bd" client="_22_1_7f3a0c1_4c5a7e73285e" supplier="_22_1_7f3a0c1_63f0db2b50c2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_f9aff6c29dbd" client="_22_1_7f3a0c1_fc7ae94be23f" supplier="_22_1_7f3a0c1_dd757905a7cc"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_b609ad95f838" client="_22_1_7f3a0c1_02d720e73204" supplier="_22_1_7f3a0c1_dd757905a7cc"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_7d323e902962" client="_22_1_7f3a0c1_9d23343f3c65" supplier="_22_1_7f3a0c1_f832863d9d67"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_570fd97c4f10" client="_22_1_7f3a0c1_2eb890addee5" supplier="_22_1_7f3a0c1_5a6cc70d7869"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_fe02050e888d" client="_22_1_7f3a0c1_09891cd25a09" supplier="_22_1_7f3a0c1_669f971ffa64"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_478182312c4a" client="_22_1_7f3a0c1_2111488cc3bd" supplier="_22_1_7f3a0c1_d72c631fe423"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_cacc6c72856a" client="_22_1_7f3a0c1_ffe7bcd02b38" supplier="_22_1_7f3a0c1_70913ac715f2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_e659f712cc33" client="_22_1_7f3a0c1_60a945737921" supplier="_22_1_7f3a0c1_343cca00ef32"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_eb59924148d7" client="_22_1_7f3a0c1_608970f914f8" supplier="_22_1_7f3a0c1_20810da973a3"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_c827cc1e1d80" client="_22_1_7f3a0c1_401578123aed" supplier="_22_1_7f3a0c1_d7fba08ce1ec"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_672f097a02a9" client="_22_1_7f3a0c1_89b42af7e7e9" supplier="_22_1_7f3a0c1_b129751ce5d4"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_3f96bad44523" client="_22_1_7f3a0c1_765de9cc4106" supplier="_22_1_7f3a0c1_20810da973a3"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_b050689fdf2e" name="Verification">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_1098e9053ed9" body="Test cases and what they verify.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_b050689fdf2e"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_b6387f647cd8" name="TestStationObservations">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_4e90576639ed" body="Sensors and transmission on a buoy and a shore station.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_b6387f647cd8"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_e294380f28a2" name="TestDataFlow">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_dbbbda9c1472" body="Ingest, quality control and archive with seeded bad records.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_e294380f28a2"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_477793eabf61" name="DemonstratePublication">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_91ef490d2efe" body="A full bulletin cycle on the public service.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_477793eabf61"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_51f5f3dc51ee" name="InspectVesselAccess">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_ba559edc6586" body="Crew inspection of each station type from the vessel.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_51f5f3dc51ee"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_2dac60a0ea54" name="TestHealthReporting">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_7fe2156e0c92" body="Health reports and mode changes, with a drained battery.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_2dac60a0ea54"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Activity" xmi:id="_22_1_7f3a0c1_b2e0f4a8e3ff" name="TestStoreAndForward">
+        <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_429b6bff5ac1" body="Link outage and recovery.">
+          <annotatedElement xmi:idref="_22_1_7f3a0c1_b2e0f4a8e3ff"/>
+        </ownedComment>
+      </packagedElement>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_e1469d7b6122" client="_22_1_7f3a0c1_b6387f647cd8" supplier="_22_1_7f3a0c1_dd757905a7cc"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_5e6d85605a42" client="_22_1_7f3a0c1_b6387f647cd8" supplier="_22_1_7f3a0c1_b36bb4f6cff9"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_48dedd816671" client="_22_1_7f3a0c1_b6387f647cd8" supplier="_22_1_7f3a0c1_695ea251e1c2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_6e6aff46d395" client="_22_1_7f3a0c1_b6387f647cd8" supplier="_22_1_7f3a0c1_fc7ae94be23f"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_91b21ff16026" client="_22_1_7f3a0c1_e294380f28a2" supplier="_22_1_7f3a0c1_669f971ffa64"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_7fda40905833" client="_22_1_7f3a0c1_e294380f28a2" supplier="_22_1_7f3a0c1_d72c631fe423"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_8915040aaa85" client="_22_1_7f3a0c1_e294380f28a2" supplier="_22_1_7f3a0c1_70913ac715f2"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_cf7c71125233" client="_22_1_7f3a0c1_e294380f28a2" supplier="_22_1_7f3a0c1_09891cd25a09"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_dd4c2a273d1d" client="_22_1_7f3a0c1_e294380f28a2" supplier="_22_1_7f3a0c1_2111488cc3bd"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_bba7c008dbd9" client="_22_1_7f3a0c1_e294380f28a2" supplier="_22_1_7f3a0c1_ffe7bcd02b38"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_219a4ff09972" client="_22_1_7f3a0c1_477793eabf61" supplier="_22_1_7f3a0c1_343cca00ef32"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_aeb5edab56a5" client="_22_1_7f3a0c1_477793eabf61" supplier="_22_1_7f3a0c1_ebda5f95d8df"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_c0aadcae4a04" client="_22_1_7f3a0c1_477793eabf61" supplier="_22_1_7f3a0c1_af06d7105f08"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_f41307faee26" client="_22_1_7f3a0c1_477793eabf61" supplier="_22_1_7f3a0c1_4c5a7e73285e"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_c7b7b7cf3964" client="_22_1_7f3a0c1_477793eabf61" supplier="_22_1_7f3a0c1_60a945737921"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_24b736787822" client="_22_1_7f3a0c1_51f5f3dc51ee" supplier="_22_1_7f3a0c1_20810da973a3"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_c50ed0441426" client="_22_1_7f3a0c1_2dac60a0ea54" supplier="_22_1_7f3a0c1_62a45c1ecac4"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_ba092a0202b4" client="_22_1_7f3a0c1_2dac60a0ea54" supplier="_22_1_7f3a0c1_f39bdaeef850"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_3d57cec120b1" client="_22_1_7f3a0c1_2dac60a0ea54" supplier="_22_1_7f3a0c1_9d23343f3c65"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_89032a983aa3" client="_22_1_7f3a0c1_b2e0f4a8e3ff" supplier="_22_1_7f3a0c1_5a6cc70d7869"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_8cca28001b3b" client="_22_1_7f3a0c1_b2e0f4a8e3ff" supplier="_22_1_7f3a0c1_2eb890addee5"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Package" xmi:id="_22_1_7f3a0c1_89b2f0d03290" name="Allocations">
+      <ownedComment xmi:type="uml:Comment" xmi:id="_22_1_7f3a0c1_96c0319c3952" body="Which part performs which step of the observation cycle.">
+        <annotatedElement xmi:idref="_22_1_7f3a0c1_89b2f0d03290"/>
+      </ownedComment>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_a6d10fb96e50" client="_22_1_7f3a0c1_cf9180568b36" supplier="_22_1_7f3a0c1_6fd0bcde26f7"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_af049e41b653" client="_22_1_7f3a0c1_0d9387d37ce5" supplier="_22_1_7f3a0c1_ad49c29550c9"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_f86ab9f04fca" client="_22_1_7f3a0c1_27aa27582fe0" supplier="_22_1_7f3a0c1_e29307bc6976"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_e8e482b35f36" client="_22_1_7f3a0c1_09926ff5307e" supplier="_22_1_7f3a0c1_3c4a7228b58f"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_83960c2824b9" client="_22_1_7f3a0c1_15eefd9470eb" supplier="_22_1_7f3a0c1_e727b00944f8"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_4fe45188b097" client="_22_1_7f3a0c1_0050bbf728e5" supplier="_22_1_7f3a0c1_1c3dd59f7df6"/>
+      <packagedElement xmi:type="uml:Abstraction" xmi:id="_22_1_7f3a0c1_a2ff72eb3ce0" client="_22_1_7f3a0c1_d96c19bf32ea" supplier="_22_1_7f3a0c1_c8dfa258b43b"/>
+    </packagedElement>
+  </uml:Model>
+  <sysml:ValueType xmi:id="_22_1_7f3a0c1_807770ec8a63" base_DataType="_22_1_7f3a0c1_dd4fe0cc913f" unit="_22_1_7f3a0c1_635c3454811f"/>
+  <sysml:ValueType xmi:id="_22_1_7f3a0c1_54531fefe101" base_DataType="_22_1_7f3a0c1_5cc28f31113e" unit="_22_1_7f3a0c1_6f4c2f1b2938"/>
+  <sysml:ValueType xmi:id="_22_1_7f3a0c1_17f61cac04ac" base_DataType="_22_1_7f3a0c1_37be07209f53" unit="_22_1_7f3a0c1_57eac3b61581"/>
+  <sysml:Unit xmi:id="_22_1_7f3a0c1_6f4e712a4676" base_InstanceSpecification="_22_1_7f3a0c1_635c3454811f"/>
+  <sysml:Unit xmi:id="_22_1_7f3a0c1_acc408799700" base_InstanceSpecification="_22_1_7f3a0c1_6f4c2f1b2938"/>
+  <sysml:Unit xmi:id="_22_1_7f3a0c1_ceac00c972b8" base_InstanceSpecification="_22_1_7f3a0c1_57eac3b61581"/>
+  <sysml:InterfaceBlock xmi:id="_22_1_7f3a0c1_ee5d3aa200a9" base_Class="_22_1_7f3a0c1_daa6a5934e2c"/>
+  <sysml:FlowProperty xmi:id="_22_1_7f3a0c1_41d703a20e79" base_Property="_22_1_7f3a0c1_583159b7c40b" direction="out"/>
+  <sysml:InterfaceBlock xmi:id="_22_1_7f3a0c1_b53ee4cc3032" base_Class="_22_1_7f3a0c1_bb41b49a0c86"/>
+  <sysml:FlowProperty xmi:id="_22_1_7f3a0c1_deea1381ef93" base_Property="_22_1_7f3a0c1_d1f6bcef67e7" direction="out"/>
+  <sysml:InterfaceBlock xmi:id="_22_1_7f3a0c1_79603250fe10" base_Class="_22_1_7f3a0c1_630e0a71c8a0"/>
+  <sysml:FlowProperty xmi:id="_22_1_7f3a0c1_2311b9b2802d" base_Property="_22_1_7f3a0c1_3bfaa55eeaea" direction="out"/>
+  <sysml:FlowProperty xmi:id="_22_1_7f3a0c1_6e38cb9b2c96" base_Property="_22_1_7f3a0c1_e734f3eca670" direction="out"/>
+  <sysml:InterfaceBlock xmi:id="_22_1_7f3a0c1_23d9ac747749" base_Class="_22_1_7f3a0c1_dba6f2e0627e"/>
+  <sysml:FlowProperty xmi:id="_22_1_7f3a0c1_d504fce83543" base_Property="_22_1_7f3a0c1_aad32c7af105" direction="out"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_9a6b511fce49" base_Class="_22_1_7f3a0c1_92fe4694a169"/>
+  <Tidewater_Profile:L1Network xmi:id="_22_1_7f3a0c1_70e9bef7d9f2" base_Class="_22_1_7f3a0c1_92fe4694a169"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_16ce59ab2fa7" base_Class="_22_1_7f3a0c1_623582073999"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_c169572fb8a6" base_Port="_22_1_7f3a0c1_b00f88e886fb"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_faa0377249ba" base_Port="_22_1_7f3a0c1_cc8fbd16438e"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_51be13f0fcee" base_Class="_22_1_7f3a0c1_22783eed5a67"/>
+  <Tidewater_Profile:L2Segment xmi:id="_22_1_7f3a0c1_a16b5d7b3d55" base_Class="_22_1_7f3a0c1_22783eed5a67"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_8b23598d1157" base_Port="_22_1_7f3a0c1_034fdaefcc6a"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_6cfac181c5a8" base_Port="_22_1_7f3a0c1_35b7724df8d1"/>
+  <sysml:FlowPort xmi:id="_22_1_7f3a0c1_b10a9b3999cb" base_Port="_22_1_7f3a0c1_681a51385f26" direction="out"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_771efac570ba" base_Class="_22_1_7f3a0c1_c8dfa258b43b"/>
+  <Tidewater_Profile:L3Station xmi:id="_22_1_7f3a0c1_b0496aff7797" base_Class="_22_1_7f3a0c1_c8dfa258b43b"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_c308c7038f3a" base_Class="_22_1_7f3a0c1_0fc1e102b809"/>
+  <Tidewater_Profile:L3Station xmi:id="_22_1_7f3a0c1_f0c0798ba6a3" base_Class="_22_1_7f3a0c1_0fc1e102b809"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_f09eca4e7684" base_Class="_22_1_7f3a0c1_26811af874d9"/>
+  <Tidewater_Profile:L3Station xmi:id="_22_1_7f3a0c1_cc7643f6cda1" base_Class="_22_1_7f3a0c1_26811af874d9"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_07206e02ed06" base_Port="_22_1_7f3a0c1_8528ad993ca6"/>
+  <sysml:ConstraintProperty xmi:id="_22_1_7f3a0c1_278f1d552c80" base_Property="_22_1_7f3a0c1_3c4cba40b26f"/>
+  <sysml:BindingConnector xmi:id="_22_1_7f3a0c1_e67a8c1ac3fb" base_Connector="_22_1_7f3a0c1_f44f1356fb30"/>
+  <sysml:BindingConnector xmi:id="_22_1_7f3a0c1_0c1719324e3e" base_Connector="_22_1_7f3a0c1_cffcb806a540"/>
+  <sysml:BindingConnector xmi:id="_22_1_7f3a0c1_fa52ab47f5a8" base_Connector="_22_1_7f3a0c1_5a3f64f4ba10"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_5f4ba9b5234f" base_Class="_22_1_7f3a0c1_53498550400d"/>
+  <Tidewater_Profile:L4Subsystem xmi:id="_22_1_7f3a0c1_8ec6b88fc131" base_Class="_22_1_7f3a0c1_53498550400d"/>
+  <sysml:FlowPort xmi:id="_22_1_7f3a0c1_3faaf753e8b0" base_Port="_22_1_7f3a0c1_98927f06a08c" direction="out"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_0f8c5af55f16" base_Class="_22_1_7f3a0c1_6fd0bcde26f7"/>
+  <Tidewater_Profile:L4Subsystem xmi:id="_22_1_7f3a0c1_7318f3d7efae" base_Class="_22_1_7f3a0c1_6fd0bcde26f7"/>
+  <sysml:FlowPort xmi:id="_22_1_7f3a0c1_758dd94f1a7b" base_Port="_22_1_7f3a0c1_15c8a94dc4c4" direction="in"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_b1a75e5456bc" base_Port="_22_1_7f3a0c1_32929fc594f0"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_11583aee1007" base_Class="_22_1_7f3a0c1_29ec9807adf0"/>
+  <Tidewater_Profile:L4Subsystem xmi:id="_22_1_7f3a0c1_975eb7368c70" base_Class="_22_1_7f3a0c1_29ec9807adf0"/>
+  <Tidewater_Profile:Procured xmi:id="_22_1_7f3a0c1_813b4bf805b8" base_Class="_22_1_7f3a0c1_29ec9807adf0" partNumber="LG-100" supplier="Notional Logger Co."/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_cbad4c446ea5" base_Port="_22_1_7f3a0c1_02920094c732"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_86b5a074e16d" base_Port="_22_1_7f3a0c1_09b78bf2ad31"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_d681bdd44354" base_Class="_22_1_7f3a0c1_ad49c29550c9"/>
+  <Tidewater_Profile:L4Subsystem xmi:id="_22_1_7f3a0c1_605f0a973764" base_Class="_22_1_7f3a0c1_ad49c29550c9"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_ed55f12e63a4" base_Class="_22_1_7f3a0c1_63b0fc998685"/>
+  <Tidewater_Profile:L4Subsystem xmi:id="_22_1_7f3a0c1_22a27dbde52b" base_Class="_22_1_7f3a0c1_63b0fc998685"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_8c1e30dfe606" base_Class="_22_1_7f3a0c1_d2e5dad2b4a9"/>
+  <Tidewater_Profile:L4Subsystem xmi:id="_22_1_7f3a0c1_3697adba15fb" base_Class="_22_1_7f3a0c1_d2e5dad2b4a9"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_fa84c90f733a" base_Class="_22_1_7f3a0c1_765de9cc4106"/>
+  <Tidewater_Profile:L4Subsystem xmi:id="_22_1_7f3a0c1_02f2df7ec70b" base_Class="_22_1_7f3a0c1_765de9cc4106"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_b4b42ad9bfda" base_Port="_22_1_7f3a0c1_911b930881e1"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_2629e9a46496" base_Class="_22_1_7f3a0c1_a89dbce342d7"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_0efc9f0503d9" base_Class="_22_1_7f3a0c1_a89dbce342d7"/>
+  <Tidewater_Profile:Procured xmi:id="_22_1_7f3a0c1_6f592009da70" base_Class="_22_1_7f3a0c1_a89dbce342d7" partNumber="SP-40" supplier="Notional Solar Ltd."/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_bd636d0d9c97" base_Port="_22_1_7f3a0c1_14f943ca7db5"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_abe965453c91" base_Class="_22_1_7f3a0c1_d67c92867cc3"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_37e0ed9f5054" base_Class="_22_1_7f3a0c1_d67c92867cc3"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_cdac58b03440" base_Port="_22_1_7f3a0c1_e98396655451"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_92fde6543857" base_Port="_22_1_7f3a0c1_e1c02e368b11"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_84bb6796149e" base_Class="_22_1_7f3a0c1_810fe6f71337"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_57ee0e9db9ef" base_Class="_22_1_7f3a0c1_810fe6f71337"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_8fe6f59ff663" base_Class="_22_1_7f3a0c1_825439797502"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_5c46304f8090" base_Class="_22_1_7f3a0c1_825439797502"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_2cca95a1492a" base_Class="_22_1_7f3a0c1_601645450814"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_f4b98fde9526" base_Class="_22_1_7f3a0c1_601645450814"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_8eae85fabbeb" base_Class="_22_1_7f3a0c1_d9cb7b5497a3"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_3540e65af372" base_Class="_22_1_7f3a0c1_d9cb7b5497a3"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_2b96502f94ee" base_Class="_22_1_7f3a0c1_87d4a80559d6"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_914da2983651" base_Class="_22_1_7f3a0c1_87d4a80559d6"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_394a84163951" base_Class="_22_1_7f3a0c1_c9e3acf12422"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_d49e3c2b0910" base_Class="_22_1_7f3a0c1_c9e3acf12422"/>
+  <Tidewater_Profile:Procured xmi:id="_22_1_7f3a0c1_79c944e3d0f4" base_Class="_22_1_7f3a0c1_c9e3acf12422" partNumber="MD-2" supplier="Notional Radio Inc."/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_46bde95e66e0" base_Class="_22_1_7f3a0c1_7b5449bd8435"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_5d05ba27382c" base_Class="_22_1_7f3a0c1_7b5449bd8435"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_2bf19218eefb" base_Class="_22_1_7f3a0c1_b46fca77f554"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_f247222c1bde" base_Class="_22_1_7f3a0c1_b46fca77f554"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_1a13ad876882" base_Class="_22_1_7f3a0c1_b2db9418282d"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_617a21e72f60" base_Class="_22_1_7f3a0c1_b2db9418282d"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_e523bd34863d" base_Class="_22_1_7f3a0c1_f9a63dce7cae"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_f6eaa9b17d90" base_Class="_22_1_7f3a0c1_f9a63dce7cae"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_f1c57db91347" base_Class="_22_1_7f3a0c1_a34285645af2"/>
+  <Tidewater_Profile:L5Assembly xmi:id="_22_1_7f3a0c1_bf1b75300cdf" base_Class="_22_1_7f3a0c1_a34285645af2"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_ff5b54877809" base_Class="_22_1_7f3a0c1_1a66ab62bfc8"/>
+  <Tidewater_Profile:L6Component xmi:id="_22_1_7f3a0c1_1d3585f6f7ce" base_Class="_22_1_7f3a0c1_1a66ab62bfc8"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_095ff78832eb" base_Abstraction="_22_1_7f3a0c1_430a69e41cc6"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_79571caecc9e" base_Abstraction="_22_1_7f3a0c1_208d85f9df47"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_7025b616b91b" base_Abstraction="_22_1_7f3a0c1_78c8adcd9495"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_8341ded06cb1" base_Abstraction="_22_1_7f3a0c1_81264f56578b"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_e23d7c6bd0eb" base_Abstraction="_22_1_7f3a0c1_2312bbb1b942"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_3c007a22087e" base_Abstraction="_22_1_7f3a0c1_9df7fe236be5"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_6747ac652737" base_Abstraction="_22_1_7f3a0c1_e72673b0ece6"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_6a3d5e990886" base_Abstraction="_22_1_7f3a0c1_39a4cc05c41f"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_4f342b3176aa" base_Abstraction="_22_1_7f3a0c1_07232c58ebbe"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_dc35480b487c" base_Abstraction="_22_1_7f3a0c1_f36ec3eea892"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_7d072815754c" base_Abstraction="_22_1_7f3a0c1_11ab0d6c813e"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_a55316006687" base_Abstraction="_22_1_7f3a0c1_3ee308506dac"/>
+  <sysml:ConstraintBlock xmi:id="_22_1_7f3a0c1_2a2f7aa23260" base_Class="_22_1_7f3a0c1_7e64fce5fb55"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_92733739de0e" base_Port="_22_1_7f3a0c1_d13e50a4133a"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_6cf4f34241d0" base_Port="_22_1_7f3a0c1_1c0f0650a68e"/>
+  <sysml:FullPort xmi:id="_22_1_7f3a0c1_b863512024c2" base_Port="_22_1_7f3a0c1_98f9023d9625"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_6d45277d4586" base_Class="_22_1_7f3a0c1_ba6ead208aa5"/>
+  <Tidewater_Profile:L2Segment xmi:id="_22_1_7f3a0c1_85cf3a7fcfb9" base_Class="_22_1_7f3a0c1_ba6ead208aa5"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_09ced05153b9" base_Port="_22_1_7f3a0c1_ac220108461c"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_10569b450488" base_Port="_22_1_7f3a0c1_18ef12295f32"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_88fa79989efb" base_Class="_22_1_7f3a0c1_e29307bc6976"/>
+  <Tidewater_Profile:L3Station xmi:id="_22_1_7f3a0c1_512bca4a299e" base_Class="_22_1_7f3a0c1_e29307bc6976"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_381133a557ed" base_Port="_22_1_7f3a0c1_a55c3f61af01"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_ce4f93a8f1ef" base_Port="_22_1_7f3a0c1_0033ffa177b1"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_b92e2721a217" base_Class="_22_1_7f3a0c1_3c4a7228b58f"/>
+  <Tidewater_Profile:L3Station xmi:id="_22_1_7f3a0c1_2027db3db6d9" base_Class="_22_1_7f3a0c1_3c4a7228b58f"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_af1783381d13" base_Port="_22_1_7f3a0c1_3c9fe14b985d"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_3d93fb1ebb23" base_Port="_22_1_7f3a0c1_1e1dadca6733"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_137e62d2e826" base_Class="_22_1_7f3a0c1_e727b00944f8"/>
+  <Tidewater_Profile:L3Station xmi:id="_22_1_7f3a0c1_6e5790fc7a9c" base_Class="_22_1_7f3a0c1_e727b00944f8"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_828b4f6f841b" base_Port="_22_1_7f3a0c1_1c71d4403296"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_75136b55758c" base_Port="_22_1_7f3a0c1_0022685ad0f5"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_ece6306af7e1" base_Class="_22_1_7f3a0c1_1c3dd59f7df6"/>
+  <Tidewater_Profile:L3Station xmi:id="_22_1_7f3a0c1_aa13c1bc4e5f" base_Class="_22_1_7f3a0c1_1c3dd59f7df6"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_9590e19c91fc" base_Class="_22_1_7f3a0c1_3f2f6c9d9b1f"/>
+  <Tidewater_Profile:L2Segment xmi:id="_22_1_7f3a0c1_2706fb7aeda5" base_Class="_22_1_7f3a0c1_3f2f6c9d9b1f"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_2c3d1a481465" base_Class="_22_1_7f3a0c1_9c37129402ac"/>
+  <Tidewater_Profile:L3Station xmi:id="_22_1_7f3a0c1_b1d4c078ed7c" base_Class="_22_1_7f3a0c1_9c37129402ac"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_8aeb1e1b8860" base_Class="_22_1_7f3a0c1_f7242e4a15dd"/>
+  <Tidewater_Profile:L3Station xmi:id="_22_1_7f3a0c1_50595ad943f8" base_Class="_22_1_7f3a0c1_f7242e4a15dd"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_b8e98cb53adc" base_Class="_22_1_7f3a0c1_18bcc6b7cb4b"/>
+  <Tidewater_Profile:L4Subsystem xmi:id="_22_1_7f3a0c1_6395cad437db" base_Class="_22_1_7f3a0c1_18bcc6b7cb4b"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_641aba21b88d" base_Class="_22_1_7f3a0c1_b8e0bb3de65b"/>
+  <Tidewater_Profile:L3Station xmi:id="_22_1_7f3a0c1_956bd848fcb7" base_Class="_22_1_7f3a0c1_b8e0bb3de65b"/>
+  <sysml:ProxyPort xmi:id="_22_1_7f3a0c1_4f2e7b916d61" base_Port="_22_1_7f3a0c1_5b5adb9d2f83"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_e76716f2834b" base_Class="_22_1_7f3a0c1_4f417e3ae6dc"/>
+  <sysml:FlowPort xmi:id="_22_1_7f3a0c1_ee3ef456b5dd" base_Port="_22_1_7f3a0c1_d8c16385b328" direction="out"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_a702b7cabb22" base_Class="_22_1_7f3a0c1_31e1bd5cc281"/>
+  <sysml:Block xmi:id="_22_1_7f3a0c1_a4a9c20de663" base_Class="_22_1_7f3a0c1_d4b78d5168e5"/>
+  <sysml:Requirement xmi:id="_22_1_7f3a0c1_d9caf58c17a7" base_Class="_22_1_7f3a0c1_5e7e1ad33fc2" Id="TW-STK-001" Text="The network shall provide marine weather observations for the coastal region it covers."/>
+  <sysml:Requirement xmi:id="_22_1_7f3a0c1_11a959e00a6f" base_Class="_22_1_7f3a0c1_b83a265d62a9" Id="TW-STK-002" Text="Forecasters shall receive observations in time to use them in the next bulletin."/>
+  <sysml:Requirement xmi:id="_22_1_7f3a0c1_6540bd469cb6" base_Class="_22_1_7f3a0c1_d7fba08ce1ec" Id="TW-STK-003" Text="Mariners shall be able to read the latest bulletin and observations from a public service."/>
+  <sysml:Requirement xmi:id="_22_1_7f3a0c1_3fa9f6e98c1c" base_Class="_22_1_7f3a0c1_b129751ce5d4" Id="TW-STK-004" Text="Field crews shall be able to service any station from a single service vessel."/>
+  <sysml:Requirement xmi:id="_22_1_7f3a0c1_e1a8bbb045c1" base_Class="_22_1_7f3a0c1_63f0db2b50c2" Id="TW-STK-005" Text="Past observations shall be kept so earlier conditions can be reviewed."/>
+  <sysml:Requirement xmi:id="_22_1_7f3a0c1_72614f5d678c" base_Class="_22_1_7f3a0c1_cb8d53c384d7" Id="TW-STK-006" Text="Offshore stations shall keep observing without shore power."/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_8c4d89df593e" base_Class="_22_1_7f3a0c1_dd757905a7cc" Id="TW-SYS-001" Text="Each station shall measure wind, air pressure and air temperature, and each buoy shall also measure waves." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_8d025d8c7475" base_Class="_22_1_7f3a0c1_b36bb4f6cff9" Id="TW-SYS-002" Text="Each station shall transmit its observations to the data center on a fixed schedule." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_de07ce23d260" base_Class="_22_1_7f3a0c1_669f971ffa64" Id="TW-SYS-003" Text="The data center shall ingest every observation it receives." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_ae20470a4a23" base_Class="_22_1_7f3a0c1_d72c631fe423" Id="TW-SYS-004" Text="The data center shall flag observations that fail a quality check." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_7eaa8750e4c0" base_Class="_22_1_7f3a0c1_70913ac715f2" Id="TW-SYS-005" Text="The data center shall archive every observation together with its quality flag." risk="Low" verifyMethod="Demonstration"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_b6bc20c6674e" base_Class="_22_1_7f3a0c1_343cca00ef32" Id="TW-SYS-006" Text="The data center shall publish a marine bulletin on a fixed schedule." risk="Low" verifyMethod="Demonstration"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_291aaf6a04fe" base_Class="_22_1_7f3a0c1_ebda5f95d8df" Id="TW-SYS-007" Text="The public service shall show the latest observation from every station." risk="Low" verifyMethod="Demonstration"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:interfaceRequirement xmi:id="_22_1_7f3a0c1_abcf60edc2e6" base_Class="_22_1_7f3a0c1_695ea251e1c2" Id="TW-SYS-008" Text="Stations shall send observations to the data center over the observation interface." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:interfaceRequirement xmi:id="_22_1_7f3a0c1_95f6e2df1c19" base_Class="_22_1_7f3a0c1_62a45c1ecac4" Id="TW-SYS-009" Text="Stations shall report their health to the data center over the health interface." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:interfaceRequirement xmi:id="_22_1_7f3a0c1_2eb45c17291d" base_Class="_22_1_7f3a0c1_af06d7105f08" Id="TW-SYS-010" Text="The data center shall offer observations through a documented public interface." risk="Low" verifyMethod="Inspection"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:performanceRequirement xmi:id="_22_1_7f3a0c1_4da5f987dceb" base_Class="_22_1_7f3a0c1_f832863d9d67" Id="TW-SYS-011" Text="Each buoy shall run from its own solar panel and battery." risk="Low" verifyMethod="Analysis"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:designConstraint xmi:id="_22_1_7f3a0c1_5c2c45cb6f61" base_Class="_22_1_7f3a0c1_20810da973a3" Id="TW-SYS-012" Text="Every station shall be serviceable from the service vessel." risk="Low" verifyMethod="Inspection"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_41169ad4d630" base_Class="_22_1_7f3a0c1_5a6cc70d7869" Id="TW-SYS-013" Text="Each station shall keep observations it could not send and send them once the link returns." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_67035fbf79e4" base_Class="_22_1_7f3a0c1_f39bdaeef850" Id="TW-SYS-014" Text="Each station shall report its operating mode." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_bc30b21adbae" base_Class="_22_1_7f3a0c1_4c5a7e73285e" Id="TW-SYS-015" Text="The data center shall keep a log of every bulletin it published." risk="Low" verifyMethod="Inspection"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:physicalRequirement xmi:id="_22_1_7f3a0c1_63e9c7622537" base_Class="_22_1_7f3a0c1_fc7ae94be23f" Id="TW-SEG-001" Text="The buoy hull shall carry the sensor suite above the waterline." risk="Low" verifyMethod="Inspection"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:performanceRequirement xmi:id="_22_1_7f3a0c1_db670051bbbc" base_Class="_22_1_7f3a0c1_02d720e73204" Id="TW-SEG-002" Text="The mooring shall keep the buoy within its assigned watch circle." risk="Low" verifyMethod="Analysis"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_bb64a4692776" base_Class="_22_1_7f3a0c1_9d23343f3c65" Id="TW-SEG-003" Text="The power system shall report the battery state of charge." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_46b2951c2ca6" base_Class="_22_1_7f3a0c1_2eb890addee5" Id="TW-SEG-004" Text="The telemetry unit shall retry a failed transmission." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:designConstraint xmi:id="_22_1_7f3a0c1_c45afa860ec3" base_Class="_22_1_7f3a0c1_608970f914f8" Id="TW-SEG-009" Text="The shore station mast shall be lowerable for maintenance." risk="Low" verifyMethod="Inspection"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_74653dbc23ef" base_Class="_22_1_7f3a0c1_09891cd25a09" Id="TW-SEG-005" Text="The ingest service shall discard duplicate observations." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_7d1f2029fabc" base_Class="_22_1_7f3a0c1_2111488cc3bd" Id="TW-SEG-006" Text="The quality control service shall record why an observation was flagged." risk="Low" verifyMethod="Test"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_1851e30043d0" base_Class="_22_1_7f3a0c1_ffe7bcd02b38" Id="TW-SEG-007" Text="The archive shall return any observation by station and time." risk="Low" verifyMethod="Demonstration"/>
+  <MD_Customization_for_Requirements__additional_stereotypes:functionalRequirement xmi:id="_22_1_7f3a0c1_e4f7e95e4421" base_Class="_22_1_7f3a0c1_60a945737921" Id="TW-SEG-008" Text="The publisher shall stamp each bulletin with its issue time." risk="Low" verifyMethod="Inspection"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_1434d9df4955" base_Abstraction="_22_1_7f3a0c1_98cdf47814de"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_3d98ff55cfb7" base_Abstraction="_22_1_7f3a0c1_66e6f23ca925"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_2a6ae5863029" base_Abstraction="_22_1_7f3a0c1_a446afc0092c"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_ff5739a858d3" base_Abstraction="_22_1_7f3a0c1_8056b89a8371"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_4f42894d054c" base_Abstraction="_22_1_7f3a0c1_6fca3f64d85d"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_b2d9a60d2657" base_Abstraction="_22_1_7f3a0c1_b6f9d2c40726"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_15a25aa6f2f0" base_Abstraction="_22_1_7f3a0c1_db5e5c722fb6"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_e9842f44a3c4" base_Abstraction="_22_1_7f3a0c1_50cd24565932"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_a87da1752896" base_Abstraction="_22_1_7f3a0c1_65b603ccad27"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_0559965bc385" base_Abstraction="_22_1_7f3a0c1_fd08e2934c6e"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_090cc58cfa58" base_Abstraction="_22_1_7f3a0c1_2dc66f99c741"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_f7a1cfd1c8ce" base_Abstraction="_22_1_7f3a0c1_e5c094193d07"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_0a2760703fa4" base_Abstraction="_22_1_7f3a0c1_bab30b749927"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_b9dc2c4fc944" base_Abstraction="_22_1_7f3a0c1_17a93507f919"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_a105ffc313ca" base_Abstraction="_22_1_7f3a0c1_1f4173887d67"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_2e69e7a1404b" base_Abstraction="_22_1_7f3a0c1_a2954c9d670d"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_0482e7cbfa92" base_Abstraction="_22_1_7f3a0c1_127de7185947"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_d3dc0536bd9f" base_Abstraction="_22_1_7f3a0c1_d7280352800b"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_f5cfc3e3f108" base_Abstraction="_22_1_7f3a0c1_4022945ec06a"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_db1c4e5fd22f" base_Abstraction="_22_1_7f3a0c1_b15841ba0e74"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_8c22f5fd897b" base_Abstraction="_22_1_7f3a0c1_e3b2dce1a815"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_2315b6386af0" base_Abstraction="_22_1_7f3a0c1_2632d9240ebf"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_15c8ff38d0a4" base_Abstraction="_22_1_7f3a0c1_05f3bf2b7880"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_300758658d3c" base_Abstraction="_22_1_7f3a0c1_ca3bff46ca6f"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_c6e8f8e8cac7" base_Abstraction="_22_1_7f3a0c1_f7afe900edd0"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_ebed41bb4f8f" base_Abstraction="_22_1_7f3a0c1_5c985d38db82"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_cc45f39fb1d5" base_Abstraction="_22_1_7f3a0c1_1b14af7361f0"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_f57d49670a11" base_Abstraction="_22_1_7f3a0c1_b9df34004dde"/>
+  <sysml:Satisfy xmi:id="_22_1_7f3a0c1_dd0669a59e54" base_Abstraction="_22_1_7f3a0c1_1a60dd788b4c"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_1e0ba162cece" base_Abstraction="_22_1_7f3a0c1_ed7efa4f54c0"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_92a5589cfdce" base_Abstraction="_22_1_7f3a0c1_100a7b2b30c0"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_2de124304fa1" base_Abstraction="_22_1_7f3a0c1_a15c5c3216e5"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_0c6673ad128c" base_Abstraction="_22_1_7f3a0c1_15d8c2bb8f31"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_55b4d67e2be8" base_Abstraction="_22_1_7f3a0c1_1dce9f631119"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_51e8f8fcdd19" base_Abstraction="_22_1_7f3a0c1_39a4e48c381c"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_fb32119ff7f0" base_Abstraction="_22_1_7f3a0c1_2e1ab88727ac"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_36507371ef73" base_Abstraction="_22_1_7f3a0c1_4bcfdf744793"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_e9d0fc3c216a" base_Abstraction="_22_1_7f3a0c1_70191ef3ce8b"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_9c606412d0c8" base_Abstraction="_22_1_7f3a0c1_95b9747782cf"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_3cdcceabc76b" base_Abstraction="_22_1_7f3a0c1_a476154e8006"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_19bfccd11c0e" base_Abstraction="_22_1_7f3a0c1_080c0bfc7ab2"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_31622ef532b7" base_Abstraction="_22_1_7f3a0c1_035b86a0aa8e"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_f2ec834da4fa" base_Abstraction="_22_1_7f3a0c1_b25bafca865e"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_9cc46daafb2c" base_Abstraction="_22_1_7f3a0c1_2dfdd23152bd"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_8808a793c18c" base_Abstraction="_22_1_7f3a0c1_f9aff6c29dbd"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_a5c7c6d2e394" base_Abstraction="_22_1_7f3a0c1_b609ad95f838"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_1f24f32192a5" base_Abstraction="_22_1_7f3a0c1_7d323e902962"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_72338d3ba33e" base_Abstraction="_22_1_7f3a0c1_570fd97c4f10"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_7315f4b51ed6" base_Abstraction="_22_1_7f3a0c1_fe02050e888d"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_b6b48c91a2ba" base_Abstraction="_22_1_7f3a0c1_478182312c4a"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_15f4f626c837" base_Abstraction="_22_1_7f3a0c1_cacc6c72856a"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_d6542f24f939" base_Abstraction="_22_1_7f3a0c1_e659f712cc33"/>
+  <sysml:DeriveReqt xmi:id="_22_1_7f3a0c1_dd7c34ea9051" base_Abstraction="_22_1_7f3a0c1_eb59924148d7"/>
+  <sysml:Refine xmi:id="_22_1_7f3a0c1_7cc3a5cf33b7" base_Abstraction="_22_1_7f3a0c1_c827cc1e1d80"/>
+  <sysml:Refine xmi:id="_22_1_7f3a0c1_0025e48e05fa" base_Abstraction="_22_1_7f3a0c1_672f097a02a9"/>
+  <sysml:Trace xmi:id="_22_1_7f3a0c1_f195cd2302d6" base_Abstraction="_22_1_7f3a0c1_3f96bad44523"/>
+  <sysml:TestCase xmi:id="_22_1_7f3a0c1_f18b1c456e57" base_Behavior="_22_1_7f3a0c1_b6387f647cd8"/>
+  <sysml:TestCase xmi:id="_22_1_7f3a0c1_a9ac44b26167" base_Behavior="_22_1_7f3a0c1_e294380f28a2"/>
+  <sysml:TestCase xmi:id="_22_1_7f3a0c1_c703a46848cf" base_Behavior="_22_1_7f3a0c1_477793eabf61"/>
+  <sysml:TestCase xmi:id="_22_1_7f3a0c1_d17e4700675f" base_Behavior="_22_1_7f3a0c1_51f5f3dc51ee"/>
+  <sysml:TestCase xmi:id="_22_1_7f3a0c1_3cebb50c1e85" base_Behavior="_22_1_7f3a0c1_2dac60a0ea54"/>
+  <sysml:TestCase xmi:id="_22_1_7f3a0c1_66e1a500bb34" base_Behavior="_22_1_7f3a0c1_b2e0f4a8e3ff"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_5268bb9a35a6" base_Abstraction="_22_1_7f3a0c1_e1469d7b6122"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_a8dfb22acdaf" base_Abstraction="_22_1_7f3a0c1_5e6d85605a42"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_0f39b63160d1" base_Abstraction="_22_1_7f3a0c1_48dedd816671"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_ec6675a31e94" base_Abstraction="_22_1_7f3a0c1_6e6aff46d395"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_0dddb746bc7c" base_Abstraction="_22_1_7f3a0c1_91b21ff16026"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_894e2bf39568" base_Abstraction="_22_1_7f3a0c1_7fda40905833"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_b3ee8e8a3c8f" base_Abstraction="_22_1_7f3a0c1_8915040aaa85"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_8b039edef311" base_Abstraction="_22_1_7f3a0c1_cf7c71125233"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_6aa36bea697a" base_Abstraction="_22_1_7f3a0c1_dd4c2a273d1d"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_ac606e6da9a0" base_Abstraction="_22_1_7f3a0c1_bba7c008dbd9"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_a545434933ea" base_Abstraction="_22_1_7f3a0c1_219a4ff09972"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_6b4f35320bfb" base_Abstraction="_22_1_7f3a0c1_aeb5edab56a5"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_4ba59a9d40be" base_Abstraction="_22_1_7f3a0c1_c0aadcae4a04"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_2f3d8041dade" base_Abstraction="_22_1_7f3a0c1_f41307faee26"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_46c1fec82232" base_Abstraction="_22_1_7f3a0c1_c7b7b7cf3964"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_d54566989ccc" base_Abstraction="_22_1_7f3a0c1_24b736787822"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_287bca3cbb6e" base_Abstraction="_22_1_7f3a0c1_c50ed0441426"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_d3c787a269fe" base_Abstraction="_22_1_7f3a0c1_ba092a0202b4"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_800e2be1fe76" base_Abstraction="_22_1_7f3a0c1_3d57cec120b1"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_b66aece31448" base_Abstraction="_22_1_7f3a0c1_89032a983aa3"/>
+  <sysml:Verify xmi:id="_22_1_7f3a0c1_47bc23201dc6" base_Abstraction="_22_1_7f3a0c1_8cca28001b3b"/>
+  <sysml:Allocate xmi:id="_22_1_7f3a0c1_1bb979bb9c66" base_Abstraction="_22_1_7f3a0c1_a6d10fb96e50"/>
+  <sysml:Allocate xmi:id="_22_1_7f3a0c1_33fe8d1443dc" base_Abstraction="_22_1_7f3a0c1_af049e41b653"/>
+  <sysml:Allocate xmi:id="_22_1_7f3a0c1_5c4befabc856" base_Abstraction="_22_1_7f3a0c1_f86ab9f04fca"/>
+  <sysml:Allocate xmi:id="_22_1_7f3a0c1_593cd800d6da" base_Abstraction="_22_1_7f3a0c1_e8e482b35f36"/>
+  <sysml:Allocate xmi:id="_22_1_7f3a0c1_00f87f61f83c" base_Abstraction="_22_1_7f3a0c1_83960c2824b9"/>
+  <sysml:Allocate xmi:id="_22_1_7f3a0c1_af596f859a18" base_Abstraction="_22_1_7f3a0c1_4fe45188b097"/>
+  <sysml:Allocate xmi:id="_22_1_7f3a0c1_517bd7232cbf" base_Abstraction="_22_1_7f3a0c1_a2ff72eb3ce0"/>
+  <xmi:Extension extender="MagicDraw UML 2022x">
+    <diagram name="bdd Network"/>
+    <diagram name="bdd Stations"/>
+    <diagram name="bdd Stations OLD"/>
+    <diagram name="bdd Stations (Jim edits)"/>
+    <diagram name="bdd DataCenter"/>
+    <diagram name="bdd Operations"/>
+    <diagram name="bdd Types and Units"/>
+    <diagram name="bdd Interfaces"/>
+    <diagram name="bdd Everything"/>
+    <diagram name="ibd ObservationNetwork"/>
+    <diagram name="ibd ObservationNetwork v2"/>
+    <diagram name="ibd ObservingStation"/>
+    <diagram name="ibd MooredBuoy"/>
+    <diagram name="ibd ShoreStation"/>
+    <diagram name="ibd PowerSystem"/>
+    <diagram name="ibd PowerSystem (copy)"/>
+    <diagram name="ibd SensorSuite"/>
+    <diagram name="ibd TelemetryUnit"/>
+    <diagram name="ibd DataSegment"/>
+    <diagram name="par PowerSystem"/>
+    <diagram name="par PowerSystem draft"/>
+    <diagram name="act ObserveCoast"/>
+    <diagram name="act ObserveCoast - swimlanes"/>
+    <diagram name="act SampleSensors"/>
+    <diagram name="act TransmitObservations"/>
+    <diagram name="act CheckQuality"/>
+    <diagram name="act PublishBulletin"/>
+    <diagram name="stm BuoyModes"/>
+    <diagram name="stm BuoyModes OLD"/>
+    <diagram name="sd DailyUpload"/>
+    <diagram name="sd DailyUpload (as briefed)"/>
+    <diagram name="uc Network"/>
+    <diagram name="uc Operators"/>
+    <diagram name="req Stakeholder Needs"/>
+    <diagram name="req System Requirements"/>
+    <diagram name="req System Requirements - by owner"/>
+    <diagram name="req Segment Requirements"/>
+    <diagram name="Satisfy matrix"/>
+    <diagram name="Verify matrix"/>
+    <diagram name="Allocation matrix"/>
+    <diagram name="Trace matrix (all)"/>
+    <diagram name="Package overview"/>
+    <diagram name="Briefing chart 2024-03 - do not edit"/>
+    <diagram name="PDR backup slide 12"/>
+    <diagram name="Content diagram"/>
+    <diagram name="bdd Legacy Import"/>
+    <diagram name="ibd Copy of SensorSuite"/>
+  </xmi:Extension>
+</xmi:XMI>

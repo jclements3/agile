@@ -1,0 +1,6 @@
+# -*- mode: idef0 -*-
+tD Design
+  a# Define Quad Spec
+	i# Pilot Requirements
+    o# Quad Spec < F|Cut Frame Parts|Quad Spec
+  a# Review|Approve Spec

@@ -1,0 +1,21 @@
+# Name | email | Team | Role | Org   (practice: notional people)
+Ann Contracting | ann.contracting@example.com | Contracting | Member | DroneCorp
+Bob Contracting | bob.contracting@example.com | Contracting | Member | DroneCorp
+Cy Executive | cy.executive@example.com | Executive | Member | DroneCorp
+Dee Executive | dee.executive@example.com | Executive | Member | DroneCorp
+Eve Finance | eve.finance@example.com | Finance | Member | DroneCorp
+Fay Finance | fay.finance@example.com | Finance | Member | DroneCorp
+Gus HR | gus.hr@example.com | HR | Member | DroneCorp
+Hal HR | hal.hr@example.com | HR | Member | DroneCorp
+Ida Logistics | ida.logistics@example.com | Logistics | Member | DroneCorp
+Jon Logistics | jon.logistics@example.com | Logistics | Member | DroneCorp
+Kim Production | kim.production@example.com | Production | Member | DroneCorp
+Lou Production | lou.production@example.com | Production | Member | DroneCorp
+Max Quality | max.quality@example.com | Quality | Member | DroneCorp
+Nia Quality | nia.quality@example.com | Quality | Member | DroneCorp
+Ola Research | ola.research@example.com | Research | Member | DroneCorp
+Pat Research | pat.research@example.com | Research | Member | DroneCorp
+Quinn Support | quinn.support@example.com | Support | Member | DroneCorp
+Ray Support | ray.support@example.com | Support | Member | DroneCorp
+Sam Testing | sam.testing@example.com | Testing | Member | DroneCorp
+Tia Testing | tia.testing@example.com | Testing | Member | DroneCorp

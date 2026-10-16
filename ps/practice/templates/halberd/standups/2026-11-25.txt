@@ -1,0 +1,6 @@
+# compiled 2026-10-15 11:01
+2026-11-25
+sprint 4
+== Halberd
+done HAL-39
+carry HAL-40

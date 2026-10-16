@@ -1,0 +1,5 @@
+2026-11-18 Halberd
+JC (08:30)
+  Y: 37 more elements under configuration control, now 53% (A), all merged at 0/0 (E). Battle Management & Fire Control is now gated on every merge: 3 of 7 segments (B). 3 of 7 segment owners now merge their own changes (Z). 670 of 1,450 DOORS requirements linked (C).
+  T: More of Test & Evaluation goes under configuration control today.
+  B: none

@@ -1,0 +1,5 @@
+2026-11-16 Halberd
+JC (08:30)
+  Y: 29 more elements under configuration control, now 50% (A), all merged at 0/0 (E). 47 orphan and 63 unverified requirements, flagged to owners (F, G).
+  T: Bringing more of Battle Management & Fire Control under the pipeline.
+  B: none

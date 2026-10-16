@@ -1,0 +1,5 @@
+2026-12-14 Halberd
+JC (08:30)
+  Y: 32 more elements under configuration control, now 86% (A), all merged at 0/0 (E). 1,210 of 1,450 DOORS requirements linked (C).
+  T: Bringing more of Manufacturing & Production under the pipeline.
+  B: none

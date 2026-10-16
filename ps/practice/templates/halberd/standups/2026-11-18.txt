@@ -1,0 +1,6 @@
+# compiled 2026-10-15 11:01
+2026-11-18
+sprint 4
+== Halberd
+done HAL-34
+note Battle Management & Fire Control is now gated on every merge: 3 of 7 segments (B).

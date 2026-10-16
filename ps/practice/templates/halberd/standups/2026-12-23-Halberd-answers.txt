@@ -1,0 +1,5 @@
+2026-12-23 Halberd
+JC (08:30)
+  Y: 43 more elements under configuration control, now 98% (A), all merged at 0/0 (E).
+  T: Tagging baseline 3.
+  B: none

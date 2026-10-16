@@ -1,0 +1,58 @@
+# CODEOWNERS -- who must approve a change to which part of the Tidewater model repo.
+# GitLab reads this file from the MR's TARGET branch (CODEOWNERS, docs/CODEOWNERS or .gitlab/CODEOWNERS, first found).
+# With "code owner approval" on a protected branch (project.conf [branches] codeowners:yes), an MR that touches a path
+# below needs an approval from one of that path's owners. The last matching pattern in a section wins.
+#
+# Sections group the rules; each section is checked on its own, so one MR can need an approval from several sections.
+# [Name][2] would require two approvals from that section; ^[Name] makes a section optional (advisory only).
+
+# Every section names at least two owners: GitLab never lets an author approve their own MR, so a section whose only
+# owner wrote the change could never be satisfied. The model folders are the layers of the layout map
+# (examples/tidewater-v1/layout.map): library -> requirements -> logical -> physical -> analysis -> verification.
+[Pipeline and repository] @tom @jim
+/.gitlab-ci.yml
+/ci/
+/.ci/
+/.gitlab/
+/.gitignore
+/.kit-version
+/CODEOWNERS             @tom @jim
+/sysml.conf             @tom @bob
+
+# Decisions: Jim records them, Bob (or Tom) reviews.
+[Decisions] @jim @bob
+/docs/adr/
+
+[Library and conventions] @bob @jim
+/model/library/
+
+# Interfaces are where segments meet, so an interface change needs TWO approvals: the systems lead's (Jim decides every
+# interface; Jim does not author interface changes) and one of the people who build on both sides (Bob or Tom,
+# whoever did not write the change). Two sections, each must be satisfied.
+[Systems lead] @jim
+/model/library/Interfaces.sysml
+
+[Interfaces] @bob @tom
+/model/library/Interfaces.sysml
+
+# Requirements belong to the government: Jim approves every change to them, from either converter (Bob when Jim wrote it).
+[Requirements and verification] @jim @bob
+/model/requirements/
+/model/verification/
+/verification/
+
+[Logical and physical] @bob @jim
+/model/logical/
+/model/physical/
+/model/legacy/
+
+[Analysis] @jim @bob
+/model/analysis/
+
+# Raw prime drops arrive through vendor/prime; Tom imports them, Jim accepts them.
+[Prime drops] @tom @jim
+/imports/
+
+# Generated docs: whoever changed the model regenerates them; advisory only.
+^[Generated docs] @bob @tom
+/docs/

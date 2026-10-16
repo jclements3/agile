@@ -1,0 +1,5 @@
+2026-10-21 Halberd
+JC (08:30)
+  Y: 37 more elements under configuration control, now 19% (A), all merged at 0/0 (E). Systems Engineering & Integration is now gated on every merge: 1 of 7 segments (B). 138 of 1,450 DOORS requirements linked (C).
+  T: Bringing more of Interceptor Development under the pipeline.
+  B: none

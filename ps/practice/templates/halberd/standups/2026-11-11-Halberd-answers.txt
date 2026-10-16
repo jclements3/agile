@@ -1,0 +1,5 @@
+2026-11-11 Halberd
+JC (08:30)
+  Y: 35 more elements under configuration control, now 45% (A), all merged at 0/0 (E). 3 of 14 zone-crossing interfaces still need a security requirement (Q).
+  T: Generating the first ICD view and diffing it against the legacy ICD.
+  B: none

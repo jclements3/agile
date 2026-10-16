@@ -1,0 +1,23 @@
+# compiled 2026-10-15 11:01
+2026-12-14
+sprint 6
+== Halberd
+cap 280
+commit HAL-51 JC
+new HAL-52 19 "Port 19 Manufacturing & Production v1 items to SysML v2" p:1 e:"M Manufacturing & Production" t:"Halberd SysML v2 port" o:JC
+commit HAL-52 JC
+new HAL-53 35 "Port 35 Manufacturing & Production v1 items to SysML v2" p:1 e:"M Manufacturing & Production" t:"Halberd SysML v2 port" o:JC
+commit HAL-53 JC
+new HAL-54 32 "Port 32 Logistics & Sustainment v1 items to SysML v2" p:1 e:"L Logistics & Sustainment" t:"Halberd SysML v2 port" o:JC
+commit HAL-54 JC
+new HAL-55 35 "Port 35 Logistics & Sustainment v1 items to SysML v2" p:1 e:"L Logistics & Sustainment" t:"Halberd SysML v2 port" o:JC
+commit HAL-55 JC
+new HAL-56 29 "Port 29 Logistics & Sustainment v1 items to SysML v2" p:1 e:"L Logistics & Sustainment" t:"Halberd SysML v2 port" o:JC
+commit HAL-56 JC
+new HAL-57 38 "Port 38 Logistics & Sustainment v1 items to SysML v2" p:1 e:"L Logistics & Sustainment" t:"Halberd SysML v2 port" o:JC
+commit HAL-57 JC
+new HAL-58 43 "Port 43 Logistics & Sustainment v1 items to SysML v2" p:1 e:"L Logistics & Sustainment" t:"Halberd SysML v2 port" o:JC
+commit HAL-58 JC
+new HAL-59 39 "Port 39 Logistics & Sustainment v1 items to SysML v2" p:1 e:"L Logistics & Sustainment" t:"Halberd SysML v2 port" o:JC
+commit HAL-59 JC
+done HAL-51 HAL-52

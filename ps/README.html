@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>agile.ps1 run guide</title>
+<style>
+body{font-family:Segoe UI,Arial,sans-serif;max-width:860px;margin:28px auto;padding:0 16px;color:#222;line-height:1.45}
+h1{font-size:22px}h2{font-size:17px;margin-top:26px;border-bottom:1px solid #ddd;padding-bottom:3px}
+code,pre{font-family:Consolas,monospace;font-size:13px}pre{background:#f5f5f5;padding:8px 10px;overflow-x:auto}
+table{border-collapse:collapse;font-size:14px}td,th{border:1px solid #ccc;padding:3px 8px;text-align:left;vertical-align:top}th{background:#f0f0f0}
+.note{background:#fff8e0;border-left:4px solid #c98500;padding:6px 10px}
+</style></head><body>
+<h1>agile.ps1 &mdash; the agile kit on a locked-down DoD laptop</h1>
+<p>The kit's daily loop in Windows PowerShell 5.1. It needs no install, no compiler, no admin rights, no network, and no Git for Windows.
+It runs under Constrained Language Mode (AppLocker/WDAC). It reads and writes the same files as the Perl kit (<code>scrum.conf</code>,
+<code>scrum.txt</code>, <code>standups\</code>), so either one can work on the same project folder.</p>
+
+<h2>1. Put it on the laptop</h2>
+<p>Copy <code>agile.ps1</code> and <code>agile.cmd</code> into one folder, for example <code>Documents\agile</code>, then make a project:</p>
+<pre>cd Documents\agile
+.\agile.cmd init townhall
+cd townhall
+..\agile.cmd status</pre>
+<p>Edit <code>townhall\scrum.conf</code> in Notepad. Set <code>facilitator</code> to your Teams display name, so your own chat lines aren't linted.
+Set <code>banner</code> and the marking lines if the material is marked; they then go on every report and on the workbook's print header.</p>
+
+<p><b>If <code>agile.cmd</code> is blocked</b>, start it directly:</p>
+<pre>powershell -NoProfile -ExecutionPolicy Bypass -File ..\agile.ps1 status</pre>
+<p><b>If Group Policy forbids <code>.ps1</code> files entirely</b> ("running scripts is disabled"), load the text instead of the file.
+Paste this once per PowerShell window, then type <code>agile status</code>, <code>agile paste Alpha</code>, and so on:</p>
+<pre>function agile { Invoke-Expression ('&amp; {' + (Get-Content -Raw "$HOME\Documents\agile\agile.ps1") + "`n} " + ($args -join ' ')) }</pre>
+<p>In that mode, put quotes inside the quotes for arguments with spaces, for example <code>agile paste "'Team A'"</code>.</p>
+
+<h2>2. Every morning in Teams</h2>
+<table>
+<tr><th>Step</th><th>You do</th><th>Command</th></tr>
+<tr><td>1</td><td>Post your usual prompt; people answer <code>Y: ... T: ... B: ...</code> with task ids</td><td></td></tr>
+<tr><td>2</td><td>In the Teams chat, click the message list, then <b>Ctrl+A, Ctrl+C</b></td><td><code>agile paste Alpha</code><br>(saves <code>standups\&lt;today&gt;-Alpha-chat.txt</code> and lints it)</td></tr>
+<tr><td>3</td><td>Paste the replies back into the chat (<b>Ctrl+V</b>): the people whose status could not be read, or who named an unknown task</td><td><code>agile lint -Reply -Clip</code></td></tr>
+<tr><td>4</td><td>After corrections, copy the chat again and re-run step 2</td><td></td></tr>
+<tr><td>5</td><td>Record the answers; flags and suggested lines go into today's stand-up file</td><td><code>agile answers</code> (add <code>-Assume</code> for the silent)</td></tr>
+<tr><td>6</td><td>Open <code>standups\&lt;today&gt;.txt</code> in Notepad. Uncomment the suggested <code>done</code>/<code>block</code> lines you agree with, and add your own</td><td><code>notepad standups\2026-10-14.txt</code></td></tr>
+<tr><td>7</td><td>Apply it to the journal</td><td><code>agile compile</code></td></tr>
+<tr><td>8</td><td>Reports and the spreadsheet</td><td><code>agile report</code></td></tr>
+</table>
+<p>One chat for several teams works too: <code>agile paste</code> with no team name splits the answers by each person's team in the journal.</p>
+<p class="note">If <code>paste</code> says "no messages recognised", Teams copied the chat in a layout the parser doesn't know.
+Open the saved <code>-chat.txt</code> file and look at how a message header looks. The parser accepts <code>[9:05 AM] Name</code>,
+<code>Name 9:05 AM</code>, <code>9:05 AM Name</code> and <code>Name: text</code>.</p>
+
+<h2>3. The stand-up file (what compile reads)</h2>
+<pre>2026-10-14
+sprint 7
+== Alpha
+done ABC-2
+new ABC-4 5 Export to Excel p:1 e:Reporting o:"Lee, Ann"
+commit ABC-4 Lee, Ann
+block ABC-3 waiting on ISSM approval
+est ABC-5 8
+cap 30
+note Bob out Friday</pre>
+<p>The verbs are <code>done carry drop commit refine prune new new! est assign block unblock hold resume punt redo pass sync cap note risk absent</code>.
+A file with any error is refused whole and every error is listed, so the journal never takes half a day.</p>
+
+<h2>4. The spreadsheet, metrics and reports</h2>
+<p><code>agile report</code> writes these to <code>reports\</code>:</p>
+<ul>
+<li><b><code>backlog.xml</code></b>, an Excel workbook. Double-click it, or use Excel's File&nbsp;&rarr;&nbsp;Open. It has a Summary sheet (sprint status, the team table with done %, load %, average velocity and blocked count, and the blocker list), plus Backlog, Sprints, Epics and Intake sheets. Every sheet has a filter on the header row, the header frozen, numbers as numbers and dates as dates. It is rebuilt every run, so close it in Excel before running <code>report</code>.</li>
+<li><b><code>items.csv sprints.csv epics.csv intake.csv</code></b>, for your own workbook. Load each one once with Data&nbsp;&rarr;&nbsp;Get Data&nbsp;&rarr;&nbsp;From File&nbsp;&rarr;&nbsp;From Text/CSV&nbsp;&rarr;&nbsp;Load. After that, <b>Data&nbsp;&rarr;&nbsp;Refresh All</b> picks up each day's numbers, and any charts or PivotTables built on them refresh too.</li>
+<li><b><code>&lt;date&gt;-status.html</code></b>, the status page. Open it in Edge to read it, print it to PDF, or select all and paste it into an Outlook mail. <b><code>&lt;date&gt;-status.txt</code></b> is the same as plain text.</li>
+<li><b><code>&lt;date&gt;-brief.txt</code></b>, the BLUF leadership note: RED/AMBER/GREEN, one sentence and at most five bullets.</li>
+</ul>
+<p>To check numbers at the console, use <code>agile sprint</code>, <code>velocity</code>, <code>backlog Alpha</code>, <code>members</code>, <code>epics</code>, <code>roadmap</code> or <code>blocked</code>.</p>
+
+<h2>5. How it was checked</h2>
+<p>Every test ran with PowerShell forced into Constrained Language Mode. Outputs were compared byte for byte with the Perl kit:</p>
+<ul>
+<li>All read commands on the demo (241 tasks, 10 teams), Halberd and a verb-coverage project: 63 commands, identical.</li>
+<li>Every stand-up file recompiled from scratch: 66 compiles, identical journals and identical refusals.</li>
+<li>Chat lint in every mode, plus answers, flags, attendance and suggested lines, on rehearsal chats with seeded mistakes and on about 4,800 fuzzed messages: identical.</li>
+<li>The CSVs, the status text and the brief: identical. The HTML page and the workbook are new in this version and were checked by rendering and opening them.</li>
+</ul>
+<p>Windows PowerShell 5.1 itself couldn't run here. The script was scanned for anything newer than 5.1, and the language-mode rules are the same in both.</p>
+
+<h2>6. Differences from the Perl kit</h2>
+<ul>
+<li><b>Not ported:</b> Outlook drafts and invites (COM is blocked in this mode), the health thresholds (<code>Metrics.pm</code>), the cockpit dashboard, the quad, the memory drill, the AI step, <code>#est</code>/<code>#vote</code> tallies, and the Vim integration. Notepad is the editor.</li>
+<li><b>Fixed rather than copied:</b> en/em-dash labels (<code>Today &ndash; ...</code>) and the 👍/✅ answers now work. <code>Answers.pm</code> lacks <code>use utf8</code>, so Perl misses them and reads "B: 👍" as a blocker.</li>
+<li><b>Deterministic:</b> Perl's <code>members</code> and the example ids in <code>lint -Reply</code> change from run to run (hash order). This version always orders by priority, then created date, then id.</li>
+<li><b>Case:</b> team, task and owner names are matched without regard to case (Alpha = alpha). People in the chat are matched exactly, as in Perl.</li>
+<li><b>Files</b> written by Windows PowerShell 5.1 start with a UTF-8 byte-order mark. Both kits ignore it.</li>
+</ul>
+</body></html>

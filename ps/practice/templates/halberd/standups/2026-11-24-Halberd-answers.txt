@@ -1,0 +1,5 @@
+2026-11-24 Halberd
+JC (08:30)
+  Y: 54 more elements under configuration control, now 61% (A), all merged at 0/0 (E). 804 of 1,450 DOORS requirements linked (C).
+  T: Wiring the T2 pre-flight prediction inputs to the model.
+  B: none

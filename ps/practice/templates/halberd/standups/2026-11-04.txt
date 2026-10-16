@@ -1,0 +1,7 @@
+# compiled 2026-10-15 11:01
+2026-11-04
+sprint 3
+== Halberd
+done HAL-24
+block HAL-25 Waiting on a shared runner. Gating locally with the pre-commit hook meanwhile (Y).
+note Interceptor Development is now gated on every merge: 2 of 7 segments (B).

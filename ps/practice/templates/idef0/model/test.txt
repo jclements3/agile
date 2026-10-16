@@ -1,0 +1,11 @@
+# -*- mode: idef0 -*-
+tT Test
+  a# Bench Test
+    i# Assembled Quad < A|Install Electronics|Assembled Quad
+    o# Bench Rejects > A|Install Electronics|Rework
+    o# Bench-Passed Quad
+    m# Test Rig
+  a# Flight Test
+    i# Bench-Passed Quad
+    o# Tested Quad > S|Package Quad|Tested Quad
+    m# Test Pilot

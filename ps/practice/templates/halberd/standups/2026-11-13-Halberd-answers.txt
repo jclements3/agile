@@ -1,0 +1,5 @@
+2026-11-13 Halberd
+JC (08:30)
+  Y: 35 more elements under configuration control, now 49% (A), all merged at 0/0 (E). 30 interface mismatches caught at merge to date, 0 reached integration (H).
+  T: More of Battle Management & Fire Control goes under configuration control today.
+  B: none

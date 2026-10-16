@@ -1,0 +1,27 @@
+{
+  "repo": "halberd-hws-model",
+  "exports": "exports",
+  "start": "2026-10-19",
+  "sprint_weeks": 2,
+  "segments": 5,
+  "docs_total": 12,
+  "params_total": 64,
+  "team": 48,
+  "hours_per_doc": 3.75,
+  "old_regen_days": 4,
+  "old_lead_days": 19,
+  "exclude_authors": [
+    "HWS Pipeline"
+  ],
+  "lint_cmd": [
+    "C:\\Users\\YOU\\Documents\\agile\\ps\\sysml\\model.ps1",
+    "--root",
+    ".",
+    "lint"
+  ],
+  "gen_cmd": [
+    "C:\\Users\\YOU\\Documents\\agile\\ps\\status-metrics\\gen_docs.ps1",
+    "{src}",
+    "{out}"
+  ]
+}

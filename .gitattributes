@@ -16,3 +16,6 @@ tools/gitlab/samples/se-backlog-tidewater.csv -text
 *.xlsx binary
 # the Windchill exports and status sheets of the Tidewater run, byte for byte (Windchill writes CRLF)
 docs/tidewater/sprints/*/windchill/* -text
+# the PowerShell launchers run under cmd.exe: keep their CRLF
+ps/**/*.cmd -text
+ps/practice/templates/tw-model/c2/imports/v1.0/*.csv -text

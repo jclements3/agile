@@ -1,0 +1,80 @@
+// Jenkinsfile -- the PRIME's delivery job for the Tidewater model (tools/gitlab/templates/prime/Jenkinsfile).
+//
+// ILLUSTRATIVE: this file is not run by the kit (there is no Jenkins here). It shows what the prime's legacy Jenkins
+// workflow does for each drop, and which part of it is the interface with the government's GitLab -- the "ICD between
+// pipelines" agreed in sprint 4. The government never asks the prime to migrate; it asks for these outputs:
+//   1. the drop files (XMI from Cameo, ReqIF from DOORS, the test results as CSV in the government's results schema and
+//      as JUnit XML), with a MANIFEST.txt that records the Jenkins job URL and build number, the prime's repository
+//      commit, the tool versions, and the sha256 of every file;
+//   2. an upload of those files to the government project's Generic Package Registry as prime-drop/<version>, with a
+//      DEPLOY TOKEN that can only write packages (GOV_DEPLOY_TOKEN; expires; rotated with each contract option);
+//   3. a pipeline TRIGGER with DROP_VERSION=<version> (GOV_TRIGGER_TOKEN), which starts the government's `intake` job:
+//      it re-downloads every file, checks every sha256 against the MANIFEST, and opens the Prime Drop issue. The
+//      prime's green build is evidence, not acceptance; the government's own gates run on the import MR.
+// Both tokens live in Jenkins credentials (withCredentials), never in this file or the job log.
+//
+// The government-side YAML is the `intake` job in tools/gitlab/templates/gitlab-ci.yml; test it locally with
+//   perl $KIT/bin/gitlab.pl ci --event trigger --branch develop --var DROP_VERSION=v1.3 --var INTAKE_DROP_DIR=/path/to/drop
+
+pipeline {
+    agent { label 'cameo-windows' }                  // the prime's build agent with Cameo, the DOORS client and the test harness
+    parameters {
+        string(name: 'DROP_VERSION', defaultValue: '', description: 'CDRL A003 drop version, e.g. v1.3')
+    }
+    environment {
+        GOV_API     = 'https://gitlab.gov.example.invalid/api/v4'
+        GOV_PROJECT = 'tidewater%2Fmodel'
+        GOV_PROJECT_ID = '42'
+    }
+    stages {
+        stage('Export') {
+            steps {
+                // Cameo command-line export of the Teamwork Cloud project to XMI, and the DOORS module to ReqIF
+                bat 'cameo-export.cmd --project Tidewater --branch release --out out\\tidewater.xmi'
+                bat 'doors-reqif-export.cmd --modules "Stakeholder Needs,System Requirements,Segment Requirements" --out out\\tidewater.reqif'
+            }
+        }
+        stage('Prime checks') {
+            steps {
+                bat 'nwm-model-checks.cmd out\\tidewater.xmi'                  // the prime's own rules (naming, completeness)
+                bat 'nwm-verification-harness.cmd --junit out\\results.xml --csv out\\results.csv'
+            }
+            post { always { junit 'out/results.xml' } }                       // the JUnit plugin: the prime's test trend
+        }
+        stage('Manifest') {
+            steps {
+                // build URL, build number, the prime repository commit and the tool versions, then sha256 of every file
+                powershell '''
+                    $files = Get-ChildItem out -File | Where-Object Name -ne 'MANIFEST.txt'
+                    $m = @("Tidewater system model -- prime drop $env:DROP_VERSION",
+                           "CDRL: A003 System Model",
+                           "Built by: Jenkins $env:BUILD_URL (build $env:BUILD_NUMBER)",
+                           "Prime repository commit: $env:GIT_COMMIT",
+                           "Files (sha256):")
+                    foreach ($f in $files) { $m += "  $((Get-FileHash $f.FullName -Algorithm SHA256).Hash.ToLower())  $($f.Name)" }
+                    $m | Set-Content -Encoding ascii out\\MANIFEST.txt
+                '''
+                archiveArtifacts artifacts: 'out/*', fingerprint: true            // Jenkins keeps its own copy, fingerprinted
+            }
+        }
+        stage('Deliver to the government') {
+            when { expression { params.DROP_VERSION?.trim() } }
+            steps {
+                withCredentials([string(credentialsId: 'gov-deploy-token', variable: 'GOV_DEPLOY_TOKEN'),
+                                 string(credentialsId: 'gov-trigger-token', variable: 'GOV_TRIGGER_TOKEN')]) {
+                    // upload every file (deploy token: write_package_registry only)
+                    bat '''
+                        for %%f in (out\\*) do curl --fail --show-error --header "Deploy-Token: %GOV_DEPLOY_TOKEN%" ^
+                            --upload-file %%f "%GOV_API%/projects/%GOV_PROJECT_ID%/packages/generic/prime-drop/%DROP_VERSION%/%%~nxf"
+                    '''
+                    // start the government's intake pipeline
+                    bat 'curl --fail --show-error --request POST --form token=%GOV_TRIGGER_TOKEN% --form ref=develop ' +
+                        '--form "variables[DROP_VERSION]=%DROP_VERSION%" "%GOV_API%/projects/%GOV_PROJECT_ID%/trigger/pipeline"'
+                }
+            }
+        }
+    }
+    post {
+        failure { mail to: 'tidewater-delivery@nwm.example.invalid', subject: "Tidewater drop ${params.DROP_VERSION} build failed", body: "${env.BUILD_URL}" }
+    }
+}

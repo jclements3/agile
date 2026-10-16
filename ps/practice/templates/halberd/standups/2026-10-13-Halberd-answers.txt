@@ -1,0 +1,5 @@
+2026-10-13 Halberd
+JC (08:30)
+  Y: 29 more elements under configuration control, now 9% (A), all merged at 0/0 (E). The first DOORS module is in, and requirements are now linking to model elements (C). 2 orphan and 4 unverified requirements, flagged to owners (F, G).
+  T: Bringing more of Systems Engineering & Integration under the pipeline.
+  B: none

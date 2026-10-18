@@ -46,7 +46,7 @@ There is no build step and no package manager — everything is `use lib` agains
 Test suites map 1:1 to the libs: `tests/prelude.t`, `tests/ledger.t`, `tests/quad.t`,
 `tests/scrum.t`, `tests/standup.t`, `tests/calendar.t`, `tests/chat.t`, `tests/answers.t`,
 `tests/attendance.t`, `tests/quad.t`, `tests/roster.t`, `tests/gitlab.t`, `tests/gitlab-tf.t`, `tests/gitlab-ci.t`, `tests/ci-job.t`, `tests/ci-reports.t`, `tests/kickoff.t`, `tests/talk.t`, `tests/practice.t`, `tests/req-recipe.t`, `tests/memo-templates.t`, `tests/tidewater.t`, `tests/primer.t`, `tests/primer-runs.t`, `tests/cockpit.t`, `tests/drill.t`, `tests/metrics.t`, `tests/status_metrics.t`,
-`tests/xmi2sysml.t`, `tests/reqif2sysml.t`, `tests/sysml.t`, `tests/sysml-views.t`, `tests/halberd.t`, `tests/memo.t`, `tests/help.t`, `tests/drills.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
+`tests/xmi2sysml.t`, `tests/reqif2sysml.t`, `tests/sysml.t`, `tests/sysml-views.t`, `tests/halberd.t`, `tests/memo.t`, `tests/help.t`, `tests/drills.t`, `tests/office.t`. `tests/fake-ps.pl` is a fake `powershell.exe` stand-in used to test
 `Calendar.pm`'s COM calls offline.
 
 CLI entry points (`bin/`): `daily.pl` is the day-to-day driver; `scrum.pl`, `ledger.pl`,
@@ -202,6 +202,7 @@ memory trainer (one level per section, cards from the solutions) and `:DrillOpen
 Statements are the kit's own words; the `LeetCode:` line is a pointer only (tests/drills.t checks). Guide: `docs/DRILLS.html`.
 
 `docs/ModernSoftwarePractices.pdf` (*Modern Software Practices: A Condensed Guide*) condenses the DoW CIO library's software modernization, DevSecOps, open source and cATO documents with page cites; source `docs/src/msp/ModernSoftwarePractices.tex`, built by `perl sim/msp.pl` (XeLaTeX; PDF committed), checked by `tests/msp.t`; the 19 source documents live in the git-ignored `refs/`, never in the repo.
+**Office edition (a laptop with only Office -- no macros --, Teams and Outlook):** `tools/office/agile-workbook.pl [--from DIR] [--since DATE] -o FILE.xlsx` writes the kit as one Excel workbook: Items (the backlog) and Log (one row per stand-up verb, append-only) are the only input tables; state, Teams/Roster/Epics metrics, Health thresholds, Burndown and Velocity (with native charts), the Quad and a Standup paste + Lint sheet are formulas -- Excel 2007+ functions only, no dynamic arrays, no _xlfn (`tests/office.t` checks). `--from` converts a kit project's journal into Items + Log. `tools/office/agile-dashboard.html` is one offline page (no network, its own inflate fallback) that opens the .xlsx or pasted tables, recomputes the same metrics in JS (keep its replay rules and Start-sheet labels in step with the workbook) and draws burndown, velocity, cumulative flow, load, people, epics, the quad and the chat lint, each chart copyable as PNG for Outlook. Shipped: `agile.xlsx` (empty), `agile-demo.xlsx`, `agile-history.xlsx`; regenerate after changing the generator.
 **Other tools:** `tools/memo/md2memo.pl` (Markdown -> DoD-style memo as PDF/PS/text with portion and banner marking;
 `tests/memo.t` pins the sample's output by SHA-256). `tools/idef0/` also carries the Halberd IDEF0 model, the parity suite
 against the Python reference (`cd tools/idef0 && sh tests/parity.sh`, needs python3; html and `fmt --auto` are known,

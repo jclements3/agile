@@ -1,0 +1,940 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agile Dashboard</title>
+<!-- The agile kit's Excel edition, drawn: open the workbook (or paste its tables) and get the charts, metrics and the
+     weekly quad. One file, no network, no install: everything below runs in the browser, nothing leaves the page.
+     The numbers are recomputed here from Items + Log with the same rules as the workbook's formulas. -->
+<style>
+:root {
+  --bg: #f6f6f8; --panel: #ffffff; --ink: #1d1b33; --muted: #6b6b75; --line: #e4e4e7; --chip: #eeeef3;
+  --navy: #27235d; --gold: #e6af22; --red: #d6292e; --olive: #6b7436; --grey: #808082; --lblue: #aac1d7;
+  --s-todo: #9a9aa3; --s-open: #27235d; --s-wait: #d6292e; --s-hold: #c98500; --s-done: #0c8a0c; --s-drop: #b5b5bb;
+  --ok-bg: #d9f2d9; --ok-ink: #0b5d0b; --amber-bg: #ffeb9c; --amber-ink: #7a5200; --red-bg: #f8d7d8; --red-ink: #9c0006;
+  --series1: #27235d; --series2: #e6af22; --series3: #808082;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15141f; --panel: #1f1d2e; --ink: #ecebf5; --muted: #a3a1b5; --line: #34324a; --chip: #2a2840;
+    --navy: #9d97ef; --s-open: #8f88ea; --s-todo: #7d7c8a; --s-done: #3fbf55; --s-wait: #ef5a5e; --s-hold: #e0a72e; --s-drop: #55536a;
+    --ok-bg: #173a1d; --ok-ink: #8fe39d; --amber-bg: #3d3110; --amber-ink: #f3cf6a; --red-bg: #43191b; --red-ink: #ff9a9c;
+    --series1: #9d97ef; --series2: #e6af22; --series3: #8d8c99;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15141f; --panel: #1f1d2e; --ink: #ecebf5; --muted: #a3a1b5; --line: #34324a; --chip: #2a2840;
+  --navy: #9d97ef; --s-open: #8f88ea; --s-todo: #7d7c8a; --s-done: #3fbf55; --s-wait: #ef5a5e; --s-hold: #e0a72e; --s-drop: #55536a;
+  --ok-bg: #173a1d; --ok-ink: #8fe39d; --amber-bg: #3d3110; --amber-ink: #f3cf6a; --red-bg: #43191b; --red-ink: #ff9a9c;
+  --series1: #9d97ef; --series2: #e6af22; --series3: #8d8c99;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.45 "Segoe UI", Calibri, system-ui, sans-serif; }
+header { background: #27235d; color: #fff; padding: 14px 16px 0; }
+header h1 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: .2px; }
+header .sub { color: #d9d7f0; font-size: 13px; margin-top: 2px; min-height: 19px; }
+header .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 10px; }
+nav { display: flex; gap: 2px; overflow-x: auto; margin-top: 12px; scrollbar-width: thin; }
+nav button { background: transparent; color: #d9d7f0; border: 0; border-bottom: 3px solid transparent; padding: 8px 12px; font: inherit; cursor: pointer; white-space: nowrap; }
+nav button[aria-selected="true"] { color: #fff; border-bottom-color: #e6af22; font-weight: 600; }
+main { max-width: 1200px; margin: 0 auto; padding: 16px; }
+section[hidden] { display: none; }
+.btn { background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; font: inherit; cursor: pointer; }
+.btn:hover { border-color: var(--navy); }
+.btn.primary { background: #e6af22; color: #1d1b33; border-color: #e6af22; font-weight: 600; }
+header .btn { background: rgba(255,255,255,.08); color: #fff; border-color: rgba(255,255,255,.25); }
+header .btn.primary { background: #e6af22; color: #1d1b33; border-color: #e6af22; }
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.grid2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+@media (max-width: 520px) { .grid2 { grid-template-columns: 1fr; } }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+.card h2 { font-size: 15px; margin: 0 0 8px; color: var(--navy); display: flex; justify-content: space-between; gap: 8px; align-items: center; flex-wrap: wrap; }
+.card h2 .tools { display: flex; gap: 6px; }
+.card h2 .tools .btn { padding: 2px 8px; font-size: 12px; font-weight: 400; }
+.tiles { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-bottom: 14px; }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.tile .k { color: var(--muted); font-size: 12px; }
+.tile .v { font-size: 24px; font-weight: 600; color: var(--navy); font-variant-numeric: tabular-nums; }
+.tile .d { color: var(--muted); font-size: 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th { text-align: left; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); padding: 5px 6px; white-space: nowrap; }
+td { border-bottom: 1px solid var(--line); padding: 5px 6px; vertical-align: top; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.scroll { overflow-x: auto; }
+.pill { display: inline-block; padding: 0 7px; border-radius: 9px; font-size: 12px; font-weight: 600; background: var(--chip); }
+.pill.TODO { color: var(--s-todo); } .pill.OPEN { color: var(--s-open); } .pill.DONE { color: var(--s-done); } .pill.DROP { color: var(--s-drop); }
+.pill.WAIT, .pill.RED, .pill.LATE { background: var(--red-bg); color: var(--red-ink); }
+.pill.HOLD, .pill.AMBER, .pill.RISK { background: var(--amber-bg); color: var(--amber-ink); }
+.pill.OK { background: var(--ok-bg); color: var(--ok-ink); }
+.muted { color: var(--muted); }
+.small { font-size: 12px; }
+.chart svg { width: 100%; height: auto; display: block; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 4px; }
+.legend i { display: inline-block; width: 12px; height: 3px; vertical-align: middle; margin-right: 5px; }
+.legend i.box { height: 10px; border-radius: 2px; }
+.controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+select { max-width: 220px; }
+select, input[type=date], input[type=number], input[type=text] { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); }
+textarea { width: 100%; min-height: 180px; font: 12px/1.4 Consolas, "Cascadia Mono", monospace; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); }
+.drop { border: 2px dashed var(--line); border-radius: 10px; padding: 26px; text-align: center; color: var(--muted); }
+.drop.over { border-color: #e6af22; color: var(--ink); }
+.quad { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 760px) { .quad { grid-template-columns: 1fr; } }
+.quad .card h2 { background: #27235d; color: #fff; margin: -14px -14px 10px; padding: 8px 14px; border-radius: 10px 10px 0 0; }
+.quad .card.ms h2 { background: #6b7436; }
+.toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: #1d1b33; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.toast.on { opacity: 1; }
+.empty { padding: 30px; text-align: center; color: var(--muted); }
+.bar-cell { position: relative; height: 14px; background: var(--chip); border-radius: 3px; min-width: 80px; }
+.bar-cell span { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--s-done); }
+.flag { color: var(--red-ink); }
+@media print {
+  header .bar, nav, .tools, .noprint { display: none !important; }
+  header { background: #fff; color: #000; padding: 0; } header .sub { color: #333; }
+  body { background: #fff; } section[hidden] { display: none; } .card { break-inside: avoid; border-color: #ccc; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Agile Dashboard</h1>
+  <div class="sub" id="subtitle">Open the workbook to begin.</div>
+  <div class="bar">
+    <button class="btn primary" id="openBtn" title="Open agile.xlsx (nothing is uploaded)">Open workbook…</button>
+    <input type="file" id="fileIn" accept=".xlsx" hidden>
+    <button class="btn" data-go="load">Paste tables</button>
+    <button class="btn" data-go="standup">Paste chat</button>
+    <button class="btn" id="mailBtn" title="Copy the status for an Outlook mail">Copy status for e-mail</button>
+    <button class="btn" onclick="window.print()">Print</button>
+  </div>
+  <nav role="tablist" id="tabs"></nav>
+</header>
+<main>
+  <section id="v-overview"></section>
+  <section id="v-burndown" hidden></section>
+  <section id="v-velocity" hidden></section>
+  <section id="v-flow" hidden></section>
+  <section id="v-teams" hidden></section>
+  <section id="v-people" hidden></section>
+  <section id="v-epics" hidden></section>
+  <section id="v-quad" hidden></section>
+  <section id="v-standup" hidden></section>
+  <section id="v-load" hidden></section>
+</main>
+<div class="toast" id="toast"></div>
+<script>
+'use strict';
+// ------------------------------------------------------------------ small helpers
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const DAY = 864e5, EPOCH = Date.UTC(1899, 11, 30);
+const toDate = n => new Date(EPOCH + n * DAY);
+const serialOf = d => Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - EPOCH) / DAY);
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const fmtDay = n => { if (n == null || n === '') return ''; const d = toDate(n); return `${DOW[d.getUTCDay()]} ${d.getUTCDate()} ${MON[d.getUTCMonth()]}`; };
+const fmtShort = n => { const d = toDate(n); return `${d.getUTCDate()} ${MON[d.getUTCMonth()]}`; };
+const fmtISO = n => { if (n == null || n === '') return ''; const d = toDate(n); return d.toISOString().slice(0, 10); };
+const pct = x => x == null || !isFinite(x) ? '–' : Math.round(x * 100) + '%';
+const num = x => x == null || !isFinite(x) ? '–' : (Math.round(x * 10) / 10).toString();
+const sum = a => a.reduce((s, x) => s + (+x || 0), 0);
+const uniq = a => [...new Set(a)];
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2200); }
+function networkdays(a, b) { let n = 0; for (let d = a; d <= b; d++) { const w = toDate(d).getUTCDay(); if (w !== 0 && w !== 6) n++; } return n; }
+function parseDateCell(v) {                                  // a serial number, 2026-10-06, 10/6/2026, or a Date-ish string -> serial
+  if (v == null || v === '') return null;
+  if (typeof v === 'number') return Math.floor(v);
+  const s = String(v).trim();
+  if (/^\d+(\.\d+)?$/.test(s)) return Math.floor(+s);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if (m) return Math.round((Date.UTC(+m[1], m[2] - 1, +m[3]) - EPOCH) / DAY);
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/); if (m) { const y = +m[3] < 100 ? 2000 + +m[3] : +m[3]; return Math.round((Date.UTC(y, m[1] - 1, +m[2]) - EPOCH) / DAY); }
+  const d = new Date(s); return isNaN(d) ? null : serialOf(d);
+}
+
+// ------------------------------------------------------------------ zip + inflate (DecompressionStream, else a small inflater)
+function inflateRaw(src) {
+  let out = new Uint8Array(src.length * 4 + 1024), op = 0, bitbuf = 0, bitcnt = 0, ip = 0;
+  const need = n => { while (bitcnt < n) { if (ip >= src.length) throw new Error('inflate: out of input'); bitbuf |= src[ip++] << bitcnt; bitcnt += 8; } };
+  const bits = n => { need(n); const v = bitbuf & ((1 << n) - 1); bitbuf >>>= n; bitcnt -= n; return v; };
+  const grow = n => { if (op + n > out.length) { const o = new Uint8Array(Math.max(out.length * 2, op + n)); o.set(out); out = o; } };
+  const build = lengths => {
+    const count = new Uint16Array(16), offs = new Uint16Array(16), symbol = new Uint16Array(lengths.length);
+    for (const l of lengths) count[l]++;
+    count[0] = 0;
+    for (let i = 1; i < 16; i++) offs[i] = offs[i - 1] + count[i - 1];
+    for (let i = 0; i < lengths.length; i++) if (lengths[i]) symbol[offs[lengths[i]]++] = i;
+    return { count, symbol };
+  };
+  const decode = h => {
+    let code = 0, first = 0, index = 0;
+    for (let len = 1; len < 16; len++) {
+      code |= bits(1);
+      const c = h.count[len];
+      if (code - c < first) return h.symbol[index + (code - first)];
+      index += c; first += c; first <<= 1; code <<= 1;
+    }
+    throw new Error('inflate: bad code');
+  };
+  const LB = [3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258], LE = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
+  const DB = [1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577], DE = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+  const ORD = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
+  let fixedL, fixedD, last;
+  do {
+    last = bits(1);
+    const type = bits(2);
+    if (type === 0) {
+      bitbuf = 0; bitcnt = 0;
+      const len = src[ip] | (src[ip + 1] << 8); ip += 4;
+      grow(len); out.set(src.subarray(ip, ip + len), op); op += len; ip += len;
+      continue;
+    }
+    let lh, dh;
+    if (type === 1) {
+      if (!fixedL) { const l = []; for (let i = 0; i < 288; i++) l.push(i < 144 ? 8 : i < 256 ? 9 : i < 280 ? 7 : 8); fixedL = build(l); fixedD = build(new Array(30).fill(5)); }
+      lh = fixedL; dh = fixedD;
+    } else if (type === 2) {
+      const nlen = bits(5) + 257, ndist = bits(5) + 1, ncode = bits(4) + 4;
+      const cl = new Array(19).fill(0);
+      for (let i = 0; i < ncode; i++) cl[ORD[i]] = bits(3);
+      const ch = build(cl), lens = [];
+      while (lens.length < nlen + ndist) {
+        const sym = decode(ch);
+        if (sym < 16) lens.push(sym);
+        else if (sym === 16) { const p = lens[lens.length - 1]; let r = 3 + bits(2); while (r--) lens.push(p); }
+        else if (sym === 17) { let r = 3 + bits(3); while (r--) lens.push(0); }
+        else { let r = 11 + bits(7); while (r--) lens.push(0); }
+      }
+      lh = build(lens.slice(0, nlen)); dh = build(lens.slice(nlen));
+    } else throw new Error('inflate: bad block type');
+    for (;;) {
+      const sym = decode(lh);
+      if (sym < 256) { grow(1); out[op++] = sym; }
+      else if (sym === 256) break;
+      else {
+        const s = sym - 257, len = LB[s] + bits(LE[s]), ds = decode(dh), dist = DB[ds] + bits(DE[ds]);
+        grow(len);
+        for (let i = 0; i < len; i++) { out[op] = out[op - dist]; op++; }
+      }
+    }
+  } while (!last);
+  return out.subarray(0, op);
+}
+async function inflate(data) {
+  if (typeof DecompressionStream === 'function') {
+    try { return new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer()); } catch (e) { /* fall through */ }
+  }
+  return inflateRaw(data);
+}
+async function unzip(buf) {                                 // ArrayBuffer -> { name: Uint8Array }
+  const u8 = new Uint8Array(buf), dv = new DataView(buf);
+  let eocd = -1;
+  for (let i = u8.length - 22; i >= Math.max(0, u8.length - 66000); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  if (eocd < 0) throw new Error('not a zip file (an .xlsx is a zip): is it an older .xls? Save it as .xlsx first.');
+  const n = dv.getUint16(eocd + 10, true);
+  let p = dv.getUint32(eocd + 16, true);
+  const files = {};
+  for (let k = 0; k < n; k++) {
+    if (dv.getUint32(p, true) !== 0x02014b50) throw new Error('zip: bad central directory');
+    const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true);
+    const nlen = dv.getUint16(p + 28, true), xlen = dv.getUint16(p + 30, true), clen = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nlen));
+    const start = off + 30 + dv.getUint16(off + 26, true) + dv.getUint16(off + 28, true);
+    const raw = u8.subarray(start, start + csize);
+    files[name] = { method, raw };
+    p += 46 + nlen + xlen + clen;
+  }
+  return files;
+}
+async function readEntry(files, name) {
+  const f = files[name]; if (!f) return null;
+  const bytes = f.method === 0 ? f.raw : f.method === 8 ? await inflate(f.raw) : null;
+  if (!bytes) throw new Error(`zip: ${name} uses compression method ${f.method}`);
+  return new TextDecoder().decode(bytes);
+}
+
+// ------------------------------------------------------------------ xlsx -> { sheetName: rows[][] }
+const xml = s => new DOMParser().parseFromString(s, 'application/xml');
+const colIdx = ref => { const m = ref.match(/^([A-Z]+)/); let n = 0; for (const c of m[1]) n = n * 26 + c.charCodeAt(0) - 64; return n - 1; };
+async function readXlsx(buf) {
+  const files = await unzip(buf);
+  const wb = xml(await readEntry(files, 'xl/workbook.xml'));
+  const rels = xml(await readEntry(files, 'xl/_rels/workbook.xml.rels'));
+  const target = {};
+  for (const r of rels.getElementsByTagName('Relationship')) target[r.getAttribute('Id')] = r.getAttribute('Target');
+  const sst = [];
+  const ss = await readEntry(files, 'xl/sharedStrings.xml');
+  if (ss) for (const si of xml(ss).getElementsByTagName('si')) sst.push([...si.getElementsByTagName('t')].map(t => t.textContent).join(''));
+  const out = {};
+  for (const s of wb.getElementsByTagName('sheet')) {
+    const name = s.getAttribute('name');
+    if (!/^(Start|Items|Log|Teams|Roster|Epics|Standup)$/.test(name)) continue;
+    const rid = s.getAttribute('r:id') || s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id');
+    let path = target[rid]; if (!path) continue;
+    path = path.replace(/^\/?xl\//, '').replace(/^\//, '');
+    const doc = xml(await readEntry(files, 'xl/' + path));
+    const rows = [];
+    for (const row of doc.getElementsByTagName('row')) {
+      const r = +row.getAttribute('r') - 1, arr = [];
+      for (const c of row.getElementsByTagName('c')) {
+        const t = c.getAttribute('t'), v = c.getElementsByTagName('v')[0];
+        let val = null;
+        if (t === 's') val = v ? sst[+v.textContent] : null;
+        else if (t === 'inlineStr') val = [...c.getElementsByTagName('t')].map(x => x.textContent).join('');
+        else if (t === 'str' || t === 'e') val = v ? v.textContent : null;
+        else if (t === 'b') val = v ? v.textContent === '1' : null;
+        else val = v ? +v.textContent : null;
+        arr[colIdx(c.getAttribute('r'))] = val;
+      }
+      rows[r] = arr;
+    }
+    out[name] = rows;
+  }
+  return out;
+}
+
+// ------------------------------------------------------------------ the data set
+const DEFAULT_THRESH = { BlockAmber: 3, BlockRed: 5, LoadHigh: 1.10, LoadLow: 0.70, Day8Pct: 0.60, PredictMin: 0.80, CarryMax: 0.20, PuntMax: 0.20, OnTimeMin: 0.80, BusMax: 0.40, AgeMax: 90 };
+const LABEL_KEY = [[/^Sprint 1 starts/i, 'sprint1'], [/^Sprint length/i, 'sprintDays'], [/^As of/i, 'asOf'], [/^Project/i, 'project'], [/^Stand-up date/i, 'standupDate'], [/^Points unit/i, 'unit'],
+  [/^Blocked: amber/i, 'BlockAmber'], [/^Blocked: red/i, 'BlockRed'], [/^Team load: high/i, 'LoadHigh'], [/^Team load: low/i, 'LoadLow'], [/^Progress by working day 8/i, 'Day8Pct'],
+  [/^Predictability/i, 'PredictMin'], [/^Carryover/i, 'CarryMax'], [/^Punt rate/i, 'PuntMax'], [/^On-time/i, 'OnTimeMin'], [/bus factor/i, 'BusMax'], [/^Backlog age/i, 'AgeMax']];
+let DATA = { settings: { sprint1: null, sprintDays: 14, asOf: null, project: '', unit: 'SP', ...DEFAULT_THRESH }, items: [], log: [], teams: [], roster: [], epics: [], chat: '' };
+const TABLES = {
+  items: ['ID', 'Title', 'Tome', 'Epic', 'Team', 'Owner', 'Points', 'Prio', 'Added'],
+  log: ['Date', 'ID', 'Verb', 'Arg', 'Note'],
+  teams: ['Team', 'Capacity'],
+  roster: ['Name', 'Email', 'Team', 'Role', 'Org'],
+  epics: ['Epic', 'Tome', 'Target'],
+};
+function rowsToObjects(rows, want, key) {                   // a header row then data; keep the columns we know, stop caring about the rest
+  if (!rows || !rows.length) return [];
+  const hdr = (rows[0] || []).map(h => String(h == null ? '' : h).trim());
+  const at = {}; want.forEach(w => { const i = hdr.findIndex(h => h.toLowerCase() === w.toLowerCase()); if (i >= 0) at[w] = i; });
+  const out = [];
+  for (let r = 1; r < rows.length; r++) {
+    const row = rows[r]; if (!row) continue;
+    const o = {}; want.forEach(w => { const v = at[w] != null ? row[at[w]] : null; o[w] = v == null ? '' : v; });
+    if (o[key] === '' || o[key] == null) continue;
+    out.push(o);
+  }
+  return out;
+}
+function fromWorkbook(sheets) {
+  const st = { ...DATA.settings, ...DEFAULT_THRESH, asOf: null, project: '' };
+  for (const row of sheets.Start || []) {
+    if (!row) continue;
+    const label = String(row[1] == null ? '' : row[1]).trim(), v = row[2];
+    for (const [re, k] of LABEL_KEY) if (re.test(label) && v != null && v !== '') {
+      if (k === 'sprint1' || k === 'asOf' || k === 'standupDate') st[k] = parseDateCell(v); else if (k === 'project' || k === 'unit') st[k] = String(v); else st[k] = +v;
+      break;
+    }
+  }
+  const chat = (sheets.Standup || []).slice(5).map(r => r && r[0] != null ? String(r[0]) : '').join('\n').replace(/\n+$/, '');
+  return {
+    settings: st,
+    items: rowsToObjects(sheets.Items, TABLES.items, 'ID'),
+    log: rowsToObjects(sheets.Log, TABLES.log, 'ID'),
+    teams: rowsToObjects(sheets.Teams, TABLES.teams, 'Team'),
+    roster: rowsToObjects(sheets.Roster, TABLES.roster, 'Name'),
+    epics: rowsToObjects(sheets.Epics, TABLES.epics, 'Epic'),
+    chat,
+  };
+}
+function parseTSV(text) {                                   // what Excel puts on the clipboard: tab-separated, quotes around cells with newlines
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; continue; }
+    if (c === '"' && cell === '') { q = true; continue; }
+    if (c === '\t') { row.push(cell); cell = ''; continue; }
+    if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; continue; }
+    cell += c;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows.map(r => r.map(c => c.trim()));
+}
+function detectTable(hdr) {
+  const h = hdr.map(x => x.toLowerCase());
+  if (h.includes('verb')) return 'log';
+  if (h.includes('title') && h.includes('id')) return 'items';
+  if (h.includes('capacity')) return 'teams';
+  if (h.includes('email') || (h.includes('name') && h.includes('role'))) return 'roster';
+  if (h.includes('epic') && h.includes('target')) return 'epics';
+  return null;
+}
+
+// ------------------------------------------------------------------ the model: replay the Log onto the Items (same rules as the workbook)
+const INTO = new Set(['commit', 'carry', 'redo']), BURN = new Set(['done', 'punt', 'drop', 'pass']);
+let M = null;
+function build(D) {
+  const S = D.settings;
+  const today = serialOf(new Date());
+  const asOf = S.asOf || today;
+  const logs = D.log.map((l, i) => ({ date: parseDateCell(l.Date), id: String(l.ID).trim(), verb: String(l.Verb || '').trim().toLowerCase(), arg: l.Arg === '' || l.Arg == null ? '' : l.Arg, note: String(l.Note || ''), i }))
+    .filter(l => l.date != null && l.id);
+  logs.sort((a, b) => a.date - b.date || a.i - b.i);
+  let sprint1 = S.sprint1;
+  if (!sprint1) { const c = logs.find(l => l.verb === 'commit'); sprint1 = c ? c.date : asOf; }
+  const days = +S.sprintDays || 14;
+  const sprintOf = d => Math.floor((d - sprint1) / days) + 1;
+  const cur = Math.max(1, sprintOf(asOf));
+  const sStart = n => sprint1 + (n - 1) * days, sEnd = n => sStart(n) + days - 1;
+  const items = new Map();
+  for (const r of D.items) {
+    const id = String(r.ID).trim(); if (!id) continue;
+    items.set(id, { id, title: String(r.Title || ''), tome: String(r.Tome || ''), epic: String(r.Epic || ''), team0: String(r.Team || ''), owner: String(r.Owner || ''), points: +r.Points || 0,
+                    prio: r.Prio === '' ? null : +r.Prio, added: parseDateCell(r.Added), events: [] });
+  }
+  const unknown = [];
+  for (const l of logs) {
+    l.into = INTO.has(l.verb) ? (l.arg === '' ? sprintOf(l.date) : +l.arg) : null;
+    l.sprint = sprintOf(l.date);
+    const it = items.get(l.id);
+    if (it) it.events.push(l); else unknown.push(l);
+  }
+  const replay = (it, until) => {
+    const x = { state: 'TODO', into: null, blocked: false, since: null, blocker: '', pts: it.points, team: it.team0, carried: 0, punts: 0, doneOn: null, hold: '' };
+    for (const e of it.events) {
+      if (until != null && e.date > until) break;
+      switch (e.verb) {
+        case 'commit': case 'carry': case 'redo': x.into = e.into; x.state = 'OPEN'; if (e.verb === 'carry') x.carried++; break;
+        case 'done': x.state = 'DONE'; x.doneOn = e.date; x.blocked = false; break;
+        case 'block': if (!x.blocked) x.since = e.date; x.blocked = true; x.blocker = e.note; break;
+        case 'unblock': x.blocked = false; break;
+        case 'hold': x.state = 'HOLD'; x.hold = e.note; break;
+        case 'resume': x.state = 'OPEN'; break;
+        case 'punt': x.state = 'TODO'; x.punts++; x.blocked = false; break;
+        case 'pass': x.state = 'TODO'; x.team = String(e.arg || x.team); x.blocked = false; break;
+        case 'drop': x.state = 'DROP'; x.blocked = false; break;
+        case 'est': if (e.arg !== '' && isFinite(+e.arg)) x.pts = +e.arg; break;
+      }
+    }
+    if (x.state === 'OPEN' && x.blocked) x.state = 'WAIT';
+    return x;
+  };
+  for (const it of items.values()) {
+    Object.assign(it, replay(it));
+    it.inSprint = it.into === cur && ['OPEN', 'WAIT', 'HOLD', 'DONE'].includes(it.state);
+    it.daysBlocked = it.state === 'WAIT' && it.since != null ? asOf - it.since : null;
+    it.age = it.added != null ? asOf - it.added : null;
+  }
+  for (const l of logs) { const it = items.get(l.id); l.pts = it ? it.pts : 0; l.team = it ? it.team : ''; }
+  const teamNames = uniq([...D.teams.map(t => String(t.Team)), ...[...items.values()].map(i => i.team).filter(Boolean)]);
+  const cap = Object.fromEntries(D.teams.map(t => [String(t.Team), +t.Capacity || 0]));
+  const M = { S, asOf, today, sprint1, days, cur, sprintOf, sStart, sEnd, items, logs, unknown, teamNames, cap, replay, roster: D.roster, epicsIn: D.epics, chat: D.chat };
+  M.day = networkdays(sStart(cur), asOf); M.workdays = networkdays(sStart(cur), sEnd(cur));
+  M.list = [...items.values()];
+  M.inSprint = M.list.filter(i => i.inSprint);
+  const tf = team => l => !team || l.team === team;
+  M.committed = (n, team) => sum(logs.filter(l => l.into === n && tf(team)(l)).map(l => l.pts));
+  M.done = (n, team) => sum(logs.filter(l => l.verb === 'done' && l.sprint === n && tf(team)(l)).map(l => l.pts));
+  M.carried = (n, team) => sum(logs.filter(l => l.verb === 'carry' && l.into === n + 1 && tf(team)(l)).map(l => l.pts));
+  M.punted = (n, team) => sum(logs.filter(l => l.verb === 'punt' && l.sprint === n && tf(team)(l)).map(l => l.pts));
+  M.velocity = team => { const s = []; for (let n = cur - 3; n < cur; n++) if (n >= 1) s.push(M.done(n, team)); return s.length ? sum(s) / 3 : null; };
+  M.burndown = (n, team) => {
+    const rows = [], scopeAll = M.committed(n, team);
+    for (let d = sStart(n), k = 0; d <= sEnd(n); d++, k++) {
+      const scope = sum(logs.filter(l => l.into === n && l.date <= d && tf(team)(l)).map(l => l.pts));
+      const burn = sum(logs.filter(l => BURN.has(l.verb) && l.sprint === n && l.date <= d && tf(team)(l)).map(l => l.pts));
+      rows.push({ d, scope, remaining: d <= asOf ? scope - burn : null, ideal: scopeAll * (1 - k / Math.max(1, days - 1)) });
+    }
+    return rows;
+  };
+  M.teams = teamNames.map(t => {
+    const its = M.inSprint.filter(i => i.team === t);
+    const committed = sum(its.map(i => i.pts)), done = sum(its.filter(i => i.state === 'DONE').map(i => i.pts)), c = cap[t] || 0;
+    const v = M.velocity(t), backlog = sum(M.list.filter(i => i.team === t && i.state === 'TODO').map(i => i.pts));
+    return { team: t, cap: c, committed, done, remaining: committed - done, pctDone: committed ? done / committed : null, load: c ? committed / c : null,
+             blocked: its.filter(i => i.state === 'WAIT').length, unassigned: its.filter(i => !i.owner && i.state !== 'DONE').length, velocity: v, backlog, sprintsOfBacklog: v ? backlog / v : null };
+  });
+  const people = M.roster.length ? M.roster.map(r => ({ name: String(r.Name), team: String(r.Team || ''), email: String(r.Email || '') }))
+                                 : uniq(M.list.map(i => i.owner).filter(Boolean)).sort().map(n => ({ name: n, team: (M.list.find(i => i.owner === n) || {}).team || '' }));
+  M.people = people.map(p => {
+    const its = M.inSprint.filter(i => i.owner === p.name), teamPts = sum(M.inSprint.filter(i => i.team === p.team).map(i => i.pts));
+    const inS = sum(its.map(i => i.pts));
+    return { ...p, inSprint: inS, open: its.filter(i => i.state !== 'DONE').length, done: sum(its.filter(i => i.state === 'DONE').map(i => i.pts)),
+             blocked: its.filter(i => i.state === 'WAIT').length, share: teamPts ? inS / teamPts : null };
+  });
+  const epicNames = uniq([...M.epicsIn.map(e => String(e.Epic)), ...M.list.map(i => i.epic).filter(Boolean)]);
+  M.epics = epicNames.map(e => {
+    const meta = M.epicsIn.find(x => String(x.Epic) === e) || {};
+    const its = M.list.filter(i => i.epic === e && i.state !== 'DROP');
+    const points = sum(its.map(i => i.pts)), done = sum(its.filter(i => i.state === 'DONE').map(i => i.pts));
+    const team = (its[0] || {}).team || '', t = M.teams.find(x => x.team === team);
+    const vel = Math.max(1, (t && t.velocity) || 1);
+    const eta = points && done < points ? asOf + Math.ceil((points - done) / vel) * days : null;
+    const target = parseDateCell(meta.Target);
+    const status = points && done >= points ? 'DONE' : target == null ? (eta ? 'forecast' : '') : target < asOf ? 'LATE' : eta && eta > target ? 'AT RISK' : 'on track';
+    return { epic: e, tome: String(meta.Tome || (its[0] || {}).tome || ''), team, points, done, pct: points ? done / points : null, open: its.filter(i => i.state !== 'DONE').length,
+             blocked: its.filter(i => i.state === 'WAIT').length, target, eta, due: target != null ? target : eta, status };
+  });
+  const T = S;
+  const lastN = cur - 1;
+  const lc = M.committed(lastN), ld = M.done(lastN);
+  M.k = {
+    committed: sum(M.inSprint.map(i => i.pts)), donePts: sum(M.inSprint.filter(i => i.state === 'DONE').map(i => i.pts)),
+    blocked: M.inSprint.filter(i => i.state === 'WAIT').length,
+    predict: lastN >= 1 && lc ? ld / lc : null, carry: lastN >= 1 && lc ? M.carried(lastN) / lc : null, punt: lastN >= 1 && lc ? M.punted(lastN) / lc : null,
+    velocity: M.velocity(),
+  };
+  M.k.progress = M.k.committed ? M.k.donePts / M.k.committed : null;
+  const doneIn = M.inSprint.filter(i => i.state === 'DONE');
+  M.k.ontime = doneIn.length ? doneIn.filter(i => !i.carried).length / doneIn.length : null;
+  // health: the same checks as the workbook's Health sheet
+  const lvl = (bad, red) => bad ? (red ? 'RED' : 'AMBER') : 'OK';
+  const bRed = M.list.filter(i => i.state === 'WAIT' && i.daysBlocked > T.BlockRed), bAmb = M.list.filter(i => i.state === 'WAIT' && i.daysBlocked > T.BlockAmber);
+  const over = M.teams.filter(t => t.load != null && t.load > T.LoadHigh), under = M.teams.filter(t => t.load != null && t.load > 0 && t.load < T.LoadLow);
+  const unas = M.inSprint.filter(i => !i.owner && i.state !== 'DONE');
+  const late = M.epics.filter(e => e.status === 'LATE' || e.status === 'AT RISK');
+  const bus = M.people.filter(p => p.share != null && p.share > T.BusMax);
+  const old = M.list.filter(i => i.state === 'TODO' && i.age != null && i.age > T.AgeMax);
+  M.health = [
+    { m: `Blocked more than ${T.BlockRed} days`, v: bRed.length, l: lvl(bRed.length, 1), why: bRed.map(i => `${i.id} ${i.daysBlocked}d`).join(', '), a: 'Escalate to the PM today; name an owner for the outside dependency.' },
+    { m: `Blocked more than ${T.BlockAmber} days`, v: bAmb.length, l: lvl(bAmb.length), why: bAmb.map(i => `${i.id} ${i.daysBlocked}d`).join(', '), a: 'Raise at the townhall; swarm or re-plan.' },
+    { m: 'Teams over capacity', v: over.length, l: lvl(over.length), why: over.map(t => `${t.team} ${pct(t.load)}`).join(', '), a: 'Move work out at the next refinement.' },
+    { m: 'Teams under capacity', v: under.length, l: lvl(under.length), why: under.map(t => `${t.team} ${pct(t.load)}`).join(', '), a: 'Pull ready work from the backlog.' },
+    { m: 'Sprint progress (from working day 8)', v: pct(M.k.progress), l: lvl(M.day >= 8 && M.k.progress != null && M.k.progress < T.Day8Pct), why: `day ${M.day} of ${M.workdays}`, a: 'Cut scope with the teams now, not on day 14.' },
+    { m: 'Unassigned tasks in the sprint', v: unas.length, l: lvl(unas.length), why: unas.slice(0, 8).map(i => i.id).join(', '), a: 'Every committed task has one owner.' },
+    { m: 'Predictability, last finished sprint', v: pct(M.k.predict), l: lvl(M.k.predict != null && M.k.predict < T.PredictMin), why: lastN >= 1 ? `sprint ${lastN}: ${ld} of ${lc}` : '', a: 'Commit to the 3-sprint velocity, not the hope.' },
+    { m: 'Carryover, last finished sprint', v: pct(M.k.carry), l: lvl(M.k.carry != null && M.k.carry > T.CarryMax), why: '', a: 'Smaller tasks; split at refinement.' },
+    { m: 'Punt rate, last finished sprint', v: pct(M.k.punt), l: lvl(M.k.punt != null && M.k.punt > T.PuntMax), why: '', a: 'The Definition of Ready is not holding: rewrite before planning.' },
+    { m: 'Epics late or at risk', v: late.length, l: lvl(late.length, 1), why: late.map(e => e.epic).join(', '), a: 'Re-plan the epic or move its target with the sponsor.' },
+    { m: 'People over the bus-factor share', v: bus.length, l: lvl(bus.length), why: bus.map(p => `${p.name} ${pct(p.share)}`).join(', '), a: 'Pair or hand over; one person should not hold the team.' },
+    { m: `Backlog tasks older than ${T.AgeMax} days`, v: old.length, l: lvl(old.length), why: '', a: 'Refine or drop old backlog.' },
+    { m: 'Log rows with an unknown ID', v: M.unknown.length, l: lvl(M.unknown.length, 1), why: uniq(M.unknown.map(l => l.id)).slice(0, 8).join(', '), a: 'Fix the ID in the Log (the Check column shows it).' },
+  ];
+  return M;
+}
+
+// ------------------------------------------------------------------ the stand-up lint (Teams chat -> flags, replies, suggested Log rows)
+const NONE = /^(none|no|nothing|n\/a|na|-|nope|no blockers?|nil|none\.)$/i;
+const DONE_WORDS = /\b(done|finished|completed|closed|merged)\b/i;
+function lintChat(text, M, date) {
+  const names = new Map(M.people.map(p => [p.name.toLowerCase(), p.name]));
+  const facilitator = new Set();
+  const got = new Map();                                   // name -> { Y, T, B, lines, onRoster }
+  let who = null;
+  const idsIn = s => { const clean = ' ' + String(s).replace(/[,.;:()\/!?]/g, ' ') + ' '; return M.list.filter(i => clean.toLowerCase().includes(' ' + i.id.toLowerCase() + ' ')); };
+  for (let raw of String(text || '').split(/\r?\n/)) {
+    const line = raw.trim(); if (!line) continue;
+    let name = null, m;
+    if ((m = line.match(/^\[[^\]]*\]\s*(.+)$/))) name = m[1].trim();
+    else if ((m = line.match(/^(.+?)\s*\(\s*\d{1,2}:\d\d[^)]*\)\s*$/))) name = m[1].trim();
+    else if ((m = line.match(/^(.+?)[,\s]+\d{1,2}:\d\d\s*(AM|PM)?$/i)) && names.has(m[1].trim().toLowerCase())) name = m[1].trim();
+    else if (names.has(line.toLowerCase())) name = line;
+    if (name) {
+      name = names.get(name.toLowerCase()) || name;
+      who = name;
+      if (!got.has(who)) got.set(who, { Y: '', T: '', B: '', lines: 0, onRoster: names.has(who.toLowerCase()) });
+      continue;
+    }
+    if (!who) continue;
+    const g = got.get(who); g.lines++;
+    const parts = [...line.matchAll(/(?:^|\s)(Y|T|B|Yesterday|Today|Blockers?|Blocked)\s*[:\-]\s*/gi)];
+    for (let k = 0; k < parts.length; k++) {
+      const p = parts[k], tag = p[1][0].toUpperCase(), start = p.index + p[0].length, end = k + 1 < parts.length ? parts[k + 1].index : line.length;
+      if (p.index > 0 && k === 0 && !/\s/.test(line[p.index])) continue;
+      const val = line.slice(start, end).trim();
+      if (!g[tag]) g[tag] = val;
+    }
+  }
+  const rows = [], suggest = [];
+  const spoken = got.size > 0;
+  const everyone = [...M.people.map(p => p.name), ...[...got.keys()].filter(n => !names.has(n.toLowerCase()))];
+  for (const name of everyone) {
+    const g = got.get(name) || { Y: '', T: '', B: '', lines: 0, onRoster: true };
+    const p = M.people.find(x => x.name === name) || { team: '' };
+    const flags = [], fix = [];
+    if (!spoken) { rows.push({ name, team: p.team, ...g, flags: [], reply: '' }); continue; }
+    if (!got.has(name)) flags.push('silent');
+    else {
+      if (!g.onRoster) flags.push('not on the roster');
+      if (!g.Y) fix.push('no Y'); if (!g.T) fix.push('no T'); if (!g.B) fix.push('no B');
+      const tIds = idsIn(g.T);
+      if (g.T && !tIds.length) fix.push('no task id in T');
+      else if (tIds.length && !tIds.some(i => i.owner === name && i.inSprint)) fix.push('T names no task of yours in this sprint');
+      if (g.B && !NONE.test(g.B.trim())) flags.push('blocker: ' + g.B);
+      if (g.Y && DONE_WORDS.test(g.Y)) {
+        const yIds = idsIn(g.Y);
+        const open = yIds.filter(i => i.state !== 'DONE');
+        if (open.length) open.forEach(i => suggest.push({ date, id: i.id, verb: 'done', arg: '', note: i.owner && i.owner !== name ? `said by ${name}; owner ${i.owner}` : '' }));
+        else if (yIds.length) flags.push(`says done: ${yIds.map(i => i.id).join(', ')} (already DONE)`);
+      }
+      if (g.B && !NONE.test(g.B.trim())) {
+        const b = idsIn(g.B)[0] || idsIn(g.T).find(i => i.owner === name) || null;
+        if (b && b.state !== 'WAIT') suggest.push({ date, id: b.id, verb: 'block', arg: '', note: g.B });
+        else if (!b) fix.push('which task is blocked? (an id in B)');
+      }
+    }
+    const reply = !got.has(name) ? `@${name} please post Y: / T: / B: for today.` : fix.length ? `@${name} please fix: ${fix.join('; ')}` : '';
+    rows.push({ name, team: p.team, ...g, flags: [...fix, ...flags], reply });
+  }
+  // a blocker nobody mentioned any more: suggest unblock when the owner spoke and has no blocker
+  for (const it of M.list.filter(i => i.state === 'WAIT')) {
+    const g = got.get(it.owner);
+    if (g && g.B && NONE.test(g.B.trim())) suggest.push({ date, id: it.id, verb: 'unblock', arg: '', note: `${it.owner} reports no blocker` });
+  }
+  return { rows, suggest, spoken };
+}
+
+// ------------------------------------------------------------------ SVG charts (drawn with the theme's colours inlined, so a copied PNG looks the same)
+const W = 760, H = 300, PAD = { l: 44, r: 16, t: 14, b: 34 };
+function niceMax(v) { if (v <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v) return m * p; return 10 * p; }
+function axes(maxY, ticks = 5) {
+  const ink = css('--muted'), line = css('--line'); let s = '';
+  for (let k = 0; k <= ticks; k++) {
+    const v = maxY * k / ticks, y = PAD.t + (H - PAD.t - PAD.b) * (1 - k / ticks);
+    s += `<line x1="${PAD.l}" x2="${W - PAD.r}" y1="${y}" y2="${y}" stroke="${line}" stroke-width="1"/>`;
+    s += `<text x="${PAD.l - 6}" y="${y + 4}" text-anchor="end" font-size="11" fill="${ink}">${Math.round(v * 10) / 10}</text>`;
+  }
+  return s;
+}
+function svgWrap(inner, title) { return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(title)}" font-family="Segoe UI, Calibri, sans-serif"><rect width="${W}" height="${H}" fill="${css('--panel')}"/>${inner}</svg>`; }
+function lineChart({ xs, series, xfmt, title, marker }) {
+  const maxY = niceMax(Math.max(1, ...series.flatMap(s => s.values.filter(v => v != null))));
+  const n = xs.length, X = i => PAD.l + (W - PAD.l - PAD.r) * (n <= 1 ? 0.5 : i / (n - 1)), Y = v => PAD.t + (H - PAD.t - PAD.b) * (1 - v / maxY);
+  let s = axes(maxY);
+  const step = Math.max(1, Math.ceil(n / 10));
+  xs.forEach((x, i) => { if ((i % step === 0 && n - 1 - i >= step * 0.6) || i === n - 1) s += `<text x="${X(i)}" y="${H - PAD.b + 16}" text-anchor="middle" font-size="11" fill="${css('--muted')}">${esc(xfmt(x))}</text>`; });
+  if (marker != null) { const i = xs.indexOf(marker); if (i >= 0) s += `<line x1="${X(i)}" x2="${X(i)}" y1="${PAD.t}" y2="${H - PAD.b}" stroke="${css('--gold')}" stroke-dasharray="3 3"/><text x="${X(i) > W - 60 ? X(i) - 4 : X(i) + 4}" y="${PAD.t + 10}" text-anchor="${X(i) > W - 60 ? 'end' : 'start'}" font-size="11" fill="${css('--muted')}">today</text>`; }
+  for (const se of series) {
+    let d = '', pen = false;
+    se.values.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); pen = true; });
+    s += `<path d="${d}" fill="none" stroke="${se.color}" stroke-width="${se.dash ? 1.6 : 2.6}" ${se.dash ? 'stroke-dasharray="6 4"' : ''} stroke-linejoin="round" stroke-linecap="round"><title>${esc(se.name)}</title></path>`;
+    se.values.forEach((v, i) => { if (v != null && !se.dash) s += `<circle cx="${X(i)}" cy="${Y(v)}" r="2.6" fill="${se.color}"><title>${esc(se.name)} ${esc(xfmt(xs[i]))}: ${num(v)}</title></circle>`; });
+  }
+  return svgWrap(s, title);
+}
+function barChart({ cats, series, title, line }) {
+  const maxY = niceMax(Math.max(1, ...series.flatMap(s => s.values)));
+  const n = cats.length, band = (W - PAD.l - PAD.r) / Math.max(1, n), bw = band * 0.72 / series.length;
+  const Y = v => PAD.t + (H - PAD.t - PAD.b) * (1 - v / maxY);
+  let s = axes(maxY);
+  cats.forEach((c, i) => {
+    const x0 = PAD.l + band * i + band * 0.14;
+    series.forEach((se, k) => { const v = se.values[i] || 0; s += `<rect x="${(x0 + k * bw).toFixed(1)}" y="${Y(v).toFixed(1)}" width="${Math.max(1, bw - 2).toFixed(1)}" height="${(H - PAD.b - Y(v)).toFixed(1)}" fill="${se.color}" rx="2"><title>${esc(se.name)} ${esc(c)}: ${num(v)}</title></rect>`; });
+    s += `<text x="${PAD.l + band * (i + 0.5)}" y="${H - PAD.b + 16}" text-anchor="middle" font-size="11" fill="${css('--muted')}">${esc(c)}</text>`;
+  });
+  if (line) { s += `<line x1="${PAD.l}" x2="${W - PAD.r}" y1="${Y(line.value)}" y2="${Y(line.value)}" stroke="${css('--gold')}" stroke-dasharray="5 4" stroke-width="1.5"/><text x="${PAD.l + 4}" y="${Y(line.value) - 5}" text-anchor="start" font-size="11" fill="${css('--muted')}">${esc(line.label)}</text>`; }
+  return svgWrap(s, title);
+}
+function hbarChart({ rows, title, max, refs = [] }) {           // rows: { label, value, color, text }
+  const h = Math.max(120, 30 * rows.length + 40), L = 150, R = 150, top = 10;
+  const mx = max || niceMax(Math.max(1, ...rows.map(r => r.value || 0), ...refs.map(r => r.value)));
+  const X = v => L + (W - L - R) * Math.min(1, v / mx);
+  let s = '';
+  for (const r of refs) s += `<line x1="${X(r.value)}" x2="${X(r.value)}" y1="${top}" y2="${h - 20}" stroke="${r.color || css('--gold')}" stroke-dasharray="4 3"/><text x="${X(r.value)}" y="${h - 6}" text-anchor="middle" font-size="12" fill="${css('--muted')}">${esc(r.label)}</text>`;
+  rows.forEach((r, i) => {
+    const y = top + i * 26;
+    s += `<text x="${L - 8}" y="${y + 16}" text-anchor="end" font-size="14" fill="${css('--ink')}">${esc(r.label)}</text>`;
+    s += `<rect x="${L}" y="${y + 4}" width="${Math.max(0, X(r.value || 0) - L).toFixed(1)}" height="18" rx="2" fill="${r.color}"><title>${esc(r.label)}: ${esc(r.text)}</title></rect>`;
+    s += `<text x="${X(r.value || 0) + 6}" y="${y + 17}" font-size="13" fill="${css('--muted')}">${esc(r.text)}</text>`;
+  });
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${h}" role="img" aria-label="${esc(title)}" font-family="Segoe UI, Calibri, sans-serif"><rect width="${W}" height="${h}" fill="${css('--panel')}"/>${s}</svg>`;
+}
+function areaChart({ xs, layers, title, xfmt }) {                // stacked: layers bottom-up { name, values, color }
+  const tot = xs.map((_, i) => sum(layers.map(l => l.values[i])));
+  const maxY = niceMax(Math.max(1, ...tot));
+  const n = xs.length, X = i => PAD.l + (W - PAD.l - PAD.r) * (n <= 1 ? 0.5 : i / (n - 1)), Y = v => PAD.t + (H - PAD.t - PAD.b) * (1 - v / maxY);
+  let s = axes(maxY);
+  const base = xs.map(() => 0);
+  for (const l of layers) {
+    const top = base.map((b, i) => b + (l.values[i] || 0));
+    let d = 'M' + xs.map((_, i) => `${X(i).toFixed(1)} ${Y(top[i]).toFixed(1)}`).join('L');
+    d += 'L' + xs.map((_, i) => `${X(n - 1 - i).toFixed(1)} ${Y(base[n - 1 - i]).toFixed(1)}`).join('L') + 'Z';
+    s += `<path d="${d}" fill="${l.color}" fill-opacity="0.88" stroke="${css('--panel')}" stroke-width="0.6"><title>${esc(l.name)}</title></path>`;
+    top.forEach((v, i) => base[i] = v);
+  }
+  const step = Math.max(1, Math.ceil(n / 10));
+  xs.forEach((x, i) => { if ((i % step === 0 && n - 1 - i >= step * 0.6) || i === n - 1) s += `<text x="${X(i)}" y="${H - PAD.b + 16}" text-anchor="middle" font-size="11" fill="${css('--muted')}">${esc(xfmt(x))}</text>`; });
+  return svgWrap(s, title);
+}
+const legend = items => `<div class="legend">${items.map(([n, c, box]) => `<span><i class="${box ? 'box' : ''}" style="background:${c}"></i>${esc(n)}</span>`).join('')}</div>`;
+function chartCard(id, title, svg, leg, note) {
+  return `<div class="card chart" id="${id}"><h2><span>${esc(title)}</span><span class="tools noprint"><button class="btn" data-copy="${id}">Copy image</button><button class="btn" data-png="${id}">PNG</button><button class="btn" data-svg="${id}">SVG</button></span></h2>${svg}${leg || ''}${note ? `<div class="muted small">${note}</div>` : ''}</div>`;
+}
+async function svgToPng(svgEl, scale = 2) {
+  const vb = svgEl.viewBox.baseVal, w = vb.width * scale, h = vb.height * scale;
+  const src = new XMLSerializer().serializeToString(svgEl);
+  const img = new Image();
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(src);
+  await img.decode();
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  c.getContext('2d').drawImage(img, 0, 0, w, h);
+  return await new Promise(r => c.toBlob(r, 'image/png'));
+}
+function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+document.addEventListener('click', async ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  const id = b.dataset.copy || b.dataset.png || b.dataset.svg; if (!id) return;
+  const svg = document.querySelector(`#${id} svg`); if (!svg) return;
+  const name = `${(DATA.settings.project || 'agile').replace(/\W+/g, '-')}-${id}-${fmtISO(M ? M.asOf : serialOf(new Date()))}`;
+  try {
+    if (b.dataset.svg) { download(new Blob([new XMLSerializer().serializeToString(svg)], { type: 'image/svg+xml' }), name + '.svg'); return; }
+    const png = await svgToPng(svg);
+    if (b.dataset.png) { download(png, name + '.png'); return; }
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': png })]);
+    toast('Chart copied: paste it into Outlook, Teams or PowerPoint.');
+  } catch (e) { toast('Copy is blocked here; use PNG to save the image instead.'); }
+});
+
+// ------------------------------------------------------------------ views
+const VIEWS = [['overview', 'Overview'], ['burndown', 'Burndown'], ['velocity', 'Velocity'], ['flow', 'Flow'], ['teams', 'Teams'], ['people', 'People'], ['epics', 'Epics'], ['quad', 'Quad'], ['standup', 'Stand-up'], ['load', 'Load data']];
+let current = 'overview';
+const UI = { bdTeam: '', bdSprint: null, vTeam: '', fTeam: '', fSprints: 6 };
+function tabs() {
+  $('#tabs').innerHTML = VIEWS.map(([k, n]) => `<button role="tab" aria-selected="${k === current}" data-go="${k}">${n}</button>`).join('');
+}
+function go(k) { current = k; for (const [v] of VIEWS) $('#v-' + v).hidden = v !== k; tabs(); render(); try { localStorage.setItem('agile-dash-tab', k); } catch (e) {} }
+document.addEventListener('click', ev => { const b = ev.target.closest('[data-go]'); if (b) go(b.dataset.go); });
+const teamSelect = (id, val) => `<label>Team <select id="${id}"><option value="">All teams</option>${(M ? M.teamNames : []).map(t => `<option ${t === val ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label>`;
+const needData = () => `<div class="card empty">No data yet. <button class="btn primary" onclick="document.getElementById('fileIn').click()">Open workbook…</button> or <button class="btn" data-go="load">paste tables</button>.</div>`;
+const pill = s => `<span class="pill ${esc(String(s).replace(/\s.*/, ''))}">${esc(s)}</span>`;
+
+function render() {
+  const v = $('#v-' + current);
+  if (current === 'load') { v.innerHTML = viewLoad(); bindLoad(); return; }
+  if (current === 'standup') { v.innerHTML = viewStandup(); bindStandup(); return; }
+  if (!M || !M.list.length) { v.innerHTML = needData(); return; }
+  v.innerHTML = ({ overview: viewOverview, burndown: viewBurndown, velocity: viewVelocity, flow: viewFlow, teams: viewTeams, people: viewPeople, epics: viewEpics, quad: viewQuad })[current]();
+  const bind = (id, k) => { const el = $('#' + id); if (el) el.onchange = () => { UI[k] = el.value === '' ? (k === 'bdSprint' ? null : '') : (k === 'bdSprint' || k === 'fSprints' ? +el.value : el.value); render(); }; };
+  bind('bdTeam', 'bdTeam'); bind('bdSprint', 'bdSprint'); bind('vTeam', 'vTeam'); bind('fTeam', 'fTeam'); bind('fSprints', 'fSprints');
+}
+function tile(k, v, d) { return `<div class="tile"><div class="k">${esc(k)}</div><div class="v">${v}</div><div class="d">${d || ''}</div></div>`; }
+function viewOverview() {
+  const k = M.k, U = M.S.unit || 'SP';
+  const bd = M.burndown(M.cur, '');
+  const red = M.health.filter(h => h.l !== 'OK');
+  return `<div class="tiles">
+    ${tile('Sprint', M.cur, `day ${M.day} of ${M.workdays} · ${fmtDay(M.sStart(M.cur))} – ${fmtDay(M.sEnd(M.cur))}`)}
+    ${tile('Sprint progress', pct(k.progress), `${num(k.donePts)} of ${num(k.committed)} ${U} done`)}
+    ${tile('Blocked', k.blocked, 'tasks waiting on someone outside the team')}
+    ${tile('On-time delivery', pct(k.ontime), 'done this sprint, never carried')}
+    ${tile('Predictability', pct(k.predict), M.cur > 1 ? `last sprint (${M.cur - 1})` : 'after the first sprint')}
+    ${tile('Velocity', num(k.velocity), `${U} per sprint, last 3`)}
+  </div>
+  <div class="grid2">
+    ${chartCard('ov-burn', `Burndown · sprint ${M.cur}`, lineChart({ xs: bd.map(r => r.d), xfmt: fmtShort, title: 'Burndown', marker: M.asOf, series: [
+      { name: 'Ideal', values: bd.map(r => r.ideal), color: css('--series3'), dash: 1 }, { name: 'Remaining', values: bd.map(r => r.remaining), color: css('--series1') } ] }),
+      legend([['Remaining', css('--series1')], ['Ideal', css('--series3')]]))}
+    <div class="card"><h2>Needs action <span class="muted small">${red.length ? red.length + ' of ' + M.health.length + ' checks' : 'all checks OK'}</span></h2>
+      <table><tbody>${(red.length ? red : M.health.slice(0, 5)).map(h => `<tr><td>${pill(h.l)}</td><td><b>${esc(h.m)}</b><div class="muted small">${esc(h.why)}</div></td><td class="n">${esc(h.v)}</td></tr>`).join('')}</tbody></table>
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px"><h2>Health <span class="muted small">every metric against its threshold (Start sheet)</span></h2><div class="scroll"><table>
+    <thead><tr><th>Level</th><th>Metric</th><th class="n">Value</th><th>Detail</th><th>Action</th></tr></thead>
+    <tbody>${M.health.map(h => `<tr><td>${pill(h.l)}</td><td>${esc(h.m)}</td><td class="n">${esc(h.v)}</td><td class="small">${esc(h.why)}</td><td class="muted small">${esc(h.a)}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+function viewBurndown() {
+  const n = UI.bdSprint || M.cur, team = UI.bdTeam, bd = M.burndown(n, team);
+  const sprints = []; for (let s = Math.max(1, M.cur - 11); s <= M.cur; s++) sprints.push(s);
+  const c = M.committed(n, team), d = M.done(n, team);
+  return `<div class="controls">${teamSelect('bdTeam', team)}<label>Sprint <select id="bdSprint">${sprints.reverse().map(s => `<option ${s === n ? 'selected' : ''}>${s}</option>`).join('')}</select></label>
+    <span class="muted">${fmtDay(M.sStart(n))} – ${fmtDay(M.sEnd(n))} · committed ${num(c)} · done ${num(d)} · ${pct(c ? d / c : null)}</span></div>
+  ${chartCard('burndown', `Burndown · sprint ${n}${team ? ' · ' + team : ''}`, lineChart({ xs: bd.map(r => r.d), xfmt: fmtShort, title: 'Burndown', marker: n === M.cur ? M.asOf : null, series: [
+      { name: 'Ideal', values: bd.map(r => r.ideal), color: css('--series3'), dash: 1 }, { name: 'Scope', values: bd.map(r => r.scope), color: css('--series2'), dash: 1 },
+      { name: 'Remaining', values: bd.map(r => r.remaining), color: css('--series1') } ] }),
+    legend([['Remaining', css('--series1')], ['Scope (committed so far)', css('--series2')], ['Ideal', css('--series3')]]),
+    'Remaining = committed so far − done, punted, dropped or passed. Scope rising mid-sprint is work added after planning.')}`;
+}
+function viewVelocity() {
+  const team = UI.vTeam, ns = []; for (let s = Math.max(1, M.cur - 11); s <= M.cur; s++) ns.push(s);
+  const rows = ns.map(n => { const c = M.committed(n, team), d = M.done(n, team), ca = M.carried(n, team), p = M.punted(n, team); return { n, c, d, ca, p, pr: c ? d / c : null, cr: c ? ca / c : null, pu: c ? p / c : null }; });
+  const v = M.velocity(team);
+  return `<div class="controls">${teamSelect('vTeam', team)}<span class="muted">3-sprint velocity <b>${num(v)}</b> ${esc(M.S.unit || 'SP')}</span></div>
+  ${chartCard('velocity', `Committed vs done${team ? ' · ' + team : ''}`, barChart({ cats: ns.map(String), title: 'Velocity', line: v ? { value: v, label: 'velocity ' + num(v) } : null, series: [
+      { name: 'Committed', values: rows.map(r => r.c), color: css('--series2') }, { name: 'Done', values: rows.map(r => r.d), color: css('--series1') } ] }),
+    legend([['Committed', css('--series2'), 1], ['Done', css('--series1'), 1], ['3-sprint velocity', css('--gold')]]), 'The last bar is the running sprint.')}
+  <div class="card" style="margin-top:14px"><div class="scroll"><table><thead><tr><th>Sprint</th><th>Starts</th><th class="n">Committed</th><th class="n">Done</th><th class="n">Carried</th><th class="n">Punted</th><th class="n">Predictability</th><th class="n">Carryover</th><th class="n">Punt rate</th></tr></thead><tbody>
+  ${rows.slice().reverse().map(r => `<tr><td>${r.n}</td><td>${fmtDay(M.sStart(r.n))}</td><td class="n">${num(r.c)}</td><td class="n">${num(r.d)}</td><td class="n">${num(r.ca)}</td><td class="n">${num(r.p)}</td>
+    <td class="n ${r.pr != null && r.pr < M.S.PredictMin && r.n < M.cur ? 'flag' : ''}">${pct(r.pr)}</td><td class="n ${r.cr != null && r.cr > M.S.CarryMax && r.n < M.cur ? 'flag' : ''}">${pct(r.cr)}</td><td class="n ${r.pu != null && r.pu > M.S.PuntMax && r.n < M.cur ? 'flag' : ''}">${pct(r.pu)}</td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function viewFlow() {
+  const team = UI.fTeam, n = UI.fSprints || 6;
+  const from = M.sStart(Math.max(1, M.cur - n + 1)), to = M.asOf;
+  const its = M.list.filter(i => !team || i.team === team);
+  const xs = [], step = Math.max(1, Math.round((to - from) / 60));
+  for (let d = from; d <= to; d += step) xs.push(d);
+  if (xs[xs.length - 1] !== to) xs.push(to);
+  const ST = ['DONE', 'WAIT', 'HOLD', 'OPEN', 'TODO'], col = { DONE: css('--s-done'), WAIT: css('--s-wait'), HOLD: css('--s-hold'), OPEN: css('--s-open'), TODO: css('--s-todo') };
+  const counts = Object.fromEntries(ST.map(s => [s, xs.map(() => 0)]));
+  xs.forEach((d, k) => { for (const it of its) { if (it.added != null && it.added > d) continue; const x = M.replay(it, d); if (counts[x.state]) counts[x.state][k] += x.pts; } });
+  const done0 = counts.DONE[0];                              // DONE counts from the window's first day, so the work-in-progress bands stay readable
+  counts.DONE = counts.DONE.map(v => v - done0);
+  return `<div class="controls">${teamSelect('fTeam', team)}<label>Sprints <select id="fSprints">${[3, 6, 9, 12].map(k => `<option ${k === n ? 'selected' : ''}>${k}</option>`).join('')}</select></label></div>
+  ${chartCard('flow', `Cumulative flow${team ? ' · ' + team : ''}`, areaChart({ xs, xfmt: fmtShort, title: 'Cumulative flow', layers: ST.map(s => ({ name: s, values: counts[s], color: col[s] })) }),
+    legend(ST.map(s => [s, col[s], 1])), 'Points in each state, day by day. A widening OPEN or WAIT band is work piling up; a flat DONE band is a stall.')}`;
+}
+function viewTeams() {
+  const T = M.S;
+  const rows = M.teams.map(t => ({ label: t.team, value: t.load == null ? 0 : t.load, color: t.load == null ? css('--s-todo') : t.load > T.LoadHigh ? css('--s-wait') : t.load < T.LoadLow ? css('--s-hold') : css('--series1'),
+                                   text: t.load == null ? 'no capacity set' : `${pct(t.load)} (${num(t.committed)}/${num(t.cap)})` }));
+  const prog = M.teams.map(t => ({ label: t.team, value: t.pctDone || 0, color: css('--s-done'), text: t.pctDone == null ? '–' : `${pct(t.pctDone)} (${num(t.done)}/${num(t.committed)})` }));
+  return `<div class="grid2">
+    ${chartCard('teams-load', 'Load (committed / capacity)', hbarChart({ title: 'Load', rows, max: Math.max(1.5, ...rows.map(r => r.value)), refs: [{ value: T.LoadLow, label: pct(T.LoadLow) }, { value: 1, label: '100%', color: css('--series3') }, { value: T.LoadHigh, label: pct(T.LoadHigh) }] }))}
+    ${chartCard('teams-progress', `Progress · sprint ${M.cur}`, hbarChart({ title: 'Progress', rows: prog, max: 1, refs: M.day >= 8 ? [{ value: T.Day8Pct, label: pct(T.Day8Pct) + ' by day 8' }] : [] }))}
+  </div>
+  <div class="card" style="margin-top:14px"><div class="scroll"><table><thead><tr><th>Team</th><th class="n">Capacity</th><th class="n">Committed</th><th class="n">Done</th><th class="n">Remaining</th><th class="n">Load</th><th class="n">Blocked</th><th class="n">Unassigned</th><th class="n">Velocity</th><th class="n">Backlog</th><th class="n">Sprints of backlog</th></tr></thead><tbody>
+  ${M.teams.map(t => `<tr><td><b>${esc(t.team)}</b></td><td class="n">${num(t.cap)}</td><td class="n">${num(t.committed)}</td><td class="n">${num(t.done)}</td><td class="n">${num(t.remaining)}</td>
+    <td class="n ${t.load != null && (t.load > T.LoadHigh || t.load < T.LoadLow) ? 'flag' : ''}">${pct(t.load)}</td><td class="n ${t.blocked ? 'flag' : ''}">${t.blocked}</td><td class="n ${t.unassigned ? 'flag' : ''}">${t.unassigned}</td>
+    <td class="n">${num(t.velocity)}</td><td class="n">${num(t.backlog)}</td><td class="n">${num(t.sprintsOfBacklog)}</td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function viewPeople() {
+  const ppl = M.people.filter(p => p.inSprint || p.open || p.blocked).sort((a, b) => a.team.localeCompare(b.team) || b.inSprint - a.inSprint);
+  const rows = ppl.slice(0, 40).map(p => ({ label: p.name, value: p.inSprint, color: p.share != null && p.share > M.S.BusMax ? css('--s-hold') : css('--series1'), text: `${num(p.inSprint)} (${num(p.done)} done)${p.blocked ? ' · ' + p.blocked + ' blocked' : ''}` }));
+  return `${rows.length ? chartCard('people', `Points in sprint ${M.cur}, by person`, hbarChart({ title: 'People', rows }), legend([['in sprint', css('--series1'), 1], [`over ${pct(M.S.BusMax)} of the team (bus factor)`, css('--s-hold'), 1]]), ppl.length > 40 ? `The first 40 of ${ppl.length}; the table has everyone.` : '') : ''}
+  <div class="card" style="margin-top:14px"><div class="scroll"><table><thead><tr><th>Name</th><th>Team</th><th class="n">In sprint</th><th class="n">Open</th><th class="n">Done</th><th class="n">Blocked</th><th class="n">Team share</th><th>Tasks</th></tr></thead><tbody>
+  ${M.people.map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.team)}</td><td class="n">${num(p.inSprint)}</td><td class="n">${p.open}</td><td class="n">${num(p.done)}</td><td class="n ${p.blocked ? 'flag' : ''}">${p.blocked}</td>
+    <td class="n ${p.share != null && p.share > M.S.BusMax ? 'flag' : ''}">${pct(p.share)}</td><td class="small">${M.inSprint.filter(i => i.owner === p.name).map(i => `${esc(i.id)} ${pill(i.state)}`).join(' ')}</td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function viewEpics() {
+  const es = M.epics.slice().sort((a, b) => (a.due || 9e9) - (b.due || 9e9));
+  return `<div class="card"><div class="scroll"><table><thead><tr><th>Epic</th><th>Tome</th><th>Team</th><th style="min-width:140px">Done</th><th class="n">Points</th><th class="n">Open</th><th class="n">Blocked</th><th>Target</th><th>ETA</th><th>Status</th></tr></thead><tbody>
+  ${es.map(e => `<tr><td><b>${esc(e.epic)}</b></td><td class="small">${esc(e.tome)}</td><td>${esc(e.team)}</td><td><div class="bar-cell" title="${pct(e.pct)}"><span style="width:${Math.round((e.pct || 0) * 100)}%"></span></div><span class="small muted">${pct(e.pct)}</span></td>
+    <td class="n">${num(e.points)}</td><td class="n">${e.open}</td><td class="n ${e.blocked ? 'flag' : ''}">${e.blocked}</td><td>${fmtDay(e.target)}</td><td>${fmtDay(e.eta)}</td><td>${e.status ? pill(e.status === 'AT RISK' ? 'RISK' : e.status).replace('>RISK<', '>AT RISK<') : ''}</td></tr>`).join('')}
+  </tbody></table></div><div class="muted small">ETA = remaining points ÷ the team's 3-sprint velocity. Targets come from the Epics sheet.</div></div>`;
+}
+function viewQuad() {
+  const tp = M.inSprint.slice().sort((a, b) => ((a.prio == null ? 9 : a.prio) - (b.prio == null ? 9 : b.prio)) || ((a.state === 'DONE') - (b.state === 'DONE')));
+  const watch = [...M.inSprint.filter(i => i.state === 'WAIT').sort((a, b) => b.daysBlocked - a.daysBlocked), ...M.inSprint.filter(i => i.state === 'HOLD'), ...M.inSprint.filter(i => !i.owner && i.state !== 'DONE' && i.state !== 'WAIT' && i.state !== 'HOLD')];
+  const ms = M.epics.filter(e => e.due != null && e.status !== 'DONE' && e.due <= M.asOf + 90).sort((a, b) => a.due - b.due);
+  const acc = M.list.filter(i => i.state === 'DONE' && i.doneOn > M.asOf - 7).sort((a, b) => b.doneOn - a.doneOn);
+  const list = (rows, cols, max = 14) => rows.length ? `<table><tbody>${rows.slice(0, max).map(r => `<tr>${cols.map(c => `<td>${c(r)}</td>`).join('')}</tr>`).join('')}</tbody></table>${rows.length > max ? `<div class="muted small">and ${rows.length - max} more</div>` : ''}` : '<div class="muted">none</div>';
+  const horizon = e => { const d = e.due - M.asOf; return d < 0 ? 'past' : d <= 30 ? '30' : d <= 60 ? '60' : '90'; };
+  return `<div class="tiles">${tile('Sprint progress', pct(M.k.progress), `sprint ${M.cur}, day ${M.day} of ${M.workdays}`)}${tile('On-time delivery', pct(M.k.ontime), 'done, never carried over')}${tile('Blocked', M.k.blocked, 'in this sprint')}${tile('Accomplished', acc.length, 'tasks done in the last 7 days')}</div>
+  <div class="quad">
+    <div class="card"><h2>Technical priorities</h2>${list(tp, [i => `<b>${esc(i.id)}</b>`, i => pill(i.state), i => esc(i.title), i => `<span class="muted">${esc(i.owner)}</span>`])}</div>
+    <div class="card"><h2>Watch items</h2>${list(watch, [i => `<b>${esc(i.id)}</b>`, i => pill(i.state === 'OPEN' ? 'unassigned' : i.state), i => esc(i.state === 'WAIT' ? i.blocker : i.state === 'HOLD' ? i.hold : i.title), i => i.daysBlocked != null ? `${i.daysBlocked}d` : ''])}</div>
+    <div class="card ms"><h2>30 / 60 / 90 milestones</h2>${list(ms, [e => `<b>${horizon(e)}</b>`, e => esc(e.epic), e => fmtDay(e.due), e => `${pct(e.pct)} ${e.status === 'LATE' || e.status === 'AT RISK' ? pill(e.status === 'LATE' ? 'LATE' : 'RISK').replace('>RISK<', '>AT RISK<') : ''}`])}</div>
+    <div class="card ms"><h2>Accomplishments</h2>${list(acc, [i => `<b>${esc(i.id)}</b>`, i => esc(i.title), i => `<span class="muted">${esc(i.owner)}</span>`, i => fmtShort(i.doneOn)])}</div>
+  </div>`;
+}
+function viewStandup() {
+  const date = M ? (DATA.standupDate || DATA.settings.standupDate || M.asOf) : serialOf(new Date());
+  let out = `<div class="card"><h2>Paste the Teams meeting chat</h2>
+    <div class="muted small">In the meeting chat: Ctrl+A, Ctrl+C, then paste below. Names come from the Roster; Y: / T: / B: lines under each name (or all three on one line). Nothing is sent anywhere.</div>
+    <textarea id="chatIn" placeholder="[8:31 AM] Ann Lee&#10;Y: finished C-11&#10;T: C-12&#10;B: none">${esc(DATA.chat || '')}</textarea>
+    <div class="controls" style="margin-top:8px"><label>Date <input type="date" id="chatDate" value="${fmtISO(date)}"></label><button class="btn primary" id="lintBtn">Lint</button><button class="btn" id="chatClear">Clear</button></div></div>`;
+  if (!M || !M.list.length) return out + needData();
+  const L = lintChat(DATA.chat, M, date);
+  if (!L.spoken) return out;
+  const replies = L.rows.filter(r => r.reply).map(r => r.reply);
+  const tsv = L.suggest.map(s => [fmtISO(s.date), s.id, s.verb, s.arg, s.note].join('\t')).join('\n');
+  const silent = L.rows.filter(r => r.flags.includes('silent')).length, ok = L.rows.filter(r => !r.flags.length).length;
+  out += `<div class="tiles" style="margin-top:14px">${tile('Answered', L.rows.length - silent, `of ${L.rows.length}`)}${tile('Clean', ok, 'nothing to fix')}${tile('Silent', silent, 'a 1:1 message')}${tile('Suggested Log rows', L.suggest.length, 'check, then paste')}</div>
+  <div class="grid2">
+    <div class="card"><h2>Replies to paste back <span class="tools"><button class="btn" id="copyReplies">Copy</button></span></h2>${replies.length ? `<pre class="small" style="white-space:pre-wrap;margin:0">${esc(replies.join('\n'))}</pre>` : '<div class="muted">nothing to ask</div>'}</div>
+    <div class="card"><h2>Suggested Log rows <span class="tools"><button class="btn" id="copyRows">Copy for Excel</button></span></h2>
+      <div class="muted small">Never applied for you. Copy, click the first empty Date cell under the Log table, paste.</div>
+      ${L.suggest.length ? `<table><thead><tr><th>Date</th><th>ID</th><th>Verb</th><th>Note</th></tr></thead><tbody>${L.suggest.map(s => `<tr><td>${fmtISO(s.date)}</td><td><b>${esc(s.id)}</b></td><td>${esc(s.verb)}</td><td class="small">${esc(s.note)}</td></tr>`).join('')}</tbody></table>` : '<div class="muted">none</div>'}</div>
+  </div>
+  <div class="card" style="margin-top:14px"><div class="scroll"><table><thead><tr><th>Name</th><th>Team</th><th>Y</th><th>T</th><th>B</th><th>Flags</th></tr></thead><tbody>
+  ${L.rows.map(r => `<tr><td>${esc(r.name)}</td><td>${esc(r.team)}</td><td class="small">${esc(r.Y)}</td><td class="small">${esc(r.T)}</td><td class="small">${esc(r.B)}</td><td class="small">${r.flags.map(f => `<div class="${/^(silent|blocker)/.test(f) ? 'flag' : ''}">${esc(f)}</div>`).join('')}</td></tr>`).join('')}
+  </tbody></table></div></div>`;
+  viewStandup.tsv = tsv; viewStandup.replies = replies.join('\n');
+  return out;
+}
+async function copyText(t, msg) { try { await navigator.clipboard.writeText(t); toast(msg); } catch (e) { const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); toast(msg); } }
+function bindStandup() {
+  const lint = () => { DATA.chat = $('#chatIn').value; DATA.standupDate = parseDateCell($('#chatDate').value); render(); };
+  $('#lintBtn').onclick = lint;
+  $('#chatIn').addEventListener('paste', () => setTimeout(lint, 0));
+  $('#chatClear').onclick = () => { DATA.chat = ''; render(); };
+  const r = $('#copyReplies'); if (r) r.onclick = () => copyText(viewStandup.replies, 'Replies copied: paste them into the meeting chat.');
+  const c = $('#copyRows'); if (c) c.onclick = () => copyText(viewStandup.tsv, 'Rows copied: paste under the Log table in Excel.');
+}
+function viewLoad() {
+  const S = DATA.settings;
+  return `<div class="grid2">
+    <div class="card"><h2>Open the workbook</h2><div class="drop" id="drop">Drop <b>agile.xlsx</b> here, or <button class="btn primary" onclick="document.getElementById('fileIn').click()">choose the file…</button>
+      <div class="small" style="margin-top:8px">It is read in this page only; nothing is uploaded. Save the workbook in Excel first so the newest rows are in the file.</div></div></div>
+    <div class="card"><h2>Settings</h2><div class="controls"><label>Project <input type="text" id="sProject" value="${esc(S.project || '')}" size="14"></label></div>
+      <div class="controls"><label>Sprint 1 starts <input type="date" id="sStart" value="${S.sprint1 ? fmtISO(S.sprint1) : ''}"></label><label>Sprint days <input type="number" id="sDays" value="${S.sprintDays}" min="5" max="35" style="width:64px"></label></div>
+      <div class="controls"><label>As of <input type="date" id="sAsOf" value="${S.asOf ? fmtISO(S.asOf) : ''}"></label><span class="muted small">blank = today</span><button class="btn" id="sApply">Apply</button></div>
+      <div class="muted small">Read from the Start sheet when you open the workbook; change them here for pasted data.</div></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h2>…or paste tables from Excel</h2>
+    <div class="muted small">In Excel click a table, Ctrl+A (twice selects the whole table with its header), Ctrl+C; paste below and press Add. Items, Log, Teams, Roster and Epics are recognised by their headers. Paste each one you have.</div>
+    <textarea id="tsvIn" placeholder="ID&#9;Title&#9;Tome&#9;Epic&#9;Team&#9;Owner&#9;Points&#9;Prio&#9;Added&#10;C-11&#9;Build market presence&#9;..."></textarea>
+    <div class="controls" style="margin-top:8px"><button class="btn primary" id="tsvAdd">Add</button><button class="btn" id="tsvReset">Start over</button>
+      <span class="muted small">Now: ${DATA.items.length} items · ${DATA.log.length} log rows · ${DATA.teams.length} teams · ${DATA.roster.length} people · ${DATA.epics.length} epics</span></div></div>`;
+}
+function bindLoad() {
+  const drop = $('#drop');
+  drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
+  drop.ondragleave = () => drop.classList.remove('over');
+  drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); if (e.dataTransfer.files[0]) openFile(e.dataTransfer.files[0]); };
+  $('#sApply').onclick = () => { const S = DATA.settings; S.project = $('#sProject').value; S.sprint1 = parseDateCell($('#sStart').value); S.sprintDays = +$('#sDays').value || 14; S.asOf = parseDateCell($('#sAsOf').value); refresh(); toast('Settings applied.'); };
+  $('#tsvAdd').onclick = () => {
+    const rows = parseTSV($('#tsvIn').value).filter(r => r.some(c => c !== ''));
+    if (!rows.length) return toast('Nothing to add.');
+    const kind = detectTable(rows[0]);
+    if (!kind) return toast('Header not recognised: paste with the header row (ID, Title… or Date, ID, Verb…).');
+    const key = { items: 'ID', log: 'ID', teams: 'Team', roster: 'Name', epics: 'Epic' }[kind];
+    DATA[kind] = rowsToObjects(rows, TABLES[kind], key);
+    refresh(); toast(`${kind}: ${DATA[kind].length} rows.`); go('load');
+  };
+  $('#tsvReset').onclick = () => { DATA = { ...DATA, items: [], log: [], teams: [], roster: [], epics: [], chat: '' }; refresh(); go('load'); };
+}
+
+// ------------------------------------------------------------------ status for an Outlook mail (HTML + plain text on the clipboard)
+$('#mailBtn').onclick = async () => {
+  if (!M || !M.list.length) return toast('Open the workbook first.');
+  const k = M.k, U = M.S.unit || 'SP', red = M.health.filter(h => h.l !== 'OK');
+  const head = `${M.S.project ? M.S.project + ' — ' : ''}Sprint ${M.cur}, day ${M.day} of ${M.workdays} (${fmtDay(M.asOf)})`;
+  const lines = [head, '', `Progress ${pct(k.progress)} (${num(k.donePts)} of ${num(k.committed)} ${U}) · blocked ${k.blocked} · on-time ${pct(k.ontime)} · velocity ${num(k.velocity)}`, '',
+    red.length ? 'Needs action:' : 'All health checks OK.', ...red.map(h => `- [${h.l}] ${h.m}: ${h.v}${h.why ? ' (' + h.why + ')' : ''} — ${h.a}`), '', 'Teams:',
+    ...M.teams.map(t => `- ${t.team}: ${pct(t.pctDone)} done, load ${pct(t.load)}${t.blocked ? ', ' + t.blocked + ' blocked' : ''}`)];
+  const td = 'style="padding:3px 8px;border-bottom:1px solid #ddd;font:10pt Calibri,sans-serif"', th = 'style="padding:3px 8px;text-align:left;background:#27235d;color:#fff;font:bold 10pt Calibri,sans-serif"';
+  const lv = l => ({ RED: '#f8d7d8', AMBER: '#ffeb9c', OK: '#d9f2d9' }[l]);
+  const html = `<div style="font:11pt Calibri,sans-serif"><p style="font-size:13pt;color:#27235d"><b>${esc(head)}</b></p>
+    <p>Progress <b>${pct(k.progress)}</b> (${num(k.donePts)} of ${num(k.committed)} ${esc(U)}) · blocked <b>${k.blocked}</b> · on-time <b>${pct(k.ontime)}</b> · velocity <b>${num(k.velocity)}</b></p>
+    <table style="border-collapse:collapse"><tr><th ${th}>Level</th><th ${th}>Metric</th><th ${th}>Value</th><th ${th}>Detail</th><th ${th}>Action</th></tr>
+    ${(red.length ? red : M.health).map(h => `<tr><td ${td.replace('"', `"background:${lv(h.l)};`)}>${h.l}</td><td ${td}>${esc(h.m)}</td><td ${td}>${esc(h.v)}</td><td ${td}>${esc(h.why)}</td><td ${td}>${esc(h.a)}</td></tr>`).join('')}</table>
+    <p></p><table style="border-collapse:collapse"><tr><th ${th}>Team</th><th ${th}>Done</th><th ${th}>Load</th><th ${th}>Blocked</th><th ${th}>Velocity</th></tr>
+    ${M.teams.map(t => `<tr><td ${td}>${esc(t.team)}</td><td ${td}>${pct(t.pctDone)}</td><td ${td}>${pct(t.load)}</td><td ${td}>${t.blocked}</td><td ${td}>${num(t.velocity)}</td></tr>`).join('')}</table></div>`;
+  try { await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([html], { type: 'text/html' }), 'text/plain': new Blob([lines.join('\n')], { type: 'text/plain' }) })]); toast('Status copied: paste it into a new Outlook mail.'); }
+  catch (e) { copyText(lines.join('\n'), 'Status copied as text.'); }
+};
+
+// ------------------------------------------------------------------ loading
+async function openFile(f) {
+  try {
+    const sheets = await readXlsx(await f.arrayBuffer());
+    if (!sheets.Items) throw new Error('no Items sheet: is this the agile workbook?');
+    DATA = fromWorkbook(sheets);
+    DATA.file = f.name;
+    refresh();
+    toast(`${f.name}: ${DATA.items.length} items, ${DATA.log.length} log rows.`);
+    if (current === 'load') go('overview'); else render();
+  } catch (e) { toast('Could not read the file: ' + e.message); console.error(e); }
+}
+function refresh() {
+  M = build(DATA);
+  $('#subtitle').textContent = M.list.length ? `${DATA.settings.project ? DATA.settings.project + ' · ' : ''}${DATA.file ? DATA.file + ' · ' : ''}sprint ${M.cur} · day ${M.day} of ${M.workdays} · as of ${fmtDay(M.asOf)}` : 'Open the workbook to begin.';
+  render();
+}
+$('#openBtn').onclick = () => $('#fileIn').click();
+$('#fileIn').onchange = e => { if (e.target.files[0]) openFile(e.target.files[0]); e.target.value = ''; };
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => { e.preventDefault(); if (e.dataTransfer.files[0]) openFile(e.dataTransfer.files[0]); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => render());
+
+try { const t = localStorage.getItem('agile-dash-tab'); if (t && VIEWS.some(v => v[0] === t)) current = t; } catch (e) {}
+M = build(DATA);
+go(current);
+// a test hook: ?load=FILE.xlsx&tab=NAME (works from file:// only when the browser allows it, e.g. a headless check)
+(async () => {
+  const q = new URLSearchParams(location.search);
+  if (q.get('load')) { try { const r = await fetch(q.get('load')); await openFile(new File([await r.arrayBuffer()], q.get('load'))); } catch (e) { console.error(e); } }
+  if (q.get('tab')) go(q.get('tab'));
+  if (q.get('chat')) { try { DATA.chat = await (await fetch(q.get('chat'))).text(); render(); } catch (e) { console.error(e); } }
+  document.body.dataset.ready = '1';
+})();
+</script>
+</body>
+</html>

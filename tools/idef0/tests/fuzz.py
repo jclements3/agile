@@ -2,10 +2,14 @@
 """fuzz.py N -- mutate dronecorp.md N ways; compare python vs perl on
 lint, links, fmt --number, html. Mutations: char typos in names and
 link paths, dropped lines, indentation shifts, suffix swaps, duplicated
-lines, trailing comments/docs."""
+lines, trailing comments/docs.
+
+html is a known divergence (the Perl port is ahead: logo, zoom, captions; see
+parity.sh): an html mutant whose stderr and exit status match counts as a
+divergence, not a failure, as parity.sh counts it."""
 import random, subprocess, sys
 src = open("examples/dronecorp/dronecorp.md", encoding="utf-8").read().splitlines()
-N = int(sys.argv[1]); fails = 0
+N = int(sys.argv[1]); fails = 0; div = 0
 alpha = "abcdefghijklmnopqrstuvwxyz &-|<>#é"
 def mutate(lines, rng):
     L = list(lines)
@@ -30,6 +34,9 @@ for seed in range(N):
         a = subprocess.run(["python3", "./reference/idef0"] + cmd + ["/tmp/m.md"], capture_output=True)
         b = subprocess.run(["perl", "./idef0.pl"] + cmd + ["/tmp/m.md"], capture_output=True)
         if (a.stdout, a.stderr, a.returncode) != (b.stdout, b.stderr, b.returncode):
+            if cmd == ["html"] and (a.stderr, a.returncode) == (b.stderr, b.returncode):
+                div += 1; continue
             fails += 1; print("FAIL seed", seed, cmd)
             import shutil; shutil.copy("/tmp/m.md", f"/tmp/fail{seed}.md"); break
-print(f"fuzz: {N} mutants x 4 commands, {fails} failing mutants")
+print(f"fuzz: {N} mutants x 4 commands, {div} known html divergences, {fails} failing mutants")
+sys.exit(1 if fails else 0)

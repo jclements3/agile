@@ -510,7 +510,8 @@ sub _files {                                   # every file under $dir, relative
         (my $r = $_) =~ s{^\Q$base\E/?}{};
         push @f, $r;
     } }, $base);
-    return sort @f;
+    my @sorted = sort @f;                      # sort in list context: return sort LIST is undefined in scalar context
+    return @sorted;
 }
 sub _globs_hit {                               # any of @paths matches any of @globs (a file under a matching dir counts)
     my ($globs, $paths, $vars) = @_;

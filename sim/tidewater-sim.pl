@@ -868,7 +868,8 @@ $ACT{vendor} = sub {                                                    # the pr
     my (undef, $merging) = $f->git_rc('rev-parse', '--verify', '-q', 'MERGE_HEAD');
     $f->git('commit', '-q', '--no-edit') if !$merging;
     $f->commit("Regenerate docs; outline allowance $nv after drop $v") if $merging || 1;
-    my ($dl) = run_q($f->dir, $^X, "$ROOT/bin/xmi2sysml.pl", '--delta', (glob($f->dir . '/imports/v1.' . ($d - 2) . '/tidewater.xmi'))[0] // drop_dir($d) . '/tidewater.xmi', drop_dir($d) . '/tidewater.xmi') if $d > 1;
+    my $dl;                                    # declared apart from the condition (my ... if is undefined)
+    ($dl) = run_q($f->dir, $^X, "$ROOT/bin/xmi2sysml.pl", '--delta', (glob($f->dir . '/imports/v1.' . ($d - 2) . '/tidewater.xmi'))[0] // drop_dir($d) . '/tidewater.xmi', drop_dir($d) . '/tidewater.xmi') if $d > 1;
     $tk->{delta} = $dl;
     ev($n, "drop$d-delta.txt", $dl // "first drop\n");
     my $mr = open_mr($n, $f, title => "Prime drop $v" . ($a{doors} ? ' with the DOORS modules' : ''), why => "The prime's drop $v, converted on vendor/prime and merged here.",

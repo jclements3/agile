@@ -971,8 +971,15 @@ use Windchill;
     # ---- the backlog workbook: the committed sample is what sim/tidewater-backlog.pl writes
     my $out = qx("$^X" "$ROOT/sim/tidewater-backlog.pl" --out "$T" 2>&1);
     like('backlog sample: generated', $out, qr/^3 Tome, 16 Epic, 42 Story, 77 Task$/m);
+    # the .xlsx is compared part by part: the deflate bytes differ between zlib builds (Git for Windows' Perl vs a
+    # Linux Perl), the parts do not
+    my $parts = sub { require IO::Uncompress::Unzip; my $z = IO::Uncompress::Unzip->new($_[0]) or return '';
+                      my %p; for (my $s = 1; $s > 0; $s = $z->nextStream) { my $n = $z->getHeaderInfo->{Name}; local $/; $p{$n} = <$z> }
+                      join "\0", map { "$_\0$p{$_}" } sort keys %p };
     for my $x (qw(xlsx csv)) {
-        check("backlog sample: the committed .$x is current (perl sim/tidewater-backlog.pl)", slurp("$T/se-backlog-tidewater.$x") eq slurp("$ROOT/tools/gitlab/samples/se-backlog-tidewater.$x") ? 1 : 0, 1);
+        my ($new, $old) = ("$T/se-backlog-tidewater.$x", "$ROOT/tools/gitlab/samples/se-backlog-tidewater.$x");
+        check("backlog sample: the committed .$x is current (perl sim/tidewater-backlog.pl)",
+              ($x eq 'xlsx' ? $parts->($new) eq $parts->($old) && $parts->($new) ne '' : slurp($new) eq slurp($old)) ? 1 : 0, 1);
     }
     my $wb = Backlog::read_file("$T/se-backlog-tidewater.xlsx");
     check('backlog xlsx: sheet and header', "$wb->{sheet}: " . join(',', @{ $wb->{header} }), 'Backlog: ' . join(',', Backlog::columns()));

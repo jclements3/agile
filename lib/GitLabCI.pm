@@ -894,7 +894,7 @@ sub _sh {                                      # run $shell -e $file in $dir wit
     my $rc;
     if (chdir $dir) {
         local %ENV = %$env;
-        $rc = system($shell, '-e', $file);
+        $rc = system($shell =~ /\.pl\z/ ? ($^X, $shell) : ($shell), '-e', $file);   # a Perl shell (the PowerShell emulation) runs under this perl: no exec bit needed
         chdir $cwd;
     } else { print $out "cannot chdir to $dir: $!\n"; $rc = 1 << 8 }
     STDOUT->flush; STDERR->flush;

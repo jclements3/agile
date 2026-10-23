@@ -490,8 +490,8 @@ baseline-0 rebuilds identically (sha256=9b7c27d309be87b5fa96d49eb0aee8fcfcb04cc6
 baseline: baseline-0
 commit: 6859b5fbc63b495cf1de9dbbc34feb1e02879bfc
 kit: agile-kit 2026.10
-perl 5.34.0
-git version 2.34.1
+perl (version as installed)
+git version (version as installed)
 os: windows/amd64
 runner: mbse-win-01
 image: none (shell runner)

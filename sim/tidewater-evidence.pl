@@ -58,6 +58,7 @@ sub norm {
     $t =~ s{\bC:/Program Files/Git/usr/bin/perl\.exe\b}{perl}g;
     $t =~ s/\b\Q$host\E\b/runner/g if length $host > 2;
     $t =~ s{/home/\Q$user\E\b}{/home/user}g if length $user > 1;
+    $t =~ s/^(perl|git version) v?\d[\d.]*\S*$/$1 (version as installed)/mg;   # a baseline's toolchain inventory: versions differ by machine
     $t;
 }
 
